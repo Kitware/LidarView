@@ -65,6 +65,10 @@ private:
   //! Help variable
   bool FirstFilterIteration = true;
 
+  // Workaround to handle that multiple RequestUpdateExtent can be call
+  // The filter made the assumption that each RequestUpdateExtent is follow by a RequestData
+  bool LastCallWasRequestUpdateExtentCall = false;
+
   vtkTrailingFrame(const vtkTrailingFrame&); // not implemented
   void operator=(const vtkTrailingFrame&); // not implemented
 };
