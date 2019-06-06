@@ -30,7 +30,7 @@ class VTK_EXPORT  vtkLidarPacketInterpreter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent) {}
+  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) {}
 
   /**
    * @brief The CropModeEnum enum to select the cropping mode
@@ -76,13 +76,6 @@ public:
   virtual bool SplitFrame(bool force = false);
 
   /**
-   * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate some
-   * space. No CellArray should be created as it can be create once the frame is ready.
-   * @param numberOfPoints indicate the space to allocate @todo change the meaning
-   */
-  virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints, vtkIdType prereservedNumberOfPoints = 0) = 0;
-
-  /**
    * @brief PreProcessPacket is use to construct the frame index and get some corretion
    * or live calibration comming from the data. A warning should be raise in case the calibration
    * information does not match the data (ex: factory field, number of laser, ...)
@@ -110,18 +103,18 @@ public:
   /**
    * @brief isNewFrameReady check if a new frame is ready
    */
-  bool IsNewFrameReady() { return this->Frames.size(); }
+  virtual bool IsNewFrameReady() { return this->Frames.size(); }
 
   /**
    * @brief GetLastFrameAvailable return the last frame that have been process completely
    * @return
    */
-  vtkSmartPointer<vtkPolyData> GetLastFrameAvailable() { return this->Frames.back(); }
+  virtual vtkSmartPointer<vtkPolyData> GetLastFrameAvailable() { return this->Frames.back(); }
 
   /**
    * @brief ClearAllFramesAvailable delete all frames that have been process
    */
-  void ClearAllFramesAvailable() { this->Frames.clear(); }
+  virtual void ClearAllFramesAvailable() { this->Frames.clear(); }
 
   /**
    * @brief GetSensorInformation return information to display to the user
@@ -157,11 +150,7 @@ public:
   vtkGetMacro(CalibrationFileName, std::string)
   vtkSetMacro(CalibrationFileName, std::string)
 
-  vtkGetMacro(CalibrationReportedNumLasers, int)
-  vtkSetMacro(CalibrationReportedNumLasers, int)
-
   vtkGetMacro(IsCalibrated, bool)
-  vtkSetMacro(IsCalibrated, bool)
 
   vtkGetMacro(TimeOffset, double)
   vtkSetMacro(TimeOffset, double)
@@ -172,13 +161,11 @@ public:
   virtual void SetLaserSelection(const bool* v) { this->LaserSelection = std::vector<bool>(v, v + this->CalibrationReportedNumLasers); }
   virtual void GetLaserSelection(bool* v) { std::copy(this->LaserSelection.begin(), this->LaserSelection.end(), v);}
   virtual void SetLaserSelection(const std::vector<bool>& v) { this->LaserSelection = v; }
-  virtual std::vector<bool> GetLaserSelection() const { return this->LaserSelection; }
+  virtual std::vector<bool> GetLaserSelection() { return this->LaserSelection; }
 
   vtkGetMacro(DistanceResolutionM, double)
-  vtkSetMacro(DistanceResolutionM, double)
 
   vtkGetMacro(Frequency, double)
-  vtkSetMacro(Frequency, double)
 
   vtkGetMacro(IgnoreZeroDistances, bool)
   vtkSetMacro(IgnoreZeroDistances, bool)
@@ -205,7 +192,14 @@ public:
 
   vtkMTimeType GetMTime() override;
 
-protected:
+protected: 
+  /**
+   * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate some
+   * space. No CellArray should be created as it can be create once the frame is ready.
+   * @param numberOfPoints indicate the space to allocate @todo change the meaning
+   */
+  virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints, vtkIdType prereservedNumberOfPoints = 0) = 0;
+
   /**
    * @brief shouldBeCroppedOut Returns true if a point should be removed,
    * i.e. if it lays *outside* the cropping volume.
