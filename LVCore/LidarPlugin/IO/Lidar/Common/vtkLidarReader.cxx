@@ -83,6 +83,11 @@ int vtkLidarReader::ReadFrameInformation()
       this->NetworkTimeToDataTime = ComputeMedian(diffs);
   }
 
+  if (this->FrameCatalog.size() == 1)
+  {
+    vtkGenericWarningMacro("The reader could not parse the pcap file")
+  }
+
   return this->GetNumberOfFrames();
 }
 
@@ -379,7 +384,7 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
   vtkTable *t = this->Interpreter->GetCalibrationTable();
   calibration->ShallowCopy(t);
 
-  if (this->FrameCatalog.size() == 1) // This mean that the reader did not manage to parser the pcap file
+  if (this->FrameCatalog.size() <= 1) // This mean that the reader did not manage to parser the pcap file
   {
     return 1;
   }
