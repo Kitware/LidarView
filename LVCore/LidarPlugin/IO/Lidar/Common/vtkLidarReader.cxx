@@ -85,7 +85,7 @@ int vtkLidarReader::ReadFrameInformation()
 
   if (this->FrameCatalog.size() == 1)
   {
-    vtkGenericWarningMacro("The reader could not parse the pcap file")
+    vtkErrorMacro("The reader could not parse the pcap file")
   }
 
   return this->GetNumberOfFrames();

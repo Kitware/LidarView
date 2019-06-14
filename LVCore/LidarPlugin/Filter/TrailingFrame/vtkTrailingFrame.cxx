@@ -64,6 +64,7 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
                            << " or LidarView was not able to parse it.\n If you are in"
                            << " stream mode, it means that no data have been received throught"
                            << " ethernet or LidarView was not able to parse it");
+    this->LastTimeProcessedIndex = (LastTimeProcessedIndex+1) % (this->NumberOfTrailingFrames+1);
     return 1;
   }
 
