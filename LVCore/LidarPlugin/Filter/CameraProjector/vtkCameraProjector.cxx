@@ -19,8 +19,10 @@
 
 // LOCAL
 #include "vtkCameraProjector.h"
+#include "vtkTemporalTransforms.h"
 #include "CameraProjection.h"
 #include "vtkHelper.h"
+#include "vtkEigenTools.h"
 
 // VTK
 #include <vtkImageData.h>
@@ -32,15 +34,34 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkTransform.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 #define IMAGE_INPUT_PORT 0
 #define POINTS_INPUT_PORT 1
-#define INPUT_PORT_COUNT 2
+#define TRAJECTORY_INPUT_PORT 2
+#define INPUT_PORT_COUNT 3
 
 #define IMAGE_WITH_POINTS_OUTPUT_PORT 0
 #define POINTS_OUTPUT_PORT 1 // this clearly is the most useful output (others are cosmetic/debug)
 #define PROJECTED_POINTS_OUTPUT_PORT 2
 #define OUTPUT_PORT_COUNT 3
+
+namespace
+{
+
+std::vector<double> getTimeSteps(vtkInformation* info)
+{
+  const int steps = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  std::vector<double> timesteps = std::vector<double>(steps);
+  for (int i = 0; i < steps; ++i)
+  {
+    timesteps[i] = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i);
+  }
+  return timesteps;
+}
+
+}
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkCameraProjector)
@@ -63,6 +84,12 @@ int vtkCameraProjector::FillInputPortInformation(int port, vtkInformation *info)
   if (port == POINTS_INPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    return 1;
+  }
+  if (port == TRAJECTORY_INPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     return 1;
   }
   return 0;
@@ -90,12 +117,95 @@ int vtkCameraProjector::FillOutputPortInformation(int port, vtkInformation *info
 }
 
 //-----------------------------------------------------------------------------
+int vtkCameraProjector::RequestInformation(vtkInformation* vtkNotUsed(request),
+                       vtkInformationVector** inputVector,
+                       vtkInformationVector* outputVector)
+{
+  // Propagate the information that steps are available.
+  // We choose to propagate the timestep from the point cloud, because this is
+  // the main output of this filter.
+  vtkInformation* inPointsInfo = inputVector[POINTS_INPUT_PORT]->GetInformationObject(0);
+  const int steps = inPointsInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  std::vector<double> pointTimesteps = getTimeSteps(inPointsInfo);
+
+  double timeRange[2] = {pointTimesteps[0], pointTimesteps[pointTimesteps.size() - 1]};
+
+  // We provide the same timestamps for all outputs
+  for (int i = 0; i < OUTPUT_PORT_COUNT; i++)
+  {
+    vtkInformation* outInfo = outputVector->GetInformationObject(i);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &pointTimesteps.front(), pointTimesteps.size());
+
+    // Is this needed ? I think not
+    // indicate that this filter produces continuous timestep
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector* outputVector)
+{
+  // RequestUpdateExtent is called in the opposite direction (going backward in the pipeline), so we get the requestedTimestamp by looking at the output
+  double requestedTimestampPoints = outputVector->GetInformationObject(POINTS_OUTPUT_PORT)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  double requestedTimestampImage = outputVector->GetInformationObject(IMAGE_WITH_POINTS_OUTPUT_PORT)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  double requestedTimestampProjectedPoints = outputVector->GetInformationObject(PROJECTED_POINTS_OUTPUT_PORT)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  // I do not fully understand why these three times are differents (even
+  // though the same timesteps are copied to all outputs by RequestInformation
+  // and all outputs are all shown), so we take the maximum.
+  // This does not risk introducing a bug because we can use any image as long
+  // as there is not too many occlusions and we know its instant of capture.
+  double requestedTimestamp = std::max(requestedTimestampPoints, std::max(requestedTimestampImage, requestedTimestampProjectedPoints));
+
+  std::vector<double> imageTimesteps = getTimeSteps(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
+  int bestImageTimeId = closestElementInOrderedVector(imageTimesteps, requestedTimestamp);
+  double bestImageTime = imageTimesteps[bestImageTimeId];
+
+  vtkDebugMacro(<< "vtkCameraProjector::RequestUpdateExtent() with time: "
+                << requestedTimestamp
+                << " closest image time: " << bestImageTime);
+
+  // Position the chosen image in input of the filter, and keep track of its (pipeline) time
+  inputVector[IMAGE_INPUT_PORT]
+      ->GetInformationObject(0)
+      ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), bestImageTime);
+  this->CurrentImagePipelineTime = bestImageTime;
+
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
   // Get inputs
   vtkImageData *inImg = vtkImageData::GetData(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
   vtkPolyData *pointcloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT]->GetInformationObject(0));
+  vtkPolyData* lidarTrajectory = vtkPolyData::GetData(inputVector[TRAJECTORY_INPUT_PORT]->GetInformationObject(0));
+
+  if (this->NeedsToUpdateCachedValues)
+  {
+    this->NeedsToUpdateCachedValues = false;
+    // The lidarTrajectory is optional
+    this->Trajectory = nullptr;
+    if (lidarTrajectory != nullptr)
+    {
+      auto trajectoryTemp = vtkTemporalTransforms::CreateFromPolyData(lidarTrajectory);
+      if (trajectoryTemp == nullptr)
+      {
+        vtkWarningMacro("warning: could not read trajectory from input 1")
+                        return VTK_ERROR;
+      }
+      this->Trajectory= trajectoryTemp->CreateInterpolator();
+      this->Trajectory->SetInterpolationTypeToLinear(); // enough if freq is high TODO: expose this option
+      auto unused = vtkSmartPointer<vtkTransform>::New();
+      this->Trajectory->InterpolateTransform(0.0, unused); // trigger internal init
+    }
+  }
+
 
   // Get the output
   vtkImageData* outImg = vtkImageData::GetData(outputVector->GetInformationObject(IMAGE_WITH_POINTS_OUTPUT_PORT));
@@ -118,6 +228,7 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
 
 
   vtkDataArray* intensity = outCloud->GetPointData()->GetArray("intensity");
+  vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
 
   // Try to get RGB array, if it does not exist, create it and fill it
   vtkSmartPointer<vtkIntArray> rgbArray = vtkIntArray::SafeDownCast(outCloud->GetPointData()->GetArray(this->ColorArrayName.c_str()));
@@ -132,12 +243,32 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
 
   Eigen::VectorXd W = this->Model.GetParametersVector();
 
+  Eigen::Transform<double, 3, Eigen::Affine> poseAtCameraTime;
+  if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
+  {
+    auto poseAtCameraTimeTemp = vtkSmartPointer<vtkTransform>::New();
+    this->Trajectory->InterpolateTransform(this->PipelineTimeToLidarTime + this->CurrentImagePipelineTime, poseAtCameraTimeTemp);
+    poseAtCameraTime = ToEigenTransform(poseAtCameraTimeTemp);
+  }
+  auto poseAtPointTimeTemp = vtkSmartPointer<vtkTransform>::New(); // place this costly heap allocation outside the loop
+
   // Project the points in the image
   for (int pointIndex = 0; pointIndex < outCloud->GetNumberOfPoints(); ++pointIndex)
   {
     double* pos = outCloud->GetPoint(pointIndex);
     Eigen::Vector3d X(pos[0], pos[1], pos[2]);
     Eigen::Vector2d y;
+    if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
+    {
+      double pointTimestamp = 1e-6 * timestampArray->GetTuple1(pointIndex);
+      this->Trajectory->InterpolateTransform(pointTimestamp, poseAtPointTimeTemp);
+      Eigen::Transform<double, 3, Eigen::Affine> poseAtPointTime = ToEigenTransform(poseAtPointTimeTemp);
+
+      Eigen::Transform<double, 3, Eigen::Affine> correction = poseAtCameraTime.inverse(Eigen::Affine) * poseAtPointTime;
+
+      Eigen::Vector3d Xcorrected = correction.rotation() * X + correction.translation();
+      X = Xcorrected;
+    }
 
     if (this->Type == ProjectionType::BrownConradyPinhole)
     {
@@ -150,8 +281,8 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
 
     // y represents the pixel coordinates using opencv convention, we need to
     // go back to vtkImageData pixel convention
-    int vtkRaw = y(1);
-    int vtkCol = y(0);
+    int vtkRaw = static_cast<int>(y(1));
+    int vtkCol = static_cast<int>(y(0));
 
     if ((vtkRaw < 0) || (vtkRaw >= inImg->GetDimensions()[1]) ||
         (vtkCol < 0) || (vtkCol >= inImg->GetDimensions()[0]))
@@ -210,3 +341,12 @@ void vtkCameraProjector::SetFileName(const std::string &argfilename)
   }
   this->Modified();
 }
+
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::Modified()
+{
+  this->Superclass::Modified();
+  this->NeedsToUpdateCachedValues = true; // we do not do the update now, in case multiple Modified() are done in a row
+}
+

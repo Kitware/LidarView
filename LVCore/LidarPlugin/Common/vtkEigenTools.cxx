@@ -322,3 +322,40 @@ Eigen::VectorXd MultivariateMedian(const std::vector<Eigen::VectorXd> X, double 
   }
   return Median;
 }
+
+
+//-----------------------------------------------------------------------------
+Eigen::Matrix<double, 4, 4> ToEigen(vtkMatrix4x4* M)
+{
+  Eigen::Map<Eigen::Matrix<double, 4, 4, Eigen::RowMajor>> returned(M->GetData());
+  return returned;
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Matrix<double, 4, 4> ToEigen(vtkTransform* T)
+{
+  return ToEigen(T->GetMatrix());
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkMatrix4x4* M)
+{
+  return Eigen::Transform<double, 3, Eigen::Affine>(ToEigen(M));
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkTransform* T)
+{
+  return ToEigenTransform(T->GetMatrix());
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(const Eigen::Matrix3d& R, const Eigen::Vector3d& T)
+{
+  // source: https://stackoverflow.com/questions/25504397
+  Eigen::Matrix4d Trans; // Your Transformation Matrix
+  Trans.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
+  Trans.block<3,3>(0,0) = R;
+  Trans.block<3,1>(0,3) = T;
+  return Eigen::Transform<double, 3, Eigen::Affine>(Trans);
+}

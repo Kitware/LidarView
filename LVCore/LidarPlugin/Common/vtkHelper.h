@@ -35,4 +35,40 @@ vtkSmartPointer<T> createArray(const std::string& Name, int NumberOfComponents =
   return array;
 }
 
+// returns position of the closest element to x in v
+// if v is empty, returns -1
+template <typename T>
+int closestElementInOrderedVector(const std::vector<T>& v, T x)
+{
+  if (v.size() == 0)
+  {
+    return -1;
+  }
+
+  auto lb = std::lower_bound(v.begin(), v.end(), x);
+  int n = std::distance(v.begin(), lb);
+
+  if (n == static_cast<int>(v.size()))
+  {
+    return n - 1;
+  }
+  else if (n == 0)
+  {
+      return n;
+  }
+  else
+  {
+    // We check if (n - 1) gives a time closer than n gives.
+    // We now that  v[n - 1] < x <= v[n]
+    if (x - v[n - 1] < v[n] - x)
+    {
+      return n - 1;
+    }
+    else
+    {
+      return n;
+    }
+  }
+}
+
 #endif // VTK_HELPER_H

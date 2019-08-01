@@ -26,6 +26,24 @@
       </DataTypeDomain>
     </InputProperty>
 
+    <InputProperty
+      name="Trajectory"
+      port_index="2"
+      command="SetInputConnection"
+      null_on_empty="1">
+      <Hints>
+        <Optional />
+        <!-- No input selection dialog at instantiation -->
+      </Hints>
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Trajectory (TemporalTransforms) of the sensor that produced the point cloud.
+      </Documentation>
+    </InputProperty>
+
+
     <OutputPort name="Image With Projection" index="0" id="port0" />
     <OutputPort name="Colored Frame" index="1" id="port1" />
     <OutputPort name="Projected Frame" index="2" id="port2" />
@@ -40,6 +58,27 @@
           This property specifies the file name for camera parameters and model.
         </Documentation>
     </StringVectorProperty>
+
+    <IntVectorProperty name="UseTrajectoryToCorrectPoints"
+                       command="SetUseTrajectoryToCorrectPoints"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If a trajectory is set as input (id 2) and this is option is enabled, then the trajectory (poses) will be used to undistort the point cloud, and account for the fact that instants of captures are not the same in point cloud and image sensor.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="PipelineTimeToLidarTime"
+                       command="SetPipelineTimeToLidarTime"
+                       number_of_elements="1"
+                       default_values="0">
+      <Documentation>
+        Timeshift to apply to lidar time to get pipeline time. Used only if a trajectory is provided and if UseTrajectoryToCorrectPoints is set to true.
+      </Documentation>
+    </DoubleVectorProperty>
+
+
 
 
     </SourceProxy>

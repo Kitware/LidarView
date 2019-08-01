@@ -24,6 +24,8 @@
 
 // VTK
 #include <vtkMath.h>
+#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
 
 // STD
 #include <vector>
@@ -149,5 +151,17 @@ void EuclideanMLSSmoothing(const std::vector<Eigen::VectorXd>& X,
    * @param X The list of R^n vectors we want to compute the median
    */
 Eigen::VectorXd MultivariateMedian(const std::vector<Eigen::VectorXd> X, double epsilon = 1e-6, unsigned int maxCount = 10000);
+
+Eigen::Matrix<double, 4, 4> ToEigen(vtkMatrix4x4* M);
+
+Eigen::Matrix<double, 4, 4> ToEigen(vtkTransform* T);
+
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkMatrix4x4* M);
+
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkTransform* T);
+
+Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(const Eigen::Matrix3d& R, const Eigen::Vector3d& T);
+
+
 
 #endif // VTK_EIGEN_TOOLS_H
