@@ -59,6 +59,15 @@
         </Documentation>
     </StringVectorProperty>
 
+    <IntVectorProperty name="ProjectedPointSizeInImage"
+                       command="SetProjectedPointSizeInImage"
+                       number_of_elements="1"
+                       default_values="1">
+      <Documentation>
+        Size of the points in the projected image. If this number is odd then the point is centered around the pixel used, else it is slightly shifted (0.5,0.5) pixels.
+      </Documentation>
+    </IntVectorProperty>
+
     <IntVectorProperty name="UseTrajectoryToCorrectPoints"
                        command="SetUseTrajectoryToCorrectPoints"
                        number_of_elements="1"

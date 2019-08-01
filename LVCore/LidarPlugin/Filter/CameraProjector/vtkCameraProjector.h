@@ -39,6 +39,7 @@ public:
 
   void SetFileName(const std::string &argfilename);
 
+  vtkSetMacro(ProjectedPointSizeInImage, int);
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
   vtkSetMacro(PipelineTimeToLidarTime, double);
 
@@ -77,6 +78,8 @@ private:
   //! Name of the color array
   std::string ColorArrayName = "RGB";
 
+  //! Size of the points in image with projection
+  int ProjectedPointSizeInImage = 1;
 
   //! Should the cache be refreshed before next projection ?
   bool NeedsToUpdateCachedValues = false;

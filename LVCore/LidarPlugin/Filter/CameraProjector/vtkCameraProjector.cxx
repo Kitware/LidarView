@@ -281,16 +281,16 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
 
     // y represents the pixel coordinates using opencv convention, we need to
     // go back to vtkImageData pixel convention
-    int vtkRaw = static_cast<int>(y(1));
+    int vtkRow = static_cast<int>(y(1));
     int vtkCol = static_cast<int>(y(0));
 
-    if ((vtkRaw < 0) || (vtkRaw >= inImg->GetDimensions()[1]) ||
+    if ((vtkRow < 0) || (vtkRow >= inImg->GetDimensions()[1]) ||
         (vtkCol < 0) || (vtkCol >= inImg->GetDimensions()[0]))
     {
       continue;
     }
 
-    vtkRaw = std::min(std::max(0, vtkRaw), inImg->GetDimensions()[1] - 1);
+    vtkRow = std::min(std::max(0, vtkRow), inImg->GetDimensions()[1] - 1);
     vtkCol = std::min(std::max(0, vtkCol), inImg->GetDimensions()[0] - 1);
 
     // register the point if it is valid
@@ -309,8 +309,16 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     double rgb[3];
     for (int k = 0; k < 3; ++k)
     {
-      outImg->SetScalarComponentFromDouble(vtkCol, vtkRaw, 0, k, color(2 - k));
-      rgb[k] = inImg->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, k);
+      for (int colOffset = - (this->ProjectedPointSizeInImage / 2); colOffset < ((this->ProjectedPointSizeInImage + 1) / 2); colOffset ++)
+      {
+        for (int rowOffset = - (this->ProjectedPointSizeInImage / 2); rowOffset < ((this->ProjectedPointSizeInImage + 1) / 2); rowOffset ++)
+        {
+          int c = std::min(std::max(0, vtkCol + colOffset), inImg->GetDimensions()[0] - 1);
+          int r = std::min(std::max(0, vtkRow + rowOffset), inImg->GetDimensions()[1] - 1);
+          outImg->SetScalarComponentFromDouble(c, r, 0, k, color(2 - k));
+        }
+      }
+      rgb[k] = inImg->GetScalarComponentAsDouble(vtkCol, vtkRow, 0, k);
     }
     rgbArray->SetTuple3(pointIndex, rgb[0], rgb[1], rgb[2]);
   }
