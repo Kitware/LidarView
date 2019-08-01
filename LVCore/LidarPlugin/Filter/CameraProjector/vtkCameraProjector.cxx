@@ -33,25 +33,34 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
+#define IMAGE_INPUT_PORT 0
+#define POINTS_INPUT_PORT 1
+#define INPUT_PORT_COUNT 2
+
+#define IMAGE_WITH_POINTS_OUTPUT_PORT 0
+#define POINTS_OUTPUT_PORT 1 // this clearly is the most useful output (others are cosmetic/debug)
+#define PROJECTED_POINTS_OUTPUT_PORT 2
+#define OUTPUT_PORT_COUNT 3
+
 // Implementation of the New function
 vtkStandardNewMacro(vtkCameraProjector)
 
 //-----------------------------------------------------------------------------
 vtkCameraProjector::vtkCameraProjector()
 {
-  this->SetNumberOfInputPorts(2);
-  this->SetNumberOfOutputPorts(3);
+  this->SetNumberOfInputPorts(INPUT_PORT_COUNT);
+  this->SetNumberOfOutputPorts(OUTPUT_PORT_COUNT);
 }
 
 //-----------------------------------------------------------------------------
 int vtkCameraProjector::FillInputPortInformation(int port, vtkInformation *info)
 {
-  if (port == 0)
+  if (port == IMAGE_INPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData" );
     return 1;
   }
-  if (port == 1)
+  if (port == POINTS_INPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
     return 1;
@@ -62,19 +71,19 @@ int vtkCameraProjector::FillInputPortInformation(int port, vtkInformation *info)
 //-----------------------------------------------------------------------------
 int vtkCameraProjector::FillOutputPortInformation(int port, vtkInformation *info)
 {
-  if (port == 0)
+  if (port == IMAGE_WITH_POINTS_OUTPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;
   }
-  if (port == 1)
+  if (port == POINTS_OUTPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
-  if (port == 2)
+  if (port == PROJECTED_POINTS_OUTPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
   return 0;
@@ -85,13 +94,13 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
   // Get inputs
-  vtkImageData *inImg = vtkImageData::GetData(inputVector[0]->GetInformationObject(0));
-  vtkPolyData *pointcloud = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
+  vtkImageData *inImg = vtkImageData::GetData(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
+  vtkPolyData *pointcloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT]->GetInformationObject(0));
 
   // Get the output
-  vtkImageData* outImg = vtkImageData::GetData(outputVector->GetInformationObject(0));
-  vtkPolyData* outCloud = vtkPolyData::GetData(outputVector->GetInformationObject(1));
-  vtkPolyData* projectedCloud = vtkPolyData::GetData(outputVector->GetInformationObject(2));
+  vtkImageData* outImg = vtkImageData::GetData(outputVector->GetInformationObject(IMAGE_WITH_POINTS_OUTPUT_PORT));
+  vtkPolyData* outCloud = vtkPolyData::GetData(outputVector->GetInformationObject(POINTS_OUTPUT_PORT));
+  vtkPolyData* projectedCloud = vtkPolyData::GetData(outputVector->GetInformationObject(PROJECTED_POINTS_OUTPUT_PORT));
   if (!inImg || !pointcloud)
   {
     vtkGenericWarningMacro("Null pointer entry, can not launch the filter");
