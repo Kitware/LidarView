@@ -1,3 +1,5 @@
+# Please use https links whenever possible because some people
+# cannot clone using ssh (git://) due to a firewalled network.
 # This maintains the links for all sources used by this superbuild.
 # Simply update this file to change the revision.
 # One can use different revision on different platforms.
@@ -15,9 +17,9 @@ superbuild_set_revision(pythonqt
 set(PARAVIEW_VERSION 5.4)
 superbuild_set_revision(paraview
   GIT_REPOSITORY https://gitlab.kitware.com/bjacquet/paraview.git
-  GIT_TAG origin/5.4CustomForVeloview-withPointCloudRepPlugin)
+  GIT_TAG origin/5.4CustomForLidarView)
 
-superbuild_set_revision(veloview
+superbuild_set_revision(lidarview
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/..
     DOWNLOAD_COMMAND "")
 
@@ -55,13 +57,29 @@ superbuild_set_revision(glog
   GIT_TAG 8d7a107d68c127f3f494bb7807b796c8c5a97a82)
 
 superbuild_set_revision(pcl
-  GIT_REPOSITORY git://github.com/PointCloudLibrary/pcl.git
+  GIT_REPOSITORY https://github.com/PointCloudLibrary/pcl.git
   GIT_TAG pcl-1.8.1)
 
 superbuild_set_revision(qhull
-    GIT_REPOSITORY git://github.com/qhull/qhull.git
+    GIT_REPOSITORY https://github.com/qhull/qhull.git
     GIT_TAG master)
 
 superbuild_set_revision(flann
-  GIT_REPOSITORY git://github.com/mariusmuja/flann.git
+  GIT_REPOSITORY https://github.com/mariusmuja/flann.git
   GIT_TAG 1.9.1)
+
+superbuild_set_revision(opencv
+  GIT_REPOSITORY https://github.com/opencv/opencv.git
+  GIT_TAG 4.0.0)
+
+superbuild_set_revision(nanoflann
+  GIT_REPOSITORY https://github.com/jlblancoc/nanoflann.git
+  GIT_TAG v1.3.0)
+
+superbuild_set_revision(yaml
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG yaml-cpp-0.6.2)
+
+superbuild_set_revision(darknet
+  GIT_REPOSITORY https://github.com/pjreddie/darknet.git
+  GIT_TAG master)
