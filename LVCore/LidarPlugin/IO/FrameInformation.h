@@ -49,7 +49,10 @@ struct FrameInformation
   void Reset() {
     this->FirstPacketDataTime = 0;
     this->FirstPacketNetworkTime = 0;
-    this->SpecificInformation->reset();
+    if (this->SpecificInformation)
+    {
+      this->SpecificInformation->reset();
+    }
   }
 
   FrameInformation() = default;
