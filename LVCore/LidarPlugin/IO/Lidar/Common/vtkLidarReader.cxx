@@ -56,6 +56,7 @@ int vtkLidarReader::ReadFrameInformation()
       // this 2 frames will have the same timestep. So to avoid that we
       // artificatially move the first timeStep back by one.
       this->FrameCatalog.push_back(this->Interpreter->GetParserMetaData());
+      this->FrameCatalog.back().FilePosition = lastFilePosition; // Ensure that the first index point on a real fileposition
       firstIteration = false;
     }
 
