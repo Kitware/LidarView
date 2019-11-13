@@ -31,7 +31,6 @@
 
 // STD
 #include <iostream>
-#include <sstream>
 
 #include <cassert>
 
@@ -66,6 +65,12 @@ public:
   int class_id;
   std::string type;
 };
+
+std::string RemoveExtension(const std::string& filename) {
+    size_t lastdot = filename.find_last_of(".");
+    if (lastdot == std::string::npos) return filename;
+    return filename.substr(0, lastdot);
+}
 
 //------------------------------------------------------------------------------
 size_t GetNumberOfClouds(std::string cloudFrameSeries)
@@ -435,7 +440,6 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
 
   double maxTemporalDist = std::numeric_limits<double>::max();
   double closestImgTime = 0;
-  int closestImgIndex = -1;
   std::string closestImgName;
   for (unsigned int imgIndex = 0; imgIndex < imageInfo["files"].size(); ++imgIndex)
   {
@@ -444,8 +448,7 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
     {
       maxTemporalDist = std::abs(imgTime - time);
       closestImgTime = imgTime;
-      closestImgIndex = static_cast<int>(imgIndex);
-      closestImgName = imageInfo["files"][imgIndex]["name"].as<std::string>();
+      closestImgName = RemoveExtension(imageInfo["files"][imgIndex]["name"].as<std::string>());
     }
   }
 
@@ -470,8 +473,7 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   }
 
   // load the image
-  std::stringstream ss; ss << std::setw(4) << std::setfill('0') << closestImgIndex;
-  std::string imgFilename = imageFolder + "/" + ss.str() + ".jpg";
+  std::string imgFilename = imageFolder + "/" + closestImgName + ".jpg";
   vtkSmartPointer<vtkJPEGReader> imgReader0 = vtkSmartPointer<vtkJPEGReader>::New();
   imgReader0->SetFileName(imgFilename.c_str());
   imgReader0->Update();
@@ -481,14 +483,14 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   if (detectionsFormat == "yolo+semantic")
   {
     // load corresponding semantic masks
-    std::string maskFilename = detectionsFolder + "/semantic_masks/" + ss.str() + ".png";
+    std::string maskFilename = detectionsFolder + "/semantic_masks/" + closestImgName + ".png";
     vtkSmartPointer<vtkPNGReader> imgReader = vtkSmartPointer<vtkPNGReader>::New();
     imgReader->SetFileName(maskFilename.c_str());
     imgReader->Update();
     vtkSmartPointer<vtkImageData> semanticMask = imgReader->GetOutput();
 
     // load corresponding detections bboxes
-    std::string bboxesFilename = detectionsFolder + "/bboxes/" + ss.str() + ".yml";
+    std::string bboxesFilename = detectionsFolder + "/bboxes/" + closestImgName + ".yml";
     vtkSmartPointer<vtkBoundingBoxReader> bbReader = vtkSmartPointer<vtkBoundingBoxReader>::New();
     bbReader->SetFileName(bboxesFilename);
     bbReader->SetImageHeight(img->GetDimensions()[1]);
@@ -501,14 +503,14 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   else if (detectionsFormat == "panoptic")
   {
     // load corresponding panoptic masks
-    std::string maskFilename = detectionsFolder + "/masks/" + ss.str() + ".png";
+    std::string maskFilename = detectionsFolder + "/masks/" + closestImgName + ".png";
     vtkSmartPointer<vtkPNGReader> imgReader = vtkSmartPointer<vtkPNGReader>::New();
     imgReader->SetFileName(maskFilename.c_str());
     imgReader->Update();
     vtkSmartPointer<vtkImageData> mask = imgReader->GetOutput();
 
     // load corresponding detections desriptions
-    std::string segmentsFilename = detectionsFolder + "/yamls/" + ss.str() + ".yml";
+    std::string segmentsFilename = detectionsFolder + "/yamls/" + closestImgName + ".yml";
     YAML::Node segments = YAML::LoadFile(segmentsFilename)["segments_info"];
 
 
