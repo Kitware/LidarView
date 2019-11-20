@@ -70,7 +70,7 @@ void NetworkSource::Start()
 
   // Create work
   this->LidarPortReceiver = boost::shared_ptr<PacketReceiver>(new PacketReceiver(
-    this->IOService, LidarPort, ForwardedLidarPort, ForwardedIpAddress, IsForwarding, this));
+    this->IOService, LidarPort, ForwardedLidarPort, ForwardedIpAddress, IsForwarding, this, MulticastAddress));
 
   if (this->ListenGPS)
   {

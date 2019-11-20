@@ -22,9 +22,9 @@
 
 #include <vtkMath.h>
 
-
 //-----------------------------------------------------------------------------
-PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwardport, std::string forwarddestinationIp, bool isforwarding, NetworkSource *parent)
+PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwardport, std::string forwarddestinationIp,
+                               bool isforwarding, NetworkSource *parent, std::string multicastAddress)
   : isForwarding(isforwarding)
   , Port(port)
   , PacketCounter(0)
@@ -33,12 +33,24 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   , Parent(parent)
   , IsReceiving(true)
   , ShouldStop(false)
+  , MulticastAddress(multicastAddress)
 {
   this->Socket.open(boost::asio::ip::udp::v4()); // Opening the socket with an UDP v4 protocol
   this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(
                       true)); // Tell the OS we accept to re-use the port address for an other app
   this->Socket.bind(boost::asio::ip::udp::endpoint(
                 boost::asio::ip::udp::v4(), port)); // Bind the socket to the right address
+
+  if(multicastAddress != "")
+  {
+    // Connect to multicast
+    boost::asio::ip::address multicast_address = boost::asio::ip::address_v4::from_string(multicastAddress);
+    if (multicast_address.is_multicast())
+    {
+      boost::asio::ip::multicast::join_group option(multicast_address);
+      this->Socket.set_option(option);
+    }
+  }
 
   // Check that the provided ipadress is valid
   boost::system::error_code errCode;

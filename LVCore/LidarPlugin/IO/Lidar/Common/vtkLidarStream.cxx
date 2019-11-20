@@ -75,6 +75,20 @@ void vtkLidarStream::SetForwardedIpAddress(const std::string &ipAddress)
 }
 
 //-----------------------------------------------------------------------------
+template<class T>
+void vtkLidarStream::SetAttributeAndRestartIfRunning(T& attribute, T value) {
+  bool wasRunning = this->Network != nullptr
+      && this->Network->Thread != nullptr && this->Network->Thread->joinable()
+      && this->Network->LidarPortReceiver != nullptr;
+  this->Stop();
+  attribute = value;
+  if (wasRunning)
+  {
+    this->Start();
+  }
+}
+
+//-----------------------------------------------------------------------------
 int vtkLidarStream::GetLidarPort()
 {
   return this->Network->LidarPort;
@@ -85,15 +99,22 @@ void vtkLidarStream::SetLidarPort(int value)
 {
   if (this->Network->LidarPort != value)
   {
-    bool wasRunning = this->Network != nullptr
-        && this->Network->Thread != nullptr && this->Network->Thread->joinable()
-        && this->Network->LidarPortReceiver != nullptr;
-    this->Stop();
-    this->Network->LidarPort = value;
-    if (wasRunning)
-    {
-      this->Start();
-    }
+    SetAttributeAndRestartIfRunning(this->Network->LidarPort, value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+std::string vtkLidarStream::GetMulticastAddress()
+{
+  return this->Network->MulticastAddress;
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarStream::SetMulticastAddress(std::string value)
+{
+  if (this->Network->MulticastAddress != value)
+  {
+    SetAttributeAndRestartIfRunning(this->Network->MulticastAddress, value);
   }
 }
 

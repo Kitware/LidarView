@@ -47,6 +47,12 @@ public:
   int GetLidarPort() override;
 
   /**
+   * @brief multicast Address
+   */
+  std::string GetMulticastAddress();
+  void SetMulticastAddress(std::string);
+
+  /**
    * @copydoc NetworkSource::GPSPort
    */
   int GetGPSPort();
@@ -106,6 +112,8 @@ protected:
 private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
+
+  template<class T> void SetAttributeAndRestartIfRunning(T& attribute, T value);
 };
 
 #endif // VTKLIDARSTREAM_H
