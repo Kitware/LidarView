@@ -52,8 +52,9 @@ public:
    * @param isforwarding Allow or not the forwarding of the packets
    * @param parent @todo to replace by a synchronizedQueue
    */
-  PacketReceiver(boost::asio::io_service& io, int port, int forwardport, std::string forwarddestinationIp,
-                 bool isforwarding, NetworkSource* parent, std::string multicastAdress = "");
+  PacketReceiver(boost::asio::io_service& io, int port, int forwardport,
+                 std::string forwarddestinationIp, bool isforwarding, NetworkSource* parent,
+                 std::string multicastAdress = "", std::string LocalListeningAddress = "");
 
   ~PacketReceiver();
 
@@ -88,6 +89,9 @@ private:
 
   /*!< Multicast address which will receive the packet */
   std::string MulticastAddress;
+
+  /*!< The Listening address to receive packets in case of multiples interfaces */
+  std::string LocalListeningAddress;
   
   /*!< Number of packets received */
   int PacketCounter;

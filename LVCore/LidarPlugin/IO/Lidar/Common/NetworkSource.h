@@ -55,6 +55,7 @@ public:
     , DummyWork(new boost::asio::io_service::work(this->IOService))
   {
     this->MulticastAddress = "";
+    this->LocalListeningAddress = "";
     this->ListenGPS = false;
   }
 
@@ -69,6 +70,7 @@ public:
   //! @todo currently evrything is public, but it should be private
   int LidarPort;                  /*!< The port to receive LIDAR information. Default is 2368 */
   std::string MulticastAddress;   /*!< The multicast address to receive packets*/
+  std::string LocalListeningAddress;   /*!< The Listening address in case of multiples interfaces*/
   bool ListenGPS;
   int GPSPort;                    /*!< The port to receive GPS information. Default is 8308 */
   int ForwardedLidarPort;         /*!< The port to send LIDAR forwarded packets*/

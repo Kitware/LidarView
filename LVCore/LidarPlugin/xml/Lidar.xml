@@ -174,6 +174,18 @@
       </Documentation>
     </StringVectorProperty>
 
+    <StringVectorProperty
+        name="LocalListeningAddress"
+        command="SetLocalListeningAddress"
+        default_values="0.0.0.0"
+        number_of_elements="1">
+      <Documentation>
+        Specify listening address in case of multiple inferface.
+        If 0.0.0.0 or invalid, it tries to listen to ALL/ANY local IP address.
+        Joining multicast group won't work with multiple interfaces if no specific address is entered.
+      </Documentation>
+    </StringVectorProperty>
+
     <!-- Please notice that this Property is duplicate so that:
          it can be place in a user friendly location in the generate GUI -->
     <StringVectorProperty

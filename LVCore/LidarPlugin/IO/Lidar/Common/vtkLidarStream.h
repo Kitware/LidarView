@@ -53,6 +53,12 @@ public:
   void SetMulticastAddress(std::string);
 
   /**
+   * @brief Local Listening Address
+   */
+  std::string GetLocalListeningAddress();
+  void SetLocalListeningAddress(std::string);
+
+  /**
    * @copydoc NetworkSource::GPSPort
    */
   int GetGPSPort();

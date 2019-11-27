@@ -23,8 +23,9 @@
 #include <vtkMath.h>
 
 //-----------------------------------------------------------------------------
-PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwardport, std::string forwarddestinationIp,
-                               bool isforwarding, NetworkSource *parent, std::string multicastAddress)
+PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwardport,
+                               std::string forwarddestinationIp, bool isforwarding, NetworkSource *parent,
+                               std::string multicastAddress, std::string LocalListeningAddress)
   : isForwarding(isforwarding)
   , Port(port)
   , PacketCounter(0)
@@ -34,12 +35,28 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   , IsReceiving(true)
   , ShouldStop(false)
   , MulticastAddress(multicastAddress)
+  , LocalListeningAddress(LocalListeningAddress)
 {
-  this->Socket.open(boost::asio::ip::udp::v4()); // Opening the socket with an UDP v4 protocol
-  this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(
-                      true)); // Tell the OS we accept to re-use the port address for an other app
-  this->Socket.bind(boost::asio::ip::udp::endpoint(
-                boost::asio::ip::udp::v4(), port)); // Bind the socket to the right address
+  // Opening the socket with an UDP v4 protocol (work for v6 protocol too)
+  this->Socket.open(boost::asio::ip::udp::v4());
+  // Tell the OS we accept to re-use the port address for an other app
+  this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+
+  // If a local specific address is specified, we try to listen to it
+  // Otherwise, we listen to any address (INADDR_ANY)
+  boost::asio::ip::address listen_address = boost::asio::ip::address_v4::any();
+  if (LocalListeningAddress != "" && strcmp(LocalListeningAddress.c_str(), "0.0.0.0") != 0)
+  {
+    boost::system::error_code errCode;
+    boost::asio::ip::address local_listen_address = boost::asio::ip::address::from_string(LocalListeningAddress, errCode);
+    if(errCode == 0)
+    {
+      listen_address = local_listen_address;
+    }
+  }
+
+  // Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
+  this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
 
   if(multicastAddress != "")
   {

@@ -119,6 +119,21 @@ void vtkLidarStream::SetMulticastAddress(std::string value)
 }
 
 //-----------------------------------------------------------------------------
+std::string vtkLidarStream::GetLocalListeningAddress()
+{
+  return this->Network->LocalListeningAddress;
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarStream::SetLocalListeningAddress(std::string value)
+{
+  if (strcmp(this->Network->LocalListeningAddress.c_str(), value.c_str()) != 0)
+  {
+    SetAttributeAndRestartIfRunning(this->Network->LocalListeningAddress, value);
+  }
+}
+
+//-----------------------------------------------------------------------------
 int vtkLidarStream::GetGPSPort()
 {
   return this->Network->GPSPort;
