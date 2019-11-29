@@ -63,12 +63,19 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
     boost::asio::ip::address multicast_address = boost::asio::ip::address::from_string(multicastAddress, errCode);
     if (errCode == 0 && multicast_address.is_multicast())
     {
+      try
+      {
       // Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
       this->Socket.bind(boost::asio::ip::udp::endpoint(multicast_address, port));
 
       // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
       boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
       this->Socket.set_option(option);
+      }
+      catch(std::exception e)
+      {
+        vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to ignore");
+      }
     }
     else
     {
@@ -77,7 +84,14 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   }
   else
   {
-    this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
+    try
+      {
+      this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
+      }
+      catch(std::exception e)
+      {
+        vtkGenericWarningMacro("Error while setting listening address, please correct it or leave empty to ignore");
+      }
   }
 
   // Check that the provided forwarding ipadress is valid
