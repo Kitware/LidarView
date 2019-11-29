@@ -69,38 +69,37 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
     }
   }
 
-  // Check that the provided ipadress is valid
-  boost::system::error_code errCode;
-  boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address_v4::from_string(forwarddestinationIp, errCode);
-
-  // If the ip address is not valid we replace it by a generic
-  // 0.0.0.0 ip address. This is due to the application
-  // crashes on windows if a not valid ip address is provided
-  // with error message:
-  // Qt has caught an exception from an event handler. This
-  // is not supported in Qt.
-  if (errCode)
+  // Check that the provided forwarding ipadress is valid
+  if(forwarddestinationIp != ""  && this->isForwarding)
   {
-    ipAddressForwarding = boost::asio::ip::address_v4::from_string("0.0.0.0");
-    if (this->isForwarding)
+    boost::system::error_code errCode;
+    boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address::from_string(forwarddestinationIp, errCode);
+    if(errCode == 0)
     {
-      vtkGenericWarningMacro("Forward ip address not valid, packets won't be forwarded");
-      this->isForwarding = false;
+      this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
+      this->ForwardedSocket.open(ForwardEndpoint.protocol()); // Opening the socket with an UDP v4 protocol
+      // toward the forwarded ip address and port
+      this->ForwardedSocket.set_option(boost::asio::ip::multicast::enable_loopback(
+                                    true)); // Allow to send the packet on the same machine
+     }
+    else
+    {
+        vtkGenericWarningMacro("Forward ip address not valid, packets won't be forwarded");
+        this->isForwarding = false;
     }
   }
-
-  this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
-  this->ForwardedSocket.open(ForwardEndpoint.protocol()); // Opening the socket with an UDP v4 protocol
-  // toward the forwarded ip address and port
-  this->ForwardedSocket.set_option(boost::asio::ip::multicast::enable_loopback(
-                                true)); // Allow to send the packet on the same machine
 }
 
 //-----------------------------------------------------------------------------
 PacketReceiver::~PacketReceiver()
 {
   this->Socket.cancel();
-  this->ForwardedSocket.cancel();
+  if (this->isForwarding)
+  {
+    this->ForwardedSocket.cancel();
+  }
+
+  // Start the scoped mutex for receiving with our buffer
   {
     boost::unique_lock<boost::mutex> guard(this->IsReceivingMtx);
     this->ShouldStop = true;
