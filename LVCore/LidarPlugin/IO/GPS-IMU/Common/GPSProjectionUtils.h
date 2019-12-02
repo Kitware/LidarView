@@ -21,10 +21,12 @@
 #include <string>
 #include <vtk_libproj4.h>
 
+#include "lidarplugin_export.h"
+
 int LatLongToZone(double lat, double lon);
 
 
-class UTMProjector
+class LIDARPLUGIN_EXPORT UTMProjector
 {
   public:
   UTMProjector(bool shouldWarnOnWeirdGPSData = false)

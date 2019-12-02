@@ -34,9 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QToolBar>
 
+#include "lqapplicationcomponents_export.h"
+
 /// vvColorToolbar is the toolbar that allows the user to choose the scalar
 /// color or solid color for the active representation.
-class vvColorToolbar : public QToolBar
+class LQAPPLICATIONCOMPONENTS_EXPORT vvColorToolbar : public QToolBar
 {
   Q_OBJECT
   typedef QToolBar Superclass;

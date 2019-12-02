@@ -15,10 +15,11 @@
 #define __vvToggleSpreadSheetReaction_h
 
 #include "pqReaction.h"
+#include "lqapplicationcomponents_export.h"
 
 class pqView;
 
-class vvToggleSpreadSheetReaction : public pqReaction
+class LQAPPLICATIONCOMPONENTS_EXPORT vvToggleSpreadSheetReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;

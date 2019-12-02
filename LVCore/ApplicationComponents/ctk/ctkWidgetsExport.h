@@ -18,13 +18,13 @@
 #  endif
 #endif
 
-#if !defined(CTK_WIDGETS_EXPORT)
+// #if !defined(CTK_WIDGETS_EXPORT)
 //#  if defined(CTK_SHARED)
-#    define CTK_WIDGETS_EXPORT Q_DECL_EXPORT
+// #    define CTK_WIDGETS_EXPORT Q_DECL_EXPORT
 //#  else
 //#    define CTK_WIDGETS_EXPORT
 //#  endif
-#endif
+// #endif
 
 #endif
 

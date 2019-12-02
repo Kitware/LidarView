@@ -28,7 +28,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-#include "vvConfigure.h"
+#include "lidarplugin_export.h"
 #include "vtkTemporalTransforms.h"
 
 enum class CorrelationStrategy
@@ -59,7 +59,7 @@ std::string ToString(CorrelationStrategy strategy);
  * 2) resample them
  * 3) FFT then iFFT
  **/
-double LidarPlugin_EXPORT ComputeTimeShift(vtkSmartPointer<vtkTemporalTransforms> reference,
+double LIDARPLUGIN_EXPORT ComputeTimeShift(vtkSmartPointer<vtkTemporalTransforms> reference,
                       vtkSmartPointer<vtkTemporalTransforms> aligned,
                       CorrelationStrategy correlationStrategy,
                       double time_window_width,
@@ -76,7 +76,7 @@ void DemoAllTimesyncMethods(vtkSmartPointer<vtkTemporalTransforms> reference,
  * If you rescale the "aligned" pose trajectory by the inverse of the scale
  * returned, both pose trajectories will be on scale.
  **/
-double LidarPlugin_EXPORT ComputeScale(vtkSmartPointer<vtkTemporalTransforms> reference,
+double LIDARPLUGIN_EXPORT ComputeScale(vtkSmartPointer<vtkTemporalTransforms> reference,
                   vtkSmartPointer<vtkTemporalTransforms> aligned,
                   CorrelationStrategy correlationStrategy,
                   double time_window_width);

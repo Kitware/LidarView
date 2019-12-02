@@ -18,13 +18,13 @@
 #  endif
 #endif
 
-#if !defined(CTK_CORE_EXPORT)
+// #if !defined(CTK_CORE_EXPORT)
 //#  if defined(CTK_SHARED)
-#    define CTK_CORE_EXPORT Q_DECL_EXPORT
+// #    define CTK_CORE_EXPORT Q_DECL_EXPORT
 //#  else
 //#    define CTK_CORE_EXPORT
 //#  endif
-#endif
+// #endif
 
 #endif
 

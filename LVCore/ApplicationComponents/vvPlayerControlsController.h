@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QPointer>
 #include <QObject>
 
+#include "lqapplicationcomponents_export.h"
+
 class pqPipelineSource;
 class pqAnimationScene;
 
@@ -46,7 +48,7 @@ class pqAnimationScene;
 // is using for animation. Typically, one would connect this
 // slot to a pqAnimationManager like object which keeps track
 // of the active animation scene.
-class vvPlayerControlsController : public QObject
+class LQAPPLICATIONCOMPONENTS_EXPORT vvPlayerControlsController : public QObject
 {
   Q_OBJECT
 public:

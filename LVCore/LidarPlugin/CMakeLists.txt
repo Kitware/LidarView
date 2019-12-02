@@ -319,6 +319,7 @@ list(APPEND deps
 message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 # folder where to look for header file
 set(plugin_include_dirs
+  ${PCAP_INCLUDE_DIR}
   ${EIGEN_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
   ${vtklibproj4_INCLUDE_DIRS}
@@ -369,10 +370,14 @@ add_paraview_plugin(${VV_PLUGIN_LIBRARY} "1.0"
   SERVER_MANAGER_SOURCES ${servermanager_sources}
   SERVER_MANAGER_XML ${servermanager_xml}
   SERVER_SOURCES ${sources_which_inherit_from_vtkObject} ${sources_which_do_not_inherit_from_vtkObject}
-  GUI_SOURCES ${gui_sources}
+  # GUI_SOURCES ${gui_sources}
   REQUIRED_ON_SERVER)
 target_include_directories(${VV_PLUGIN_LIBRARY} PUBLIC ${plugin_include_dirs})
 target_link_libraries(${VV_PLUGIN_LIBRARY} PUBLIC ${deps})
+include(GenerateExportHeader)
+generate_export_header(${VV_PLUGIN_LIBRARY})
+install(FILES ${PROJECT_BINARY_DIR}/lidarplugin_export.h DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 if(WIN32)
   # -DBOOST_PROGRAM_OPTIONS_DYN_LINK is necessary to use boost as a dynamic library
   # more about it here: https://svn.boost.org/trac10/ticket/13326

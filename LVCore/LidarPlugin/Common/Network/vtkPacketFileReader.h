@@ -38,6 +38,7 @@
 #include <cstring>
 #include <vector>
 #include <unordered_map>
+#include "lidarplugin_export.h"
 
 /*
  * Useful links to get started with IPv4 and IPv6 headers:
@@ -101,7 +102,7 @@ namespace IPHeaderFunctions
    * @param[out] fragmentInfo The collected fragment info.
    * @return     True if the information could be retrieved, false otherwise.
    */
-  bool getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
+  LIDARPLUGIN_EXPORT bool LIDARPLUGIN_EXPORT getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
 
   //----------------------------------------------------------------------------
   /*!
@@ -110,7 +111,7 @@ namespace IPHeaderFunctions
    * @return    The number of bytes in the IP header, or 0 if this could not be
    *            determined.
    */
-  unsigned int getIPHeaderLength(unsigned char const* data);
+  LIDARPLUGIN_EXPORT unsigned int LIDARPLUGIN_EXPORT getIPHeaderLength(unsigned char const* data);
 }
 
 

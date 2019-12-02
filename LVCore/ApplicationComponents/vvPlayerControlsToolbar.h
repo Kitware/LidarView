@@ -34,13 +34,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QToolBar>
 
+#include "lqapplicationcomponents_export.h"
+
 class vvPlayerControlsController;
 class pqAnimationScene;
 class vtkSMProxy;
 
 /// This class is a mixed of pqVCRToolbar and pqTimAnimationWidget
 ///
-class vvPlayerControlsToolbar : public QToolBar
+class LQAPPLICATIONCOMPONENTS_EXPORT vvPlayerControlsToolbar : public QToolBar
 {
   Q_OBJECT
   Q_PROPERTY(double timeValue READ timeValue WRITE setTimeValue NOTIFY timeValueChanged)

@@ -29,7 +29,7 @@
 #include <vtkCustomTransformInterpolator.h>
 #include <Eigen/SVD>
 
-#include "vvConfigure.h"
+#include "lidarplugin_export.h"
 #include "vtkTemporalTransforms.h"
 #include "statistics.h"
 
@@ -108,7 +108,7 @@ std::vector<std::vector<double>> ComputeTurns(
 * \param ransacValidationRatio between 0 and 1, should be taken as big as
 * possible but I had to lower it down to 0.15 for some real life datasets.
 **/
-void LidarPlugin_EXPORT ComputeCarCalibrationRotationScale(
+void LIDARPLUGIN_EXPORT ComputeCarCalibrationRotationScale(
         const vtkSmartPointer<vtkTemporalTransforms> reference,
         const vtkSmartPointer<vtkTemporalTransforms> aligned,
         double curveTreshold,
