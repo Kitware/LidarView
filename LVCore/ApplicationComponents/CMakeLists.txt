@@ -28,6 +28,7 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/ctk/
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
 target_link_libraries(lqApplicationComponents PUBLIC pqApplicationComponents)
 target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)
