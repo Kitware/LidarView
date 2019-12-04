@@ -360,31 +360,26 @@ set(plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid
   )
 
-# give default target name if not specify otherwise
-if (NOT VV_PLUGIN_LIBRARY)
-  set(VV_PLUGIN_LIBRARY LidarPlugin) # lidarview plugin
-endif()
-
 # create pluging
-add_paraview_plugin(${VV_PLUGIN_LIBRARY} "1.0"
+add_paraview_plugin(LidarPlugin "1.0"
   SERVER_MANAGER_SOURCES ${servermanager_sources}
   SERVER_MANAGER_XML ${servermanager_xml}
   SERVER_SOURCES ${sources_which_inherit_from_vtkObject} ${sources_which_do_not_inherit_from_vtkObject}
   # GUI_SOURCES ${gui_sources}
   REQUIRED_ON_SERVER)
-target_include_directories(${VV_PLUGIN_LIBRARY} PUBLIC ${plugin_include_dirs})
-target_link_libraries(${VV_PLUGIN_LIBRARY} PUBLIC ${deps})
+target_include_directories(LidarPlugin PUBLIC ${plugin_include_dirs})
+target_link_libraries(LidarPlugin PUBLIC ${deps})
 include(GenerateExportHeader)
-generate_export_header(${VV_PLUGIN_LIBRARY})
+generate_export_header(LidarPlugin)
 install(FILES ${PROJECT_BINARY_DIR}/lidarplugin_export.h DESTINATION ${VV_INSTALL_LIBRARY_DIR})
 target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 if(WIN32)
   # -DBOOST_PROGRAM_OPTIONS_DYN_LINK is necessary to use boost as a dynamic library
   # more about it here: https://svn.boost.org/trac10/ticket/13326
-  target_compile_definitions(${VV_PLUGIN_LIBRARY} PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  target_compile_definitions(LidarPlugin PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(WIN32)
 if (APPLE)
-  target_compile_definitions(${VV_PLUGIN_LIBRARY} PRIVATE -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  target_compile_definitions(LidarPlugin PRIVATE -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(APPLE)
 
 # The main application executable uses a "forward exectuable"
@@ -403,14 +398,14 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
 target_include_directories(PacketFileSender PRIVATE Common/Network)
-target_link_libraries(PacketFileSender LINK_PUBLIC ${VV_PLUGIN_LIBRARY} ${ALL_BOOST_LIBRARIES})
+target_link_libraries(PacketFileSender LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
 if(WIN32)
   target_compile_definitions(PacketFileSender PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(WIN32)
 
 #add_executable(PCAPTester StandAloneTools/PCAPTester.cxx)
-#target_include_directories(${VV_PLUGIN_LIBRARY} PRIVATE ${plugin_include_dirs})
-#target_link_libraries(PCAPTester LINK_PUBLIC ${VV_PLUGIN_LIBRARY} ${ALL_BOOST_LIBRARIES})
+#target_include_directories(LidarPlugin PRIVATE ${plugin_include_dirs})
+#target_link_libraries(PCAPTester LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
 #if(WIN32)
 #  target_compile_definitions(PCAPTester PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 #endif(WIN32)
@@ -421,7 +416,7 @@ endif(WIN32)
 if (ENABLE_opencv)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
   target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
-  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC ${VV_PLUGIN_LIBRARY} ${ALL_BOOST_LIBRARIES})
+  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
@@ -432,14 +427,14 @@ endif (ENABLE_opencv)
 # This code is here for LEGACY REASON and should NOT BE USED and even REMOVE at some point !!!!
 # It's actually nice to expose the classes in python, but the more freedom we have
 # the more dirty the code get...
-# Create a static and dynamic python target named ${VV_PLUGIN_LIBRARY}Python and
-# (${VV_PLUGIN_LIBRARY}PythonD that wrap all the classes that inherit from vtk in python.
+# Create a static and dynamic python target named LidarPluginPython and
+# (LidarPluginPythonD that wrap all the classes that inherit from vtk in python.
 # When a paraview plugin is created, you only have acces to the Filter exposed
 # with a proxy, and you can but SHOULDN'T used the method GetClientSideObject()
 # to have acces to the vtkObject directly.
 # With what is done here you have acces to all the vtk inherit  C++ code, even if
 # it's not exposed in paraview.
-# Simply used "import ${VV_PLUGIN_LIBRARY}Python" and you have acces to the
+# Simply used "import LidarPluginPython" and you have acces to the
 # wrapped c++ code
 #-----------------------------------------------------------------------------
 
@@ -450,16 +445,16 @@ set(towrap
   ${sources_which_inherit_from_vtkObject}
   )
 # the quoted "" are needed otherwise only the first file of the list will be process
-WRAP_PLUGIN_FOR_PYTHON(${VV_PLUGIN_LIBRARY} "${towrap}" "NOTTHERE")
+WRAP_PLUGIN_FOR_PYTHON(LidarPlugin "${towrap}" "NOTTHERE")
 
 #-----------------------------------------------------------------------------
 # Install targets and ressources
 #-----------------------------------------------------------------------------
 
 set(libraries_to_install
-  ${VV_PLUGIN_LIBRARY}
-  ${VV_PLUGIN_LIBRARY}Python
-  ${VV_PLUGIN_LIBRARY}PythonD
+  LidarPlugin
+  LidarPluginPython
+  LidarPluginPythonD
   )
 
 set(executables_to_install
