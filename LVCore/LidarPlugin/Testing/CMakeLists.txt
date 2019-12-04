@@ -22,9 +22,6 @@ custom_add_executable(TestLidarReader TestLidarReader.cxx TestHelpers.cxx)
 target_include_directories(TestLidarReader PRIVATE ${plugin_include_dirs})
 target_link_libraries(TestLidarReader LINK_PUBLIC LidarPlugin)
 
-custom_add_executable(TestVelodyneHDLPositionReader TestVelodyneHDLPositionReader.cxx)
-target_link_libraries(TestVelodyneHDLPositionReader LidarPlugin)
-
 custom_add_executable(TestNMEAParser TestNMEAParser.cxx TestHelpers.cxx)
 target_link_libraries(TestNMEAParser LidarPlugin)
 
@@ -33,9 +30,6 @@ target_link_libraries(TestTrailingFrame LidarPlugin)
 
 custom_add_executable(TestRansacPlaneModel TestRansacPlaneModel.cxx)
 target_link_libraries(TestRansacPlaneModel LidarPlugin)
-
-custom_add_executable(TestVelodynePPSIdentification TestVelodynePPSIdentification.cxx)
-target_link_libraries(TestVelodynePPSIdentification LidarPlugin)
 
 custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx TestHelpers.cxx)
 target_link_libraries(TestVtkEigenTools LidarPlugin)
@@ -146,11 +140,6 @@ add_test(TestLidarReader_HDL-64_Dual-autocalib
   ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib-reference-data.xml
 )
 
-add_test(TestVelodyneHDLPositionReader
-  ${INSTALL_LOCAL_DIR}/TestVelodyneHDLPositionReader
-  "${CMAKE_SOURCE_DIR}/TestData/HDL32-V2_R_into_Butterfield_into_Digital_Drive.pcap"
-)
-
 add_test(TestNMEAParser
   ${INSTALL_LOCAL_DIR}/TestNMEAParser
 )
@@ -201,13 +190,6 @@ if (ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
   ${INSTALL_LOCAL_DIR}/TestMIDHOG
   )
 endif(ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
-
-add_test(TestVelodynePPSIdentification
-  ${INSTALL_LOCAL_DIR}/TestVelodynePPSIdentification
-  "${CMAKE_SOURCE_DIR}/TestData/HDL32-V2_R_into_Butterfield_into_Digital_Drive.pcap"
-  "${CMAKE_SOURCE_DIR}/TestData/VLP-16_Single.pcap"
-  "${CMAKE_SOURCE_DIR}/TestData/VLP-16-with-GPRMC-with-PPS-timesync.pcap"
-)
 
 custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
 target_link_libraries(TestScaleCalibration-MM LidarPlugin)
