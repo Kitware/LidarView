@@ -53,6 +53,10 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
     {
       listen_address = local_listen_address;
     }
+    else
+    {
+      vtkGenericWarningMacro("Listen address is not valid, listening on all local ip addresses");
+    }
   }
 
   // Check that the provided multicast ipadress is valid
@@ -71,10 +75,12 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
       // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
       boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
       this->Socket.set_option(option);
+
+      vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
       }
       catch(std::exception e)
       {
-        vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to ignore");
+        vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to listen on all local ip addresses");
       }
     }
     else
