@@ -75,9 +75,6 @@ set(sensors "HDL-64"
             "VLP-32c")
 
 
-# generate script to generate new test baseline
-configure_file(generateTestData.py.in ${INSTALL_LOCAL_DIR}/generateTestData.py)
-
 # add test
 foreach(sensor ${sensors})
 
