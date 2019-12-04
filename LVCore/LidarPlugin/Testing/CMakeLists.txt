@@ -14,6 +14,10 @@ function(custom_add_executable)
   endif(WIN32)
 endfunction(custom_add_executable)
 
+target_sources(LidarPlugin PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers.cxx
+  )
+target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 custom_add_executable(TestLidarStream TestHelpers.cxx TestLidarStream.cxx)
 target_include_directories(TestLidarStream PRIVATE ${plugin_include_dirs})
 target_link_libraries(TestLidarStream LINK_PUBLIC LidarPlugin)
@@ -22,7 +26,7 @@ custom_add_executable(TestLidarReader TestLidarReader.cxx TestHelpers.cxx)
 target_include_directories(TestLidarReader PRIVATE ${plugin_include_dirs})
 target_link_libraries(TestLidarReader LINK_PUBLIC LidarPlugin)
 
-custom_add_executable(TestNMEAParser TestNMEAParser.cxx TestHelpers.cxx)
+custom_add_executable(TestNMEAParser TestNMEAParser.cxx)
 target_link_libraries(TestNMEAParser LidarPlugin)
 
 custom_add_executable(TestTrailingFrame TestTrailingFrame.cxx)
@@ -31,7 +35,7 @@ target_link_libraries(TestTrailingFrame LidarPlugin)
 custom_add_executable(TestRansacPlaneModel TestRansacPlaneModel.cxx)
 target_link_libraries(TestRansacPlaneModel LidarPlugin)
 
-custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx TestHelpers.cxx)
+custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx )
 target_link_libraries(TestVtkEigenTools LidarPlugin)
 
 custom_add_executable(TestBoundingBox TestBoundingBox.cxx)
@@ -63,7 +67,7 @@ if (ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
   target_link_libraries(TestMIDHOG LidarPlugin)
 endif(ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
 
-custom_add_executable(TestTemporalTransformsReaderWriter TestTemporalTransformsReaderWriter.cxx TestHelpers.cxx)
+custom_add_executable(TestTemporalTransformsReaderWriter TestTemporalTransformsReaderWriter.cxx )
 target_link_libraries(TestTemporalTransformsReaderWriter LidarPlugin)
 
 set(sensors "HDL-64"
