@@ -57,10 +57,10 @@ if (ENABLE_pcl AND ENABLE_ceres)
   target_link_libraries(TestTrajectoryReoptimization LidarPlugin)
 endif(ENABLE_PCL AND ENABLE_Ceres)
 
-if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
-  custom_add_executable(TestSlam TestSlam.cxx TestHelpers.cxx)
-  target_link_libraries(TestSlam LINK_PUBLIC LidarPlugin)
-endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+#if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+#  custom_add_executable(TestSlam TestSlam.cxx)
+#  target_link_libraries(TestSlam LINK_PUBLIC LidarPlugin)
+#endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 
 if (ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
   add_executable(TestMIDHOG TestMIDHOG.cxx)
@@ -177,14 +177,14 @@ if (ENABLE_pcl AND ENABLE_ceres)
   )
 endif(ENABLE_PCL AND ENABLE_Ceres)
 
-if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
-  add_test(TestSlam
-    ${INSTALL_LOCAL_DIR}/TestSlam
-    ${CMAKE_SOURCE_DIR}/TestData/Slam/VLP-16_slam_test_data.pcap
-    ${CMAKE_SOURCE_DIR}/TestData/Slam/RefSlam.vtp
-    ${CMAKE_SOURCE_DIR}/share/VLP-16.xml
-  )
-endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+#if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+#  add_test(TestSlam
+#    ${INSTALL_LOCAL_DIR}/TestSlam
+#    ${CMAKE_SOURCE_DIR}/TestData/Slam/VLP-16_slam_test_data.pcap
+#    ${CMAKE_SOURCE_DIR}/TestData/Slam/RefSlam.vtp
+#    ${CMAKE_SOURCE_DIR}/share/VLP-16.xml
+#  )
+#endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 
 if (ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
   add_test(TestMIDHOG
