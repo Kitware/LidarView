@@ -4,6 +4,8 @@ else()
   set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/bin")
 endif()
 
+set(data_dir ${CMAKE_CURRENT_SOURCE_DIR}/Data)
+
 function(custom_add_executable)
   add_executable(${ARGV})
   if (WIN32)
@@ -156,32 +158,32 @@ add_test(TestRansacPlaneModel
 if (ENABLE_ceres)
   add_test(TestCameraCalibration
     ${INSTALL_LOCAL_DIR}/TestCameraCalibration
-    ${CMAKE_SOURCE_DIR}/TestData/Camera/MatchedPoints_3D_2D
+    ${data_dir}/Camera/MatchedPoints_3D_2D
   )
 endif (ENABLE_ceres)
 
 if (ENABLE_pcl AND ENABLE_ceres)
   add_test(TestGeometricCalibration-MM
     ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-MM
-    ${CMAKE_SOURCE_DIR}/TestData/trajectories
+    ${data_dir}/trajectories
   )
 
   add_test(TestGeometricCalibration-LaDoua
     ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-LaDoua
-    ${CMAKE_SOURCE_DIR}/TestData/trajectories/la_doua_dataset
+    ${data_dir}/trajectories/la_doua_dataset
   )
 
   add_test(TestTrajectoryReoptimization
     ${INSTALL_LOCAL_DIR}/TestTrajectoryReoptimization
-    ${CMAKE_SOURCE_DIR}/TestData/trajectories/mm05_reoptimization
+    ${data_dir}/trajectories/mm05_reoptimization
   )
 endif(ENABLE_PCL AND ENABLE_Ceres)
 
 #if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 #  add_test(TestSlam
 #    ${INSTALL_LOCAL_DIR}/TestSlam
-#    ${CMAKE_SOURCE_DIR}/TestData/Slam/VLP-16_slam_test_data.pcap
-#    ${CMAKE_SOURCE_DIR}/TestData/Slam/RefSlam.vtp
+#    ${data_dir}/Slam/VLP-16_slam_test_data.pcap
+#    ${data_dir}/Slam/RefSlam.vtp
 #    ${CMAKE_SOURCE_DIR}/share/VLP-16.xml
 #  )
 #endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
@@ -196,14 +198,14 @@ custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
 target_link_libraries(TestScaleCalibration-MM LidarPlugin)
 add_test(TestScaleCalibration-MM
   ${INSTALL_LOCAL_DIR}/TestScaleCalibration-MM
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories
+  ${data_dir}/trajectories
 )
 
 custom_add_executable(TestTimeCalibration-LaDoua TestTimeCalibration-LaDoua.cxx)
 target_link_libraries(TestTimeCalibration-LaDoua LidarPlugin)
 add_test(TestTimeCalibration-LaDoua
   ${INSTALL_LOCAL_DIR}/TestTimeCalibration-LaDoua
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories/la_doua_dataset
+  ${data_dir}/trajectories/la_doua_dataset
 )
 
 custom_add_executable(TestTimeCalibration-MM TestTimeCalibration-MM.cxx)
@@ -211,27 +213,27 @@ target_link_libraries(TestTimeCalibration-MM LidarPlugin)
 
 add_test(TestTimeCalibration-MM
   ${INSTALL_LOCAL_DIR}/TestTimeCalibration-MM
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories
+  ${data_dir}/trajectories
 )
 
 custom_add_executable(TestCarGeometricCalibration-LaDoua TestCarGeometricCalibration-LaDoua.cxx)
 target_link_libraries(TestCarGeometricCalibration-LaDoua LidarPlugin)
 add_test(TestCarGeometricCalibration-LaDoua
   ${INSTALL_LOCAL_DIR}/TestCarGeometricCalibration-LaDoua
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories/la_doua_dataset
+  ${data_dir}/trajectories/la_doua_dataset
 )
 
 custom_add_executable(TestCarGeometricCalibration-MM TestCarGeometricCalibration-MM.cxx)
 target_link_libraries(TestCarGeometricCalibration-MM LidarPlugin)
 add_test(TestCarGeometricCalibration-MM
   ${INSTALL_LOCAL_DIR}/TestCarGeometricCalibration-MM
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories
+  ${data_dir}/trajectories
 )
 
 add_test(TestTemporalTransformsReaderWriter
   ${INSTALL_LOCAL_DIR}/TestTemporalTransformsReaderWriter
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories/mm04/orbslam2-no-loop-closure.csv
-  ${CMAKE_SOURCE_DIR}/TestData/trajectories/mm04/orbslam2-no-loop-closure.csv.temporary
+  ${data_dir}/trajectories/mm04/orbslam2-no-loop-closure.csv
+  ${data_dir}/trajectories/mm04/orbslam2-no-loop-closure.csv.temporary
 )
 
 add_test(TestVtkEigenTools
