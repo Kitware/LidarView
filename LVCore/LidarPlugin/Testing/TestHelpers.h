@@ -103,22 +103,28 @@ int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference)
  */
 int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference);
 
-/**
- * @brief TestProcessingOptions
- * @param HDLReader Current reader
- * @return 0 on success, 1 on failure
- */
-int TestProcessingOptions(vtkLidarReader* HDLReader);
-
-/**
- * @brief TestProcessingOptions
- * @param HDLSource Current source
- * @return 0 on success, 1 on failure
- */
-int TestProcessingOptions(vtkLidarStream* HDLSource, std::string pcapFileName,
-  std::string destinationIp, int dataPort);
-
 int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
                                double referenceNetworkTimeToLidarTime);
+
+/**
+ * @brief testLidarReader compare the reader output to prerecorded frames
+ * @param reader
+ * @param referenceFileName the file containing the vtp to compare with
+ * @return nb of error
+ */
+int testLidarReader(vtkLidarReader* reader,
+                    double referenceNetworkTimeToDataTime,
+                    const std::string& referenceFileName);
+
+/**
+ * @brief testLidarStream comapre the the stream output to prerecorded frames
+ * @param stream
+ * @param pcapFileName file to replay
+ * @param referenceFileName the file containing the vtp to compare with
+ * @return nb of error
+ */
+int testLidarStream(vtkLidarStream* stream,
+                    const std::string& pcapFileName,
+                    const std::string& referenceFileName);
 
 #endif

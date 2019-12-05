@@ -16,7 +16,6 @@
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
-#include "vtkVelodynePacketInterpreter.h"
 
 #include <vtkCommand.h>
 #include <vtkExecutive.h>
@@ -374,3 +373,178 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+int testLidarReader(vtkLidarReader *reader,
+                    double referenceNetworkTimeToDataTime,
+                    const std::string &referenceFileName)
+{
+  // get VTP file name from the reference file
+  std::vector<std::string> referenceFilesList;
+  referenceFilesList = GenerateFileList(referenceFileName);
+
+  // update the reader to have access to the frame
+  reader->Update();
+
+  // Check if we can read the PCAP file
+  if (reader->GetNumberOfFrames() == 0)
+  {
+      std::cout << "ERROR, the reader ouput 0 frame!!" << std::endl
+                << "PLEASE CHECK YOUR PCAP FILE OR FILEPATH" << std::endl;
+      return 1;
+  }
+
+  // Checks frame count
+  int retVal = 0;
+  retVal += TestFrameCount(reader->GetNumberOfFrames()-1, referenceFilesList.size());
+
+  // Check properties frame by frame
+  unsigned int nbReferences = referenceFilesList.size();
+
+  for (int idFrame = 0; idFrame < nbReferences; ++idFrame)
+  {
+    std::cout << "---------------------" << std::endl
+              << "FRAME " << idFrame << " ..." << std::endl
+              << "---------------------" << std::endl;
+
+    vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame+1);
+    vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+    // Check points count
+    retVal += TestPointCount(currentFrame, currentReference);
+
+    // Check points position
+    retVal += TestPointPositions(currentFrame, currentReference);
+
+    // Check pointData structure
+    retVal += TestPointDataStructure(currentFrame, currentReference);
+
+    // Check pointData values
+    retVal += TestPointDataValues(currentFrame, currentReference);
+
+    // Check RPM values
+    retVal += TestRPMValues(currentFrame, currentReference);
+  }
+
+  retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
+
+  return  retVal;
+
+}
+
+//-----------------------------------------------------------------------------
+int testLidarStream(vtkLidarStream *stream,
+                    const std::string& pcapFileName,
+                    const std::string &referenceFileName)
+{
+//  // get VTP file name from the reference file
+//  std::vector<std::string> referenceFilesList;
+//  referenceFilesList = GenerateFileList(referenceFileName);
+
+//  //
+//  const std::string destinationIp = "127.0.0.1";
+//  const int dataPort = stream->GetLidarPort();
+
+//  int retVal = 0;
+
+//  stream->SetIsForwarding(false);
+//  stream->Start();
+
+//  std::cout << "Sending data... " << std::endl;
+//  const double startTime = vtkTimerLog::GetUniversalTime();
+//  try
+//  {
+//    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+//    boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+//    sender.pumpPacket();
+//    while (!sender.IsDone())
+//    {
+//      sender.pumpPacket();
+//      boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+//    }
+//  }
+//  catch (std::exception& e)
+//  {
+//    std::cout << "Caught Exception: " << e.what() << std::endl;
+//    return 1;
+//  }
+//  stream->Stop();
+
+//  std::cout << "Done." << std::endl;
+
+//  double elapsedTime = vtkTimerLog::GetUniversalTime() - startTime;
+//  std::cout << "Data sent in " << elapsedTime << "s" << std::endl;
+
+//  if (correctionFileName == "" && stream->GetInterpreter()->GetIsCalibrated())
+//  {
+//    std::cout << "Live Correction initialized, resend data..." << std::endl;
+//    const double resendingDataStartTime = vtkTimerLog::GetUniversalTime();
+//    try
+//    {
+//      stream->Start();
+//      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+
+//      boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+//      sender.pumpPacket();
+
+//      while (!sender.IsDone())
+//      {
+//        sender.pumpPacket();
+//        boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+//      }
+
+//      stream->Stop();
+//      std::cout << "Done." << std::endl;
+
+//      elapsedTime = vtkTimerLog::GetUniversalTime() - resendingDataStartTime;
+//      std::cout << "Data sent after live calibration in " << elapsedTime << "s" << std::endl;
+//    }
+//    catch (std::exception& e)
+//    {
+//      std::cout << "Caught Exception: " << e.what() << std::endl;
+//      return 1;
+//    }
+//  }
+
+//  std::cout << "Integrity tests..." << std::endl;
+
+//  // Integrity tests.
+//  // Checks in the default LidarView environment that everything can be read correctly.
+
+//  retVal += TestFrameCount(GetNumberOfTimesteps(stream), referenceFilesList.size());
+
+//  // Check properties frame by frame
+//  unsigned int nbReferences = referenceFilesList.size();
+
+//  // Skips the first & last frames. First and last frame aren't complete frames
+//  // In live mode, we don't skip the last firing belonging to the n-1 frame.
+//  // In live mode, the last frame is uncomplete.
+//  GetCurrentFrame(stream, 0);
+
+//  for (int idFrame = 0; idFrame < nbReferences - 1; ++idFrame)
+//  {
+//    std::cout << "---------------------" << std::endl
+//              << "FRAME " << idFrame << " ..." << std::endl
+//              << "---------------------" << std::endl;
+
+//    vtkPolyData* currentFrame = GetCurrentFrame(stream, idFrame + 1);
+//    vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+//    // Points count
+//    retVal += TestPointCount(currentFrame, currentReference);
+
+//    // Points position
+//    retVal += TestPointPositions(currentFrame, currentReference);
+
+//    // PointData structure
+//    retVal += TestPointDataStructure(currentFrame, currentReference);
+
+//    // PointData values
+//    retVal += TestPointDataValues(currentFrame, currentReference);
+
+//    // RPM values
+//    retVal += TestRPMValues(currentFrame, currentReference);
+//  }
+
+//  return retVal;
+
+}

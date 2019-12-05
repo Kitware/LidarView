@@ -20,13 +20,6 @@ target_sources(LidarPlugin PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers.cxx
   )
 target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-custom_add_executable(TestLidarStream TestHelpers.cxx TestLidarStream.cxx)
-target_include_directories(TestLidarStream PRIVATE ${plugin_include_dirs})
-target_link_libraries(TestLidarStream LINK_PUBLIC LidarPlugin)
-
-custom_add_executable(TestLidarReader TestLidarReader.cxx TestHelpers.cxx)
-target_include_directories(TestLidarReader PRIVATE ${plugin_include_dirs})
-target_link_libraries(TestLidarReader LINK_PUBLIC LidarPlugin)
 
 custom_add_executable(TestNMEAParser TestNMEAParser.cxx)
 target_link_libraries(TestNMEAParser LidarPlugin)
@@ -71,77 +64,6 @@ endif(ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
 
 custom_add_executable(TestTemporalTransformsReaderWriter TestTemporalTransformsReaderWriter.cxx )
 target_link_libraries(TestTemporalTransformsReaderWriter LidarPlugin)
-
-set(sensors "HDL-64"
-            "VLP-16"
-            "VLP-32c")
-
-
-# add test
-foreach(sensor ${sensors})
-
-    # LidarStream test
-    add_test(TestLidarStream_${sensor}_Single
-      ${INSTALL_LOCAL_DIR}/TestLidarStream
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Single.pcap
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Single/files.txt
-      ${CMAKE_SOURCE_DIR}/share/${sensor}.xml
-    )
-    add_test(TestLidarStream_${sensor}_Dual
-      ${CMAKE_BINARY_DIR}/bin/TestLidarStream
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Dual.pcap
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Dual/files.txt
-      ${CMAKE_SOURCE_DIR}/share/${sensor}.xml
-    )
-
-    # LidarReader test
-    add_test(TestLidarReader_${sensor}_Single
-      ${INSTALL_LOCAL_DIR}/TestLidarReader
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Single.pcap
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Single/files.txt
-      ${CMAKE_SOURCE_DIR}/share/${sensor}.xml
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Single-reference-data.xml
-    )
-    add_test(TestLidarReader_${sensor}_Dual
-      ${INSTALL_LOCAL_DIR}/TestLidarReader
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Dual.pcap
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Dual/files.txt
-      ${CMAKE_SOURCE_DIR}/share/${sensor}.xml
-      ${CMAKE_SOURCE_DIR}/TestData/${sensor}_Dual-reference-data.xml
-    )
-
-endforeach(sensor)
-
-# add special test for HDL-64 in autocalibration mode
-# LidarStream test
-add_test(TestLidarStream_HDL-64_Single-autocalib
-  ${INSTALL_LOCAL_DIR}/TestLidarStream
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Single-autocalib.pcap
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Single-autocalib/files.txt
-  ""
-)
-add_test(TestLidarStream_HDL-64_Dual-autocalib
-  ${INSTALL_LOCAL_DIR}/TestLidarStream
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib.pcap
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib/files.txt
-  ""
-)
-
-# LidarReader test
-add_test(TestLidarReader_HDL-64_Single-autocalib
-  ${INSTALL_LOCAL_DIR}/TestLidarReader
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Single-autocalib.pcap
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Single-autocalib/files.txt
-  ""
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Single-autocalib-reference-data.xml
-)
-add_test(TestLidarReader_HDL-64_Dual-autocalib
-  ${INSTALL_LOCAL_DIR}/TestLidarReader
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib.pcap
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib/files.txt
-  ""
-  ${CMAKE_SOURCE_DIR}/TestData/HDL-64_Dual-autocalib-reference-data.xml
-)
 
 add_test(TestNMEAParser
   ${INSTALL_LOCAL_DIR}/TestNMEAParser
