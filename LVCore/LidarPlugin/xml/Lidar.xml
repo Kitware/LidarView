@@ -163,13 +163,16 @@
        long_help="Lidar Stream">
     </Documentation>
 
+    <!-- 224.0.0.0 could be a good default address,
+	 but it is more convenient to listen to brodcast by default -->
     <StringVectorProperty
         name="MulticastAddress"
         command="SetMulticastAddress"
-        default_values="224.0.0.0"
+        default_values=""
         number_of_elements="1">
       <Documentation>
         Specify multicast address on which to listen for Lidar packets.
+	The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
         Empty and non-multicast address are ignored.
         Leave it empty to listen in broadcast or in unicast.
       </Documentation>
