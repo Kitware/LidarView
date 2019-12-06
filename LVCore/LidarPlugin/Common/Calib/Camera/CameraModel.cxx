@@ -18,6 +18,7 @@
 //=========================================================================
 
 #include "CameraModel.h"
+#include "CameraProjection.h"
 
 // LOCAL
 #include "vtkEigenTools.h"
@@ -278,4 +279,27 @@ void CameraModel::WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win
 
   std::ofstream fout(outFilename.c_str());
   fout << calib;
+}
+
+//------------------------------------------------------------------------------
+Eigen::Vector2d CameraModel::Projection(const Eigen::Vector3d& X,  bool shouldClip)
+{
+  Eigen::VectorXd W = this->GetParametersVector();
+  Eigen::Vector2d y(0, 0);
+  switch (this->Type)
+  {
+  case ProjectionType::Pinhole:
+    std::cout << "Projection not implemented for Pinhole cameras" << std::endl;
+    exit(EXIT_FAILURE);
+    break;
+  case ProjectionType::BrownConradyPinhole:
+    y = BrownConradyPinholeProjection(W, X,shouldClip);
+    break;
+  case ProjectionType::FishEye:
+    y = FisheyeProjection(W, X,shouldClip);
+    break;
+  default:
+    std::cout << "Warning: Projection type " << this->Type << " not handled!" << std::endl;
+  }
+  return y;
 }

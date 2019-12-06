@@ -32,6 +32,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <cassert>
+
 // BOOST
 #include <boost/filesystem.hpp>
 
@@ -256,8 +258,10 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
                                                        vtkSmartPointer<vtkImageData> pspMsk,
                                                        vtkSmartPointer<vtkImageData> img,
                                                        vtkSmartPointer<vtkMultiBlockDataSet> bbs,
-                                                       Eigen::VectorXd W)
+                                                       CameraModel* Model)
 {
+  assert(Model != nullptr);
+
   // Convert the polydata to 2D boundingbox structure
   std::vector<OrientedBoundingBox<2>> bbList = Create2DBBFromPolyData(bbs);
   std::vector<std::vector<Eigen::VectorXd>> pointsInBB(bbList.size());
@@ -274,7 +278,7 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
     Eigen::Vector3d X(pt[0], pt[1], pt[2]);
 
     // Project the 3D point onto the image
-    Eigen::Vector2d y = BrownConradyPinholeProjection(W, X, true);
+    Eigen::Vector2d y = Model->Projection(X, true);
 
     // y represents the pixel coordinates using opencv convention, we need to
     // go back to vtkImageData pixel convention
@@ -415,8 +419,7 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   vtkSmartPointer<vtkMultiBlockDataSet> bbs = bbReader->GetOutput();
 
   // Launch 3D median center computation
-  Eigen::VectorXd W = Model.GetParametersVector();
-  std::vector<SemanticCentroid> results = DetectAndComputeCentroid(transformedCloud, pspMask, img, bbs, W);
+  std::vector<SemanticCentroid> results = DetectAndComputeCentroid(transformedCloud, pspMask, img, bbs, &Model);
 
   return results;
 }

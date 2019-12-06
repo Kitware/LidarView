@@ -72,9 +72,6 @@ private:
   //! File containing the camera model and parameters
   std::string Filename;
 
-  //! Type of the camera model projection
-  ProjectionType Type = ProjectionType::FishEye;
-
   //! Name of the color array
   std::string ColorArrayName = "RGB";
 

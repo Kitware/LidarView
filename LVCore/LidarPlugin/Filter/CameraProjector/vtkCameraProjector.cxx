@@ -270,14 +270,7 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
       X = Xcorrected;
     }
 
-    if (this->Type == ProjectionType::BrownConradyPinhole)
-    {
-      y = BrownConradyPinholeProjection(W, X, true);
-    }
-    else
-    {
-      y = FisheyeProjection(W, X, true);
-    }
+    y = this->Model.Projection(X, true);
 
     // y represents the pixel coordinates using opencv convention, we need to
     // go back to vtkImageData pixel convention

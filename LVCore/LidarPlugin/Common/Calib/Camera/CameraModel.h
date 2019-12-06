@@ -67,6 +67,8 @@ public:
 
   static void WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win, ProjectionType typein);
 
+  Eigen::Vector2d Projection(const Eigen::Vector3d& X,  bool shouldClip=false);
+
 protected:
   //! intrinsic parameters of the camera model
   Eigen::Matrix3d K = Eigen::Matrix3d::Identity();
