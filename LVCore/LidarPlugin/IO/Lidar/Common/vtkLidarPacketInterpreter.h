@@ -133,7 +133,7 @@ public:
    * @brief CreateNewFrameInformation create a new frame information
    * @return
    */
-  FrameInformation GetParserMetaData() { return this->ParserMetaData; }
+  virtual FrameInformation GetParserMetaData() { return this->ParserMetaData; }
 
   /**
    * @brief ResetParserMetaData reset the metadata used by the
