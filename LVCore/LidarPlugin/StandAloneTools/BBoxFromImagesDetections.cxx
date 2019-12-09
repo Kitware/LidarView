@@ -27,6 +27,7 @@
 #include "CameraProjection.h"
 #include "BoundingBox.h"
 #include "vtkEigenTools.h"
+#include "CategoriesConfig.h"
 
 // STD
 #include <iostream>
@@ -193,49 +194,38 @@ std::vector<Eigen::VectorXd> RemovePercentilFarthest(std::vector<Eigen::VectorXd
 }
 
 //------------------------------------------------------------------------------
-bool CheckYoloPspConsistency(std::string type, int r, int g, int b)
+bool CheckBBSemMaskConsistency(int categoryId, int r, int g, int b,
+                               CategoriesConfig* catConfig)
 {
-  // 4 wheels Vehicle
-  bool carConsistency = (type == "car") && (r == 0) && (g == 0) && (b == 142);
-  bool truckConsistency = (type == "truck") && (r == 0) && (g == 0) && (b == 70);
-  bool busConsistency = (type == "bus") && (r == 0) && (g == 60) && (b == 100);
+  std::vector<double> categoryColor = catConfig->GetCategoryColor(categoryId);
+  bool consistency = (b == categoryColor[0]) && (g == categoryColor[1]) && (r == categoryColor[2]);
 
-  // 2 wheels vehicle
-  bool bicycleConsistence = (type == "bicycle") && (r == 119) && (g == 11) && (b == 32);
-  bool mototbikeConsistence = (type == "motorbike") && (r == 0) && (g == 0) && (b == 230);
-
-  // signalization
-  bool signConsistency = (type == "stop sign") && (r == 220) && (g == 220) && (b == 0);
-  bool trafficLightConsistency = (type == "traffic light") && (r == 220) && (g == 220) && (b == 0);
-
-  // persons
-  bool personConsistency = (type == "person") && (r == 220) && (g == 20) && (b == 60);
-
-  return carConsistency || truckConsistency || personConsistency || busConsistency ||
-         bicycleConsistence || mototbikeConsistence || signConsistency || trafficLightConsistency;
+  return consistency;
 }
 
 //------------------------------------------------------------------------------
-std::vector<bool> ComputeBBPSPNetConsistency(std::vector<OrientedBoundingBox<2>> bbList,
-                                             vtkSmartPointer<vtkImageData> pspMsk)
+std::vector<bool> ComputeBBSegMaskConsistency(std::vector<OrientedBoundingBox<2>> bbList,
+                                              vtkSmartPointer<vtkImageData> semanticMsk,
+                                              CategoriesConfig* catConfig)
 {
   std::vector<bool> isConsistent(bbList.size(), true);
   for (size_t bbIdx = 0; bbIdx < bbList.size(); ++bbIdx)
   {
     double pixelCount = 0;
     double pixelConsistentCount = 0;
-    for (int col = 0; col < pspMsk->GetDimensions()[0]; ++col)
+    for (int col = 0; col < semanticMsk->GetDimensions()[0]; ++col)
     {
-      for (int row = 0; row < pspMsk->GetDimensions()[1]; ++row)
+      for (int row = 0; row < semanticMsk->GetDimensions()[1]; ++row)
       {
         if (bbList[bbIdx].IsPointInside(Eigen::Vector2d(col, row)))
         {
           pixelCount += 1.0;
-          int r = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(col, row, 0, 0)));
-          int g = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(col, row, 0, 1)));
-          int b = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(col, row, 0, 2)));
+          int r = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(col, row, 0, 0)));
+          int g = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(col, row, 0, 1)));
+          int b = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(col, row, 0, 2)));
 
-          if (CheckYoloPspConsistency(bbList[bbIdx].Type, r, g, b))
+          int categoryId = catConfig->GetCategoryIdFromExternalName(bbList[bbIdx].Type, "yolo");
+          if (CheckBBSemMaskConsistency(categoryId, r, g, b, catConfig))
           {
             pixelConsistentCount += 1.0;
           }
@@ -254,11 +244,13 @@ std::vector<bool> ComputeBBPSPNetConsistency(std::vector<OrientedBoundingBox<2>>
 }
 
 //------------------------------------------------------------------------------
-std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyData> cloud,
-                                                       vtkSmartPointer<vtkImageData> pspMsk,
+std::vector<SemanticCentroid> DetectAndComputeCentroidFromBBoxPlusSemantic(vtkSmartPointer<vtkPolyData> cloud,
+                                                       vtkSmartPointer<vtkImageData> semanticMsk,
                                                        vtkSmartPointer<vtkImageData> img,
                                                        vtkSmartPointer<vtkMultiBlockDataSet> bbs,
-                                                       CameraModel* Model)
+                                                       CameraModel* Model,
+                                                       CategoriesConfig* catConfig,
+                                                       std::string bboxLabelKey)
 {
   assert(Model != nullptr);
 
@@ -267,8 +259,8 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
   std::vector<std::vector<Eigen::VectorXd>> pointsInBB(bbList.size());
 
   // Discard a potential bounding box if there is no
-  // consistency between psp-net and yolo
-  std::vector<bool> isBBConsistent = ComputeBBPSPNetConsistency(bbList, pspMsk);
+  // consistency between segmentation and bboxes
+  std::vector<bool> isBBConsistent = ComputeBBSegMaskConsistency(bbList, semanticMsk, catConfig);
 
   // loop over points of the pointcloud
   for (unsigned int pointIdx = 0; pointIdx < cloud->GetNumberOfPoints(); ++pointIdx)
@@ -297,22 +289,22 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
     {
       OrientedBoundingBox<2> bb = bbList[bbIdx];
       std::string type = bb.Type;
+      int categoryId = catConfig->GetCategoryIdFromExternalName(type, bboxLabelKey);
+      bool bbToIgnore = catConfig->GetCategoryIgnoreStatus(categoryId);
 
       // reject over kind of object
-      if (type == "car" || type == "truck" || type == "person" ||
-          type == "bicycle" || type == "motorbike" || type == "bus" ||
-          type == "traffic light" || type == "stop sign")
+      if ( !bbToIgnore )
       {
         // check that the projected point is inside the bounding box
         if (bb.IsPointInside(y) && isBBConsistent[bbIdx])
         {
           // if it is, we still need to check the consistency with
-          // the psp-net semantic segmentation
-          int r = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 0)));
-          int g = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 1)));
-          int b = static_cast<int>(std::round(pspMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 2)));
+          // the semantic segmentation
+          int r = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 0)));
+          int g = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 1)));
+          int b = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 2)));
 
-          if (CheckYoloPspConsistency(type, r, g, b))
+          if (CheckBBSemMaskConsistency(categoryId, r, g, b, catConfig))
           {
             // Add the 3D points to the list since it is in the bb frustrum
             pointsInBB[bbIdx].push_back(X);
@@ -334,7 +326,8 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
       // Then compute the centroid of the remaining points
       SemanticCentroid centroid;
       centroid.center = MultivariateMedian(closestPoints, 1e-6);
-      centroid.type = bbList[objectIdx].Type;
+      int categoryId = catConfig->GetCategoryIdFromExternalName(bbList[objectIdx].Type, bboxLabelKey);
+      centroid.type = catConfig->GetCategoryName(categoryId);
       positions.push_back(centroid);
       std::cout << "Centroid of " << centroid.type << " is: " << centroid.center.transpose() << std::endl;
     }
@@ -344,11 +337,92 @@ std::vector<SemanticCentroid> DetectAndComputeCentroid(vtkSmartPointer<vtkPolyDa
 }
 
 //------------------------------------------------------------------------------
+std::vector<SemanticCentroid> DetectAndComputeCentroidFromPanoptic(vtkSmartPointer<vtkPolyData> cloud,
+                                                       vtkSmartPointer<vtkImageData> semanticMsk,
+                                                       vtkSmartPointer<vtkImageData> img,
+                                                       YAML::Node segments,
+                                                       CameraModel* Model,
+                                                       CategoriesConfig* catConfig)
+{
+  std::vector<std::vector<Eigen::VectorXd>> pointsInSegment(segments.size());
+  std::vector<std::string> segmentType(segments.size());
+  std::vector<bool> segmentToIgnore(segments.size());
+  for (size_t i = 0; i < segments.size(); ++i)
+  {
+    int segmentCategoryId = segments[i]["category_id"].as<int>();
+    segmentToIgnore[i] = catConfig->GetCategoryIgnoreStatus(segmentCategoryId);
+    segmentType[i] = catConfig->GetCategoryName(segmentCategoryId);
+  }
+
+  // loop over points of the pointcloud
+  for (unsigned int pointIdx = 0; pointIdx < cloud->GetNumberOfPoints(); ++pointIdx)
+  {
+    double pt[3];
+    cloud->GetPoint(pointIdx, pt);
+    Eigen::Vector3d X(pt[0], pt[1], pt[2]);
+
+    // Project the 3D point onto the image
+    Eigen::Vector2d y = Model->Projection(X, true);
+
+    // y represents the pixel coordinates using opencv convention, we need to
+    // go back to vtkImageData pixel convention
+    int vtkRaw = static_cast<int>(std::round(y(1)));
+    int vtkCol = static_cast<int>(std::round(y(0)));
+
+    // Check if the projected point is in the region of interest of the image
+    if ((vtkRaw < 0) || (vtkRaw >= img->GetDimensions()[1]) ||
+        (vtkCol < 0) || (vtkCol >= img->GetDimensions()[0]))
+    {
+      continue;
+    }
+
+    // Get mask point id
+    int r = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 0)));
+    int g = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 1)));
+    int b = static_cast<int>(std::round(semanticMsk->GetScalarComponentAsDouble(vtkCol, vtkRaw, 0, 2)));
+    int maskPointId = r + 256 * g + 256 * 256 * b;
+
+    // loop over the segments
+    for (unsigned int segmentIdx = 0; segmentIdx < segments.size(); ++segmentIdx)
+    {
+      if (maskPointId == segments[segmentIdx]["id"].as<int>() && !segmentToIgnore[segmentIdx] )
+      {
+        // Add the 3D points to the list since it is in the bb frustrum
+        pointsInSegment[segmentIdx].push_back(X);
+        break;
+      }
+    }
+  }
+
+  // compute the centroid
+  std::vector<SemanticCentroid> positions;
+  for (unsigned int objectIdx = 0; objectIdx < pointsInSegment.size(); ++objectIdx)
+  {
+    if (pointsInSegment[objectIdx].size() > 0)
+    {
+      // first, only keep the 50 percent points closest to the camera center
+      std::vector<Eigen::VectorXd> closestPoints = RemovePercentilFarthest(pointsInSegment[objectIdx], 0.30);
+
+      // Then compute the centroid of the remaining points
+      SemanticCentroid centroid;
+      centroid.center = MultivariateMedian(closestPoints, 1e-6);
+      centroid.type = segmentType[objectIdx];
+      positions.push_back(centroid);
+      std::cout << "Centroid of " << centroid.type << " is: " << centroid.center.transpose() << std::endl;
+    }
+  }
+
+  return positions;
+}
+
+
+//------------------------------------------------------------------------------
 std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkPolyData> cloud,
                                 vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
-                                double timeshift, std::string imageFolder,
-                                std::string pspnetFolder, std::string yoloFolder,
-                                std::string calibFilename)
+                                CategoriesConfig* catConfig,
+                                double timeshift,
+                                std::string detectionsFormat, std::string imageFolder,
+                                std::string detectionsFolder, std::string calibFilename)
 {
   // Get the time of the cloud
   // Define the time of the cloud as being the middle time
@@ -403,30 +477,56 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   imgReader0->Update();
   vtkSmartPointer<vtkImageData> img = imgReader0->GetOutput();
 
-  // load corresponding pspnet
-  std::string pspNetMaskFilename = pspnetFolder + "/" + ss.str() + ".png";
-  vtkSmartPointer<vtkPNGReader> imgReader = vtkSmartPointer<vtkPNGReader>::New();
-  imgReader->SetFileName(pspNetMaskFilename.c_str());
-  imgReader->Update();
-  vtkSmartPointer<vtkImageData> pspMask = imgReader->GetOutput();
+  std::vector<SemanticCentroid> results(0);
+  if (detectionsFormat == "yolo+semantic")
+  {
+    // load corresponding semantic masks
+    std::string maskFilename = detectionsFolder + "/semantic_masks/" + ss.str() + ".png";
+    vtkSmartPointer<vtkPNGReader> imgReader = vtkSmartPointer<vtkPNGReader>::New();
+    imgReader->SetFileName(maskFilename.c_str());
+    imgReader->Update();
+    vtkSmartPointer<vtkImageData> semanticMask = imgReader->GetOutput();
 
-  // load yolo
-  std::string yoloBBFilename = yoloFolder + "/" + ss.str() + ".yml";
-  vtkSmartPointer<vtkBoundingBoxReader> bbReader = vtkSmartPointer<vtkBoundingBoxReader>::New();
-  bbReader->SetFileName(yoloBBFilename);
-  bbReader->SetImageHeight(img->GetDimensions()[1]);
-  bbReader->Update();
-  vtkSmartPointer<vtkMultiBlockDataSet> bbs = bbReader->GetOutput();
+    // load corresponding detections bboxes
+    std::string bboxesFilename = detectionsFolder + "/bboxes/" + ss.str() + ".yml";
+    vtkSmartPointer<vtkBoundingBoxReader> bbReader = vtkSmartPointer<vtkBoundingBoxReader>::New();
+    bbReader->SetFileName(bboxesFilename);
+    bbReader->SetImageHeight(img->GetDimensions()[1]);
+    bbReader->Update();
+    vtkSmartPointer<vtkMultiBlockDataSet> bbs = bbReader->GetOutput();
 
-  // Launch 3D median center computation
-  std::vector<SemanticCentroid> results = DetectAndComputeCentroid(transformedCloud, pspMask, img, bbs, &Model);
+    // Launch 3D median center computation
+    results = DetectAndComputeCentroidFromBBoxPlusSemantic(transformedCloud, semanticMask,
+                                                           img, bbs, &Model, catConfig, "yolo");
+  else if (detectionsFormat == "panoptic")
+  {
+    // load corresponding panoptic masks
+    std::string maskFilename = detectionsFolder + "/masks/" + ss.str() + ".png";
+    vtkSmartPointer<vtkPNGReader> imgReader = vtkSmartPointer<vtkPNGReader>::New();
+    imgReader->SetFileName(maskFilename.c_str());
+    imgReader->Update();
+    vtkSmartPointer<vtkImageData> mask = imgReader->GetOutput();
+
+    // load corresponding detections desriptions
+    std::string segmentsFilename = detectionsFolder + "/yamls/" + ss.str() + ".yml";
+    YAML::Node segments = YAML::LoadFile(segmentsFilename)["segments_info"];
+
+
+    // Launch 3D median center computation
+    results = DetectAndComputeCentroidFromPanoptic(transformedCloud, mask, img, segments, &Model, catConfig);
+  }
+  else
+  {
+    std::cout<<"Unknown detections format "<<detectionsFolder<<": No boxes computed."<<std::endl;
+  }
 
   return results;
 }
 
 //------------------------------------------------------------------------------
 void Export3DBBAsYaml(std::vector<std::vector<SemanticCentroid>> objects,
-                      std::string outputYamlFile)
+                      std::string outputYamlFile, CategoriesConfig* catConfig,
+                      std::string algo_name)
 {
   YAML::Node ymlFile;
   ymlFile["meta"] = YAML::Node();
@@ -447,27 +547,13 @@ void Export3DBBAsYaml(std::vector<std::vector<SemanticCentroid>> objects,
   for (size_t i = 0; i < allObjects.size(); ++i)
   {
     YAML::Node currentBB;
-    std::string type = allObjects[i].type;
-    if (type == "car" || type == "truck" || type == "bus")
-    {
-      currentBB["label"] = "vehicle";
-    }
-    else if (type == "bicycle" || type == "motorbike")
-    {
-      currentBB["label"] = "bike";
-    }
-    else if (type == "stop sign" || type == "traffic light")
-    {
-      currentBB["label"] = "sign";
-    }
-    else
-    {
-      currentBB["label"] = allObjects[i].type;
-    }
+
+    int categoryId = catConfig->GetCategoryIdFromName(allObjects[i].type);
+    currentBB["label"] = catConfig->GetSuperCategory(categoryId);
 
     currentBB["custom"] = YAML::Node();
     currentBB["custom"]["confidence"] = 271828;
-    currentBB["custom"]["algo"] = "Yolo_PSP_backprojected";
+    currentBB["custom"]["algo"] = algo_name;
 
     currentBB["selector"] = YAML::Node();
     currentBB["selector"]["center"].push_back(allObjects[i].center(0));
@@ -492,8 +578,15 @@ void Export3DBBAsYaml(std::vector<std::vector<SemanticCentroid>> objects,
 // so to run on all frames pass respectively 0 and -1
 int main(int argc, char* argv[])
 {
+  // Setup implemented detection formats
+  std::vector<std::string> allowedDetectionsFormats(0);
+  allowedDetectionsFormats.push_back("yolo+semantic");
+  allowedDetectionsFormats.push_back("panoptic");
+
+  int minArgc = 11;
+  int camSpecificArgc = 3;
   // Check if there is the minimal number of inputs
-  if (argc < 8)
+  if (argc < minArgc)
   {
     std::cout << "Not enough program inputs" << std::endl;
     return EXIT_FAILURE;
@@ -501,15 +594,37 @@ int main(int argc, char* argv[])
 
   int firstLidarFrameToProcess = stoi(std::string(argv[1]));
   int lastLidarFrameToProcess = stoi(std::string(argv[2]));
-  std::string cloudFrameSeries(argv[3]);
-  std::string trajectoryFilename(argv[4]);
-  std::string export3DBBFolder(argv[5]);
-  double timeshift = std::atof(argv[6]);
-  unsigned int nbrCameras = static_cast<unsigned int>(std::atoi(argv[7]));
+  std::string detectionsFormat = std::string(argv[3]);
+  std::string cloudFrameSeries(argv[4]);
+  std::string trajectoryFilename(argv[5]);
+  std::string categoriesFilename(argv[6]);
+  std::string export3DBBFolder(argv[7]);
+  std::string outputAlgoName(argv[8]);
+  double timeshift = std::atof(argv[9]);
+  unsigned int nbrCameras = static_cast<unsigned int>(std::atoi(argv[10]));
 
+  // Check if detection type is supported
+  if (std::find(begin(allowedDetectionsFormats), end(allowedDetectionsFormats), detectionsFormat)
+        == end(allowedDetectionsFormats))
+  {
+    std::cout << "Unsupported detections format" << std::endl;
+    std::cout << "Got: " << detectionsFormat << std::endl;
+    std::cout << "implemented: ";
+    for (size_t i = 0; i < allowedDetectionsFormats.size(); ++i)
+    {
+      std::cout << allowedDetectionsFormats[i] << " ";
+    }
+    std::cout << std::endl;
+
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    std::cout << "Using detections format " << detectionsFormat << std::endl;
+  }
 
   // Check if there is the expected number of inputs
-  unsigned int expectedNbrInput = 8 + nbrCameras * 4;
+  unsigned int expectedNbrInput = minArgc + nbrCameras * camSpecificArgc;
   if (static_cast<unsigned int>(argc) != expectedNbrInput)
   {
     std::cout << "Unexpected nbr of inputs" << std::endl;
@@ -520,26 +635,26 @@ int main(int argc, char* argv[])
 
   // Get the folder of the images and detections
   std::vector<std::string> imageFolders(0);
-  std::vector<std::string> pspnetFolders(0);
-  std::vector<std::string> yoloFolders(0);
+  std::vector<std::string> detectionsFolders(0);
   std::vector<std::string> calibFilenames(0);
   for (unsigned int cameraIndex = 0; cameraIndex < nbrCameras; ++cameraIndex)
   {
-    imageFolders.push_back(std::string(argv[8 + cameraIndex]));
-    pspnetFolders.push_back(std::string(argv[8 + nbrCameras + cameraIndex]));
-    yoloFolders.push_back(std::string(argv[8 + 2 * nbrCameras + cameraIndex]));
-    calibFilenames.push_back(std::string(argv[8 + 3 * nbrCameras + cameraIndex]));
+    imageFolders.push_back(std::string(argv[minArgc + cameraIndex]));
+    detectionsFolders.push_back(std::string(argv[minArgc + nbrCameras + cameraIndex]));
+    calibFilenames.push_back(std::string(argv[minArgc + 2 * nbrCameras + cameraIndex]));
 
     std::cout << cameraIndex << std::endl;
-    std::cout << std::string(argv[8 + cameraIndex]) << std::endl;
+    std::cout << std::string(argv[minArgc + cameraIndex]) << std::endl;
     std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << std::string(argv[8 + nbrCameras + cameraIndex]) << std::endl;
+    std::cout << std::string(argv[minArgc + nbrCameras + cameraIndex]) << std::endl;
     std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << std::string(argv[8 + 2 * nbrCameras + cameraIndex]) << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << std::string(argv[8 + 3 * nbrCameras + cameraIndex]) << std::endl;
+    std::cout << std::string(argv[minArgc + 2 * nbrCameras + cameraIndex]) << std::endl;
     std::cout << std::endl;
   }
+
+  // Load categories file
+
+  CategoriesConfig catConfig(categoriesFilename.c_str());
 
   // Load trajectory file
   vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
@@ -578,10 +693,10 @@ int main(int argc, char* argv[])
     // for each image, launch detection back projection
     for (unsigned int cameraIndex = 0; cameraIndex < imageFolders.size(); ++cameraIndex)
     {
-      std::vector<SemanticCentroid> currentCamObjects = LaunchDetectionBackProjection(cloud, interpolator, timeshift,
+      std::vector<SemanticCentroid> currentCamObjects = LaunchDetectionBackProjection(cloud, interpolator, &catConfig,
+                                                                                      timeshift, detectionsFormat,
                                                                                       imageFolders[cameraIndex],
-                                                                                      pspnetFolders[cameraIndex],
-                                                                                      yoloFolders[cameraIndex],
+                                                                                      detectionsFolders[cameraIndex],
                                                                                       calibFilenames[cameraIndex]);
       std::cout << "Added: " << currentCamObjects.size() << " objects for camera: " << cameraIndex << std::endl;
       objects.push_back(currentCamObjects);
@@ -589,7 +704,7 @@ int main(int argc, char* argv[])
 
     // Export as yaml
     std::string yamlOutput = (boost::filesystem::path(export3DBBFolder) / boost::filesystem::path(vtpPath).stem()).string() + ".yml";
-    Export3DBBAsYaml(objects, yamlOutput);
+    Export3DBBAsYaml(objects, yamlOutput, &catConfig, outputAlgoName);
     //std::vector<std::string>["files"] = YAML::NodeType.
     Json::Value node;
     node["name"] = boost::filesystem::path(yamlOutput).filename().string();
