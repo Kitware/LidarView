@@ -189,6 +189,7 @@ vtkSmartPointer<vtkPolyData> ConvertPoseEstimationToPolyData(const PoseEstimatio
   trajectory->SetVerts(cellArray);
   trajectory->GetPointData()->AddArray(axisAngleArray);
   trajectory->SetPoints(points);
+  return trajectory;
 }
 
 //-----------------------------------------------------------------------------
