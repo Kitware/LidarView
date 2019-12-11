@@ -413,7 +413,7 @@ endif(WIN32)
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
 #-----------------------------------------------------------------------------
-if (ENABLE_opencv)
+if (ENABLE_opencv AND ENABLE_pcl)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
   target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
   target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
