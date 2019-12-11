@@ -395,18 +395,20 @@ int testLidarReader(vtkLidarReader *reader,
 
   // Checks frame count
   int retVal = 0;
-  retVal += TestFrameCount(reader->GetNumberOfFrames()-1, referenceFilesList.size());
+  retVal += TestFrameCount(reader->GetNumberOfFrames(), referenceFilesList.size());
 
   // Check properties frame by frame
   unsigned int nbReferences = referenceFilesList.size();
 
+  // All frames are tested (even the first and the last one)
+  // Don't forget to ShowFirstAndLastFrame to generate new test data
   for (int idFrame = 0; idFrame < nbReferences; ++idFrame)
   {
     std::cout << "---------------------" << std::endl
               << "FRAME " << idFrame << " ..." << std::endl
               << "---------------------" << std::endl;
 
-    vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame+1);
+    vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame);
     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
     // Check points count
