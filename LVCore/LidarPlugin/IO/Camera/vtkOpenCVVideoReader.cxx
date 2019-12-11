@@ -150,6 +150,7 @@ int vtkOpenCVVideoReaderInternal::ReadVideoInformation()
     this->FramesPosition[frameIndex] = VideoFramePosition(frameIndex,
                                                           static_cast<double>(frameIndex) / this->VideoInfo.Fps + this->TimeOffset);
   }
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
