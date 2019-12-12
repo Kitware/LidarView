@@ -413,14 +413,14 @@ endif(WIN32)
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
 #-----------------------------------------------------------------------------
-if (opencv_FOUND AND pcl_FOUND)
+if (OpenCV_FOUND AND PCL_FOUND)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
   target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
   target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
-endif (opencv_FOUND AND pcl_FOUND)
+endif (OpenCV_FOUND AND PCL_FOUND)
 
 
 #-----------------------------------------------------------------------------
