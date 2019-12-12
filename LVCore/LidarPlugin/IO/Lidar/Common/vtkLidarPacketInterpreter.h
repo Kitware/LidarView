@@ -158,10 +158,8 @@ public:
   /**
    * @copydoc LidarPacketInterpreter::LaserSelection
    */
-  virtual void SetLaserSelection(const bool* v);
-  virtual void GetLaserSelection(bool* v) { std::copy(this->LaserSelection.begin(), this->LaserSelection.end(), v);}
-  virtual void SetLaserSelection(const std::vector<bool>& v);
-  virtual std::vector<bool> GetLaserSelection() { return this->LaserSelection; }
+  virtual vtkIntArray* GetLaserSelection();
+  virtual void SetLaserSelection(int index, int value);
 
   vtkGetMacro(DistanceResolutionM, double)
 
@@ -238,7 +236,7 @@ protected:
 
   //! Indicate for each laser if the points obtained by this specific laser
   //! should process/display (true) or ignore (false)
-  std::vector<bool> LaserSelection;
+  vtkNew<vtkIntArray> LaserSelection;
 
   //! Laser distance resolution (quantum) which also correspond to the points precision
   double DistanceResolutionM = 0;

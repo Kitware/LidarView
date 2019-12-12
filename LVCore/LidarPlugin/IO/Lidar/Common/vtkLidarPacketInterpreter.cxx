@@ -73,19 +73,23 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force)
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkLidarPacketInterpreter::SetLaserSelection(const bool* v)
+void vtkLidarPacketInterpreter::SetLaserSelection(int index, int value)
 {
-  this->LaserSelection = std::vector<bool>(v, v + this->CalibrationReportedNumLasers);
+  if ((index < 0) ||
+      (index >= this->LaserSelection->GetNumberOfTuples()))
+  {
+    vtkErrorMacro(<< "Bad mode index: " << index);
+  }
+
+  this->LaserSelection->SetTuple1(index, value);
   this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPacketInterpreter::SetLaserSelection(const std::vector<bool>& v)
+vtkIntArray* vtkLidarPacketInterpreter::GetLaserSelection()
 {
-  this->LaserSelection = v;
-  this->Modified();
+  return this->LaserSelection.GetPointer();
 }
 
 //-----------------------------------------------------------------------------
