@@ -420,7 +420,7 @@ if (ENABLE_opencv AND ENABLE_pcl)
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
-endif (ENABLE_opencv)
+endif (ENABLE_opencv AND ENABLE_pcl)
 
 
 #-----------------------------------------------------------------------------
@@ -462,11 +462,11 @@ set(executables_to_install
 #  PCAPTester
   )
 
-if (ENABLE_opencv)
+if (ENABLE_opencv AND ENABLE_pcl)
   list(APPEND executables_to_install
     BBoxFromImagesDetections
     )
-endif (ENABLE_opencv)
+endif (ENABLE_opencv AND ENABLE_pcl)
 
 if (APPLE)
 
