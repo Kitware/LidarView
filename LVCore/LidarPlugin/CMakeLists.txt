@@ -164,20 +164,20 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.cxx
   )
 
-if (ENABLE_ceres)
+if (Ceres_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses/vtkCalibrationFromPoses.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper/vtkTemporalTransformsRemapper.cxx
     )
-endif(ENABLE_ceres)
+endif(Ceres_FOUND)
 
-if (ENABLE_pcl)
+if (PCL_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel.cxx
     )
 
-endif(ENABLE_pcl)
-if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+endif(PCL_FOUND)
+if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSlam.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSpinningSensorKeypointExtractor.cxx
@@ -187,9 +187,9 @@ if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/Slam.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/SpinningSensorKeypointExtractor.cxx
     )
-endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
-if (ENABLE_opencv)
+if (OpenCV_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkPCAPImageReader.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkOpenCVVideoReader.cxx
@@ -201,7 +201,7 @@ if (ENABLE_opencv)
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkOpenCVConversions.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkOpenCVConversions.cxx
     )
-endif(ENABLE_opencv)
+endif(OpenCV_FOUND)
 
 # xml file that describe the proxy of the wrap sources in paraview
 list(APPEND servermanager_xml
@@ -229,23 +229,23 @@ list(APPEND servermanager_xml
   xml/OpenCVVideoReader.xml
   )
 
-if (ENABLE_pcl)
+if (PCL_FOUND)
   list(APPEND servermanager_xml
     xml/PCLRansacModel.xml
     )
-endif(ENABLE_pcl)
+endif(PCL_FOUND)
 
-if (ENABLE_ceres)
+if (Ceres_FOUND)
   list(APPEND servermanager_xml
     xml/CalibrationFromPoses.xml
     )
-endif(ENABLE_ceres)
+endif(Ceres_FOUND)
 
-if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
   list(APPEND servermanager_xml
     xml/Slam.xml
     )
-endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
+endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
 # other source code than won't be wrap by paraview but are needed to create the plugin
 # We make the distinction on that inherit from vtkObject as this one will be also wrap
@@ -278,30 +278,30 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Temporal/vtkTimeCalibration.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkCarGeometricCalibration.cxx
   )
-if (ENABLE_pcl)
+if (PCL_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPCLConversions.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/RegistrationTools.cxx
     )
-endif(ENABLE_pcl)
-if (ENABLE_ceres)
+endif(PCL_FOUND)
+if (Ceres_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkGeometricCalibration.cxx
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraCalibration.cxx
       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/MotionModel/MotionModel.cxx
       )
-endif (ENABLE_ceres)
-if (ENABLE_pcl AND ENABLE_ceres)
+endif (Ceres_FOUND)
+if (PCL_FOUND AND Ceres_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/TrajectoryReoptimization.cxx
       )
-endif(ENABLE_pcl AND ENABLE_ceres)
+endif(PCL_FOUND AND Ceres_FOUND)
 
-if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_opencv)
+if (PCL_FOUND AND Ceres_FOUND AND OpenCV_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/CameraLidar/MIDHOG.cxx
     )
-endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_opencv)
+endif(PCL_FOUND AND Ceres_FOUND AND OpenCV_FOUND)
 
 # plugin dependencies
 list(APPEND deps
@@ -413,14 +413,14 @@ endif(WIN32)
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
 #-----------------------------------------------------------------------------
-if (ENABLE_opencv AND ENABLE_pcl)
+if (opencv_FOUND AND pcl_FOUND)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
   target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
   target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
-endif (ENABLE_opencv AND ENABLE_pcl)
+endif (opencv_FOUND AND pcl_FOUND)
 
 
 #-----------------------------------------------------------------------------
@@ -462,11 +462,11 @@ set(executables_to_install
 #  PCAPTester
   )
 
-if (ENABLE_opencv AND ENABLE_pcl)
+if (OpenCV_FOUND AND PCL_FOUND)
   list(APPEND executables_to_install
     BBoxFromImagesDetections
     )
-endif (ENABLE_opencv AND ENABLE_pcl)
+endif (OpenCV_FOUND AND PCL_FOUND)
 
 if (APPLE)
 
