@@ -422,6 +422,13 @@ if (OpenCV_FOUND AND PCL_FOUND)
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
+
+  add_executable(LabelCloudFromImagesDetections StandAloneTools/LabelCloudFromImagesDetections.cxx)
+  target_include_directories(LabelCloudFromImagesDetections PRIVATE ${plugin_include_dirs})
+  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+  if(WIN32)
+    target_compile_definitions(LabelCloudFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  endif(WIN32)
 endif (OpenCV_FOUND AND PCL_FOUND)
 
 
@@ -467,6 +474,7 @@ set(executables_to_install
 if (OpenCV_FOUND AND PCL_FOUND)
   list(APPEND executables_to_install
     BBoxFromImagesDetections
+    LabelCloudFromImagesDetections
     )
 endif (OpenCV_FOUND AND PCL_FOUND)
 

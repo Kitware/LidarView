@@ -19,10 +19,34 @@
 // VTK
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
+#include <vtkXMLPolyDataWriter.h>
 #include <vtkPolyData.h>
 #include <vtkTransform.h>
 
 
+
+// FileSeries ------------------------------------------------------------------
+void FileSeries::AddFile(std::string name, double time)
+{
+  Json::Value node;
+  node["name"] = name;
+  node["time"] = time;
+  this->files.append(node);
+}
+
+void FileSeries::WriteToFile()
+{
+  if (this->filename.size() > 0)
+  {
+    Json::Value series;
+
+    series["files"] = this->files;
+    series["file-series-version"] = "1.0";
+    std::ofstream fileSeriesStream(this->filename);
+    fileSeriesStream << series;
+    fileSeriesStream.close();
+  }
+}
 
 //------------------------------------------------------------------------------
 size_t GetNumberOfClouds(std::string cloudFrameSeries)
@@ -50,7 +74,7 @@ std::string RemoveExtension(const std::string& filename) {
     return filename.substr(0, lastdot);
 }
 
-std::pair<std::string, double> GetClosestItemInSeries(std::string filename, 
+std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
                                                       double time,
                                                       double maxTemporalDist)
 {
@@ -86,6 +110,29 @@ vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP)
   vtkSmartPointer<vtkPolyData> cloud = reader->GetOutput();
 
   return cloud;
+}
+
+//------------------------------------------------------------------------------
+void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname)
+{
+  YAML::Node series = YAML::LoadFile(fileSeries);
+  YAML::Node files = series["files"];
+
+  // compute absolute file paths from the relative one present in the .series
+  boost::filesystem::path basename = boost::filesystem::path(files[index]["name"].as<std::string>());
+  path = (dirname / basename).string();
+}
+
+
+//------------------------------------------------------------------------------
+int WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP)
+{
+  vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+  writer->SetFileName(pathToVTP.c_str());
+  writer->SetInputData(cloud);
+  writer->Write();
+
+  return EXIT_SUCCESS;
 }
 
 

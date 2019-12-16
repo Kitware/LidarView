@@ -45,7 +45,8 @@ public:
   // Getters
   int GetNbCategories();
   std::string GetCategoryName(int);
-  bool GetCategoryIgnoreStatus(int);
+  bool IsCategoryIgnored(int);
+  bool IsCategoryThing(int);
   std::vector<double> GetCategoryColor(int);
   std::string GetSuperCategory(int);
 

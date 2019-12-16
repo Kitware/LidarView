@@ -11,13 +11,13 @@
     {
     "files": [
         {
-        "name": "0000.jpg", 
+        "name": "0000.jpg",
         "time": 1796.3160799999998
-        }, 
+        },
         {
-        "name": "0001.jpg", 
+        "name": "0001.jpg",
         "time": 1796.3785599999999
-        }, 
+        },
         ...
       ]
     }
@@ -28,9 +28,25 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
+#include <vtk_jsoncpp.h>
+
 #include "vtkEigenTools.h"
 
 #include <string>
+
+class FileSeries
+{
+  std::string filename = "";
+  Json::Value files;
+
+public:
+  FileSeries() { };
+  FileSeries(std::string filename): filename(filename) { };
+  ~FileSeries() { };
+  void AddFile(std::string name, double time);
+  void WriteToFile();
+
+};
 
 // Get number of frames in a series
 size_t GetNumberOfClouds(std::string cloudFrameSeries);
@@ -42,13 +58,16 @@ void ReadFromSeries(std::string fileSeries, size_t index, std::string& path, dou
 std::string RemoveExtension(const std::string& filename);
 
 // Return name (without extension) + time for closest frame in series described in file
-std::pair<std::string, double> GetClosestItemInSeries(std::string filename, 
+std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
                                                       double time,
                                                       double maxTemporalDist);
 
-
 // Fill cloud from frame path
 vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP);
+
+// Write cloud frame to vtp
+void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
+int WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
 
 // Cloud interpolation
 std::pair<Eigen::Matrix3d, Eigen::Vector3d> GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
@@ -58,6 +77,5 @@ vtkSmartPointer<vtkPolyData> ReferenceFrameChange(vtkSmartPointer<vtkPolyData> c
                                                     vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                                     double time);
 
-        
 
 #endif // FRAMESSERIESUTILS_H

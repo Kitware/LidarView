@@ -205,7 +205,7 @@ std::vector<SemanticCentroid> DetectAndComputeCentroidFromBBoxPlusSemantic(vtkSm
       OrientedBoundingBox<2> bb = bbList[bbIdx];
       std::string type = bb.Type;
       int categoryId = catConfig->GetCategoryIdFromExternalName(type, bboxLabelKey);
-      bool bbToIgnore = catConfig->GetCategoryIgnoreStatus(categoryId);
+      bool bbToIgnore = catConfig->IsCategoryIgnored(categoryId);
 
       // reject over kind of object
       if ( !bbToIgnore )
@@ -265,7 +265,7 @@ std::vector<SemanticCentroid> DetectAndComputeCentroidFromPanoptic(vtkSmartPoint
   for (size_t i = 0; i < segments.size(); ++i)
   {
     int segmentCategoryId = segments[i]["category_id"].as<int>();
-    segmentToIgnore[i] = catConfig->GetCategoryIgnoreStatus(segmentCategoryId);
+    segmentToIgnore[i] = catConfig->IsCategoryIgnored(segmentCategoryId);
     segmentType[i] = catConfig->GetCategoryName(segmentCategoryId);
   }
 

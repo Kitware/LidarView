@@ -4,6 +4,24 @@
 
 
 //-----------------------------------------------------------------------------
+// Helpers
+bool robustReadYamlValueAsBool(YAML::Node node)
+{
+  bool ret;
+  try
+  {
+    ret = node.as<bool>();
+  }
+  catch (YAML::BadConversion)
+  {
+    int intRet = node.as<int>();
+    ret = (intRet != 0);
+  }
+  return ret;
+
+}
+
+//-----------------------------------------------------------------------------
 CategoriesConfig::CategoriesConfig(std::string filename)
 {
   this->FileName = filename;
@@ -33,9 +51,14 @@ std::string CategoriesConfig::GetCategoryName(int categoryId)
   return this->CategoriesById[categoryId]["name"].as<std::string>();
 }
 
-bool CategoriesConfig::GetCategoryIgnoreStatus(int categoryId)
+bool CategoriesConfig::IsCategoryIgnored(int categoryId)
 {
-  return this->CategoriesById[categoryId]["ignore"].as<bool>();
+  return robustReadYamlValueAsBool(this->CategoriesById[categoryId]["ignore"]);
+}
+
+bool CategoriesConfig::IsCategoryThing(int categoryId)
+{
+  return robustReadYamlValueAsBool(this->CategoriesById[categoryId]["isthing"]);
 }
 
 std::vector<double> CategoriesConfig::GetCategoryColor(int categoryId)

@@ -24,6 +24,7 @@
 #include <string>
 // VTK
 #include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
 
 template <typename T>
 vtkSmartPointer<T> createArray(const std::string& Name, int NumberOfComponents = 1, int NumberOfTuples = 0)
@@ -32,6 +33,15 @@ vtkSmartPointer<T> createArray(const std::string& Name, int NumberOfComponents =
   array->SetNumberOfComponents(NumberOfComponents);
   array->SetNumberOfTuples(NumberOfTuples);
   array->SetName(Name.c_str());
+  return array;
+}
+
+template <typename arrayT, typename T>
+vtkSmartPointer<arrayT> addArrayWithDefault(const char* name, vtkPolyData* pd, T defaultValue)
+{
+  auto array = createArray<arrayT>(name, 1, pd->GetNumberOfPoints());
+  array->Fill(defaultValue);
+  pd->GetPointData()->AddArray(array);
   return array;
 }
 
