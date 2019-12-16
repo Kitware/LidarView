@@ -161,6 +161,7 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Ransac/vtkRansacPlaneModel.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier/vtkTemporalTransformsApplier.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame/vtkTrailingFrame.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.cxx
   )
 
@@ -218,6 +219,7 @@ list(APPEND servermanager_xml
   xml/MLSPosesSmoothing.xml
   xml/RansacPlaneModel.xml
   xml/TrailingFrame.xml
+  xml/SeparateCloudKnn.xml
   xml/ProcessingSample.xml
   xml/CameraProjector.xml
   xml/GridSource.xml
@@ -352,6 +354,7 @@ set(plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MLSPosesSmoothing
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Ransac
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel

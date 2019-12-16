@@ -1,0 +1,69 @@
+<ServerManagerConfiguration>
+  <!-- Begin SeparateCloudKnn -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="SeparateCloudKnn" class="vtkSeparateCloudKnn" label="Separate Cloud Knn">
+      <Documentation
+        short_help="Find nearest neighbors in a separate cloud"
+        long_help="Find nearest neighbors in cloud 'neighbors cloud' for each point of cloud 'Input cloud'">
+        Find nearest neighbors in cloud 'neighbors cloud' for each point of cloud 'Input cloud'
+      </Documentation>
+
+    <InputProperty
+      name="InputCloud"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <InputProperty
+      name="NeighborsCloud"
+      port_index="1"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="KnnCloud" index="0" id="port0" />
+
+    <IntVectorProperty
+        name="NbNeighbors"
+        animateable="0"
+        command="SetNbNeighbors"
+        default_values="3"
+        number_of_elements="1">
+        <Documentation>
+          Number of neighbors to consider.
+        </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty
+        name="ArrayName"
+        animateable="0"
+        command="SetArrayName"
+        default_values=""
+        number_of_elements="1">
+        <Documentation>
+          Name of the array to smooth using nearest neighbors 
+          (works only with integer arrays for now).
+        </Documentation>
+    </StringVectorProperty>
+
+    <DoubleVectorProperty
+        name="MaxDistance"
+        animateable="0"
+        command="SetMaxDistance"
+        default_values="-1"
+        number_of_elements="1">
+        <Documentation>
+          Maximum distance for neighbors to be considered (in meters).
+        </Documentation>
+    </DoubleVectorProperty>
+
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End CameraPrSeparateCloudKnnojector -->
+</ServerManagerConfiguration>
