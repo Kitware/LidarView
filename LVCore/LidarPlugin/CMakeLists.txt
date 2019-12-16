@@ -429,6 +429,13 @@ if (OpenCV_FOUND AND PCL_FOUND)
   if(WIN32)
     target_compile_definitions(LabelCloudFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
+
+  add_executable(PostProcessLabelCloud StandAloneTools/PostProcessLabelCloud.cxx)
+  target_include_directories(PostProcessLabelCloud PRIVATE ${plugin_include_dirs})
+  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+  if(WIN32)
+    target_compile_definitions(PostProcessLabelCloud PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  endif(WIN32)
 endif (OpenCV_FOUND AND PCL_FOUND)
 
 
@@ -475,6 +482,7 @@ if (OpenCV_FOUND AND PCL_FOUND)
   list(APPEND executables_to_install
     BBoxFromImagesDetections
     LabelCloudFromImagesDetections
+    PostProcessLabelCloud
     )
 endif (OpenCV_FOUND AND PCL_FOUND)
 
