@@ -20,9 +20,6 @@ add_library(lqApplicationComponents
   vvPlayerControlsToolbar.ui
   vvPlayerControlsController.cxx
   vvPlayerControlsController.h
-  vvToggleSpreadSheetReaction.h
-  vvToggleSpreadSheetReaction.cxx
-
   )
 target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
