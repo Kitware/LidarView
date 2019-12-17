@@ -200,6 +200,9 @@ public:
 
   vtkSetVector6Macro(CropRegion, double)
 
+  vtkGetMacro(EnableAdvancedArrays, bool);
+  vtkSetMacro(EnableAdvancedArrays, bool);
+
   vtkMTimeType GetMTime() override;
 
 protected:
@@ -285,6 +288,8 @@ protected:
   //! - Cylindric -> Not implemented yet
   //! all distances are in meters and all angles are in degrees
   double CropRegion[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+  bool EnableAdvancedArrays = true;
 
   vtkLidarPacketInterpreter() = default;
   virtual ~vtkLidarPacketInterpreter() = default;
