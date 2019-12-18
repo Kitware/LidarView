@@ -113,8 +113,10 @@ public:
   Eigen::Vector3d rotation;
   int confidence;
   int class_id;
+  int time;
 
-  Bbox3d() : center(0, 0, 0), dimensions(2.0, 2.0, 2.0), rotation(0, 0, 0), confidence(0) {};
+  Bbox3d() : center(0, 0, 0), dimensions(2.0, 2.0, 2.0), rotation(0, 0, 0),
+             confidence(0), time(0.) {};
 };
 
 class Segment
@@ -125,8 +127,9 @@ public:
   int segmentId;
   int categoryId;
   std::vector<unsigned int> pointIndices;
+  float confidence;
 
-  Segment() : ignore(true), isThing(false), segmentId(-1), categoryId(0) {}
+  Segment() : ignore(true), isThing(false), segmentId(-1), categoryId(0), confidence(-1) {}
 
   Segment(YAML::Node segment, CategoriesConfig*  catConfig)
   {
@@ -136,6 +139,10 @@ public:
     this->isThing = catConfig->IsCategoryThing(categoryId);
     this->segmentId = segmentId;
     this->categoryId = categoryId;
+    if (this->isThing)
+    {
+      this->confidence = segment["score"].as<float>();
+    }
   }
 };
 
@@ -156,6 +163,7 @@ T Median(const std::vector<T> in_vect)
     return out_vect[out_vect.size() / 2] ;
   }
 }
+
 // Inspired from https://medium.com/james-blogs/outliers-make-us-go-mad-univariate-outlier-detection-b3a72f1ea8c7
 std::vector<bool> GetOutliersInCloudSubset(vtkSmartPointer<vtkPolyData> cloud,
                                            std::vector<unsigned int> subsetPointIndices,
@@ -277,6 +285,8 @@ std::vector<Segment> GetSegmentsWithMorePtsThanThreshold(std::vector<Segment> se
 Bbox3d CreateBboxFromSegment(Segment* segment, vtkSmartPointer<vtkPolyData> cloud)
 {
   vtkBoundingBox vtkBbox;
+  vtkDataArray* timeArray = cloud->GetPointData()->GetArray("adjustedtime");
+  int time = timeArray->GetTuple1(segment->pointIndices[0]);
   for (size_t i = 0; i < segment->pointIndices.size(); ++i)
   {
     double pt[3];
@@ -299,7 +309,8 @@ Bbox3d CreateBboxFromSegment(Segment* segment, vtkSmartPointer<vtkPolyData> clou
   Eigen::Vector3d R(0, 0, 0);
   bbox.rotation = R;
 
-  bbox.confidence = segment->pointIndices.size();
+  bbox.confidence = static_cast<int>(segment->confidence * 100);
+  bbox.time = time;
 
   return bbox;
 }
@@ -325,6 +336,7 @@ void Export3DBBAsYaml(std::vector<Bbox3d> objects,
     currentBB["custom"] = YAML::Node();
     currentBB["custom"]["confidence"] = objects[i].confidence;
     currentBB["custom"]["algo"] = algo_name;
+    currentBB["custom"]["adjustedtime"] = objects[i].time;
 
     currentBB["selector"] = YAML::Node();
     currentBB["selector"]["center"].push_back(objects[i].center(0));
