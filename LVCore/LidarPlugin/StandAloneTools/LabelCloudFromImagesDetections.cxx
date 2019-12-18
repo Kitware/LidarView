@@ -13,6 +13,86 @@
 //=========================================================================
 
 
+/* This Standalone tool back projects 2D segmentation labels to a 3D cloud
+
+   Usage:
+   ./install/bin/LabelCloudFromImagesDetections \
+    <first frame to process>  \
+    <last frame to process> \
+    <segmentation type> \
+    <lidar frames series> \
+    <trajectory file> \
+    <categories config file> \
+    <output folder> \
+    <timeshift> \
+    <number of cameras> \
+    <camera 1 images series> \
+    <camera 1 segmentation root folder> \
+    <camera 1 calibration file> \
+    <camera 1 egovehicle mask> \
+    <camera 2 images folder> \
+    <camera 2 segmentation root folder> \
+    <camera 2 calibration file> \
+    <camera 2 egovehicle mask> \
+    ...
+
+    with:
+      - first frame to process: index of the first frame to process
+      - last frame to process: index of the last frame to process (can be -1)
+      - segmentation type: only "panoptic" is supported for now
+      - lidar frames series: full path to a frame.vtp.series file containing the names and
+          times for the lidar extracted frames series
+      - trajectory file: full path to a trajectory.vtp file
+      - categories config file: full path to a config file as described in CategoriesConfig.h
+      - output folder: full path to the folder to save the output to
+      - timeshift: time shift (in seconds) between Lidar time and Network time
+      - number of cameras: only 1 camera supported for now
+      - camera n images series: full path to a image.jpg.series file containing the names and times
+          for the image frames of camera n
+      - camera n segmentation root folder: full path the the folder containing 2D segmentation values
+          Expected structure:
+            <camera 1 segmentation root folder>
+              |_ masks
+                  |_ 000001.png
+                  |_ 000002.png
+                  |_ ...
+                  // png images with pixel values corresponding to segmentIds
+                  // as in MSCoco annotations (maskPointId = r + 256 * g + 256 * 256 * b)
+
+              |_ yamls
+                  |_ 000001.yml
+                  |_ 000002.yml
+                  |_ ...
+                  // yml storing a dictionary describing each of the segments of the image.
+                  // As in MSCoco panoptic segmentation annotations, this dictionary must have a
+                  // structure similar to the following example:
+                  // file_name: 000001.png
+                  // image_id: '000001'
+                  // segments_info:
+                  // - category_id: 3
+                  //   id: 1
+                  //   instance_id: 0
+                  //   score: 0.9953383207321167
+                  // - category_id: 3
+                  //   id: 2
+                  //   instance_id: 1
+
+      - camera n calibration file: full path to the yaml calibration file for camera n
+      - camera n egovehicle mask: full path to a grayscale image. The points which projection is on a
+          non-zero value of this image are ignored.
+          This can be set to "" if there is no egovehicle mask
+
+    Output:
+      The output folder <output folder> contains:
+        - cloud frames corrected according to the trejectory given in <trajectory file>
+        - frame.vtp.series: the corresponding series file
+        - *.yml files containing the segments information for each cloud frame, with the same structure as
+            the image segmentation yaml files
+        - segment.yml.series: the corresponding series file
+
+ */
+
+
 // LOCAL
 #include "vtkPCLConversions.h"
 #include "vtkTemporalTransforms.h"
@@ -160,7 +240,7 @@ result_pair LaunchDetectionBackProjection(vtkSmartPointer<vtkPolyData> cloud,
                                 vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                 CategoriesConfig* catConfig,
                                 double timeshift,
-                                std::string detectionsFormat, std::string imageFolder,
+                                std::string detectionsFormat, std::string imageSeriesFile,
                                 std::string detectionsFolder, std::string calibFilename,
                                 std::string egoVehicleMaskFilename
                                 )
@@ -189,11 +269,8 @@ result_pair LaunchDetectionBackProjection(vtkSmartPointer<vtkPolyData> cloud,
   // Define the time of the cloud as being the middle time
   double time = 1e-6 * CloudTimeAtImageCenter(cloud, &Model) - timeshift;
 
-    // Get the name of the temporally closest image
-  std::string filename = imageFolder + "/timeshifted_image.jpg.series";
-
   double maxTemporalDist = 1.0;
-  std::pair<std::string, double> closestImgInfo = GetClosestItemInSeries(filename, time, maxTemporalDist);
+  std::pair<std::string, double> closestImgInfo = GetClosestItemInSeries(imageSeriesFile, time, maxTemporalDist);
   std::string closestImgName = closestImgInfo.first;
   double closestImgTime = closestImgInfo.second;
 
@@ -218,6 +295,7 @@ result_pair LaunchDetectionBackProjection(vtkSmartPointer<vtkPolyData> cloud,
   auto segmentArray = addArrayWithDefault<vtkIntArray, int>("segment", labeledCloud, 0);
 
   // load the image
+  std::string imageFolder = boost::filesystem::path(imageSeriesFile).parent_path().string();
   std::string imgFilename = imageFolder + "/" + closestImgName + ".jpg";
   vtkSmartPointer<vtkJPEGReader> imgReader0 = vtkSmartPointer<vtkJPEGReader>::New();
   imgReader0->SetFileName(imgFilename.c_str());
@@ -260,7 +338,7 @@ int main(int argc, char* argv[])
   allowedDetectionsFormats.push_back("panoptic");
 
   // Parse Input ---------------------------------------------------------------------
-  int minArgc = 11;
+  int minArgc = 10;
   int camSpecificArgc = 4;
 
   // Check if there is the minimal number of inputs
@@ -277,9 +355,8 @@ int main(int argc, char* argv[])
   std::string trajectoryFilename(argv[5]);
   std::string categoriesFilename(argv[6]);
   std::string exportFolder(argv[7]);
-  std::string outputAlgoName(argv[8]);
-  double timeshift = std::atof(argv[9]);
-  unsigned int nbrCameras = static_cast<unsigned int>(std::atoi(argv[10]));
+  double timeshift = std::atof(argv[8]);
+  unsigned int nbrCameras = static_cast<unsigned int>(std::atoi(argv[9]));
 
   if (nbrCameras > 1)
   {
@@ -318,13 +395,13 @@ int main(int argc, char* argv[])
   }
 
   // Get the folder of the images and detections
-  std::vector<std::string> imageFolders(0);
+  std::vector<std::string> imageSeriesFiles(0);
   std::vector<std::string> detectionsFolders(0);
   std::vector<std::string> calibFilenames(0);
   std::vector<std::string> egoVehicleMaskFilenames(0);
   for (unsigned int cameraIndex = 0; cameraIndex < nbrCameras; ++cameraIndex)
   {
-    imageFolders.push_back(std::string(argv[minArgc + cameraIndex]));
+    imageSeriesFiles.push_back(std::string(argv[minArgc + cameraIndex]));
     detectionsFolders.push_back(std::string(argv[minArgc + nbrCameras + cameraIndex]));
     calibFilenames.push_back(std::string(argv[minArgc + 2 * nbrCameras + cameraIndex]));
     egoVehicleMaskFilenames.push_back(std::string(argv[minArgc + 3 * nbrCameras + cameraIndex]));
@@ -383,13 +460,13 @@ int main(int argc, char* argv[])
     YAML::Node segments;
     vtkSmartPointer<vtkPolyData> labeledCloud;
     // for each image, launch detection back projection
-    for (unsigned int cameraIndex = 0; cameraIndex < imageFolders.size(); ++cameraIndex)
+    for (unsigned int cameraIndex = 0; cameraIndex < imageSeriesFiles.size(); ++cameraIndex)
     {
       // Temporary hack to work on only 1 camera (to change when changing dataset)
       if (true) // HACK: Should work with multiple cameras but works only with one
       {
         result_pair results = LaunchDetectionBackProjection(cloud, interpolator, &catConfig, timeshift, detectionsFormat,
-                                                     imageFolders[cameraIndex], detectionsFolders[cameraIndex],
+                                                     imageSeriesFiles[cameraIndex], detectionsFolders[cameraIndex],
                                                      calibFilenames[cameraIndex],
                                                      egoVehicleMaskFilenames[cameraIndex]);
         labeledCloud = results.first;

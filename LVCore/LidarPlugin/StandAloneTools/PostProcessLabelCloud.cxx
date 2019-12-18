@@ -12,6 +12,53 @@
 // limitations under the License.
 //=========================================================================
 
+/* This Standalone tool takes segmented point clouds (e. g. outputs of LabelCloudFromImagesDetections)
+and cleans them up using 3D geometry hints + create 3D bounding boxes for instance segments
+
+It successively:
+  - applies KNN to segment values in order to fill potential gaps in the annotation
+  - removes points that are closer than a given threshold
+  - remove outliers for each instance segment using z-score
+  - Remove instance segments with number of points under a given threshold
+  - saves 3D bounding boxes (not oriented for now)
+
+
+   Usage:
+   ./install/bin/PostProcessLabelCloud \
+      <first frame to process>  \
+      <last frame to process> \
+      <lidar frames series> \
+      <categories config file> \
+      <cloud output folder> \
+      <bboxes output folder> \
+      <bboxes algo name> \
+      <segment series file>
+    ...
+
+    with:
+      - first frame to process: index of the first frame to process
+      - last frame to process: index of the last frame to process (can be -1)
+      - lidar frames series: full path to a frame.vtp.series file containing the names and
+          times for the lidar extracted frames series
+      - categories config file: full path to a config file as described in CategoriesConfig.h
+      - cloud output folder: full path to the folder to save the modified clouds to
+      - bboxes output folder: full path to the folder to save the 3D bounding boxes to
+      - bboxes algo name: algorithm name to set for the 3D bounding boxes
+      - segment series file: full path to a segment.yml.serues file containing the pointes to the
+          *.yml files with segments information for each cloud frame
+          The structure of those files is like the following example:
+                  file_name: frame_0000.vtp
+                  image_id: '000001' # Id for the corresponding image if the source is 2D segmentation
+                  segments_info:
+                  - category_id: 3
+                    id: 1
+                    instance_id: 0
+                    score: 0.9953383207321167
+                  - category_id: 3
+                    id: 2
+                    instance_id: 1
+ */
+
 
 // LOCAL
 #include "vtkPCLConversions.h"
