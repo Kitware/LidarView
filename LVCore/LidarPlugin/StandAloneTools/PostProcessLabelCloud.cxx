@@ -335,13 +335,9 @@ void Export3DBBAsYaml(std::vector<Bbox3d> objects,
     currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(1));
     currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(2));
 
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(0));
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(1));
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(2));
-
-    currentBB["selector"]["rotation"].push_back(objects[i].dimensions(0));
-    currentBB["selector"]["rotation"].push_back(objects[i].dimensions(1));
-    currentBB["selector"]["rotation"].push_back(objects[i].dimensions(2));
+    currentBB["selector"]["rotation"].push_back(objects[i].rotation(0));
+    currentBB["selector"]["rotation"].push_back(objects[i].rotation(1));
+    currentBB["selector"]["rotation"].push_back(objects[i].rotation(2));
 
     currentBB["selector"]["type"] = "3D bounding box";
 
