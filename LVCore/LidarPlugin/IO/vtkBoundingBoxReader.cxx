@@ -10,8 +10,12 @@
 #include <vtkPolyData.h>
 #include <vtkPolyLine.h>
 #include <vtkStringArray.h>
+#include <vtkIntArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
+#include <vtkInformation.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 #include <Eigen/Geometry>
 
@@ -194,6 +198,32 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       auto labelData = createArray<vtkStringArray>("Label", 1, 1);
       labelData->SetValue(0, label);
       bb->GetFieldData()->AddArray(labelData);
+
+      // Add confidence
+      try
+      {
+        int confidence = objects[i]["custom"]["confidence"].as<int>();
+        auto confidenceData = createArray<vtkIntArray>("Confidence", 1, 1);
+        confidenceData->SetValue(0, confidence);
+        bb->GetFieldData()->AddArray(confidenceData);
+      }
+      catch(YAML::BadConversion &e)
+      {
+        std::cerr << "Could not find 'confidence' in bounding box yaml file. Array skipped" << std::endl;
+      }
+
+      // Add time from custom field
+      try
+      {
+        int adjustedtime = objects[i]["custom"]["adjustedtime"].as<int>();
+        auto timeData = createArray<vtkDoubleArray>("adjustedtime", 1, 1);
+        timeData->SetValue(0, adjustedtime);
+        bb->GetFieldData()->AddArray(timeData);
+      }
+      catch(const std::exception& e)
+      {
+        std::cerr << "Could not find 'adjustedtime' in bounding box yaml file. Array skipped" << std::endl;
+      }
 
       output->SetBlock(i, bb);
 
