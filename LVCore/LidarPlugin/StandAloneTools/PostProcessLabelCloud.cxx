@@ -28,6 +28,7 @@ It successively:
       <first frame to process>  \
       <last frame to process> \
       <lidar frames series> \
+      <trajectory file> \
       <categories config file> \
       <cloud output folder> \
       <bboxes output folder> \
@@ -40,6 +41,9 @@ It successively:
       - last frame to process: index of the last frame to process (can be -1)
       - lidar frames series: full path to a frame.vtp.series file containing the names and
           times for the lidar extracted frames series
+      - trajectory file: full path to a trajectory.vtp file.
+          Used to orient bounding boxes aginst the trajectory
+          If set to "", the bounding boxes are oriented against the default axes
       - categories config file: full path to a config file as described in CategoriesConfig.h
       - cloud output folder: full path to the folder to save the modified clouds to
       - bboxes output folder: full path to the folder to save the 3D bounding boxes to
@@ -282,33 +286,50 @@ std::vector<Segment> GetSegmentsWithMorePtsThanThreshold(std::vector<Segment> se
 
 // Bbox utils -----------------------------------------------------------------
 
-Bbox3d CreateBboxFromSegment(Segment* segment, vtkSmartPointer<vtkPolyData> cloud)
+Bbox3d CreateBboxFromSegment(Segment* segment,
+                             vtkSmartPointer<vtkPolyData> cloud,
+                             vtkSmartPointer<vtkCustomTransformInterpolator> interpolator=NULL)
 {
+
+
   vtkBoundingBox vtkBbox;
   vtkDataArray* timeArray = cloud->GetPointData()->GetArray("adjustedtime");
+  // TODO: find a better time than the one of the first point
   int time = timeArray->GetTuple1(segment->pointIndices[0]);
+
+  Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+
+  if (interpolator)
+  {
+    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H0 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time));
+    R = H0.first;
+  }
+
+  // vtkBbox aligned to interpolator axes (rotation only)
   for (size_t i = 0; i < segment->pointIndices.size(); ++i)
   {
     double pt[3];
     cloud->GetPoint(segment->pointIndices[i], pt);
-    vtkBbox.AddPoint(pt);
+    Eigen::Vector3d X(pt[0], pt[1], pt[2]);
+    Eigen::Vector3d X1 = R * X;
+    vtkBbox.AddPoint(X1[0],X1[1], X1[2]);
   }
 
-  Bbox3d bbox;
   double center[3];
   vtkBbox.GetCenter(center);
   Eigen::Vector3d C(center[0], center[1], center[2]);
-  bbox.center = C;
 
   double bounds[6]; // double xMin, double xMax, double yMin, double yMax, double zMin, double zMax
   vtkBbox.GetBounds(bounds);
+
   Eigen::Vector3d D(bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4]);
-  bbox.dimensions = D;
+
+  // Create bbox in original coordinates
+  Bbox3d bbox;
+  bbox.center = R.transpose() * C;
+  bbox.dimensions =  D;
+  bbox.rotation = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(R);
   bbox.class_id = segment->categoryId;
-
-  Eigen::Vector3d R(0, 0, 0);
-  bbox.rotation = R;
-
   bbox.confidence = static_cast<int>(segment->confidence * 100);
   bbox.time = time;
 
@@ -474,7 +495,8 @@ void RefineLabelCloudWithInstances(vtkSmartPointer<vtkPolyData> cloud,
                                    YAML::Node yamlSegments,
                                    vtkSmartPointer<vtkPolyData> outCloud,  // Will store refined Cloud
                                    std::vector<Bbox3d>* objects,   // Will store instances 3D Bboxes
-                                   CategoriesConfig*  catConfig)
+                                   CategoriesConfig*  catConfig,
+                                   vtkSmartPointer<vtkCustomTransformInterpolator> interpolator=NULL)
 {
   // Initialise segments
   std::vector<Segment> segmentsList;
@@ -545,11 +567,12 @@ int main(int argc, char* argv[])
   int firstLidarFrameToProcess = stoi(std::string(argv[1]));
   int lastLidarFrameToProcess = stoi(std::string(argv[2]));
   std::string cloudFrameSeries(argv[3]);
-  std::string categoriesFilename(argv[4]);
-  std::string cloudExportFolder(argv[5]);
-  std::string bboxExportFolder(argv[6]);
-  std::string outputAlgoName(argv[7]);
-  std::string segmentsSeries(argv[8]);
+  std::string trajectoryFilename(argv[4]);
+  std::string categoriesFilename(argv[5]);
+  std::string cloudExportFolder(argv[6]);
+  std::string bboxExportFolder(argv[7]);
+  std::string outputAlgoName(argv[8]);
+  std::string segmentsSeries(argv[9]);
 
   size_t nbrClouds = GetNumberOfClouds(cloudFrameSeries);
 
@@ -563,6 +586,21 @@ int main(int argc, char* argv[])
 
   // Load categories file
   CategoriesConfig catConfig(categoriesFilename.c_str());
+
+  // Load trajectory file
+  vtkSmartPointer<vtkCustomTransformInterpolator> interpolator;
+
+  if (trajectoryFilename.size() > 0)
+  {
+    vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+    reader->SetFileName(trajectoryFilename.c_str());
+    reader->Update();
+    vtkSmartPointer<vtkPolyData> polyTraj = reader->GetOutput();
+    vtkSmartPointer<vtkTemporalTransforms> trajectory = vtkTemporalTransforms::CreateFromPolyData(polyTraj);
+    interpolator = trajectory->CreateInterpolator();
+    interpolator->SetInterpolationTypeToLinear();
+    std::cout << "Parsed trajectory from " << trajectoryFilename << std::endl;
+  }
 
   Json::Value files(Json::arrayValue);
 
@@ -597,7 +635,7 @@ int main(int argc, char* argv[])
     vtkSmartPointer<vtkPolyData> outCloud = vtkSmartPointer<vtkPolyData>::New();
     std::vector<Bbox3d> objects(0);
 
-    RefineLabelCloudWithInstances(cloud, segments, outCloud, &objects, &catConfig);
+    RefineLabelCloudWithInstances(cloud, segments, outCloud, &objects, &catConfig, interpolator);
 
     // Export frame cloud
     std::string outPath = "";
