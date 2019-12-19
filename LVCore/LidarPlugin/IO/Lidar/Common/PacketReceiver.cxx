@@ -43,7 +43,7 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
 
   // If a local specific address is specified, we try to listen to it
-  // Otherwise, we listen to any address (INADDR_ANY)
+  // Otherwise, we listen to any address (INADDR_ANY which is the same for v4 and v6)
   boost::asio::ip::address listen_address = boost::asio::ip::address_v4::any();
   if (LocalListeningAddress != "" && strcmp(LocalListeningAddress.c_str(), "0.0.0.0") != 0)
   {
@@ -92,7 +92,9 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   {
     try
       {
-      this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
+        // If no multicast address specified (Listen on broadcast and unicast)
+        // Bind the socket to listen address (specific or INADDR_ANY) and to the defined port
+        this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
       }
       catch(std::exception e)
       {
