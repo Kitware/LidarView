@@ -69,14 +69,19 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
     {
       try
       {
-      // Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
-      this->Socket.bind(boost::asio::ip::udp::endpoint(multicast_address, port));
+#ifdef _MSC_VER
+          // On Windows : Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
+          this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address.to_v4(), port));
+#else
+          // On Linux and MacOS : Bind the socket to defined multicast address and to the defined port
+          this->Socket.bind(boost::asio::ip::udp::endpoint(multicast_address.to_v4(), port));
+#endif
 
-      // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
-      boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
-      this->Socket.set_option(option);
+        // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
+        boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
+        this->Socket.set_option(option);
 
-      vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
+        vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
       }
       catch(std::exception e)
       {
