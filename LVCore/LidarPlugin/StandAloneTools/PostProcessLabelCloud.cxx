@@ -285,37 +285,38 @@ std::vector<Segment> GetSegmentsWithMorePtsThanThreshold(std::vector<Segment> se
 
 
 // Bbox utils -----------------------------------------------------------------
-
-Bbox3d CreateBboxFromSegment(Segment* segment,
-                             vtkSmartPointer<vtkPolyData> cloud,
-                             vtkSmartPointer<vtkCustomTransformInterpolator> interpolator=NULL)
+Eigen::Matrix3d MaybeGetRotationMatrixFromInterpolator(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
+                                                       Eigen::Matrix3d R,
+                                                       double time,
+                                                       double timeSpan=1)
 {
-
-
-  vtkBoundingBox vtkBbox;
-  vtkDataArray* timeArray = cloud->GetPointData()->GetArray("adjustedtime");
-  // TODO: find a better time than the one of the first point
-  int time = timeArray->GetTuple1(segment->pointIndices[0]);
-
-  Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
-
-  if (interpolator)
+  std::pair<Eigen::Matrix3d, Eigen::Vector3d> H0 = GetRTFromTime(interpolator, time - timeSpan/2);
+  std::pair<Eigen::Matrix3d, Eigen::Vector3d> H1 = GetRTFromTime(interpolator, time + timeSpan/2);
+  Eigen::Vector3d heading = H1.second - H0.second;
+  if (heading.norm() >=1)
   {
-    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H0 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time));
-    R = H0.first;
-  }
-
-  // Get Heading direction (in 2D)
-  if (interpolator)
-  {
-    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H0 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time));
-    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H1 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time) + 1);
-    Eigen::Vector3d heading = H1.second - H0.second;
     double yaw = std::atan2(heading[1], heading[0]);
     double pitch = -std::asin(heading[2]/ heading.norm());
     double roll = 0;
     R = RollPitchYawToMatrix(roll, pitch, yaw);
   }
+  else
+  {
+    std::cout << "Rotation matrix not updated as the displacement was too small (" << heading.norm() <<"). ";
+    std::cout << "Consider increasing timespan" << std::endl;
+  }
+  return R;
+}
+
+
+Bbox3d CreateBboxFromSegment(Segment* segment,
+                             vtkSmartPointer<vtkPolyData> cloud,
+                             Eigen::Matrix3d BboxesRotation=Eigen::Matrix3d::Identity())
+{
+  vtkBoundingBox vtkBbox;
+  vtkDataArray* timeArray = cloud->GetPointData()->GetArray("adjustedtime");
+  // TODO: find a better time than the one of the first point
+  int time = timeArray->GetTuple1(segment->pointIndices[0]);
 
   // vtkBbox aligned to interpolator axes (rotation only)
   for (size_t i = 0; i < segment->pointIndices.size(); ++i)
@@ -323,7 +324,7 @@ Bbox3d CreateBboxFromSegment(Segment* segment,
     double pt[3];
     cloud->GetPoint(segment->pointIndices[i], pt);
     Eigen::Vector3d X(pt[0], pt[1], pt[2]);
-    Eigen::Vector3d X1 = R.transpose() * X;
+    Eigen::Vector3d X1 = BboxesRotation.transpose() * X;
     vtkBbox.AddPoint(X1[0],X1[1], X1[2]);
   }
 
@@ -338,9 +339,9 @@ Bbox3d CreateBboxFromSegment(Segment* segment,
 
   // Create bbox in original coordinates
   Bbox3d bbox;
-  bbox.center = R * C;
+  bbox.center = BboxesRotation * C;
   bbox.dimensions =  D;
-  bbox.rotation = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(R);
+  bbox.rotation = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(BboxesRotation);
   bbox.class_id = segment->categoryId;
   bbox.confidence = static_cast<int>(segment->confidence * 100);
   bbox.time = time;
@@ -508,7 +509,7 @@ void RefineLabelCloudWithInstances(vtkSmartPointer<vtkPolyData> cloud,
                                    vtkSmartPointer<vtkPolyData> outCloud,  // Will store refined Cloud
                                    std::vector<Bbox3d>* objects,   // Will store instances 3D Bboxes
                                    CategoriesConfig*  catConfig,
-                                   vtkSmartPointer<vtkCustomTransformInterpolator> interpolator=NULL)
+                                   Eigen::Matrix3d BboxesRotation=Eigen::Matrix3d::Identity())
 {
   // Initialise segments
   std::vector<Segment> segmentsList;
@@ -601,14 +602,14 @@ int main(int argc, char* argv[])
 
   // Load trajectory file
   vtkSmartPointer<vtkCustomTransformInterpolator> interpolator;
-
+  vtkSmartPointer<vtkTemporalTransforms> trajectory;
   if (trajectoryFilename.size() > 0)
   {
     vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
     reader->SetFileName(trajectoryFilename.c_str());
     reader->Update();
     vtkSmartPointer<vtkPolyData> polyTraj = reader->GetOutput();
-    vtkSmartPointer<vtkTemporalTransforms> trajectory = vtkTemporalTransforms::CreateFromPolyData(polyTraj);
+    trajectory = vtkTemporalTransforms::CreateFromPolyData(polyTraj);
     interpolator = trajectory->CreateInterpolator();
     interpolator->SetInterpolationTypeToLinear();
     std::cout << "Parsed trajectory from " << trajectoryFilename << std::endl;
@@ -625,6 +626,8 @@ int main(int argc, char* argv[])
   // Copy Frame series to output folder
   boost::filesystem::create_directory(boost::filesystem::path(cloudExportFolder));
   boost::filesystem::create_directory(boost::filesystem::path(bboxExportFolder));
+
+  Eigen::Matrix3d RotFromTrajectoryHeading = Eigen::Matrix3d::Identity();
 
   // For each lidar frame, launch the detection process
   for (size_t cloudIndex = static_cast<size_t>(firstLidarFrameToProcess); cloudIndex < static_cast<size_t>(lastLidarFrameToProcess + 1); ++cloudIndex)
@@ -644,10 +647,18 @@ int main(int argc, char* argv[])
 
     YAML::Node segments = YAML::LoadFile(segmentsPath)["segments_info"];
 
+    if (interpolator)
+    {
+      vtkDataArray* timeArray = cloud->GetPointData()->GetArray("adjustedtime");
+      double time = 1e-6 * static_cast<double>((timeArray->GetTuple1(0) + timeArray->GetTuple1(cloud->GetNumberOfPoints() - 1))) / 2.0;
+
+      RotFromTrajectoryHeading = MaybeGetRotationMatrixFromInterpolator(interpolator, RotFromTrajectoryHeading, time, 1);
+    }
+
     vtkSmartPointer<vtkPolyData> outCloud = vtkSmartPointer<vtkPolyData>::New();
     std::vector<Bbox3d> objects(0);
 
-    RefineLabelCloudWithInstances(cloud, segments, outCloud, &objects, &catConfig, interpolator);
+    RefineLabelCloudWithInstances(cloud, segments, outCloud, &objects, &catConfig, RotFromTrajectoryHeading);
 
     // Export frame cloud
     std::string outPath = "";
