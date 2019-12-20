@@ -305,13 +305,25 @@ Bbox3d CreateBboxFromSegment(Segment* segment,
     R = H0.first;
   }
 
+  // Get Heading direction (in 2D)
+  if (interpolator)
+  {
+    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H0 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time));
+    std::pair<Eigen::Matrix3d, Eigen::Vector3d> H1 = GetRTFromTime(interpolator, 1e-6 * static_cast<double>(time) + 1);
+    Eigen::Vector3d heading = H1.second - H0.second;
+    double yaw = std::atan2(heading[1], heading[0]);
+    double pitch = -std::asin(heading[2]/ heading.norm());
+    double roll = 0;
+    R = RollPitchYawToMatrix(roll, pitch, yaw);
+  }
+
   // vtkBbox aligned to interpolator axes (rotation only)
   for (size_t i = 0; i < segment->pointIndices.size(); ++i)
   {
     double pt[3];
     cloud->GetPoint(segment->pointIndices[i], pt);
     Eigen::Vector3d X(pt[0], pt[1], pt[2]);
-    Eigen::Vector3d X1 = R * X;
+    Eigen::Vector3d X1 = R.transpose() * X;
     vtkBbox.AddPoint(X1[0],X1[1], X1[2]);
   }
 
@@ -326,7 +338,7 @@ Bbox3d CreateBboxFromSegment(Segment* segment,
 
   // Create bbox in original coordinates
   Bbox3d bbox;
-  bbox.center = R.transpose() * C;
+  bbox.center = R * C;
   bbox.dimensions =  D;
   bbox.rotation = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(R);
   bbox.class_id = segment->categoryId;
