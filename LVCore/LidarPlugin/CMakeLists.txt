@@ -276,6 +276,7 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkEigenTools.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/CameraProjection.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/SegmentedCloudTransformations.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraModel.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/${interpolator_pach_until_vtk_update}
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkConversions.cxx
