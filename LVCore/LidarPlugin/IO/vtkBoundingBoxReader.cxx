@@ -16,6 +16,8 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkInformation.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkCylinderSource.h>
+#include <vtkCubeSource.h>
 
 #include <Eigen/Geometry>
 
@@ -69,54 +71,16 @@ vtkSmartPointer<vtkPolyData> CreateBoundingBox3D(const Eigen::Isometry3d& p, con
   assert(d(1) > 0 && "d2 must be strictly positive");
   assert(d(2) > 0 && "d3 must be strictly positive");
 
-  auto bb = vtkSmartPointer<vtkPolyData>::New();
+  // Create box at origin
+  auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
+  cubeSource->SetCenter(0, 0, 0);
 
-  // Fill points
-  vtkNew<vtkPoints> pts;
-  bb->SetPoints(pts);
-  // top
-  pts->InsertNextPoint(-d(0)/2, -d(1)/2, +d(2)/2);
-  pts->InsertNextPoint(+d(0)/2, -d(1)/2, +d(2)/2);
-  pts->InsertNextPoint(+d(0)/2, +d(1)/2, +d(2)/2);
-  pts->InsertNextPoint(-d(0)/2, +d(1)/2, +d(2)/2);
-  // bottom
-  pts->InsertNextPoint(-d(0)/2, -d(1)/2, -d(2)/2);
-  pts->InsertNextPoint(+d(0)/2, -d(1)/2, -d(2)/2);
-  pts->InsertNextPoint(+d(0)/2, +d(1)/2, -d(2)/2);
-  pts->InsertNextPoint(-d(0)/2, +d(1)/2, -d(2)/2);
+  cubeSource->SetXLength(d[0]);
+  cubeSource->SetYLength(d[1]);
+  cubeSource->SetZLength(d[2]);
 
-  // Fill cells
-  vtkNew<vtkCellArray> cell;
-  bb->SetLines(cell);
-  // top
-  vtkNew<vtkPolyLine> polyLineBottom;
-  polyLineBottom->GetPointIds()->SetNumberOfIds(5);
-  polyLineBottom->GetPointIds()->SetId(0, 0);
-  polyLineBottom->GetPointIds()->SetId(1, 1);
-  polyLineBottom->GetPointIds()->SetId(2, 2);
-  polyLineBottom->GetPointIds()->SetId(3, 3);
-  polyLineBottom->GetPointIds()->SetId(4, 0);
-  cell->InsertNextCell(polyLineBottom.Get());
-
-  // bottom
-  vtkNew<vtkPolyLine> polyLineTop;
-  polyLineTop->GetPointIds()->SetNumberOfIds(5);
-  polyLineTop->GetPointIds()->SetId(0, 4);
-  polyLineTop->GetPointIds()->SetId(1, 5);
-  polyLineTop->GetPointIds()->SetId(2, 6);
-  polyLineTop->GetPointIds()->SetId(3, 7);
-  polyLineTop->GetPointIds()->SetId(4, 4);
-  cell->InsertNextCell(polyLineTop.Get());
-
-  // vertical line
-  for (int j = 0; j < 4; j++)
-  {
-    vtkNew<vtkPolyLine> polyLine;
-    polyLine->GetPointIds()->SetNumberOfIds(2);
-    polyLine->GetPointIds()->SetId(0, j % 8);
-    polyLine->GetPointIds()->SetId(1, (j + 4) % 8);
-    cell->InsertNextCell(polyLine.Get());
-  }
+  cubeSource->Update();
+  vtkSmartPointer<vtkPolyData> bb = cubeSource->GetOutput();
 
   // construct the transform
   vtkNew<vtkMatrix4x4> m;
@@ -135,7 +99,43 @@ vtkSmartPointer<vtkPolyData> CreateBoundingBox3D(const Eigen::Isometry3d& p, con
   transformFilter->Update();
   return transformFilter->GetOutput();
 }
+
+
+vtkSmartPointer<vtkPolyData> CreateBoundingCylinder(const Eigen::Vector3d& center, const Eigen::Vector3d& d)
+{
+  assert(d(0) > 0 && "d1 must be strictly positive");
+  assert(d(1) > 0 && "d2 must be strictly positive");
+  assert(d(2) > 0 && "d3 must be strictly positive");
+
+  // Create cylinder at origin
+  auto cylinderSource = vtkSmartPointer<vtkCylinderSource>::New();
+  cylinderSource->SetCenter(0, 0, 0);
+  double radius = std::max(d(0), d(1)) / 2;
+  cylinderSource->SetRadius(radius);
+  cylinderSource->CappingOn();
+
+  cylinderSource->SetHeight(d(2));
+  cylinderSource->SetResolution(15);
+
+  cylinderSource->Update();
+
+  vtkSmartPointer<vtkPolyData> bb = cylinderSource->GetOutput();
+
+  // orient along z axis and translate
+  vtkSmartPointer<vtkTransform> t = vtkSmartPointer<vtkTransform>::New();
+
+  t->Translate(center.data());
+  t->RotateX(90.0);
+
+  vtkNew<vtkTransformPolyDataFilter> transformFilter;
+  transformFilter->SetInputData(0, bb);
+  transformFilter->SetTransform(t);
+  transformFilter->Update();
+
+  return transformFilter->GetOutput();
 }
+}
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBoundingBoxReader)
 
@@ -185,8 +185,16 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
 
         std::vector<double> dimension= objects[i]["selector"]["dimensions"].as<std::vector<double>>();
         Eigen::Vector3d d(dimension.data());
+        Eigen::Vector3d c(center.data());
 
-        bb = CreateBoundingBox3D(pose, d);
+        if (objects[i]["label"].as<std::string>() != "person")
+        {
+          bb = CreateBoundingBox3D(pose, d);
+        }
+        else
+        {
+          bb = CreateBoundingCylinder(c, d);
+        }
       }
       else
       {
@@ -198,6 +206,19 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       auto labelData = createArray<vtkStringArray>("Label", 1, 1);
       labelData->SetValue(0, label);
       bb->GetFieldData()->AddArray(labelData);
+
+      // Add class_id
+      try
+      {
+        int classId = objects[i]["custom"]["class_id"].as<int>();
+        auto classIdData = createArray<vtkIntArray>("class_id", 1, 1);
+        classIdData->SetValue(0, classId);
+        bb->GetFieldData()->AddArray(classIdData);
+      }
+      catch(YAML::BadConversion &e)
+      {
+        std::cerr << "Could not find 'confidence' in bounding box yaml file. Array skipped" << std::endl;
+      }
 
       // Add confidence
       try
