@@ -70,6 +70,9 @@ public:
 
   // Semantic of the bounding box
   std::string Type = "N.A.";
+  int Confidence = 0;
+  int ClassId = -1;
+  int TimeStamp = 0;
 };
 
 // Implementation

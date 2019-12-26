@@ -109,20 +109,6 @@ It successively:
 #include <vtkMath.h>
 
 // Helper classes -------------------------------------------------------------
-class Bbox3d
-{
-public:
-  Eigen::Vector3d center;
-  Eigen::Vector3d dimensions;
-  Eigen::Vector3d rotation;
-  int confidence;
-  int class_id;
-  int time;
-
-  Bbox3d() : center(0, 0, 0), dimensions(2.0, 2.0, 2.0), rotation(0, 0, 0),
-             confidence(0), time(0.) {};
-};
-
 class Segment
 {
 public:
@@ -309,7 +295,7 @@ Eigen::Matrix3d MaybeGetRotationMatrixFromInterpolator(vtkSmartPointer<vtkCustom
 }
 
 
-Bbox3d CreateBboxFromSegment(Segment* segment,
+OrientedBoundingBox<3> CreateBboxFromSegment(Segment* segment,
                              vtkSmartPointer<vtkPolyData> cloud,
                              Eigen::Matrix3d BboxesRotation=Eigen::Matrix3d::Identity())
 {
@@ -338,19 +324,19 @@ Bbox3d CreateBboxFromSegment(Segment* segment,
   Eigen::Vector3d D(bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4]);
 
   // Create bbox in original coordinates
-  Bbox3d bbox;
-  bbox.center = BboxesRotation * C;
-  bbox.dimensions =  D;
-  bbox.rotation = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(BboxesRotation);
-  bbox.class_id = segment->categoryId;
-  bbox.confidence = static_cast<int>(segment->confidence * 100);
-  bbox.time = time;
+  OrientedBoundingBox<3> bbox;
+  bbox.Center = BboxesRotation * C;
+  bbox.Width =  D;
+  bbox.Orientation = BboxesRotation;
+  bbox.ClassId = segment->categoryId;
+  bbox.Confidence = static_cast<int>(segment->confidence * 100);
+  bbox.TimeStamp = time;
 
   return bbox;
 }
 
 
-void Export3DBBAsYaml(std::vector<Bbox3d> objects,
+void Export3DBBAsYaml(std::vector<OrientedBoundingBox<3>> objects,
                       std::string outputYamlFile, CategoriesConfig* catConfig,
                       std::string algo_name)
 {
@@ -365,25 +351,27 @@ void Export3DBBAsYaml(std::vector<Bbox3d> objects,
   {
     YAML::Node currentBB;
 
-    currentBB["label"] = catConfig->GetSuperCategory(objects[i].class_id);
+    currentBB["label"] = catConfig->GetSuperCategory(objects[i].ClassId);
 
     currentBB["custom"] = YAML::Node();
-    currentBB["custom"]["confidence"] = objects[i].confidence;
+    currentBB["custom"]["confidence"] = objects[i].Confidence;
     currentBB["custom"]["algo"] = algo_name;
-    currentBB["custom"]["adjustedtime"] = objects[i].time;
+    currentBB["custom"]["adjustedtime"] = objects[i].TimeStamp;
+    currentBB["custom"]["class_id"] = objects[i].ClassId;
 
     currentBB["selector"] = YAML::Node();
-    currentBB["selector"]["center"].push_back(objects[i].center(0));
-    currentBB["selector"]["center"].push_back(objects[i].center(1));
-    currentBB["selector"]["center"].push_back(objects[i].center(2));
+    currentBB["selector"]["center"].push_back(objects[i].Center(0));
+    currentBB["selector"]["center"].push_back(objects[i].Center(1));
+    currentBB["selector"]["center"].push_back(objects[i].Center(2));
 
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(0));
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(1));
-    currentBB["selector"]["dimensions"].push_back(objects[i].dimensions(2));
+    currentBB["selector"]["dimensions"].push_back(objects[i].Width(0));
+    currentBB["selector"]["dimensions"].push_back(objects[i].Width(1));
+    currentBB["selector"]["dimensions"].push_back(objects[i].Width(2));
 
-    currentBB["selector"]["rotation"].push_back(objects[i].rotation(0));
-    currentBB["selector"]["rotation"].push_back(objects[i].rotation(1));
-    currentBB["selector"]["rotation"].push_back(objects[i].rotation(2));
+    Eigen::Vector3d rpy = 180.0 / vtkMath::Pi() * MatrixToRollPitchYaw(objects[i].Orientation);
+    currentBB["selector"]["rotation"].push_back(rpy(0));
+    currentBB["selector"]["rotation"].push_back(rpy(1));
+    currentBB["selector"]["rotation"].push_back(rpy(2));
 
     currentBB["selector"]["type"] = "3D bounding box";
 
@@ -392,6 +380,7 @@ void Export3DBBAsYaml(std::vector<Bbox3d> objects,
 
   std::ofstream fout(outputYamlFile.c_str());
   fout << ymlFile;
+  fout.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -507,7 +496,7 @@ void OverwriteCloudSegmentInfos(std::vector<Segment> segmentsList,
 void RefineLabelCloudWithInstances(vtkSmartPointer<vtkPolyData> cloud,
                                    YAML::Node yamlSegments,
                                    vtkSmartPointer<vtkPolyData> outCloud,  // Will store refined Cloud
-                                   std::vector<Bbox3d>* objects,   // Will store instances 3D Bboxes
+                                   std::vector<OrientedBoundingBox<3>>* objects,   // Will store instances 3D Bboxes
                                    CategoriesConfig*  catConfig,
                                    Eigen::Matrix3d BboxesRotation=Eigen::Matrix3d::Identity())
 {
@@ -656,7 +645,7 @@ int main(int argc, char* argv[])
     }
 
     vtkSmartPointer<vtkPolyData> outCloud = vtkSmartPointer<vtkPolyData>::New();
-    std::vector<Bbox3d> objects(0);
+    std::vector<OrientedBoundingBox<3>> objects(0);
 
     RefineLabelCloudWithInstances(cloud, segments, outCloud, &objects, &catConfig, RotFromTrajectoryHeading);
 
