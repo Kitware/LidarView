@@ -29,28 +29,6 @@
 #include <vtkSmartPointer.h>
 #include "KDTreeVectorOfVectorsAdaptor.h"
 
-// STD
-#include <map>
-
-
-// https://stackoverflow.com/questions/2488941/find-which-numbers-appears-most-in-a-vector
-template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
-T mostCommon(InputIt begin, InputIt end)
-{
-  std::map<T, int> counts;
-  for (InputIt it = begin; it != end; ++it) {
-    if (counts.find(*it) != counts.end()) {
-      ++counts[*it];
-    }
-    else {
-      counts[*it] = 1;
-    }
-  }
-  return std::max_element(counts.begin(), counts.end(),
-    [] (const std::pair<T, int>& pair1, const std::pair<T, int>& pair2) {
-    return pair1.second < pair2.second;})->first;
-}
-
 
 
 // Implementation of the New function
@@ -64,7 +42,7 @@ vtkSeparateCloudKnn::vtkSeparateCloudKnn()
 }
 
 //-----------------------------------------------------------------------------
-int vtkSeparateCloudKnn::FillInputPortInformation(int port, vtkInformation *info)
+int vtkSeparateCloudKnn::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -80,7 +58,7 @@ int vtkSeparateCloudKnn::FillInputPortInformation(int port, vtkInformation *info
 }
 
 //-----------------------------------------------------------------------------
-int vtkSeparateCloudKnn::FillOutputPortInformation(int port, vtkInformation *info)
+int vtkSeparateCloudKnn::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -91,8 +69,8 @@ int vtkSeparateCloudKnn::FillOutputPortInformation(int port, vtkInformation *inf
 }
 
 //-----------------------------------------------------------------------------
-int vtkSeparateCloudKnn::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+int vtkSeparateCloudKnn::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 // Get inputs
   vtkPolyData *inPointCloud = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
@@ -125,10 +103,6 @@ int vtkSeparateCloudKnn::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataArray* arrayToUpdate = outPointCloud->GetPointData()->GetArray(arrayName);
   vtkDataArray* candidateUpdateValues = neighborsPointCloud->GetPointData()->GetArray(arrayName);
 
-  //! Hack: only works for int arrays for the moment
-  // int dataTypeID = candidateUpdateValues->GetPointData()->GetArray(i)->GetDataType();
-  // typedef ( candidateUpdateValues->GetArrayType() ) my_data_type;
-
   for (unsigned int pointIdx = 0; pointIdx < outPointCloud->GetNumberOfPoints(); ++pointIdx)
   {
     std::vector<size_t> nearestIndex(this->NbNeighbors, -1);
@@ -142,7 +116,7 @@ int vtkSeparateCloudKnn::RequestData(vtkInformation *vtkNotUsed(request),
     // get indices of neighbors
     for (size_t i = 0; i < this->NbNeighbors; ++i)
     {
-      if ( (this->MaxDistance > 0) && (nearestDist[i] <= this->MaxDistance)) {
+      if ( (this->MaxDistance > 0.0) && (nearestDist[i] <= this->MaxDistance)) {
 
         prunedNearestIndex.push_back(nearestIndex[i]);
       }
@@ -150,7 +124,7 @@ int vtkSeparateCloudKnn::RequestData(vtkInformation *vtkNotUsed(request),
 
     // Update relevant array
     std::vector<int> nearestValues;
-    for (std::size_t i=0; i<prunedNearestIndex.size(); ++i)
+    for (std::size_t i = 0; i<prunedNearestIndex.size(); ++i)
     {
       int val = candidateUpdateValues->GetTuple1(prunedNearestIndex[i]);
       if (val != 0)

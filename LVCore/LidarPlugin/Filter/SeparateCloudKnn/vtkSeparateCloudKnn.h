@@ -23,6 +23,30 @@
 // EIGEN
 #include <Eigen/Dense>
 
+// STD
+#include <map>
+
+
+/**
+  * @brief mostCommon returns most common element in a iterable object
+  * Adapted from https://stackoverflow.com/questions/2488941/find-which-numbers-appears-most-in-a-vector
+  */
+template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
+T mostCommon(InputIt begin, InputIt end)
+{
+  std::map<T, int> counts;
+  for (InputIt it = begin; it != end; ++it) {
+    if (counts.find(*it) != counts.end()) {
+      ++counts[*it];
+    }
+    else {
+      counts[*it] = 1;
+    }
+  }
+  return std::max_element(counts.begin(), counts.end(),
+    [] (const std::pair<T, int>& pair1, const std::pair<T, int>& pair2) {
+    return pair1.second < pair2.second;})->first;
+}
 
 
 /**
@@ -35,7 +59,7 @@
 class VTK_EXPORT vtkSeparateCloudKnn : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkSeparateCloudKnn *New();
+  static vtkSeparateCloudKnn* New();
   vtkTypeMacro(vtkSeparateCloudKnn, vtkPolyDataAlgorithm)
 
   vtkSetMacro(NbNeighbors, int)
@@ -51,9 +75,9 @@ public:
 protected:
   vtkSeparateCloudKnn();
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkSeparateCloudKnn(const vtkSeparateCloudKnn&) = delete;

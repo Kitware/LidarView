@@ -53,22 +53,6 @@ void RemovePointsCloserThanThreshold(Segment* segment,
 }
 
 
-template<typename T>
-T Median(const std::vector<T> in_vect)
-{
-  std::vector<T> out_vect = in_vect;
-  sort(out_vect.begin(), out_vect.end());
-
-  if (out_vect.size() % 2 == 0)
-  {
-    return (out_vect[out_vect.size() / 2] + out_vect[out_vect.size() / 2 + 1])/ 2;
-  }
-  else
-  {
-    return out_vect[out_vect.size() / 2] ;
-  }
-}
-
 std::vector<bool> GetOutliersInCloudSubset(vtkSmartPointer<vtkPolyData> cloud,
                                            std::vector<unsigned int> subsetPointIndices,
                                            double cutoff=3.5)
@@ -248,24 +232,6 @@ SegmentedCloud::SegmentedCloud(vtkSmartPointer<vtkPolyData> cloud,
 
 
 // -----------------------------------------------------------------------------
-
-// https://stackoverflow.com/questions/2488941/find-which-numbers-appears-most-in-a-vector
-template<class InputIt, class T = typename std::iterator_traits<InputIt>::value_type>
-T mostCommon(InputIt begin, InputIt end)
-{
-  std::map<T, int> counts;
-  for (InputIt it = begin; it != end; ++it) {
-    if (counts.find(*it) != counts.end()) {
-      ++counts[*it];
-    }
-    else {
-      counts[*it] = 1;
-    }
-  }
-  return std::max_element(counts.begin(), counts.end(),
-    [] (const std::pair<T, int>& pair1, const std::pair<T, int>& pair2) {
-    return pair1.second < pair2.second;})->first;
-}
 
 void SegmentedCloud::ApplyKNNsToSegments(size_t  nbNeighbors, double maxDistance)
 {

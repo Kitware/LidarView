@@ -18,17 +18,18 @@ This yaml file has the following structure:
 categories:  # List of all the categories in a dataset
   - name: category1
     id: 1
-    supercategory: supercategory1
+    supercategory: supercategory1  # Higher level category (ie. group of categories) such as vehicle or animal
     color:  # Color of the pixels corresponding to the class for semantic segementation and visualisation
     - value for blue channel
     - value for green channel
     - value for red channel
     isthing: 1  # boolean set to 1 if the categoryrepresents objets that can be delimited by a bbox
     ignore: false  # boolean set to 1 if the category should be ignored in 3D Bboxes computation
-    canmove: true  # boolean set to 1 if instances of the category can move (ex: person vehicle)
+    canmove: true  # boolean set to 1 if instances of the category can move (ex: person, vehicle)
     externalnames:  # dictionary of the names it has in different datasets used for 2D detection
       yolo: ["category1", "category2"]
       psp: ["category 1"]
+
 
  */
 class CategoriesConfig
