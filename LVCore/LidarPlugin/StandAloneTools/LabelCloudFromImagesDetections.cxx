@@ -105,6 +105,7 @@
 #include "vtkEigenTools.h"
 #include "CategoriesConfig.h"
 #include "FramesSeriesUtils.h"
+#include "FileSystemUtils.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"
 
 // STD
@@ -270,7 +271,7 @@ result_pair LaunchDetectionBackProjection(vtkSmartPointer<vtkPolyData> cloud,
   double time = 1e-6 * CloudTimeAtImageCenter(cloud, &Model) - timeshift;
 
   double maxTemporalDist = 1.0;
-  std::pair<std::string, double> closestImgInfo = GetClosestItemInSeries(imageSeriesFile, time, maxTemporalDist);
+  std::pair<std::string, double> closestImgInfo = FramesSeries::GetClosestItemInSeries(imageSeriesFile, time, maxTemporalDist);
   std::string closestImgName = closestImgInfo.first;
   double closestImgTime = closestImgInfo.second;
 
@@ -430,7 +431,7 @@ int main(int argc, char* argv[])
   vtkSmartPointer<vtkCustomTransformInterpolator> interpolator = trajectory->CreateInterpolator();
   interpolator->SetInterpolationTypeToLinear();
 
-  size_t nbrClouds = GetNumberOfClouds(cloudFrameSeries);
+  size_t nbrClouds = FramesSeries::GetNumberOfClouds(cloudFrameSeries);
 
   // allow negative (python like) indexes
   if (firstLidarFrameToProcess < 0) {
@@ -454,8 +455,8 @@ int main(int argc, char* argv[])
     // read cloud
     std::string vtpPath = "";
     double vtpPipelineTime = 0.0; // network time, not used for projection (points have their own lidar time)
-    ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
-    vtkSmartPointer<vtkPolyData> cloud = ReadCloudFrame(vtpPath);
+    FramesSeries::ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
+    vtkSmartPointer<vtkPolyData> cloud = FramesSeries::ReadCloudFrame(vtpPath);
 
     YAML::Node segments;
     vtkSmartPointer<vtkPolyData> labeledCloud;
@@ -476,8 +477,8 @@ int main(int argc, char* argv[])
 
     // Export frame cloud
     std::string outPath = "";
-    GetWritePathFromSeries(cloudFrameSeries, cloudIndex, outPath, exportFolder);
-    WriteCloudFrame(labeledCloud, outPath);
+    FramesSeries::GetWritePathFromSeries(cloudFrameSeries, cloudIndex, outPath, exportFolder);
+    FramesSeries::WriteCloudFrame(labeledCloud, outPath);
     std::string cloudFilename = boost::filesystem::path(outPath).filename().string();
     outputCloudSeries.AddFile(cloudFilename, vtpPipelineTime);
 

@@ -4,6 +4,7 @@
 #include "CameraModel.h"
 #include "vtkEigenTools.h"
 #include "FramesSeriesUtils.h"
+#include "FileSystemUtils.h"
 
 
 // STD
@@ -49,13 +50,13 @@ void FileSeries::WriteToFile()
 }
 
 //------------------------------------------------------------------------------
-size_t GetNumberOfClouds(std::string cloudFrameSeries)
+size_t FramesSeries::GetNumberOfClouds(std::string cloudFrameSeries)
 {
   YAML::Node series = YAML::LoadFile(cloudFrameSeries);
   return series["files"].size();
 }
 
-void ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time)
+void FramesSeries::ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time)
 {
   YAML::Node series = YAML::LoadFile(fileSeries);
   YAML::Node files = series["files"];
@@ -68,13 +69,7 @@ void ReadFromSeries(std::string fileSeries, size_t index, std::string& path, dou
   time = files[index]["time"].as<double>();
 }
 
-std::string RemoveExtension(const std::string& filename) {
-    size_t lastdot = filename.find_last_of(".");
-    if (lastdot == std::string::npos) return filename;
-    return filename.substr(0, lastdot);
-}
-
-std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
+std::pair<std::string, double> FramesSeries::GetClosestItemInSeries(std::string filename,
                                                       double time,
                                                       double maxTemporalDist)
 {
@@ -102,7 +97,7 @@ std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP)
+vtkSmartPointer<vtkPolyData> FramesSeries::ReadCloudFrame(std::string pathToVTP)
 {
   vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
   reader->SetFileName(pathToVTP.c_str());
@@ -113,7 +108,7 @@ vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP)
 }
 
 //------------------------------------------------------------------------------
-void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname)
+void FramesSeries::GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname)
 {
   YAML::Node series = YAML::LoadFile(fileSeries);
   YAML::Node files = series["files"];
@@ -125,7 +120,7 @@ void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& p
 
 
 //------------------------------------------------------------------------------
-int WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP)
+int FramesSeries::WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP)
 {
   vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
   writer->SetFileName(pathToVTP.c_str());

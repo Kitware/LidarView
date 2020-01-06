@@ -348,7 +348,7 @@ std::vector<SemanticCentroid> LaunchDetectionBackProjection(vtkSmartPointer<vtkP
   std::string filename = imageFolder + "/image.jpg.series";
 
   double maxTemporalDist = 1.0;
-  std::pair<std::string, double> closestImgInfo = GetClosestItemInSeries(filename, time, maxTemporalDist);
+  std::pair<std::string, double> closestImgInfo = FramesSeries::GetClosestItemInSeries(filename, time, maxTemporalDist);
   std::string closestImgName = closestImgInfo.first;
   double closestImgTime = closestImgInfo.second;
 
@@ -563,7 +563,7 @@ int main(int argc, char* argv[])
   vtkSmartPointer<vtkCustomTransformInterpolator> interpolator = trajectory->CreateInterpolator();
   interpolator->SetInterpolationTypeToLinear();
 
-  size_t nbrClouds = GetNumberOfClouds(cloudFrameSeries);
+  size_t nbrClouds = FramesSeries::GetNumberOfClouds(cloudFrameSeries);
 
   // allow negative (python like) indexes
   if (firstLidarFrameToProcess < 0) {
@@ -582,8 +582,8 @@ int main(int argc, char* argv[])
     // read cloud
     std::string vtpPath = "";
     double vtpPipelineTime = 0.0; // network time, not used for projection (points have their own lidar time)
-    ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
-    vtkSmartPointer<vtkPolyData> cloud = ReadCloudFrame(vtpPath);
+    FramesSeries::ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
+    vtkSmartPointer<vtkPolyData> cloud = FramesSeries::ReadCloudFrame(vtpPath);
 
     // object detected
     std::vector<std::vector<SemanticCentroid>> objects;

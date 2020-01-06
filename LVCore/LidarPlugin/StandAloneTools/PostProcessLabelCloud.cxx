@@ -74,6 +74,7 @@ It successively:
 #include "vtkEigenTools.h"
 #include "CategoriesConfig.h"
 #include "FramesSeriesUtils.h"
+#include "FileSystemUtils.h"
 #include "SegmentedCloudTransformations.h"
 
 // STD
@@ -227,7 +228,7 @@ int main(int argc, char* argv[])
   std::string outputAlgoName(argv[8]);
   std::string segmentsSeries(argv[9]);
 
-  size_t nbrClouds = GetNumberOfClouds(cloudFrameSeries);
+  size_t nbrClouds = FramesSeries::GetNumberOfClouds(cloudFrameSeries);
 
   // allow negative (python like) indexes
   if (firstLidarFrameToProcess < 0) {
@@ -274,14 +275,14 @@ int main(int argc, char* argv[])
   {
     std::string vtpPath = "";
     double vtpPipelineTime = 0.0; // network time, not used for projection (points have their own lidar time)
-    ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
-    vtkSmartPointer<vtkPolyData> cloud = ReadCloudFrame(vtpPath);
+    FramesSeries::ReadFromSeries(cloudFrameSeries, cloudIndex, vtpPath, vtpPipelineTime);
+    vtkSmartPointer<vtkPolyData> cloud = FramesSeries::ReadCloudFrame(vtpPath);
 
     // Load corresponding segments descriptions
     // This supposes that Cloud and segments are sync-ed, which should be as they are generated together
     std::string segmentsPath = "";
     double segmentsPipelineTime = 0.0;
-    ReadFromSeries(segmentsSeries, cloudIndex, segmentsPath, segmentsPipelineTime);
+    FramesSeries::ReadFromSeries(segmentsSeries, cloudIndex, segmentsPath, segmentsPipelineTime);
 
     assert(vtpPipelineTime == segmentsPipelineTime);
 
@@ -302,8 +303,8 @@ int main(int argc, char* argv[])
 
     // Export frame cloud
     std::string outPath = "";
-    GetWritePathFromSeries(cloudFrameSeries, cloudIndex, outPath, cloudExportFolder);
-    WriteCloudFrame(outCloud, outPath);
+    FramesSeries::GetWritePathFromSeries(cloudFrameSeries, cloudIndex, outPath, cloudExportFolder);
+    FramesSeries::WriteCloudFrame(outCloud, outPath);
     std::string cloudFilename = boost::filesystem::path(outPath).filename().string();
     outputCloudSeries.AddFile(cloudFilename, vtpPipelineTime);
 

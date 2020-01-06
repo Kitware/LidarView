@@ -1,3 +1,21 @@
+//=========================================================================
+//
+// Copyright 2020 Kitware, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//=========================================================================
+
+
 /*
   This module contains common tools for cloud/images frames series reading and time interpolation
   It concerns a sequence of data with the following format:
@@ -32,7 +50,6 @@
 
 #include "vtkEigenTools.h"
 
-#include <string>
 
 class FileSeries
 {
@@ -48,26 +65,27 @@ public:
 
 };
 
-// Get number of frames in a series
-size_t GetNumberOfClouds(std::string cloudFrameSeries);
+namespace FramesSeries
+{
+  // Get number of frames in a series
+  size_t GetNumberOfClouds(std::string cloudFrameSeries);
 
-// Read file/time from series file value at given index
-void ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
+  // Read file/time from series file value at given index
+  void ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
 
-// Remove extension from filename
-std::string RemoveExtension(const std::string& filename);
+  // Return name (without extension) + time for closest frame in series described in file
+  std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
+                                                        double time,
+                                                        double maxTemporalDist);
 
-// Return name (without extension) + time for closest frame in series described in file
-std::pair<std::string, double> GetClosestItemInSeries(std::string filename,
-                                                      double time,
-                                                      double maxTemporalDist);
+  // Fill cloud from frame path
+  vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP);
 
-// Fill cloud from frame path
-vtkSmartPointer<vtkPolyData> ReadCloudFrame(std::string pathToVTP);
+  // Write cloud frame to vtp
+  void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
+  int WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
 
-// Write cloud frame to vtp
-void GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
-int WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
+}
 
 // Cloud interpolation
 std::pair<Eigen::Matrix3d, Eigen::Vector3d> GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
