@@ -16,22 +16,21 @@
 //=========================================================================
 
 #include <vector>
+#include <numeric>
+
 
 // source: https://stackoverflow.com/questions/1719070
 template<typename T>
-double ComputeMedian(std::vector<T> &v)
+double ComputeMedian(const std::vector<T>& v)
 {
-  size_t n = v.size() / 2;
-  std::nth_element(v.begin(), v.begin() + n, v.end());
-  T vn = v[n];
-  if(v.size() % 2 == 1)
-  {
-    return vn;
-  }
-  else
-  {
-    std::nth_element(v.begin(), v.begin() + n - 1, v.end());
-    return 0.5 * (vn + v[n-1]);
-  }
-}
+    bool isEven = !(v.size() % 2);
+    size_t n    = v.size() / 2;
 
+    std::vector<size_t> vi(v.size());
+    std::iota(vi.begin(), vi.end(), 0);
+
+    std::partial_sort(vi.begin(), vi.begin() + n + 1, vi.end(),
+        [&](size_t lhs, size_t rhs) { return v[lhs] < v[rhs]; });
+
+    return isEven ? 0.5 * (v[vi.at(n-1)] + v[vi.at(n)]) : v[vi.at(n)];
+}
