@@ -4,6 +4,7 @@
 
 #include <vtkInformationVector.h>
 #include <vtkFieldData.h>
+#include <vtkPointData.h>
 #include <vtkNew.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkObjectFactory.h>
@@ -237,9 +238,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       try
       {
         int adjustedtime = objects[i]["custom"]["adjustedtime"].as<int>();
-        auto timeData = createArray<vtkDoubleArray>("adjustedtime", 1, 1);
-        timeData->SetValue(0, adjustedtime);
-        bb->GetFieldData()->AddArray(timeData);
+        addArrayWithDefault<vtkIntArray, int>("adjustedtime", bb, adjustedtime);
       }
       catch(const std::exception& e)
       {
