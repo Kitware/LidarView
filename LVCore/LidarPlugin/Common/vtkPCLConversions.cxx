@@ -61,6 +61,63 @@ vtkSmartPointer<vtkPolyData> TemplatedPolyDataFromPCDFile(const std::string& fil
   return vtkPCLConversions::PolyDataFromPointCloud(cloud);
 }
 
+template <typename CloudTPtr>
+void SetPointCloudPointsXYZFromPolydata(vtkPolyData* polyData,
+                                        CloudTPtr& cloud,
+                                        const vtkIdType numberOfPoints)
+{
+  cloud->width = numberOfPoints;
+  cloud->height = 1;
+  cloud->is_dense = true;
+  cloud->points.resize(numberOfPoints);
+
+  if (!numberOfPoints)
+  {
+    return;
+  }
+
+  vtkFloatArray* floatPoints = vtkFloatArray::SafeDownCast(polyData->GetPoints()->GetData());
+  vtkDoubleArray* doublePoints = vtkDoubleArray::SafeDownCast(polyData->GetPoints()->GetData());
+  assert(floatPoints || doublePoints);
+
+  if (floatPoints)
+  {
+    float* data = floatPoints->GetPointer(0);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+    {
+      cloud->points[i].x = data[i*3];
+      cloud->points[i].y = data[i*3+1];
+      cloud->points[i].z = data[i*3+2];
+    }
+  }
+  else if (doublePoints)
+  {
+    double* data = doublePoints->GetPointer(0);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+    {
+      cloud->points[i].x = data[i*3];
+      cloud->points[i].y = data[i*3+1];
+      cloud->points[i].z = data[i*3+2];
+    }
+  }
+}
+
+template <typename CloudTPtr>
+void SetPointCloudPointsIntensityFromPolydata(vtkPolyData* polyData,
+                                              CloudTPtr& cloud,
+                                              const vtkIdType numberOfPoints)
+{
+  // copy the intensity information
+  vtkDataArray* intensity = polyData->GetPointData()->GetArray("intensity");
+  if (intensity)
+  {
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+    {
+      cloud->points[i].intensity = intensity->GetTuple1(i);
+    }
+  }
+}
+
 }
 
 
@@ -278,47 +335,14 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
   return polyData;
 }
 
+
 //----------------------------------------------------------------------------
 pcl::PointCloud<pcl::PointXYZ>::Ptr vtkPCLConversions::PointCloudFromPolyData(vtkPolyData* polyData)
 {
   const vtkIdType numberOfPoints = polyData->GetNumberOfPoints();
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-  cloud->width = numberOfPoints;
-  cloud->height = 1;
-  cloud->is_dense = true;
-  cloud->points.resize(numberOfPoints);
-
-  if (!numberOfPoints)
-    {
-    return cloud;
-    }
-
-  vtkFloatArray* floatPoints = vtkFloatArray::SafeDownCast(polyData->GetPoints()->GetData());
-  vtkDoubleArray* doublePoints = vtkDoubleArray::SafeDownCast(polyData->GetPoints()->GetData());
-  assert(floatPoints || doublePoints);
-
-  if (floatPoints)
-    {
-    float* data = floatPoints->GetPointer(0);
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-      {
-      cloud->points[i].x = data[i*3];
-      cloud->points[i].y = data[i*3+1];
-      cloud->points[i].z = data[i*3+2];
-      }
-    }
-  else if (doublePoints)
-    {
-    double* data = doublePoints->GetPointer(0);
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-      {
-      cloud->points[i].x = data[i*3];
-      cloud->points[i].y = data[i*3+1];
-      cloud->points[i].z = data[i*3+2];
-      }
-    }
-
+  SetPointCloudPointsXYZFromPolydata(polyData, cloud, numberOfPoints);
   return cloud;
 }
 
@@ -328,40 +352,8 @@ pcl::PointCloud<pcl::PointXYZINormal>::Ptr vtkPCLConversions::PointCloudFromPoly
   const vtkIdType numberOfPoints = polyData->GetNumberOfPoints();
 
   pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZINormal>);
-  cloud->width = numberOfPoints;
-  cloud->height = 1;
-  cloud->is_dense = true;
-  cloud->points.resize(numberOfPoints);
-
-  if (!numberOfPoints)
-  {
-    return cloud;
-  }
-
-  vtkFloatArray* floatPoints = vtkFloatArray::SafeDownCast(polyData->GetPoints()->GetData());
-  vtkDoubleArray* doublePoints = vtkDoubleArray::SafeDownCast(polyData->GetPoints()->GetData());
-  assert(floatPoints || doublePoints);
-
-  if (floatPoints)
-  {
-    float* data = floatPoints->GetPointer(0);
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-      cloud->points[i].x = data[i*3];
-      cloud->points[i].y = data[i*3+1];
-      cloud->points[i].z = data[i*3+2];
-    }
-  }
-  else if (doublePoints)
-  {
-    double* data = doublePoints->GetPointer(0);
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-      cloud->points[i].x = data[i*3];
-      cloud->points[i].y = data[i*3+1];
-      cloud->points[i].z = data[i*3+2];
-    }
-  }
+  SetPointCloudPointsXYZFromPolydata(polyData, cloud, numberOfPoints);
+  SetPointCloudPointsIntensityFromPolydata(polyData, cloud, numberOfPoints);
 
   // Set normal to zero
   for (vtkIdType i = 0; i < numberOfPoints; ++i)
@@ -371,16 +363,17 @@ pcl::PointCloud<pcl::PointXYZINormal>::Ptr vtkPCLConversions::PointCloudFromPoly
     cloud->points[i].normal_z = 0;
   }
 
+  return cloud;
+}
 
-  // finally copy the intensity information
-  vtkDataArray* intensity = polyData->GetPointData()->GetArray("intensity");
-  if (intensity)
-  {
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-      cloud->points[i].intensity = intensity->GetTuple1(i);
-    }
-  }
+//----------------------------------------------------------------------------
+pcl::PointCloud<pcl::PointXYZI>::Ptr vtkPCLConversions::PointXYZIPointCloudFromPolyDataWithIntensity(vtkPolyData* polyData)
+{
+  const vtkIdType numberOfPoints = polyData->GetNumberOfPoints();
+
+  pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+  SetPointCloudPointsXYZFromPolydata(polyData, cloud, numberOfPoints);
+  SetPointCloudPointsIntensityFromPolydata(polyData, cloud, numberOfPoints);
 
   return cloud;
 }

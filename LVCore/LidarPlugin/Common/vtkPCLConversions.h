@@ -60,11 +60,15 @@ public:
   static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud(
     pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud);
 
+
   static pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudFromPolyData(
     vtkPolyData* polyData);
 
   static pcl::PointCloud<pcl::PointXYZINormal>::Ptr PointCloudFromPolyDataWithIntensity(
       vtkPolyData* polyData);
+
+  static pcl::PointCloud<pcl::PointXYZI>::Ptr PointXYZIPointCloudFromPolyDataWithIntensity(
+    vtkPolyData* polyData);
 
   static vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts);
 
