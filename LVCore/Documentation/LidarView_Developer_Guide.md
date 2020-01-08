@@ -177,7 +177,7 @@ The following packages are needed to build on Ubuntu 16.04:
 
     `cd LidarView-source`
 
-    `git submodule update --init Superbuild/common-superbuild`
+    `git submodule update --init Superbuild/lidarview-superbuild`
 
     * this command must be executed inside the previously cloned repository
 
@@ -208,7 +208,7 @@ The following packages are needed to build on Ubuntu 16.04:
 
 9. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
 
-    `cd common-superbuild/lidarview/build`
+    `cd lidarview-superbuild/common-superbuild/lidarview/build`
 
     `make install`
 
