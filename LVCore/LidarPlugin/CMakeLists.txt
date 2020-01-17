@@ -161,7 +161,6 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Ransac/vtkRansacPlaneModel.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier/vtkTemporalTransformsApplier.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame/vtkTrailingFrame.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.cxx
   )
 
@@ -219,7 +218,6 @@ list(APPEND servermanager_xml
   xml/MLSPosesSmoothing.xml
   xml/RansacPlaneModel.xml
   xml/TrailingFrame.xml
-  xml/SeparateCloudKnn.xml
   xml/ProcessingSample.xml
   xml/CameraProjector.xml
   xml/GridSource.xml
@@ -249,6 +247,19 @@ if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
     )
 endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
+
+if (nanoflann_FOUND)
+  list(APPEND servermanager_sources
+       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
+       )
+  list(APPEND servermanager_xml
+       xml/SeparateCloudKnn.xml
+       )
+  list(APPEND sources_which_do_not_inherit_from_vtkObject
+       ${CMAKE_CURRENT_SOURCE_DIR}/Common/SegmentedCloudTransformations.cxx
+       )
+endif()
+
 # other source code than won't be wrap by paraview but are needed to create the plugin
 # We make the distinction on that inherit from vtkObject as this one will be also wrap
 # in python later on
@@ -276,7 +287,6 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkEigenTools.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/CameraProjection.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/SegmentedCloudTransformations.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraModel.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/${interpolator_pach_until_vtk_update}
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkConversions.cxx
