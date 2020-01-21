@@ -25,6 +25,7 @@
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkXMLPolyDataReader.h>
+#include <vtkTimerLog.h>
 
 #include <vvPacketSender.h>
 
@@ -376,7 +377,7 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
 //-----------------------------------------------------------------------------
 int testLidarReader(vtkLidarReader *reader,
                     double referenceNetworkTimeToDataTime,
-                    const std::string &referenceFileName)
+                    const std::string& referenceFileName)
 {
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
@@ -398,7 +399,7 @@ int testLidarReader(vtkLidarReader *reader,
   retVal += TestFrameCount(reader->GetNumberOfFrames(), referenceFilesList.size());
 
   // Check properties frame by frame
-  unsigned int nbReferences = referenceFilesList.size();
+  int nbReferences = referenceFilesList.size();
 
   // All frames are tested (even the first and the last one)
   // Don't forget to ShowFirstAndLastFrame to generate new test data
@@ -435,118 +436,119 @@ int testLidarReader(vtkLidarReader *reader,
 
 //-----------------------------------------------------------------------------
 int testLidarStream(vtkLidarStream *stream,
+                    bool preSend,
                     const std::string& pcapFileName,
-                    const std::string &referenceFileName)
+                    const std::string& referenceFileName)
 {
-//  // get VTP file name from the reference file
-//  std::vector<std::string> referenceFilesList;
-//  referenceFilesList = GenerateFileList(referenceFileName);
+  int retVal = 0;
+  // get VTP file name from the reference file
+  std::vector<std::string> referenceFilesList;
+  referenceFilesList = GenerateFileList(referenceFileName);
 
-//  //
-//  const std::string destinationIp = "127.0.0.1";
-//  const int dataPort = stream->GetLidarPort();
+  const std::string destinationIp = "127.0.0.1";
+  const int dataPort = 2368;
 
-//  int retVal = 0;
+  // Case of live correction : Packet are sent a first time to save calibration
+  if (preSend)
+  {
+    try
+    {
+      stream->Start();
+      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+      while (!sender.IsDone())
+      {
+        sender.pumpPacket();
+        boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+      }
+      stream->Stop();
+    }
+    catch (std::exception& e)
+    {
+      std::cout << "Caught Exception: " << e.what() << std::endl;
+      return 1;
+    }
+  }
 
-//  stream->SetIsForwarding(false);
-//  stream->Start();
+  // Packets are sent, if a new frame is ready it's compare to the associated reference frame
+  std::cout << "Sending data... " << std::endl;
+  const double startTime = vtkTimerLog::GetUniversalTime();
 
-//  std::cout << "Sending data... " << std::endl;
-//  const double startTime = vtkTimerLog::GetUniversalTime();
-//  try
-//  {
-//    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
-//    boost::this_thread::sleep(boost::posix_time::microseconds(1000));
-//    sender.pumpPacket();
-//    while (!sender.IsDone())
-//    {
-//      sender.pumpPacket();
-//      boost::this_thread::sleep(boost::posix_time::microseconds(1000));
-//    }
-//  }
-//  catch (std::exception& e)
-//  {
-//    std::cout << "Caught Exception: " << e.what() << std::endl;
-//    return 1;
-//  }
-//  stream->Stop();
+  stream->Start();
+  if (stream->GetInterpreter()->GetIsCalibrated())
+  {
+    try
+    {
+      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
 
-//  std::cout << "Done." << std::endl;
+      // Limit the number of packets sent to limit the execution time of tests
+      unsigned int maxNbPackets = 25000;
+      unsigned int nbCurrentPackets = 0;
 
-//  double elapsedTime = vtkTimerLog::GetUniversalTime() - startTime;
-//  std::cout << "Data sent in " << elapsedTime << "s" << std::endl;
+      int idFrame = 0;
+      bool firstFrame = true;
+      while (!sender.IsDone() && nbCurrentPackets < maxNbPackets)
+      {
+        sender.pumpPacket();
+        boost::this_thread::sleep(boost::posix_time::microseconds(2000));
+        nbCurrentPackets++;
 
-//  if (correctionFileName == "" && stream->GetInterpreter()->GetIsCalibrated())
-//  {
-//    std::cout << "Live Correction initialized, resend data..." << std::endl;
-//    const double resendingDataStartTime = vtkTimerLog::GetUniversalTime();
-//    try
-//    {
-//      stream->Start();
-//      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+        // A new frame is ready
+        if (stream->GetNeedsUpdate())
+        {
+          // Skips the first & last frames. First and last frame aren't complete frames
+          // In live mode, we don't skip the last firing belonging to the n-1 frame.
+          // In live mode, the last frame is uncomplete.
+          if (firstFrame)
+          {
+            stream->Update();
+            firstFrame = false;
+          }
+          else
+          {
+            std::cout << "---------------------" << std::endl
+                      << "FRAME " << idFrame << std::endl
+                      << "---------------------" << std::endl;
 
-//      boost::this_thread::sleep(boost::posix_time::microseconds(1000));
-//      sender.pumpPacket();
+            stream->Update();
 
-//      while (!sender.IsDone())
-//      {
-//        sender.pumpPacket();
-//        boost::this_thread::sleep(boost::posix_time::microseconds(1000));
-//      }
+            vtkPolyData* currentFrame = stream->GetOutput();
+            vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
-//      stream->Stop();
-//      std::cout << "Done." << std::endl;
+            // Check Points count
+            retVal += TestPointCount(currentFrame, currentReference);
 
-//      elapsedTime = vtkTimerLog::GetUniversalTime() - resendingDataStartTime;
-//      std::cout << "Data sent after live calibration in " << elapsedTime << "s" << std::endl;
-//    }
-//    catch (std::exception& e)
-//    {
-//      std::cout << "Caught Exception: " << e.what() << std::endl;
-//      return 1;
-//    }
-//  }
+            // Check Points position
+            retVal += TestPointPositions(currentFrame, currentReference);
 
-//  std::cout << "Integrity tests..." << std::endl;
+            // Check PointData structure
+            retVal += TestPointDataStructure(currentFrame, currentReference);
 
-//  // Integrity tests.
-//  // Checks in the default LidarView environment that everything can be read correctly.
+            // Check PointData values
+            retVal += TestPointDataValues(currentFrame, currentReference);
 
-//  retVal += TestFrameCount(GetNumberOfTimesteps(stream), referenceFilesList.size());
+            // Check RPM values
+            retVal += TestRPMValues(currentFrame, currentReference);
 
-//  // Check properties frame by frame
-//  unsigned int nbReferences = referenceFilesList.size();
+            idFrame++;
+          }
+        }
+      }
+      if (sender.IsDone())
+      {
+        retVal += TestFrameCount(idFrame, referenceFilesList.size());
+      }
+    }
+    catch (std::exception& e)
+    {
+      std::cout << "Caught Exception: " << e.what() << std::endl;
+      return 1;
+    }
+  }
+  stream->Stop();
 
-//  // Skips the first & last frames. First and last frame aren't complete frames
-//  // In live mode, we don't skip the last firing belonging to the n-1 frame.
-//  // In live mode, the last frame is uncomplete.
-//  GetCurrentFrame(stream, 0);
+  double elapsedTime = vtkTimerLog::GetUniversalTime() - startTime;
+  std::cout << "Data sent in " << elapsedTime << "s" << std::endl;
+  std::cout << "Done." << std::endl;
 
-//  for (int idFrame = 0; idFrame < nbReferences - 1; ++idFrame)
-//  {
-//    std::cout << "---------------------" << std::endl
-//              << "FRAME " << idFrame << " ..." << std::endl
-//              << "---------------------" << std::endl;
-
-//    vtkPolyData* currentFrame = GetCurrentFrame(stream, idFrame + 1);
-//    vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-//    // Points count
-//    retVal += TestPointCount(currentFrame, currentReference);
-
-//    // Points position
-//    retVal += TestPointPositions(currentFrame, currentReference);
-
-//    // PointData structure
-//    retVal += TestPointDataStructure(currentFrame, currentReference);
-
-//    // PointData values
-//    retVal += TestPointDataValues(currentFrame, currentReference);
-
-//    // RPM values
-//    retVal += TestRPMValues(currentFrame, currentReference);
-//  }
-
-//  return retVal;
-
+  return retVal;
 }

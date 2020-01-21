@@ -119,11 +119,13 @@ int testLidarReader(vtkLidarReader* reader,
 /**
  * @brief testLidarStream comapre the the stream output to prerecorded frames
  * @param stream
+ * @param preSend should all packets be sent in a pre-test pass first
  * @param pcapFileName file to replay
  * @param referenceFileName the file containing the vtp to compare with
  * @return nb of error
  */
 int testLidarStream(vtkLidarStream* stream,
+                    bool preSend,
                     const std::string& pcapFileName,
                     const std::string& referenceFileName);
 
