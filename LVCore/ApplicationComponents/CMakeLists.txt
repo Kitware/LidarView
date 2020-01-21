@@ -20,6 +20,8 @@ add_library(lqApplicationComponents
   vvPlayerControlsToolbar.ui
   vvPlayerControlsController.cxx
   vvPlayerControlsController.h
+  lvSpreadSheetManager.cxx
+  lvSpreadSheetManager.h
   )
 target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
