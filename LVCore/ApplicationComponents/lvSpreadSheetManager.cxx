@@ -17,6 +17,7 @@
 #include <pqObjectBuilder.h>
 #include <pqApplicationCore.h>
 #include <pqActiveObjects.h>
+#include <pqSettings.h>
 
 #include <assert.h>
 
@@ -63,6 +64,7 @@ void lvSpreadSheetManager::constructSpreadSheet()
   assert(this->SpreadSheetView != nullptr);
 
   QObject::connect(this->SpreadSheetView, SIGNAL(endRender()), this, SLOT(onSpreadSheetEndRender()));
+  QObject::connect(this, SIGNAL(saveColumnSelection()), this, SLOT(onSaveColumnSelection()));
 
   this->SpreadSheetViewDec = new pqSpreadSheetViewDecorator(this->SpreadSheetView);
   this->SpreadSheetViewDec->setPrecision(3);
@@ -85,6 +87,15 @@ void lvSpreadSheetManager::constructSpreadSheet()
     {
       reinterpret_cast<QWidget*>(headers[i])->hide();
     }
+  }
+
+  // allow saving of column selection
+  if (this->SpreadSheetView->getViewModel() != nullptr)
+  {
+    QObject::connect(this->SpreadSheetView->getViewModel(),
+                     SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+                     this,
+                     SLOT(onHeaderDataChanged(Qt::Orientation, int, int)));
   }
 }
 
@@ -131,8 +142,7 @@ void lvSpreadSheetManager::conditionnallyHideColumn(const std::string& condition
   if (!this->SpreadSheetView
       || !this->SpreadSheetView->getViewModel()
       || !this->SpreadSheetView->getViewModel()->activeRepresentation()
-      || this->SpreadSheetView->getViewModel()->activeRepresentation()
-             ->getInput()->getSMName().toStdString() != conditionSrcName)
+      || this->getCurrentShownObjectName() != conditionSrcName)
   {
     return;
   }
@@ -143,7 +153,10 @@ void lvSpreadSheetManager::conditionnallyHideColumn(const std::string& condition
     QVariant colHeader = this->SpreadSheetView->getViewModel()->headerData(i, Qt::Orientation::Horizontal);
     if (colHeader.toString().toStdString() == columnName)
     {
-      this->SpreadSheetView->getViewModel()->setVisible(i, false);
+      if (this->SpreadSheetView->getViewModel()->isVisible(i))
+      {
+        this->SpreadSheetView->getViewModel()->setVisible(i, false);
+      }
     }
   }
 }
@@ -154,7 +167,96 @@ void lvSpreadSheetManager::onSpreadSheetEndRender()
   // endRender may not be the best signal to use because it will be called at
   // each frame whereas we would prefer to update only when the source is
   // changed. However I tried pqSpreadSheetView::showing and
-  // pqSpreadSheetView::viewportUpdated but none worked.
-  conditionnallyHideColumn("Data", "Points_m_XYZ"); // hide duplicated Point coordinates
-  conditionnallyHideColumn("TrailingFrame", "Points_m_XYZ");
+  // pqSpreadSheetView::viewportUpdated but none worked because column names
+  // are not yet updated
+  if (this->getCurrentShownObjectName() != this->lastShownObjectName)
+  {
+    conditionnallyHideColumn("Data", "Points_m_XYZ"); // hide dupe of pt coords
+    conditionnallyHideColumn("TrailingFrame", "Points_m_XYZ");
+
+    this->restoreColumnSelection();
+  }
+  this->lastShownObjectName = this->getCurrentShownObjectName();
+}
+
+//-----------------------------------------------------------------------------
+void lvSpreadSheetManager::onHeaderDataChanged(Qt::Orientation,
+                                               int firstColumn,
+                                               int lastColumn)
+{
+  int columnCount = this->SpreadSheetView->getViewModel()->columnCount();
+  if (columnCount > 1 && lastColumn - firstColumn != 1)
+  {
+    // Detected a forced update of header line, not due to user changing
+    // column selection, thus no need to save the column selection.
+    return;
+  }
+  if (lastColumn == columnCount - 1)
+  {
+    // onHeaderDataChanged is called for each col, so we wait until the last one
+    emit this->saveColumnSelection();
+  }
+}
+
+namespace {
+std::string getHiddenArraysKey(const std::string& objectName)
+{
+  return "SpreadSheetManager/HiddenArrays/" + objectName + "/";
+}
+}
+
+//-----------------------------------------------------------------------------
+void lvSpreadSheetManager::onSaveColumnSelection()
+{
+  if (!this->SpreadSheetView
+      || !this->SpreadSheetView->getViewModel()
+      || !this->SpreadSheetView->getViewModel()->activeRepresentation())
+  {
+    return;
+  }
+
+  pqSettings* settings = pqApplicationCore::instance()->settings();
+
+  const int cols = this->SpreadSheetView->getViewModel()->columnCount();
+  QStringList hiddenArrays;
+  for (int i = 0; i < cols; i++)
+  {
+    QVariant colHeader = this->SpreadSheetView->getViewModel()->headerData(i, Qt::Orientation::Horizontal);
+    if (!this->SpreadSheetView->getViewModel()->isVisible(i))
+    {
+      hiddenArrays << colHeader.toString();
+    }
+  }
+
+  std::string key = getHiddenArraysKey(this->getCurrentShownObjectName());
+  settings->setValue(key.c_str(), hiddenArrays);
+}
+
+//-----------------------------------------------------------------------------
+void lvSpreadSheetManager::restoreColumnSelection()
+{
+  pqSettings* settings = pqApplicationCore::instance()->settings();
+  std::string objectName = this->getCurrentShownObjectName();
+  std::string key = getHiddenArraysKey(objectName);
+  QStringList hiddenArrays = settings->value(key.c_str()).toStringList();
+  foreach (QString array, hiddenArrays)
+  {
+    this->conditionnallyHideColumn(objectName, array.toStdString());
+  }
+}
+
+//-----------------------------------------------------------------------------
+std::string lvSpreadSheetManager::getCurrentShownObjectName()
+{
+  if (this->SpreadSheetView &&
+    this->SpreadSheetView->getViewModel() &&
+    this->SpreadSheetView->getViewModel()->activeRepresentation() &&
+    this->SpreadSheetView->getViewModel()->activeRepresentation()->getInput())
+  {
+    return this->SpreadSheetView->getViewModel()->activeRepresentation()->getInput()->getSMName().toStdString();
+  }
+  else
+  {
+    return "";
+  }
 }

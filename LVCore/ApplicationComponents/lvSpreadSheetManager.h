@@ -34,10 +34,19 @@ public:
   void setMainView(pqRenderView* view);
 signals:
   void spreadSheetEnabled(bool);
+  void saveColumnSelection();
 
 protected slots:
   void onToggleSpreadSheet(bool toggle);
   void onSpreadSheetEndRender();
+
+  // This function received a signal from ParaView's SpreadSheetViewModel
+  void onHeaderDataChanged(Qt::Orientation orientation,
+                           int firstColumn,
+                           int lastColumn);
+
+  // only the list of hidden columns is saved
+  void onSaveColumnSelection();
 
 private:
   QDockWidget* spreadSheetDock = nullptr;
@@ -51,6 +60,9 @@ private:
   bool isSpreadSheetOpen();
   void conditionnallyHideColumn(const std::string& conditionSrcName,
                                 const std::string& columnName);
+  void restoreColumnSelection();
+  std::string getCurrentShownObjectName();
+  std::string lastShownObjectName = "";
 };
 
 #endif // __lvSpreadSheetManager_h
