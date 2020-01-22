@@ -50,7 +50,7 @@ if (ENABLE_pcl AND ENABLE_ceres)
 
   add_executable(TestTrajectoryReoptimization TestTrajectoryReoptimization.cxx)
   target_link_libraries(TestTrajectoryReoptimization LidarPlugin)
-endif(ENABLE_PCL AND ENABLE_Ceres)
+endif(ENABLE_pcl AND ENABLE_ceres)
 
 #if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 #  custom_add_executable(TestSlam TestSlam.cxx)
@@ -99,7 +99,7 @@ if (ENABLE_pcl AND ENABLE_ceres)
     ${INSTALL_LOCAL_DIR}/TestTrajectoryReoptimization
     ${data_dir}/trajectories/mm05_reoptimization
   )
-endif(ENABLE_PCL AND ENABLE_Ceres)
+endif(ENABLE_pcl AND ENABLE_ceres)
 
 #if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 #  add_test(TestSlam
