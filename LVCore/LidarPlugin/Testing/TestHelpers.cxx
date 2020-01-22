@@ -437,6 +437,8 @@ int testLidarReader(vtkLidarReader *reader,
 //-----------------------------------------------------------------------------
 int testLidarStream(vtkLidarStream *stream,
                     bool preSend,
+                    double preSendSpeed,
+                    double speed,
                     const std::string& pcapFileName,
                     const std::string& referenceFileName)
 {
@@ -448,6 +450,9 @@ int testLidarStream(vtkLidarStream *stream,
   const std::string destinationIp = "127.0.0.1";
   const int dataPort = 2368;
 
+  const int preSendWait_us = static_cast<int>(1e6 * 1.0 / preSendSpeed);
+  const int sendWait_us = static_cast<int>(1e6 * 1.0 / speed);
+
   // Case of live correction : Packet are sent a first time to save calibration
   if (preSend)
   {
@@ -458,7 +463,7 @@ int testLidarStream(vtkLidarStream *stream,
       while (!sender.IsDone())
       {
         sender.pumpPacket();
-        boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+        boost::this_thread::sleep(boost::posix_time::microseconds(preSendWait_us));
       }
       stream->Stop();
     }
@@ -489,7 +494,7 @@ int testLidarStream(vtkLidarStream *stream,
       while (!sender.IsDone() && nbCurrentPackets < maxNbPackets)
       {
         sender.pumpPacket();
-        boost::this_thread::sleep(boost::posix_time::microseconds(2000));
+        boost::this_thread::sleep(boost::posix_time::microseconds(sendWait_us));
         nbCurrentPackets++;
 
         // A new frame is ready
