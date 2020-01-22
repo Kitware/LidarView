@@ -62,7 +62,7 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     vtkGenericWarningMacro("no time steps are available.\n Either the reader was not able parse "
 		           << "the data or :"
 			   << "If you are in playback mode: no lidar data are present in the .pcap file"
-			   << "If you are in stream mode: no data have been received throught ethernet");
+			   << "If you are in stream mode: no data have been received from network");
     this->LastTimeProcessedIndex = (LastTimeProcessedIndex+1) % (this->NumberOfTrailingFrames+1);
     return 1;
   }
