@@ -59,11 +59,10 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   // .pcap or received throught ethernet
   if (this->TimeSteps.size() == 0)
   {
-    vtkGenericWarningMacro("no time steps are enabled.\n If you are in playback mode"
-                           << " it means that no lidar data was present in the .pcap file"
-                           << " or LidarView was not able to parse it.\n If you are in"
-                           << " stream mode, it means that no data have been received throught"
-                           << " ethernet or LidarView was not able to parse it");
+    vtkGenericWarningMacro("no time steps are available.\n Either the reader was not able parse "
+		           << "the data or :"
+			   << "If you are in playback mode: no lidar data are present in the .pcap file"
+			   << "If you are in stream mode: no data have been received throught ethernet");
     this->LastTimeProcessedIndex = (LastTimeProcessedIndex+1) % (this->NumberOfTrailingFrames+1);
     return 1;
   }
