@@ -190,6 +190,8 @@ public:
 
   vtkMTimeType GetMTime() override;
 
+  virtual int64_t GetManufacturerMACAddress() { return 0xffffffffffff;}
+
 protected: 
   /**
    * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate some

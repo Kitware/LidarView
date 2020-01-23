@@ -34,6 +34,7 @@ public:
                                            std::array<unsigned char, 4> sourceIPv4BigEndian,
                                            uint16_t sourcePort,
                                            uint16_t destinationPort,
+                                           uint64_t macAddress);
 
   // Note that the memory zone returned by P->GetPayloadData() has a lifetime equal
   // to the instance P of NetworkPacket (no copy is done), and must not be freed

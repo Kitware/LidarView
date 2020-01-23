@@ -19,6 +19,7 @@
 #include "PacketReceiver.h"
 #include "NetworkSource.h"
 #include "NetworkPacket.h"
+#include "PacketConsumer.h"
 
 #include <vtkMath.h>
 
@@ -223,7 +224,8 @@ void PacketReceiver::SocketCallback(
                                                        numberOfBytes,
                                                        sourceIP,
                                                        sourcePort,
-                                                       ourPort);
+                                                       ourPort,
+                                                       this->Parent->Consumer->GetInterpreter()->GetManufacturerMACAddress());
 
   // std::cout << this->Socket.remote_endpoint().address() << std::endl;
 

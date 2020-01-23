@@ -48,6 +48,8 @@ public:
 
   void SetInterpreter(vtkLidarPacketInterpreter* inter) { this->Interpreter = inter;}
 
+  vtkLidarPacketInterpreter* GetInterpreter() { return this->Interpreter; }
+
   // Hold this when modifying internals of reader
   boost::mutex ConsumerMutex;
 

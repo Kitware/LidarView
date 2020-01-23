@@ -75,6 +75,7 @@ NetworkPacket* NetworkPacket::BuildEthernetIP4UDP(const unsigned char* payload,
                                                  std::array<unsigned char, 4> sourceIPv4BigEndian,
                                                  uint16_t sourcePort,
                                                  uint16_t destinationPort,
+                                                 uint64_t macAddress)
 {
   NetworkPacket* packet = new NetworkPacket();
   gettimeofday(&packet->ReceptionTime, nullptr);
@@ -99,6 +100,8 @@ NetworkPacket* NetworkPacket::BuildEthernetIP4UDP(const unsigned char* payload,
   // IPV4
   header->ipv4.source_ip_address = *reinterpret_cast<boost::endian::big_uint32_t *>(sourceIPv4BigEndian.data());
   header->ipv4.total_length = sizeof(ipv4_header) + sizeof(upd_header) + payloadSize;
+
+  header->ethernet.source_mac_address = macAddress;
 
   // We could compute and set the UDP checksum, then the IP checksum but this
   // was not done in the past.
