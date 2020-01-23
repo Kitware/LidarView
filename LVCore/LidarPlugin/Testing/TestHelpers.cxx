@@ -325,7 +325,7 @@ int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference)
 }
 
 //-----------------------------------------------------------------------------
-int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference)
+int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference, double tol)
 {
   auto currentFrameRPMArray = currentFrame->GetFieldData()->GetArray("RotationPerMinute");
   auto currentReferenceRPMArray = currentReference->GetFieldData()->GetArray("RotationPerMinute");
@@ -344,7 +344,7 @@ int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference)
   double currentReferenceRPM =
     currentReference->GetFieldData()->GetArray("RotationPerMinute")->GetTuple1(0);
 
-  if (!vtkMathUtilities::FuzzyCompare(currentFrameRPM, currentReferenceRPM, 1.0))
+  if (!vtkMathUtilities::FuzzyCompare(currentFrameRPM, currentReferenceRPM, tol))
   {
     std::cerr << "failed : Wrong RPM value. Expected " << currentReferenceRPM << ", got " << currentFrameRPM
               << std::endl;
@@ -540,7 +540,9 @@ int testLidarStream(vtkLidarStream *stream,
             retVal += TestPointDataValues(currentFrame, currentReference);
 
             // Check RPM values
-            retVal += TestRPMValues(currentFrame, currentReference);
+            // This values are computed differently in stream and reader,
+            // so to use reader generated ground-truth, tolerance is generous.
+            retVal += TestRPMValues(currentFrame, currentReference, 20.0);
 
             idFrame++;
           }

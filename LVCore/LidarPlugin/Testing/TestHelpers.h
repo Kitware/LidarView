@@ -99,9 +99,10 @@ int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference)
  * dataset
  * @param currentFrame Current frame
  * @param currentReference Reference for the current frame
+ * @param tol tolerance in comparison, unit: RPM
  * @return 0 on success, 1 on failure
  */
-int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference);
+int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference, double tol=1.0);
 
 int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
                                double referenceNetworkTimeToLidarTime);
