@@ -552,12 +552,22 @@ int testLidarStream(vtkLidarStream *stream,
       {
         retVal += TestFrameCount(idFrame, referenceFilesList.size());
       }
+      else
+      {
+        std::cout << "Problem when sending data. Received: " << idFrame << " frames." << std::endl;
+        retVal += 1;
+      }
     }
     catch (std::exception& e)
     {
       std::cout << "Caught Exception: " << e.what() << std::endl;
       return 1;
     }
+  }
+  else
+  {
+    std::cout << "Test failed: Interpreter is not calibrated." << std::endl;
+    retVal += 1;
   }
   stream->Stop();
 
