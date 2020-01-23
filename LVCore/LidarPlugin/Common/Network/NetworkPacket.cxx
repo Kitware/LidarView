@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 
+#include <boost/endian/arithmetic.hpp>
 #ifdef _MSC_VER
 #include <windows.h>
 
@@ -23,70 +24,81 @@ int gettimeofday(struct timeval* tp, void*)
 
 #endif
 
-// in network (big endian) order
-const unsigned char NetworkPacket::EthIP4UDPHeaderDefault[42] = {
-  // 14 bytes ethernet header
-  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, // dst MAC addr
-  0x60, 0x76, 0x88, 0x00, 0x00, 0x00, // src MAC addr
-  0x08, 0x00, // packet type (IP)
-  // 20 bytes IPv4 header
-  0x45, 0x00, // version+IHL, services
-  0x04, 0xd2, // totlen
-  0x00, 0x00, // iden
-  0x40, 0x00, // flag (40=do not fragment), frag offset
-  0xff, 0x11, // TTL, protocol (UDP)
-  0xb4, 0xaa, // checksum
-  0xc0, 0xa8, 0x01, 0xc8, // src ip: 192.168.1.200
-  0xff, 0xff, 0xff, 0xff, // dest ip: broadcast
-  // 8 bytes UDP header
-  // src port, dst port , len, chksum
-  0x09, 0x40, // src port: 2368
-  0x09, 0x40, // dst port: 2368
-  0x04, 0xbe, // len
-  0x00, 0x00 // checksum
+#pragma pack(push, 1)
+struct ethernet_header
+{
+  boost::endian::big_uint48_t destination_mac_address {0xffffffffffff};
+  boost::endian::big_uint48_t source_mac_address {0xffffffffffff};
+  boost::endian::big_uint16_t packet_type {0x0800}; // IP
 };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct ipv4_header
+{
+  boost::endian::big_uint8_t version_and_IHL {0x45};
+  boost::endian::big_uint8_t service {0x00};
+  boost::endian::big_uint16_t total_length {0x04d2};
+  boost::endian::big_uint16_t identification {0x0000};
+  boost::endian::big_uint16_t flag_and_fragment_offset {0x4000}; // do not fragment
+  boost::endian::big_uint8_t time_to_live {0xff};
+  boost::endian::big_uint8_t protocol {0x11}; // UDP
+  boost::endian::big_uint16_t checksum {0xffff};
+  boost::endian::big_uint32_t source_ip_address {0xc0a801c8}; // 192.168.1.200
+  boost::endian::big_uint32_t destination_ip_address {0xffffffff}; // broadcast
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct upd_header
+{
+  boost::endian::big_uint16_t source_port {2368};
+  boost::endian::big_uint16_t destination_port {2368};
+  boost::endian::big_uint16_t length {0x04be};
+  boost::endian::big_uint16_t checksum {0x0000};
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct Ethernet_IPV4_UDP_Header
+{
+  ethernet_header ethernet;
+  ipv4_header ipv4;
+  upd_header upd;
+};
+#pragma pack(pop)
+
 
 //------------------------------------------------------------------------------
 NetworkPacket* NetworkPacket::BuildEthernetIP4UDP(const unsigned char* payload,
-                                                 unsigned int payloadSize,
-                                                 const unsigned char* sourceIPv4BigEndian,
-                                                 unsigned short sourcePort,
-                                                 unsigned short destinationPort)
+                                                 std::size_t payloadSize,
+                                                 std::array<unsigned char, 4> sourceIPv4BigEndian,
+                                                 uint16_t sourcePort,
+                                                 uint16_t destinationPort,
 {
   NetworkPacket* packet = new NetworkPacket();
   gettimeofday(&packet->ReceptionTime, nullptr);
-  packet->PacketSize = sizeof(NetworkPacket::EthIP4UDPHeaderDefault) + payloadSize;
-  packet->PacketData.resize(packet->PacketSize);
 
-  packet->PayloadStart = sizeof(NetworkPacket::EthIP4UDPHeaderDefault);
+  packet->PacketData.resize(sizeof(Ethernet_IPV4_UDP_Header) + payloadSize);
+  packet->PayloadStart = sizeof(Ethernet_IPV4_UDP_Header);
 
-  std::copy(NetworkPacket::EthIP4UDPHeaderDefault,
-            NetworkPacket::EthIP4UDPHeaderDefault + sizeof(NetworkPacket::EthIP4UDPHeaderDefault),
-            packet->PacketData.begin());
+  // copy payload to packet
   std::copy(payload,
             payload + payloadSize,
-            packet->PacketData.begin() + sizeof(NetworkPacket::EthIP4UDPHeaderDefault));
+            packet->PacketData.begin() + sizeof(Ethernet_IPV4_UDP_Header));
 
-  // Set IP-frame length (which is payloadSize + 28), in network order: big endian
-  packet->PacketData[EthIPUDPHeader_IPFRAMELEN] = ((payloadSize + 28) & 0xFF00) >> 8;
-  packet->PacketData[EthIPUDPHeader_IPFRAMELEN + 1] = ((payloadSize + 28) & 0x00FF) >> 0;
+  // modify the header
+  auto* header = reinterpret_cast<Ethernet_IPV4_UDP_Header*>(packet->PacketData.data());
+  *header = Ethernet_IPV4_UDP_Header();
 
-  // Set UDP-frame length (which is payloadSize + 8), in network order: big endian
-  packet->PacketData[EthIPUDPHeader_UDPFRAMELEN] = ((payloadSize + 8) & 0xFF00) >> 8;
-  packet->PacketData[EthIPUDPHeader_UDPFRAMELEN + 1] = ((payloadSize + 8) & 0x00FF) >> 0;
+  // UDP
+  header->upd.source_port = sourcePort;
+  header->upd.destination_port = destinationPort;
+  header->upd.length = sizeof(upd_header) + payloadSize;
 
-  // Set IPv4 of source, from big endian to big endian
-  std::copy(sourceIPv4BigEndian,
-            sourceIPv4BigEndian + 4,
-            packet->PacketData.begin() + EthIPUDPHeader_SOURCEIP4);
-
-  // Set source port, in network order: big endian
-  packet->PacketData[EthIPUDPHeader_SOURCEPORT] = (sourcePort & 0xFF00) >> 8;
-  packet->PacketData[EthIPUDPHeader_SOURCEPORT + 1] = (sourcePort & 0x00FF) >> 0;
-
-  // Set destination port, in network order: big endian
-  packet->PacketData[EthIPUDPHeader_DESTPORT] = (destinationPort & 0xFF00) >> 8;
-  packet->PacketData[EthIPUDPHeader_DESTPORT + 1] = (destinationPort & 0x00FF) >> 0;
+  // IPV4
+  header->ipv4.source_ip_address = *reinterpret_cast<boost::endian::big_uint32_t *>(sourceIPv4BigEndian.data());
+  header->ipv4.total_length = sizeof(ipv4_header) + sizeof(upd_header) + payloadSize;
 
   // We could compute and set the UDP checksum, then the IP checksum but this
   // was not done in the past.
@@ -103,7 +115,7 @@ const unsigned char* NetworkPacket::GetPacketData() const
 //------------------------------------------------------------------------------
 unsigned int NetworkPacket::GetPacketSize() const
 {
-  return this->PacketSize;
+  return this->PacketData.size();
 }
 
 //------------------------------------------------------------------------------
@@ -116,5 +128,5 @@ const unsigned char* NetworkPacket::GetPayloadData() const
 unsigned int NetworkPacket::GetPayloadSize() const
 {
   // last - first + 1
-  return (this->PacketSize - 1) - this->PayloadStart + 1;
+  return (this->GetPacketSize() - 1) - this->PayloadStart + 1;
 }

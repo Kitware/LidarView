@@ -209,7 +209,7 @@ void PacketReceiver::SocketCallback(
   // endpoint::port() is in host byte order
   unsigned short sourcePort = this->SenderEndpoint.port();
   // sourceIP has network endianess (so big endian).
-  unsigned char sourceIP[4] = {192, 168, 0, 200};
+  std::array<unsigned char, 4> sourceIP = {192, 168, 0, 200};
   if (this->SenderEndpoint.address().is_v4())
   {
     for (int i = 0; i < 4; i++)
