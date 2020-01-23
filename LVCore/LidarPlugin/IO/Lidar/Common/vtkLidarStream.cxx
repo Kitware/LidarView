@@ -219,6 +219,7 @@ void vtkLidarStream::Start()
   {
     vtkErrorMacro("no interpreter is set")
   }
+  this->UpdateInformation(); // load calibration via this->RequestInformation()
   this->Consumer->SetInterpreter(this->Interpreter);
   if (this->OutputFileName.length())
   {
