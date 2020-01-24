@@ -168,6 +168,19 @@ Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>
   double p1 = W(13); double p2 = W(14);
   double p3 = W(15); double p4 = W(16);
 
+  // The coefficients correspond to the Brown-Conrady model as described in
+  // https://en.wikipedia.org/wiki/Distortion_(optics)
+  // Notice that with p3 = 0 and p4 = 0, we have the following correspondance
+  // with the opencv model described in
+  // https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html:
+  // opencv <=> BrownConrady
+  // k1 <=> k1
+  // k2 <=> k2
+  // p1 <=> p2
+  // p2 <=> p1
+  // k3..n <=> 0
+  // 0 <=> p3
+  // 0 <=> p4
   double xdist = Xp1(0) + Xp1(0) * (k1 * std::pow(r, 2) + k2 * std::pow(r, 4)) +
                  (p1 * (std::pow(r, 2) + 2 * std::pow(Xp1(0), 2)) +
                   2 * p2 * Xp1(0) * Xp1(1)) * (1 + p3 * std::pow(r, 2) + p4 * std::pow(r, 4));
