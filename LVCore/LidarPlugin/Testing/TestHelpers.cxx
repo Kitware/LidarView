@@ -485,6 +485,8 @@ int testLidarStream(vtkLidarStream *stream,
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
   std::cout << "Sending data... " << std::endl;
   const double startTime = vtkTimerLog::GetUniversalTime();
+  double timeLastPacketSent = startTime;
+  const double timeout = 1.0;
 
   stream->Start();
   if (stream->GetInterpreter()->GetIsCalibrated())
@@ -499,11 +501,19 @@ int testLidarStream(vtkLidarStream *stream,
 
       int idFrame = 0;
       bool firstFrame = true;
-      while (!sender.IsDone() && nbCurrentPackets < maxNbPackets)
+      bool done = false;
+      bool tooManyPackets = false;
+      bool didTimeout = false;
+      while (!done)
       {
-        sender.pumpPacket();
+        if (!sender.IsDone())
+        {
+          sender.pumpPacket();
+          nbCurrentPackets++;
+          timeLastPacketSent = vtkTimerLog::GetUniversalTime();
+        }
+
         boost::this_thread::sleep(boost::posix_time::microseconds(sendWait_us));
-        nbCurrentPackets++;
 
         // A new frame is ready
         if (stream->GetNeedsUpdate())
@@ -547,16 +557,26 @@ int testLidarStream(vtkLidarStream *stream,
             idFrame++;
           }
         }
+        tooManyPackets = nbCurrentPackets > maxNbPackets;
+        double timeSinceLastPacketSent = vtkTimerLog::GetUniversalTime() - timeLastPacketSent;
+        didTimeout = timeSinceLastPacketSent > timeout;
+        done =  didTimeout || tooManyPackets;
       }
-      if (sender.IsDone())
+
+      if (tooManyPackets)
       {
-        retVal += TestFrameCount(idFrame, referenceFilesList.size());
+        std::cout << "PCAP seems to contain too many packets."
+                     " Please make it shorter to allow fast tests." << std::endl;
+        retVal += 1;
       }
-      else
+
+      if (!sender.IsDone())
       {
         std::cout << "Problem when sending data. Received: " << idFrame << " frames." << std::endl;
         retVal += 1;
       }
+
+      retVal += TestFrameCount(idFrame, referenceFilesList.size());
     }
     catch (std::exception& e)
     {
