@@ -474,6 +474,10 @@ int testLidarStream(vtkLidarStream *stream,
         boost::this_thread::sleep(boost::posix_time::microseconds(preSendWait_us));
       }
       stream->Stop();
+      if (stream->GetNeedsUpdate())
+      {
+        stream->Update(); // discard frame decoded before next pass
+      }
     }
     catch (std::exception& e)
     {
@@ -481,6 +485,7 @@ int testLidarStream(vtkLidarStream *stream,
       return 1;
     }
   }
+
 
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
   std::cout << "Sending data... " << std::endl;
@@ -500,7 +505,6 @@ int testLidarStream(vtkLidarStream *stream,
       unsigned int nbCurrentPackets = 0;
 
       int idFrame = 0;
-      bool firstFrame = true;
       bool done = false;
       bool tooManyPackets = false;
       bool didTimeout = false;
@@ -521,41 +525,37 @@ int testLidarStream(vtkLidarStream *stream,
           // Skips the first & last frames. First and last frame aren't complete frames
           // In live mode, we don't skip the last firing belonging to the n-1 frame.
           // In live mode, the last frame is uncomplete.
-          if (firstFrame)
+          std::cout << "---------------------" << std::endl
+                    << "FRAME " << idFrame << std::endl
+                    << "---------------------" << std::endl;
+
+          stream->Update();
+
+          vtkPolyData* currentFrame = stream->GetOutput();
+          vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+          // Check Points count
+          retVal += TestPointCount(currentFrame, currentReference);
+
+          // Check Points position
+          retVal += TestPointPositions(currentFrame, currentReference);
+
+          // Check PointData structure
+          retVal += TestPointDataStructure(currentFrame, currentReference);
+
+          // Check PointData values
+          retVal += TestPointDataValues(currentFrame, currentReference);
+
+          // Check RPM values
+          // This values are computed differently in stream and reader,
+          // so to use reader generated ground-truth, tolerance is generous.
+          // Also we do not expect correct RPM on first frame.
+          if (idFrame > 0)
           {
-            stream->Update();
-            firstFrame = false;
-          }
-          else
-          {
-            std::cout << "---------------------" << std::endl
-                      << "FRAME " << idFrame << std::endl
-                      << "---------------------" << std::endl;
-
-            stream->Update();
-
-            vtkPolyData* currentFrame = stream->GetOutput();
-            vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-            // Check Points count
-            retVal += TestPointCount(currentFrame, currentReference);
-
-            // Check Points position
-            retVal += TestPointPositions(currentFrame, currentReference);
-
-            // Check PointData structure
-            retVal += TestPointDataStructure(currentFrame, currentReference);
-
-            // Check PointData values
-            retVal += TestPointDataValues(currentFrame, currentReference);
-
-            // Check RPM values
-            // This values are computed differently in stream and reader,
-            // so to use reader generated ground-truth, tolerance is generous.
             retVal += TestRPMValues(currentFrame, currentReference, 20.0);
-
-            idFrame++;
           }
+
+          idFrame++;
         }
         tooManyPackets = nbCurrentPackets > maxNbPackets;
         double timeSinceLastPacketSent = vtkTimerLog::GetUniversalTime() - timeLastPacketSent;
