@@ -22,7 +22,9 @@
 
 #include <QDockWidget>
 
-class lvSpreadSheetManager : public QObject
+#include "lqapplicationcomponents_export.h"
+
+class LQAPPLICATIONCOMPONENTS_EXPORT lvSpreadSheetManager : public QObject
 {
   Q_OBJECT
 
