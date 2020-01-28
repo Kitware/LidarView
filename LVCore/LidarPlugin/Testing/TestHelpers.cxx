@@ -448,12 +448,18 @@ int testLidarStream(vtkLidarStream *stream,
                     double preSendSpeed,
                     double speed,
                     const std::string& pcapFileName,
-                    const std::string& referenceFileName)
+                    const std::string& referenceFileName,
+                    bool testLastFrame)
 {
   int retVal = 0;
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
   referenceFilesList = GenerateFileList(referenceFileName);
+
+  if (!testLastFrame && !referenceFilesList.empty())
+  {
+    referenceFilesList.pop_back();
+  }
 
   const std::string destinationIp = "127.0.0.1";
   const int dataPort = 2368;

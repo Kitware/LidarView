@@ -132,6 +132,7 @@ int testLidarStream(vtkLidarStream* stream,
                     double preSendSpeed,
                     double speed,
                     const std::string& pcapFileName,
-                    const std::string& referenceFileName);
+                    const std::string& referenceFileName,
+                    bool testLastFrame = false);
 
 #endif
