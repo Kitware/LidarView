@@ -1,5 +1,5 @@
 if (WIN32)
-  set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/../../../install/bin")
+  set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/../../../../install/bin")
 else()
   set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/bin")
 endif()
