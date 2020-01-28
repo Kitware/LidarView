@@ -490,8 +490,9 @@ int testLidarStream(vtkLidarStream *stream,
       std::cout << "Caught Exception: " << e.what() << std::endl;
       return 1;
     }
-  }
 
+    stream->GetInterpreter()->ResetParserMetaData();
+  }
 
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
   std::cout << "Sending data... " << std::endl;
