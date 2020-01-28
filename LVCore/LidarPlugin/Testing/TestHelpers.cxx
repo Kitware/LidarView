@@ -491,6 +491,7 @@ int testLidarStream(vtkLidarStream *stream,
       return 1;
     }
 
+    stream->GetInterpreter()->ClearAllFramesAvailable();
     stream->GetInterpreter()->ResetParserMetaData();
   }
 
