@@ -12,6 +12,7 @@
     3. [Windows build instructions](#windows-build-instructions)
     2. [Linux dependencies](#linux-dependencies)
     3. [Linux build instructions](#linux-build-instructions)
+3. [Packaging instructions](#packaging)
 
 ## LidarView dependencies <a name="dependencies"></a>
 The LidarView application and libraries have several external library dependencies. As explained in [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
@@ -64,6 +65,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 - Microsoft Visual Studio **14** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
 - git: we recommand using "Git for Windows" available at <https://gitforwindows.org/>
 - Qt 5.10.0 *(this dependency will be built automatically in the future)*. You can download the installer here: <https://download.qt.io/official_releases/qt/5.10/5.10.0/qt-opensource-windows-x86-5.10.0.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.0" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish"
+- (only for packaging) NSIS version 3.04 is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>
 
 ### Windows build instructions <a name="windows-build-instructions"></a>
 1. clone LidarView's source code repository to a directory of your chosing, for example:
@@ -214,4 +216,19 @@ The following packages are needed to build on Ubuntu 16.04:
 
     `git submodule update --init --recursive`
 
+## Packaging instructions <a name="packaging"></a>
 
+1. activate the build of tests in the cmake configuration:
+
+    `cd <work-directory>/LidarView-build`
+
+    `cmake . -DBUILD_TESTING=True`
+
+2. build with the new configuration:
+
+    * On Windows : `ninja`
+    * On Linux : `make`
+
+3. package using cpack
+
+    `ctest -R cpack`
