@@ -70,21 +70,12 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 
     `cd <work-directory>`
 
-    `git clone <git url to LidarView repository> LidarView-source`
+    `git clone <git url to LidarView repository> --recursive LidarView-source`
 
     * you will have to know the path to this directory for step 6.
     * moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 6. and 7.)
 
-
-2. clone the submodule that is used to provide the Superbuild:
-
-    `cd LidarView-source`
-
-    `git submodule update --init Superbuild/common-superbuild`
-
-    * this command must be executed inside the previously cloned repository
-
-3. create a new directory to store the build.
+2. create a new directory to store the build.
 
     `mkdir C:\LidarView-build`
 
@@ -93,7 +84,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * **the path to this directory must be short** because Windows has limitations on the maximum length of file paths. We suggest that you use a directory at the root of a drive, like *C:\\LidarView-build*
 
 
-4. open the appropriate command prompt:
+3. open the appropriate command prompt:
 
     `Windows Start Menu > Visual Studio 2015 > "VS2015 x86 x64 Cross Tools Command Prompt"`
 
@@ -102,7 +93,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * alternatively it is possible to use a standard cmd.exe windows prompt (in which Administrative priviledges should not be enabled for security) by entering the command: `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64`
 
 
-5. inside the command prompt, go to the build directory you created in step 3 by entering the command
+4. inside the command prompt, go to the build directory you created in step 3 by entering the command
 
     `cd /d "C:\LidarView-build"`
 
@@ -110,7 +101,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * `/d` is allows to `cd` to a directory that is not on the same drive as your current path
 
 
-6. inside the command prompt configure the build by entering:
+5. inside the command prompt configure the build by entering:
 
     `cmake <work-directory>\LidarView-source\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"`
 
@@ -122,7 +113,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * This command should show no errors, else they must be fixed.
 
 
-8. inside the command prompt, start building by entering:
+6. inside the command prompt, start building by entering:
 
     `ninja`
 
@@ -130,7 +121,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * By default ninja will use all cores on your machine, but you can restrict the number of cores used by using `ninja -jN` (replace N by the number of cores to use).
 
 
-9. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
+7. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
 
     `cd common-superbuild/lidarview/build`
 
@@ -139,6 +130,11 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * Incremental builds are much faster than the first build.
     * it is also possible to run `ninja` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes
 
+8. if you checkout a new branch you will need to update all submodules :
+
+    `git checkout <branch>`
+
+    `git submodule update --init --recursive`
 
 ### Linux dependencies <a name="linux-dependencies"></a>
 The following packages are needed to build on Ubuntu 16.04:
@@ -157,6 +153,13 @@ The following packages are needed to build on Ubuntu 16.04:
 - freeglut3-dev
 - pkg-config
 
+### If using qt5 System:
+- qtbase5-dev
+- qtmultimedia5-dev
+- qttools5-dev
+- qtbase5-private-dev
+- libqt5x11extras5-dev
+
 ### If opencv if enabled:
 - libavformat-dev
 - libavdevice-dev
@@ -168,28 +171,18 @@ The following packages are needed to build on Ubuntu 16.04:
 
     `cd <work-directory>`
 
-    `git clone <git url to LidarView repository> LidarView-source`
+    `git clone <git url to LidarView repository> --recursive LidarView-source`
 
     * moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 6. and 7.)
 
-
-2. clone the submodule that is used to provide the Superbuild:
-
-    `cd LidarView-source`
-
-    `git submodule update --init Superbuild/lidarview-superbuild`
-
-    * this command must be executed inside the previously cloned repository
-
-
-3. create a new directory to store the build.
+2. create a new directory to store the build.
 
     `mkdir <work-directory>/LidarView-build`
 
     * **This directory must not be inside the LidarView source code directory**
 
 
-4. configure the build by entering:
+3. configure the build by entering:
 
     `cd <work-directory>/LidarView-build`
 
@@ -199,14 +192,14 @@ The following packages are needed to build on Ubuntu 16.04:
     * Take note that this command mentions the subdirectory "Superbuild" inside the source directory and not the source directory itself.
 
 
-5. start building by entering:
+4. start building by entering:
 
     `make -j<N>`
 
    * replace `<N>` by the number of cores you want to use
 
 
-9. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
+5. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
 
     `cd lidarview-superbuild/common-superbuild/lidarview/build`
 
@@ -214,3 +207,11 @@ The following packages are needed to build on Ubuntu 16.04:
 
     * Incremental builds are much faster than the first build.
     * it is also possible to run `make` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes
+
+6. if you checkout a new branch you will need to update all submodules :
+
+    `git checkout <branch>`
+
+    `git submodule update --init --recursive`
+
+
