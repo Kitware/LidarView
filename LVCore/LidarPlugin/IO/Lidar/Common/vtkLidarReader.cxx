@@ -381,9 +381,7 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
     return 0;
   }
 
-  vtkTable *t = this->Interpreter->GetCalibrationTable();
-  calibration->ShallowCopy(t);
-
+  calibration->ShallowCopy(this->Interpreter->GetCalibrationTable());
   if (this->FrameCatalog.size() <= 1) // This mean that the reader did not manage to parser the pcap file
   {
     return 1;
