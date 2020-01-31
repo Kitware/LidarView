@@ -369,9 +369,9 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->Interpreter->GetIsCalibrated())
+  if (!this->Interpreter)
   {
-    vtkErrorMacro("Corrections have not been set");
+    vtkErrorMacro("Interpreter has not been set.");
     return 0;
   }
 
