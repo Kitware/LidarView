@@ -1,0 +1,42 @@
+<ServerManagerConfiguration>
+  <!-- Begin DBSCANClustering -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="DBSCANClustering" class="vtkDBSCANClustering" label="DBSCANClustering">
+      <Documentation
+        short_help="Applies DBSCAN to input point cloud"
+        long_help="Applies DBSCAN to input point cloud">
+        Applies DBSCAN to input point cloud
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Output" index="0" id="port0" />
+
+    <DoubleVectorProperty name="Epsilon"
+                       command="SetEpsilon"
+                       number_of_elements="1"
+                       default_values="0.5">
+      <Documentation>
+       Maximum distance between two samples for one to be considered as in the neighborhood of the other
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="MinPts"
+                       command="SetMinPts"
+                       number_of_elements="1"
+                       default_values="5.">
+      <Documentation>
+       Minimum number of points in a cluster
+      </Documentation>
+    </DoubleVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End DBSCANClustering -->
+</ServerManagerConfiguration>

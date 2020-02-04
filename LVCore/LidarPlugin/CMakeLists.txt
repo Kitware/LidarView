@@ -153,6 +153,7 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkMotionDetector.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap/vtkBirdEyeViewSnap.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector/vtkCameraProjector.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage/vtkLidarRawSignalImage.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PointCloudLinearProjector/vtkPointCloudLinearProjector.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LaplacianInfilling/vtkLaplacianInfilling.cxx
@@ -220,6 +221,7 @@ list(APPEND servermanager_xml
   xml/TrailingFrame.xml
   xml/ProcessingSample.xml
   xml/CameraProjector.xml
+  xml/DBSCANClustering.xml
   xml/GridSource.xml
   xml/TemporalTransformsReader.xml
   xml/TemporalTransformsWriter.xml
@@ -359,6 +361,7 @@ set(plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PointCloudLinearProjector
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LaplacianInfilling
