@@ -226,6 +226,9 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     projectedCloud->GetPointData()->GetArray(i)->Resize(0);
   }
 
+  // Store original indices of the points in the projected cloud for potential matching (eg. for reprojections)
+  auto preProjectionIndexArray = createArray<vtkIntArray>("preProjectionIndex", 1, projectedCloud->GetNumberOfPoints());
+  projectedCloud->GetPointData()->AddArray(preProjectionIndexArray);
 
   vtkDataArray* intensity = outCloud->GetPointData()->GetArray("intensity");
   vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
@@ -289,11 +292,12 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     // register the point if it is valid
     double pt[3] = {y(0), y(1), 0};
     projectedCloud->GetPoints()->InsertNextPoint(pt);
-    for (int i = 0; i < projectedCloud->GetPointData()->GetNumberOfArrays(); ++i)
+    for (int i = 0; i < pointcloud->GetPointData()->GetNumberOfArrays(); ++i)
     {
       projectedCloud->GetPointData()->GetArray(i)->InsertNextTuple(
             pointcloud->GetPointData()->GetArray(i)->GetTuple(pointIndex));
     }
+    preProjectionIndexArray->InsertNextTuple1(pointIndex);
 
     // Get its color
     double intensityValue = intensity->GetTuple1(pointIndex);
