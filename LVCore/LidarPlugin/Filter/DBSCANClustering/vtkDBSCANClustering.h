@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkDBSCANClustering();
-  ~vtkDBSCANClustering() {};
+  ~vtkDBSCANClustering() = default;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
