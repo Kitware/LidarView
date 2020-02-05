@@ -53,22 +53,6 @@ vector_of_vectors PointCloudToStdVector(vtkSmartPointer<vtkPolyData> cloud)
 }
 }
 
-//----------------------------------------------------------------------------
-vtkDBSCANClustering::vtkDBSCANClustering()
-{
-  // One input port
-  this->SetNumberOfInputPorts(1);
-
-  // Copy of input zith an additional 'cluster' point array
-  this->SetNumberOfOutputPorts(1);
-}
-
-//-----------------------------------------------------------------------------
-void vtkDBSCANClustering::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
-
 //-----------------------------------------------------------------------------
 int vtkDBSCANClustering::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)

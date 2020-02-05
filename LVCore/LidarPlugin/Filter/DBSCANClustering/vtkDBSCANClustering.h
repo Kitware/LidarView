@@ -22,10 +22,6 @@
 // LOCAL
 #include "DBSCAN.h"
 
-// STD
-#include <cstring>
-#include <iostream>
-
 // VTK
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
@@ -37,13 +33,12 @@ class VTK_EXPORT vtkDBSCANClustering : public vtkPolyDataAlgorithm
 public:
   static vtkDBSCANClustering *New();
   vtkTypeMacro(vtkDBSCANClustering, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetMacro(Epsilon, double);
   vtkSetMacro(MinPts, double);
 
 protected:
-  vtkDBSCANClustering();
+  vtkDBSCANClustering() = default;
   ~vtkDBSCANClustering() = default;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
