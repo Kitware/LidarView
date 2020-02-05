@@ -42,6 +42,7 @@ namespace
 vector_of_vectors PointCloudToStdVector(vtkSmartPointer<vtkPolyData> cloud)
 {
   vector_of_vectors points;
+  points.reserve(cloud->GetNumberOfPoints());
   for (unsigned int pointIdx = 0; pointIdx < cloud->GetNumberOfPoints(); ++pointIdx)
   {
     double* p = cloud->GetPoint(pointIdx);
