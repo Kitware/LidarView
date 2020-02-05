@@ -29,7 +29,7 @@
 class NetworkSource;
 
 /*!< Size of the buffer used to store the data received */
-#define BUFFER_SIZE 1500
+#define BUFFER_SIZE 32000
 
 /*!< Number of packed save when the option CrashAnalysing is set */
 #define NBR_PACKETS_SAVED  1500
@@ -105,8 +105,8 @@ private:
   /*!< Network Shouce where the packet will be enqueue */
   NetworkSource* Parent;
 
-  /*!< Buffer which will saved the data. Expecting exactly 1206 bytes, using a larger buffer
-   *  so that if a larger packet arrives unexpectedly we'll notice it. */
+  /*!< Buffer which will saved the data that arrived via the network
+  /* It must be larger than the largest packet expected to be receive*/
   unsigned char RXBuffer[BUFFER_SIZE];
 
   bool IsReceiving; /*!< Flag indicating if the socket is receiving packets */
