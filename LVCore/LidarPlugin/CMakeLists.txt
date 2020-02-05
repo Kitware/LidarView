@@ -153,7 +153,6 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkMotionDetector.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap/vtkBirdEyeViewSnap.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector/vtkCameraProjector.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage/vtkLidarRawSignalImage.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PointCloudLinearProjector/vtkPointCloudLinearProjector.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LaplacianInfilling/vtkLaplacianInfilling.cxx
@@ -221,7 +220,6 @@ list(APPEND servermanager_xml
   xml/TrailingFrame.xml
   xml/ProcessingSample.xml
   xml/CameraProjector.xml
-  xml/DBSCANClustering.xml
   xml/GridSource.xml
   xml/TemporalTransformsReader.xml
   xml/TemporalTransformsWriter.xml
@@ -253,9 +251,11 @@ endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 if (nanoflann_FOUND)
   list(APPEND servermanager_sources
        ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
+       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering.cxx
        )
   list(APPEND servermanager_xml
        xml/SeparateCloudKnn.xml
+       xml/DBSCANClustering.xml
        )
   list(APPEND sources_which_do_not_inherit_from_vtkObject
        ${CMAKE_CURRENT_SOURCE_DIR}/Common/SegmentedCloudTransformations.cxx
