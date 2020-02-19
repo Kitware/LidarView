@@ -1,0 +1,380 @@
+# If don't know how gitlab-ci is working, please refer to the official documentation
+# see https://docs.gitlab.com/ee/ci/quick_start/
+# If you need information about some keyword, please refer to the official documentation
+# see https://docs.gitlab.com/ee/ci/yaml/
+# If you need to modify or understand this CI script don't hesitate to use gitlab ci-lint tool
+# see https://gitlab.kitware.com/LidarView/lidarview-core/-/ci/lint
+
+variables:
+  # Git defined variable
+  # as default force to clone all module recursively
+  GIT_SUBMODULE_STRATEGY: recursive
+  rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
+
+
+# normally you should expect package to be the last stage,
+# but we may want to package at any time even test doesn't pass
+# due to some gitlab issue see https://gitlab.com/gitlab-org/gitlab/issues/30631
+# putting it as the first stage is the only possibility for now.
+stages:
+  - package
+  - clean
+  - superbuild
+  - build
+  - test
+
+# default parameters, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
+default:
+  retry:
+    max: 2
+    when: runner_system_failure
+
+# job starting with a . are not run, see https://docs.gitlab.com/ee/ci/yaml/#hidden-keys-jobs
+# but they can be used as:
+# - anchor., which is yalm specific.
+#   see https://docs.gitlab.com/ee/ci/yaml/#anchors
+# - base job class (via the extends keyword), which is gitlab specific.
+#   See https://docs.gitlab.com/ee/ci/yaml/#extends
+.manual:
+  when: manual
+
+.schedule:
+  only: [schedules]
+
+.clean:
+  stage: clean
+  extends: .manual
+  variables:
+    GIT_STRATEGY: none # Gitlab define variable
+  script:
+    - rm -r $superbuild_build_dir
+
+    # the superbuild job will actually directly compile the superbuild on the pc
+.build:
+  stage: build
+  script:
+    - cd $lidarview_build_dir
+    - cmake -DBUILD_TESTING=False .
+    - cmake --build . -- $native_build_tool_option
+
+.test:
+  stage: test
+  script:
+    - cd $lidarview_build_dir
+    - cmake -DBUILD_TESTING=True .
+    - cmake --build . -- $native_build_tool_option
+    - ctest
+
+.package:
+  variables:
+    # force to clone the whole repository to have all the tags because the packaging 
+    # will use the command git describe to name the package.
+    GIT_STRATEGY: clone # Gitlab define variable
+  stage: package
+  script:
+    - cd $superbuild_build_dir
+    - cmake --build . -- $native_build_tool_option
+    # rely on paraview superbuild packaging system
+    # the packaging is launched via a test
+    - ctest
+  artifacts:
+    name: $CI_JOB_NAME
+    paths:
+      - ./*.dmg
+      - ./*.zip
+      - ./*.exe
+      - ./*.tar.gz
+      - ./*.tar.xf
+    expire_in: 1 day
+
+########################
+# System configuration #
+########################
+# Need to know:
+# - gitlab only evaluate variable at depth 1, so it's not possible to reuse
+#   superbuild_build_dir to construct lidarview_build_dir
+#   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
+# - On powershell it's not possible to use $CI_BUILDS_DIR in GIT_CLONE_PATH
+#   due to some incoherence with / and \\ in gitlab. So you need to garanty
+#   manually that GIT_CLONE_PATH is inside the build_dir specify in the
+#   runner configuration file (congif.toml)
+
+.linux_runner_config:
+  variables:
+    # To reuse pre-existing build directory in the docker image, 
+    # the source path need to be identical across job, hence we set and
+    # remember the source dir as GIT_CLONE_PATH (matching the one set 
+    # in the dockerfile).
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/lidarview # Gitlab defined variable
+    superbuild_build_dir: /superbuild
+    lidarview_build_dir: /superbuild/$rel_path_to_lidarview_build_dir
+    native_build_tool_option: -j 16  # force make to use 16 thread for speedup
+  image: $CI_REGISTRY_IMAGE:latest # linux configs assume a docker runner
+  tags: [unix_docker]
+
+.osx_runner_config:
+  variables:
+    superbuild_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME
+    lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
+    native_build_tool_option: -j 16 # force make to use 16 thread for speedup
+  tags: [osx]
+
+.windows_before_script:
+  before_script: &windows_before_script
+    # to use the Microsoft C++ Toolset from the command line, some environment variable need to be set
+    # To help with this, Microsoft provide the vcvarsall.bat script that set different environment see
+    # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019
+    # However the script is made for the command shell and the job run in a powershell.
+    # A powershell can run a command shell script by using the `cmd` executable, but this imply
+    # that environment variable are only set in the child cmd.exe instance. The environment variables need to
+    # be update in the powershell too. This is why the function Invoke-CmdScript is needed as it invokes
+    # the script and update the powershell environment.
+    # This is taken from https://stackoverflow.com/a/41399983
+    - | # pipe allow to use multiline command, see https://gitlab.com/gitlab-org/gitlab-runner/issues/166
+      function Invoke-CmdScript {
+        param(
+          [String] $scriptName
+        )
+        $cmdLine = """$scriptName"" $args & set"
+        & $Env:SystemRoot\system32\cmd.exe /c $cmdLine |
+          Select-String '^([^=]*)=(.*)$' |
+          ForEach-Object {
+            $varName = $_.Matches[0].Groups[1].Value
+            $varValue = $_.Matches[0].Groups[2].Value
+            Set-Item Env:$varName $varValue
+        }
+      }
+    - Invoke-CmdScript "${vcvarsall_script_location}/vcvarsall.bat" $architecture
+
+.windows_runner_config:
+  before_script: *windows_before_script
+  variables:
+    # on windows due to the max command length, superbuild and project directory names should be short
+    # this is why PROJECT_ID is used instead of PROJECT_NAME
+    GIT_CLONE_PATH: C:\\S\$CI_PROJECT_ID # Gitlab defined variable
+    superbuild_build_dir: /SB/$CI_PROJECT_ID
+    lidarview_build_dir: /SB/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
+    vcvarsall_script_location: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\'
+    architecture: x86_amd64
+  tags: [windows]
+
+####################
+# Clean Superbuild #
+####################
+osx_clean:
+  extends:
+    - .osx_runner_config
+    - .clean
+ 
+windows_clean:
+  extends:
+    - .windows_runner_config
+    - .clean
+
+##############
+# Superbuild #
+##############
+# Need to know:
+# 1 It is not currently possible to have a job that is manual and schedule
+#   see https://gitlab.com/gitlab-org/gitlab/issues/20478
+
+# the superbuild job will actually compile the superbuild in a container and then
+# upload the container to gitlab so it can be use by the other job.
+.linux_superbuild:
+  stage: superbuild
+  tags: [unix_shell_with_docker]
+  script:
+    # it's better to create a token for private project
+    # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#authenticating-to-the-container-registry
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    # docker can only copy files inside the context of the build, so we set this context to CI_PROJECT_DIR
+    # and specify the docker file to use with -f
+    # https://docs.docker.com/engine/reference/builder/#copy
+    # https://www.jamestharpe.com/include-files-outside-docker-build-context/
+    - docker build --tag $CI_REGISTRY_IMAGE:latest -f $CI_PROJECT_DIR/LVCore/CI/Dockerfile $CI_PROJECT_DIR
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+# the superbuild job will actually directly compile the superbuild on the pc
+.osx_superbuild:
+  stage: superbuild
+  extends: .osx_runner_config
+  variables:
+    CMAKE_OSX_ARCHITECTURES: 'x86_64'
+    CMAKE_OSX_DEPLOYMENT_TARGET: '10.10'
+    CMAKE_OSX_SDK: 'macosx10.12'
+    CMAKE_OSX_SYSROOT: 'Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk'
+  script:
+    - mkdir -p $superbuild_build_dir
+    - cd $superbuild_build_dir
+    - cmake
+      -DCMAKE_BUILD_TYPE:STRING=Release
+      -DBUILD_TESTING:BOOL=ON
+      -DCMAKE_OSX_ARCHITECTURES:STRING=$CMAKE_OSX_ARCHITECTURES
+      -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=$CMAKE_OSX_DEPLOYMENT_TARGET
+      -DCMAKE_OSX_SYSROOT:STRING=$CMAKE_OSX_SYSROOT
+      -DCMAKE_OSX_SDK:STRING=$CMAKE_OSX_SDK
+      -Dsuperbuild_download_location="../downloads"
+      $CI_PROJECT_DIR/Superbuild
+    - make -j 16
+
+# the superbuild job will actually directly compile the superbuild on the pc
+.windows_superbuild:
+  stage: superbuild
+  extends: .windows_runner_config
+  variables:
+    CMAKE_Qt5_DIR: 'C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5'
+  script:
+    - mkdir -p $superbuild_build_dir
+    - cd $superbuild_build_dir
+    - cmake
+      -DCMAKE_BUILD_TYPE:STRING=Release
+      -GNinja
+      -DUSE_SYSTEM_qt5=True
+      -DQt5_DIR="$CMAKE_Qt5_DIR"
+      -DBUILD_TESTING:BOOL=ON
+      -Dsuperbuild_download_location="../downloads"
+      $CI_PROJECT_DIR/Superbuild
+    - cmake --build .
+
+# Manual superbuild
+linux_superbuild_manual:
+  extends:
+    - .linux_superbuild
+    - .manual
+
+osx_superbuild_manual:
+  extends:
+    - .osx_superbuild
+    - .manual
+
+windows_superbuild_manual:
+  extends:
+    - .windows_superbuild
+    - .manual
+
+# Schedule superbuild
+linux_superbuild_schedule:
+  extends:
+    - .linux_superbuild
+    - .schedule
+
+osx_superbuild_schedule:
+  extends:
+    - .osx_superbuild
+    - .schedule
+
+windows_superbuild_schedule:
+  extends:
+    - .windows_superbuild
+    - .schedule
+
+##############
+#   Build    #
+##############
+linux_build:
+  extends:
+    - .linux_runner_config
+    - .build
+
+osx_build:
+  extends:
+    - .osx_runner_config
+    - .build
+
+windows_build:
+  extends:
+    - .windows_runner_config
+    - .build
+
+##############
+#    Test    #
+##############
+linux_test:
+  extends:
+    - .linux_runner_config
+    - .test
+  needs: [linux_build]
+
+osx_test:
+  extends:
+    - .osx_runner_config
+    - .test
+  needs: [osx_build]
+
+windows_test:
+  extends:
+    - .windows_runner_config
+    - .test
+  needs: [windows_build]
+
+##############
+#  Package   #
+##############
+# Need to know:
+# - It is currently not possible to have a job that is manual and schedule
+#   see https://gitlab.com/gitlab-org/gitlab/issues/20478
+# - Artefact path must be inside CI_PROJECT_DIR
+#   see https://docs.gitlab.com/ee/ci/yaml/README.html#artifactspaths
+
+.linux_package:
+  extends:
+    - .linux_runner_config
+    - .package
+  after_script:
+    - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
+    - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
+
+.osx_package:
+  extends:
+    - .osx_runner_config
+    - .package
+  before_script:
+    # need to clean previous artefact as this is a shell executor
+    - rm -f $superbuild_build_dir/*.dmg
+  after_script:
+    - mv -f $superbuild_build_dir/*.dmg $CI_PROJECT_DIR
+
+.windows_package:
+  extends:
+    - .windows_runner_config
+    - .package
+  before_script:
+    - *windows_before_script
+    # need to clean previous artefact as this is a shell executor
+    - rm -fo $superbuild_build_dir/*.exe
+    - rm -fo $superbuild_build_dir/*.zip
+  after_script:
+    - mv $superbuild_build_dir/*.exe $CI_PROJECT_DIR
+    - mv $superbuild_build_dir/*.zip $CI_PROJECT_DIR
+
+# Manual package
+linux_package_manual:
+  extends:
+    - .linux_package
+    - .manual
+
+osx_package_manual:
+  extends:
+    - .osx_package
+    - .manual
+
+windows_package_manual:
+  extends:
+    - .windows_package
+    - .manual
+
+# Schedule package
+linux_package_schedule:
+  extends:
+    - .linux_package
+    - .schedule
+
+osx_package_schedule:
+  extends:
+    - .osx_package
+    - .schedule
+
+windows_package_schedule:
+  extends:
+    - .windows_package
+    - .schedule
