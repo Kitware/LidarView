@@ -154,4 +154,38 @@
 </ProxyGroup>
 <!-- End LidarStream -->
 
+<!-- Begin PositionOrientationStream -->
+<ProxyGroup name="sources">
+<SourceProxy name="PositionOrientationStream"
+             class="vtkPositionOrientationStream"
+             label="Position Orientation Stream"
+             base_proxygroup="baseStream"
+             base_proxyname="Stream">
+    <Documentation
+       short_help="Position Orientation Stream"
+       long_help="Position Orientation Stream">
+    </Documentation>
+
+    <OutputPort name="Position Orientation " index="0" id="port0" />
+    <OutputPort name="Raw informations" index="1" id="port1" />
+
+    <!-- Please notice that this Property is duplicate so that:
+         it can be place in a user friendly location in the generate GUI -->
+    <ProxyProperty
+      name="PositionOrientationPacketInterpreter"
+      command="SetPositionOrientationInterpreter"
+      label="Interpreter">
+      <ProxyListDomain name="proxy_list">
+        <Group name="PositionOrientationPacketInterpreter"/>
+      </ProxyListDomain>
+    </ProxyProperty>
+
+    <Hints>
+      <LiveSource />
+    </Hints>
+
+ </SourceProxy>
+</ProxyGroup>
+<!-- End PositionOrientationStream -->
+
 </ServerManagerConfiguration>
