@@ -1,0 +1,161 @@
+<ServerManagerConfiguration>
+
+<!-- Begin Stream -->
+<ProxyGroup name="sources">
+<SourceProxy name="Stream"
+             class="vtkStream"
+             label="Stream">
+    <Documentation
+       short_help="Stream"
+       long_help="Stream">
+    </Documentation>
+
+    <IntVectorProperty
+        name="LidarPort"
+        animateable="0"
+        command="SetLidarPort"
+        default_values="2368"
+        number_of_elements="1">
+      <Documentation>
+        Specify port on which to listen for Lidar packets
+      </Documentation>
+    </IntVectorProperty>
+
+    <!-- 224.0.0.0 could be a good default address,
+   but it is more convenient to listen to brodcast by default -->
+    <StringVectorProperty
+        name="MulticastAddress"
+        command="SetMulticastAddress"
+        default_values=""
+        number_of_elements="1">
+      <Documentation>
+        Specify multicast address on which to listen for Lidar packets.
+  The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
+        Empty and non-multicast address are ignored.
+        Leave it empty to listen in broadcast or in unicast.
+      </Documentation>
+    </StringVectorProperty>
+
+    <StringVectorProperty
+        name="LocalListeningAddress"
+        command="SetLocalListeningAddress"
+        default_values="0.0.0.0"
+        number_of_elements="1">
+      <Documentation>
+        Specify listening address in case of multiple inferface.
+        If 0.0.0.0 or invalid, it tries to listen to ALL/ANY local IP address.
+        On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast receiver address (x.x.x.255) instead of the local address.
+        Joining multicast group won't work with multiple interfaces if no specific address is entered.
+      </Documentation>
+    </StringVectorProperty>
+
+    <StringVectorProperty
+        name="OutputFile"
+        animateable="0"
+        command="SetOutputFile"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the output packet file for writing.
+        </Documentation>
+    </StringVectorProperty>
+
+    <Property
+      name="Start"
+      command="Start" />
+
+    <Property
+      name="Stop"
+      command="Stop" />
+
+    <IntVectorProperty
+        name="SetIsCrashAnalysing"
+        command="SetIsCrashAnalysing"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+    </IntVectorProperty>
+
+    <Hints>
+      <LiveSource />
+    </Hints>
+
+ </SourceProxy>
+</ProxyGroup>
+<!-- End Stream -->
+
+
+<!-- Begin LidarStream -->
+<ProxyGroup name="sources">
+<SourceProxy name="LidarStream"
+             class="vtkLidarStream"
+             label="Lidar Stream"
+             base_proxygroup="sources"
+             base_proxyname="Stream">
+    <Documentation
+       short_help="Lidar Stream"
+       long_help="Lidar Stream">
+    </Documentation>
+
+    <OutputPort name="Frame"       index="0" id="port0" />
+    <OutputPort name="Calibration" index="1" id="port1" />
+
+    <IntVectorProperty
+      name="DummyProperty"
+      command="SetDummyProperty"
+      default_values="0"
+      number_of_elements="1"
+      panel_visibility="advanced">
+      <Documentation>
+        A dummy property to get the filter to refresh
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty
+        name="DetectFrameDropping"
+        animateable="0"
+        command="SetDetectFrameDropping"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Throw a warning to the user each time a frame is dropped
+      </Documentation>
+    </IntVectorProperty>
+
+    <!-- Please notice that this Property is duplicate so that:
+         it can be place in a user friendly location in the generate GUI -->
+    <StringVectorProperty
+      name="CalibrationFileName"
+      label="Calibration File"
+      animateable="0"
+      command="SetCalibrationFileName"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Documentation>
+        The sensor calibration file.
+      </Documentation>
+    </StringVectorProperty>
+
+    <!-- Please notice that this Property is duplicate so that:
+         it can be place in a user friendly location in the generate GUI -->
+    <ProxyProperty
+      name="PacketInterpreter"
+      command="SetLidarInterpreter"
+      label="Interpreter">
+      <ProxyListDomain name="proxy_list">
+        <Group name="LidarPacketInterpreter"/>
+      </ProxyListDomain>
+    </ProxyProperty>
+
+    <Hints>
+      <LiveSource />
+    </Hints>
+
+ </SourceProxy>
+</ProxyGroup>
+<!-- End LidarStream -->
+
+</ServerManagerConfiguration>
