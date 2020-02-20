@@ -186,6 +186,7 @@ OrientedBoundingBox<3> CreateBboxFromSegment(Segment* segment,
   bbox.Width =  D;
   bbox.Orientation = BboxesRotation;
   bbox.ClassId = segment->categoryId;
+  bbox.SegmentId = segment->segmentId;
   bbox.Confidence = static_cast<int>(segment->confidence * 100);
   bbox.TimeStamp = time;
 

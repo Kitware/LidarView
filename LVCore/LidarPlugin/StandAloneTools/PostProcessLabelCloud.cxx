@@ -153,6 +153,7 @@ void Export3DBBAsYaml(std::vector<OrientedBoundingBox<3>> objects,
     currentBB["custom"]["algo"] = algo_name;
     currentBB["custom"]["adjustedtime"] = objects[i].TimeStamp;
     currentBB["custom"]["class_id"] = objects[i].ClassId;
+    currentBB["custom"]["segment_id"] = objects[i].SegmentId;
 
     currentBB["selector"] = YAML::Node();
     currentBB["selector"]["center"].push_back(objects[i].Center(0));

@@ -218,7 +218,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       catch(YAML::BadConversion &e)
       {
-        std::cerr << "Could not find 'confidence' in bounding box yaml file. Array skipped" << std::endl;
+        std::cerr << "Could not find 'class_id' in bounding box yaml file. Array skipped" << std::endl;
       }
 
       // Add confidence
@@ -232,6 +232,19 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       catch(YAML::BadConversion &e)
       {
         std::cerr << "Could not find 'confidence' in bounding box yaml file. Array skipped" << std::endl;
+      }
+
+      // Add segment id
+      try
+      {
+        int segment = objects[i]["custom"]["segment_id"].as<int>();
+        auto segmentData = createArray<vtkIntArray>("segment_id", 1, 1);
+        segmentData->SetValue(0, segment);
+        bb->GetFieldData()->AddArray(segmentData);
+      }
+      catch(YAML::BadConversion &e)
+      {
+        std::cerr << "Could not find 'segment_id' in bounding box yaml file. Array skipped" << std::endl;
       }
 
       // Add time from custom field
