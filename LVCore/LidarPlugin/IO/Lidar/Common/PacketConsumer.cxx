@@ -11,45 +11,24 @@ PacketConsumer::PacketConsumer()
 //----------------------------------------------------------------------------
 void PacketConsumer::HandleSensorData(const unsigned char *data, unsigned int length)
 {
-  if (!this->Interpreter->IsLidarPacket(data, length))
+  if (!this->Interpreter->IsValidPacket(data, length))
     return;
   this->Interpreter->ProcessPacket(data, length);
-  if (this->Interpreter->IsNewFrameReady())
+  if (this->Interpreter->IsNewData())
   {
     {
       boost::lock_guard<boost::mutex> lock(this->ConsumerMutex);
-      this->Frames.push_back(this->Interpreter->GetLastFrameAvailable());
-      // This prevents accumulating frames forever when "Pause" is toggled
-      // There is little reason to use a std::deque to cache the frames, so
-      // while waiting for a better fix, lets set a maximum size to the queue.
-      // If this maximum size is too big (>= 100) this seems to cause a
-      // memory leak. TODO: investigate (not needed if a refactor removes the
-      // queue)
-      if (this->Frames.size() > 2) {
-          this->Frames.pop_back();
-      }
+      this->Stream->AddNewData();
     }
-    this->Interpreter->ClearAllFramesAvailable();
+    this->Stream->ClearAllDataAvailable();
   }
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> PacketConsumer::GetLastAvailableFrame()
-{
-  return this->Frames.back();
-}
-
-//----------------------------------------------------------------------------
-int PacketConsumer::CheckForNewData()
-{
-  return this->Frames.size();
 }
 
 //----------------------------------------------------------------------------
 void PacketConsumer::ThreadLoop()
 {
   NetworkPacket* packet = nullptr;
-  this->Interpreter->ResetCurrentFrame();
+  this->Interpreter->ResetCurrentData();
   while (this->Packets->dequeue(packet))
   {
     this->HandleSensorData(packet->GetPayloadData(), packet->GetPayloadSize());
@@ -64,6 +43,7 @@ void PacketConsumer::Start()
   {
     return;
   }
+  this->Interpreter->ResetCurrentData();
 
   this->Packets.reset(new SynchronizedQueue<NetworkPacket*>);
   this->Thread = boost::shared_ptr<boost::thread>(

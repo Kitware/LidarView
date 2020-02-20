@@ -19,10 +19,12 @@
 #include <boost/thread.hpp>
 #include <deque>
 
-#include "vtkSmartPointer.h"
-#include "vtkLidarPacketInterpreter.h"
-#include "NetworkPacket.h"
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
 
+#include "vtkInterpreter.h"
+#include "NetworkPacket.h"
+#include "vtkStream.h"
 
 template<typename T>
 class SynchronizedQueue;
@@ -34,21 +36,17 @@ public:
 
   void HandleSensorData(const unsigned char* data, unsigned int length);
 
-  vtkSmartPointer<vtkPolyData> GetLastAvailableFrame();
-
-  int CheckForNewData();
-
-  void ClearAllFrames() { this->Frames.clear();}
-
   void Start();
 
   void Stop();
 
   void Enqueue(NetworkPacket* packet);
 
-  void SetInterpreter(vtkLidarPacketInterpreter* inter) { this->Interpreter = inter;}
+  void SetInterpreter(vtkInterpreter* inter) { this->Interpreter = inter;}
 
-  vtkLidarPacketInterpreter* GetInterpreter() { return this->Interpreter; }
+  void SetStream(vtkStream * stream){this->Stream = stream;}
+
+  vtkInterpreter* GetInterpreter() { return this->Interpreter; }
 
   // Hold this when modifying internals of reader
   boost::mutex ConsumerMutex;
@@ -58,8 +56,8 @@ protected:
 
   void HandleNewData(vtkSmartPointer<vtkPolyData> polyData);
 
-  std::deque<vtkSmartPointer<vtkPolyData> > Frames;
-  vtkLidarPacketInterpreter* Interpreter;
+  vtkInterpreter* Interpreter;
+  vtkStream * Stream;
 
   boost::shared_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
   /*!< Number of packets to cache, above: drop oldest packets */
