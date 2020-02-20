@@ -16,25 +16,54 @@
 #ifndef VTKLIDARREADER_H
 #define VTKLIDARREADER_H
 
-#include "vtkLidarProvider.h"
+#include "vtkLidarPacketInterpreter.h"
+#include <vtkPolyDataAlgorithm.h>
 
 class vtkPacketFileReader;
 
 //! @todo a decition should be made if the opening/closing of the pcap should be handle by
 //! the class itself of the class user. Currently this is not clear
-class VTK_EXPORT vtkLidarReader : public vtkLidarProvider
+class VTK_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarReader* New();
-  vtkTypeMacro(vtkLidarReader, vtkLidarProvider)
+  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm)
 
-  int GetNumberOfFrames() override { return this->FrameCatalog.size(); }
+  int GetNumberOfFrames() { return this->FrameCatalog.size(); }
 
   /**
    * @copydoc FileName
    */
   vtkGetMacro(FileName, std::string)
   virtual void SetFileName(const std::string& filename);
+
+  vtkGetMacro(DetectFrameDropping, bool)
+  vtkSetMacro(DetectFrameDropping, bool)
+
+  vtkMTimeType GetMTime();
+
+  /**
+   * @brief GetSensorInformation return some sensor information used for display purposes
+   */
+  virtual std::string GetSensorInformation();
+
+  /**
+   * @copydoc vtkLidarPacketInterpreter::CalibrationFileName
+   */
+  virtual void SetCalibrationFileName(const std::string& filename);
+
+  /**
+   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually only calls Modified,
+   * however for some obscure reason, doing the same from python does not have the same effect
+   * @todo set how to remove this methode as it is a workaround
+   */
+  void SetDummyProperty(int);
+
+  /**
+   * @copydoc vtkLidarPacketInterpreter
+   */
+  vtkGetObjectMacro(Interpreter, vtkLidarPacketInterpreter)
+  vtkSetObjectMacro(Interpreter, vtkLidarPacketInterpreter)
 
   /**
    * @copydoc NetworkTimeToDataTime
@@ -99,21 +128,35 @@ public:
   vtkGetMacro(ShowFirstAndLastFrame, bool)
   vtkSetMacro(ShowFirstAndLastFrame, bool)
 
-  int GetLidarPort() override { return this->LidarPort; }
-  void SetLidarPort(int _arg) override;
+  int GetLidarPort() { return this->LidarPort; }
+  void SetLidarPort(int _arg);
 
 protected:
-  vtkLidarReader() = default;
+  vtkLidarReader();
   ~vtkLidarReader() = default;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+                  vtkInformationVector* outputVector);
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+
+  int FillOutputPortInformation(int port, vtkInformation* info);
+
+  //! Indicate if we should detect that some frames are dropped
+  bool DetectFrameDropping = false;
+
+  //! Last Frame processed, this is important if we want to detect frame dropping
+  int LastFrameProcessed = 0;
+
+  //! The calibrationFileName to used and set to the Interpreter once one has been set
+  std::string CalibrationFileName = "";
 
   //! Name of the pcap file to read
   std::string FileName = "";
+
+  //! Interpret the packet to create a frame, all the magic happen here
+  vtkLidarPacketInterpreter* Interpreter = nullptr;
 
   //! Miscellaneous information about a frame that enable:
   //! - Quick jump to a frame index

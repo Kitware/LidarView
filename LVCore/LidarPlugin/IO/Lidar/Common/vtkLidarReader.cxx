@@ -1,8 +1,8 @@
 #include "vtkLidarReader.h"
 
 #include <sstream>
+#include <boost/filesystem.hpp>
 
-#include "vtkLidarPacketInterpreter.h"
 #include "vtkPacketFileWriter.h"
 #include "vtkPacketFileReader.h"
 #include "statistics.h"
@@ -10,6 +10,51 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+
+//-----------------------------------------------------------------------------
+vtkLidarReader::vtkLidarReader()
+{
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(2);
+}
+
+//-----------------------------------------------------------------------------
+int vtkLidarReader::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if ( port == 0 )
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    return 1;
+  }
+  if ( port == 1 )
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    return 1;
+  }
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+std::string vtkLidarReader::GetSensorInformation()
+{
+  return this->Interpreter->GetSensorInformation();
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarReader::SetDummyProperty(int)
+{
+  return this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vtkMTimeType vtkLidarReader::GetMTime()
+{
+  if (this->Interpreter)
+  {
+    return std::max(this->Superclass::GetMTime(), this->Interpreter->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
 
 //-----------------------------------------------------------------------------
 int vtkLidarReader::ReadFrameInformation()
@@ -432,11 +477,22 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-int vtkLidarReader::RequestInformation(vtkInformation* request,
-                                       vtkInformationVector** inputVector,
+int vtkLidarReader::RequestInformation(vtkInformation *vtkNotUsed(request),
+                                       vtkInformationVector **vtkNotUsed(inputVector),
                                        vtkInformationVector* outputVector)
 {
-  this->Superclass::RequestInformation(request, inputVector, outputVector);
+  if (!this->Interpreter)
+  {
+    vtkErrorMacro("No packet interpreter selected.");
+  }
+
+  // load the calibration file only now to allow to set it before the interpreter.
+  if (this->Interpreter->GetCalibrationFileName() != this->CalibrationFileName)
+  {
+    this->Interpreter->SetCalibrationFileName(this->CalibrationFileName);
+    this->Interpreter->LoadCalibration(this->CalibrationFileName);
+  }
+
   if (this->Interpreter && !this->FileName.empty() && this->FrameCatalog.empty())
   {
     this->ReadFrameInformation();
@@ -444,4 +500,32 @@ int vtkLidarReader::RequestInformation(vtkInformation* request,
   vtkInformation* info = outputVector->GetInformationObject(0);
   this->SetTimestepInformation(info);
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarReader::SetCalibrationFileName(const std::string &filename)
+{
+  if (filename == this->CalibrationFileName)
+  {
+    return;
+  }
+
+  if (!boost::filesystem::exists(filename) ||
+    boost::filesystem::is_directory(filename))
+  {
+    std::ostringstream errorMessage("Invalid sensor configuration file ");
+    errorMessage << filename << ": ";
+    if (!boost::filesystem::exists(filename))
+    {
+      errorMessage << "File not found!";
+    }
+    else
+    {
+      errorMessage << "It is a directory!";
+    }
+    vtkErrorMacro(<< errorMessage.str());
+    return;
+  }
+  this->CalibrationFileName = filename;
+  this->Modified();
 }
