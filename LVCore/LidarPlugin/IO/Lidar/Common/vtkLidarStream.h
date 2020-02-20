@@ -16,110 +16,90 @@
 #ifndef VTKLIDARSTREAM_H
 #define VTKLIDARSTREAM_H
 
+#include <deque>
 #include <memory>
-#include "vtkLidarProvider.h"
 
-class PacketConsumer;
-class PacketFileWriter;
-class NetworkSource;
+#include "vtkStream.h"
+#include "vtkLidarPacketInterpreter.h"
 
-class VTK_EXPORT vtkLidarStream : public vtkLidarProvider
+class VTK_EXPORT vtkLidarStream : public vtkStream
 {
 public:
   static vtkLidarStream* New();
-  vtkTypeMacro(vtkLidarStream, vtkLidarProvider)
+  vtkTypeMacro(vtkLidarStream, vtkStream)
 
-  int GetNumberOfFrames() override;
-
-  void Start();
-  void Stop();
+  int GetNumberOfFrames();
 
   /**
-   * @copydoc vtkLidarStreamInternal::OutputFileName
+   * @brief GetSensorInformation return some sensor information used for display purposes
    */
-  std::string GetOutputFile();
-  void SetOutputFile(const std::string& filename);
+  virtual std::string GetSensorInformation();
 
   /**
-   * @copydoc NetworkSource::LidarPort
+   * @copydoc vtkLidarPacketInterpreter::CalibrationFileName
    */
-  void SetLidarPort(int) override;
-  int GetLidarPort() override;
+  virtual void SetCalibrationFileName(const std::string& filename);
 
   /**
-   * @brief multicast Address
+   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually only calls Modified,
+   * however for some obscure reason, doing the same from python does not have the same effect
+   * @todo set how to remove this methode as it is a workaround
    */
-  std::string GetMulticastAddress();
-  void SetMulticastAddress(std::string);
+  void SetDummyProperty(int);
 
   /**
-   * @brief Local Listening Address
+   * @copydoc vtkLidarPacketInterpreter
    */
-  std::string GetLocalListeningAddress();
-  void SetLocalListeningAddress(std::string);
+  vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter)
+  vtkSetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter)
 
-  /**
-   * @copydoc NetworkSource::GPSPort
-   */
-  int GetGPSPort();
-  void SetGPSPort(int);
+  vtkGetMacro(DetectFrameDropping, bool)
+  vtkSetMacro(DetectFrameDropping, bool)
 
-  /**
-   * @copydoc NetworkSource::ForwardedIpAddress
-   */
-  std::string GetForwardedIpAddress();
-  void SetForwardedIpAddress(const std::string& ipAddress);
+  vtkMTimeType GetMTime() override;
 
-  /**
-   * @copydoc NetworkSource::ForwardedLidarPort
-   */
-  int GetForwardedLidarPort();
-  void SetForwardedLidarPort(int);
+  void AddNewData() override;
 
-  /**
-   * @copydoc NetworkSource::ForwardedLidarPort
-   */
-  int GetForwardedGPSPort();
-  void SetForwardedGPSPort(int);
+  void ClearAllDataAvailable() override;
 
-  void EnableGPSListening(bool);
+  int CheckForNewData() override;
 
-  /**
-   * @copydoc NetworkSource::IsForwarding
-   */
-  bool GetIsForwarding();
-  void SetIsForwarding(bool);
+  vtkSmartPointer<vtkInterpreter> GetInterpreter() override;
 
-  /**
-   * @copydoc NetworkSource::IsCrashAnalysing
-   */
-  bool GetIsCrashAnalysing();
-  void SetIsCrashAnalysing(bool value);
-
-  /**
-   * @brief GetNeedsUpdate
-   * @return true if a new frame is ready
-   */
-  bool GetNeedsUpdate();
+  void Start() override;
 
 protected:
   vtkLidarStream();
-  ~vtkLidarStream();
+  ~vtkLidarStream() = default;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) override;
 
-  //! where to save a live record of the sensor
-  std::string OutputFileName = "";
-  std::shared_ptr<PacketConsumer> Consumer;
-  std::shared_ptr<PacketFileWriter> Writer;
-  std::unique_ptr<NetworkSource> Network;
+  int FillOutputPortInformation(int port, vtkInformation* info);
+
+  /**
+   * @brief Calibrate Set the Calibration file in the LidarInterpreter and launch calibration
+   */
+  int Calibrate();
+
+  //! Indicate if we should detect that some frames are dropped
+  bool DetectFrameDropping = false;
+
+  //! Last Frame processed, this is important if we want to detect frame dropping
+  int LastFrameProcessed = 0;
+
+  //! Interpret the packet to create a frame, all the magic happen here
+  vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter = nullptr;
+
+  //! The calibrationFileName to used and set to the Interpreter once one has been set
+  std::string CalibrationFileName = "";
+
 private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
 
-  template<class T> void SetAttributeAndRestartIfRunning(T& attribute, T value);
+  std::deque<vtkSmartPointer<vtkPolyData> > Frames;
 };
 
 #endif // VTKLIDARSTREAM_H
