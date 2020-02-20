@@ -20,16 +20,16 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkPolyData.h>
-#include <vtkAlgorithm.h>
 
+#include "vtkInterpreter.h"
 #include "FrameInformation.h"
 
 class vtkTransform;
 
-class VTK_EXPORT  vtkLidarPacketInterpreter : public vtkAlgorithm
+class VTK_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
 {
 public:
-  vtkTypeMacro(vtkLidarPacketInterpreter, vtkAlgorithm)
+  vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)
   void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) {}
 
   /**
@@ -56,18 +56,6 @@ public:
    * calibration.
    */
   virtual vtkSmartPointer<vtkTable> GetCalibrationTable() { return this->CalibrationData.Get(); }
-
-  /**
-   * @brief ProcessPacket process the data packet to create incrementaly the frame.
-   * Each time a packet is processed by the function, the points which are encoded
-   * in the packet are decoded using the calibration information and add to the frame. A warning
-   * should be raise in case the calibration information does not match the data
-   * (ex: factory field, number of laser, ...)
-   * @param data raw data packet
-   * @param bytesReceived size of the data packet
-   * @param startPosition offset in the data packet used when a frame start in the middle of a packet
-   */
-  virtual void ProcessPacket(unsigned char const * data, unsigned int dataLength) = 0;
 
   /**
    * @brief SplitFrame take the current frame under construction and place it in another buffer
@@ -147,6 +135,12 @@ public:
 
   virtual int GetNumberOfChannels() { return this->CalibrationReportedNumLasers; }
 
+  bool IsNewData() override;
+
+  bool IsValidPacket(unsigned char const * data, unsigned int dataLength) override;
+
+  void ResetCurrentData() override;
+
   vtkGetMacro(CalibrationFileName, std::string)
   vtkSetMacro(CalibrationFileName, std::string)
 
@@ -189,8 +183,6 @@ public:
   vtkSetMacro(EnableAdvancedArrays, bool);
 
   vtkMTimeType GetMTime() override;
-
-  virtual int64_t GetManufacturerMACAddress() { return 0xffffffffffff;}
 
 protected: 
   /**

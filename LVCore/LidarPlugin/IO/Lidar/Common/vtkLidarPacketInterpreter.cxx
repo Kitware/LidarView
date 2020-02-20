@@ -140,3 +140,21 @@ vtkMTimeType vtkLidarPacketInterpreter::GetMTime()
   }
   return this->Superclass::GetMTime();
 }
+
+//-----------------------------------------------------------------------------
+bool vtkLidarPacketInterpreter::IsNewData()
+{
+  return this->IsNewFrameReady();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarPacketInterpreter::IsValidPacket(unsigned char const * data, unsigned int dataLength)
+{
+  return this->IsLidarPacket(data, dataLength);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarPacketInterpreter::ResetCurrentData()
+{
+  this->ResetCurrentFrame();
+}
