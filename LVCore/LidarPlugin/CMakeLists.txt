@@ -156,13 +156,13 @@ endif(ENABLE_nanoflann)
 # this sources will also be wrap in python in another plugin
 # WARNING in case of inheritance, put also the upper classes
 list(APPEND servermanager_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarProvider.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarStream.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarPacketInterpreter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/KITTIDataSet/vtkLidarKITTIDataSetReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix/vtkApplanixPositionReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/ArduPilotDataFlashLogReader/vtkArduPilotDataFlashLogReader.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkStream.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkLASFileWriter.cxx
@@ -229,7 +229,9 @@ endif(OpenCV_FOUND)
 
 # xml file that describe the proxy of the wrap sources in paraview
 list(APPEND servermanager_xml
-  xml/Lidar.xml
+  xml/Reader.xml
+  xml/Stream.xml
+  xml/Interpreter.xml
   xml/LidarKITTIDataSetReader.xml
   xml/ApplanixPositionReader.xml
   xml/ArduPilotDataFlashLogReader.xml
