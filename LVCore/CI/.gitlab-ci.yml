@@ -72,6 +72,7 @@ default:
     GIT_STRATEGY: clone # Gitlab define variable
   stage: package
   script:
+    - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - cd $superbuild_build_dir
     - cmake --build . -- $native_build_tool_option
     # rely on paraview superbuild packaging system
