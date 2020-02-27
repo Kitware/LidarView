@@ -173,9 +173,10 @@ void lqSpreadSheetManager::conditionnallyHideColumn(const std::string& condition
     QVariant colHeader = this->SpreadSheetView->getViewModel()->headerData(i, Qt::Orientation::Horizontal);
     if (colHeader.toString().toStdString() == columnName)
     {
-      if (this->SpreadSheetView->getViewModel()->isVisible(i))
+      pqSpreadSheetViewModel* model = this->SpreadSheetView->getViewModel();
+      if (model->headerData(i, Qt::Orientation::Horizontal, pqSpreadSheetViewModel::SectionVisible).toBool())
       {
-        this->SpreadSheetView->getViewModel()->setVisible(i, false);
+        model->setHeaderData(i, Qt::Orientation::Horizontal, false, pqSpreadSheetViewModel::SectionVisible);
       }
     }
   }
@@ -238,8 +239,9 @@ void lqSpreadSheetManager::onSaveColumnSelection()
   QStringList hiddenArrays;
   for (int i = 0; i < cols; i++)
   {
-    QVariant colHeader = this->SpreadSheetView->getViewModel()->headerData(i, Qt::Orientation::Horizontal);
-    if (!this->SpreadSheetView->getViewModel()->isVisible(i))
+    pqSpreadSheetViewModel* model = this->SpreadSheetView->getViewModel();
+    QVariant colHeader = model->headerData(i, Qt::Orientation::Horizontal);
+    if (!model->headerData(i, Qt::Orientation::Horizontal, pqSpreadSheetViewModel::SectionVisible).toBool())
     {
       hiddenArrays << colHeader.toString();
     }
