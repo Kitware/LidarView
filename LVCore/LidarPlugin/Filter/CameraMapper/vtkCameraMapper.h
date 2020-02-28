@@ -35,6 +35,7 @@
 class VTK_EXPORT vtkCameraMapper : public vtkPolyDataAlgorithm
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   static vtkCameraMapper *New();
   vtkTypeMacro(vtkCameraMapper, vtkPolyDataAlgorithm)
 

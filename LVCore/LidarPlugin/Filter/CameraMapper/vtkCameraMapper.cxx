@@ -181,8 +181,8 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
 
   Eigen::VectorXd W = this->Model.GetParametersVector();
 
-  auto cameraCorrection = Eigen::Affine3d::Identity();
-  auto correction = Eigen::Affine3d::Identity();
+  Eigen::Affine3d cameraCorrection = Eigen::Affine3d::Identity();
+  Eigen::Affine3d correction = Eigen::Affine3d::Identity();
 
   if (doCorrectPoints || doCorrectCameraPose)
   {
