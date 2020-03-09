@@ -21,6 +21,7 @@
 #include "CameraProjection.h"
 #include "vtkHelper.h"
 #include "vtkEigenTools.h"
+#include "vtkPipelineTools.h"
 
 // VTK
 #include <vtkImageData.h>
@@ -45,22 +46,6 @@
 #define POINTS_OUTPUT_PORT 0
 #define OUTPUT_PORT_COUNT 1
 // Use default FillOutputPortInformation as long as OUTPUT_PORT_COUNT is 1
-
-namespace
-{
-
-std::vector<double> getTimeSteps(vtkInformation* info)
-{
-  const int steps = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  std::vector<double> timesteps = std::vector<double>(steps);
-  for (int i = 0; i < steps; ++i)
-  {
-    timesteps[i] = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i);
-  }
-  return timesteps;
-}
-
-}
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkCameraMapper)

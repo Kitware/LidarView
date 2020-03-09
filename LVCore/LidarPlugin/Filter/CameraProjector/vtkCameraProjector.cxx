@@ -23,6 +23,7 @@
 #include "CameraProjection.h"
 #include "vtkHelper.h"
 #include "vtkEigenTools.h"
+#include "vtkPipelineTools.h"
 
 // VTK
 #include <vtkImageData.h>
@@ -46,22 +47,6 @@
 #define POINTS_OUTPUT_PORT 1 // this clearly is the most useful output (others are cosmetic/debug)
 #define PROJECTED_POINTS_OUTPUT_PORT 2
 #define OUTPUT_PORT_COUNT 3
-
-namespace
-{
-
-std::vector<double> getTimeSteps(vtkInformation* info)
-{
-  const int steps = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  std::vector<double> timesteps = std::vector<double>(steps);
-  for (int i = 0; i < steps; ++i)
-  {
-    timesteps[i] = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), i);
-  }
-  return timesteps;
-}
-
-}
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkCameraProjector)
@@ -125,7 +110,6 @@ int vtkCameraProjector::RequestInformation(vtkInformation* vtkNotUsed(request),
   // We choose to propagate the timestep from the point cloud, because this is
   // the main output of this filter.
   vtkInformation* inPointsInfo = inputVector[POINTS_INPUT_PORT]->GetInformationObject(0);
-  const int steps = inPointsInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   std::vector<double> pointTimesteps = getTimeSteps(inPointsInfo);
 
   double timeRange[2] = {pointTimesteps[0], pointTimesteps[pointTimesteps.size() - 1]};

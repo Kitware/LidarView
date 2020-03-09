@@ -313,6 +313,7 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkConversions.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Temporal/vtkTimeCalibration.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkCarGeometricCalibration.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPipelineTools.cxx
   )
 if (PCL_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
