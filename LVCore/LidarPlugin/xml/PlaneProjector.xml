@@ -1,0 +1,84 @@
+<ServerManagerConfiguration>
+  <!-- Begin PlaneProjector -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="PlaneProjector" class="vtkPlaneProjector" label="PlaneProjector">
+      <Documentation
+        short_help="Project 3D points onto a 3d plane described by its origin and normal"
+        long_help="Project 3D points onto a 3d plane described by its origin and normal">
+        Project 3D points onto a 3d plane described by its origin and normal
+      </Documentation>
+
+    <InputProperty
+      name="PointCloud"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <InputProperty
+      name="Plane"
+      port_index="1"
+      command="SetInputConnection">
+      <Hints>
+        <Optional />
+        <!-- No input selection dialog at instantiation -->
+      </Hints>
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Raw projected point cloud" index="0" id="port0" />
+    <OutputPort name="XY projected point cloud" index="1" id="port1" />
+
+    <IntVectorProperty name="UsePlaneFromInput"
+                       command="SetUsePlaneFromInput"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Use input (port 1) to set the projection plane instead of user defined
+        values. It must contain at least one point (the first point coordinates
+        is used as Origin) and have a "Normals" PointData array (its value for
+        the first point is used as Normal). Otherwise a warning will be raised
+        and the projection will fall back to the user defined values.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Origin"
+                       command="SetPlaneOrigin"
+                       number_of_elements="3"
+                       default_values="0.0 0.0 0.0">
+      <Documentation>
+        Origin of the projection plane
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Normal"
+                       command="SetPlaneNormal"
+                       number_of_elements="3"
+                       default_values="0.0 0.0 1.0">
+      <Documentation>
+        Normal of the projection plane (default is Z axis)
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="ProjectionPlane">
+      <Property name="Origin" />
+      <Property name="Normal" />
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="UsePlaneFromInput"
+                                 value="0" />
+      </Hints>
+    </PropertyGroup>
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End PlaneProjector -->
+</ServerManagerConfiguration>
+
+
+
