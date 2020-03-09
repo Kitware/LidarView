@@ -87,3 +87,35 @@ vtkSmartPointer<vtkImageData> CvImageToVtkImage(const cv::Mat& inImg)
   CvImageToVtkImage(inImg, outImg);
   return outImg;
 }
+
+//----------------------------------------------------------------------------
+cv::Mat VtkImageToCvImage(vtkSmartPointer<vtkImageData> inImg, bool flipHorizontally)
+{
+  int dims[3];
+  inImg->GetDimensions(dims);
+  int width = dims[0];
+  int height = dims[1];
+  if (dims[2] != 1)
+  {
+    std::cerr << " Only 2D vtkImageData (dims[2] == 1) can be transformed to opencv images" << std::endl;
+  }
+  int channels = inImg->GetNumberOfScalarComponents();
+  if (channels != 3)
+  {
+    std::cerr << "Only vtkImageData with 3 scalar components can be converted to cv::Mat" << std::endl;
+  }
+
+  // Interpret vtkImage as OpenCV object (pointing with the same data)
+  auto openCVInterp = cv::Mat(height, width, CV_8UC3, inImg->GetScalarPointer());
+
+  size_t N = height * width * channels;
+  if (flipHorizontally)
+  {
+    cv::flip(openCVInterp, openCVInterp, 0);
+  }
+
+  cv::Mat openCVImage;
+  cv::cvtColor(openCVInterp, openCVImage, cv::COLOR_RGB2BGR);
+
+  return openCVImage;
+}

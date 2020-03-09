@@ -210,9 +210,11 @@ if (OpenCV_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkPCAPImageReader.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkOpenCVVideoReader.cxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/OpenCVImageMapper/vtkOpenCVImageMapper.cxx
     )
   list(APPEND servermanager_xml
     xml/PCAPImageReader.xml
+    xml/OpenCVImageMapper.xml
     )
   list(APPEND sources_which_do_not_inherit_from_vtkObject
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkOpenCVConversions.cxx
@@ -382,6 +384,7 @@ set(plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraMapper
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/OpenCVImageMapper
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PlaneProjector
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage

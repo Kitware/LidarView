@@ -52,4 +52,17 @@ bool CvImageToVtkImage(const cv::Mat& inImg, vtkSmartPointer<vtkImageData> outIm
    */
 vtkSmartPointer<vtkImageData> CvImageToVtkImage(const cv::Mat& inImg);
 
+/**
+   * @brief VtkImageToCVImage converts a 2D vtkImageData (depth == 1) with only
+   * RGB components to an OpenCV BGR CV_8UC3 image to a vtkImageData
+   *
+   * @param inImg input read-only vtkImageData, supposed to be of depth 1 and with only
+   * 3 scalar components (r, g, b)
+   * @param flipHorizontally if set to true, the image is flipped horizontally.
+   * This is needed because vtkImages have their origin in the bottom left corner
+   * of the image, where as cv::Mat have their origin in the top left corner of the image.
+   */
+cv::Mat VtkImageToCvImage(vtkSmartPointer<vtkImageData> inImg,
+                          bool flipHorizontally = true);
+
 #endif // VTK_OPENCV_CONVERSIONS_H
