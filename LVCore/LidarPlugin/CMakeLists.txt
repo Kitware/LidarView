@@ -176,9 +176,10 @@ if (PCL_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel.cxx
     )
-
 endif(PCL_FOUND)
-if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
+
+option(ENABLE_old_slam "Build old Lidar Slam (requires PCL, Ceres, nanoflann, ...)" ON)
+if (ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSlam.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSpinningSensorKeypointExtractor.cxx
@@ -188,7 +189,7 @@ if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/Slam.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/SpinningSensorKeypointExtractor.cxx
     )
-endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
+endif(ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
 if (OpenCV_FOUND)
   list(APPEND servermanager_sources
@@ -243,11 +244,11 @@ if (Ceres_FOUND)
     )
 endif(Ceres_FOUND)
 
-if (PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
+if (ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
   list(APPEND servermanager_xml
     xml/Slam.xml
     )
-endif(PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
+endif(ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
 
 if (nanoflann_FOUND)
