@@ -59,7 +59,18 @@
       <Documentation>
         This property specifies the folder to save output images to.
       </Documentation>
-      </StringVectorProperty>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="RemovePointsWithInvalidTexture"
+                       command="SetRemovePointsWithInvalidTexture"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If set, points with texture coordinates that are not in [0, 1[ are marked
+        as invalid in the output.
+      </Documentation>
+    </IntVectorProperty>
 
     </SourceProxy>
   </ProxyGroup>

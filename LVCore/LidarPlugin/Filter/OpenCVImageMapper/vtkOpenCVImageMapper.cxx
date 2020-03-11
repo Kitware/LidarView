@@ -118,13 +118,13 @@ int vtkOpenCVImageMapper::RequestData(vtkInformation* vtkNotUsed(request),
   cv::Mat inOpenCVImg = VtkImageToCvImage(inTextureImg, false);
 
   // Get opencv maps from texture coordinates
-  auto tcoordsArray = inCoordsImg->GetPointData()->GetArray("TextureCoordinates");
+  auto tcoordsArray = outImg->GetPointData()->GetArray("TextureCoordinates");
   if (tcoordsArray == nullptr)
   {
     vtkErrorMacro("Coords input daoes not have a 'TextureCoordinates' point data")
   }
   auto floatTCoords = vtkSmartPointer<vtkFloatArray>::New();
-  floatTCoords->DeepCopy(tcoordsArray);  // Convert to float data
+  floatTCoords->DeepCopy(tcoordsArray);  // Deep copy to convert to float data
   float* tcoordsData = floatTCoords->GetPointer(0);
 
   int inDims[3];
@@ -139,10 +139,33 @@ int vtkOpenCVImageMapper::RequestData(vtkInformation* vtkNotUsed(request),
   cv::split(maps, separateMaps);
   separateMaps[0] *= inDims[0];
   separateMaps[1] *= inDims[1];
-  cv::remap(inOpenCVImg, outOpenCVImg, separateMaps[0], separateMaps[1], cv::INTER_LINEAR, cv::BORDER_CONSTANT);
+  cv::remap(inOpenCVImg, outOpenCVImg, separateMaps[0], separateMaps[1], cv::INTER_LINEAR,
+            cv::BORDER_CONSTANT, cv::Scalar(0));
 
-  // ! vtkValidPointMask to set values to 0 (alpha)
+  // Check for valid data (from vtkValidPointMask + potentially Invalid texture coords)
 
+  // vtkValidPointMask is a signed char array
+  vtkCharArray* validArray = vtkCharArray::SafeDownCast(
+          outImg->GetPointData()->GetArray("vtkValidPointMask"));
+  char* validData = validArray->GetPointer(0);
+
+  // validCVMat points to the data in validArray, hence its data type is signed chars as well
+  cv::Mat validCVMat(outDims[1], outDims[0], CV_8SC1, validData);
+
+  // Make points with invalid texture coordinates invalid
+  if (this->RemovePointsWithInvalidTexture)
+  {
+    for (vtkIdType pointIndex = 0; pointIndex < outImg->GetNumberOfPoints(); ++pointIndex)
+    {
+      double* tcoords = floatTCoords->GetTuple2(pointIndex);
+      if ((tcoords[0] < 0) || (tcoords[0] >= 1) || (tcoords[1] < 0) || (tcoords[1] >= 1))
+      {
+        validArray->SetTuple1(pointIndex, 0);
+      }
+    }
+  }
+
+  // Save image to file
   if (this->SaveToFile)
   {
     if (this->OutFolderPath.empty())
@@ -151,12 +174,6 @@ int vtkOpenCVImageMapper::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      // Add alpha value from vtkValidPointMask to the image
-      // vtkValidPointMask is a char array
-      vtkCharArray* validArray = vtkCharArray::SafeDownCast(
-              inCoordsImg->GetPointData()->GetArray("vtkValidPointMask"));
-      char* validData = validArray->GetPointer(0);
-      cv::Mat alphaSigned(outDims[1], outDims[0], CV_8SC1, validData);
       std::vector<cv::Mat> bgraChannels(3);
       cv::split(outOpenCVImg, bgraChannels);
       cv::Mat alphaUnsigned;

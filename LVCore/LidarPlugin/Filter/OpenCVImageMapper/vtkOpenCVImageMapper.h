@@ -24,6 +24,8 @@
 #include <vtkImageAlgorithm.h>
 #include <vtkPolyDataAlgorithm.h>
 
+// OPENCV
+#include <opencv2/core.hpp>
 
 /**
  * @brief vtkOpenCVImageMapper Takes an image with texture coordinates and an
@@ -41,6 +43,7 @@ public:
   vtkTypeMacro(vtkOpenCVImageMapper, vtkImageAlgorithm)
   vtkSetMacro(SaveToFile, bool);
   vtkSetMacro(OutFolderPath, std::string);
+  vtkSetMacro(RemovePointsWithInvalidTexture, bool);
 
 protected:
   vtkOpenCVImageMapper();
@@ -66,6 +69,9 @@ private:
   // Counter of generated views used for output saving (TODO: use frame index)
   unsigned int FrameCount = 0;
 
+  // If true, points with texture coordinates that are not in [0, 1[ are marked
+  // as invalid in the output.
+  bool RemovePointsWithInvalidTexture = true;
 };
 
 #endif // VTK_OPENCV_IMAGE_MAPPER_H
