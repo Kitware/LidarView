@@ -47,9 +47,9 @@
 #include <iostream>
 
 
-constexpr unsigned int COORDS_IMAGE_INPUT_PORT 0
-constexpr unsigned int TEXTURE_IMAGE_INPUT_PORT 1
-constexpr unsigned int INPUT_PORTS_COUNT 2
+constexpr unsigned int COORDS_IMAGE_INPUT_PORT = 0;
+constexpr unsigned int TEXTURE_IMAGE_INPUT_PORT = 1;
+constexpr unsigned int INPUT_PORTS_COUNT = 2;
 
 
 vtkStandardNewMacro(vtkOpenCVImageMapper)

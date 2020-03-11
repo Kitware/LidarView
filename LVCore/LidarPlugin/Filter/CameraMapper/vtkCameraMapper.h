@@ -21,6 +21,7 @@
 // VTK
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
+#include <vtkImageData.h>
 #include "vtkCustomTransformInterpolator.h"
 
 // EIGEN
@@ -39,7 +40,7 @@ public:
   static vtkCameraMapper *New();
   vtkTypeMacro(vtkCameraMapper, vtkPolyDataAlgorithm)
 
-  void SetFileName(const std::string &argfilename);
+  void SetCalibrationFileName(const std::string &argfilename);
   void SetImgSize(double width, double height)
   {
     this->ImgSize(0) = width; this->ImgSize(1) = height;
@@ -49,6 +50,10 @@ public:
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
   vtkSetMacro(UseTrajectoryToCompensateCameraMovement, bool);
   vtkSetMacro(PipelineTimeToLidarTime, double);
+
+  void SetCameraMask(const std::string &argfilename);
+  vtkSetMacro(UseCameraMask, bool);
+  vtkSetMacro(InvertCameraMask, bool);
 
 protected:
   vtkCameraMapper();
@@ -74,7 +79,7 @@ private:
   vtkSmartPointer<vtkCustomTransformInterpolator> Trajectory = nullptr;
 
   //! File containing the camera model and parameters
-  std::string Filename;
+  std::string CalibrationFileName;
 
   //! Should the cache be refreshed before next projection ?
   bool NeedsToUpdateCachedValues = false;
@@ -102,6 +107,19 @@ private:
   //! Image size used to create relative coordinates from pixel coordinates in
   //! case the image input not provided
   Eigen::Vector2d ImgSize = Eigen::Vector2d(1920., 1080.);
+
+  //! Should we use a mask to invalidate some of the mapped points
+  //! This is typically used in case part of the camera field of view is occluded
+  //! For example a camera seeing egovehicle pixels that don't correspond to
+  //! lidar points
+  bool UseCameraMask = false;
+
+  //! Camera mask Path to the image file used as texture mask (the image must be the same size
+  // as the texture image source)
+  vtkSmartPointer<vtkImageData> CameraMask;
+
+  //! Should we invert mask values?
+  bool InvertCameraMask = false;
 };
 
 #endif // VTK_CAMERA_MAPPER_H

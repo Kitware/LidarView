@@ -35,6 +35,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkJPEGReader.h>
 
 #include <boost/filesystem.hpp>
 
@@ -145,7 +146,9 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData* outCloud = vtkPolyData::GetData(outputVector, POINTS_OUTPUT_PORT);
   outCloud->DeepCopy(pointcloud);
   auto pixelCoordsArray = createArray<vtkDoubleArray>("CameraPixelCoordinates", 2, outCloud->GetNumberOfPoints());
+  pixelCoordsArray->Fill(-1);
   auto textureCoordsArray = createArray<vtkDoubleArray>("TextureCoordinates", 2, outCloud->GetNumberOfPoints());
+  textureCoordsArray->Fill(-1);
   outCloud->GetPointData()->AddArray(pixelCoordsArray);
   outCloud->GetPointData()->SetTCoords(textureCoordsArray);
 
@@ -200,27 +203,53 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
     double imgWidth = (inImg == nullptr) ? this->ImgSize(0) : static_cast<double>(inImg->GetDimensions()[0]);
     double imgHeight = (inImg == nullptr) ? this->ImgSize(1) : static_cast<double>(inImg->GetDimensions()[1]);
 
-    pixelCoordsArray->SetTuple2(pointIndex, y(0), y(1));
-    textureCoordsArray->SetTuple2(pointIndex, y(0)/imgWidth, y(1)/imgHeight);
+    if ((y(0) >= 0) && (y(0) < imgWidth) &&
+        (y(1) >= 0) && (y(1) < imgHeight))
+    {
+      if (this->UseCameraMask && (this->CameraMask != nullptr))
+      {
+        double maskValue = this->CameraMask->GetScalarComponentAsDouble(y(0), y(1), 0, 0);
+        // skip if invertCameraMask xor mask value is true
+        if (this->InvertCameraMask != (maskValue > 0))
+        {
+          continue;
+        }
+      }
+      pixelCoordsArray->SetTuple2(pointIndex, y(0), y(1));
+      textureCoordsArray->SetTuple2(pointIndex, y(0)/imgWidth, y(1)/imgHeight);
+    }
   }
 
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkCameraMapper::SetFileName(const std::string &argfilename)
+void vtkCameraMapper::SetCalibrationFileName(const std::string &argfilename)
 {
-  this->Filename = argfilename;
+  this->CalibrationFileName = argfilename;
   int ret = 0;
-  if (boost::filesystem::exists(this->Filename))
+  if (boost::filesystem::exists(this->CalibrationFileName))
   {
-    ret = this->Model.LoadParamsFromFile(this->Filename);
+    ret = this->Model.LoadParamsFromFile(this->CalibrationFileName);
   }
   if (!ret)
   {
     vtkWarningMacro("Calibration parameters could not be read from file.")
   }
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkCameraMapper::SetCameraMask(const std::string &argfilename)
+{
+  if (!argfilename.empty())
+  {
+    vtkSmartPointer<vtkJPEGReader> imgReader = vtkSmartPointer<vtkJPEGReader>::New();
+    imgReader->SetFileName(argfilename.c_str());
+    imgReader->Update();
+    this->CameraMask = imgReader->GetOutput();
+    this->Modified();
+  }
 }
 
 //-----------------------------------------------------------------------------

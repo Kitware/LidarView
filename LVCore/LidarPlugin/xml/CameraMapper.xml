@@ -48,9 +48,9 @@
     <OutputPort name="Point cloud with camera coordinates" index="0" id="port0" />
 
     <StringVectorProperty
-        name="FileName"
+        name="CalibrationFile"
         animateable="0"
-        command="SetFileName"
+        command="SetCalibrationFileName"
         number_of_elements="1">
         <FileListDomain name="files"/>
         <Documentation>
@@ -99,7 +99,48 @@
       </Documentation>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="UseCameraMask"
+                       command="SetUseCameraMask"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If ticked, use a mask to invalidate some of the mapped points
+      </Documentation>
+    </IntVectorProperty>
 
+    <StringVectorProperty
+      name="CameraMaskFile"
+      animateable="0"
+      command="SetCameraMask"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Documentation>
+        This property specifies the image file used to mask part of the camera
+        field of view.
+      </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="InvertCameraMask"
+                       command="SetInvertCameraMask"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If ticked, the boolean camera mask is inverted
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="CameraMask">
+      <Property name="CameraMaskFile"/>
+      <Property name="InvertCameraMask"/>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="UseCameraMask"
+                                 value="1" />
+      </Hints>
+    </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>
   <!-- End CameraMapper -->
