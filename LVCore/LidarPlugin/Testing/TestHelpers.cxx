@@ -100,7 +100,7 @@ vtkPolyData* GetCurrentFrame(vtkLidarStream* HDLsource, int index)
 
   HDLsource->GetOutput()->Register(NULL);
 
-  vtkPolyData* currentFrame = HDLsource->GetOutput();
+  vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(HDLsource->GetOutput());
 
   return currentFrame;
 }
@@ -467,6 +467,8 @@ int testLidarStream(vtkLidarStream *stream,
   const int preSendWait_us = static_cast<int>(1e6 * 1.0 / preSendSpeed);
   const int sendWait_us = static_cast<int>(1e6 * 1.0 / speed);
 
+  vtkSmartPointer<vtkLidarPacketInterpreter> interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
+
   // Case of live correction : Packet are sent a first time to save calibration
   if (preSend)
   {
@@ -491,8 +493,8 @@ int testLidarStream(vtkLidarStream *stream,
       return 1;
     }
 
-    stream->GetInterpreter()->ClearAllFramesAvailable();
-    stream->GetInterpreter()->ResetParserMetaData();
+    interpreter->ClearAllFramesAvailable();
+    interpreter->ResetParserMetaData();
   }
 
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
@@ -502,7 +504,7 @@ int testLidarStream(vtkLidarStream *stream,
   const double timeout = 1.0;
 
   stream->Start();
-  if (stream->GetInterpreter()->GetIsCalibrated())
+  if (interpreter->GetIsCalibrated())
   {
     try
     {
@@ -539,7 +541,7 @@ int testLidarStream(vtkLidarStream *stream,
 
           stream->Update();
 
-          vtkPolyData* currentFrame = stream->GetOutput();
+          vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(stream->GetOutput());
           vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
           // Check Points count
