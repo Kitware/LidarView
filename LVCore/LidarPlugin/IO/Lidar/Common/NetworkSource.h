@@ -39,24 +39,23 @@ class PacketFileWriter;
 class NetworkSource
 {
 public:
-  NetworkSource(std::shared_ptr<PacketConsumer> _consumer, int argLidarPort,
-    int ForwardedLidarPort_, std::string ForwardedIpAddress_,
+  NetworkSource(std::shared_ptr<PacketConsumer> _consumer, int argPort,
+    int ForwardedPort_, std::string ForwardedIpAddress_,
     bool isForwarding_, bool isCrashAnalysing_)
-    : LidarPort(argLidarPort)
-    , ForwardedLidarPort(ForwardedLidarPort_)
+    : ListeningPort(argPort)
+    , ForwardedPort(ForwardedPort_)
     , ForwardedIpAddress(ForwardedIpAddress_)
     , IsForwarding(isForwarding_)
     , IsCrashAnalysing(isCrashAnalysing_)
     , IOService()
     , Thread()
-    , LidarPortReceiver()
+    , PortReceiver()
     , Consumer(_consumer)
     , Writer()
     , DummyWork(new boost::asio::io_service::work(this->IOService))
   {
     this->MulticastAddress = "";
     this->LocalListeningAddress = "";
-    this->ListenGPS = false;
   }
 
   ~NetworkSource();
@@ -68,13 +67,10 @@ public:
   void Stop();
 
   //! @todo currently evrything is public, but it should be private
-  int LidarPort;                  /*!< The port to receive LIDAR information. Default is 2368 */
+  int ListeningPort;                  /*!< The port to receive information. Default is 2368 */
   std::string MulticastAddress;   /*!< The multicast address to receive packets*/
   std::string LocalListeningAddress;   /*!< The Listening address in case of multiples interfaces*/
-  bool ListenGPS;
-  int GPSPort;                    /*!< The port to receive GPS information. Default is 8308 */
-  int ForwardedLidarPort;         /*!< The port to send LIDAR forwarded packets*/
-  int ForwardedGPSPort;           /*!< The port to send GPS forwarded packets*/
+  int ForwardedPort;         /*!< The port to send forwarded packets*/
   std::string ForwardedIpAddress; /*!< The ip to send forwarded packets*/
   bool IsForwarding;              /*!< Allowing the forwarding of the packets*/
   bool IsCrashAnalysing;
@@ -83,10 +79,7 @@ public:
   boost::shared_ptr<boost::thread> Thread;
 
   boost::shared_ptr<PacketReceiver>
-    LidarPortReceiver; /*!< The PacketReceiver configured to receive LIDAR information */
-
-  boost::shared_ptr<PacketReceiver>
-    PositionPortReceiver; /*!< The PacketReceiver configured to receive GPS information */
+    PortReceiver; /*!< The PacketReceiver configured to receive information */
 
   std::shared_ptr<PacketConsumer> Consumer;
   std::shared_ptr<PacketFileWriter> Writer;

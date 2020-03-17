@@ -22,8 +22,7 @@
 #include "PacketFileWriter.h"
 #include "PacketConsumer.h"
 
-#define LIDAR_PACKET_TO_STORE_CRASH_ANALYSIS 5000
-#define GPS_PACKET_TO_STORE_CRASH_ANALYSIS 5000
+#define PACKET_TO_STORE_CRASH_ANALYSIS 5000
 
 //-----------------------------------------------------------------------------
 NetworkSource::~NetworkSource()
@@ -69,14 +68,9 @@ void NetworkSource::Start()
   }
 
   // Create work
-  this->LidarPortReceiver = boost::shared_ptr<PacketReceiver>(new PacketReceiver(
-    this->IOService, LidarPort, ForwardedLidarPort, ForwardedIpAddress, IsForwarding, this, MulticastAddress, LocalListeningAddress));
+  this->PortReceiver = boost::shared_ptr<PacketReceiver>(new PacketReceiver(
+    this->IOService, ListeningPort, ForwardedPort, ForwardedIpAddress, IsForwarding, this, MulticastAddress, LocalListeningAddress));
 
-  if (this->ListenGPS)
-  {
-    this->PositionPortReceiver = boost::shared_ptr<PacketReceiver>(new PacketReceiver(
-      this->IOService, GPSPort, ForwardedGPSPort, ForwardedIpAddress, IsForwarding, this));
-  }
 
   if (this->IsCrashAnalysing)
   {
@@ -108,29 +102,17 @@ void NetworkSource::Start()
       boost::filesystem::create_directory(appDirPath);
     }
 
-    this->LidarPortReceiver->EnableCrashAnalysing(
-      appDir + "LidarLastData", LIDAR_PACKET_TO_STORE_CRASH_ANALYSIS, this->IsCrashAnalysing);
-    if (this->ListenGPS)
-    {
-      this->PositionPortReceiver->EnableCrashAnalysing(
-        appDir + "GPSLastData", GPS_PACKET_TO_STORE_CRASH_ANALYSIS, this->IsCrashAnalysing);
-    }
+    this->PortReceiver->EnableCrashAnalysing(
+      appDir + "LastData", PACKET_TO_STORE_CRASH_ANALYSIS, this->IsCrashAnalysing);
   }
 
-  this->LidarPortReceiver->StartReceive();
-  if (this->ListenGPS)
-  {
-      this->PositionPortReceiver->StartReceive();
-  }
+  this->PortReceiver->StartReceive();
+
 }
 
 //-----------------------------------------------------------------------------
 void NetworkSource::Stop()
 {
-  // Kill the receivers
-  this->LidarPortReceiver.reset();
-  if (this->ListenGPS)
-  {
-    this->PositionPortReceiver.reset();
-  }
+  // Kill the receiver
+  this->PortReceiver.reset();
 }
