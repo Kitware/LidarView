@@ -1,7 +1,7 @@
 <ServerManagerConfiguration>
 
 <!-- Begin Stream -->
-<ProxyGroup name="sources">
+<ProxyGroup name="baseStream">
 <SourceProxy name="Stream"
              class="vtkStream"
              label="Stream">
@@ -11,13 +11,13 @@
     </Documentation>
 
     <IntVectorProperty
-        name="LidarPort"
+        name="ListeningPort"
         animateable="0"
-        command="SetLidarPort"
+        command="SetListeningPort"
         default_values="2368"
         number_of_elements="1">
       <Documentation>
-        Specify port on which to listen for Lidar packets
+        Specify port on which to listen for packets
       </Documentation>
     </IntVectorProperty>
 
@@ -77,10 +77,6 @@
       <BooleanDomain name="bool" />
     </IntVectorProperty>
 
-    <Hints>
-      <LiveSource />
-    </Hints>
-
  </SourceProxy>
 </ProxyGroup>
 <!-- End Stream -->
@@ -91,7 +87,7 @@
 <SourceProxy name="LidarStream"
              class="vtkLidarStream"
              label="Lidar Stream"
-             base_proxygroup="sources"
+             base_proxygroup="baseStream"
              base_proxyname="Stream">
     <Documentation
        short_help="Lidar Stream"
