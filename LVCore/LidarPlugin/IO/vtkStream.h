@@ -42,14 +42,8 @@ public:
   /**
    * @copydoc NetworkSource::LidarPort
    */
-  int GetLidarPort();
-  void SetLidarPort(int);
-
-  /**
-   * @copydoc NetworkSource::GPSPort
-   */
-  int GetGPSPort();
-  void SetGPSPort(int);
+  int GetListeningPort();
+  void SetListeningPort(int);
 
   /**
    * @brief multicast Address
@@ -70,18 +64,10 @@ public:
   void SetForwardedIpAddress(const std::string& ipAddress);
 
   /**
-   * @copydoc NetworkSource::ForwardedLIDARPort
+   * @copydoc NetworkSource::ForwardedPort
    */
-  int GetForwardedLidarPort();
-  void SetForwardedLidarPort(int);
-
-  /**
-   * @copydoc NetworkSource::ForwardedLIDARPort
-   */
-  int GetForwardedGPSPort();
-  void SetForwardedGPSPort(int);
-
-  void EnableGPSListening(bool);
+  int GetForwardedPort();
+  void SetForwardedPort(int);
 
   /**
    * @copydoc NetworkSource::IsForwarding

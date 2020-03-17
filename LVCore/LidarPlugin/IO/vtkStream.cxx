@@ -66,7 +66,7 @@ template<class T>
 void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
   bool wasRunning = this->Network != nullptr
       && this->Network->Thread != nullptr && this->Network->Thread->joinable()
-      && this->Network->LidarPortReceiver != nullptr;
+      && this->Network->PortReceiver != nullptr;
   this->Stop();
   attribute = value;
   if (wasRunning)
@@ -76,17 +76,17 @@ void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
 }
 
 //-----------------------------------------------------------------------------
-int vtkStream::GetLidarPort()
+int vtkStream::GetListeningPort()
 {
-  return this->Network->LidarPort;
+  return this->Network->ListeningPort;
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::SetLidarPort(int value)
+void vtkStream::SetListeningPort(int value)
 {
-  if (this->Network->LidarPort != value)
+  if (this->Network->ListeningPort != value)
   {
-    SetAttributeAndRestartIfRunning(this->Network->LidarPort, value);
+    SetAttributeAndRestartIfRunning(this->Network->ListeningPort, value);
   }
 }
 
@@ -121,51 +121,22 @@ void vtkStream::SetLocalListeningAddress(const std::string& value)
 }
 
 //-----------------------------------------------------------------------------
-int vtkStream::GetGPSPort()
+int vtkStream::GetForwardedPort()
 {
-  return this->Network->GPSPort;
+  return this->Network->ForwardedPort;
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::SetGPSPort(int value)
+void vtkStream::SetForwardedPort(int value)
 {
-  this->Network->GPSPort = value;
+  this->Network->ForwardedPort = value;
 }
 
-//-----------------------------------------------------------------------------
-int vtkStream::GetForwardedLidarPort()
-{
-  return this->Network->ForwardedLidarPort;
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::SetForwardedLidarPort(int value)
-{
-  this->Network->ForwardedLidarPort = value;
-}
-
-//-----------------------------------------------------------------------------
-int vtkStream::GetForwardedGPSPort()
-{
-  return this->Network->ForwardedGPSPort;
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::SetForwardedGPSPort(int value)
-{
-  this->Network->ForwardedGPSPort = value;
-}
 
 //-----------------------------------------------------------------------------
 bool vtkStream::GetIsForwarding()
 {
   return this->Network->IsForwarding;
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::EnableGPSListening(bool value)
-{
-  this->Network->ListenGPS = value;
 }
 
 //-----------------------------------------------------------------------------
