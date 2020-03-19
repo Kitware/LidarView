@@ -86,6 +86,20 @@ if (ENABLE_pcl)
   find_package(PCL REQUIRED)
   include_directories(${SYSTEM_OPTION} ${PCL_INCLUDE_DIRS})
   add_definitions(${PCL_DEFINITIONS})
+
+  # Since PCL 1.9, PCL_DEFINITIONS is deprecated as options are directly
+  # included in targets or in PCL_COMPILE_OPTIONS.
+  # We need to check if some flags were used by PCL as they could build a
+  # different version of Eigen, not compatible with default one.
+  list(APPEND pcl_compile_flags ${PCL_DEFINITIONS} ${PCL_COMPILE_OPTIONS})
+  string(FIND "${pcl_compile_flags}" "-march=native" pcl_use_march_native)
+  if (${pcl_use_march_native} GREATER -1)
+    message(WARNING "PCL assumes '-march=native' flag was used, which may enable AVX optimizations.\n"
+                    "Please ensure that other libs using Eigen are also compiled with the same SSE/AVX flags, "
+                    "as it could change memory alignement between these versions. Otherwise, the program could "
+                    "segfault allocating/freeing dynamic objects. See here for more info : "
+                    "https://github.com/ethz-asl/eigen_catkin/wiki/Eigen-Memory-Issues#mismatched-build-flags")
+  endif()
 endif(ENABLE_pcl)
 
 #--------------------------------------
