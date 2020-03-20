@@ -4,6 +4,7 @@
 [submodule "LVCore"]
 	path = LVCore
 	url = ../LidarView-Core
+	branch = master
 [submodule "Plugins/VelodynePlugin"]
 	path = Plugins/VelodynePlugin
 	url = ../VelodynePlugin
