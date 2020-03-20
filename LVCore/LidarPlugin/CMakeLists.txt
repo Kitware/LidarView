@@ -1,6 +1,9 @@
 project(LidarPlugin)
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
+set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
+message(STATUS "Building LidarPlugin with C++${CMAKE_CXX_STANDARD} standard")
+
 #-----------------------------------------------------------------------------
 # Temporary Fix
 #-----------------------------------------------------------------------------
@@ -193,8 +196,10 @@ if (PCL_FOUND)
     )
 endif(PCL_FOUND)
 
-option(ENABLE_old_slam "Build old Lidar Slam (requires PCL, Ceres, nanoflann, ...)" ON)
+option(ENABLE_old_slam "Build old deprecated Lidar SLAM (requires PCL, Ceres, nanoflann). Should not be used if new SLAM is being built." OFF)
+mark_as_advanced(ENABLE_old_slam)
 if (ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
+  message("Old deprecated SLAM is enabled. Please ensure that new SLAM is disabled to prevent runtime filters loading errors.")
   list(APPEND servermanager_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSlam.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSpinningSensorKeypointExtractor.cxx
