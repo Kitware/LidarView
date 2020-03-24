@@ -107,6 +107,11 @@ public:
    */
   virtual vtkSmartPointer<vtkInterpreter> GetInterpreter() = 0;
 
+  /**
+   * @brief SetInterpreter Set specific subclass interpreter
+   */
+  virtual void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) = 0;
+
 protected:
   vtkStream();
   ~vtkStream();

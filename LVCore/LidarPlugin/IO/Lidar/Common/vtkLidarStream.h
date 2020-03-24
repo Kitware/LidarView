@@ -65,6 +65,7 @@ public:
   int CheckForNewData() override;
 
   vtkSmartPointer<vtkInterpreter> GetInterpreter() override;
+  void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) override;
 
   void Start() override;
 

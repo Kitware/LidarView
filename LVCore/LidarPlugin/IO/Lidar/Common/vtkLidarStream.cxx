@@ -207,3 +207,9 @@ vtkSmartPointer<vtkInterpreter> vtkLidarStream::GetInterpreter()
 {
   return this->LidarInterpreter;
 }
+
+//----------------------------------------------------------------------------
+void vtkLidarStream::SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter)
+{
+  this->LidarInterpreter = vtkLidarPacketInterpreter::SafeDownCast(interpreter);
+}
