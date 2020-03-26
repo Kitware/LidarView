@@ -106,7 +106,6 @@
 #include "CategoriesConfig.h"
 #include "FramesSeriesUtils.h"
 #include "FileSystemUtils.h"
-#include "KDTreeVectorOfVectorsAdaptor.h"
 
 // STD
 #include <iostream>
