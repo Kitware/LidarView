@@ -1,0 +1,8 @@
+# launch lidarview CI, see https://docs.gitlab.com/ee/ci/multi_project_pipelines.html
+launch_lidarview_CI:
+  variables:
+    LVCore_COMMIT_SHA: $CI_COMMIT_SHA
+  trigger:
+    project: lidarview/lidarview
+    branch: master
+    strategy: depend

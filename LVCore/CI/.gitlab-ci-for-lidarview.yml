@@ -41,6 +41,16 @@ default:
 .schedule:
   only: [schedules]
 
+.checkout_LVCore:
+  script: &checkout_LVCore
+    - cd $CI_PROJECT_DIR/LVCore
+    # Checking if $LVCore_COMMIT_SHA is defined should be performed here before using it.
+    # But there isn't a "IF" statement that is compatible on bash and powershell...
+    # However this variable is only defined if this job is trigger from LidarView-Core
+    # in the other case the command will result in a  "git checkout" which  is a glorified no-op (no operation)
+    # according git documentation, see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
+    - git checkout $LVCore_COMMIT_SHA
+
 .clean:
   stage: clean
   extends: .manual
@@ -53,6 +63,7 @@ default:
 .build:
   stage: build
   script:
+    - *checkout_LVCore
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=False .
     - cmake --build . -- $native_build_tool_option
@@ -60,6 +71,7 @@ default:
 .test:
   stage: test
   script:
+    - *checkout_LVCore
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=True .
     - cmake --build . --target install -- $native_build_tool_option
