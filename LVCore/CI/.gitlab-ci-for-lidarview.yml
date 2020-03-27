@@ -35,11 +35,12 @@ default:
 #   see https://docs.gitlab.com/ee/ci/yaml/#anchors
 # - base job class (via the extends keyword), which is gitlab specific.
 #   See https://docs.gitlab.com/ee/ci/yaml/#extends
-.manual:
-  when: manual
 
-.schedule:
-  only: [schedules]
+.manual_and_schedule:
+  rules:
+  - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    when: always
+  - when: manual
 
 .checkout_LVCore:
   script: &checkout_LVCore
@@ -54,7 +55,7 @@ default:
 
 .clean:
   stage: clean
-  extends: .manual
+  extends: .manual_and_schedule
   variables:
     GIT_STRATEGY: none # Gitlab define variable
   script:
@@ -84,6 +85,7 @@ default:
     # will use the command git describe to name the package.
     GIT_STRATEGY: clone # Gitlab define variable
   stage: package
+  extends: .manual_and_schedule
   script:
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
@@ -190,14 +192,12 @@ windows_clean:
 ##############
 # Superbuild #
 ##############
-# Need to know:
-# 1 It is not currently possible to have a job that is manual and schedule
-#   see https://gitlab.com/gitlab-org/gitlab/issues/20478
 
 # the superbuild job will actually compile the superbuild in a container and then
 # upload the container to gitlab so it can be use by the other job.
-.linux_superbuild:
+linux_superbuild:
   stage: superbuild
+  extends: .manual_and_schedule
   tags: [unix_shell_with_docker]
   script:
     # it's better to create a token for private project
@@ -211,9 +211,11 @@ windows_clean:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 # the superbuild job will actually directly compile the superbuild on the pc
-.osx_superbuild:
+osx_superbuild:
   stage: superbuild
-  extends: .osx_runner_config
+  extends:
+    - .osx_runner_config
+    - .manual_and_schedule
   variables:
     CMAKE_OSX_ARCHITECTURES: 'x86_64'
     CMAKE_OSX_DEPLOYMENT_TARGET: '10.10'
@@ -234,9 +236,11 @@ windows_clean:
     - make -j 16
 
 # the superbuild job will actually directly compile the superbuild on the pc
-.windows_superbuild:
+windows_superbuild:
   stage: superbuild
-  extends: .windows_runner_config
+  extends:
+    - .windows_runner_config
+    - .manual_and_schedule
   variables:
     CMAKE_Qt5_DIR: 'C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5'
   script:
@@ -251,38 +255,6 @@ windows_clean:
       -Dsuperbuild_download_location="../downloads"
       $CI_PROJECT_DIR/Superbuild
     - cmake --build .
-
-# Manual superbuild
-linux_superbuild_manual:
-  extends:
-    - .linux_superbuild
-    - .manual
-
-osx_superbuild_manual:
-  extends:
-    - .osx_superbuild
-    - .manual
-
-windows_superbuild_manual:
-  extends:
-    - .windows_superbuild
-    - .manual
-
-# Schedule superbuild
-linux_superbuild_schedule:
-  extends:
-    - .linux_superbuild
-    - .schedule
-
-osx_superbuild_schedule:
-  extends:
-    - .osx_superbuild
-    - .schedule
-
-windows_superbuild_schedule:
-  extends:
-    - .windows_superbuild
-    - .schedule
 
 ##############
 #   Build    #
@@ -327,12 +299,10 @@ windows_test:
 #  Package   #
 ##############
 # Need to know:
-# - It is currently not possible to have a job that is manual and schedule
-#   see https://gitlab.com/gitlab-org/gitlab/issues/20478
 # - Artefact path must be inside CI_PROJECT_DIR
 #   see https://docs.gitlab.com/ee/ci/yaml/README.html#artifactspaths
 
-.linux_package:
+linux_package:
   extends:
     - .linux_runner_config
     - .package
@@ -340,7 +310,7 @@ windows_test:
     - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
     - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
 
-.osx_package:
+osx_package:
   extends:
     - .osx_runner_config
     - .package
@@ -350,7 +320,7 @@ windows_test:
   after_script:
     - mv -f $superbuild_build_dir/*.dmg $CI_PROJECT_DIR
 
-.windows_package:
+windows_package:
   extends:
     - .windows_runner_config
     - .package
@@ -362,35 +332,3 @@ windows_test:
   after_script:
     - mv $superbuild_build_dir/*.exe $CI_PROJECT_DIR
     - mv $superbuild_build_dir/*.zip $CI_PROJECT_DIR
-
-# Manual package
-linux_package_manual:
-  extends:
-    - .linux_package
-    - .manual
-
-osx_package_manual:
-  extends:
-    - .osx_package
-    - .manual
-
-windows_package_manual:
-  extends:
-    - .windows_package
-    - .manual
-
-# Schedule package
-linux_package_schedule:
-  extends:
-    - .linux_package
-    - .schedule
-
-osx_package_schedule:
-  extends:
-    - .osx_package
-    - .schedule
-
-windows_package_schedule:
-  extends:
-    - .windows_package
-    - .schedule
