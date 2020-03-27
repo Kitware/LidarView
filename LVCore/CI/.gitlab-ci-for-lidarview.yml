@@ -18,7 +18,6 @@ variables:
 # putting it as the first stage is the only possibility for now.
 stages:
   - package
-  - clean
   - superbuild
   - build
   - test
@@ -52,14 +51,6 @@ default:
     # in the other case the command will result in a  "git checkout" which  is a glorified no-op (no operation)
     # according to git documentation, see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - git checkout $LVCore_COMMIT_SHA
-
-.clean:
-  stage: clean
-  extends: .manual_and_schedule
-  variables:
-    GIT_STRATEGY: none # Gitlab define variable
-  script:
-    - rm -r $superbuild_build_dir
 
     # the superbuild job will actually directly compile the superbuild on the pc
 .build:
@@ -176,19 +167,6 @@ default:
     architecture: x86_amd64
   tags: [windows]
 
-####################
-# Clean Superbuild #
-####################
-osx_clean:
-  extends:
-    - .osx_runner_config
-    - .clean
- 
-windows_clean:
-  extends:
-    - .windows_runner_config
-    - .clean
-
 ##############
 # Superbuild #
 ##############
@@ -222,6 +200,7 @@ osx_superbuild:
     CMAKE_OSX_SDK: 'macosx10.12'
     CMAKE_OSX_SYSROOT: 'Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk'
   script:
+    - rm -rf $superbuild_build_dir
     - mkdir -p $superbuild_build_dir
     - cd $superbuild_build_dir
     - cmake
@@ -244,6 +223,7 @@ windows_superbuild:
   variables:
     CMAKE_Qt5_DIR: 'C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5'
   script:
+    - rm -r -fo $superbuild_build_dir
     - mkdir -p $superbuild_build_dir
     - cd $superbuild_build_dir
     - cmake
