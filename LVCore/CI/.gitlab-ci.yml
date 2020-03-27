@@ -2,6 +2,10 @@
 launch_lidarview_CI:
   variables:
     LVCore_COMMIT_SHA: $CI_COMMIT_SHA
+  only:
+    - master
+    - merge_requests
+    - tags
   trigger:
     project: lidarview/lidarview
     branch: master
