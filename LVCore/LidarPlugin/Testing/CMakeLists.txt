@@ -30,8 +30,8 @@ target_link_libraries(TestTrailingFrame LidarPlugin)
 custom_add_executable(TestRansacPlaneModel TestRansacPlaneModel.cxx)
 target_link_libraries(TestRansacPlaneModel LidarPlugin)
 
-custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx )
-target_link_libraries(TestVtkEigenTools LidarPlugin)
+#custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx )
+#target_link_libraries(TestVtkEigenTools LidarPlugin)
 
 custom_add_executable(TestBoundingBox TestBoundingBox.cxx)
 target_link_libraries(TestBoundingBox LidarPlugin)
@@ -116,12 +116,12 @@ if (ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
   )
 endif(ENABLE_pcl AND ENABLE_Ceres AND ENABLE_OpenCV)
 
-custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
-target_link_libraries(TestScaleCalibration-MM LidarPlugin)
-add_test(TestScaleCalibration-MM
-  ${INSTALL_LOCAL_DIR}/TestScaleCalibration-MM
-  ${data_dir}/trajectories
-)
+#custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
+#target_link_libraries(TestScaleCalibration-MM LidarPlugin)
+#add_test(TestScaleCalibration-MM
+#  ${INSTALL_LOCAL_DIR}/TestScaleCalibration-MM
+#  ${data_dir}/trajectories
+#)
 
 # Comment this test are they randomly fail on osx (error and even segfault)
 #custom_add_executable(TestTimeCalibration-LaDoua TestTimeCalibration-LaDoua.cxx)
@@ -159,9 +159,9 @@ add_test(TestTemporalTransformsReaderWriter
   ${data_dir}/trajectories/mm04/orbslam2-no-loop-closure.csv.temporary
 )
 
-add_test(TestVtkEigenTools
-  ${INSTALL_LOCAL_DIR}/TestVtkEigenTools
-)
+#add_test(TestVtkEigenTools
+#  ${INSTALL_LOCAL_DIR}/TestVtkEigenTools
+#)
 
 add_test(TestBoundingBox
   ${INSTALL_LOCAL_DIR}/TestBoundingBox
