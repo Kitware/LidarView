@@ -44,6 +44,7 @@ default:
 .checkout_LVCore:
   script: &checkout_LVCore
     - cd $CI_PROJECT_DIR/LVCore
+    - git fetch
     # Checking if $LVCore_COMMIT_SHA is defined should be performed here before using it.
     # But there isn't a "IF" statement that is compatible on bash and powershell...
     # However this variable is only defined if this job is triggered from LidarView-Core
