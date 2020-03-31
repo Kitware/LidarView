@@ -17,7 +17,7 @@ stages:
   - test
   - package
 
-# default parameters, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
+# default parameters for all jobs, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
 default:
   retry:
     max: 2
@@ -39,11 +39,54 @@ workflow:
 # - base job class (via the extends keyword), which is gitlab specific.
 #   See https://docs.gitlab.com/ee/ci/yaml/#extends
 
+# Add option to disable the CI pipeline for a givent os.
+# To do so you must define some variable in the project CI settings, see https://docs.gitlab.com/ee/ci/variables/#via-the-ui
+# - DISABLE_OSX for osx
+# - DISABLE_WINDOWS for windows
+# - DISABLE_LINUX for linux
+
+# for some reason using a single rule for all os a above doesn't work.
+# see https://gitlab.com/gitlab-org/gitlab/-/issues/213008
+# Also because of yaml expension mecanism it's not possible to define them all
+# in a single anchor with multiple if.
+# .disable_os_specific_job_rule:
+#   yaml_placeholder_for_anchor: &disable_os_specific_job_rule
+#       if: > # '>' is use to allow multiple line expression
+#           $DISABLE_OSX      && $CI_JOB_NAME =~ /^osx*/ ||
+#           $DISABLE_WINDOWS  && $CI_JOB_NAME =~ /^windows*/ ||
+#           $DISABLE_LINUX    && $CI_JOB_NAME =~ /^linux*/
+#       when: never
+
+.disable_osx_job_rule:
+  yaml_placeholder_for_anchor: &disable_osx_job_rule
+      if: $DISABLE_OSX && $CI_JOB_NAME =~ /^osx*/
+      when: never
+
+.disable_windows_job_rule:
+  yaml_placeholder_for_anchor: &disable_windows_job_rule
+      if: $DISABLE_WINDOWS && $CI_JOB_NAME =~ /^windows*/
+      when: never
+
+.disable_linux_job_rule:
+  yaml_placeholder_for_anchor: &disable_linux_job_rule
+      if: $DISABLE_LINUX && $CI_JOB_NAME =~ /^linux*/
+      when: never
+
+.default_rules:
+  rules:
+    - *disable_linux_job_rule
+    - *disable_windows_job_rule
+    - *disable_osx_job_rule
+    - when: on_success
+
 .manual_and_schedule:
   rules:
-  - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    when: always
-  - when: manual
+    - *disable_linux_job_rule
+    - *disable_windows_job_rule
+    - *disable_osx_job_rule
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - when: manual
 
 .checkout_LVCore:
   script: &checkout_LVCore
@@ -56,10 +99,10 @@ workflow:
     # according to git documentation, see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - git checkout $LVCore_COMMIT_SHA
 
-    # the superbuild job will actually directly compile the superbuild on the pc
 .build:
   stage: build
   needs: []
+  extends: .default_rules
   script:
     - *checkout_LVCore
     - cd $lidarview_build_dir
@@ -68,6 +111,7 @@ workflow:
 
 .test:
   stage: test
+  extends: .default_rules
   script:
     - *checkout_LVCore
     - cd $lidarview_build_dir
