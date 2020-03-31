@@ -40,54 +40,23 @@ workflow:
 # - base job class (via the extends keyword), which is gitlab specific.
 #   See https://docs.gitlab.com/ee/ci/yaml/#extends
 
-# Add option to disable the CI pipeline for a givent os.
-# To do so you must define some variable in the project CI settings, see https://docs.gitlab.com/ee/ci/variables/#via-the-ui
-# - DISABLE_OSX for osx
-# - DISABLE_WINDOWS for windows
-# - DISABLE_LINUX for linux
-
-# for some reason using a single rule for all os a above doesn't work.
-# see https://gitlab.com/gitlab-org/gitlab/-/issues/213008
-# Also because of yaml expension mecanism it's not possible to define them all
-# in a single anchor with multiple if.
-# .disable_os_specific_job_rule:
-#   yaml_placeholder_for_anchor: &disable_os_specific_job_rule
-#       if: > # '>' is use to allow multiple line expression
-#           $DISABLE_OSX      && $CI_JOB_NAME =~ /^osx*/ ||
-#           $DISABLE_WINDOWS  && $CI_JOB_NAME =~ /^windows*/ ||
-#           $DISABLE_LINUX    && $CI_JOB_NAME =~ /^linux*/
-#       when: never
-
-.disable_osx_job_rule:
-  yaml_placeholder_for_anchor: &disable_osx_job_rule
-      if: $DISABLE_OSX && $CI_JOB_NAME =~ /^osx*/
-      when: never
-
-.disable_windows_job_rule:
-  yaml_placeholder_for_anchor: &disable_windows_job_rule
-      if: $DISABLE_WINDOWS && $CI_JOB_NAME =~ /^windows*/
-      when: never
-
-.disable_linux_job_rule:
-  yaml_placeholder_for_anchor: &disable_linux_job_rule
-      if: $DISABLE_LINUX && $CI_JOB_NAME =~ /^linux*/
-      when: never
-
 .default_rules:
   rules:
-    - *disable_linux_job_rule
-    - *disable_windows_job_rule
-    - *disable_osx_job_rule
+    # Add option to disable the CI pipeline for a givent os.
+    # To do so you must define some variable in the project CI settings, see https://docs.gitlab.com/ee/ci/variables/#via-the-ui
+    # - DISABLE_OSX for osx
+    # - DISABLE_WINDOWS for windows
+    # - DISABLE_LINUX for linux
+    - if: $DISABLE_OSX && $CI_JOB_NAME =~ /^osx*/
+      when: never
+    - if: $DISABLE_WINDOWS && $CI_JOB_NAME =~ /^windows*/
+      when: never
+    - if: $DISABLE_LINUX && $CI_JOB_NAME =~ /^linux*/
+      when: never
+    # define the manual job
+    - if: $CI_JOB_STAGE == "superbuild" || $CI_JOB_STAGE == "package"
+      when: manual
     - when: on_success
-
-.manual_and_schedule:
-  rules:
-    - *disable_linux_job_rule
-    - *disable_windows_job_rule
-    - *disable_osx_job_rule
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - when: manual
 
 .checkout_LVCore:
   script: &checkout_LVCore
@@ -126,7 +95,7 @@ workflow:
     # will use the command git describe to name the package.
     GIT_STRATEGY: clone # Gitlab define variable
   stage: package
-  extends: .manual_and_schedule
+  extends: .default_rules
   needs: []
   script:
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
@@ -229,7 +198,7 @@ workflow:
 # upload the container to gitlab so it can be use by the other job.
 linux_superbuild:
   stage: superbuild
-  extends: .manual_and_schedule
+  extends: .default_rules
   tags: [unix_shell_with_docker]
   script:
     # it's better to create a token for private project
@@ -247,7 +216,7 @@ osx_superbuild:
   stage: superbuild
   extends:
     - .osx_runner_config
-    - .manual_and_schedule
+    - .default_rules
   variables:
     CMAKE_OSX_ARCHITECTURES: 'x86_64'
     CMAKE_OSX_DEPLOYMENT_TARGET: '10.10'
@@ -273,7 +242,7 @@ windows_superbuild:
   stage: superbuild
   extends:
     - .windows_runner_config
-    - .manual_and_schedule
+    - .default_rules
   variables:
     CMAKE_Qt5_DIR: 'C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5'
   script:
