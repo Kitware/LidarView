@@ -58,8 +58,11 @@ workflow:
       when: manual
     - when: on_success
 
-.checkout_LVCore:
-  script: &checkout_LVCore
+.build:
+  stage: build
+  needs: []
+  extends: .default_rules
+  script:
     - cd $CI_PROJECT_DIR/LVCore
     - git fetch
     # Checking if $LVCore_COMMIT_SHA is defined should be performed here before using it.
@@ -68,13 +71,6 @@ workflow:
     # in the other case the command will result in a  "git checkout" which  is a glorified no-op (no operation)
     # according to git documentation, see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - git checkout $LVCore_COMMIT_SHA
-
-.build:
-  stage: build
-  needs: []
-  extends: .default_rules
-  script:
-    - *checkout_LVCore
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=True .
     - cmake --build . --target install -- $native_build_tool_option
@@ -83,7 +79,6 @@ workflow:
   stage: test
   extends: .default_rules
   script:
-    - *checkout_LVCore
     - cd $lidarview_build_dir
     - ctest
 
