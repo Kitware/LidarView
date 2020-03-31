@@ -11,16 +11,11 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
 
-
-# normally you should expect package to be the last stage,
-# but we may want to package at any time even test doesn't pass
-# due to some gitlab issue see https://gitlab.com/gitlab-org/gitlab/issues/30631
-# putting it as the first stage is the only possibility for now.
 stages:
-  - package
   - superbuild
   - build
   - test
+  - package
 
 # default parameters, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
 default:
@@ -55,6 +50,7 @@ default:
     # the superbuild job will actually directly compile the superbuild on the pc
 .build:
   stage: build
+  needs: []
   script:
     - *checkout_LVCore
     - cd $lidarview_build_dir
@@ -77,6 +73,7 @@ default:
     GIT_STRATEGY: clone # Gitlab define variable
   stage: package
   extends: .manual_and_schedule
+  needs: []
   script:
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
