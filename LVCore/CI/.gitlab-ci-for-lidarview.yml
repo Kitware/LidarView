@@ -23,6 +23,15 @@ default:
     max: 2
     when: runner_system_failure
 
+# create a pipeline only in some cases : merge_request, tag, master branch
+# see https://docs.gitlab.com/ee/ci/yaml/#workflowrules
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == "master"
+
+
 # job starting with a . are not run, see https://docs.gitlab.com/ee/ci/yaml/#hidden-keys-jobs
 # but they can be used as:
 # - anchor., which is yalm specific.
