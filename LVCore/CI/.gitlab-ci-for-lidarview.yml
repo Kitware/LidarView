@@ -117,6 +117,7 @@ default:
     native_build_tool_option: -j 16  # force make to use 16 thread for speedup
   image: $CI_REGISTRY_IMAGE:latest # linux configs assume a docker runner
   tags: [unix_docker]
+  resource_group: linux_machine
 
 .osx_runner_config:
   variables:
@@ -124,6 +125,7 @@ default:
     lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
     native_build_tool_option: -j 16 # force make to use 16 thread for speedup
   tags: [osx]
+  resource_group: osx_machine
 
 .windows_before_script:
   before_script: &windows_before_script
@@ -163,6 +165,7 @@ default:
     vcvarsall_script_location: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\'
     architecture: x86_amd64
   tags: [windows]
+  resource_group: windows_machine
 
 ##############
 # Superbuild #
