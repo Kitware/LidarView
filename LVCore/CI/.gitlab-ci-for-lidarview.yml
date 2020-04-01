@@ -6,10 +6,13 @@
 # see https://gitlab.kitware.com/LidarView/lidarview-core/-/ci/lint
 
 variables:
-  # Git defined variable
-  # as default force to clone all module recursively
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_STRATEGY: recursive # see https://docs.gitlab.com/ee/ci/git_submodules.html#using-git-submodules-in-your-ci-jobs
   rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
+  # - gitlab only evaluate variable at depth 1, so it's not possible to reuse
+  #   superbuild_build_dir to construct lidarview_build_dir
+  #   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
+  superbuild_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME
+  lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
 
 stages:
   - superbuild
@@ -58,6 +61,27 @@ workflow:
       when: manual
     - when: on_success
 
+.superbuild:
+  stage: superbuild
+  extends: .default_rules
+  script:
+    - cmake -E remove_directory $superbuild_build_dir
+    - cmake -E make_directory $superbuild_build_dir
+    - cd $superbuild_build_dir
+    - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
+      cmake -DCMAKE_BUILD_TYPE=Release
+      $sb_cmake_option_GENERATOR
+      $sb_cmake_option_USE_SYSTEM_qt5
+      $sb_cmake_option_QT5_DIR
+      $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
+      $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
+      $sb_cmake_option_CMAKE_OSX_SYSROOT
+      $sb_cmake_option_CMAKE_OSX_SDK
+      -DBUILD_TESTING=ON
+      -Dsuperbuild_download_location="../downloads"
+      $CI_PROJECT_DIR/Superbuild
+    - cmake --build . --parallel 8
+
 .build:
   stage: build
   needs: []
@@ -73,7 +97,7 @@ workflow:
     - git checkout $LVCore_COMMIT_SHA
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=True .
-    - cmake --build . --target install -- $native_build_tool_option
+    - cmake --build . --target install --parallel 8
 
 .test:
   stage: test
@@ -97,7 +121,7 @@ workflow:
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=False .
     - cd $superbuild_build_dir
-    - cmake --build . -- $native_build_tool_option
+    - cmake --build . --parallel 8
     # rely on paraview superbuild packaging system
     # the packaging is launched via a test
     - ctest
@@ -115,37 +139,25 @@ workflow:
 # System configuration #
 ########################
 # Need to know:
-# - gitlab only evaluate variable at depth 1, so it's not possible to reuse
-#   superbuild_build_dir to construct lidarview_build_dir
-#   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
 # - On powershell it's not possible to use $CI_BUILDS_DIR in GIT_CLONE_PATH
 #   due to some incoherence with / and \\ in gitlab. So you need to garanty
 #   manually that GIT_CLONE_PATH is inside the build_dir specify in the
 #   runner configuration file (congif.toml)
 
 .linux_runner_config:
-  variables:
-    # To reuse pre-existing build directory in the docker image, 
-    # the source path need to be identical across job, hence we set and
-    # remember the source dir as GIT_CLONE_PATH (matching the one set 
-    # in the dockerfile).
-    GIT_CLONE_PATH: $CI_BUILDS_DIR/lidarview # Gitlab defined variable
-    superbuild_build_dir: /superbuild
-    lidarview_build_dir: /superbuild/$rel_path_to_lidarview_build_dir
-    native_build_tool_option: -j 16  # force make to use 16 thread for speedup
-  image: $CI_REGISTRY_IMAGE:latest # linux configs assume a docker runner
-  tags: [unix_docker]
+  tags: [unix]
   resource_group: linux_machine
 
 .osx_runner_config:
   variables:
-    superbuild_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME
-    lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
-    native_build_tool_option: -j 16 # force make to use 16 thread for speedup
+    sb_cmake_option_CMAKE_OSX_ARCHITECTURES: -DCMAKE_OSX_ARCHITECTURES=x86_64
+    sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10
+    sb_cmake_option_CMAKE_OSX_SYSROOT: -DCMAKE_OSX_SYSROOT='Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk'
+    sb_cmake_option_CMAKE_OSX_SDK: -DCMAKE_OSX_SDK=macosx10.12
   tags: [osx]
   resource_group: osx_machine
 
-.windows_before_script:
+.windows_runner_config:
   before_script: &windows_before_script
     # to use the Microsoft C++ Toolset from the command line, some environment variable need to be set
     # To help with this, Microsoft provide the vcvarsall.bat script that set different environment see
@@ -171,9 +183,6 @@ workflow:
         }
       }
     - Invoke-CmdScript "${vcvarsall_script_location}/vcvarsall.bat" $architecture
-
-.windows_runner_config:
-  before_script: *windows_before_script
   variables:
     # on windows due to the max command length, superbuild and project directory names should be short
     # this is why PROJECT_ID is used instead of PROJECT_NAME
@@ -182,77 +191,29 @@ workflow:
     lidarview_build_dir: /SB/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
     vcvarsall_script_location: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\'
     architecture: x86_amd64
+    sb_cmake_option_GENERATOR: -GNinja
+    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
+    sb_cmake_option_QT5_DIR: -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"
   tags: [windows]
   resource_group: windows_machine
 
 ##############
 # Superbuild #
 ##############
-
-# the superbuild job will actually compile the superbuild in a container and then
-# upload the container to gitlab so it can be use by the other job.
 linux_superbuild:
-  stage: superbuild
-  extends: .default_rules
-  tags: [unix_shell_with_docker]
-  script:
-    # it's better to create a token for private project
-    # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#authenticating-to-the-container-registry
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    # docker can only copy files inside the context of the build, so we set this context to CI_PROJECT_DIR
-    # and specify the docker file to use with -f
-    # https://docs.docker.com/engine/reference/builder/#copy
-    # https://www.jamestharpe.com/include-files-outside-docker-build-context/
-    - docker build --tag $CI_REGISTRY_IMAGE:latest -f $CI_PROJECT_DIR/LVCore/CI/Dockerfile $CI_PROJECT_DIR
-    - docker push $CI_REGISTRY_IMAGE:latest
+  extends:
+    - .linux_runner_config
+    - .superbuild
 
-# the superbuild job will actually directly compile the superbuild on the pc
 osx_superbuild:
-  stage: superbuild
   extends:
     - .osx_runner_config
-    - .default_rules
-  variables:
-    CMAKE_OSX_ARCHITECTURES: 'x86_64'
-    CMAKE_OSX_DEPLOYMENT_TARGET: '10.10'
-    CMAKE_OSX_SDK: 'macosx10.12'
-    CMAKE_OSX_SYSROOT: 'Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk'
-  script:
-    - rm -rf $superbuild_build_dir
-    - mkdir -p $superbuild_build_dir
-    - cd $superbuild_build_dir
-    - cmake
-      -DCMAKE_BUILD_TYPE:STRING=Release
-      -DBUILD_TESTING:BOOL=ON
-      -DCMAKE_OSX_ARCHITECTURES:STRING=$CMAKE_OSX_ARCHITECTURES
-      -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=$CMAKE_OSX_DEPLOYMENT_TARGET
-      -DCMAKE_OSX_SYSROOT:STRING=$CMAKE_OSX_SYSROOT
-      -DCMAKE_OSX_SDK:STRING=$CMAKE_OSX_SDK
-      -Dsuperbuild_download_location="../downloads"
-      $CI_PROJECT_DIR/Superbuild
-    - make -j 16
+    - .superbuild
 
-# the superbuild job will actually directly compile the superbuild on the pc
 windows_superbuild:
-  stage: superbuild
   extends:
     - .windows_runner_config
-    - .default_rules
-  variables:
-    CMAKE_Qt5_DIR: 'C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5'
-  script:
-    - rm -r -fo $superbuild_build_dir
-    - mkdir -p $superbuild_build_dir
-    - cd $superbuild_build_dir
-    - cmake
-      -DCMAKE_BUILD_TYPE:STRING=Release
-      -GNinja
-      -DUSE_SYSTEM_qt5=True
-      -DQt5_DIR="$CMAKE_Qt5_DIR"
-      -DBUILD_TESTING:BOOL=ON
-      -Dsuperbuild_download_location="../downloads"
-      $CI_PROJECT_DIR/Superbuild
-    - cmake --build .
+    - .superbuild
 
 ##############
 #   Build    #
