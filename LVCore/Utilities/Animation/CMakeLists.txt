@@ -7,6 +7,7 @@ set(scripts
         example_non_temporal_animation.py
         temporal_animation_cue.py
         lib/camera_path.py
+        lib/colormap_tools.py
     )
 
 install(FILES ${scripts} DESTINATION ${install_destination})
