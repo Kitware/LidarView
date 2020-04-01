@@ -1,6 +1,6 @@
 from scipy.spatial.transform import Rotation
 import numpy as np
-from veloview.camera_path import *
+from camera_path import *
 import os
 
 N_frames = 100
