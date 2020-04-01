@@ -80,7 +80,6 @@ workflow:
       $sb_cmake_option_QT5_DIR
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
-      $sb_cmake_option_CMAKE_OSX_SYSROOT
       $sb_cmake_option_CMAKE_OSX_SDK
       -DBUILD_TESTING=ON
       -Dsuperbuild_download_location="../downloads"
@@ -155,7 +154,6 @@ workflow:
   variables:
     sb_cmake_option_CMAKE_OSX_ARCHITECTURES: -DCMAKE_OSX_ARCHITECTURES=x86_64
     sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10
-    sb_cmake_option_CMAKE_OSX_SYSROOT: -DCMAKE_OSX_SYSROOT='Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk'
     sb_cmake_option_CMAKE_OSX_SDK: -DCMAKE_OSX_SDK=macosx10.12
   tags: [osx]
   resource_group: osx_machine
