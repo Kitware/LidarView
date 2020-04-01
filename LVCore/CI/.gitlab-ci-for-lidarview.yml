@@ -7,6 +7,8 @@
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive # see https://docs.gitlab.com/ee/ci/git_submodules.html#using-git-submodules-in-your-ci-jobs
+  GIT_LFS_SKIP_SMUDGE: 1 # do not doawnload test data, see https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings
+  # user defined variable
   rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
   # - gitlab only evaluate variable at depth 1, so it's not possible to reuse
   #   superbuild_build_dir to construct lidarview_build_dir
@@ -100,6 +102,8 @@ workflow:
     - cmake --build . --target install --parallel 8
 
 .test:
+  variables:
+    GIT_LFS_SKIP_SMUDGE: 0 # download the test data
   stage: test
   extends: .default_rules
   script:
@@ -107,10 +111,6 @@ workflow:
     - ctest
 
 .package:
-  variables:
-    # force to clone the whole repository to have all the tags because the packaging 
-    # will use the command git describe to name the package.
-    GIT_STRATEGY: clone # Gitlab define variable
   stage: package
   extends: .default_rules
   needs: []
@@ -273,9 +273,6 @@ osx_package:
   extends:
     - .osx_runner_config
     - .package
-  before_script:
-    # need to clean previous artefact as this is a shell executor
-    - rm -f $superbuild_build_dir/*.dmg
   after_script:
     - mv -f $superbuild_build_dir/*.dmg $CI_PROJECT_DIR
 
@@ -283,11 +280,6 @@ windows_package:
   extends:
     - .windows_runner_config
     - .package
-  before_script:
-    - *windows_before_script
-    # need to clean previous artefact as this is a shell executor
-    - rm -fo $superbuild_build_dir/*.exe
-    - rm -fo $superbuild_build_dir/*.zip
   after_script:
     - mv $superbuild_build_dir/*.exe $CI_PROJECT_DIR
     - mv $superbuild_build_dir/*.zip $CI_PROJECT_DIR
