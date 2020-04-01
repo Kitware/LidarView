@@ -268,7 +268,7 @@ linux_package:
     - .package
   after_script:
     - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
-    - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
+    - mv $superbuild_build_dir/*.tar.xf $CI_PROJECT_DIR
 
 osx_package:
   extends:
