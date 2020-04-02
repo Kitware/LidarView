@@ -61,6 +61,9 @@ workflow:
     # define the manual job
     - if: $CI_JOB_STAGE == "superbuild" || $CI_JOB_STAGE == "package"
       when: manual
+      # need to allow_failure as otherwise, this manual jobs will caused the pipeline status to be marked as "Blocked"
+      # see https://gitlab.com/gitlab-org/gitlab/-/issues/27095
+      allow_failure: true
     - when: on_success
 
 .superbuild:
