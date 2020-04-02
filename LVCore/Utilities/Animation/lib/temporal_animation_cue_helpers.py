@@ -9,17 +9,18 @@ This module provides helpers to help write minimal python script strings
 directly in your main script.
 
 ```python
-import temporal_animation_cue_helpers as tash
+import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
 
 # tick and end_cue methods don't depend on the camera path so they can
 # be directly imported from the temporal_animation_cue_helpers module
+# if they are used with their default keyword parameters
+
 from temporal_animation_cue_helpers import tick, end_cue
 
-
 def start_cue(self):
-    tash.start_cue_generic_setup(self)
+    tach.start_cue_generic_setup(self)
     c1 = cp.FirstPersonView(...)
     c2 = cp.FixedPositionView(...)
     self.cameras = [c1, c2]
@@ -27,7 +28,6 @@ def start_cue(self):
 ```
 
 """
-
 
 import os
 import math
@@ -49,10 +49,10 @@ cad_model_name = ""
 # rotation which transforms the lidar tri-axe into the camera tri-axe
 
 # example calibration ENS drone
-# cp.R_cam_to_lidar = Rotation.from_euler('XYZ', [0.0, -90.0, 90.0], degrees=True) 		
+# cp.R_cam_to_lidar = Rotation.from_euler('XYZ', [0.0, -90.0, 90.0], degrees=True)
 
 # example calibration la doua car
-cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [8, 90.0, -90.0], degrees=True)			
+cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [8, 90.0, -90.0], degrees=True)
 
 # Output directory for the generated frames ("" to disable saving)
 frames_output_dir = ""
@@ -60,13 +60,13 @@ frames_output_dir = ""
 
 # ----------------------------------------------------------------------------
 def start_cue_generic_setup(self):
-""" This method runs genertic setup steps at cue start
+    """ This method runs genertic setup steps at cue start
     It is intended to be run inside a `start_cue` before the camera definition
     step.
 
     Example:
     def start_cue(self)
-        tash.start_cue_generic_setup(self)
+        tach.start_cue_generic_setup(self)
         c1 = ...
         c2 = ...
         self.cameras = [c1, c2]
@@ -77,7 +77,7 @@ def start_cue_generic_setup(self):
     - getting a 3D model (for example a car model to add to the frame display)
     - setting the timesteps
 
-"""
+    """
 
     self.image_index = 0	# image index used for files naming
 
@@ -89,13 +89,17 @@ def start_cue_generic_setup(self):
     traj = trajectory.GetClientSideObject().GetOutput()
     self.pts = numpy_support.vtk_to_numpy(traj.GetPoints().GetData()).copy()
 
-    # convert veloview axis angle to scipy Rotation
+    # convert lidarview axis angle to scipy Rotation
     orientations_data = traj.GetPointData().GetArray("Orientation(AxisAngle)")
     orientations = numpy_support.vtk_to_numpy(orientations_data).copy()
     axis = orientations[:, :3]
     angles = orientations[:, 3].reshape((-1, 1))
     axis_angles = axis * angles
     self.orientations = [Rotation.from_rotvec(a) for a in axis_angles]
+
+    # get time data from trajectory
+    time_data = traj.GetPointData().GetArray("Time")  # points times in secs
+    timesteps = numpy_support.vtk_to_numpy(time_data).copy()
 
     # get the 3D model
     self.model = None
@@ -104,10 +108,8 @@ def start_cue_generic_setup(self):
 
     # get all available timesteps and find the index corresponding to the start time
     time = view.ViewTime
-    source_frames = smp.FindSource(temporal_source_name)
-    timesteps = list(source_frames.TimestepValues)
     self.i = np.argmin(np.abs(np.asarray(timesteps) - time))
-    print "Start timestep: ", self.i
+    print "Start trajectory timestep: ", self.i
 
     self.cameras = []
 
@@ -116,8 +118,20 @@ def start_cue_generic_setup(self):
 # TODO add decorator for tick in order to let the user choose the image
 # filename format
 
-def tick(self):
-    """ function called at each timestep """
+def tick(self, filenameFormat="%06d.png", imageResolution=(1920, 1080)):
+    """ Function called at each timestep
+
+    As a PythonAnimationCue script expects a `tick` function with only a `self`
+    argument, this function can be either directly used with its default kwargs
+    or wrapped in another function that provides its kwargs.
+
+    Ex:
+    ```python
+    import temporal_animation_cue_helpers as tach
+    def tick(self):
+        tach.tick(self, filenameFormat="...", imageResolution="...")
+    ```
+    """
     view = smp.GetActiveView()
 
     # lidar orientation and position
@@ -145,13 +159,13 @@ def tick(self):
 
     # save frame
     if len(frames_output_dir) > 0:
-        imageName = os.path.join(frames_output_dir, "%06d.png" % (self.image_index))
-        smp.WriteImage(imageName)
+        imageName = os.path.join(frames_output_dir, filenameFormat % (self.image_index))
+        smp.SaveScreenshot(imageName, ImageResolution=imageResolution)
 
     self.image_index += 1
     self.i += 1
 
 
 def end_cue(self):
-    """ function called at the end of an animation """
-    pass
+    """ Function called at the end of an animation """
+    print("End of the animation")
