@@ -1,7 +1,8 @@
 # launch lidarview CI, see https://docs.gitlab.com/ee/ci/multi_project_pipelines.html
 launch_lidarview_CI:
   variables:
-    LVCore_COMMIT_SHA: $CI_COMMIT_SHA
+    TRIGGER_MODULE_SHA: $CI_COMMIT_SHA
+    TRIGGER_MODULE_PATH: LVCore
   only:
     - master
     - merge_requests

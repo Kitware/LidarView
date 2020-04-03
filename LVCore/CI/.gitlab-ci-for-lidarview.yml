@@ -15,6 +15,10 @@ variables:
   #   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
   superbuild_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME
   lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
+  # This variable should set only if the script is trigger from a LidarView submodule
+  # This will enable to run the pipeline with the updated module
+  TRIGGER_MODULE_PATH: '' # path of the module that trigger the pipeline relative to LidarView
+  TRIGGER_MODULE_SHA: '' # commit sha of the module that trigger the pipeline
 
 stages:
   - superbuild
@@ -24,6 +28,13 @@ stages:
 
 # default parameters for all jobs, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
 default:
+  before_script: &default_before_script_anchor
+    # TRIGGER_MODULE_PATH and TRIGGER_MODULE_SHA, should be empty if the CI is triggered from LidarView
+    # so the next fetching and checkout will basically do nothing.
+    # "$git checkout " is a glorified no-op (no operation), see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
+    - cd $CI_PROJECT_DIR/$TRIGGER_MODULE_PATH
+    - git fetch
+    - git checkout $TRIGGER_MODULE_SHA
   retry:
     max: 2
     when: runner_system_failure
@@ -91,14 +102,6 @@ workflow:
   needs: []
   extends: .default_rules
   script:
-    - cd $CI_PROJECT_DIR/LVCore
-    - git fetch
-    # Checking if $LVCore_COMMIT_SHA is defined should be performed here before using it.
-    # But there isn't a "IF" statement that is compatible on bash and powershell...
-    # However this variable is only defined if this job is triggered from LidarView-Core
-    # in the other case the command will result in a  "git checkout" which  is a glorified no-op (no operation)
-    # according to git documentation, see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
-    - git checkout $LVCore_COMMIT_SHA
     - cd $lidarview_build_dir
     - cmake -DBUILD_TESTING=True .
     - cmake --build . --target install --parallel 8
@@ -159,7 +162,8 @@ workflow:
   resource_group: osx_machine
 
 .windows_runner_config:
-  before_script: &windows_before_script
+  before_script:
+    - *default_before_script_anchor
     # to use the Microsoft C++ Toolset from the command line, some environment variable need to be set
     # To help with this, Microsoft provide the vcvarsall.bat script that set different environment see
     # https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2019
