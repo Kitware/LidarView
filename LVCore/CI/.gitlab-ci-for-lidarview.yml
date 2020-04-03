@@ -22,6 +22,7 @@ variables:
 
 stages:
   - superbuild
+  - configure
   - build
   - test
   - package
@@ -97,13 +98,19 @@ workflow:
       $CI_PROJECT_DIR/Superbuild
     - cmake --build . --parallel 8
 
-.build:
-  stage: build
-  needs: []
+.configure:
+  stage: configure
   extends: .default_rules
   script:
     - cd $lidarview_build_dir
-    - cmake -DBUILD_TESTING=True .
+    # create a compilation database for the analize stage (clang-tidy)
+    - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
+
+.build:
+  stage: build
+  extends: .default_rules
+  script:
+    - cd $lidarview_build_dir
     - cmake --build . --target install --parallel 8
 
 .test:
@@ -221,22 +228,42 @@ windows_superbuild:
     - .superbuild
 
 ##############
+#  Analize   #
+##############
+linux_configure:
+  extends:
+    - .linux_runner_config
+    - .configure
+
+osx_configure:
+  extends:
+    - .osx_runner_config
+    - .configure
+
+windows_configure:
+  extends:
+    - .windows_runner_config
+    - .configure
+
+##############
 #   Build    #
 ##############
 linux_build:
   extends:
     - .linux_runner_config
     - .build
+  needs: [linux_configure]
 
 osx_build:
   extends:
     - .osx_runner_config
     - .build
-
+  needs: [osx_configure]
 windows_build:
   extends:
     - .windows_runner_config
     - .build
+  needs: [windows_configure]
 
 ##############
 #    Test    #
