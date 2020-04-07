@@ -48,17 +48,14 @@ int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request
   {
     boost::lock_guard<boost::mutex> lock(this->Consumer->ConsumerMutex);
 
-    if (this->CheckNewDataPositionOrientation() != 0)
-    {
-      vtkPolyData* outputPositionsOrientations = vtkPolyData::GetData(outputVector, 0);
-      outputPositionsOrientations->DeepCopy(this->AllPositionsOrientation);
-    }
+    vtkPolyData* outputPositionsOrientations = vtkPolyData::GetData(outputVector, 0);
+    outputPositionsOrientations->DeepCopy(this->AllPositionsOrientation);
+    this->LastNumberPositionOrientationInformation = this->AllPositionsOrientation->GetNumberOfPoints();
 
-    if (this->CheckForNewDataRawInformation() != 0)
-    {
-      vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
-      outputRawInformation->DeepCopy(this->AllRawInformation);
-    }
+
+    vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
+    outputRawInformation->DeepCopy(this->AllRawInformation);
+    this->LastNumberRawInformation = this->AllRawInformation->GetNumberOfRows();
 
   }
   return 1;
@@ -118,17 +115,13 @@ int vtkPositionOrientationStream::CheckForNewData()
 //----------------------------------------------------------------------------
 int vtkPositionOrientationStream::CheckNewDataPositionOrientation()
 {
-  int diff = this->AllPositionsOrientation->GetNumberOfPoints() - this->LastNumberPositionOrientationInformation;
-  this->LastNumberPositionOrientationInformation = this->AllPositionsOrientation->GetNumberOfPoints();
-  return diff;
+  return this->AllPositionsOrientation->GetNumberOfPoints() - this->LastNumberPositionOrientationInformation;
 }
 
 //----------------------------------------------------------------------------
 int vtkPositionOrientationStream::CheckForNewDataRawInformation()
 {
-  int diff = this->AllRawInformation->GetNumberOfRows() - this->LastNumberRawInformation;
-  this->LastNumberRawInformation = this->AllRawInformation->GetNumberOfRows();
-  return diff;
+  return this->AllRawInformation->GetNumberOfRows() - this->LastNumberRawInformation;
 }
 
 //----------------------------------------------------------------------------
