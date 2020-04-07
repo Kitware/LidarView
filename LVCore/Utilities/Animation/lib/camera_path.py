@@ -136,7 +136,10 @@ class FirstPersonView(ThirdPersonView):
 
 
 class FixedPositionView(CameraPath):
-	""" Fixed absolute position camera. """
+	""" Fixed absolute position camera.
+        If 'position' is None: the last CameraPath position is used
+        If 'focal_point' is None: the lidar position is used at each step
+    """
 	def __init__(self, start, end, position=None, focal_point=None, up_vector=np.array([0.0, 0.0, 1.0])):
 		CameraPath.__init__(self, start, end)
 		self.position = position

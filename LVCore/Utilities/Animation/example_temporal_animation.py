@@ -1,3 +1,9 @@
+""" This script is an example of how to use a temporal animation cue on Lidar data.
+It has been tested and tuned on the dataset from la-doua using the following command
+./insall/bin/LidarView --script=${LV_SOURCES}/LVCore/Utilities/Animation/example_temporal_animation.py
+
+"""
+
 import paraview.simple as smp
 import os
 import colormap_tools as cmt
@@ -5,12 +11,24 @@ import colormap_tools as cmt
 # ---- Script parameters ------------------------------------------------------
 lidarFilename = '/path/to/frame.vtp.series'  # TO SET
 trajectoryFilename = '/path/to/trajectory.vtp'  # TO SET
-animation_start_time = 0
-timeshift = 0
-framesOutDir = '/tmp/'
-animation_end_time = -1
 categoriesConfigPath = '/path/to/metadata/categories/coco_categories.yaml'  # TO SET if you want to color pointcloud
-#by category
+framesOutDir = '/tmp/animation_output/'
+
+# Animation parameters
+animation_start_time = 0
+animation_end_time = -1
+timeshift = -1521644706.95
+# Tuple, (axes, values in degrees)
+# Will be provided to a scipy Roatation.from_euler
+camera2LidarRotation = ('ZYZ', [17, 90.0, -90.0])
+# [0, 90, -90] to have Z looking forward, 17 to compensate the lidar front orientation
+
+# 3D model parameters (set carModelPath to '' to disable)
+carModelPath = ''  # '/home/boucaud/lea/data/3D_vehicle_models/small-red-pickup.obj'
+carModelRotation = [90, 90 + 17, 0]
+carModelScale = [0.05] * 3
+carModelTranslation = [0, 0, -1.5]
+# [90, 90, 0] for the model orientation + [0, 17, 0] for the lidar orientation compensation
 
 # View parameters
 CameraParallelProjection = 0
@@ -23,6 +41,7 @@ CameraViewAngle = 60
 
 if not os.path.isdir(framesOutDir):
     os.makedirs(framesOutDir)
+
 
 # ---- Setup view -------------------------------------------------------------
 smp._DisableFirstRenderCameraReset()
@@ -41,6 +60,11 @@ renderView1.CameraViewAngle = CameraViewAngle
 # Create readers
 lidarReader = smp.XMLPolyDataReader(FileName=[lidarFilename])
 trajectoryReader = smp.XMLPolyDataReader(FileName=[trajectoryFilename])
+if not carModelPath:
+    carModelSource = None
+else:
+    carModelSource = smp.WavefrontOBJReader(FileName=carModelPath)
+
 lidarReader.UpdatePipeline()
 
 # Apply Filters
@@ -56,6 +80,10 @@ temporalTransformsApplier1.UpdatePipeline()
 threshold1 = smp.Threshold(Input=temporalTransformsApplier1)
 threshold1.Scalars = ['POINTS', 'category']
 threshold1.ThresholdRange = [1.0, 500.0]
+extractSurface1 = smp.ExtractSurface(Input=threshold1)
+
+trailingFrame1 = smp.TrailingFrame(Input=extractSurface1)
+trailingFrame1.NumberOfTrailingFrames = 1000
 
 # Correct trajectory with lidar timesteps (which are the same as view timesteps)
 # to have a common time base
@@ -65,16 +93,30 @@ correctedTraj = smp.PythonCalculator(
     ArrayName='Time'
 )
 
+if carModelSource is not None:
+    # Scale and center the car model
+    carModelTmp = smp.Transform(Input=carModelSource)
+    carModelTmp.Transform.Scale = carModelScale
+    carModelTmp.Transform.Translate = carModelTranslation
+    carModelTmp.Transform.Rotate = carModelRotation
+    # Add a transform to enable the script to move the car model
+    carModel = smp.Transform(Input=carModelTmp)
+else:
+    carModel = None
+
 
 # ---- Setup data display -----------------------------------------------------
 # show data in view
-dataDisplay = smp.Show(threshold1, renderView1)
-#dataDisplay = smp.Show(lidarReader, renderView1)
+dataDisplay = smp.Show(trailingFrame1, renderView1)
 
 trajectoryDisplay = smp.Show(correctedTraj, renderView1)
 
 categoryLut = cmt.colormap_from_categories_config(categoriesConfigPath)
 smp.ColorBy(dataDisplay, ('POINTS', 'category'))
+
+if carModel is not None:
+    carModelDisplay = smp.Show(carModel)
+    carModelDisplay.DiffuseColor = [0.0, 0.0, 0.53]
 
 renderView1.Update()
 
@@ -83,8 +125,10 @@ renderView1.Update()
 # Rename sources to have an easy name to use in the animation script
 smp.RenameSource("lidarReader", lidarReader)
 smp.RenameSource("trajectory", correctedTraj)
-
 cadModelName = ""
+if carModel is not None:
+    smp.RenameSource("carModel", carModel)
+    cadModelName = "carModel"
 
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
@@ -97,40 +141,21 @@ from scipy.spatial.transform import Rotation
 tach.trajectory_name = "trajectory"
 tach.cad_model_name = "{0}"
 tach.frames_output_dir = "{1}"
-cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+cp.R_cam_to_lidar = Rotation.from_euler("{2}", {3}, degrees=True)
 
 # temporal cue creation
 from temporal_animation_cue_helpers import tick, end_cue
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)
-    c1 = cp.FirstPersonView(self.i, self.i+40, focal_point=[0, 0, 1])
-    c2 = cp.FixedPositionView(self.i+40, self.i+100)
+    # Pseudo first person
+    # c1 = cp.FirstPersonView(self.i, self.i+40, focal_point=[0, 0, 1])
+    c1 = cp.ThirdPersonView(self.i, self.i+40, focal_point=[0, 0, 20], position=[0, -1.7, -3.5])
+    c2 = cp.ThirdPersonView(self.i+40, self.i+100, position=[0, -15, -30])
     c2.set_transition(c1, 5, "s-shape")		# transition from c1
-    c3 = cp.AbsoluteOrbit(self.i+100, self.i+200,
-            center=[99.65169060331509, 35.559305816556, 37.233268868598536],
-	    up_vector=[0, 0, 1.0],
-	    initial_pos = [85.65169060331509, 35.559305816556, 37.233268868598536],
-	    focal_point=[99.65169060331509, 35.559305816556, 7.233268868598536])
-    c3.set_transition(c2, 20, "s-shape")
+    self.cameras = [c1, c2]
 
-    c4 = cp.ThirdPersonView(self.i+200, self.i+280)
-    c4.set_transition(c3, 20, "s-shape")
-
-    c5 = cp.RelativeOrbit(self.i+280, self.i+350, up_vector=[0, 0, 1.0], initial_pos = [0.0, -10, 10])
-    c5.set_transition(c4, 20, "square")
-
-#    c1 = cp.FirstPersonView(self.i, self.i+40)
-#    c2 = cp.RelativeOrbit(self.i+40, self.i+80, up_vector=[0, 0, 1.0],
-#                          initial_pos = [0.0, -10, 10])
-#    c3 = cp.ThirdPersonView(self.i+80, self.i+100,
-#                            position=[2.0, -2.0, -10.0])
-#
-#    c2.set_transition(c1, 10, "s-shape")
-#    c3.set_transition(c3, 10, "s-shape")
-    self.cameras = [c1, c2, c3, c4, c5]
-
-""".format(cadModelName, framesOutDir)
+""".format(cadModelName, framesOutDir, camera2LidarRotation[0], camera2LidarRotation[1])
 
 # Set animation times
 animation = smp.GetAnimationScene()
