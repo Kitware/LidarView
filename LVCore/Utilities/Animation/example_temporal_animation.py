@@ -11,6 +11,7 @@ import colormap_tools as cmt
 # ---- Script parameters ------------------------------------------------------
 lidarFilename = '/path/to/frame.vtp.series'  # TO SET
 trajectoryFilename = '/path/to/trajectory.vtp'  # TO SET
+
 categoriesConfigPath = '/path/to/metadata/categories/coco_categories.yaml'  # TO SET if you want to color pointcloud
 framesOutDir = '/tmp/animation_output/'
 
@@ -24,7 +25,7 @@ camera2LidarRotation = ('ZYZ', [17, 90.0, -90.0])
 # [0, 90, -90] to have Z looking forward, 17 to compensate the lidar front orientation
 
 # 3D model parameters (set carModelPath to '' to disable)
-carModelPath = ''  # '/home/boucaud/lea/data/3D_vehicle_models/small-red-pickup.obj'
+carModelPath = '/path/to/small-red-pickup.obj'  # TO SET if you want to display a 3D model (else pset it to ""
 carModelRotation = [90, 90 + 17, 0]
 carModelScale = [0.05] * 3
 carModelTranslation = [0, 0, -1.5]
@@ -112,11 +113,11 @@ dataDisplay = smp.Show(trailingFrame1, renderView1)
 trajectoryDisplay = smp.Show(correctedTraj, renderView1)
 
 categoryLut = cmt.colormap_from_categories_config(categoriesConfigPath)
-smp.ColorBy(dataDisplay, ('POINTS', 'category'))
+smp.ColorBy(dataDisplay, ('POINTS', 'intensity'))
 
 if carModel is not None:
     carModelDisplay = smp.Show(carModel)
-    carModelDisplay.DiffuseColor = [0.0, 0.0, 0.53]
+    carModelDisplay.DiffuseColor = [0.53, 0.0, 0.0]
 
 renderView1.Update()
 

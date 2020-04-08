@@ -6,18 +6,22 @@ in the lidarview sources, and modify it every time we want to run an animation
 cue with a different camera path.
 
 This module provides helpers to help write minimal python script strings
-directly in your main script.
+directly in your main script in the case of a temporal animation.
+(Temporal animations:
+ - Animations that depend on the data.
+ - They require providing a trajectory.
+ - The only supported animation mode is "Snap To Timesteps".)
 
 ```python
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
-
 # tick and end_cue methods don't depend on the camera path so they can
 # be directly imported from the temporal_animation_cue_helpers module
 # if they are used with their default keyword parameters
 
-from temporal_animation_cue_helpers import tick, end_cue
+tach.trajectory_name = "your-trajectory"
+tach. cad_model_name = "your-model"
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)
@@ -25,6 +29,7 @@ def start_cue(self):
     c2 = cp.FixedPositionView(...)
     self.cameras = [c1, c2]
 
+from temporal_animation_cue_helpers import tick, end_cue
 ```
 
 """
@@ -40,9 +45,17 @@ from vtk.util import numpy_support
 
 ## --- Default values that can be / need to be overriden-----------------------
 # Pipeline parameters.
-# They need to be filled with the names in your GUI pipeline.
-temporal_source_name = "Data"
-trajectory_name = "la-doua-lidar-slam-version2.poses"
+
+# trajectory filiter/source name:
+# points to be considered as the camera trajectory for the first person view
+# (usually the vehicle trajectory). It must have the following PointData:
+#   - Time (the time must be synced with the frames timesteps
+#   - Orientation(AxisAngle)
+trajectory_name = "firstPersonTrajectory"
+
+# cad model filter/source name:
+# Object mesh that is placed by the animation cue on the current point of the
+# trajectory at each timestep (usually a vehicle)
 cad_model_name = ""
 
 # Camera / Lidar orientation (need to be specified)
@@ -52,7 +65,7 @@ cad_model_name = ""
 # cp.R_cam_to_lidar = Rotation.from_euler('XYZ', [0.0, -90.0, 90.0], degrees=True)
 
 # example calibration la doua car
-cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [8, 90.0, -90.0], degrees=True)
+cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
 
 # Output directory for the generated frames ("" to disable saving)
 frames_output_dir = ""
@@ -60,22 +73,22 @@ frames_output_dir = ""
 
 # ----------------------------------------------------------------------------
 def start_cue_generic_setup(self):
-    """ This method runs genertic setup steps at cue start
+    """ This method runs genetic setup steps at cue start
     It is intended to be run inside a `start_cue` before the camera definition
     step.
 
-    Example:
-    def start_cue(self)
-        tach.start_cue_generic_setup(self)
-        c1 = ...
-        c2 = ...
-        self.cameras = [c1, c2]
-
     The different steps it runs are:
-    - getting the trajectory
-    - getting the frames orientations from trajectory
-    - getting a 3D model (for example a car model to add to the frame display)
-    - setting the timesteps
+        - getting the trajectory
+        - getting the frames orientations from trajectory
+        - getting a 3D model (for example a car model to add to the frame display)
+        - setting the start timestep
+
+    Example:
+        def start_cue(self)
+            tach.start_cue_generic_setup(self)
+            c1 = ...
+            c2 = ...
+            self.cameras = [c1 c2]
 
     """
 
