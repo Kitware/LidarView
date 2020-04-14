@@ -20,12 +20,14 @@ animation_start_time = 0
 animation_end_time = -1
 timeshift = -1521644706.95
 # Tuple, (axes, values in degrees)
-# Will be provided to a scipy Roatation.from_euler
+# Will be provided to a scipy Rotation.from_euler
 camera2LidarRotation = ('ZYZ', [17, 90.0, -90.0])
-# [0, 90, -90] to have Z looking forward, 17 to compensate the lidar front orientation
+# Rotations around X, Y, Z are intrinsic rotations, hence in the case of dataset-la-doua,
+# there is a first rotation around the Z axis (17 degrees) to compensate the lidar front
+# orientation, then rotations around Y and Z ([0, 90, -90]) to have Z looking forward
 
 # 3D model parameters (set carModelPath to '' to disable)
-carModelPath = '/path/to/small-red-pickup.obj'  # TO SET if you want to display a 3D model (else pset it to ""
+carModelPath = '/path/to/small-red-pickup.obj'  # TO SET if you want to display a 3D model (otherwise set it to "")
 carModelRotation = [90, 90 + 17, 0]
 carModelScale = [0.05] * 3
 carModelTranslation = [0, 0, -1.5]
@@ -108,19 +110,21 @@ else:
 
 # ---- Setup data display -----------------------------------------------------
 # show data in view
-dataDisplay = smp.Show(trailingFrame1, renderView1)
-
 trajectoryDisplay = smp.Show(correctedTraj, renderView1)
-
-categoryLut = cmt.colormap_from_categories_config(categoriesConfigPath)
-smp.ColorBy(dataDisplay, ('POINTS', 'intensity'))
+trajectoryDisplay = smp.Hide(correctedTraj, renderView1)
 
 if carModel is not None:
     carModelDisplay = smp.Show(carModel)
     carModelDisplay.DiffuseColor = [0.53, 0.0, 0.0]
 
+dataDisplay = smp.Show(trailingFrame1, renderView1)
+
+categoryLut = cmt.colormap_from_categories_config(categoriesConfigPath)
+smp.ColorBy(dataDisplay, ('POINTS', 'category'))
+
 renderView1.Update()
 
+smp.SetActiveSource(trailingFrame1)  # Trick to hide the widget box around the cad model
 
 # ---- Add animation ----------------------------------------------------------
 # Rename sources to have an easy name to use in the animation script

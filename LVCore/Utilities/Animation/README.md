@@ -7,10 +7,12 @@ Instructions on how to generate LidarView animations with Python.
 -   **non-temporal animations** are simpler animations, moving the camera but not updating the pipeline time.
 It also works on non-temporal data. The script **example_non_temporal_animation.py** provides an example of how to use it.
 
+This file focuses on **temporal animations**. Non-temporal animations make use of the same CameraPaths objects but require less work (hence understanding how temporal animations work should make it easy to use non-temporal ones).
+
 This file contains:
-- Requirements
-- Relevant modules
-- Tutorial
+- Software requirements (pyhon modules)
+- Relevant modules (which are part of LidarView)
+- A Tutorial
 
 
 ## Requirements
@@ -24,11 +26,11 @@ In order to use temporal animations, (ie. for camera paths depending on a trajec
 ### lib/camera_path.py
 
 This module contains the classes which define basic camera paths. Currently, the following types of camera are implemented:
-  - first person view
-  - third person view
-  - absolute position (fixed position)
-  - absolute orbit
-  - relative orbit
+  - first person view: the scene is viewed from the current point in the trajectory,
+  - third person view: the scene is viewed from a constant point relative to the vehicle (ie. to the trajectory),
+  - fixed position view: the scene is viewed from a constant point in the scene reference, fixed compared to the background,
+  - absolute orbit: the scene is viewed following an orbit around a point of the scene reference,
+  - relative orbit: the scene is viewed following an orbit around the car in the car reference.
 
 ### lib/temporal_animation_cue_helpers.py
 This module contains helper functions in order to create temporal animation scripts to use with `smp.PythonAnimationCue()`
@@ -53,7 +55,7 @@ def end_cue(self):
 This module provides tools to help defining such methods in the case of temporal data following
 a trajectory (see documentation in that file for more details).
 
-________________
+______
 
 ## Tutorial
 
@@ -65,7 +67,7 @@ provided as a string property to a `smp.PythonAnimationCue()` object.
 
 ### How to define an animation cue script with `temporal_animation_cue_helpers`
 
-An animation cue script is meant to be provided to a `PythonAnimationCue`. 
+An animation cue script is meant to be provided to a `PythonAnimationCue`.
 The usage of `PythonAnimationCue` is explained further down in this file.
 
 **temporal_animation_cue_helpers** provides some helpers functions in order to generate
@@ -84,7 +86,7 @@ the 3D model to place at the current trajectory point for each frame.
 
 
 #### `start_cue_generic_setup`
-This method runs genetic setup steps at cue start
+This method runs generic setup steps at cue start
 It is intended to be run inside a `start_cue` before the camera definition
 step.
 
@@ -116,15 +118,15 @@ Example:
 
 #### `tick`
 
-This method runs the following steps at each step:
+This method runs the following steps at each timestep:
 - get the current orientation and position from the trajectory
 - move the camera according to that and the CameraPath defined for the current timestep
 - move the 3D model
 - save the current frame
 
 As a `PythonAnimationCue` script expects a `tick` function with only a `self`
-argument, this function can be either directly used with its default kwargs
-or wrapped in another function that provides its kwargs.
+argument, this function can be either directly used with its default keyord arguments
+or wrapped in another function that provides its keyord arguments.
 
 Example:
 ```python
@@ -134,7 +136,7 @@ Example:
 ```
 
 #### `end_cue`
-This method just prints that the animation is finished. It can be used directly using an import.
+This method only prints that the animation is finished. It can be used directly with an import.
 
 Example:
 
@@ -150,10 +152,6 @@ See **example_temporal_animation.py** for an example in context.
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
-# tick and end_cue methods don't depend on the camera path so they can
-# be directly imported from the temporal_animation_cue_helpers module
-# if they are used with their default keyword parameters
-
 tach.trajectory_name = "your-trajectory"
 tach.cad_model_name = "your-model"
 cp.R_cam_to_lidar = Rotation.from_euler("XYZ", [0, 90, -90], degrees=True)
@@ -165,6 +163,10 @@ def start_cue(self):
     c2 = cp.FixedPositionView(...)
     c2.set_transition(c1, 5, "s-shape")
     self.cameras = [c1, c2]
+
+# tick and end_cue methods don't depend on the camera path so they can
+# be directly imported from the temporal_animation_cue_helpers module
+# if they are used with their default keyword parameters
 
 from temporal_animation_cue_helpers import tick, end_cue
 ```
@@ -183,10 +185,13 @@ R_cam_to_lidar is the rotation between the camera frame and the lidar frame.
 The camera has to be set with X, Y forming the image plane, and Z pointing in the field of view of the image.
 
 Example:
+
 In the following case (from dataset-la-doua), the Z axis of the lidar is vertical, but X doesn't point to the front of the car, `R_car_to_lidar` should be set to something like:
+
 ```python
 cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
 ```
+
 Which is composed of:
 - a rotation of 17 deg around Z to compensate for the lidar-trajectory angle
 - a rotation of [0, 90.0, -90.0] to pass from Z in the front (camera ref) to X in the front (lidar ref)
@@ -198,8 +203,8 @@ Which is composed of:
 
 - `position`: position of the camera, either
     - in the frame reference for absolute camera paths
-    - in the camera reference, with the lidar position for origin for relative camera paths
-- `focal point`: focal point of the camera in the camera reference
+    - in the camera reference, with the lidar position as origin for relative camera paths
+- `focal point`: focal point of the camera in the camera reference (where the camera is pointing to)
 - `up vector`: direction of the top of the image.
 
 ![Camera path parameters](doc/camera_path_parameters.png)
@@ -240,7 +245,7 @@ Example:
 carModelPath = '/path/to/your/3D/models/small-red_pickup.obj'
 carModelRotation = [90, 90 + 17, 0]
 # [90, 90, 0] to compensate the model orientation
-# + [0, 0, 17] to compensate the lidar orientation to the front of the car
+# + [0, 17, 0] to compensate the lidar orientation to the front of the car
 carModelScale = [0.05] * 3
 carModelTranslation = [0, 0, -1.5]  # this lets the car lie on the floor
 
@@ -258,11 +263,19 @@ else:
     carModel = smp.Transform(Input=carModelTmp)
 ```
 
-### How to add it to lidarview animations
+## How to add it to lidarview animations
 
-In a python script:
+### Using a python script
+
+- Define a LidarView processing pipeline
+- Make sure the trajectory and the data have a similar time base
+- Select what you want to show in the animation
+- Setup the animation
+- Play the animation
 
 #### Define a Lidarview processing pipeline
+
+See example_temporal_animation.py for an example.
 
 #### Make sure the trajectory and the data have a similar time base.
 To do so, you might need to update the trajectory with a timeshift
@@ -363,7 +376,7 @@ animation.Play()
 
 Example:
 
-![Example pipeline](doc/python_animation_pipeline_example.png)
+![Example pipeline](doc/animation_pipeline_example.png)
 
 - Open the `Animation` pane, choose the 'Snap to timesteps' mode
 

@@ -46,7 +46,7 @@ from vtk.util import numpy_support
 ## --- Default values that can be / need to be overriden-----------------------
 # Pipeline parameters.
 
-# trajectory filiter/source name:
+# trajectory filter/source name:
 # points to be considered as the camera trajectory for the first person view
 # (usually the vehicle trajectory). It must have the following PointData:
 #   - Time (the time must be synced with the frames timesteps
@@ -66,6 +66,10 @@ cad_model_name = ""
 
 # example calibration la doua car
 cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+# rotations around X, Y, Z are intrinsic rotations, hence in the case of
+# dataset-la-doua, there is a first rotation around the Z axis (17 degrees) to
+# compensate the lidar front orientation, then rotations around Y and Z
+# ([0, 90, -90]) to have Z looking forward
 
 # Output directory for the generated frames ("" to disable saving)
 frames_output_dir = ""
