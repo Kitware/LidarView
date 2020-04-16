@@ -45,8 +45,6 @@
 #include <pqHelpReaction.h>
 #include <pqServer.h>
 #include <pqSettings.h>
-#include <pqStandardPropertyWidgetInterface.h>
-#include <pqStandardViewFrameActionsImplementation.h>
 #include <pqLidarViewManager.h>
 #include <pqParaViewMenuBuilders.h>
 #include <pqPythonManager.h>
@@ -127,12 +125,6 @@ private:
       window->addToolBar(Qt::TopToolBarArea, macrosToolbar);
     }
 
-    // Register ParaView interfaces.
-    pqInterfaceTracker* pgm = core->interfaceTracker();
-    //    pgm->addInterface(new pqStandardViewModules(pgm));
-    pgm->addInterface(new pqStandardPropertyWidgetInterface(pgm));
-    pgm->addInterface(new pqStandardViewFrameActionsImplementation(pgm));
-
     // Define application behaviors.
     new pqQtMessageHandlerBehavior(window);
 
@@ -145,6 +137,8 @@ private:
     pqParaViewBehaviors::enableCommandLineOptionsBehavior();
     pqParaViewBehaviors::enableLiveSourceBehavior();
     pqParaViewBehaviors::enableApplyBehavior();
+    pqParaViewBehaviors::enableStandardViewFrameActions();
+    pqParaViewBehaviors::enableStandardPropertyWidgets();
 
     // Check if the settings are well formed i.e. if an OriginalMainWindow
     // state was previously saved. If not, we don't want to automatically
@@ -192,6 +186,11 @@ private:
       // closing LidarView
       settings->clear();
     }
+
+    // the paraview behaviors, which will in our case instantiate the enableStandardViewFrameActions
+    // must be created before creating the first renderview, otherwise this view won't have the default
+    // view toolbar buttons/actions
+    new pqParaViewBehaviors(window, window);
 
     // Connect to builtin server.
     this->Builder = core->getObjectBuilder();
@@ -316,8 +315,6 @@ private:
     // build Paraview macro menu
     QMenu *paraviewMacroMenu = this->Ui.menuAdvance->addMenu("Macro (Paraview)");
     pqParaViewMenuBuilders::buildMacrosMenu(*paraviewMacroMenu);
-
-    new pqParaViewBehaviors(window, window);
 
     pqActiveObjects::instance().setActiveView(this->MainView);
   }
