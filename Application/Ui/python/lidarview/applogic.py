@@ -271,6 +271,9 @@ def getReaderFileName():
     return filename[0] if isinstance(filename, servermanager.FileNameProperty) else filename
 
 
+def setDefaultSaveName(defaultSaveName):
+  app.DefaultSaveName = defaultSaveName
+
 def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
 
     sensor = getSensor()
