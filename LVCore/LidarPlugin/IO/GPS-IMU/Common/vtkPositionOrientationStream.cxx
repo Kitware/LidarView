@@ -11,6 +11,37 @@
 #include <vtkPointData.h>
 #include <vtkVariantArray.h>
 
+namespace {
+void DeepReverseCopy(vtkTable* input, vtkTable* output)
+{
+  vtkIdType nbCol = input->GetNumberOfColumns();
+  vtkIdType nbRow = input->GetNumberOfRows();
+  // copy array
+  for (vtkIdType i = 0; i < nbCol; ++i)
+  {
+    auto* original = input->GetColumn(i);
+
+    // handle only case with one element
+    if (original->GetNumberOfComponents() != 1)
+    {
+      vtkGenericWarningMacro(<< "Currently only array with one componenets are supported, "
+                             << "this is not the case of array :" << original->GetName())
+      continue;
+    }
+
+    auto* array = original->NewInstance();
+    array->SetName(original->GetName());
+    array->SetNumberOfValues(original->GetNumberOfValues());
+    for (vtkIdType j = 0; j < nbRow; ++j)
+    {
+      auto inv = (nbRow -1) - j;
+      array->SetVariantValue(j,original->GetVariantValue(inv));
+    }
+    output->AddColumn(array);
+  }
+}
+}
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPositionOrientationStream)
 
@@ -54,7 +85,7 @@ int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request
 
 
     vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
-    outputRawInformation->DeepCopy(this->AllRawInformation);
+    DeepReverseCopy(this->AllRawInformation, outputRawInformation);
     this->LastNumberRawInformation = this->AllRawInformation->GetNumberOfRows();
 
   }
