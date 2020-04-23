@@ -54,7 +54,7 @@ public:
    */
   PacketReceiver(boost::asio::io_service& io, int port, int forwardport,
                  std::string forwarddestinationIp, bool isforwarding, NetworkSource* parent,
-                 std::string multicastAdress = "", std::string LocalListeningAddress = "");
+                 std::string multicastAdress = "", std::string LocalListeningAddress = "::");
 
   ~PacketReceiver();
 

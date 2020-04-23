@@ -38,60 +38,74 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
   , MulticastAddress(multicastAddress)
   , LocalListeningAddress(LocalListeningAddress)
 {
-  // Opening the socket with an UDP v4 protocol (work for v6 protocol too)
-  this->Socket.open(boost::asio::ip::udp::v4());
-  // Tell the OS we accept to re-use the port address for an other app
-  this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-
-  // If a local specific address is specified, we try to listen to it
-  // Otherwise, we listen to any address (INADDR_ANY which is the same for v4 and v6)
-  boost::asio::ip::address listen_address = boost::asio::ip::address_v4::any();
-  if (LocalListeningAddress != "" && strcmp(LocalListeningAddress.c_str(), "0.0.0.0") != 0)
+  // Check the listening address
+  boost::system::error_code errCode;
+  boost::asio::ip::address listen_address = boost::asio::ip::address::from_string(LocalListeningAddress, errCode);
+  if(errCode != 0)
   {
-    boost::system::error_code errCode;
-    boost::asio::ip::address local_listen_address = boost::asio::ip::address::from_string(LocalListeningAddress, errCode);
-    if(errCode == 0)
+    vtkGenericWarningMacro("Listen address is not valid, listening on all local ip addresses on v6 and v4");
+    listen_address = boost::asio::ip::address_v6::any();
+  }
+
+  // Open the Socket with the right protocol
+  if (listen_address.is_v4())
+  {
+    this->Socket.open(boost::asio::ip::udp::v4());
+  }
+  else if (listen_address.is_v6())
+  {
+    this->Socket.open(boost::asio::ip::udp::v6());
+    if (listen_address == boost::asio::ip::address_v6::any())
     {
-      listen_address = local_listen_address;
-    }
-    else
-    {
-      vtkGenericWarningMacro("Listen address is not valid, listening on all local ip addresses");
+      this->Socket.set_option(boost::asio::ip::v6_only(false));
     }
   }
+  // Tell the OS we accept to re-use the port address for an other app
+  this->Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
 
   // Check that the provided multicast ipadress is valid
   if(multicastAddress != "")
   {
-    // Connect to multicast
-    boost::system::error_code errCode;
-    boost::asio::ip::address multicast_address = boost::asio::ip::address::from_string(multicastAddress, errCode);
-    if (errCode == 0 && multicast_address.is_multicast())
+    if (listen_address.is_v6())
     {
-      try
-      {
-#ifdef _MSC_VER
-          // On Windows : Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
-          this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address.to_v4(), port));
-#else
-          // On Linux and MacOS : Bind the socket to defined multicast address and to the defined port
-          this->Socket.bind(boost::asio::ip::udp::endpoint(multicast_address.to_v4(), port));
-#endif
-
-        // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
-        boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
-        this->Socket.set_option(option);
-
-        vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
-      }
-      catch(std::exception e)
-      {
-        vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to listen on all local ip addresses");
-      }
+      vtkGenericWarningMacro("Multicast with ipv6 proctocol is not supported.")
     }
     else
     {
-      vtkGenericWarningMacro("Multicast ip address not valid, please correct it or leave empty to ignore");
+      // Connect to multicast
+      boost::system::error_code errCode;
+      boost::asio::ip::address multicast_address = boost::asio::ip::address::from_string(multicastAddress, errCode);
+      if (multicast_address.is_v6())
+      {
+        vtkGenericWarningMacro("Multicast ip address must be an ipv4 addresse");
+      }
+      else if (errCode == 0 && multicast_address.is_multicast())
+      {
+        try
+        {
+#ifdef _MSC_VER
+            // On Windows : Bind the socket to listen_address (specific or INADDR_ANY) and to the defined port
+            this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address.to_v4(), port));
+#else
+            // On Linux and MacOS : Bind the socket to defined multicast address and to the defined port
+            this->Socket.bind(boost::asio::ip::udp::endpoint(multicast_address.to_v4(), port));
+#endif
+
+          // If bind on multicast : Work for listening address = to the one of the internal network, not the one from wifi
+          boost::asio::ip::multicast::join_group option(multicast_address.to_v4(), listen_address.to_v4());
+          this->Socket.set_option(option);
+
+          vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
+        }
+        catch(std::exception e)
+        {
+          vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to listen on all local ip addresses");
+        }
+      }
+      else
+      {
+        vtkGenericWarningMacro("Multicast ip address not valid, please correct it or leave empty to ignore");
+      }
     }
   }
   else
@@ -116,7 +130,7 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
     if(errCode == 0)
     {
       this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
-      this->ForwardedSocket.open(ForwardEndpoint.protocol()); // Opening the socket with an UDP v4 protocol
+      this->ForwardedSocket.open(ForwardEndpoint.protocol());
       // toward the forwarded ip address and port
       this->ForwardedSocket.set_option(boost::asio::ip::multicast::enable_loopback(
                                     true)); // Allow to send the packet on the same machine

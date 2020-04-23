@@ -39,11 +39,12 @@
     <StringVectorProperty
         name="LocalListeningAddress"
         command="SetLocalListeningAddress"
-        default_values="0.0.0.0"
+        default_values="::"
         number_of_elements="1">
       <Documentation>
         Specify listening address in case of multiple inferface.
-        If 0.0.0.0 or invalid, it tries to listen to ALL/ANY local IP address.
+        If :: or invalid, it tries to listen to ALL/ANY local IPv6 and IPv4 address.
+        If 0.0.0.0, it tries to listen to ALL/ANY local IPv4 address.
         On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast receiver address (x.x.x.255) instead of the local address.
         Joining multicast group won't work with multiple interfaces if no specific address is entered.
       </Documentation>
