@@ -24,6 +24,8 @@
 #include "PacketReceiver.h"
 #include "vtkInterpreter.h"
 
+std::unique_ptr<PacketFileWriter> vtkStream::WriterThread = nullptr;
+
 namespace {
 std::string GetCrashAnalysingFileName()
 {
@@ -84,12 +86,6 @@ void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
       this->Start();
     }
   }
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::SetOutputFile(const std::string &value)
-{
-  SetAttributeAndRestartIfRunning(this->OutputFileName, value);
 }
 
 //-----------------------------------------------------------------------------
@@ -185,10 +181,20 @@ void vtkStream::Stop()
   // destruct the thread is the inverse order of creation
   this->ReceiverThread->Stop();
   this->ConsumerThread->Stop();
-  if (this->WriterThread)
-  {
-    this->WriterThread->Stop();
-  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkStream::StartRecording(const std::string &filename)
+{
+  vtkStream::WriterThread = std::make_unique<PacketFileWriter>();
+  vtkStream::WriterThread->Start(filename);
+}
+
+//-----------------------------------------------------------------------------
+void vtkStream::StopRecording()
+{
+  vtkStream::WriterThread->Stop();
+  vtkStream::WriterThread.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -202,7 +208,6 @@ void vtkStream::EnqueuePacket(NetworkPacket* packet)
   }
   assert(this->Consumer && "The receiver thread should be started before the consumer one");
   this->ConsumerThread->Enqueue(packet);
-
 }
 
 //-----------------------------------------------------------------------------

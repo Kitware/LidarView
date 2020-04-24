@@ -22,6 +22,8 @@ add_library(lqApplicationComponents
   vvPlayerControlsController.h
   lvSpreadSheetManager.cxx
   lvSpreadSheetManager.h
+  lqStreamRecordReaction.cxx
+  lqStreamRecordReaction.h
   )
 target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -29,7 +31,10 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/ctk/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
-target_link_libraries(lqApplicationComponents PUBLIC pqApplicationComponents)
+target_link_libraries(lqApplicationComponents
+    PUBLIC
+    pqApplicationComponents
+    LidarPlugin)
 target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)
 target_compile_definitions(lqApplicationComponents PRIVATE CTKCore_EXPORTS CTKWidgets_EXPORTS)
 include(GenerateExportHeader)

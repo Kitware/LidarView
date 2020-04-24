@@ -37,8 +37,8 @@ public:
   virtual void Start();
   void Stop();
 
-  std::string GetOutputFile() {};
-  void SetOutputFile(const std::string& filename);
+  static void StartRecording(const std::string& filename);
+  static void StopRecording();
 
   vtkGetMacro(ListeningPort, int)
   void SetListeningPort(int);
@@ -116,9 +116,6 @@ protected:
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) = 0;
 
-  //! where to save a live record of the sensor
-  std::string OutputFileName = "";
-
 private:
   vtkStream(const vtkStream&) = delete;
   void operator=(const vtkStream&) = delete;
@@ -145,8 +142,7 @@ private:
   //! Thread that will consume the packets
   std::unique_ptr<PacketConsumer> ConsumerThread;
   //! Thread that will write the packets if recording
-  std::unique_ptr<PacketFileWriter> WriterThread;
-
+  static std::unique_ptr<PacketFileWriter> WriterThread;
 
   //! Callback function used by the ReceiverThread once a new NetworkPacket is ready
   //! The given packet will be queue in the Consumer and Writer thread queue.

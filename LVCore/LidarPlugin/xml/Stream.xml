@@ -50,17 +50,6 @@
       </Documentation>
     </StringVectorProperty>
 
-    <StringVectorProperty
-        name="OutputFile"
-        animateable="0"
-        command="SetOutputFile"
-        number_of_elements="1">
-        <FileListDomain name="files"/>
-        <Documentation>
-          This property specifies the output packet file for writing.
-        </Documentation>
-    </StringVectorProperty>
-
     <Property
       name="Start"
       command="Start" />
