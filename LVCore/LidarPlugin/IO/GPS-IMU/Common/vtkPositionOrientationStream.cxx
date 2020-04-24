@@ -2,10 +2,6 @@
 
 #include <sstream>
 
-#include "NetworkSource.h"
-#include "PacketConsumer.h"
-#include "PacketFileWriter.h"
-
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkPointData.h>
@@ -77,7 +73,7 @@ int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request
                                 vtkInformationVector* outputVector)
 {
   {
-    boost::lock_guard<boost::mutex> lock(this->Consumer->ConsumerMutex);
+    std::lock_guard<std::mutex> lock(this->DataMutex);
 
     vtkPolyData* outputPositionsOrientations = vtkPolyData::GetData(outputVector, 0);
     outputPositionsOrientations->DeepCopy(this->AllPositionsOrientation);

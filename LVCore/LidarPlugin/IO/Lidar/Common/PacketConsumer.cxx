@@ -1,23 +1,29 @@
 #include "PacketConsumer.h"
 
+#include <functional>
+#include <cassert>
+
+#include "NetworkPacket.h"
 #include "SynchronizedQueue.h"
+#include "vtkInterpreter.h"
+#include "vtkStream.h"
 
 //----------------------------------------------------------------------------
-PacketConsumer::PacketConsumer()
+PacketConsumer::PacketConsumer(vtkStream* stream)
 {
-  this->Packets.reset(new SynchronizedQueue<NetworkPacket*>);
+  this->Stream = stream;
 }
 
 //----------------------------------------------------------------------------
 void PacketConsumer::HandleSensorData(const unsigned char *data, unsigned int length)
 {
-  if (!this->Interpreter->IsValidPacket(data, length))
+  if (!this->Stream->GetInterpreter()->IsValidPacket(data, length))
     return;
-  this->Interpreter->ProcessPacket(data, length);
-  if (this->Interpreter->IsNewData())
+  this->Stream->GetInterpreter()->ProcessPacket(data, length);
+  if (this->Stream->GetInterpreter()->IsNewData())
   {
     {
-      boost::lock_guard<boost::mutex> lock(this->ConsumerMutex);
+      std::lock_guard<std::mutex> lock(this->Stream->DataMutex);
       this->Stream->AddNewData();
     }
     this->Stream->ClearAllDataAvailable();
@@ -28,7 +34,7 @@ void PacketConsumer::HandleSensorData(const unsigned char *data, unsigned int le
 void PacketConsumer::ThreadLoop()
 {
   NetworkPacket* packet = nullptr;
-  this->Interpreter->ResetCurrentData();
+  this->Stream->GetInterpreter()->ResetCurrentData();
   while (this->Packets->dequeue(packet))
   {
     this->HandleSensorData(packet->GetPayloadData(), packet->GetPayloadSize());
@@ -39,15 +45,11 @@ void PacketConsumer::ThreadLoop()
 //----------------------------------------------------------------------------
 void PacketConsumer::Start()
 {
-  if (this->Thread)
-  {
-    return;
-  }
-  this->Interpreter->ResetCurrentData();
-
-  this->Packets.reset(new SynchronizedQueue<NetworkPacket*>);
-  this->Thread = boost::shared_ptr<boost::thread>(
-        new boost::thread(boost::bind(&PacketConsumer::ThreadLoop, this)));
+  this->Stop();;
+  this->Stream->GetInterpreter()->ResetCurrentData();
+  this->Packets = std::make_unique<SynchronizedQueue<NetworkPacket*>>();
+  this->Thread = std::make_unique<std::thread>(std::bind(&
+                                                         PacketConsumer::ThreadLoop, this));
 }
 
 //----------------------------------------------------------------------------
@@ -65,6 +67,7 @@ void PacketConsumer::Stop()
 //----------------------------------------------------------------------------
 void PacketConsumer::Enqueue(NetworkPacket* packet)
 {
+  assert(this->Packets && "The consumer need to be started before enqueueing");
   this->Packets->enqueue(packet);
 
   // In order to prevent memory usage to grow unbounded, we limit the growth of

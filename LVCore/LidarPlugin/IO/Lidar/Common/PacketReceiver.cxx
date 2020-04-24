@@ -17,26 +17,25 @@
 
 // LOCAL
 #include "PacketReceiver.h"
-#include "NetworkSource.h"
+
 #include "NetworkPacket.h"
-#include "PacketConsumer.h"
+#include "SynchronizedQueue.h"
 
 #include <vtkMath.h>
 
+#include <functional>
+
 //-----------------------------------------------------------------------------
-PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwardport,
-                               std::string forwarddestinationIp, bool isforwarding, NetworkSource *parent,
-                               std::string multicastAddress, std::string LocalListeningAddress)
-  : isForwarding(isforwarding)
-  , Port(port)
-  , PacketCounter(0)
-  , Socket(io)
-  , ForwardedSocket(io)
-  , Parent(parent)
-  , IsReceiving(true)
-  , ShouldStop(false)
+PacketReceiver::PacketReceiver(int port,
+                               std::function<void(NetworkPacket *)> callback,
+                               std::string multicastAddress,
+                               std::string localListeningAddress)
+  : Port(port)
+  , ReceiverCallback(callback)
   , MulticastAddress(multicastAddress)
-  , LocalListeningAddress(LocalListeningAddress)
+  , LocalListeningAddress(localListeningAddress)
+  , Socket(IOService)
+  , ForwardedSocket(IOService)
 {
   // Check the listening address
   boost::system::error_code errCode;
@@ -121,9 +120,35 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
         vtkGenericWarningMacro("Error while setting listening address, please correct it or leave empty to ignore");
       }
   }
+}
 
+//-----------------------------------------------------------------------------
+PacketReceiver::~PacketReceiver()
+{
+  this->Stop();
+  this->Socket.close();
+  if (this->isForwarding)
+  {
+    this->ForwardedSocket.close();
+  }
+
+  // Close and delete the logs files. So that,
+  // if a log file is present in the next session
+  // it means that the software has been closed
+  // properly (potentially a crash)
+  if (this->IsCrashAnalysing)
+  {
+    this->CrashAnalysis.CloseAnalyzer();
+    this->CrashAnalysis.DeleteLogFiles();
+  }
+}
+//-----------------------------------------------------------------------------
+void PacketReceiver::EnableForwarding(int forwardport, const std::string& forwarddestinationIp)
+{
+  assert(this->Thread && "You cannot call this function while running, please call it just after constructing the object");
+  this->isForwarding = true;
   // Check that the provided forwarding ipadress is valid
-  if(forwarddestinationIp != ""  && this->isForwarding)
+  if(forwarddestinationIp != "")
   {
     boost::system::error_code errCode;
     boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address::from_string(forwarddestinationIp, errCode);
@@ -144,55 +169,33 @@ PacketReceiver::PacketReceiver(boost::asio::io_service &io, int port, int forwar
 }
 
 //-----------------------------------------------------------------------------
-PacketReceiver::~PacketReceiver()
+void PacketReceiver::Start()
 {
-  this->Socket.cancel();
-  if (this->isForwarding)
-  {
-    this->ForwardedSocket.cancel();
-  }
+  std::cout << "Start" << std::endl;
+  this->WaitForNextPacket();
+  // Make the callback run in otherthread
+  this->Thread = std::make_unique<std::thread>([&]{ this->IOService.run(); });
+}
 
-  // Start the scoped mutex for receiving with our buffer
+//-----------------------------------------------------------------------------
+void PacketReceiver::Stop()
+{
+  std::cout << "Stop" << std::endl;
+  this->Socket.cancel();
+  if (this->Thread)
   {
-    boost::unique_lock<boost::mutex> guard(this->IsReceivingMtx);
-    this->ShouldStop = true;
-    while (this->IsReceiving)
+    if (this->Thread->joinable())
     {
-      this->IsReceivingCond.wait(guard);
+      this->Thread->join();
     }
   }
-
-  // Close and delete the logs files. So that,
-  // if a log file is present in the next session
-  // it means that the software has been closed
-  // properly (potentially a crash)
-  if (this->IsCrashAnalysing)
-  {
-    this->CrashAnalysis.CloseAnalyzer();
-    this->CrashAnalysis.DeleteLogFiles();
-  }
 }
 
 //-----------------------------------------------------------------------------
-void PacketReceiver::StartReceive()
+void PacketReceiver::EnableCrashAnalysing(std::string filenameCrashAnalysis_, unsigned int nbrPacketToStore_)
 {
-  {
-    boost::lock_guard<boost::mutex> guard(this->IsReceivingMtx);
-    this->IsReceiving = true;
-  }
-
-  // expecting exactly 1206 bytes, using a larger buffer so that if a
-  // larger packet arrives unexpectedly we'll notice it.
-  this->Socket.async_receive_from(boost::asio::buffer(this->RXBuffer, BUFFER_SIZE),
-                                  this->SenderEndpoint,
-                                  boost::bind(&PacketReceiver::SocketCallback, this, boost::asio::placeholders::error,
-                                              boost::asio::placeholders::bytes_transferred));
-}
-
-//-----------------------------------------------------------------------------
-void PacketReceiver::EnableCrashAnalysing(std::string filenameCrashAnalysis_, unsigned int nbrPacketToStore_, bool isCrashAnalysing_)
-{
-  this->IsCrashAnalysing = isCrashAnalysing_;
+  assert(this->Thread && "You cannot call this function while running, please call it just after constructing the object");
+  this->IsCrashAnalysing = true;
 
   // Opening crash analysis file
   if (this->IsCrashAnalysing)
@@ -204,22 +207,19 @@ void PacketReceiver::EnableCrashAnalysing(std::string filenameCrashAnalysis_, un
 }
 
 //-----------------------------------------------------------------------------
+void PacketReceiver::SetFakeManufacturerMACAddress(uint64_t value)
+{
+  this->FakeManufacturerMACAddress = value;
+}
+
+//-----------------------------------------------------------------------------
 void PacketReceiver::SocketCallback(
   const boost::system::error_code& error, std::size_t numberOfBytes)
 {
-  if (error || this->ShouldStop)
+  if (error) // in case the Socket cancel == boost::asio::error::operation_aborted)
   {
-    // This is called on cancel
-    // TODO: Check other error codes
-    {
-      boost::lock_guard<boost::mutex> guard(this->IsReceivingMtx);
-      this->IsReceiving = false;
-    }
-    this->IsReceivingCond.notify_one();
-
     return;
   }
-
   unsigned short ourPort = static_cast<unsigned short>(this->Port);
   // endpoint::port() is in host byte order
   unsigned short sourcePort = this->SenderEndpoint.port();
@@ -239,13 +239,7 @@ void PacketReceiver::SocketCallback(
                                                        sourceIP,
                                                        sourcePort,
                                                        ourPort,
-                                                       this->Parent->Consumer->GetInterpreter()->GetManufacturerMACAddress());
-
-  // std::cout << this->Socket.remote_endpoint().address() << std::endl;
-
-  // I looked at the struct sockaddr* inside the sender endpoint, but no
-  // other data than ip source and port source is provided (which is normal,
-  // we are working at the application level).
+                                                       this->FakeManufacturerMACAddress);
 
   if (this->isForwarding)
   {
@@ -257,13 +251,23 @@ void PacketReceiver::SocketCallback(
     this->CrashAnalysis.AddPacket(*packet);
   }
 
-  this->Parent->QueuePackets(packet);
+  this->ReceiverCallback(packet);
 
-  this->StartReceive();
+  this->WaitForNextPacket();
 
   if ((++this->PacketCounter % 5000) == 0)
   {
     std::cout << "RECV packets: " << this->PacketCounter << " on " << this->Port << std::endl;
   }
+
+}
+
+//-----------------------------------------------------------------------------
+void PacketReceiver::WaitForNextPacket()
+{
+  this->Socket.async_receive_from(boost::asio::buffer(this->RXBuffer, BUFFER_SIZE),
+                                  this->SenderEndpoint,
+                                  std::bind(&PacketReceiver::SocketCallback, this, std::placeholders::_1,
+                                              std::placeholders::_2));
 }
 

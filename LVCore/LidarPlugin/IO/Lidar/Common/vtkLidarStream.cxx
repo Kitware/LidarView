@@ -19,22 +19,12 @@
 
 #include <sstream>
 
-#include "NetworkSource.h"
-#include "PacketConsumer.h"
-#include "PacketFileWriter.h"
-
+#include <boost/filesystem.hpp>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarStream)
-
-//-----------------------------------------------------------------------------
-int vtkLidarStream::GetNumberOfFrames()
-{
-  std::cerr << "this is not implemented yet" << std::endl;
-  return 0;
-}
 
 //-----------------------------------------------------------------------------
 int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
@@ -135,7 +125,7 @@ int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
 
   int numberOfFrameAvailable = 0;
   {
-    boost::lock_guard<boost::mutex> lock(this->Consumer->ConsumerMutex);
+    std::lock_guard<std::mutex> lock(this->DataMutex);
     numberOfFrameAvailable = this->CheckForNewData();
     if (numberOfFrameAvailable != 0)
     {

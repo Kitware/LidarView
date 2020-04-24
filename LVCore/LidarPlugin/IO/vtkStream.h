@@ -17,16 +17,17 @@
 #define VTKSTREAM_H
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include <vtkDataObjectAlgorithm.h>
 #include <vtkSmartPointer.h>
 
-#include "vtkInterpreter.h"
-
+class NetworkPacket;
 class PacketConsumer;
 class PacketFileWriter;
-class NetworkSource;
+class PacketReceiver;
+class vtkInterpreter;
 
 class VTK_EXPORT vtkStream : public vtkDataObjectAlgorithm
 {
@@ -36,49 +37,28 @@ public:
   virtual void Start();
   void Stop();
 
-  std::string GetOutputFile();
+  std::string GetOutputFile() {};
   void SetOutputFile(const std::string& filename);
 
-  /**
-   * @copydoc NetworkSource::LidarPort
-   */
-  int GetListeningPort();
+  vtkGetMacro(ListeningPort, int)
   void SetListeningPort(int);
 
-  /**
-   * @brief multicast Address
-   */
-  std::string GetMulticastAddress();
+  vtkGetMacro(MulticastAddress, std::string)
   void SetMulticastAddress(const std::string&);
 
-  /**
-   * @brief Local Listening Address
-   */
-  std::string GetLocalListeningAddress();
+  vtkGetMacro(LocalListeningAddress, std::string)
   void SetLocalListeningAddress(const std::string&);
 
-  /**
-   * @copydoc NetworkSource::ForwardedIpAddress
-   */
-  std::string GetForwardedIpAddress();
+  vtkGetMacro(ForwardedIpAddress, std::string)
   void SetForwardedIpAddress(const std::string& ipAddress);
 
-  /**
-   * @copydoc NetworkSource::ForwardedPort
-   */
-  int GetForwardedPort();
+  vtkGetMacro(ForwardedPort, int)
   void SetForwardedPort(int);
 
-  /**
-   * @copydoc NetworkSource::IsForwarding
-   */
-  bool GetIsForwarding();
+  vtkGetMacro(IsForwarding, bool)
   void SetIsForwarding(bool);
 
-  /**
-   * @copydoc NetworkSource::IsCrashAnalysing
-   */
-  bool GetIsCrashAnalysing();
+  vtkGetMacro(IsCrashAnalysing, bool)
   void SetIsCrashAnalysing(bool value);
 
   /**
@@ -89,16 +69,20 @@ public:
 
   /**
    * @brief AddNewData Add the new data available to the specific buffer of the Stream
+   * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
    */
   virtual void AddNewData() = 0;
 
   /**
    * @brief ClearAllDataAvailable Clear the buffer that contains data
+   * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
    */
   virtual void ClearAllDataAvailable() = 0;
 
   /**
    * @brief CheckForNewData Check if there is new data available
+   * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
+   *
    */
   virtual int CheckForNewData() = 0;
 
@@ -112,6 +96,18 @@ public:
    */
   virtual void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) = 0;
 
+  /**
+   * @brief mutex to protect the data store in the Stream as they are filled
+   * in one thread by the ConsumerThread, and accesed in another thread by the
+   * RequestData.
+   *
+   * @todo it look like the interpreter is another shared ressource.
+   * However unless making the Interpreter thread-safe, it seams impossible
+   * to lock it before accesing it, as it will be accessed by some generated
+   * code, due to paraview.
+   */
+  std::mutex DataMutex;
+
 protected:
   vtkStream();
   ~vtkStream();
@@ -122,14 +118,43 @@ protected:
 
   //! where to save a live record of the sensor
   std::string OutputFileName = "";
-  std::shared_ptr<PacketConsumer> Consumer;
-  std::shared_ptr<PacketFileWriter> Writer;
-  std::unique_ptr<NetworkSource> Network;
 
 private:
   vtkStream(const vtkStream&) = delete;
   void operator=(const vtkStream&) = delete;
 
+  /*!< The port to receive information*/
+  int ListeningPort = 2368;
+  /*!< The multicast address to receive packets*/
+  std::string MulticastAddress;
+  /*!< The Listening address in case of multiples interfaces*/
+  std::string LocalListeningAddress;
+
+  /*!< Allowing the forwarding of the packets*/
+  bool IsForwarding = false;
+  /*!< The port to send forwarded packets*/
+  int ForwardedPort = 2369;
+  /*!< The ip to send forwarded packets*/
+  std::string ForwardedIpAddress = "127.0.0.1";
+
+
+  bool IsCrashAnalysing = false;
+
+  //! Thread that will listen on the network to get the packets
+  std::unique_ptr<PacketReceiver> ReceiverThread;
+  //! Thread that will consume the packets
+  std::unique_ptr<PacketConsumer> ConsumerThread;
+  //! Thread that will write the packets if recording
+  std::unique_ptr<PacketFileWriter> WriterThread;
+
+
+  //! Callback function used by the ReceiverThread once a new NetworkPacket is ready
+  //! The given packet will be queue in the Consumer and Writer thread queue.
+  void EnqueuePacket(NetworkPacket* packet);
+
+  bool IsRunning();
+
+  //! helper function
   template<class T> void SetAttributeAndRestartIfRunning(T& attribute, const T& value);
 };
 

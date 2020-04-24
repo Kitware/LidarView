@@ -15,24 +15,19 @@
 #ifndef PACKETCONSUMER_H
 #define PACKETCONSUMER_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <deque>
-
-#include <vtkSmartPointer.h>
-#include <vtkPolyData.h>
-
-#include "vtkInterpreter.h"
-#include "NetworkPacket.h"
-#include "vtkStream.h"
+#include <memory>
+#include <thread>
+#include <mutex>
 
 template<typename T>
 class SynchronizedQueue;
+class NetworkPacket;
+class vtkStream;
 
 class PacketConsumer
 {
 public:
-  PacketConsumer();
+  PacketConsumer(vtkStream * stream);
 
   void HandleSensorData(const unsigned char* data, unsigned int length);
 
@@ -42,28 +37,16 @@ public:
 
   void Enqueue(NetworkPacket* packet);
 
-  void SetInterpreter(vtkInterpreter* inter) { this->Interpreter = inter;}
-
-  void SetStream(vtkStream * stream){this->Stream = stream;}
-
-  vtkInterpreter* GetInterpreter() { return this->Interpreter; }
-
-  // Hold this when modifying internals of reader
-  boost::mutex ConsumerMutex;
-
 protected:
   void ThreadLoop();
 
-  void HandleNewData(vtkSmartPointer<vtkPolyData> polyData);
-
-  vtkInterpreter* Interpreter;
   vtkStream * Stream;
 
-  boost::shared_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
+  std::unique_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
   /*!< Number of packets to cache, above: drop oldest packets */
   size_t PacketCacheSize = 10000;
 
-  boost::shared_ptr<boost::thread> Thread;
+  std::unique_ptr<std::thread> Thread;
 };
 
 #endif // PACKETCONSUMER_H

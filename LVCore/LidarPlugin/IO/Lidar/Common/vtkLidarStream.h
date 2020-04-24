@@ -28,8 +28,6 @@ public:
   static vtkLidarStream* New();
   vtkTypeMacro(vtkLidarStream, vtkStream)
 
-  int GetNumberOfFrames();
-
   /**
    * @brief GetSensorInformation return some sensor information used for display purposes
    */

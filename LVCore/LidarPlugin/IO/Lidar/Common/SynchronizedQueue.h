@@ -15,8 +15,10 @@
 #ifndef SYNCHRONIZEDQUEUE_H
 #define SYNCHRONIZEDQUEUE_H
 
+#include <condition_variable>
+#include <mutex>
 #include <queue>
-#include <boost/thread.hpp>
+#include <thread>
 
 /**
  * @brief The SynchronizedQueue class is a FIFO structure whith some mutex to allow acces
@@ -37,7 +39,7 @@ public:
 
   void enqueue(const T &data)
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
 
     if (enqueue_data_)
     {
@@ -48,7 +50,7 @@ public:
 
   bool dequeue(T &result)
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
 
     while (queue_.empty() && (!request_to_end_))
     {
@@ -69,20 +71,20 @@ public:
 
   void stopQueue()
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     request_to_end_ = true;
     cond_.notify_one();
   }
 
   unsigned int size()
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     return static_cast<unsigned int>(queue_.size());
   }
 
   bool isEmpty() const
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     return (queue_.empty());
   }
 
@@ -98,8 +100,8 @@ private:
   }
 
   std::queue<T> queue_;            // Use STL queue to store data
-  mutable boost::mutex mutex_;     // The mutex to synchronise on
-  boost::condition_variable cond_; // The condition to wait for
+  mutable std::mutex mutex_;     // The mutex to synchronise on
+  std::condition_variable cond_; // The condition to wait for
 
   bool request_to_end_;
   bool enqueue_data_;

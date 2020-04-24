@@ -41,12 +41,6 @@
 class vtkPacketFileWriter
 {
 public:
-  // note these values are little endian, pcap wants the packet header and
-  // data to be in the platform's native byte order, so assuming little endian.
-  static const unsigned short LidarPacketHeader[21];
-
-  static const unsigned short PositionPacketHeader[21];
-
   vtkPacketFileWriter();
 
   ~vtkPacketFileWriter();

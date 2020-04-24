@@ -20,13 +20,13 @@
 
 // BOOST
 #include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
 
-// STD
-#include <fstream>
-#include <iostream>
+#include <thread>
+#include <functional>
 
 class NetworkSource;
+template<typename T>
+class SynchronizedQueue;
 
 /*!< Size of the buffer used to store the data received */
 #define BUFFER_SIZE 32000
@@ -45,38 +45,51 @@ class PacketReceiver
 public:
   /**
    * @brief PacketReceiver
-   * @param io The in/out service used to handle the reception of the packets
    * @param port The port address which will receive the packet
    * @param forwardport The port adress which will receive the forwarded packets
    * @param forwarddestinationIp The IP adress of the computer which will receive the forwarded packets
-   * @param isforwarding Allow or not the forwarding of the packets
-   * @param parent @todo to replace by a synchronizedQueue
    */
-  PacketReceiver(boost::asio::io_service& io, int port, int forwardport,
-                 std::string forwarddestinationIp, bool isforwarding, NetworkSource* parent,
-                 std::string multicastAdress = "", std::string LocalListeningAddress = "::");
+  PacketReceiver(int port, std::function<void(NetworkPacket*)> callback, std::string multicastAdress = "", std::string localListeningAddress = "::");
 
   ~PacketReceiver();
 
+  void EnableForwarding(int forwardport, const std::string& forwarddestinationIp);
+
   /**
-   * @brief StartReceive bind the callback function to the socket and specify the buffer used
-   * to receive the data
+   * @brief Start StartReceive
    */
-  void StartReceive();
+  void Start();
+
+  void Stop();
 
   /**
    * @brief EnableCrashAnalysing
    * @param filenameCrashAnalysis_ the name of the output file
    * @param nbrPacketToStore the number of packets to store
-   * @param isCrashAnalysing_ Enable the crash analysing
    */
-  void EnableCrashAnalysing(std::string filenameCrashAnalysis_, unsigned int nbrPacketToStore_, bool isCrashAnalysing_);
+  void EnableCrashAnalysing(std::string filenameCrashAnalysis_, unsigned int nbrPacketToStore_);
 
-  void SocketCallback(const boost::system::error_code& error, std::size_t numberOfBytes);
+  void SetFakeManufacturerMACAddress(uint64_t);
 
 private:
+  //!
+  //! \brief Callback call when a new packet is receive
+  //! \param error is boost::asio::error::operation_aborted in case the socket cancel all asynchronous connection
+  //! \param numberOfBytes
+  //!
+  void SocketCallback(const boost::system::error_code& error, std::size_t numberOfBytes);
+  // see https://stackoverflow.com/a/44273900
+  /**
+   * @brief Wait for a packet to be receive by binding the callback function to the socket and specify the buffer used
+   * to receive the data
+   */
+  void WaitForNextPacket();
+
+  std::unique_ptr<std::thread> Thread;
+  boost::asio::io_service IOService;
+
   /*!< Allow or not the forwarding of the packets */
-  bool isForwarding;
+  bool isForwarding = false;
 
   /*!< EndPoint of the sender, contains only sender ip, sender port */
   boost::asio::ip::udp::endpoint SenderEndpoint;
@@ -102,20 +115,19 @@ private:
   /*!< Socket : determines the protocol used and the address used for the reception of the forwarded packets */
   boost::asio::ip::udp::socket ForwardedSocket;
 
-  /*!< Network Shouce where the packet will be enqueue */
-  NetworkSource* Parent;
-
   /*!< Buffer which will saved the data that arrived via the network
   /* It must be larger than the largest packet expected to be receive*/
   unsigned char RXBuffer[BUFFER_SIZE];
 
-  bool IsReceiving; /*!< Flag indicating if the socket is receiving packets */
-  bool ShouldStop;  /*!< Flag indicating if we should stop the listening */
-  boost::mutex IsReceivingMtx; /*!< Mutex : Block the access of IsReceiving when a thread is seting the flag */
-  boost::condition_variable IsReceivingCond;
-  boost::mutex IsWriting;
+  /*!< Flag indicating if we should stop the listening, @todo check if we shouldn't use an atomic here */
+  bool ShouldStop = false;
+
   bool IsCrashAnalysing = false;
   CrashAnalysisWriter CrashAnalysis;
+  /*!< Manufacturer MAC address to fake in the constructed NetworkPacket, as this information is lost by using boost::asio */
+  uint64_t FakeManufacturerMACAddress = 0;
+
+  std::function<void(NetworkPacket*)> ReceiverCallback;
 };
 
 #endif // PACKETRECEIVER_H
