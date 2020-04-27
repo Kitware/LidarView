@@ -139,6 +139,7 @@ private:
     pqParaViewBehaviors::enableApplyBehavior();
     pqParaViewBehaviors::enableStandardViewFrameActions();
     pqParaViewBehaviors::enableStandardPropertyWidgets();
+    pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
 
     // Check if the settings are well formed i.e. if an OriginalMainWindow
     // state was previously saved. If not, we don't want to automatically
