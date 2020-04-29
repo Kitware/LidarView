@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "lvSpreadSheetManager.h"
+#include "lqSpreadSheetManager.h"
 
 #include <pqObjectBuilder.h>
 #include <pqApplicationCore.h>
@@ -22,18 +22,18 @@
 #include <assert.h>
 
 //-----------------------------------------------------------------------------
-lvSpreadSheetManager::lvSpreadSheetManager(QObject* parent) : QObject(parent)
+lqSpreadSheetManager::lqSpreadSheetManager(QObject* parent) : QObject(parent)
 {
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::setSpreadSheetDockWidget(QDockWidget* dock)
+void lqSpreadSheetManager::setSpreadSheetDockWidget(QDockWidget* dock)
 {
   this->spreadSheetDock = dock;
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::setMainView(pqRenderView* view)
+void lqSpreadSheetManager::setMainView(pqRenderView* view)
 {
   this->mainView = view;
 }
@@ -55,7 +55,7 @@ std::vector<QObject*> findChildrenByClassName(QObject* object, std::string class
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::constructSpreadSheet()
+void lqSpreadSheetManager::constructSpreadSheet()
 {
   assert(this->SpreadSheetView == nullptr);
   this->SpreadSheetView = qobject_cast<pqSpreadSheetView*>
@@ -100,7 +100,7 @@ void lvSpreadSheetManager::constructSpreadSheet()
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::destructSpreadSheet()
+void lqSpreadSheetManager::destructSpreadSheet()
 {
   pqActiveObjects::instance().setActiveView(this->mainView);
 
@@ -115,7 +115,7 @@ void lvSpreadSheetManager::destructSpreadSheet()
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::onToggleSpreadSheet(bool toggled)
+void lqSpreadSheetManager::onToggleSpreadSheet(bool toggled)
 {
   if (toggled)
   {
@@ -130,13 +130,13 @@ void lvSpreadSheetManager::onToggleSpreadSheet(bool toggled)
 }
 
 //-----------------------------------------------------------------------------
-bool lvSpreadSheetManager::isSpreadSheetOpen()
+bool lqSpreadSheetManager::isSpreadSheetOpen()
 {
   return this->SpreadSheetView != nullptr;
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::conditionnallyHideColumn(const std::string& conditionSrcName,
+void lqSpreadSheetManager::conditionnallyHideColumn(const std::string& conditionSrcName,
                                                     const std::string& columnName)
 {
   if (!this->SpreadSheetView
@@ -162,7 +162,7 @@ void lvSpreadSheetManager::conditionnallyHideColumn(const std::string& condition
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::onSpreadSheetEndRender()
+void lqSpreadSheetManager::onSpreadSheetEndRender()
 {
   // endRender may not be the best signal to use because it will be called at
   // each frame whereas we would prefer to update only when the source is
@@ -180,7 +180,7 @@ void lvSpreadSheetManager::onSpreadSheetEndRender()
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::onHeaderDataChanged(Qt::Orientation,
+void lqSpreadSheetManager::onHeaderDataChanged(Qt::Orientation,
                                                int firstColumn,
                                                int lastColumn)
 {
@@ -206,7 +206,7 @@ std::string getHiddenArraysKey(const std::string& objectName)
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::onSaveColumnSelection()
+void lqSpreadSheetManager::onSaveColumnSelection()
 {
   if (!this->SpreadSheetView
       || !this->SpreadSheetView->getViewModel()
@@ -233,7 +233,7 @@ void lvSpreadSheetManager::onSaveColumnSelection()
 }
 
 //-----------------------------------------------------------------------------
-void lvSpreadSheetManager::restoreColumnSelection()
+void lqSpreadSheetManager::restoreColumnSelection()
 {
   pqSettings* settings = pqApplicationCore::instance()->settings();
   std::string objectName = this->getCurrentShownObjectName();
@@ -246,7 +246,7 @@ void lvSpreadSheetManager::restoreColumnSelection()
 }
 
 //-----------------------------------------------------------------------------
-std::string lvSpreadSheetManager::getCurrentShownObjectName()
+std::string lqSpreadSheetManager::getCurrentShownObjectName()
 {
   if (this->SpreadSheetView &&
     this->SpreadSheetView->getViewModel() &&

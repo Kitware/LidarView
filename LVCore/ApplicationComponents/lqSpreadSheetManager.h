@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef __lvSpreadSheetManager_h
-#define __lvSpreadSheetManager_h
+#ifndef __lqSpreadSheetManager_h
+#define __lqSpreadSheetManager_h
 
 #include <pqRenderView.h>
 #include <pqSpreadSheetView.h>
@@ -24,12 +24,12 @@
 
 #include "lqapplicationcomponents_export.h"
 
-class LQAPPLICATIONCOMPONENTS_EXPORT lvSpreadSheetManager : public QObject
+class LQAPPLICATIONCOMPONENTS_EXPORT lqSpreadSheetManager : public QObject
 {
   Q_OBJECT
 
 public:
-  lvSpreadSheetManager(QObject* parent);
+  lqSpreadSheetManager(QObject* parent);
   void setSpreadSheetDockWidget(QDockWidget* dock);
   void setMainView(pqRenderView* view);
 signals:
@@ -65,4 +65,4 @@ private:
   std::string lastShownObjectName = "";
 };
 
-#endif // __lvSpreadSheetManager_h
+#endif // __lqSpreadSheetManager_h

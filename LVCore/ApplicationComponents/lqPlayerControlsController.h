@@ -29,8 +29,8 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#ifndef VVPLAYERCONTROLSCONTROLLER_H
-#define VVPLAYERCONTROLSCONTROLLER_H
+#ifndef LQPLAYERCONTROLSCONTROLLER_H
+#define LQPLAYERCONTROLSCONTROLLER_H
 
 
 #include "pqComponentsModule.h"
@@ -42,18 +42,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class pqPipelineSource;
 class pqAnimationScene;
 
-// vvPlayerControlsController is the QObject that encapsulates the
+// lqPlayerControlsController is the QObject that encapsulates the
 // VCR control functionality.
 // It provides a slot to set the scene that this object
 // is using for animation. Typically, one would connect this
 // slot to a pqAnimationManager like object which keeps track
 // of the active animation scene.
-class LQAPPLICATIONCOMPONENTS_EXPORT vvPlayerControlsController : public QObject
+class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsController : public QObject
 {
   Q_OBJECT
 public:
-  vvPlayerControlsController(QObject* parent = 0);
-  virtual ~vvPlayerControlsController();
+  lqPlayerControlsController(QObject* parent = 0);
+  virtual ~lqPlayerControlsController();
 
   pqAnimationScene* getAnimationScene();
 
@@ -112,8 +112,8 @@ protected slots:
   void onSourceRemoved(pqPipelineSource* src);
 
 private:
-  vvPlayerControlsController(const vvPlayerControlsController&); // Not implemented.
-  void operator=(const vvPlayerControlsController&); // Not implemented.
+  lqPlayerControlsController(const lqPlayerControlsController&); // Not implemented.
+  void operator=(const lqPlayerControlsController&); // Not implemented.
 
   QPointer<pqAnimationScene> Scene;
   double speed;
@@ -122,4 +122,4 @@ private:
   bool weAreLive(); // at least one source is live (sensor data received in real time from network)
 };
 
-#endif // VVPLAYERCONTROLSCONTROLLER_H
+#endif // LQPLAYERCONTROLSCONTROLLER_H

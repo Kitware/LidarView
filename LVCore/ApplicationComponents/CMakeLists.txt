@@ -12,16 +12,16 @@ add_library(lqApplicationComponents
   ctk/ctkValueProxy.cpp
   ctk/ctkValueProxy.h
   ctk/ctkWidgetsExport.h
-  vvColorToolbar.cxx
-  vvColorToolbar.h
-  vvColorToolbar.ui
-  vvPlayerControlsToolbar.cxx
-  vvPlayerControlsToolbar.h
-  vvPlayerControlsToolbar.ui
-  vvPlayerControlsController.cxx
-  vvPlayerControlsController.h
-  lvSpreadSheetManager.cxx
-  lvSpreadSheetManager.h
+  lqColorToolbar.cxx
+  lqColorToolbar.h
+  lqColorToolbar.ui
+  lqPlayerControlsToolbar.cxx
+  lqPlayerControlsToolbar.h
+  lqPlayerControlsToolbar.ui
+  lqPlayerControlsController.cxx
+  lqPlayerControlsController.h
+  lqSpreadSheetManager.cxx
+  lqSpreadSheetManager.h
   lqStreamRecordReaction.cxx
   lqStreamRecordReaction.h
   )

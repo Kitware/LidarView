@@ -1,7 +1,7 @@
 /*=========================================================================
 
    Program: ParaView
-   Module:    vvColorToolbar.h
+   Module:    pqColorToolbar.cxx
 
    Copyright (c) 2005,2006 Sandia Corporation, Kitware Inc.
    All rights reserved.
@@ -29,36 +29,31 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#ifndef __vvColorToolbar_h
-#define __vvColorToolbar_h
+#include "lqColorToolbar.h"
+#include "ui_lqColorToolbar.h"
 
-#include <QToolBar>
+#include "pqActiveObjects.h"
+#include "pqDisplayColorWidget.h"
+#include "pqEditColorMapReaction.h"
+#include "pqResetScalarRangeReaction.h"
+#include "pqScalarBarVisibilityReaction.h"
+#include "pqSetName.h"
 
-#include "lqapplicationcomponents_export.h"
-
-/// vvColorToolbar is the toolbar that allows the user to choose the scalar
-/// color or solid color for the active representation.
-class LQAPPLICATIONCOMPONENTS_EXPORT vvColorToolbar : public QToolBar
+//-----------------------------------------------------------------------------
+void lqColorToolbar::constructor()
 {
-  Q_OBJECT
-  typedef QToolBar Superclass;
+  Ui::lqColorToolbar ui;
+  ui.setupUi(this);
 
-public:
-  vvColorToolbar(const QString& title, QWidget* parentObject = 0)
-    : Superclass(title, parentObject)
-  {
-    this->constructor();
-  }
-  vvColorToolbar(QWidget* parentObject = 0)
-    : Superclass(parentObject)
-  {
-    this->constructor();
-  }
+  new pqScalarBarVisibilityReaction(ui.actionScalarBarVisibility);
+  new pqEditColorMapReaction(ui.actionEditColorMap);
+  new pqResetScalarRangeReaction(ui.actionResetRange);
+  new pqResetScalarRangeReaction(ui.actionRescaleCustomRange, true, pqResetScalarRangeReaction::CUSTOM);
 
-private:
-  Q_DISABLE_COPY(vvColorToolbar)
+  pqDisplayColorWidget* display_color = new pqDisplayColorWidget(this) << pqSetName("displayColor");
+  this->addWidget(display_color);
 
-  void constructor();
-};
-
-#endif
+  QObject::connect(&pqActiveObjects::instance(),
+    SIGNAL(representationChanged(pqDataRepresentation*)), display_color,
+    SLOT(setRepresentation(pqDataRepresentation*)));
+}

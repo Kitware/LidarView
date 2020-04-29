@@ -29,7 +29,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vvPlayerControlsController.h"
+#include "lqPlayerControlsController.h"
 
 // ParaView Server Manager includes.
 #include "vtkSMIntRangeDomain.h"
@@ -64,7 +64,7 @@ void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int val
 }
 
 //-----------------------------------------------------------------------------
-vvPlayerControlsController::vvPlayerControlsController(QObject* _parent/*=null*/)
+lqPlayerControlsController::lqPlayerControlsController(QObject* _parent/*=null*/)
   : QObject(_parent),
     speed(1),
     duration(0)
@@ -75,17 +75,17 @@ vvPlayerControlsController::vvPlayerControlsController(QObject* _parent/*=null*/
 }
 
 //-----------------------------------------------------------------------------
-vvPlayerControlsController::~vvPlayerControlsController()
+lqPlayerControlsController::~lqPlayerControlsController()
 {
 }
 
 //-----------------------------------------------------------------------------
-pqAnimationScene *vvPlayerControlsController::getAnimationScene() {
+pqAnimationScene *lqPlayerControlsController::getAnimationScene() {
   return this->Scene.data();
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
+void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 {
   if (this->Scene == scene)
     {
@@ -117,7 +117,7 @@ void vvPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onTimeRangesChanged()
+void lqPlayerControlsController::onTimeRangesChanged()
 {
   if (this->Scene)
     {
@@ -128,7 +128,7 @@ void vvPlayerControlsController::onTimeRangesChanged()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onPlay()
+void lqPlayerControlsController::onPlay()
 {
   if (this->weAreLive())
   {
@@ -171,7 +171,7 @@ void vvPlayerControlsController::onPlay()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onTick()
+void lqPlayerControlsController::onTick()
 {
   // No need to explicitly update all views,
   // the animation scene proxy does it.
@@ -182,14 +182,14 @@ void vvPlayerControlsController::onTick()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onBeginPlay()
+void lqPlayerControlsController::onBeginPlay()
 {
   emit this->playing(true);
   emit this->beginNonUndoableChanges();
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onEndPlay()
+void lqPlayerControlsController::onEndPlay()
 {
   if (!this->weAreLive())
   {
@@ -200,7 +200,7 @@ void vvPlayerControlsController::onEndPlay()
 
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onLoopPropertyChanged()
+void lqPlayerControlsController::onLoopPropertyChanged()
 {
   vtkSMProxy* scene = this->Scene->getProxy();
   bool loop_checked = pqSMAdaptor::getElementProperty(
@@ -209,7 +209,7 @@ void vvPlayerControlsController::onLoopPropertyChanged()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onLoop(bool checked)
+void lqPlayerControlsController::onLoop(bool checked)
 {
   vtkSMProxy* scene = this->Scene->getProxy();
   pqSMAdaptor::setElementProperty(scene->GetProperty("Loop"),checked);
@@ -217,7 +217,7 @@ void vvPlayerControlsController::onLoop(bool checked)
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onPause()
+void lqPlayerControlsController::onPause()
 {
   if (this->weAreLive())
   {
@@ -237,7 +237,7 @@ void vvPlayerControlsController::onPause()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onFirstFrame()
+void lqPlayerControlsController::onFirstFrame()
 {
   emit this->beginNonUndoableChanges();
   this->Scene->getProxy()->InvokeCommand("GoToFirst");
@@ -248,7 +248,7 @@ void vvPlayerControlsController::onFirstFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onPreviousFrame()
+void lqPlayerControlsController::onPreviousFrame()
 {
   emit this->beginNonUndoableChanges();
   SetProperty(this->Scene, "PlayMode", 2);
@@ -260,7 +260,7 @@ void vvPlayerControlsController::onPreviousFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onNextFrame()
+void lqPlayerControlsController::onNextFrame()
 {
   emit this->beginNonUndoableChanges();
   SetProperty(this->Scene, "PlayMode", 2);
@@ -272,7 +272,7 @@ void vvPlayerControlsController::onNextFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onLastFrame()
+void lqPlayerControlsController::onLastFrame()
 {
   emit this->beginNonUndoableChanges();
   this->Scene->getProxy()->InvokeCommand("GoToLast");
@@ -283,7 +283,7 @@ void vvPlayerControlsController::onLastFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onSpeedChange(double speed)
+void lqPlayerControlsController::onSpeedChange(double speed)
 {
   this->speed = speed;
   this->onPause();
@@ -302,7 +302,7 @@ namespace
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onSourceAdded(pqPipelineSource* src)
+void lqPlayerControlsController::onSourceAdded(pqPipelineSource* src)
 {
   if (!sourceIsLive(src))
   {
@@ -321,7 +321,7 @@ void vvPlayerControlsController::onSourceAdded(pqPipelineSource* src)
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsController::onSourceRemoved(pqPipelineSource *src)
+void lqPlayerControlsController::onSourceRemoved(pqPipelineSource *src)
 {
   if (!sourceIsLive(src))
   {
@@ -336,7 +336,7 @@ void vvPlayerControlsController::onSourceRemoved(pqPipelineSource *src)
   QApplication::processEvents();
 }
 
-bool vvPlayerControlsController::weAreLive()
+bool lqPlayerControlsController::weAreLive()
 {
   return this->liveSourceCount > 0;
 }

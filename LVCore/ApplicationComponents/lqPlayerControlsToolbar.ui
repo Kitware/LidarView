@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>vvPlayerControlsToolbar</class>
- <widget class="QToolBar" name="vvPlayerControlsToolbar">
+ <class>lqPlayerControlsToolbar</class>
+ <widget class="QToolBar" name="lqPlayerControlsToolbar">
   <property name="geometry">
    <rect>
     <x>0</x>

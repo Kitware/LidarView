@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>vvColorToolbar</class>
+ <class>lqColorToolbar</class>
   <widget class="QToolBar" name="variableToolbar" >
    <property name="windowTitle" >
     <string>Active Variable Controls</string>

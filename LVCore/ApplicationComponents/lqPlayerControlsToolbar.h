@@ -29,27 +29,27 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#ifndef VVPLAYERCONTROLSTOOLBAR_H
-#define VVPLAYERCONTROLSTOOLBAR_H
+#ifndef LQPLAYERCONTROLSTOOLBAR_H
+#define LQPLAYERCONTROLSTOOLBAR_H
 
 #include <QToolBar>
 
 #include "lqapplicationcomponents_export.h"
 
-class vvPlayerControlsController;
+class lqPlayerControlsController;
 class pqAnimationScene;
 class vtkSMProxy;
 
 /// This class is a mixed of pqVCRToolbar and pqTimAnimationWidget
 ///
-class LQAPPLICATIONCOMPONENTS_EXPORT vvPlayerControlsToolbar : public QToolBar
+class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsToolbar : public QToolBar
 {
   Q_OBJECT
   Q_PROPERTY(double timeValue READ timeValue WRITE setTimeValue NOTIFY timeValueChanged)
   Q_PROPERTY(int timeStepCount READ timeStepCount WRITE setTimeStepCount)
 public:
-  vvPlayerControlsToolbar(QWidget* parentObject=0);
-  ~vvPlayerControlsToolbar();
+  lqPlayerControlsToolbar(QWidget* parentObject=0);
+  ~lqPlayerControlsToolbar();
 
 public slots:
   /// Get/set the current time value.
@@ -75,14 +75,14 @@ signals:
   void timeValueChanged();
 
 private:
-  Q_DISABLE_COPY(vvPlayerControlsToolbar)
+  Q_DISABLE_COPY(lqPlayerControlsToolbar)
 
   void constructor();
   vtkSMProxy* timeKeeper() const;
   class pqInternals;
   pqInternals* UI;
 
-  vvPlayerControlsController* Controller;
+  lqPlayerControlsController* Controller;
 };
 
-#endif // VVPLAYERCONTROLSTOOLBAR_H
+#endif // LQPLAYERCONTROLSTOOLBAR_H

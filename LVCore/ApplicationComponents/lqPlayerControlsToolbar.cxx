@@ -29,9 +29,9 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#include "vvPlayerControlsToolbar.h"
+#include "lqPlayerControlsToolbar.h"
 
-#include "ui_vvPlayerControlsToolbar.h"
+#include "ui_lqPlayerControlsToolbar.h"
 
 #include <limits>
 
@@ -50,7 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqAnimationManager.h"
 #include <pqAnimationTimeWidget.h>
 
-#include "vvPlayerControlsController.h"
+#include "lqPlayerControlsController.h"
 #include "pqAnimationScene.h"
 #include <vtkSMProxy.h>
 #include <vtkSMProperty.h>
@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkSMTimeKeeperProxy.h>
 #include <pqPropertyLinks.h>
 
-class vvPlayerControlsToolbar::pqInternals : public Ui::vvPlayerControlsToolbar
+class lqPlayerControlsToolbar::pqInternals : public Ui::lqPlayerControlsToolbar
 {
 public:
   pqPropertyLinks Links;
@@ -75,11 +75,11 @@ public:
 namespace
 {
   /// Used to link the number of elements in a sm-property to the qt widget.
-  class vvPlayerControlsToolbarLinks : public pqPropertyLinksConnection
+  class lqPlayerControlsToolbarLinks : public pqPropertyLinksConnection
   {
   typedef pqPropertyLinksConnection Superclass;
 public:
-  vvPlayerControlsToolbarLinks(
+  lqPlayerControlsToolbarLinks(
     QObject* qobject, const char* qproperty, const char* qsignal,
     vtkSMProxy* smproxy, vtkSMProperty* smproperty, int smindex,
     bool use_unchecked_modified_event,
@@ -89,7 +89,7 @@ public:
       use_unchecked_modified_event, parentObject)
     {
     }
-  virtual ~vvPlayerControlsToolbarLinks()
+  virtual ~lqPlayerControlsToolbarLinks()
     {
     }
 
@@ -103,19 +103,19 @@ protected:
     }
 
 private:
-  Q_DISABLE_COPY(vvPlayerControlsToolbarLinks);
+  Q_DISABLE_COPY(lqPlayerControlsToolbarLinks);
   };
 }
 
 //-----------------------------------------------------------------------------
-vvPlayerControlsToolbar::vvPlayerControlsToolbar(QWidget* parentObject)
+lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   : QToolBar(parentObject)
 {
   this->UI = new pqInternals();
-  Ui::vvPlayerControlsToolbar &ui = *this->UI;
+  Ui::lqPlayerControlsToolbar &ui = *this->UI;
   ui.setupUi(this);
 
-  vvPlayerControlsController* controller = new vvPlayerControlsController(this);
+  lqPlayerControlsController* controller = new lqPlayerControlsController(this);
   this->Controller = controller;
 
   this->connect(pqPVApplicationCore::instance()->animationManager(),
@@ -241,7 +241,7 @@ vvPlayerControlsToolbar::vvPlayerControlsToolbar(QWidget* parentObject)
 }
 
 //-----------------------------------------------------------------------------
-vvPlayerControlsToolbar::~vvPlayerControlsToolbar()
+lqPlayerControlsToolbar::~lqPlayerControlsToolbar()
 {
   delete this->UI;
   delete this->Controller;
@@ -249,7 +249,7 @@ vvPlayerControlsToolbar::~vvPlayerControlsToolbar()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::onPlaying(bool playing)
+void lqPlayerControlsToolbar::onPlaying(bool playing)
 {
   this->UI->isPlaying = playing;
   if(playing)
@@ -278,7 +278,7 @@ void vvPlayerControlsToolbar::onPlaying(bool playing)
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::onSpeedChanged()
+void lqPlayerControlsToolbar::onSpeedChanged()
 {
   for (int i = 0; i < this->UI->speedFactor.size(); ++i)
   {
@@ -291,12 +291,12 @@ void vvPlayerControlsToolbar::onSpeedChanged()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
+void lqPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
 {
   this->UI->Links.clear();
   this->Controller->setAnimationScene(scene);
 
-  this->UI->Links.addPropertyLink<vvPlayerControlsToolbarLinks>(
+  this->UI->Links.addPropertyLink<lqPlayerControlsToolbarLinks>(
     this, "timeStepCount", SIGNAL(dummySignal()),
     this->timeKeeper(), this->timeKeeper()->GetProperty("TimestepValues"));
   this->UI->Links.addPropertyLink(
@@ -305,7 +305,7 @@ void vvPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::setTimeValue(double value)
+void lqPlayerControlsToolbar::setTimeValue(double value)
 {
   this->UI->timeSpinBox->blockSignals(true);
   this->UI->timeSpinBox->setValue(value);
@@ -325,13 +325,13 @@ void vvPlayerControlsToolbar::setTimeValue(double value)
 }
 
 //-----------------------------------------------------------------------------
-double vvPlayerControlsToolbar::timeValue() const
+double lqPlayerControlsToolbar::timeValue() const
 {
   return this->UI->timeSpinBox->value();
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::setTimeStepCount(int value)
+void lqPlayerControlsToolbar::setTimeStepCount(int value)
 {
   this->setTimeValue(0);
   this->UI->frameQSpinBox->setMaximum(value > 0? value -1 : 0);
@@ -347,13 +347,13 @@ void vvPlayerControlsToolbar::setTimeStepCount(int value)
 }
 
 //-----------------------------------------------------------------------------
-int vvPlayerControlsToolbar::timeStepCount() const
+int lqPlayerControlsToolbar::timeStepCount() const
 {
   return this->UI->frameQSpinBox->maximum();
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::PressSlider()
+void lqPlayerControlsToolbar::PressSlider()
 {
   if (this->UI->isPlaying)
   {
@@ -367,7 +367,7 @@ void vvPlayerControlsToolbar::PressSlider()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::ReleaseSlider()
+void lqPlayerControlsToolbar::ReleaseSlider()
 {
   if (this->UI->ContinuePlaying)
   {
@@ -376,20 +376,20 @@ void vvPlayerControlsToolbar::ReleaseSlider()
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::setTimeStep(int value)
+void lqPlayerControlsToolbar::setTimeStep(int value)
 {
   double time = this->Controller->getAnimationScene()->getTimeSteps()[value];
   this->Controller->getAnimationScene()->setAnimationTime(time);
 }
 
 //-----------------------------------------------------------------------------
-vtkSMProxy* vvPlayerControlsToolbar::timeKeeper() const
+vtkSMProxy* lqPlayerControlsToolbar::timeKeeper() const
 {
   return vtkSMPropertyHelper(this->Controller->getAnimationScene()->getProxy(), "TimeKeeper").GetAsProxy();
 }
 
 //-----------------------------------------------------------------------------
-void vvPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
+void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
 {
   bool enableFullUI = !liveModeEnabled;
   this->UI->actionFirstFrame->setEnabled(enableFullUI);
