@@ -206,7 +206,7 @@ void vtkStream::EnqueuePacket(NetworkPacket* packet)
     packet2 = new NetworkPacket(*packet);
     this->WriterThread->Enqueue(packet2);
   }
-  assert(this->Consumer && "The receiver thread should be started before the consumer one");
+  assert(this->ConsumerThread && "The receiver thread should be started before the consumer one");
   this->ConsumerThread->Enqueue(packet);
 }
 
