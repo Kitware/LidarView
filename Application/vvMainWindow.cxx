@@ -27,7 +27,7 @@
 
 #include "vvMainWindow.h"
 #include "ui_vvMainWindow.h"
-#include "lvSpreadSheetManager.h"
+#include "lqSpreadSheetManager.h"
 #include "vvLoadDataReaction.h"
 
 #include <vtkSMProxyManager.h>
@@ -69,7 +69,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "vvPlayerControlsToolbar.h"
+#include "lqPlayerControlsToolbar.h"
 
 // Declare the plugin to load.
 PV_PLUGIN_IMPORT_INIT(LidarPlugin);
@@ -82,7 +82,7 @@ public:
   pqInternals(vvMainWindow* window)
     : Ui()
     , MainView(0)
-    , SpreadSheetManager(new lvSpreadSheetManager(window))
+    , SpreadSheetManager(new lqSpreadSheetManager(window))
   {
     this->Ui.setupUi(window);
     this->paraviewInit(window);
@@ -96,7 +96,7 @@ public:
   pqRenderView* MainView = nullptr;
   pqServer* Server = nullptr;
   pqObjectBuilder* Builder = nullptr;
-  lvSpreadSheetManager* SpreadSheetManager = nullptr;
+  lqSpreadSheetManager* SpreadSheetManager = nullptr;
 
 private:
   void paraviewInit(vvMainWindow* window)
@@ -104,7 +104,7 @@ private:
     pqApplicationCore* core = pqApplicationCore::instance();
 
     // need to be created before the first scene
-    QToolBar* vcrToolbar = new vvPlayerControlsToolbar(window)
+    QToolBar* vcrToolbar = new lqPlayerControlsToolbar(window)
       << pqSetName("Player Control");
     window->addToolBar(Qt::TopToolBarArea, vcrToolbar);
 
