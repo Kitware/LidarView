@@ -2,12 +2,12 @@
 
 Instructions on how to generate LidarView animations with Python.
 
--   **temporal animations** are animations that depend on the data. They increment the pipeline time at each step and require providing a trajectory input which is used to move the camera reference at each step. For this reason, the only supported animation mode is "Snap To Timesteps". THe script **example_temporal_animation.py** provides an exemple of how to use it.
+-   **temporal animations** are animations that depend on the data flow. They increment the pipeline time at each step and require providing a trajectory input which is used to move the camera reference at each step. For this reason, the only supported animation mode is "Snap To Timesteps". The script **example_temporal_animation.py** provides an exemple of how to use it.
 
--   **non-temporal animations** are simpler animations, moving the camera but not updating the pipeline time.
-It also works on non-temporal data. The script **example_non_temporal_animation.py** provides an example of how to use it.
+-   **non-temporal animations** are simpler animations, moving the camera but not updating the pipeline time. The camera moves in a "frozen" version of the data.
+This kind of animation works on both data with and without timesteps. The script **example_non_temporal_animation.py** provides an example of how to use it.
 
-This file focuses on **temporal animations**. Non-temporal animations make use of the same CameraPaths objects but require less work (hence understanding how temporal animations work should make it easy to use non-temporal ones).
+This README file focuses on **temporal animations**. Non-temporal animations make use of the same CameraPaths objects but require less work (hence understanding how temporal animations work should make it easy to use non-temporal ones).
 
 This file contains:
 - Software requirements (pyhon modules)
@@ -19,23 +19,23 @@ This file contains:
 
 In order to use temporal animations, (ie. for camera paths depending on a trajectory),
 `scipy` must be installed on the python used by LidarView.
-
+(run `pip install scipy` on Linux or Osx)
 
 ## Relevant modules
 
 ### lib/camera_path.py
 
 This module contains the classes which define basic camera paths. Currently, the following types of camera are implemented:
-  - first person view: the scene is viewed from the current point in the trajectory,
-  - third person view: the scene is viewed from a constant point relative to the vehicle (ie. to the trajectory),
-  - fixed position view: the scene is viewed from a constant point in the scene reference, fixed compared to the background,
-  - absolute orbit: the scene is viewed following an orbit around a point of the scene reference,
-  - relative orbit: the scene is viewed following an orbit around the car in the car reference.
+  - Views that are defined in the scene reference:
+    - fixed position view: the scene is viewed from a constant point in the scene reference, fixed compared to the background,
+    - absolute orbit: the scene is viewed following an orbit around a point of the scene reference,
+  - Views that are defined in the car/lidar reference:
+    - first person view: the scene is viewed from the vehicle (ie. the current point in the trajectory),
+    - third person view: the scene is viewed from a constant point relative to the vehicle (ie. to the trajectory),
+    - relative orbit: the scene is viewed following an orbit around the vehicle in its reference (ie. around the current point of the trajectory)
 
 ### lib/temporal_animation_cue_helpers.py
 This module contains helper functions in order to create temporal animation scripts to use with `smp.PythonAnimationCue()`
-
-When setting up a `smp.PythonAnimationCue()`, one must provide a python script containing the following methods as shown in [this doc](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimating):
 
 ```python
 import paraview.simple as smp
@@ -51,6 +51,10 @@ def end_cue(self):
     """Function callerd at the end of the animation """
     ...
 ```
+
+The smp.PythonAnimationCue() object requires this python script to be manually copy/pasted to the LidarView interface or provided as its animation.Script property (as a string).
+Check [this doc](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimating) for reference
+
 
 This module provides tools to help defining such methods in the case of temporal data following
 a trajectory (see documentation in that file for more details).
@@ -76,7 +80,7 @@ The usage of `PythonAnimationCue` is explained further down in this file.
 - `tick`
 - `end_cue`
 
-Some of the module paramters can/must be overridden to correspond to your actual setup:
+Some of the module parameters can/must be overridden to correspond to your actual setup:
 - `trajectory_name`: the name of the element of the pipeline that serves for trajectory
 (it must contain `Time` and `Orientation(AxisAngle)` for each point)
 - `cp.R_cam_to_lidar`: the rotation between the lidar reference and the camera reference, see below for more details on how to set it. (it is actually a parameter of camera_path)
@@ -86,9 +90,9 @@ the 3D model to place at the current trajectory point for each frame.
 
 
 #### `start_cue_generic_setup`
-This method runs generic setup steps at cue start
-It is intended to be run inside a `start_cue` before the camera definition
-step.
+
+This method runs generic setup steps at cue start.
+It is intended to be run inside a `start_cue` before the camera definition step.
 
 The different steps it runs are:
 - getting the trajectory
