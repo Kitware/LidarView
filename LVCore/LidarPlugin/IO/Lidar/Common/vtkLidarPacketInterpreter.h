@@ -275,7 +275,7 @@ protected:
   //! all distances are in meters and all angles are in degrees
   double CropRegion[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-  bool EnableAdvancedArrays = true;
+  bool EnableAdvancedArrays = false;
 
   vtkLidarPacketInterpreter() = default;
   virtual ~vtkLidarPacketInterpreter() = default;
