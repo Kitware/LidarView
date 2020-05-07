@@ -3,11 +3,13 @@
 
 #include "pqReaction.h"
 
+#include "lqapplicationcomponents_export.h"
+
 /**
 * @ingroup Reactions
 * Reaction to record stream data in a pcap file
 */
-class lqStreamRecordReaction : public pqReaction
+class LQAPPLICATIONCOMPONENTS_EXPORT lqStreamRecordReaction : public pqReaction
 {
     Q_OBJECT
     typedef pqReaction Superclass;
