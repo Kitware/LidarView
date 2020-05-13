@@ -15,6 +15,12 @@ PacketConsumer::PacketConsumer(vtkStream* stream)
 }
 
 //----------------------------------------------------------------------------
+PacketConsumer::~PacketConsumer()
+{
+  this->Stop();
+}
+
+//----------------------------------------------------------------------------
 void PacketConsumer::HandleSensorData(const unsigned char *data, unsigned int length)
 {
   if (!this->Stream->GetInterpreter()->IsValidPacket(data, length))

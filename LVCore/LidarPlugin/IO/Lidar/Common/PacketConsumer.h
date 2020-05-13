@@ -28,6 +28,7 @@ class PacketConsumer
 {
 public:
   PacketConsumer(vtkStream * stream);
+  ~PacketConsumer();
 
   void HandleSensorData(const unsigned char* data, unsigned int length);
 
