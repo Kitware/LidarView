@@ -39,6 +39,7 @@ public:
 
   static void StartRecording(const std::string& filename);
   static void StopRecording();
+  static bool IsRecording();
 
   vtkGetMacro(ListeningPort, int)
   void SetListeningPort(int);

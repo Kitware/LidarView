@@ -198,6 +198,12 @@ void vtkStream::StopRecording()
 }
 
 //-----------------------------------------------------------------------------
+bool vtkStream::IsRecording()
+{
+  return vtkStream::WriterThread ? true : false;
+}
+
+//-----------------------------------------------------------------------------
 void vtkStream::EnqueuePacket(NetworkPacket* packet)
 {
   NetworkPacket* packet2 = nullptr;

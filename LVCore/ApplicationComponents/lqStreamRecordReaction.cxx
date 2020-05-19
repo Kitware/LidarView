@@ -10,19 +10,52 @@
 
 #include "lqStreamRecordDialog.h"
 #include "vtkLidarStream.h"
+
+namespace {
+bool isStream(pqPipelineSource* src)
+{
+  return ( src != nullptr
+            && src->getProxy() != nullptr
+            && src->getProxy()->GetClientSideObject()->IsA("vtkLidarStream"));
+}
+
+bool isLastStream(pqPipelineSource* src)
+{
+  if (!isStream(src)) return false;
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    if (isStream(src))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+}
+
 //-----------------------------------------------------------------------------
 lqStreamRecordReaction::lqStreamRecordReaction(QAction *action)
   : Superclass(action)
 {
+  this->parentAction()->setEnabled(false);
+  auto* core = pqApplicationCore::instance();
+
+  pqServerManagerModel* smmodel = core->getServerManagerModel();
+  this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
+  this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
+
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+    this->onSourceAdded(src);
+
 }
 
 //-----------------------------------------------------------------------------
 void lqStreamRecordReaction::onTriggered()
 {
-  if (this->isRecording)
+  if (vtkStream::IsRecording())
   {
     vtkStream::StopRecording();
-    this->isRecording = false;
     this->parentAction()->setToolTip("Start Recording Stream Data");
   }
   else
@@ -38,7 +71,6 @@ void lqStreamRecordReaction::onTriggered()
       auto* tmp = dynamic_cast<vtkLidarStream*> (src->getProxy()->GetClientSideObject());
       if (tmp)
       {
-        this->isRecording = true;
         lidarName = src->getSMName();
         lidar = tmp;
         break;
@@ -58,5 +90,21 @@ void lqStreamRecordReaction::onTriggered()
     }
   }
 }
+
+//-----------------------------------------------------------------------------
+void lqStreamRecordReaction::onSourceAdded(pqPipelineSource *src)
+{
+  if (!this->parentAction()->isEnabled() && isStream(src))
+  {
+    this->parentAction()->setEnabled(true);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqStreamRecordReaction::onSourceRemoved(pqPipelineSource *src)
+{
+  if (this->parentAction()->isEnabled() && isLastStream(src))
+  {
+    this->parentAction()->setEnabled(false);
   }
 }

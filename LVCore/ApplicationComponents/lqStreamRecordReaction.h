@@ -5,6 +5,7 @@
 
 #include "lqapplicationcomponents_export.h"
 
+class pqPipelineSource;
 /**
 * @ingroup Reactions
 * Reaction to record stream data in a pcap file
@@ -21,12 +22,17 @@ public slots:
   /**
   * Called when the action is triggered.
   */
-  void actionTriggered();
+  void onTriggered() override;
+
+  /**
+   * Monitor the added/deleted source to enable/disable the QAction
+   */
+  void onSourceAdded(pqPipelineSource* src);
+  void onSourceRemoved(pqPipelineSource* src);
+
 
 private:
   Q_DISABLE_COPY(lqStreamRecordReaction)
-
-  bool isRecording = false;
 };
 
 #endif // LQSTREAMRECORDREACTION_H
