@@ -22,6 +22,8 @@ add_library(lqApplicationComponents
   lqPlayerControlsController.h
   lqSpreadSheetManager.cxx
   lqSpreadSheetManager.h
+  lqStreamRecordDialog.cxx
+  lqStreamRecordDialog.h
   lqStreamRecordReaction.cxx
   lqStreamRecordReaction.h
   )
