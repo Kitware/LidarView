@@ -111,12 +111,8 @@ endif(ENABLE_pcl)
 set(Boost_USE_MULTITHREADED ON)
 # the expected behavior of find_package when  used wiht REQUIRED and OPTIONAL_COMPONENTS
 # it not the one expected, as it also required the optional component...
-find_package(Boost REQUIRED COMPONENTS system thread chrono regex date_time filesystem program_options iostreams)
+find_package(Boost REQUIRED COMPONENTS system thread filesystem program_options)
 include_directories(${SYSTEM_OPTION} ${Boost_INCLUDE_DIRS})
-set(ALL_BOOST_LIBRARIES ${Boost_LIBRARIES})
-find_package(Boost OPTIONAL_COMPONENTS atomic timer)
-include_directories(${SYSTEM_OPTION} ${Boost_INCLUDE_DIRS})
-list(APPEND ALL_BOOST_LIBRARIES ${Boost_LIBRARIES})
 
 #--------------------------------------
 # Ceres dependency
@@ -356,7 +352,7 @@ endif(PCL_FOUND AND Ceres_FOUND AND OpenCV_FOUND)
 list(APPEND deps
   ${PCAP_LIBRARY}
   ${liblas_LIBRARY}
-  ${ALL_BOOST_LIBRARIES}
+  ${Boost_LIBRARIES}
   "vtkIOInfovis" # https://public.kitware.com/pipermail/paraview/2016-January/036010.html
   ${vtklibproj4_LIBRARIES}
   ${PCL_LIBRARIES}
@@ -452,14 +448,14 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
 target_include_directories(PacketFileSender PRIVATE Common/Network)
-target_link_libraries(PacketFileSender LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+target_link_libraries(PacketFileSender LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
 if(WIN32)
   target_compile_definitions(PacketFileSender PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(WIN32)
 
 #add_executable(PCAPTester StandAloneTools/PCAPTester.cxx)
 #target_include_directories(LidarPlugin PRIVATE ${plugin_include_dirs})
-#target_link_libraries(PCAPTester LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+#target_link_libraries(PCAPTester LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
 #if(WIN32)
 #  target_compile_definitions(PCAPTester PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 #endif(WIN32)
@@ -470,14 +466,14 @@ endif(WIN32)
 if (OpenCV_FOUND AND PCL_FOUND)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
   target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
-  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
   if(WIN32)
     target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
 
   add_executable(LabelCloudFromImagesDetections StandAloneTools/LabelCloudFromImagesDetections.cxx)
   target_include_directories(LabelCloudFromImagesDetections PRIVATE ${plugin_include_dirs})
-  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
   if(WIN32)
     target_compile_definitions(LabelCloudFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
@@ -487,7 +483,7 @@ endif (OpenCV_FOUND AND PCL_FOUND)
 if (OpenCV_FOUND AND PCL_FOUND AND nanoflann_FOUND)
   add_executable(PostProcessLabelCloud StandAloneTools/PostProcessLabelCloud.cxx)
   target_include_directories(PostProcessLabelCloud PRIVATE ${plugin_include_dirs})
-  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
   if(WIN32)
     target_compile_definitions(PostProcessLabelCloud PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
   endif(WIN32)
