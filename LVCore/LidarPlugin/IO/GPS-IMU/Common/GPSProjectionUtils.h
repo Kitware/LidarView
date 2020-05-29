@@ -19,7 +19,7 @@
 #define GPSPROJECTIONUTILS_H
 
 #include <string>
-#include <vtk_libproj4.h>
+#include <vtk_libproj.h>
 
 #include "lidarplugin_export.h"
 

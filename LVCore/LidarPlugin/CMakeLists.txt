@@ -45,7 +45,11 @@ else(ParaView_SOURCE_DIR)
   include(${PARAVIEW_USE_FILE})
 
 endif(ParaView_SOURCE_DIR)
-vtk_module_load(vtklibproj4)
+
+#--------------------------------------
+# vtklibproj module
+#--------------------------------------
+vtk_module_load(vtklibproj)
 
 
 #--------------------------------------
@@ -354,7 +358,7 @@ list(APPEND deps
   ${liblas_LIBRARY}
   ${Boost_LIBRARIES}
   "vtkIOInfovis" # https://public.kitware.com/pipermail/paraview/2016-January/036010.html
-  ${vtklibproj4_LIBRARIES}
+  ${vtklibproj_LIBRARIES}
   ${PCL_LIBRARIES}
   ${CERES_LIBRARIES}
   ${OpenCV_LIBRARIES}
@@ -367,7 +371,7 @@ set(plugin_include_dirs
   ${PCAP_INCLUDE_DIR}
   ${EIGEN_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${vtklibproj4_INCLUDE_DIRS}
+  ${vtklibproj_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Common
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/ML

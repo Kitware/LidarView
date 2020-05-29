@@ -33,7 +33,7 @@
 #define __vtkLASFileWriter_h
 
 #include <vtkSystemIncludes.h>
-#include <vtk_libproj4.h>
+#include <vtk_libproj.h>
 
 #include <liblas/liblas.hpp>
 
