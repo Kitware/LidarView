@@ -198,10 +198,11 @@ workflow:
   variables:
     # on windows due to the max command length, superbuild and project directory names should be short
     # this is why PROJECT_ID is used instead of PROJECT_NAME
-    GIT_CLONE_PATH: C:\\S\$CI_PROJECT_ID # Gitlab defined variable
-    superbuild_build_dir: /SB/$CI_PROJECT_ID
-    lidarview_build_dir: /SB/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
-    vcvarsall_script_location: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\'
+    # Gitlab doesn't handle well all path notation on windows and force the clone path to start with C:\\
+    GIT_CLONE_PATH: C:\\S/$CI_PROJECT_ID
+    superbuild_build_dir: C:/SB/$CI_PROJECT_ID
+    lidarview_build_dir: C:/SB/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
+    vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC'
     architecture: x86_amd64
     sb_cmake_option_GENERATOR: -GNinja
     sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
