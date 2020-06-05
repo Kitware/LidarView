@@ -1,7 +1,7 @@
 #ifndef KALMANFILTER_H
 #define KALMANFILTER_H
 
-#include <math.h>
+#define M_PI 3.14159265358979323846   // pi
 
 #include <Eigen/Dense>
 
