@@ -22,7 +22,6 @@
 #include "PacketConsumer.h"
 #include "PacketFileWriter.h"
 #include "PacketReceiver.h"
-#include "vtkInterpreter.h"
 
 std::unique_ptr<PacketFileWriter> vtkStream::WriterThread = nullptr;
 
@@ -145,7 +144,7 @@ bool vtkStream::GetNeedsUpdate()
 //----------------------------------------------------------------------------
 void vtkStream::Start()
 {
-  if (!this->GetInterpreter())
+  if (!this->Interpreter)
   {
     vtkErrorMacro("no interpreter is set")
     return;
@@ -171,7 +170,7 @@ void vtkStream::Start()
   {
     this->ReceiverThread->EnableCrashAnalysing(GetCrashAnalysingFileName(), 5000);
   }
-  this->ReceiverThread->SetFakeManufacturerMACAddress(this->GetInterpreter()->GetManufacturerMACAddress());
+  this->ReceiverThread->SetFakeManufacturerMACAddress(this->Interpreter->GetManufacturerMACAddress());
   this->ReceiverThread->Start();
 }
 

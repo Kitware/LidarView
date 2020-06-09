@@ -31,12 +31,6 @@ public:
   static vtkPositionOrientationStream* New();
   vtkTypeMacro(vtkPositionOrientationStream, vtkStream)
 
-  vtkGetObjectMacro(PositionOrientationInterpreter, vtkPositionOrientationPacketInterpreter)
-  vtkSetObjectMacro(PositionOrientationInterpreter, vtkPositionOrientationPacketInterpreter)
-
-  vtkSmartPointer<vtkInterpreter> GetInterpreter() override;
-  void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) override;
-
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   void AddNewData() override;
@@ -44,6 +38,9 @@ public:
   void ClearAllDataAvailable() override;
 
   int CheckForNewData() override;
+
+  vtkPositionOrientationPacketInterpreter* GetPosOrInterpreter();
+  void SetPosOrInterpreter(vtkPositionOrientationPacketInterpreter* interpreter);
 
 protected:
   vtkPositionOrientationStream();
@@ -60,8 +57,6 @@ private:
   vtkSmartPointer<vtkPolyData> AllPositionsOrientation;
 
   vtkSmartPointer<vtkTable> AllRawInformation;
-
-  vtkSmartPointer<vtkPositionOrientationPacketInterpreter> PositionOrientationInterpreter;
 
   unsigned int LastNumberPositionOrientationInformation;
 

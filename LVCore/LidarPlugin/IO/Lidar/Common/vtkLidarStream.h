@@ -45,12 +45,6 @@ public:
    */
   void SetDummyProperty(int);
 
-  /**
-   * @copydoc vtkLidarPacketInterpreter
-   */
-  vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter)
-  vtkSetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter)
-
   vtkGetMacro(DetectFrameDropping, bool)
   vtkSetMacro(DetectFrameDropping, bool)
 
@@ -62,10 +56,10 @@ public:
 
   int CheckForNewData() override;
 
-  vtkSmartPointer<vtkInterpreter> GetInterpreter() override;
-  void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) override;
-
   void Start() override;
+
+  vtkLidarPacketInterpreter* GetLidarInterpreter();
+  void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
 
   // Old fonction of vtkLidarStream : deprecated
   // Replace by non lidar/gps specific function because all stream are separated
@@ -112,9 +106,6 @@ protected:
 
   //! Last Frame processed, this is important if we want to detect frame dropping
   int LastFrameProcessed = 0;
-
-  //! Interpret the packet to create a frame, all the magic happen here
-  vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter = nullptr;
 
   //! The calibrationFileName to used and set to the Interpreter once one has been set
   std::string CalibrationFileName = "";

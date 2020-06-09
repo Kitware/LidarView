@@ -45,7 +45,7 @@ int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
 //-----------------------------------------------------------------------------
 std::string vtkLidarStream::GetSensorInformation()
 {
-  return this->LidarInterpreter->GetSensorInformation();
+  return this->GetLidarInterpreter()->GetSensorInformation();
 }
 
 //-----------------------------------------------------------------------------
@@ -85,9 +85,9 @@ void vtkLidarStream::SetDummyProperty(int)
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkLidarStream::GetMTime()
 {
-  if (this->LidarInterpreter)
+  if (this->GetLidarInterpreter())
   {
-    return std::max(this->Superclass::GetMTime(), this->LidarInterpreter->GetMTime());
+    return std::max(this->Superclass::GetMTime(), this->GetLidarInterpreter()->GetMTime());
   }
   return this->Superclass::GetMTime();
 }
@@ -109,16 +109,16 @@ vtkLidarStream::~vtkLidarStream()
 //-----------------------------------------------------------------------------
 int vtkLidarStream::Calibrate()
 {
-  if (!this->LidarInterpreter)
+  if (!this->GetLidarInterpreter())
   {
     vtkErrorMacro("No packet interpreter selected.");
   }
 
   // load the calibration file only now to allow to set it before the interpreter.
-  if (this->LidarInterpreter->GetCalibrationFileName() != this->CalibrationFileName)
+  if (this->GetLidarInterpreter()->GetCalibrationFileName() != this->CalibrationFileName)
   {
-    this->LidarInterpreter->SetCalibrationFileName(this->CalibrationFileName);
-    this->LidarInterpreter->LoadCalibration(this->CalibrationFileName);
+    this->GetLidarInterpreter()->SetCalibrationFileName(this->CalibrationFileName);
+    this->GetLidarInterpreter()->LoadCalibration(this->CalibrationFileName);
   }
   return 1;
 }
@@ -155,7 +155,7 @@ int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkTable* calibration = vtkTable::GetData(outputVector,1);
-  calibration->ShallowCopy(this->LidarInterpreter->GetCalibrationTable());
+  calibration->ShallowCopy(this->GetLidarInterpreter()->GetCalibrationTable());
 
   return 1;
 }
@@ -170,7 +170,7 @@ void vtkLidarStream::Start()
 //----------------------------------------------------------------------------
 void vtkLidarStream::AddNewData()
 {
-  vtkSmartPointer<vtkPolyData> LastFrame = this->LidarInterpreter->GetLastFrameAvailable();
+  vtkSmartPointer<vtkPolyData> LastFrame = this->GetLidarInterpreter()->GetLastFrameAvailable();
   this->Frames.push_back(LastFrame);
 
   // This prevents accumulating frames forever when "Pause" is toggled
@@ -190,7 +190,7 @@ void vtkLidarStream::AddNewData()
 //----------------------------------------------------------------------------
 void vtkLidarStream::ClearAllDataAvailable()
 {
-  this->LidarInterpreter->ClearAllFramesAvailable();
+  this->GetLidarInterpreter()->ClearAllFramesAvailable();
 }
 
 //----------------------------------------------------------------------------
@@ -200,13 +200,13 @@ int vtkLidarStream::CheckForNewData()
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkInterpreter> vtkLidarStream::GetInterpreter()
+vtkLidarPacketInterpreter* vtkLidarStream::GetLidarInterpreter()
 {
-  return this->LidarInterpreter;
+  return vtkLidarPacketInterpreter::SafeDownCast(this->Interpreter);
 }
 
 //----------------------------------------------------------------------------
-void vtkLidarStream::SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter)
+void vtkLidarStream::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
-  this->LidarInterpreter = vtkLidarPacketInterpreter::SafeDownCast(interpreter);
+  this->Interpreter = interpreter;
 }

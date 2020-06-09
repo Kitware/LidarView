@@ -23,6 +23,8 @@
 #include <vtkDataObjectAlgorithm.h>
 #include <vtkSmartPointer.h>
 
+#include "vtkInterpreter.h"
+
 class NetworkPacket;
 class PacketConsumer;
 class PacketFileWriter;
@@ -62,6 +64,10 @@ public:
   vtkGetMacro(IsCrashAnalysing, bool)
   void SetIsCrashAnalysing(bool value);
 
+  vtkGetObjectMacro(Interpreter, vtkInterpreter)
+  [[deprecated("Please use specific setter : setLidarInterpreter() or SetPosOrInterpreter()")]]
+  vtkSetObjectMacro(Interpreter, vtkInterpreter)
+
   /**
    * @brief GetNeedsUpdate
    * @return true if a new data is ready
@@ -88,16 +94,6 @@ public:
   virtual int CheckForNewData() = 0;
 
   /**
-   * @brief GetInterpreter Get specific subclass interpreter
-   */
-  virtual vtkSmartPointer<vtkInterpreter> GetInterpreter() = 0;
-
-  /**
-   * @brief SetInterpreter Set specific subclass interpreter
-   */
-  virtual void SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter) = 0;
-
-  /**
    * @brief mutex to protect the data store in the Stream as they are filled
    * in one thread by the ConsumerThread, and accesed in another thread by the
    * RequestData.
@@ -122,6 +118,9 @@ protected:
   virtual int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) = 0;
+
+  //! Generic Interpreter
+  vtkSmartPointer<vtkInterpreter> Interpreter;
 
 private:
   vtkStream(const vtkStream&) = delete;

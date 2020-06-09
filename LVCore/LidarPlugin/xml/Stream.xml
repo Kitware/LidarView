@@ -204,7 +204,7 @@
          it can be place in a user friendly location in the generate GUI -->
     <ProxyProperty
       name="PositionOrientationPacketInterpreter"
-      command="SetPositionOrientationInterpreter"
+      command="SetPosOrInterpreter"
       label="Interpreter">
       <ProxyListDomain name="proxy_list">
         <Group name="PositionOrientationPacketInterpreter"/>

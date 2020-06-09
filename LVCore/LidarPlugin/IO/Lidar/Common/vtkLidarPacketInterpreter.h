@@ -184,7 +184,7 @@ public:
 
   vtkMTimeType GetMTime() override;
 
-protected: 
+protected:
   /**
    * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate some
    * space. No CellArray should be created as it can be create once the frame is ready.

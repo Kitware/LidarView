@@ -103,15 +103,15 @@ int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request
 //----------------------------------------------------------------------------
 void vtkPositionOrientationStream::AddNewData()
 {
-  if(this->PositionOrientationInterpreter->HasRawInformation())
+  if(this->GetPosOrInterpreter()->HasRawInformation())
   {
     if(this->AllRawInformation->GetNumberOfRows() == 0)
     {
-      this->AllRawInformation->DeepCopy(this->PositionOrientationInterpreter->GetRawInformation());
+      this->AllRawInformation->DeepCopy(this->GetPosOrInterpreter()->GetRawInformation());
       return;
     }
 
-    vtkSmartPointer<vtkTable> raw = this->PositionOrientationInterpreter->GetRawInformation();
+    vtkSmartPointer<vtkTable> raw = this->GetPosOrInterpreter()->GetRawInformation();
 
     for(int i = 0; i < raw->GetNumberOfRows(); i++)
     {
@@ -120,16 +120,16 @@ void vtkPositionOrientationStream::AddNewData()
     }
   }
 
-  if(this->PositionOrientationInterpreter->HasPositionOrientationInformation())
+  if(this->GetPosOrInterpreter()->HasPositionOrientationInformation())
   {
     if(this->AllPositionsOrientation->GetNumberOfPoints() == 0)
     {
-      this->AllPositionsOrientation->DeepCopy(this->PositionOrientationInterpreter->GetPositionOrientation());
+      this->AllPositionsOrientation->DeepCopy(this->GetPosOrInterpreter()->GetPositionOrientation());
       return;
     }
     // Copying the new Position Orientation information (points, rows, ...) presents in the interpreter
     // to the corresponding buffer
-    vtkSmartPointer<vtkPolyData> posOr = this->PositionOrientationInterpreter->GetPositionOrientation();
+    vtkSmartPointer<vtkPolyData> posOr = this->GetPosOrInterpreter()->GetPositionOrientation();
     vtkPoints* points = this->AllPositionsOrientation->GetPoints();
     for(vtkIdType i = 0; i < posOr->GetNumberOfPoints(); i++)
     {
@@ -157,7 +157,7 @@ void vtkPositionOrientationStream::AddNewData()
 //----------------------------------------------------------------------------
 void vtkPositionOrientationStream::ClearAllDataAvailable()
 {
-  this->PositionOrientationInterpreter->ResetCurrentData();
+  this->GetPosOrInterpreter()->ResetCurrentData();
 }
 
 //----------------------------------------------------------------------------
@@ -179,14 +179,14 @@ int vtkPositionOrientationStream::CheckForNewDataRawInformation()
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkInterpreter> vtkPositionOrientationStream::GetInterpreter()
+vtkPositionOrientationPacketInterpreter* vtkPositionOrientationStream::GetPosOrInterpreter()
 {
-  return this->PositionOrientationInterpreter;
+  return vtkPositionOrientationPacketInterpreter::SafeDownCast(this->Interpreter);
 }
 
 //----------------------------------------------------------------------------
-void vtkPositionOrientationStream::SetInterpreter(vtkSmartPointer<vtkInterpreter> interpreter)
+void vtkPositionOrientationStream::SetPosOrInterpreter(vtkPositionOrientationPacketInterpreter* interpreter)
 {
-  this->PositionOrientationInterpreter = vtkPositionOrientationPacketInterpreter::SafeDownCast(interpreter);
+  this->Interpreter = interpreter;
 }
 
