@@ -30,7 +30,7 @@ function(python_module_install)
                  @ONLY IMMEDIATE)
 
   add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python2_EXECUTABLE}
     ARGS  "${compile_all_script}"
     DEPENDS ${copied_python_files}  ${compile_all_script}
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_complete"
