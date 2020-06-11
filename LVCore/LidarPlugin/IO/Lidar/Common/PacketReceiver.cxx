@@ -181,7 +181,10 @@ void PacketReceiver::Start()
 void PacketReceiver::Stop()
 {
   std::cout << "Stop" << std::endl;
-  this->Socket.cancel();
+  // Instead off calling close, we would like to call cancel, as this enable to reusse the Socket.
+  // But cancel can be be silently ignored by the system as mention in the documentation
+  // https://www.boost.org/doc/libs/1_66_0/doc/html/boost_asio/reference/basic_stream_socket/cancel/overload1.html
+  this->Socket.close();
   if (this->Thread)
   {
     if (this->Thread->joinable())

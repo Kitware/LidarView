@@ -56,10 +56,17 @@ public:
   void EnableForwarding(int forwardport, const std::string& forwarddestinationIp);
 
   /**
-   * @brief Start StartReceive
+   * @brief Start Start to handle packets received on the already open socket.
+   *
+   * @warning Cannot start again once you call Stop().
    */
   void Start();
 
+  /**
+   * @brief Stop Stop and close the Socket, so no more packets are received.
+   *
+   * @warning Cannot call start after calling stop, as the socket is close and not only cancel.
+   */
   void Stop();
 
   /**
