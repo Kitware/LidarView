@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkPositionOrientationStream();
-  ~vtkPositionOrientationStream() = default;
+  ~vtkPositionOrientationStream() override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,

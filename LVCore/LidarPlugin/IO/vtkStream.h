@@ -111,7 +111,13 @@ public:
 
 protected:
   vtkStream();
-  ~vtkStream();
+  // WARNING: inheriting classes destructors must call Stop() on this base class
+  // because this base Stream class holds (and starts) the callback thread that
+  // call the packet consumer of the derived class.
+  // Forgetting to do so might let the callback thread "ConsumerThread" call
+  // the consumer function "AddNewData" after actual inherited class destruction,
+  // resulting in a pure virtual function call at runtime.
+  virtual ~vtkStream() = 0;
 
   virtual int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,

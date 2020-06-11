@@ -51,6 +51,13 @@ vtkPositionOrientationStream::vtkPositionOrientationStream()
 }
 
 //-----------------------------------------------------------------------------
+vtkPositionOrientationStream::~vtkPositionOrientationStream()
+{
+  // see the explanation about why this is needed in vtkStream::~vtkStream
+  this->Stop();
+}
+
+//-----------------------------------------------------------------------------
 int vtkPositionOrientationStream::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if ( port == 0 )

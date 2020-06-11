@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkLidarStream();
-  ~vtkLidarStream() = default;
+  ~vtkLidarStream() override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,

@@ -100,6 +100,13 @@ vtkLidarStream::vtkLidarStream()
 }
 
 //-----------------------------------------------------------------------------
+vtkLidarStream::~vtkLidarStream()
+{
+  // see the explanation about why this is needed in vtkStream::~vtkStream
+  this->Stop();
+}
+
+//-----------------------------------------------------------------------------
 int vtkLidarStream::Calibrate()
 {
   if (!this->LidarInterpreter)
