@@ -54,6 +54,9 @@ public:
    */
   vtkMTimeType GetMTime();
 
+  vtkGetMacro(ConversionFactorToSecond, double)
+  vtkSetMacro(ConversionFactorToSecond, double)
+
 protected:
   vtkTemporalTransformsApplier();
 
@@ -74,6 +77,10 @@ private:
 
   //! Interpolator used to get the right transform
   vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
+
+  //! double to convert time in second,
+  //! default is for data in microsecond
+  double ConversionFactorToSecond = 1e-6;
 
   vtkTemporalTransformsApplier(const vtkTemporalTransformsApplier&) /*= delete*/;
   void operator =(const vtkTemporalTransformsApplier&) /*= delete*/;

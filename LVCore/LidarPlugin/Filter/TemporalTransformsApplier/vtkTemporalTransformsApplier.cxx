@@ -108,7 +108,7 @@ int vtkTemporalTransformsApplier::RequestData(vtkInformation* vtkNotUsed(request
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
     {
       // get timestamp in seconds
-      double currentTimestamp = timestamp->GetTuple1(i) * 1e-6;
+      double currentTimestamp = timestamp->GetTuple1(i) * this->ConversionFactorToSecond;
 
       // get the right transform
       auto transform = vtkSmartPointer<vtkTransform>::New();

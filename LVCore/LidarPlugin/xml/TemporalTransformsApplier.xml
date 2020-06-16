@@ -95,6 +95,15 @@
       </Hints>
     </StringVectorProperty>
 
+    <DoubleVectorProperty name="ConversionFactorToSecond"
+                          command="SetConversionFactorToSecond"
+                          number_of_elements="1"
+                          default_values="1e-6">
+      <Documentation>
+        Double to convert Time unit in second, default is microsecond
+      </Documentation>
+    </DoubleVectorProperty>
+
    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
