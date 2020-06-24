@@ -67,7 +67,7 @@
                        default_values="1">
       <BooleanDomain name="bool"/>
       <Documentation>
-        If set, points with texture coordinates that are not in [0, 1[ are marked
+        If set, points with texture coordinates that are not between 0 (included) and 1 (exluded) are marked
         as invalid in the output.
       </Documentation>
     </IntVectorProperty>
