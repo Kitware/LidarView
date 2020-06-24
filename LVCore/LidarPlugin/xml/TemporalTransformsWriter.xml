@@ -27,6 +27,30 @@
         <Documentation>The path to the CSV formated file to write.</Documentation>
       </StringVectorProperty>
 
+      <StringVectorProperty name="SelectOrientationArrayName"
+                            label="OrientationArray"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;Orientation(AxisAngle)"
+                            animateable="0">
+        <ArrayListDomain name="array_list"
+                         attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input"
+                      function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+       <!-- In versions of ParaView greater than 5.6, the FieldDataDomain element is not needed. -->
+        <FieldDataDomain name="field_list">
+          <RequiredProperties>
+            <Property name="Input"
+                      function="Input" />
+          </RequiredProperties>
+        </FieldDataDomain>
+      </StringVectorProperty>
+
       <Hints>
         <Property name="Input" show="0"/>
         <Property name="FileName" show="0"/>

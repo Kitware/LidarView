@@ -42,7 +42,7 @@ vtkTemporalTransforms::vtkTemporalTransforms()
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData(vtkPolyData *poly)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData(vtkPolyData *poly, char * OrientationArrayName)
 {
   if (!poly)
   {
@@ -51,6 +51,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData
   // copy the data into a vtkTemporalTransforms before checking that it is well-formed
   auto temporalTransforms = vtkSmartPointer<vtkTemporalTransforms>::New();
   temporalTransforms->ShallowCopy(poly);
+  temporalTransforms->OrientationArrayName = OrientationArrayName;
 
   bool isWellFormed = temporalTransforms->GetTimeArray() &&
                       temporalTransforms->GetTranslationArray() &&

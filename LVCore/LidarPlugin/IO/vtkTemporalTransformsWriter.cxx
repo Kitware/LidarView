@@ -37,7 +37,8 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation *vtkNotUsed(request)
     return 0;
   }
 
-  auto transforms = vtkTemporalTransforms::CreateFromPolyData(polyData);
+  auto orientationArray = this->GetInputArrayToProcess(0, inputVector);
+  auto transforms = vtkTemporalTransforms::CreateFromPolyData(polyData, orientationArray->GetName());
   if (transforms == nullptr)
   {
     vtkErrorMacro("Input is not a vtkTemporalTransforms");
