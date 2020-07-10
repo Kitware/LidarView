@@ -29,6 +29,7 @@
 #include <opencv2/imgproc.hpp>
 
 // PCL
+#define PCL_NO_PRECOMPILE
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 
