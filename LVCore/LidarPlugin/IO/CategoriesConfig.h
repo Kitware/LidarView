@@ -8,6 +8,8 @@
 
 #include <vtkObject.h>
 
+#include "lidarplugin_export.h"
+
 
 /**
  * @brief The CategoriesConfig parses a categories configuration file and accesses its values
@@ -32,7 +34,7 @@ categories:  # List of all the categories in a dataset
 
 
  */
-class CategoriesConfig
+class LIDARPLUGIN_EXPORT CategoriesConfig
 {
 public:
   CategoriesConfig() = default;

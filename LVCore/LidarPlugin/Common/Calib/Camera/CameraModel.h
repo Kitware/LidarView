@@ -27,6 +27,8 @@
 // EIGEN
 #include <Eigen/Dense>
 
+#include "lidarplugin_export.h"
+
 enum ProjectionType
 {
   Pinhole = 0,
@@ -41,7 +43,7 @@ enum ProjectionType
    *        2- Intrinsic parameters, representing the focal and pixel grid
    *        3- Optical parameters, representing the optical system distortions
    */
-class CameraModel
+class LIDARPLUGIN_EXPORT CameraModel
 {
 public:
   CameraModel() = default;
