@@ -259,8 +259,8 @@ int main(int argc, char* argv[])
 
   Json::Value files(Json::arrayValue);
 
-  FileSeries outputCloudSeries((boost::filesystem::path(cloudExportFolder) / boost::filesystem::path(cloudFrameSeries).filename()).c_str());
-  FileSeries outputBboxSeries((boost::filesystem::path(bboxExportFolder) / "detections.yml.series").c_str());
+  FileSeries outputCloudSeries((boost::filesystem::path(cloudExportFolder) / boost::filesystem::path(cloudFrameSeries).filename()).string());
+  FileSeries outputBboxSeries((boost::filesystem::path(bboxExportFolder) / "detections.yml.series").string());
 
   // End Parse Input --------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
     // Export bboxes as YAML
     std::string yamlFileName = (RemoveExtension(cloudFilename) + ".yml" );
     Export3DBBAsYaml(objects,
-                     (boost::filesystem::path(bboxExportFolder) / yamlFileName).c_str(),
+                     (boost::filesystem::path(bboxExportFolder) / yamlFileName).string(),
                      &catConfig,
                      outputAlgoName);
     outputBboxSeries.AddFile(yamlFileName, vtpPipelineTime);

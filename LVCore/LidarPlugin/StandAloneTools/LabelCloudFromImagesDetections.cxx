@@ -440,8 +440,8 @@ int main(int argc, char* argv[])
       lastLidarFrameToProcess += nbrClouds;
   }
 
-  FileSeries outputCloudSeries((boost::filesystem::path(exportFolder) / boost::filesystem::path(cloudFrameSeries).filename()).c_str());
-  FileSeries outputSegmentSeries((boost::filesystem::path(exportFolder) / "segment.yml.series").c_str());
+  FileSeries outputCloudSeries((boost::filesystem::path(exportFolder) / boost::filesystem::path(cloudFrameSeries).filename()).string());
+  FileSeries outputSegmentSeries((boost::filesystem::path(exportFolder) / "segment.yml.series").string());
 
   // End Parse Input --------------------------------------------------------------------
 
