@@ -29,8 +29,8 @@ lqStreamRecordDialog::~lqStreamRecordDialog()
 //-----------------------------------------------------------------------------
 void lqStreamRecordDialog::onRecordingFileChange(const QString& str)
 {
-  QString file = str.endsWith(".pcap") ? str.chopped(5) : str;
-  this->ui->CalibrationLineEdit->setText(file + ".calib");
+  QString file = str.endsWith(".json") ? str.chopped(5) : str;
+  this->ui->CalibrationLineEdit->setText(file + ".json");
 }
 
 //-----------------------------------------------------------------------------
