@@ -17,6 +17,8 @@ add_library(lqApplicationComponents
   ctk/ctkValueProxy.cpp
   ctk/ctkValueProxy.h
   ctk/ctkWidgetsExport.h
+  lqCameraParallelProjectionReaction.cxx
+  lqCameraParallelProjectionReaction.h
   lqColorToolbar.cxx
   lqColorToolbar.h
   lqColorToolbar.ui
