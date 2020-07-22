@@ -1,6 +1,8 @@
 #include "vtkPositionOrientationPacketReader.h"
 
 #include <vtkInformation.h>
+#include <vtkLine.h>
+#include <vtkNew.h>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPositionOrientationPacketReader)
@@ -91,6 +93,18 @@ void vtkPositionOrientationPacketReader::ReadPositionOrientation(vtkSmartPointer
   if(this->Interpreter->HasPositionOrientationInformation())
   {
     positionOrientationInfo = this->Interpreter->GetPositionOrientation();
+
+    // Create the Position line from points
+    vtkNew<vtkCellArray> allLines;
+    vtkIdType nPoints = positionOrientationInfo->GetNumberOfPoints();
+    for(int i = 0; i < nPoints - 1 ; i++)
+    {
+      vtkNew<vtkLine> line;
+      line->GetPointIds()->SetId(0, i);
+      line->GetPointIds()->SetId(1, i + 1);
+      allLines->InsertNextCell(line);
+    }
+    positionOrientationInfo->SetLines(allLines);
   }
 
   // Save raw information if packets contain them

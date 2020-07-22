@@ -4,7 +4,9 @@
 
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtkLine.h>
 #include <vtkPointData.h>
+#include <vtkPolyLine.h>
 #include <vtkVariantArray.h>
 
 namespace {
@@ -128,9 +130,27 @@ void vtkPositionOrientationStream::AddNewData()
       for(int j = 0; j < posOr->GetPointData()->GetNumberOfArrays(); j++)
       {
         vtkVariant variantValue = posOr->GetPointData()->GetArray(j)->GetVariantValue(i);
-        this->AllPositionsOrientation->GetPointData()->GetArray(j)->InsertVariantValue(i,variantValue);
+        int previousSize =  this->AllPositionsOrientation->GetPointData()->GetArray(j)->GetNumberOfValues();
+        this->AllPositionsOrientation->GetPointData()->GetArray(j)->InsertVariantValue(previousSize, variantValue);
       }
+      // Update points
+      vtkPoints* points = this->AllPositionsOrientation->GetPoints();
+      double pointToAdd[3];
+      posOr->GetPoint(i, pointToAdd);
+      points->InsertNextPoint(pointToAdd);
+      this->AllPositionsOrientation->SetPoints(points);
     }
+
+    // Update line
+    vtkIdType nPoints = this->AllPositionsOrientation->GetNumberOfPoints();
+    if (nPoints >=2)
+    {
+      vtkSmartPointer<vtkLine> line = vtkSmartPointer<vtkLine>::New();
+      line->GetPointIds()->SetId(0, nPoints - 2);
+      line->GetPointIds()->SetId(1, nPoints - 1);
+      this->AllPositionsOrientation->GetLines()->InsertNextCell(line);
+    }
+
   }
 }
 
