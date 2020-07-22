@@ -50,6 +50,47 @@
       </Documentation>
     </StringVectorProperty>
 
+    <IntVectorProperty
+        name="IsForwarding"
+        command="SetIsForwarding"
+        default_values="0"
+        number_of_elements="1">
+      <BooleanDomain name="bool" />
+    </IntVectorProperty>
+
+    <StringVectorProperty
+        name="ForwardedIpAddress"
+        command="SetForwardedIpAddress"
+        default_values="127.0.0.1"
+        number_of_elements="1">
+      <Documentation>
+        Specify the Ip address on which to forward all packets received by the stream
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="IsForwarding"
+                                 value="1" />
+      </Hints>
+    </StringVectorProperty>
+
+    <IntVectorProperty
+        name="ForwardedPort"
+        animateable="0"
+        command="SetForwardedPort"
+        default_values="2369"
+        number_of_elements="1">
+      <Documentation>
+        Specify port on which to forward all packets received by the stream
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="IsForwarding"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
     <Property
       name="Start"
       command="Start" />
@@ -59,7 +100,7 @@
       command="Stop" />
 
     <IntVectorProperty
-        name="SetIsCrashAnalysing"
+        name="IsCrashAnalysing"
         command="SetIsCrashAnalysing"
         default_values="0"
         number_of_elements="1"
