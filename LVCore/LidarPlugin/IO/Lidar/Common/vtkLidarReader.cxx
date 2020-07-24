@@ -373,7 +373,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
   {
     // writing all packets, even those that do not contain lidar frames,
     // such as IMU data or GPS data
-    writer.WritePacket(header, const_cast<unsigned char*>(data) - dataHeaderLength);
+    writer.WritePacket(header, data - dataHeaderLength);
     if (this->Interpreter->IsLidarPacket(data, dataLength))
     {
       // we need to count frames and some are split in multiple packets

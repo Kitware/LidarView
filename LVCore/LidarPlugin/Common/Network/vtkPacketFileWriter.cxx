@@ -97,7 +97,7 @@ bool vtkPacketFileWriter::WritePacket(const NetworkPacket& packet)
 
 //--------------------------------------------------------------------------------
 // Write an packet from packetHeader and packetData (which includes the packet header)
-bool vtkPacketFileWriter::WritePacket(pcap_pkthdr* packetHeader, unsigned char* packetData)
+bool vtkPacketFileWriter::WritePacket(pcap_pkthdr* packetHeader, const unsigned char* packetData)
 {
   pcap_dump((u_char*)this->PCAPDump, packetHeader, packetData);
   return true;

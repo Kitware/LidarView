@@ -56,7 +56,7 @@ public:
   const std::string& GetFileName();
 
   bool WritePacket(const NetworkPacket& packet);
-  bool WritePacket(pcap_pkthdr* packetHeader, unsigned char* packetData);
+  bool WritePacket(pcap_pkthdr* packetHeader, const unsigned char* packetData);
 
 protected:
   pcap_t* PCAPFile;
