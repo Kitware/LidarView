@@ -36,9 +36,10 @@
 #include <string>
 #include <vector>
 
+#include "lidarplugin_export.h"
 #include "NetworkPacket.h"
 
-class vtkPacketFileWriter
+class LIDARPLUGIN_EXPORT vtkPacketFileWriter
 {
 public:
   vtkPacketFileWriter();
