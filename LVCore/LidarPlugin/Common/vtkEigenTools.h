@@ -101,6 +101,12 @@ Eigen::Matrix3d LIDARPLUGIN_EXPORT RollPitchYawInDegreeToMatrix(double roll, dou
 double LIDARPLUGIN_EXPORT SignedAngle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2);
 
 /**
+  * @brief AngleFromMatrix Computes the rotation angle (from angle axis representation) of a 3d rotation matrix
+  * @param R Rotation Matrix
+  */
+double LIDARPLUGIN_EXPORT AngleFromMatrix(const Eigen::Matrix3d& R);
+
+/**
   * @brief IsMatrixFinite Check if all the coefficients of a matrix are finite
   * @param M matrix to checkr
   */

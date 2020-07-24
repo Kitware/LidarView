@@ -134,6 +134,12 @@ double SignedAngle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2)
 }
 
 //-----------------------------------------------------------------------------
+double AngleFromMatrix(const Eigen::Matrix3d& R)
+{
+  return std::acos((R(0, 0) + R(1, 1) + R(2, 2) - 1.0) / 2.0);
+}
+
+//-----------------------------------------------------------------------------
 bool IsMatrixFinite(const Eigen::Matrix3d& M)
 {
   return ((M - M).array() == (M - M).array()).all();
