@@ -453,6 +453,17 @@ if(WIN32)
   target_compile_definitions(PacketFileSender PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(WIN32)
 
+
+#-----------------------------------------------------------------------------
+# Build PCAPSeparator target which enable to split a recorded pcap on two
+#-----------------------------------------------------------------------------
+
+add_executable(PCAPSeparator StandAloneTools/PCAPSeparator.cxx)
+target_link_libraries(PCAPSeparator LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
+if(WIN32)
+  target_compile_definitions(PCAPSeparator PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+endif(WIN32)
+
 #add_executable(PCAPTester StandAloneTools/PCAPTester.cxx)
 #target_include_directories(LidarPlugin PRIVATE ${plugin_include_dirs})
 #target_link_libraries(PCAPTester LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
@@ -526,6 +537,7 @@ set(libraries_to_install
 
 set(executables_to_install
   PacketFileSender
+  PCAPSeparator
 #  PCAPTester
   )
 
