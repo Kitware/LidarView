@@ -23,7 +23,7 @@
 
 #include "lidarplugin_export.h"
 
-int LatLongToZone(double lat, double lon);
+int LIDARPLUGIN_EXPORT LatLongToZone(double lat, double lon);
 
 
 class LIDARPLUGIN_EXPORT UTMProjector

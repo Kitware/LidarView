@@ -70,6 +70,7 @@
 
 // LOCAL
 #include "vtkTemporalTransforms.h"
+#include "lidarplugin_export.h"
 
 // STD
 #include <vector>
@@ -138,7 +139,7 @@ void EstimateEulerAngleConvention(const std::string& sourceSensorFilename,
 * \@param timeStep time step between two consecutives acquisitions time
 *                  to derived the "solid-system" equations
 */
-std::pair<double, AnglePositionVector> EstimateCalibrationFromPoses(
+std::pair<double, AnglePositionVector> LIDARPLUGIN_EXPORT EstimateCalibrationFromPoses(
                                             vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
                                             vtkSmartPointer<vtkTemporalTransforms> targetSensor,
                                             const double timeScaleAnalysisBound = 5.0,

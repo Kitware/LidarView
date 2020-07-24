@@ -158,7 +158,7 @@ Eigen::Matrix<double, 4, 4> ToEigen(vtkTransform* T);
 
 Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkMatrix4x4* M);
 
-Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkTransform* T);
+Eigen::Transform<double, 3, Eigen::Affine> LIDARPLUGIN_EXPORT ToEigenTransform(vtkTransform* T);
 
 Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(const Eigen::Matrix3d& R, const Eigen::Vector3d& T);
 
