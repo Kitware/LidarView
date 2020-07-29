@@ -124,17 +124,19 @@ void vtkPositionOrientationStream::AddNewData()
       this->AllPositionsOrientation->DeepCopy(this->PositionOrientationInterpreter->GetPositionOrientation());
       return;
     }
+    // Copying the new Position Orientation information (points, rows, ...) presents in the interpreter
+    // to the corresponding buffer
     vtkSmartPointer<vtkPolyData> posOr = this->PositionOrientationInterpreter->GetPositionOrientation();
-    for(int i = 0; i < posOr->GetNumberOfPoints(); i++)
+    vtkPoints* points = this->AllPositionsOrientation->GetPoints();
+    for(vtkIdType i = 0; i < posOr->GetNumberOfPoints(); i++)
     {
-      for(int j = 0; j < posOr->GetPointData()->GetNumberOfArrays(); j++)
+      for(vtkIdType j = 0; j < posOr->GetPointData()->GetNumberOfArrays(); j++)
       {
-        vtkVariant variantValue = posOr->GetPointData()->GetArray(j)->GetVariantValue(i);
-        int previousSize =  this->AllPositionsOrientation->GetPointData()->GetArray(j)->GetNumberOfValues();
-        this->AllPositionsOrientation->GetPointData()->GetArray(j)->InsertVariantValue(previousSize, variantValue);
+        // Insert the i-th tuple of the current array (source) to the corresponding array of the bufferize vtkPolyData
+        vtkAbstractArray * source = posOr->GetPointData()->GetAbstractArray(j);
+        this->AllPositionsOrientation->GetPointData()->GetAbstractArray(j)->InsertNextTuple(i, source);
       }
       // Update points
-      vtkPoints* points = this->AllPositionsOrientation->GetPoints();
       double pointToAdd[3];
       posOr->GetPoint(i, pointToAdd);
       points->InsertNextPoint(pointToAdd);
