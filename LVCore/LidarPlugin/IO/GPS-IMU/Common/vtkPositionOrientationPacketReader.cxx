@@ -105,6 +105,7 @@ void vtkPositionOrientationPacketReader::ReadPositionOrientation(vtkSmartPointer
       allLines->InsertNextCell(line);
     }
     positionOrientationInfo->SetLines(allLines);
+    this->Interpreter->FillInterpolatorFromPositionOrientation();
   }
 
   // Save raw information if packets contain them

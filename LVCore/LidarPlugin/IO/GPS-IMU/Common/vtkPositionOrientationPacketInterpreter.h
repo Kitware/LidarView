@@ -47,6 +47,8 @@ public:
 
   virtual void InitArrays() = 0;
 
+  virtual void FillInterpolatorFromPositionOrientation(){}
+
 protected:
   //! Buffer to store Raw informations
   vtkSmartPointer<vtkTable> RawInformation;
