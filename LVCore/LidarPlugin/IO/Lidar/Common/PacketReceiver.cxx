@@ -146,25 +146,23 @@ PacketReceiver::~PacketReceiver()
 void PacketReceiver::EnableForwarding(int forwardport, const std::string& forwarddestinationIp)
 {
   assert(this->Thread && "You cannot call this function while running, please call it just after constructing the object");
-  this->isForwarding = true;
+  this->isForwarding = false;
   // Check that the provided forwarding ipadress is valid
-  if(forwarddestinationIp != "")
+  boost::system::error_code errCode;
+  boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address::from_string(forwarddestinationIp, errCode);
+  if(errCode == 0)
   {
-    boost::system::error_code errCode;
-    boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address::from_string(forwarddestinationIp, errCode);
-    if(errCode == 0)
-    {
-      this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
-      this->ForwardedSocket.open(ForwardEndpoint.protocol());
-      // toward the forwarded ip address and port
-      this->ForwardedSocket.set_option(boost::asio::ip::multicast::enable_loopback(
-                                    true)); // Allow to send the packet on the same machine
-     }
-    else
-    {
-        vtkGenericWarningMacro("Forward ip address not valid, packets won't be forwarded");
-        this->isForwarding = false;
-    }
+    this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
+    this->ForwardedSocket.open(ForwardEndpoint.protocol());
+    // toward the forwarded ip address and port
+    this->ForwardedSocket.set_option(boost::asio::ip::multicast::enable_loopback(
+                                  true)); // Allow to send the packet on the same machine
+    this->isForwarding = true;
+   }
+  else
+  {
+      vtkGenericWarningMacro("Forward IP address not valid, packets won't be forwarded");
+      this->isForwarding = false;
   }
 }
 
