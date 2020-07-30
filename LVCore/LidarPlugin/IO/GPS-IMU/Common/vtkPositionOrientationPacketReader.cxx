@@ -1,5 +1,7 @@
 #include "vtkPositionOrientationPacketReader.h"
+#include "vtkHelper.h"
 
+#include <vtkCellArray.h>
 #include <vtkInformation.h>
 #include <vtkLine.h>
 #include <vtkNew.h>
@@ -95,16 +97,8 @@ void vtkPositionOrientationPacketReader::ReadPositionOrientation(vtkSmartPointer
   {
     positionOrientationInfo = this->Interpreter->GetPositionOrientation();
 
-    // Create new poly line with all points contains in the accumulator
-    vtkNew<vtkPolyLine> polyLine;
-    vtkIdType nbTotalPoints = positionOrientationInfo->GetNumberOfPoints();
-    vtkIdList* polyIds = polyLine->GetPointIds();
-    polyIds->Allocate(nbTotalPoints);
-    for(vtkIdType i = 0; i < nbTotalPoints; i++)
-    {
-      polyIds->InsertNextId(i);
-    }
     // Set the polyline to the poly data to see the position orientation information
+    vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(positionOrientationInfo->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
     positionOrientationInfo->SetLines(cellArray);

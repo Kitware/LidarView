@@ -1,7 +1,9 @@
+#include "vtkHelper.h"
 #include "vtkPositionOrientationStream.h"
 
 #include <sstream>
 
+#include <vtkCellArray.h>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkLine.h>
@@ -144,16 +146,8 @@ void vtkPositionOrientationStream::AddNewData()
       this->AllPositionsOrientation->SetPoints(points);
     }
 
-    // Create new poly line with all points contains in the buffer
-    vtkNew<vtkPolyLine> polyLine;
-    vtkIdType nbTotalPoints = this->AllPositionsOrientation->GetNumberOfPoints();
-    vtkIdList* polyIds = polyLine->GetPointIds();
-    polyIds->Allocate(nbTotalPoints);
-    for(vtkIdType i = 0; i < nbTotalPoints; i++)
-    {
-      polyIds->InsertNextId(i);
-    }
     // Set the polyline to the poly data to see the position orientation information
+    vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(this->AllPositionsOrientation->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
     this->AllPositionsOrientation->SetLines(cellArray);

@@ -83,4 +83,6 @@ int closestElementInOrderedVector(const std::vector<T>& v, T x)
   }
 }
 
+vtkSmartPointer<vtkPolyLine> CreatePolyLineFromPoints(const vtkSmartPointer<vtkPoints> & points);
+
 #endif // VTK_HELPER_H
