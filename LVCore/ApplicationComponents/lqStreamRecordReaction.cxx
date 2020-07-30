@@ -4,6 +4,7 @@
 #include <QString>
 
 #include <pqApplicationCore.h>
+#include <pqFileDialog.h>
 #include <pqServerManagerModel.h>
 #include <pqPipelineSource.h>
 #include <vtkSMProxy.h>
@@ -35,10 +36,11 @@ bool isLastStream(pqPipelineSource* src)
 }
 
 //-----------------------------------------------------------------------------
-lqStreamRecordReaction::lqStreamRecordReaction(QAction *action)
+lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool useAdvancedDialog)
   : Superclass(action)
 {
   this->parentAction()->setEnabled(false);
+  this->useAdvancedDialog = useAdvancedDialog;
   auto* core = pqApplicationCore::instance();
 
   pqServerManagerModel* smmodel = core->getServerManagerModel();
@@ -80,14 +82,28 @@ void lqStreamRecordReaction::onTriggered()
     assert(lidar);
     assert(lidar->GetInterpreter());
 
-    lqStreamRecordDialog dialog(nullptr, lidarName);
-    if (dialog.exec())
+    std::string filename = "";
+    if(useAdvancedDialog)
     {
-      this->parentAction()->setToolTip("Stop Recording Stream Data");
-      vtkStream::StartRecording(dialog.recordingFile().toStdString());
-      QFile::copy(QString::fromStdString(lidar->GetLidarInterpreter()->GetCalibrationFileName()),
-                  dialog.calibrationFile());
+      lqStreamRecordDialog dialog(nullptr, lidarName);
+      if (dialog.exec())
+      {
+        this->parentAction()->setToolTip("Stop Recording Stream Data");
+        filename = dialog.recordingFile().toStdString();
+        QFile::copy(QString::fromStdString(lidar->GetLidarInterpreter()->GetCalibrationFileName()),
+                    dialog.calibrationFile());
+      }
     }
+    else
+    {
+      filename = pqFileDialog::getSaveFileName(
+                  nullptr, nullptr, tr("Record File:"), QString(), "*.pcap").toStdString();
+    }
+    if (filename != "")
+    {
+      vtkStream::StartRecording(filename);
+    }
+
   }
 }
 

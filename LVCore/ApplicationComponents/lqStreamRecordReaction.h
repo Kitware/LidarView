@@ -16,7 +16,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqStreamRecordReaction : public pqReaction
     typedef pqReaction Superclass;
 
 public:
-  lqStreamRecordReaction(QAction* action);
+  lqStreamRecordReaction(QAction* action, bool useAdvancedDialog = false);
 
 public slots:
   /**
@@ -33,6 +33,11 @@ public slots:
 
 private:
   Q_DISABLE_COPY(lqStreamRecordReaction)
+
+  // When pressing the "record" button :
+  // If useAdvancedDialog is false : the dialog is the classic one (the user just need to choose a recording pcap file)
+  // If useAdvancedDialog is true : the dialog is the advanced one (to record the calibration file too)
+  bool useAdvancedDialog;
 };
 
 #endif // LQSTREAMRECORDREACTION_H
