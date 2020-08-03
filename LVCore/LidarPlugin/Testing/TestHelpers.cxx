@@ -461,8 +461,16 @@ int testLidarStream(vtkLidarStream *stream,
     referenceFilesList.pop_back();
   }
 
-  const std::string destinationIp = "127.0.0.1";
-  const int dataPort = 2368;
+  // Set the value for sending packets
+  std::string destinationIp = "127.0.0.1";
+  // If the stream listen in multicast, packets should be sent to the right multicast adress
+  if(stream->GetMulticastAddress() != "")
+  {
+    destinationIp = stream->GetMulticastAddress();
+  }
+
+  // Set the dataPort where the packets are sent to the same port the stream listen to
+  const int dataPort = stream->GetListeningPort();
 
   const int preSendWait_us = static_cast<int>(1e6 * 1.0 / preSendSpeed);
   const int sendWait_us = static_cast<int>(1e6 * 1.0 / speed);
