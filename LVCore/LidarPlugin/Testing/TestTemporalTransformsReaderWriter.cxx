@@ -63,6 +63,7 @@ bool read_write_trajectory(char* to_read, char* to_write)
   auto writer = vtkSmartPointer<vtkTemporalTransformsWriter>::New();
   writer->SetInputConnection(0, reader->GetOutputPort());
   writer->SetFileName(to_write);
+  writer->SetInputArrayToProcess(0,0,0,0,"Orientation(AxisAngle)");
   writer->Update();
   return 1;
 }
