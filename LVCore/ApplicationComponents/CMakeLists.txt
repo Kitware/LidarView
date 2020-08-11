@@ -33,6 +33,8 @@ add_library(lqApplicationComponents
   lqStreamRecordDialog.h
   lqStreamRecordReaction.cxx
   lqStreamRecordReaction.h
+  lqRulerReaction.h
+  lqRulerReaction.cxx
   SaveAndLoadLidarState/lqSaveLidarStateReaction.cxx
   SaveAndLoadLidarState/lqSaveLidarStateReaction.h
   SaveAndLoadLidarState/lqLoadLidarStateReaction.cxx
