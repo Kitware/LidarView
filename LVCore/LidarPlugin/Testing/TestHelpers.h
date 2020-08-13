@@ -127,6 +127,7 @@ int testLidarReader(vtkLidarReader* reader,
  * @param referenceFileName the file containing the vtp to compare with
  * @return nb of error
  */
+[[deprecated("Use the simplier signature instead.")]]
 int testLidarStream(vtkLidarStream* stream,
                     bool preSend,
                     double preSendSpeed,
@@ -134,5 +135,18 @@ int testLidarStream(vtkLidarStream* stream,
                     const std::string& pcapFileName,
                     const std::string& referenceFileName,
                     bool testLastFrame = false);
+
+/**
+ * @brief testLidarStream comapre the the stream output to prerecorded frames
+ * @param stream
+ * @param pcapFileName file to replay
+ * @param referenceFileName the file containing the vtp to compare with
+ * @param preSend should all packets be sent in a pre-test pass first
+ * @return nb of error
+ */
+int testLidarStream(vtkLidarStream* stream,
+                    const std::string& pcapFileName,
+                    const std::string& referenceFileName,
+                    bool preSend);
 
 #endif

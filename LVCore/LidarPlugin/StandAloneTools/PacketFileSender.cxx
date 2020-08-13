@@ -91,78 +91,15 @@ int main(int argc, char* argv[])
   unsigned int GPSPort = vm["GPSPort"].as<unsigned int>();
   unsigned int display_frequency = vm["display-frequency"].as<unsigned int>();
 
-  const int microSecondsPerSecond = 1e6;
+
+  // Create a Packet Sender
+  vvPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
 
   std::cout << "Start sending" << std::endl;
-
-  try
+  do
   {
-    do
-    {
-      auto replayStartTime = std::chrono::steady_clock::now();
-
-      // output the column header for the displayed values
-      std::cout << "----------------------------------------------------------------------------" << std::endl
-                << std::right << std::setw(OUTPUT_WIDTH) << "# packets"
-                << std::right << std::setw(OUTPUT_WIDTH) << "duration (s)"
-                << std::right << std::setw(OUTPUT_WIDTH) << "f (Hz)"
-                << std::right << std::setw(OUTPUT_WIDTH) << "delay (us)"
-                << std::endl
-                << "----------------------------------------------------------------------------" << std::endl;
-
-      // Create a Packet Sender
-      vvPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
-
-      // Case starting time
-      double pcapStartTime = sender.pumpPacket();
-
-      while (!sender.IsDone())
-      {
-        // time from the pcap file
-        double pcapCurrentTime = sender.pumpPacket();
-        double pcapmicroSecondsSinceStart = (pcapCurrentTime - pcapStartTime) * microSecondsPerSecond;
-
-        // time from the wall clock
-        auto replayCurrentTime = std::chrono::steady_clock::now();
-        int replaymicroSecondsSinceStart =
-            std::chrono::duration_cast<std::chrono::microseconds>(replayCurrentTime - replayStartTime).count();
-
-        // check if the replay is to much in advance compared to the pcap time step
-        // if this is the case, we sleep the thread until the pcap catch up the replay
-        double time_delay = static_cast<double>(pcapmicroSecondsSinceStart) / speed  - replaymicroSecondsSinceStart;
-
-        if (time_delay > 0)
-        {
-        boost::this_thread::sleep(
-          boost::posix_time::microseconds(static_cast<int>(time_delay)));
-        }
-
-        // Display the user some information
-        if ((sender.GetPacketCount() % display_frequency) == 0)
-        {
-          // Compute nb of packets sended including the one from previous loops
-          int nbPacketSended = sender.GetPacketCount();
-
-          // Compute time since the replay began
-          double secondSinceStart = static_cast<double>(replaymicroSecondsSinceStart) / microSecondsPerSecond;
-
-          // Nice output
-          std::cout << std::fixed
-                    << std::right << std::setw(OUTPUT_WIDTH) << nbPacketSended
-                    << std::fixed << std::right << std::setw(OUTPUT_WIDTH) << secondSinceStart
-                    << std::right << std::setw(OUTPUT_WIDTH)
-                    << static_cast<double>(nbPacketSended) /  secondSinceStart
-                    << std::right << std::setw(OUTPUT_WIDTH) << time_delay
-                    << std::endl;
-        }
-      }
-    } while (loop);
-  }
-  catch (std::exception& e)
-  {
-    std::cout << "Caught Exception: " << e.what() << std::endl;
-    return 1;
-  }
+    sender.sendAllPackets(speed, display_frequency);
+  } while (loop);
 
   return 0;
 }

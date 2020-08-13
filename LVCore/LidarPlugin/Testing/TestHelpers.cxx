@@ -447,19 +447,22 @@ int testLidarStream(vtkLidarStream *stream,
                     bool preSend,
                     double preSendSpeed,
                     double speed,
+                    const std::string &pcapFileName,
+                    const std::string &referenceFileName,
+                    bool testLastFrame)
+{
+  return testLidarStream(stream, pcapFileName, referenceFileName, preSend);
+}
+//-----------------------------------------------------------------------------
+int testLidarStream(vtkLidarStream *stream,
                     const std::string& pcapFileName,
                     const std::string& referenceFileName,
-                    bool testLastFrame)
+                    bool preSend)
 {
   int retVal = 0;
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
   referenceFilesList = GenerateFileList(referenceFileName);
-
-  if (!testLastFrame && !referenceFilesList.empty())
-  {
-    referenceFilesList.pop_back();
-  }
 
   // Set the value for sending packets
   std::string destinationIp = "127.0.0.1";
@@ -472,145 +475,112 @@ int testLidarStream(vtkLidarStream *stream,
   // Set the dataPort where the packets are sent to the same port the stream listen to
   const int dataPort = stream->GetListeningPort();
 
-  const int preSendWait_us = static_cast<int>(1e6 * 1.0 / preSendSpeed);
-  const int sendWait_us = static_cast<int>(1e6 * 1.0 / speed);
-
-  vtkSmartPointer<vtkLidarPacketInterpreter> interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
+  auto interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
 
   // Case of live correction : Packet are sent a first time to save calibration
   if (preSend)
   {
-    try
+    stream->Start();
+    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+    bool isOk = sender.sendAllPackets();
+    stream->Stop();
+    if (stream->GetNeedsUpdate())
     {
-      stream->Start();
-      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
-      while (!sender.IsDone())
-      {
-        sender.pumpPacket();
-        boost::this_thread::sleep(boost::posix_time::microseconds(preSendWait_us));
-      }
-      stream->Stop();
-      if (stream->GetNeedsUpdate())
-      {
-        stream->Update(); // discard frame decoded before next pass
-      }
+      stream->Update(); // discard frame decoded before next pass
     }
-    catch (std::exception& e)
+    if (!isOk)
     {
-      std::cout << "Caught Exception: " << e.what() << std::endl;
       return 1;
     }
-
     interpreter->ClearAllFramesAvailable();
     interpreter->ResetParserMetaData();
   }
 
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
   std::cout << "Sending data... " << std::endl;
-  const double startTime = vtkTimerLog::GetUniversalTime();
-  double timeLastPacketSent = startTime;
-  const double timeout = 1.0;
+  int idFrame = 0;
 
   stream->Start();
   if (interpreter->GetIsCalibrated())
   {
-    try
-    {
-      vvPacketSender sender(pcapFileName, destinationIp, dataPort);
-
-      // Limit the number of packets sent to limit the execution time of tests
-      unsigned int maxNbPackets = 25000;
-      unsigned int nbCurrentPackets = 0;
-
-      int idFrame = 0;
-      bool done = false;
-      bool tooManyPackets = false;
-      bool didTimeout = false;
-      while (!done)
+    std::function<void()> testFrame = [&](){
+      // A new frame is ready
+      if (stream->GetNeedsUpdate())
       {
-        if (!sender.IsDone())
+        stream->Update();
+
+        vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(stream->GetOutput());
+        vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+        // Check Points count
+        retVal += TestPointCount(currentFrame, currentReference);
+
+        // Check Points position
+        retVal += TestPointPositions(currentFrame, currentReference);
+
+        // Check PointData structure
+        retVal += TestPointDataStructure(currentFrame, currentReference);
+
+        // Check PointData values
+        retVal += TestPointDataValues(currentFrame, currentReference);
+
+        // Check RPM values
+        // This values are computed differently in stream and reader,
+        // so to use reader generated ground-truth, tolerance is generous.
+        // Also we do not expect correct RPM on first frame.
+        if (idFrame > 0)
         {
-          sender.pumpPacket();
-          nbCurrentPackets++;
-          timeLastPacketSent = vtkTimerLog::GetUniversalTime();
+          retVal += TestRPMValues(currentFrame, currentReference, 20.0);
         }
 
-        boost::this_thread::sleep(boost::posix_time::microseconds(sendWait_us));
-
-        // A new frame is ready
-        if (stream->GetNeedsUpdate())
-        {
-          // Skips the first & last frames. First and last frame aren't complete frames
-          // In live mode, we don't skip the last firing belonging to the n-1 frame.
-          // In live mode, the last frame is uncomplete.
-          std::cout << "---------------------" << std::endl
-                    << "FRAME " << idFrame << std::endl
-                    << "---------------------" << std::endl;
-
-          stream->Update();
-
-          vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(stream->GetOutput());
-          vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-          // Check Points count
-          retVal += TestPointCount(currentFrame, currentReference);
-
-          // Check Points position
-          retVal += TestPointPositions(currentFrame, currentReference);
-
-          // Check PointData structure
-          retVal += TestPointDataStructure(currentFrame, currentReference);
-
-          // Check PointData values
-          retVal += TestPointDataValues(currentFrame, currentReference);
-
-          // Check RPM values
-          // This values are computed differently in stream and reader,
-          // so to use reader generated ground-truth, tolerance is generous.
-          // Also we do not expect correct RPM on first frame.
-          if (idFrame > 0)
-          {
-            retVal += TestRPMValues(currentFrame, currentReference, 20.0);
-          }
-
-          idFrame++;
-        }
-        tooManyPackets = nbCurrentPackets > maxNbPackets;
-        double timeSinceLastPacketSent = vtkTimerLog::GetUniversalTime() - timeLastPacketSent;
-        didTimeout = timeSinceLastPacketSent > timeout;
-        done =  didTimeout || tooManyPackets;
+        idFrame++;
       }
-
-      if (tooManyPackets)
-      {
-        std::cout << "PCAP seems to contain too many packets."
-                     " Please make it shorter to allow fast tests." << std::endl;
-        retVal += 1;
-      }
-
-      if (!sender.IsDone())
-      {
-        std::cout << "Problem when sending data. Received: " << idFrame << " frames." << std::endl;
-        retVal += 1;
-      }
-
-      retVal += TestFrameCount(idFrame, referenceFilesList.size());
-    }
-    catch (std::exception& e)
+    };
+    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+    bool isOk = sender.startSending(1.0, 0, testFrame);
+    if (!isOk)
     {
-      std::cout << "Caught Exception: " << e.what() << std::endl;
-      return 1;
+        std::cout << "Test failed: Error while sending the packets." << std::endl;
+        return 1;
     }
+
+    // Wait a bit for every packet to arrive and check if a last complete frame is available.
+    boost::this_thread::sleep(boost::posix_time::microseconds(10));
+    testFrame();
+    stream->Stop();
+
+   // check for a potential uncomplete last frame.
+    if (idFrame < referenceFilesList.size())
+    {
+      interpreter->SplitFrame();
+
+      vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
+      vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+      // Check Points count
+      retVal += TestPointCount(currentFrame, currentReference);
+
+      // Check Points position
+      retVal += TestPointPositions(currentFrame, currentReference);
+
+      // Check PointData structure
+      retVal += TestPointDataStructure(currentFrame, currentReference);
+
+      // Check PointData values
+      retVal += TestPointDataValues(currentFrame, currentReference);
+
+      // Do not check for the last RPM value as the frame is incomplete.
+
+      idFrame++;
+    }
+
+    retVal += TestFrameCount(idFrame, referenceFilesList.size());
   }
   else
   {
     std::cout << "Test failed: Interpreter is not calibrated." << std::endl;
     retVal += 1;
   }
-  stream->Stop();
-
-  double elapsedTime = vtkTimerLog::GetUniversalTime() - startTime;
-  std::cout << "Data sent in " << elapsedTime << "s" << std::endl;
   std::cout << "Done." << std::endl;
 
   return retVal;

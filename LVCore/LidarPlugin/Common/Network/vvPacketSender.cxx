@@ -53,6 +53,85 @@ vvPacketSender::~vvPacketSender()
 }
 
 //-----------------------------------------------------------------------------
+bool vvPacketSender::sendAllPackets(double speed, int display_frequency, std::function<void()> callback)
+{
+  const int OUTPUT_WIDTH = 15; // width of the column (#packet, duration, ...) in the output stream
+  const int microSecondsPerSecond = 1e6;
+
+  try
+  {
+    auto replayStartTime = std::chrono::steady_clock::now();
+    if (display_frequency > 0)
+    {
+    // output the column header for the displayed values
+    std::cout << "----------------------------------------------------------------------------" << std::endl
+              << std::right << std::setw(OUTPUT_WIDTH) << "# packets"
+              << std::right << std::setw(OUTPUT_WIDTH) << "duration (s)"
+              << std::right << std::setw(OUTPUT_WIDTH) << "f (Hz)"
+              << std::right << std::setw(OUTPUT_WIDTH) << "delay (us)"
+              << std::endl
+              << "----------------------------------------------------------------------------" << std::endl;
+    }
+
+    // Case starting time
+    double pcapStartTime = this->pumpPacket();
+
+    while (!this->IsDone())
+    {
+      // the callback function is call for each packet
+      if (callback)
+      {
+        callback();
+      }
+      // time from the pcap file
+      double pcapCurrentTime = this->pumpPacket();
+      double pcapmicroSecondsSinceStart = (pcapCurrentTime - pcapStartTime) * microSecondsPerSecond;
+
+      // time from the wall clock
+      auto replayCurrentTime = std::chrono::steady_clock::now();
+      int replaymicroSecondsSinceStart =
+          std::chrono::duration_cast<std::chrono::microseconds>(replayCurrentTime - replayStartTime).count();
+
+      // check if the replay is to much in advance compared to the pcap time step
+      // if this is the case, we sleep the thread until the pcap catch up the replay
+      double time_delay = static_cast<double>(pcapmicroSecondsSinceStart) / speed  - replaymicroSecondsSinceStart;
+
+      if (time_delay > 0)
+      {
+      boost::this_thread::sleep(
+        boost::posix_time::microseconds(static_cast<int>(time_delay)));
+      }
+
+      // Display the user some information
+      if (display_frequency > 0 && (this->GetPacketCount() % display_frequency) == 0)
+      {
+        // Compute nb of packets sended including the one from previous loops
+        int nbPacketSended = this->GetPacketCount();
+
+        // Compute time since the replay began
+        double secondSinceStart = static_cast<double>(replaymicroSecondsSinceStart) / microSecondsPerSecond;
+
+        // Nice output
+        std::cout << std::fixed
+                  << std::right << std::setw(OUTPUT_WIDTH) << nbPacketSended
+                  << std::fixed << std::right << std::setw(OUTPUT_WIDTH) << secondSinceStart
+                  << std::right << std::setw(OUTPUT_WIDTH)
+                  << static_cast<double>(nbPacketSended) /  secondSinceStart
+                  << std::right << std::setw(OUTPUT_WIDTH) << time_delay
+                  << std::endl;
+      }
+    }
+  }
+  catch (std::exception& e)
+  {
+    std::cout << "Caught Exception: " << e.what() << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 double vvPacketSender::pumpPacket()
 {
   if (this->Done)

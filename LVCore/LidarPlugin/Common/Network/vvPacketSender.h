@@ -20,6 +20,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
 
+#include <functional>
+
 class vtkPacketFileReader;
 
 class VTK_EXPORT vvPacketSender
@@ -28,6 +30,15 @@ public:
   vvPacketSender(std::string pcapfile, std::string destinationio = "127.0.0.1",
     int lidarport = 2368, int positionport = 8308);
   ~vvPacketSender();
+
+  /**
+   * @brief sendAllPackets
+   * @param speed factor compare to the recording
+   * @param display_frequency display some information information every n packets.
+   * @param callback function executed after sending a packet
+   * @return
+   */
+  bool sendAllPackets(double speed = 1.0, int display_frequency = 0, std::function<void()> callback = nullptr);
 
   /**
    * @brief pumpPacket
