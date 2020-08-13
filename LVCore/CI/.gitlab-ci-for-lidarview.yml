@@ -13,12 +13,16 @@ variables:
   # - gitlab only evaluate variable at depth 1, so it's not possible to reuse
   #   superbuild_build_dir to construct lidarview_build_dir
   #   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
-  superbuild_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME
-  lidarview_build_dir: $CI_BUILDS_DIR/SB/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
+  superbuild_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME
+  lidarview_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
   # This variable should set only if the script is trigger from a LidarView submodule
   # This will enable to run the pipeline with the updated module
   TRIGGER_MODULE_PATH: '' # path of the module that trigger the pipeline relative to LidarView
   TRIGGER_MODULE_SHA: '' # commit sha of the module that trigger the pipeline
+  SB_BUILD_PREFIX: '' # use a unique value to have a custom SB dir for some branches and not rely on the generic one
+                      # this may be usefull, when you make changes to the superbuild, and want to check
+                      # that this change pass the CI pipeline, but in the mean time you don't want to
+                      # replace the common on.
 
 stages:
   - superbuild
@@ -200,8 +204,8 @@ workflow:
     # this is why PROJECT_ID is used instead of PROJECT_NAME
     # Gitlab doesn't handle well all path notation on windows and force the clone path to start with C:\\
     GIT_CLONE_PATH: C:\\S/$CI_PROJECT_ID
-    superbuild_build_dir: C:/SB/$CI_PROJECT_ID
-    lidarview_build_dir: C:/SB/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
+    superbuild_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID
+    lidarview_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
     vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC'
     architecture: x86_amd64
     sb_cmake_option_GENERATOR: -GNinja
