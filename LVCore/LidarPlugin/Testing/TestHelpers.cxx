@@ -31,7 +31,7 @@
 
 #include <sstream>
 
-#include <boost/thread/thread.hpp>
+#include <thread>
 
 // Helper functions
 //-----------------------------------------------------------------------------
@@ -545,7 +545,7 @@ int testLidarStream(vtkLidarStream *stream,
     }
 
     // Wait a bit for every packet to arrive and check if a last complete frame is available.
-    boost::this_thread::sleep(boost::posix_time::microseconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     testFrame();
     stream->Stop();
 

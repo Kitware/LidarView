@@ -14,6 +14,9 @@
 
 #include "vvPacketSender.h"
 
+#include <chrono>
+#include <thread>
+
 //-----------------------------------------------------------------------------
 vvPacketSender::vvPacketSender(
   std::string pcapfile, std::string destinationIp, int lidarPort, int positionPort)
@@ -98,8 +101,7 @@ bool vvPacketSender::sendAllPackets(double speed, int display_frequency, std::fu
 
       if (time_delay > 0)
       {
-      boost::this_thread::sleep(
-        boost::posix_time::microseconds(static_cast<int>(time_delay)));
+      std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(time_delay)));
       }
 
       // Display the user some information
