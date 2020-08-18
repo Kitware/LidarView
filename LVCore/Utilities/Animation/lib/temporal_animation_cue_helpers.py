@@ -117,6 +117,7 @@ def start_cue_generic_setup(self):
     # get time data from trajectory
     time_data = traj.GetPointData().GetArray("Time")  # points times in secs
     timesteps = numpy_support.vtk_to_numpy(time_data).copy()
+    self.timesteps = np.asarray(timesteps)
 
     # get the 3D model
     self.model = None
@@ -125,7 +126,7 @@ def start_cue_generic_setup(self):
 
     # get all available timesteps and find the index corresponding to the start time
     time = view.ViewTime
-    self.i = np.argmin(np.abs(np.asarray(timesteps) - time))
+    self.i = np.argmin(np.abs(self.timesteps - time))
     print "Start trajectory timestep: ", self.i
 
     self.cameras = []
@@ -150,6 +151,8 @@ def tick(self, filenameFormat="%06d.png", imageResolution=(1920, 1080)):
     ```
     """
     view = smp.GetActiveView()
+    time = view.ViewTime
+    self.i = np.argmin(np.abs(self.timesteps - time))
 
     # lidar orientation and position
     R_l = self.orientations[self.i]
