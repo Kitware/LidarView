@@ -20,12 +20,13 @@
       </StringVectorProperty>
 
       <IntVectorProperty
-          name="Image Height"
+          name="ImageHeight"
           command="SetImageHeight"
           default_values="360"
           number_of_elements="1">
         <Documentation>
-          image height need because vtk has a different referential and origin
+          Image height needed in case of 2d bounding boxes
+          because vtk has a different referential and origin.
         </Documentation>
       </IntVectorProperty>
 
@@ -49,6 +50,9 @@
         <Proxy name="Reader"
                proxygroup="internal_sources"
                proxyname="BoundingBox"></Proxy>
+        <ExposedProperties>
+            <Property name="ImageHeight"/>
+        </ExposedProperties>
       </SubProxy>
 
       <StringVectorProperty command="GetCurrentFileName"
