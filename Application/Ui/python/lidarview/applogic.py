@@ -355,17 +355,28 @@ def openSensor():
     app.grid = createGrid()
 
     sensor = smp.LidarStream(guiName='Data', CalibrationFile=calibrationFile)
-    sensor.LidarPort = LidarPort
-    sensor.GetClientSideObject().EnableGPSListening(True)
-    sensor.GetClientSideObject().SetGPSPort(GPSPort)
-    sensor.GetClientSideObject().SetForwardedGPSPort(GPSForwardingPort)
-    sensor.GetClientSideObject().SetForwardedLidarPort(LIDARForwardingPort)
-    sensor.GetClientSideObject().SetIsForwarding(isForwarding)
-    sensor.GetClientSideObject().SetIsCrashAnalysing(calibration.isCrashAnalysing)
-    sensor.GetClientSideObject().SetForwardedIpAddress(ipAddressForwarding)
+    sensor.ListeningPort = LidarPort
+    sensor.ForwardedPort = LIDARForwardingPort
+    sensor.IsForwarding = isForwarding
+    sensor.IsCrashAnalysing = calibration.isCrashAnalysing
+    sensor.ForwardedIpAddress = ipAddressForwarding
+
+    # Change the default interpreter if the pcap is a Velodyne one
+    if calibrationFile.endswith('.xml'):
+        sensor.Interpreter = 'Velodyne Meta Interpreter'
+
     sensor.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
     sensor.UpdatePipeline()
     sensor.Start()
+
+    posOrSensor = smp.PositionOrientationStream(guiName='Position Orientation Data')
+    posOrSensor.ListeningPort = GPSPort
+    posOrSensor.ForwardedPort = GPSForwardingPort
+    posOrSensor.IsForwarding = isForwarding
+    posOrSensor.ForwardedIpAddress = ipAddressForwarding
+    posOrSensor.IsCrashAnalysing = calibration.isCrashAnalysing
+    posOrSensor.UpdatePipeline()
+    posOrSensor.Start()
 
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(sensor)
