@@ -68,22 +68,24 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 - (only for packaging) NSIS version 3.04 is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>
 
 ### Windows build instructions <a name="windows-build-instructions"></a>
+
 1. clone LidarView's source code repository to a directory of your chosing, for example:
 
     `cd <work-directory>`
 
-    `git clone <git url to LidarView repository> --recursive LidarView-source`
+    `git clone <git url to LidarView repository> --recursive LV-src`
 
-    * you will have to know the path to this directory for step 6.
-    * moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 6. and 7.)
+    * You will have to know the path to this directory for step 5.
+    * Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 5. and 6.)
+    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We suggest that you clone the sources at the root of a drive, like `C:\LV-src`.
 
 2. create a new directory to store the build.
 
-    `mkdir C:\LidarView-build`
+    `mkdir <work-directory>\LV-build`
 
     * You can use the Windows file explorer to create this directory
     * **This directory must not be inside the LidarView source code directory**
-    * **the path to this directory must be short** because Windows has limitations on the maximum length of file paths. We suggest that you use a directory at the root of a drive, like *C:\\LidarView-build*
+    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We suggest that you use a directory at the root of a drive, like `C:\LV-build`.
 
 
 3. open the appropriate command prompt:
@@ -97,7 +99,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 
 4. inside the command prompt, go to the build directory you created in step 3 by entering the command
 
-    `cd /d "C:\LidarView-build"`
+    `cd /d "<work-directory>\LV-build"`
 
     * Adapt the path to your own build directory created in step 3.
     * `/d` is allows to `cd` to a directory that is not on the same drive as your current path
@@ -105,7 +107,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 
 5. inside the command prompt configure the build by entering:
 
-    `cmake <work-directory>\LidarView-source\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"`
+    `cmake <work-directory>\LV-src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"`
 
     * Take note that this command mentions the subdirectory "Superbuild" inside the source directory and not the source directory itself.
     * Take note that the Qt5_DIR path must use **forward slashes** (like if it was an Unix PATH), because MSVC would otherwise take "\\Q" as a build option.
