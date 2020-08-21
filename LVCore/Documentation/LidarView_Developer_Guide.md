@@ -13,6 +13,8 @@
     2. [Linux dependencies](#linux-dependencies)
     3. [Linux build instructions](#linux-build-instructions)
 3. [Packaging instructions](#packaging)
+4. [Troubleshooting](#troubleshooting)
+    1. [Superbuild failure with PCL enabled](#superbuild-failure-with-pcl-enabled)
 
 ## LidarView dependencies <a name="dependencies"></a>
 The LidarView application and libraries have several external library dependencies. As explained in [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
@@ -234,3 +236,21 @@ The following packages are needed to build on Ubuntu 16.04:
 3. package using cpack
 
     `ctest -R cpack`
+
+
+## Troubleshooting
+
+### Superbuild failure with PCL enabled
+
+It has been reported that if PCL is enabled in the superbuild (`-DENABLE_pcl=True`), the superbuild might fail during PCL compilation with a message such as *Internal compiler error*. This bug has been reported on Linux and Windows.
+
+PCL is a large point cloud processing library. Some binaries are quite heavy, and need to build/link against many targets. Sometimes, depending on your machine, the build process of some of these binaries may reach the maximum allocatable memory limit. When this happens, the OS kills this process, resulting in the *internal compiler error*.
+
+If you run into this problem, you can first try to launch again the superbuild (just re-run the `ninja/make` command, or even easier, use `cmake --build` that will call the right generator for you). If this fails again, try to build the PCL project with less jobs, then resume the superbuild :
+
+```bash
+cd <LidarView-build>/lidarview-superbuild/common-superbuild/pcl/build/
+cmake --build . --target --install -- -j1   # build and install PCL project with only 1 job
+cd <LidarView-build>
+cmake --build .  # resume whole superbuild
+```
