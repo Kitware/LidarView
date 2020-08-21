@@ -153,7 +153,6 @@ def openData(filename):
     app.actions['actionSavePCAP'].setEnabled(False)
     app.actions['actionChoose_Calibration_File'].setEnabled(False)
     app.actions['actionCropReturns'].setEnabled(False)
-    app.actions['actionRecord'].setEnabled(False)
     app.actions['actionShowRPM'].enabled = True
 
 
@@ -356,17 +355,28 @@ def openSensor():
     app.grid = createGrid()
 
     sensor = smp.LidarStream(guiName='Data', CalibrationFile=calibrationFile)
-    sensor.LidarPort = LidarPort
-    sensor.GetClientSideObject().EnableGPSListening(True)
-    sensor.GetClientSideObject().SetGPSPort(GPSPort)
-    sensor.GetClientSideObject().SetForwardedGPSPort(GPSForwardingPort)
-    sensor.GetClientSideObject().SetForwardedLidarPort(LIDARForwardingPort)
-    sensor.GetClientSideObject().SetIsForwarding(isForwarding)
-    sensor.GetClientSideObject().SetIsCrashAnalysing(calibration.isCrashAnalysing)
-    sensor.GetClientSideObject().SetForwardedIpAddress(ipAddressForwarding)
+    sensor.ListeningPort = LidarPort
+    sensor.ForwardedPort = LIDARForwardingPort
+    sensor.IsForwarding = isForwarding
+    sensor.IsCrashAnalysing = calibration.isCrashAnalysing
+    sensor.ForwardedIpAddress = ipAddressForwarding
+
+    # Change the default interpreter if the pcap is a Velodyne one
+    if calibrationFile.endswith('.xml'):
+        sensor.Interpreter = 'Velodyne Meta Interpreter'
+
     sensor.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
     sensor.UpdatePipeline()
     sensor.Start()
+
+    posOrSensor = smp.PositionOrientationStream(guiName='Position Orientation Data')
+    posOrSensor.ListeningPort = GPSPort
+    posOrSensor.ForwardedPort = GPSForwardingPort
+    posOrSensor.IsForwarding = isForwarding
+    posOrSensor.ForwardedIpAddress = ipAddressForwarding
+    posOrSensor.IsCrashAnalysing = calibration.isCrashAnalysing
+    posOrSensor.UpdatePipeline()
+    posOrSensor.Start()
 
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(sensor)
@@ -400,8 +410,6 @@ def openSensor():
     app.DistanceResolutionM = sensor.Interpreter.GetClientSideObject().GetDistanceResolutionM()
     app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
-
-    app.actions['actionRecord'].enabled = True
 
     updateUIwithNewLidar()
 
@@ -477,8 +485,7 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
     app.scene.UpdateAnimationUsingDataTimeSteps()
 
     if positionFilename is None:
-        posreader = smp.VelodyneHDLPositionReader(guiName="Position",
-                                                  FileName=filename)
+        posreader = smp.PositionOrientationReader(guiName='Position Orientation Data', FileName = filename)
         # wrapping not currently working for plugins:
         # posreader.GetClientSideObject().SetShouldWarnOnWeirdGPSData(app.geolocationToolBar.visible)
     else:
@@ -499,8 +506,11 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
         # app.positionPacketInfoLabel.setText(posreader.GetClientSideObject().GetTimeSyncInfo())
         pass
 
-    if posreader.GetClientSideObject().GetOutput().GetNumberOfPoints():
-        trange = posreader.GetPointDataInformation().GetArray('time').GetRange()
+
+    pointsOutput = posreader.GetClientSideObject().GetOutput(0)
+    if pointsOutput.GetNumberOfPoints() != 0:
+        rawOutput = posreader.GetClientSideObject().GetOutputDataObject(1)
+        trange = rawOutput.GetColumnByName("time").GetRange()
 
         # Setup scalar bar
         rep = smp.GetDisplayProperties(posreader)
@@ -529,7 +539,6 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
 
     enableSaveActions()
     addRecentFile(filename)
-    app.actions['actionRecord'].setEnabled(False)
 
     app.actions['actionShowRPM'].enabled = True
 
@@ -1068,7 +1077,6 @@ def close():
     app.filenameLabel.setText('')
     app.statusLabel.setText('')
     disableSaveActions()
-    app.actions['actionRecord'].setChecked(False)
 
 
 def _setSaveActionsEnabled(enabled):
@@ -1087,44 +1095,6 @@ def enableSaveActions():
 def disableSaveActions():
     _setSaveActionsEnabled(False)
     app.actions['actionSavePositionCSV'].setEnabled(False)
-
-
-def recordFile(filename):
-
-    sensor = getSensor()
-    if sensor:
-        stopStream()
-        sensor.OutputFile = filename
-        app.statusLabel.setText('  Recording file: %s.' % os.path.basename(filename))
-        startStream()
-
-
-def onRecord():
-
-    recordAction = app.actions['actionRecord']
-
-    if not recordAction.isChecked():
-        stopRecording()
-
-    else:
-
-        fileName = getSaveFileName('Choose Output File', 'pcap', getDefaultSaveFileName('pcap'))
-        if not fileName:
-            recordAction.setChecked(False)
-            return
-
-        recordFile(fileName)
-    recordAction.setChecked(recordAction.isChecked())
-
-
-def stopRecording():
-
-    app.statusLabel.setText('')
-    sensor = getSensor()
-    if sensor:
-        stopStream()
-        sensor.OutputFile = ''
-        startStream()
 
 
 def startStream():
@@ -1617,18 +1587,11 @@ def setupActions():
     for a in actions:
         app.actions[a.objectName] = a
 
-    app.actions['actionRecord'] = QtGui.QAction( \
-      QtGui.QIcon(QtGui.QPixmap(':/LidarViewPlugin/media-record.png')), \
-      "actionRecord",\
-      mW)
-    app.actions['actionRecord'].setCheckable(True)
-
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
 
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
 
     app.actions['actionClose'].connect('triggered()', close)
-    app.actions['actionRecord'].connect('triggered()', onRecord)
     app.actions['actionSaveCSV'].connect('triggered()', onSaveCSV)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSaveLAS'].connect('triggered()', onSaveLAS)
@@ -1687,7 +1650,9 @@ def setupActions():
     # Setup and add the playback speed control toolbar
     timeToolBar = mW.findChild('QToolBar','Player Control')
 
+    # Place the record button at the right place
     timeToolBar.addAction(app.actions['actionRecord'])
+
     spinBoxLabel = QtGui.QLabel('TF:')
     spinBoxLabel.toolTip = "Number of trailing frames"
     timeToolBar.addWidget(spinBoxLabel)
