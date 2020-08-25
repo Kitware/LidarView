@@ -1,4 +1,5 @@
-# Table of contents
+# LidarView Developer Guide
+
 1. [LidarView dependencies](#dependencies)
     1. [PCAP library](#pcap-library)
     2. [Boost library](#boost-library)
@@ -10,23 +11,23 @@
     1. [Superbuild Overview](#superbuild-overview)
     2. [Windows dependencies](#windows-dependencies)
     3. [Windows build instructions](#windows-build-instructions)
-    2. [Linux dependencies](#linux-dependencies)
-    3. [Linux build instructions](#linux-build-instructions)
+    4. [Linux dependencies](#linux-dependencies)
+    5. [Linux build instructions](#linux-build-instructions)
 3. [Packaging instructions](#packaging)
 4. [Troubleshooting](#troubleshooting)
     1. [Superbuild failure with PCL enabled](#superbuild-failure-with-pcl-enabled)
 
 ## LidarView dependencies <a name="dependencies"></a>
-The LidarView application and libraries have several external library dependencies. As explained in [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
+The LidarView application and libraries have several external library dependencies. As explained in the [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
 
 ### PCAP library <a name="pcap-library"></a>
 The required pcap version is 1.4.
 Pcap is required to support saving captured packets to a file, and reading files containing saved packets.
-On Mac/Linux, only libpcap is required.
-On Windows, we use the Winpcap project which includes libpcap but also includes Windows specific drivers. Since the winpcap project only provides Visual Studio project files, which may be out dated, the superbuild does not attempt to compile winpcap. Instead, a git repository containing headers and precompiled .lib and .dll files is used. The repository url is https://github.com/patmarion/winpcap.
+On Mac/Linux, only *libpcap* is required.
+On Windows, we use the *winpcap* project which includes *libpcap* but also includes Windows specific drivers. Since the winpcap project only provides Visual Studio project files, which may be out dated, the superbuild does not attempt to compile winpcap. Instead, a git repository containing headers and precompiled *.lib* and *.dll* files is used. The repository url is https://github.com/patmarion/winpcap.
 
 ### Boost library <a name="boost-library"></a>
-The required boost version is 1.63.
+The required boost version is 1.66.
 Boost is used for threading and synchronization, network communication and handling of the filesystem.
 
 ### Qt library <a name="qt-library"></a>
@@ -62,81 +63,79 @@ The superbuild will give you the option to use system installations of third par
 Some dependencies, on certain platforms, must be compiled by the superbuild, and for them there is no option to use a system version.
 
 ### Windows dependencies <a name="windows-dependencies"></a>
-- cmake version 3.7.2 is confirmed to work (lower versions may not work, higher versions will work), cmake is available at <https://cmake.org/>
-- ninja version 1.8.2 or higher, available at <https://github.com/ninja-build/ninja/releases>. There is no installer for this tool. You must extract the binary ninja.exe from ninja-win.zip and place it inside a directory that is inside your %PATH% environnement variable, such as C:\\Windows
-- Microsoft Visual Studio **14** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
-- git: we recommand using "Git for Windows" available at <https://gitforwindows.org/>
-- Qt 5.10.0 *(this dependency will be built automatically in the future)*. You can download the installer here: <http://download.qt.io/new_archive/qt/5.10/5.10.0/qt-opensource-windows-x86-5.10.0.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.0" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish"
-- (only for packaging) NSIS version 3.04 is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>
+- **CMake version 3.7.2** is confirmed to work (lower versions may not work, higher versions will work), cmake is available at <https://cmake.org/>.
+- **ninja version 1.8.2** or higher, available at <https://github.com/ninja-build/ninja/releases>. There is no installer for this tool. You must extract the binary *ninja.exe* from *ninja-win.zip* and place it inside a directory that is inside your `%PATH%` environnement variable, such as `C:\Windows`.
+- **Microsoft Visual Studio** ***14*** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
+- **git**: we recommand using "Git for Windows" available at <https://gitforwindows.org/>.
+- **Qt 5.10.0** *(this dependency will be built automatically in the future)*. You can download the installer here: <http://download.qt.io/new_archive/qt/5.10/5.10.0/qt-opensource-windows-x86-5.10.0.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.0" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish".
+- [only for packaging] **NSIS version 3.04** is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>.
 
 ### Windows build instructions <a name="windows-build-instructions"></a>
 
-1. clone LidarView's source code repository to a directory of your chosing, for example:
+1. Create or go to a work directory where you will save LidarView sources and build directories.
 
     `cd <work-directory>`
 
+    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. Since this directory name will appear lots of times, it can quickly reach the maximum limit. To overcome this issue, we strongly suggest that you use a directory close to the root of a drive, like `C:\` or `C:\LV\`.
+
+2. Clone LidarView's source code repository to a directory of your chosing, for example:
+
     `git clone <git url to LidarView repository> --recursive LV-src`
 
-    * You will have to know the path to this directory for step 5.
-    * Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 5. and 6.)
-    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We suggest that you clone the sources at the root of a drive, like `C:\LV-src`.
+    * Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 6. and 7.).
+    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We strongly suggest that you clone the sources close to the root of a drive, like `C:\LV-src`.
 
-2. create a new directory to store the build.
+3. Create a new directory to store the build.
 
     `mkdir <work-directory>\LV-build`
 
-    * You can use the Windows file explorer to create this directory
-    * **This directory must not be inside the LidarView source code directory**
-    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We suggest that you use a directory at the root of a drive, like `C:\LV-build`.
+    * You can use the Windows file explorer to create this directory.
+    * **This directory must not be inside the LidarView source code directory**.
+    * **The path to this directory must be short** because Windows has limitations on the maximum length of file paths and commands. We strongly suggest that you use a directory close to the root of a drive, like `C:\LV-build`.
 
-
-3. open the appropriate command prompt:
+4. Open the appropriate command prompt:
 
     `Windows Start Menu > Visual Studio 2015 > "VS2015 x86 x64 Cross Tools Command Prompt"`
 
-    * tip: for the next steps it is possible to copy a command and then past it inside the prompt with shift+insert or right-click
-    * this command prompt has some environnement variables set correctly to allow building (compiler path, etc)
-    * alternatively it is possible to use a standard cmd.exe windows prompt (in which Administrative priviledges should not be enabled for security) by entering the command: `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64`
+    * *Tip*: for the next steps it is possible to copy a command and then paste it inside the prompt with `shift+insert` or `right-click`.
+    * This command prompt has some environnement variables correctly set to allow building (compiler path, etc).
+    * Alternatively it is possible to use a standard *cmd.exe* windows prompt (in which Administrative priviledges should not be enabled for security) by entering the command: `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64`.
 
-
-4. inside the command prompt, go to the build directory you created in step 3 by entering the command
+5. Inside the command prompt, go to the build directory you created in step 3 by entering the command
 
     `cd /d "<work-directory>\LV-build"`
 
     * Adapt the path to your own build directory created in step 3.
-    * `/d` is allows to `cd` to a directory that is not on the same drive as your current path
+    * `/d` allows to `cd` to a directory that is not on the same drive as your current path.
 
-
-5. inside the command prompt configure the build by entering:
+6. Inside the command prompt configure the build by entering:
 
     `cmake <work-directory>\LV-src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"`
 
-    * Take note that this command mentions the subdirectory "Superbuild" inside the source directory and not the source directory itself.
-    * Take note that the Qt5_DIR path must use **forward slashes** (like if it was an Unix PATH), because MSVC would otherwise take "\\Q" as a build option.
+    * Note that this command mentions the subdirectory "*Superbuild*" inside the source directory and not the source directory itself.
+    * Note that the `Qt5_DIR` path must use **forward slashes** (like if it was an Unix PATH), because MSVC would otherwise take `\\Q` as a build option.
     * If you changed the default Qt installation path, you will have to adapt this command.
-    * You can use absolute or relative path to point to the LidarView source directory.
+    * You can use absolute or relative path to point to the LidarView source directory, but be sure to adapt its path to the directory created step 2.
     * Should you want to build in RelWithDebInfo mode (in order to attach a debugger for instance), replace "Release" by "RelWithDebInfo".
     * This command should show no errors, else they must be fixed.
 
-
-6. inside the command prompt, start building by entering:
+7. Inside the command prompt, start building by entering:
 
     `ninja`
 
     * Building from scratch can take from 45 minutes to 3 hours depending on your hardware.
     * By default ninja will use all cores on your machine, but you can restrict the number of cores used by using `ninja -jN` (replace N by the number of cores to use).
 
+8. If you modified only LidarView and want to rebuild incrementally (incrementally = only modified files are rebuilt), enter the commands:
 
-7. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
-
-    `cd common-superbuild/lidarview/build`
+    `cd <work-directory>\LV-build\common-superbuild\lidarview\build`
 
     `ninja install`
 
     * Incremental builds are much faster than the first build.
-    * it is also possible to run `ninja` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes
+    * It is also possible to run `ninja` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes.
 
-8. if you checkout a new branch you will need to update all submodules :
+9. If you checkout a new branch you will need to update all submodules :
 
     `git checkout <branch>`
 
@@ -159,62 +158,59 @@ The following packages are needed to build on Ubuntu 16.04:
 - freeglut3-dev
 - pkg-config
 
-### If using qt5 System:
+#### If using qt5 system:
 - qtbase5-dev
 - qtmultimedia5-dev
 - qttools5-dev
 - qtbase5-private-dev
 - libqt5x11extras5-dev
 
-### If opencv if enabled:
+#### If opencv if enabled:
 - libavformat-dev
 - libavdevice-dev
 - libavcodec-dev
 
-
 ### Linux build instructions <a name="linux-build-instructions"></a>
-1. clone LidarView's source code repository to a directory of your chosing, for example:
+
+1. Clone LidarView's source code repository to a directory of your chosing, for example:
 
     `cd <work-directory>`
 
     `git clone <git url to LidarView repository> --recursive LidarView-source`
 
-    * moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 6. and 7.)
+    * Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 3. and 4.).
 
-2. create a new directory to store the build.
+2. Create a new directory to store the build.
 
     `mkdir <work-directory>/LidarView-build`
 
     * **This directory must not be inside the LidarView source code directory**
 
-
-3. configure the build by entering:
+3. Configure the build by entering:
 
     `cd <work-directory>/LidarView-build`
 
     `cmake <work-directory>/LidarView-source/Superbuild -DCMAKE_BUILD_TYPE=Release`
 
-    * by default the generator used is **make**, if you prefer to use **ninja**, add the option `-GNinja`
-    * Take note that this command mentions the subdirectory "Superbuild" inside the source directory and not the source directory itself.
+    * By default the generator used is **make**, if you prefer to use **ninja**, add the option `-GNinja`.
+    * Take note that this command mentions the subdirectory "*Superbuild*" inside the source directory and not the source directory itself.
 
-
-4. start building by entering:
+4. Start building by entering:
 
     `make -j<N>`
 
-   * replace `<N>` by the number of cores you want to use
+   * Replace `<N>` by the number of cores you want to use.
 
-
-5. if you modified only LidarView and want to rebuild incrementally (incrementaly = only modified files are rebuilded), enter the commands:
+5. If you modified only LidarView and want to rebuild incrementally (incrementally = only modified files are rebuilt), enter the commands:
 
     `cd lidarview-superbuild/common-superbuild/lidarview/build`
 
     `make install`
 
     * Incremental builds are much faster than the first build.
-    * it is also possible to run `make` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes
+    * It is also possible to run `make` from the top of the build directory like you did the first time, but that will take longer because all dependencies are checked for changes.
 
-6. if you checkout a new branch you will need to update all submodules :
+6. If you checkout a new branch you will need to update all submodules :
 
     `git checkout <branch>`
 
@@ -222,21 +218,21 @@ The following packages are needed to build on Ubuntu 16.04:
 
 ## Packaging instructions <a name="packaging"></a>
 
-1. activate the build of tests in the cmake configuration:
+1. Activate the build of tests in the cmake configuration:
 
     `cd <work-directory>/LidarView-build`
 
     `cmake . -DBUILD_TESTING=True`
 
-2. build with the new configuration:
+2. Build with the new configuration:
 
     * On Windows : `ninja`
     * On Linux : `make`
+    * Or on all OS : `cmake --build .`
 
-3. package using cpack
+3. Package using cpack:
 
     `ctest -R cpack`
-
 
 ## Troubleshooting
 
@@ -246,7 +242,8 @@ It has been reported that if PCL is enabled in the superbuild (`-DENABLE_pcl=Tru
 
 PCL is a large point cloud processing library. Some binaries are quite heavy, and need to build/link against many targets. Sometimes, depending on your machine, the build process of some of these binaries may reach the maximum allocatable memory limit. When this happens, the OS kills this process, resulting in the *internal compiler error*.
 
-If you run into this problem, you can first try to launch again the superbuild (just re-run the `ninja/make` command, or even easier, use `cmake --build` that will call the right generator for you). If this fails again, try to build the PCL project with less jobs, then resume the superbuild :
+If you run into this problem, you can first try to launch again the superbuild (just re-run the `ninja/make` command, or even easier, use `cmake --build` that will call the right generator for you.
+If this fails again, try to build the PCL project with less jobs, then resume the superbuild :
 
 ```bash
 cd <LidarView-build>/lidarview-superbuild/common-superbuild/pcl/build/
