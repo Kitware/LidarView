@@ -63,7 +63,7 @@ The superbuild will give you the option to use system installations of third par
 Some dependencies, on certain platforms, must be compiled by the superbuild, and for them there is no option to use a system version.
 
 ### Windows dependencies <a name="windows-dependencies"></a>
-- **CMake version 3.7.2** is confirmed to work (lower versions may not work, higher versions will work), cmake is available at <https://cmake.org/>.
+- **CMake version 3.18.2** is confirmed to work, CMake is available at <https://cmake.org/>. Lower versions may not work (especially, avoid versions 3.17.4, 3.18.0 and 3.18.1 which may be incompatible with Paraview and thus LidarView, more info [here](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/5094)), higher versions will work.
 - **ninja version 1.8.2** or higher, available at <https://github.com/ninja-build/ninja/releases>. There is no installer for this tool. You must extract the binary *ninja.exe* from *ninja-win.zip* and place it inside a directory that is inside your `%PATH%` environnement variable, such as `C:\Windows`.
 - **Microsoft Visual Studio** ***14*** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
 - **git**: we recommand using "Git for Windows" available at <https://gitforwindows.org/>.
