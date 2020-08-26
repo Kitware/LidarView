@@ -21,7 +21,32 @@
       command="SetDistanceThreshold"
       number_of_elements="1"
       default_values="0.2">
+      <Documentation>
+        Maximum distance from point to model to consider the point part of the model
+      </Documentation>
     </DoubleVectorProperty>
+
+    <DoubleVectorProperty
+      name="Probability"
+      command="SetProbability"
+      number_of_elements="1"
+      default_values="0.99"
+      panel_visibility="advanced">
+      <Documentation>
+        Desired probability of choosing at least one sample free from outliers
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty
+      name="MaxIterations"
+      command="SetMaxIterations"
+      number_of_elements="1"
+      default_values="1000"
+      panel_visibility="advanced">
+      <Documentation>
+        Maximum number of iterations
+      </Documentation>
+    </IntVectorProperty>
 
     <IntVectorProperty
       name="Model"
@@ -36,6 +61,9 @@
         <Entry value="4" text="Line"/>
         <Entry value="6" text="Plane"/>
       </EnumerationDomain>
+      <Documentation>
+        Model to approximate
+      </Documentation>
     </IntVectorProperty>
 
 

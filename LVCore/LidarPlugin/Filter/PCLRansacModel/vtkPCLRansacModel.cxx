@@ -104,7 +104,7 @@ int vtkPCLRansacModel::RequestData(vtkInformation *vtkNotUsed(request),
 //            new pcl::SampleConsensusModelCylinder<pcl::PointXYZ, pcl::Normal> (pointCloud));
 //      break;
 
-    case vtkPCLRansacModel::Shpere:
+    case vtkPCLRansacModel::Sphere:
       RANSACModel = pcl::SampleConsensusModel<pcl::PointXYZ>::Ptr(
             new pcl::SampleConsensusModelSphere<pcl::PointXYZ> (pointCloud));
       break;
@@ -116,7 +116,7 @@ int vtkPCLRansacModel::RequestData(vtkInformation *vtkNotUsed(request),
 
     case vtkPCLRansacModel::Plane:
       RANSACModel = pcl::SampleConsensusModel<pcl::PointXYZ>::Ptr(
-            new pcl::SampleConsensusModelLine<pcl::PointXYZ> (pointCloud));
+            new pcl::SampleConsensusModelPlane<pcl::PointXYZ> (pointCloud));
       break;
 
     default:
@@ -127,6 +127,8 @@ int vtkPCLRansacModel::RequestData(vtkInformation *vtkNotUsed(request),
   // Instanciate and launch the random consensus
   pcl::RandomSampleConsensus<pcl::PointXYZ> ransac (RANSACModel);
   ransac.setDistanceThreshold (this->DistanceThreshold);
+  ransac.setProbability(this->Probability);
+  ransac.setMaxIterations(this->MaxIterations);
   ransac.computeModel(); // compute ransac
   ransac.getInliers(inliers); // get inlier list
   std::cout << "Inliers size : " << inliers.size() << std::endl;

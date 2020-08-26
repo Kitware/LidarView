@@ -37,13 +37,19 @@ class VTK_EXPORT vtkPCLRansacModel : public vtkPolyDataAlgorithm
     Circle3D,
     Cone,       // not implemented
     Cylinder,   // not implemented
-    Shpere,
+    Sphere,
     Line,
     Plane
   };
 
   vtkGetMacro(DistanceThreshold, double)
   vtkSetMacro(DistanceThreshold, double)
+
+  vtkGetMacro(Probability, double)
+  vtkSetMacro(Probability, double)
+
+  vtkGetMacro(MaxIterations, int)
+  vtkSetMacro(MaxIterations, int)
 
   vtkGetMacro(ModelType, int)
   vtkSetMacro(ModelType, int)
@@ -56,8 +62,14 @@ protected:
   // Request data
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  //! Maxinum distance from point to model, to consider the point part of the model
+  //! Maximum distance from point to model, to consider the point part of the model
   double DistanceThreshold;
+
+  //! Desired probability of choosing at least one sample free from outliers.
+  double Probability;
+
+  //! Maximum number of iterations.
+  int MaxIterations;
 
   //! Model to approximate
   int ModelType;
