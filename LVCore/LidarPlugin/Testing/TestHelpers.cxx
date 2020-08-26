@@ -537,7 +537,9 @@ int testLidarStream(vtkLidarStream *stream,
       }
     };
     vvPacketSender sender(pcapFileName, destinationIp, dataPort);
-    bool isOk = sender.startSending(1.0, 0, testFrame);
+    // The packet are at 50% of the real speed. This is because our osx buildboot
+    // isn't good enought for handling 100%.
+    bool isOk = sender.sendAllPackets(0.5, 0, testFrame);
     if (!isOk)
     {
         std::cout << "Test failed: Error while sending the packets." << std::endl;

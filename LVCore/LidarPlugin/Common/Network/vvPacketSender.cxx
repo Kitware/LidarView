@@ -104,6 +104,18 @@ bool vvPacketSender::sendAllPackets(double speed, int display_frequency, std::fu
       std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(time_delay)));
       }
 
+      // [HACK start] slowdown sending rate when using the loopback interface as
+      // it's a much faster interface than any real one.
+      // on windows, it's not possible to sleep for a few microseconds only
+      // so we do it just on unix system
+      #if defined(unix) || defined(__unix__) || defined(__unix)
+      if (LIDAREndpoint.address() == boost::asio::ip::address::from_string("127.0.0.1"))
+      {
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+      }
+      #endif
+      // [HACK end]
+
       // Display the user some information
       if (display_frequency > 0 && (this->GetPacketCount() % display_frequency) == 0)
       {
