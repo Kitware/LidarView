@@ -13,6 +13,7 @@
     3. [Windows build instructions](#windows-build-instructions)
     4. [Linux dependencies](#linux-dependencies)
     5. [Linux build instructions](#linux-build-instructions)
+    6. [Enabling additional LidarView features](#enabling-additional-lidarview-features)
 3. [Packaging instructions](#packaging)
 4. [Troubleshooting](#troubleshooting)
     1. [Superbuild failure with PCL enabled](#superbuild-failure-with-pcl-enabled)
@@ -118,6 +119,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
     * You can use absolute or relative path to point to the LidarView source directory, but be sure to adapt its path to the directory created step 2.
     * Should you want to build in RelWithDebInfo mode (in order to attach a debugger for instance), replace "Release" by "RelWithDebInfo".
     * This command should show no errors, else they must be fixed.
+    * To enable additional features, see section [Enabling additional LidarView features](#enabling-additional-lidarview-features).
 
 7. Inside the command prompt, start building by entering:
 
@@ -194,6 +196,7 @@ The following packages are needed to build on Ubuntu 16.04:
 
     * By default the generator used is **make**, if you prefer to use **ninja**, add the option `-GNinja`.
     * Take note that this command mentions the subdirectory "*Superbuild*" inside the source directory and not the source directory itself.
+    * To enable additional features, see section [Enabling additional LidarView features](#enabling-additional-lidarview-features).
 
 4. Start building by entering:
 
@@ -215,6 +218,13 @@ The following packages are needed to build on Ubuntu 16.04:
     `git checkout <branch>`
 
     `git submodule update --init --recursive`
+
+### Enabling additional LidarView features
+
+The command presented in step Windows/6 or Linux/3 enables basic LidarView features, which use basic dependencies.
+To enable more features that rely on additional external libraries, you can use the `ENABLE_<lib>=True` flags. This will download and install the required dependencies, and enable the corresponding LidarView features.
+
+For example, to build LidarView with SLAM support, use `-DENABLE_ceres=True -DENABLE_nanoflann=True -DENABLE_pcl=True -DENABLE_slam=True` (more info in [How to SLAM with LidarView](https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md)).
 
 ## Packaging instructions <a name="packaging"></a>
 
