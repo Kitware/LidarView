@@ -28,8 +28,6 @@ class VTK_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
 public:
   vtkTypeMacro(vtkPositionOrientationPacketInterpreter, vtkInterpreter)
 
-  vtkPositionOrientationPacketInterpreter(){}
-
   vtkSmartPointer<vtkTable> GetRawInformation(){return this->RawInformation;}
   vtkSmartPointer<vtkPolyData> GetPositionOrientation(){return this->PositionOrientation;}
 
@@ -50,6 +48,8 @@ public:
   virtual void FillInterpolatorFromPositionOrientation(){}
 
 protected:
+  vtkPositionOrientationPacketInterpreter() = default;
+
   //! Buffer to store Raw informations
   vtkSmartPointer<vtkTable> RawInformation;
 
