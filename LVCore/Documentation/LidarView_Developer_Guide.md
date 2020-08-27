@@ -17,6 +17,7 @@
 3. [Packaging instructions](#packaging)
 4. [Troubleshooting](#troubleshooting)
     1. [Superbuild failure with PCL enabled](#superbuild-failure-with-pcl-enabled)
+    2. [Using superbuild with system-wide Boost install](#using-superbuild-with-system-wide-boost-install)
 
 ## LidarView dependencies <a name="dependencies"></a>
 The LidarView application and libraries have several external library dependencies. As explained in the [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
@@ -261,3 +262,13 @@ cmake --build . --target --install -- -j1   # build and install PCL project with
 cd <LidarView-build>
 cmake --build .  # resume whole superbuild
 ```
+
+### Using superbuild with system-wide Boost install
+
+Boost libraries can be tricky to install and to manage, especially as they do not rely on CMake, and if different versions are available on your machine. To avoid these problems, the Superbuild will by default install all the Boost components it needs, and will build LidarView against this local Boost installation.
+
+However, if you have a system-wide installation of Boost on your machine, and especially if you defined some global environment variables related to Boost, the local installation may be hidden or ignored by CMake. Therefore, if your global install lacks some of the required components, or if there is any ABI incompatibility between the global and local libraries, compilation or runtime errors may arise.
+
+To avoid these issues, delete your current superbuild build directory, then to rebuild it, either :
+- **Use the superbuild Boost (preferred)** : remove the Boost environment variables during the compilation process (`BOOST_ROOT`, `BOOSTROOT`, `BOOST_LIBARYDIR`, `BOOST_INCLUDEDIR`, ...).
+- **Use only your system Boost** : tell the superbuild to use your system-wide install instead of installing a local one by enabling flag `USE_SYSTEM_boost=True` in the CMake superbuild configuration.
