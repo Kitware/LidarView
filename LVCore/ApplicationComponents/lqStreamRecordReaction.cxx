@@ -1,7 +1,7 @@
 #include "lqStreamRecordReaction.h"
 
 #include <QFileDialog>
-#include <QString>
+#include <QMessageBox>
 
 #include <pqApplicationCore.h>
 #include <pqFileDialog.h>
@@ -36,11 +36,12 @@ bool isLastStream(pqPipelineSource* src)
 }
 
 //-----------------------------------------------------------------------------
-lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool useAdvancedDialog)
+lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool displayStopMessage, bool useAdvancedDialog)
   : Superclass(action)
 {
   this->parentAction()->setEnabled(false);
   this->useAdvancedDialog = useAdvancedDialog;
+  this->displayStopMessage = displayStopMessage;
   auto* core = pqApplicationCore::instance();
 
   pqServerManagerModel* smmodel = core->getServerManagerModel();
@@ -50,6 +51,8 @@ lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool useAdvanced
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
 
+  this->recordingFilename = "";
+  this->parentAction()->setCheckable(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -59,6 +62,17 @@ void lqStreamRecordReaction::onTriggered()
   {
     vtkStream::StopRecording();
     this->parentAction()->setToolTip("Start Recording Stream Data");
+    this->parentAction()->setChecked(false);
+
+    if(this->displayStopMessage)
+    {
+      // Display a feedback message to the user when the recording is stopped
+      QMessageBox stopRecordMsg;
+      const QString txt = "Stop Recording.\nStream data have been saved in the file ";
+      stopRecordMsg.setText(txt + this->recordingFilename);
+      stopRecordMsg.setStandardButtons(QMessageBox::Ok);
+      stopRecordMsg.exec();
+    }
   }
   else
   {
@@ -82,26 +96,26 @@ void lqStreamRecordReaction::onTriggered()
     assert(lidar);
     assert(lidar->GetInterpreter());
 
-    std::string filename = "";
     if(useAdvancedDialog)
     {
       lqStreamRecordDialog dialog(nullptr, lidarName);
       if (dialog.exec())
       {
         this->parentAction()->setToolTip("Stop Recording Stream Data");
-        filename = dialog.recordingFile().toStdString();
+        this->recordingFilename = dialog.recordingFile();
         QFile::copy(QString::fromStdString(lidar->GetLidarInterpreter()->GetCalibrationFileName()),
                     dialog.calibrationFile());
       }
     }
     else
     {
-      filename = pqFileDialog::getSaveFileName(
-                  nullptr, nullptr, tr("Record File:"), QString(), "*.pcap").toStdString();
+      this->recordingFilename = pqFileDialog::getSaveFileName(
+                  nullptr, nullptr, tr("Record File:"), QString(), "*.pcap");
     }
-    if (filename != "")
+    if (this->recordingFilename != "")
     {
-      vtkStream::StartRecording(filename);
+      vtkStream::StartRecording(this->recordingFilename.toStdString());
+      this->parentAction()->setChecked(true);
     }
 
   }
