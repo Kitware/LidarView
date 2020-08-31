@@ -124,13 +124,9 @@ workflow:
   extends: .default_rules
   script:
     - cd $lidarview_build_dir
-    # run all test in parallel to speed up the tests
-    - ctest -j 8
-    # rerun all failling test as some test need to run sequecentialy (ex: Stream tests)
-    - ctest --rerun-failed
     # in some occasion, the machine on which the runner run can be under heavily load
-    # this may caused some faillure (ex: Stream tests), so rerun the failling test a last time
-    - ctest --rerun-failed
+    # this may caused some failure (ex: Stream tests), so rerun the failing test
+    - ctest --repeat until-pass:3
 
 .package:
   stage: package
