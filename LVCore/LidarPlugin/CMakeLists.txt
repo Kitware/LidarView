@@ -327,7 +327,6 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
 if (PCL_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPCLConversions.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/Common/RegistrationTools.cxx
     )
 endif(PCL_FOUND)
 if (Ceres_FOUND)
@@ -340,6 +339,7 @@ endif (Ceres_FOUND)
 if (PCL_FOUND AND Ceres_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/TrajectoryReoptimization.cxx
+      ${CMAKE_CURRENT_SOURCE_DIR}/Common/RegistrationTools.cxx
       )
 endif(PCL_FOUND AND Ceres_FOUND)
 
