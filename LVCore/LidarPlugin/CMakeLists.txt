@@ -564,6 +564,11 @@ if (APPLE)
           RUNTIME DESTINATION ${VV_INSTALL_LIBRARY_DIR}
           LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
+  
+  # install some dependencies for packaging
+  install(FILES ${PCAP_LIBRARY} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  install(FILES ${liblas_LIBRARY} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  install(FILES ${Boost_LIBRARIES} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
 
   # install executables
   install(TARGETS ${executables_to_install}
