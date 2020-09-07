@@ -45,7 +45,7 @@ protected:
 
   std::unique_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
   /*!< Number of packets to cache, above: drop oldest packets */
-  size_t PacketCacheSize = 10000;
+  size_t PacketCacheSize = 100000;
 
   std::unique_ptr<std::thread> Thread;
 };
