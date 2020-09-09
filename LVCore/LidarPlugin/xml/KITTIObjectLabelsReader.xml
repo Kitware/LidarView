@@ -1,0 +1,48 @@
+<ServerManagerConfiguration>
+
+  <ProxyGroup name="sources">
+    <SourceProxy name="KITTILabel" class="vtkKITTIObjectLabelsReader" label="KITTIObjectLabelsReader">
+      <Documentation
+        short_help="Parse KITTI 3D object detection labels"
+        long_help="Parse KITTI 3D object detection labels">
+        Parse KITTI 3D object detection labels
+      </Documentation>
+
+    <StringVectorProperty
+      name="FileName"
+      animateable="0"
+      command="SetFileName"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Documentation>
+        This property specifies the file name for the reader.
+      </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty
+      name="NumberOfFileNameDigits"
+      animateable="0"
+      command="SetNumberOfFileNameDigits"
+      number_of_elements="1"
+      default_values="10"
+      panel_visibility="advanced">
+      <Documentation>
+        Number of digits expected in the filenames
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty
+              name="TimestepValues"
+              information_only="1" >
+              <TimeStepsInformationHelper/>
+    </DoubleVectorProperty>
+
+    <Hints>
+      <ReaderFactory extensions="txt"
+         file_description="Labels File"/>
+    </Hints>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
