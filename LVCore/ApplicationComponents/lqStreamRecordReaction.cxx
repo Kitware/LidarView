@@ -109,8 +109,8 @@ void lqStreamRecordReaction::onTriggered()
     }
     else
     {
-      this->recordingFilename = pqFileDialog::getSaveFileName(
-                  nullptr, nullptr, tr("Record File:"), QString(), "*.pcap");
+      this->recordingFilename = QFileDialog::getSaveFileName(nullptr,
+                      QString("Record File:"), QString(""), QString("PCAP (*.pcap)"));
     }
     if (this->recordingFilename != "")
     {
