@@ -115,7 +115,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarKITTIDataSetReader::GetFrame(int frameNumbe
   {
     // produce path to the required .bin file
     std::stringstream ss;
-    ss << std::setw(10) << std::setfill('0') << i;
+    ss << std::setw(this->NumberOfFileNameDigits) << std::setfill('0') << i;
     std::string filename = this->GetFileName() + ss.str() + ".bin";
 
     ifstream is;

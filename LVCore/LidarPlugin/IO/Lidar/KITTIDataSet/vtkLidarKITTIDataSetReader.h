@@ -31,6 +31,8 @@ public:
 
   vtkGetMacro(NumberOfFrames, int)
 
+  vtkSetMacro(NumberOfFileNameDigits, int)
+
   //! Not implemented
   void SetCalibrationFileName(const std::string& vtkNotUsed(filename)) override {notImpementedBody}
 
@@ -70,6 +72,9 @@ private:
   int NumberOfFrames = 0;
 
   int NbrLaser = 64;
+
+  //! Number of digits expected in the filenames to read
+  int NumberOfFileNameDigits = 10;
 
   vtkLidarKITTIDataSetReader(const vtkLidarKITTIDataSetReader&) = delete;
   void operator=(const vtkLidarKITTIDataSetReader&) = delete;

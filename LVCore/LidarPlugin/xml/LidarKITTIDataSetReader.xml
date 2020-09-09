@@ -18,6 +18,18 @@
       </Documentation>
     </StringVectorProperty>
 
+    <IntVectorProperty
+      name="NumberOfFileNameDigits"
+      animateable="0"
+      command="SetNumberOfFileNameDigits"
+      number_of_elements="1"
+      default_values="10"
+      panel_visibility="advanced">
+      <Documentation>
+        Number of digits expected in the filenames
+      </Documentation>
+    </IntVectorProperty>
+
     <DoubleVectorProperty
               name="TimestepValues"
               information_only="1" >
