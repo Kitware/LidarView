@@ -13,6 +13,9 @@
       command="SetFileName"
       number_of_elements="1">
       <FileListDomain name="files"/>
+      <Hints>
+        <UseDirectoryName/>
+      </Hints>
       <Documentation>
         This property specifies the file name for the reader.
       </Documentation>
