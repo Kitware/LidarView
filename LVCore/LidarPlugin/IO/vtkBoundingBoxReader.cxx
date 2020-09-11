@@ -162,7 +162,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
     vtkErrorMacro("In yaml file, no 'objects' key at level 0!")
 
   output->SetNumberOfBlocks(objects.size());
-  for (int i = 0; i < objects.size(); ++i)
+  for (unsigned int i = 0; i < objects.size(); ++i)
   {
     try {
       std::string type = objects[i]["selector"]["type"].as<std::string>();
