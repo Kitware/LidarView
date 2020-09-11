@@ -9,13 +9,16 @@
       </Documentation>
 
     <StringVectorProperty
-      name="FileName"
+      name="FolderName"
       animateable="0"
-      command="SetFileName"
+      command="SetFolderName"
       number_of_elements="1">
       <FileListDomain name="files"/>
+      <Hints>
+        <UseDirectoryName/>
+      </Hints>
       <Documentation>
-        This property specifies the file name for the reader.
+        This property specifies the labels folder for the reader.
       </Documentation>
     </StringVectorProperty>
 
@@ -27,9 +30,39 @@
       default_values="10"
       panel_visibility="advanced">
       <Documentation>
-        Number of digits expected in the filenames
+        Number of digits expected in the filenames.
       </Documentation>
     </IntVectorProperty>
+
+    <IntVectorProperty
+      name="UseCalibration"
+      animateable="0"
+      command="SetUseCalibration"
+      number_of_elements="1"
+      default_values="0">
+      <BooleanDomain name="UseCalibration"/>
+      <Documentation>
+        Use calibration file to project boxes to the lidar coordinate system.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty
+      name="CalibFolderName"
+      animateable="0"
+      command="SetCalibFolderName"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Hints>
+        <UseDirectoryName/>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="UseCalibration"
+                                 value="1" />
+      </Hints>
+      <Documentation>
+        This property specifies the calibration files folder for the reader.
+      </Documentation>
+    </StringVectorProperty>
 
     <DoubleVectorProperty
               name="TimestepValues"

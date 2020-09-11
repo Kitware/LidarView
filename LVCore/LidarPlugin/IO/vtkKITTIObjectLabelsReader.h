@@ -12,6 +12,7 @@
  * (cf. http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
  *
  * By default, the output boxes are in the camera coordinate system.
+ * If a calibration file is provided, the output boxes will be in the lidar coordinate system
  *
  * Implementation details:
  * ----------------------
@@ -33,15 +34,15 @@
  * [15] score (only for results)
  *
  * (Source: https://github.com/kuixu/kitti_object_vis/blob/master/kitti_util.py)
- *  
+ *
  * Calibration:
  *
  * The transformation from lidar coordinates to camera coodinates is:
  * x = P2 * R0_rect * Tr_velo_to_cam * y
  * "
- * The Px matrices project a point in the rectified referenced camera coordinate to the camera_x image. 
- * camera_0 is the reference camera coordinate. R0_rect is the rectifying rotation for reference coordinate 
- * ( rectification makes images of multiple cameras lie on the same plan). Tr_velo_to_cam maps a point in 
+ * The Px matrices project a point in the rectified referenced camera coordinate to the camera_x image.
+ * camera_0 is the reference camera coordinate. R0_rect is the rectifying rotation for reference coordinate
+ * ( rectification makes images of multiple cameras lie on the same plan). Tr_velo_to_cam maps a point in
  * point cloud coordinate to reference co-ordinate.
  * "
  * (source: https://medium.com/test-ttile/kitti-3d-object-detection-dataset-d78a762b5a4)
@@ -56,9 +57,15 @@ public:
   vtkTypeMacro(vtkKITTIObjectLabelsReader, vtkMultiBlockDataSetAlgorithm)
 
   void GetLabelData(int frameIndex, vtkMultiBlockDataSet* output);
-  
-  vtkGetMacro(FileName, std::string)
-  void SetFileName(const std::string& filename);
+
+  vtkGetMacro(FolderName, std::string)
+  void SetFolderName(const std::string& path);
+
+  vtkSetMacro(UseCalibration, bool)
+  vtkGetMacro(UseCalibration, bool)
+
+  vtkGetMacro(CalibFolderName, std::string)
+  void SetCalibFolderName(const std::string& path);
 
   vtkGetMacro(NumberOfFrames, int)
 
@@ -73,15 +80,21 @@ vtkKITTIObjectLabelsReader();
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //! folder containing all the .bin file for a sequence
-  //! this should be named FolderName but to keep the same API we will keep FileName
-  std::string FileName = "";
+  //! folder containing all the .bin files for a sequence
+  std::string FolderName = "";
 
   //! Number of frame in this sequence
   int NumberOfFrames = 0;
 
   //! Number of digits expected in the filenames to read
   int NumberOfFileNameDigits = 10;
+
+  //! Use calibration files to project the bboxes to the lidar coordinate system?
+  bool UseCalibration = false;
+
+  //! folder containing all the calibration files for a sequence
+  //! If not provided, the boxes are in the camera coordinate system
+  std::string CalibFolderName = "";
 
   vtkKITTIObjectLabelsReader(const vtkKITTIObjectLabelsReader&) = delete;
   void operator=(const vtkKITTIObjectLabelsReader&) = delete;

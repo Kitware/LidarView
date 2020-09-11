@@ -84,32 +84,8 @@ object_t ParseObject(std::string line){
 }
 
 
-/*
- * @brief ConvertLabelToPolyData converts a object_t label (for example parsed 
- * with ParseObject) to a PolyData (a 3D box with field data containins its 
- * attributes)
- **/
-vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
+vtkSmartPointer<vtkPolyData> ApplyEigenIsometryToPolyData(Eigen::Isometry3d p, vtkSmartPointer<vtkPolyData> pd)
 {
-
-  auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
-
-  // Generate 3d bbox centered on zero with the correct dimensions in order to
-  // be able to rotate the box around its center
-  cubeSource->SetCenter(0, 0, 0);
-  cubeSource->SetXLength(object.height);
-  cubeSource->SetYLength(object.width);
-  cubeSource->SetZLength(object.length);
-  std::cout << "Object " << object.type <<" with size: " << object.height << ", " << object.width << ", " << object.length << std::endl;
-  cubeSource->Update();
-  vtkSmartPointer<vtkPolyData> bb = cubeSource->GetOutput();
-
-
-  // Construct the transform from object_t to move the bbox to its correct
-  // position and orientation
-  Eigen::Translation3d ts(object.position[0], object.position[1], object.position[2]);
-  Eigen::Matrix3d r(Eigen::AngleAxisd(object.rotY, Eigen::Vector3d::UnitY());  // in rad
-  Eigen::Isometry3d p(ts * Eigen::Quaterniond(r));
   vtkNew<vtkMatrix4x4> m;
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j)
@@ -121,11 +97,42 @@ vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
 
   // transform the bounding box
   vtkNew<vtkTransformPolyDataFilter> transformFilter;
-  transformFilter->SetInputData(0, bb);
+  transformFilter->SetInputData(0, pd);
   transformFilter->SetTransform(tm);
   transformFilter->Update();
 
-  bb = transformFilter->GetOutput();
+  return transformFilter->GetOutput();
+}
+
+/*
+ * @brief ConvertLabelToPolyData converts a object_t label (for example parsed
+ * with ParseObject) to a PolyData (a 3D box with field data containins its
+ * attributes)
+ **/
+vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
+{
+
+  auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
+
+  // Generate 3d bbox centered on zero with the correct dimensions in order to
+  // be able to rotate the box around its center
+  cubeSource->SetCenter(0, 0, 0);
+  cubeSource->SetXLength(object.length);
+  cubeSource->SetYLength(object.height);
+  cubeSource->SetZLength(object.width);
+  cubeSource->Update();
+  vtkSmartPointer<vtkPolyData> bb = cubeSource->GetOutput();
+
+
+  // Construct the transform from object_t to move the bbox to its correct
+  // position and orientation
+  // In the ground truth, it looks like the vertical position is the one of the bottom of the object,
+  // differently from the other dimensions
+  Eigen::Translation3d ts(object.position[0], object.position[1] - object.height / 2, object.position[2]);
+  Eigen::Matrix3d r(Eigen::AngleAxisd(object.rotY, Eigen::Vector3d::UnitY()));  // in rad
+  Eigen::Isometry3d p(ts * Eigen::Quaterniond(r));
+
+  bb = ApplyEigenIsometryToPolyData(p, bb);
 
   // Add additionnal info as field data
   auto typeData = createArray<vtkStringArray>("type", 1, 1);
@@ -147,6 +154,73 @@ vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
   return bb;
 }
 
+/*
+ * @brief ParseCalibFile parses a calibration file and returns the corresponding lidar to camera transformation
+ * as an Eigen isometry
+ **/
+Eigen::Isometry3d ParseCalibFile(std::string filename)
+{
+  fstream f;
+  f.open(filename, ios::in);
+  // In order to project the detections from the rectified camera coordinate system to the lidar coordinate system, only R0_rect and Tr_velo_to_cam are required
+  // need to be extracted
+  std::vector<double> P2, R0_rect, Tr_velo_to_cam;
+
+  if (f.is_open()){
+    std::string line;
+    while(std::getline(f, line)){
+      std::stringstream ss(line);
+      std::string key;
+      std::getline(ss, key, ' ');
+      if (key == "R0_rect:")
+      {
+        while (std::getline(ss, key, ' '))
+        {
+          R0_rect.push_back(std::stod(key));
+        }
+      }
+      else if (key == "Tr_velo_to_cam:")
+      {
+        while (std::getline(ss, key, ' '))
+        {
+          Tr_velo_to_cam.push_back(std::stod(key));
+        }
+      }
+      else
+      {
+        // pass
+      }
+    }
+  }
+  else
+  {
+    std::cerr << "Could not open calibration file." << std::endl;
+    return Eigen::Isometry3d::Identity();
+  }
+  f.close();
+
+  // Transform Tr_velo_to_cam into a 4x4 matrix using by adding a 1 as the bottom-right
+  // element and 0's elsewhere.
+  assert(R0_rect.size == 9 && "R0_rect has an incorrect size, it should contain 3x3 elements");
+  std::vector<double>::iterator it = R0_rect.begin();
+  R0_rect.insert(it+3, 0);
+  it = R0_rect.begin();
+  R0_rect.insert(it+7, 0);
+  it = R0_rect.begin();
+  R0_rect.insert(it+11, 0);
+  R0_rect.insert(R0_rect.end(), { 0, 0, 0, 1});
+  Eigen::Matrix<double, 4, 4, Eigen::RowMajor> rotation(R0_rect.data());
+
+  // Transform Tr_velo_to_cam into a 4x4 matrix using by adding a 1 as the bottom-right
+  // element and 0's elsewhere.
+  assert(Tr_velo_to_cam.size == 12 && "Tr_velo_to_cam has an incorrect size, it should contain 3x4 elements");
+  Tr_velo_to_cam.insert(Tr_velo_to_cam.end(), { 0, 0, 0, 1});
+
+  Eigen::Matrix<double, 4, 4, Eigen::RowMajor> lidar2cam(Tr_velo_to_cam.data());
+
+  return Eigen::Isometry3d(rotation * lidar2cam);
+}
+
 }
 
 
@@ -161,14 +235,14 @@ vtkKITTIObjectLabelsReader::vtkKITTIObjectLabelsReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkKITTIObjectLabelsReader::SetFileName(const std::string &filename)
+void vtkKITTIObjectLabelsReader::SetFolderName(const std::string &path)
 {
-  if (filename == this->FileName)
+  if (path == this->FolderName)
   {
     return;
   }
 
-  if (!boost::filesystem::exists(filename))
+  if (!boost::filesystem::exists(path))
   {
     vtkErrorMacro("Folder not be found! Contrary to what the name of this function implies,"
                     " the input must be the folder containing all \".txt\" label  files for a given sequence/dataset");
@@ -177,17 +251,35 @@ void vtkKITTIObjectLabelsReader::SetFileName(const std::string &filename)
 
   // count number of frames inside the folder
   this->NumberOfFrames = 0;
-  boost::filesystem::path folder(filename);
+  boost::filesystem::path folder(path);
   boost::filesystem::directory_iterator it(folder);
   while (it != boost::filesystem::directory_iterator())
   {
     this->NumberOfFrames++;
     *it++;
   }
-  this->FileName = filename + "/";
+  this->FolderName = path + "/";
   this->Modified();
 }
 
+
+//-----------------------------------------------------------------------------
+void vtkKITTIObjectLabelsReader::SetCalibFolderName(const std::string &path)
+{
+  if (path == this->CalibFolderName)
+  {
+    return;
+  }
+
+  if (!boost::filesystem::exists(path))
+  {
+    vtkErrorMacro("Folder not be found! Please provide a valid folder path to the calibration files for each frame");
+    return;
+  }
+
+  this->CalibFolderName = path + "/";
+  this->Modified();
+}
 
 
 //-----------------------------------------------------------------------------
@@ -196,11 +288,11 @@ void vtkKITTIObjectLabelsReader::GetLabelData(int frameIndex, vtkMultiBlockDataS
   // produce path to the required .txt file
   std::stringstream ss;
   ss << std::setw(this->NumberOfFileNameDigits) << std::setfill('0') << frameIndex;
-  std::string filename = this->GetFileName() + ss.str() + ".txt";
+  std::string filename = this->GetFolderName() + ss.str() + ".txt";
 
   std::vector<object_t> objects;
 
-  // parse label file
+  // parse label file (1 line per object)
   fstream f;
   f.open(filename, ios::in);
   if (f.is_open()){
@@ -208,28 +300,49 @@ void vtkKITTIObjectLabelsReader::GetLabelData(int frameIndex, vtkMultiBlockDataS
     while(std::getline(f, line)){
       auto object = ParseObject(line);
       if (object.type != "DontCare")
-      {    
-        objects.push_back(object);
+        {
+          objects.push_back(object);
       }
     }
     f.close();
   }
+
+  Eigen::Isometry3d Lidar2Camera = Eigen::Isometry3d::Identity();
+  if (this->UseCalibration)
+  {
+    // produce path to the calibration .txt file
+    std::stringstream ss;
+    ss << std::setw(this->NumberOfFileNameDigits) << std::setfill('0') << frameIndex;
+    std::string calibFilename = this->GetCalibFolderName() + ss.str() + ".txt";
+    Lidar2Camera = ParseCalibFile(calibFilename);
+  }
+
 
   // create a polydata for each object with a 3d bounding box and field values
   unsigned int nbObjects = objects.size();
   output->SetNumberOfBlocks(nbObjects);
   for (unsigned int i=0; i < nbObjects; i++)
   {
-    output->SetBlock(i, ConvertLabelToPolyData(objects[i]));
+    auto bb = ConvertLabelToPolyData(objects[i]);
+    if (this->UseCalibration)
+    {
+      bb = ApplyEigenIsometryToPolyData(Lidar2Camera.inverse(), bb);
+    }
+    output->SetBlock(i, bb);
   }
 }
 
 //-----------------------------------------------------------------------------
 int vtkKITTIObjectLabelsReader::RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *outputVector)
 {
-  if (this->FileName.empty())
+  if (this->FolderName.empty())
   {
-    vtkErrorMacro("Please specify a file name")
+    vtkErrorMacro("Please specify a folder name")
+    return VTK_ERROR;
+  }
+  if (this->UseCalibration && this->CalibFolderName.empty())
+  {
+    vtkErrorMacro("Please specify a calibration folder path or untick 'Use Calibration'")
     return VTK_ERROR;
   }
   auto *output = vtkMultiBlockDataSet::GetData(outputVector->GetInformationObject(0));
@@ -248,7 +361,6 @@ int vtkKITTIObjectLabelsReader::RequestData(vtkInformation *, vtkInformationVect
                                                    << this->GetNumberOfFrames() << " datasets.");
     return 0;
   }
-//  output->ShallowCopy(GetLabelData(timestep));
   this->GetLabelData(timestep, output);
   return 1;
 }
