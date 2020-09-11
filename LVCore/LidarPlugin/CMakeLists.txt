@@ -584,6 +584,13 @@ if (APPLE)
   install(FILES ${python_so} DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python/vtkmodules)
 
 else()
+  # install paraview libs in VV_INSTALL_LIBRARY_DIR
+  # needed to run LidarView from install path
+  if(UNIX)
+    file(GLOB paraview_libs ${ParaView_DIR}/lib/lib*.so*)
+    install(FILES ${paraview_libs} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  endif()
+
   # install libraries
   install(TARGETS ${libraries_to_install}
           RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}
