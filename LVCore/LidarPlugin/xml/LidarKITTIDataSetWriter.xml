@@ -1,0 +1,56 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <!-- <WriterProxy -->
+    <SourceProxy
+           class="vtkLidarKITTIDataSetWriter"
+           name="LidarKITTIDataSetWriter">
+      <Documentation>
+        TODO
+      </Documentation>
+      <StringVectorProperty
+        command="SetFolderName"
+        name="FolderName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Hints>
+          <UseDirectoryName/>
+        </Hints>
+        <Documentation>
+          The name of the folder to write to.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty
+        name="NumberOfFileNameDigits"
+        animateable="0"
+        command="SetNumberOfFileNameDigits"
+        number_of_elements="1"
+        default_values="10"
+        panel_visibility="advanced">
+        <Documentation>
+          Number of digits expected in the filenames.
+        </Documentation>
+      </IntVectorProperty>
+
+      <InputProperty command="SetInputConnection"
+                     name="Input">
+        <DataTypeDomain composite_data_supported="0"
+                        name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+      </InputProperty>
+
+<!--
+      <Hints>
+        <Property name="Input"
+                  show="0" />
+        <Property name="FolderName"
+                  show="0" />
+        <WriterFactory extensions="bin"
+                       file_description="KITTI binary point cloud file" />
+      </Hints>
+    </WriterProxy>
+-->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

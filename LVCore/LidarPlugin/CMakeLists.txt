@@ -156,6 +156,7 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarStream.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarPacketInterpreter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/KITTIDataSet/vtkLidarKITTIDataSetReader.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/KITTIDataSet/vtkLidarKITTIDataSetWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix/vtkApplanixPositionReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/ArduPilotDataFlashLogReader/vtkArduPilotDataFlashLogReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationPacketInterpreter.cxx
@@ -234,6 +235,7 @@ list(APPEND servermanager_xml
   xml/Stream.xml
   xml/Interpreter.xml
   xml/LidarKITTIDataSetReader.xml
+  xml/LidarKITTIDataSetWriter.xml
   xml/ApplanixPositionReader.xml
   xml/ArduPilotDataFlashLogReader.xml
   xml/BoundingBoxReader.xml
