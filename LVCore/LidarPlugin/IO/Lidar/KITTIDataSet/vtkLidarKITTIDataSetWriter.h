@@ -16,6 +16,9 @@
  * the data is stored row-aligned (the first 4 values correspond to the first point)
  * each point is represented by: x, y, z, reflectance
  *
+ * The array to use as reflectance can be set in the "advanced" properties
+ * or by using "SetInputArrayToProcess"
+ *
  * @warning In the kitti setup, x is pointing forward, and z upwards, make sure
  * your data is oriented the same way before using this writer
  **/

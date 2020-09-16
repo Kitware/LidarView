@@ -3,6 +3,7 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
 #include <vector>
@@ -18,12 +19,12 @@ namespace
  * to export as a vector of floats containing (x, y, z, intensity) for each
  * point.
  * */
-std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud)
+std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity)
 {
   std::vector<float> dataToWrite(4 * cloud->GetNumberOfPoints());
 
   // TODO: select intensity array
-  vtkDataArray* intensity = cloud->GetPointData()->GetArray("intensity");
+//  vtkDataArray* intensity = cloud->GetPointData()->GetArray("intensity");
   for (int pointIndex = 0; pointIndex < cloud->GetNumberOfPoints(); ++pointIndex)
   {
     double* pos = cloud->GetPoint(pointIndex);
@@ -139,8 +140,16 @@ int vtkLidarKITTIDataSetWriter::RequestData(vtkInformation *, vtkInformationVect
 
   std::string frameFileName((boost::filesystem::path(this->FolderName) / (ss.str() + ".bin")).string());
 
+  // Get intensity array
+  vtkDataArray* intensity = this->GetInputArrayToProcess(0, inputVector);
+  if (!intensity)
+  {
+    vtkErrorMacro(<<"No Intensity array selected.")
+    return 1;
+  }
+
   // Data for the .bin file are stored in a std::vector to make it easier to use
-  std::vector<float> dataToWrite = ParseCloudData(inCloud);
+  std::vector<float> dataToWrite = ParseCloudData(inCloud, intensity);
 
   WriteToBinaryFile(dataToWrite, frameFileName);
 
