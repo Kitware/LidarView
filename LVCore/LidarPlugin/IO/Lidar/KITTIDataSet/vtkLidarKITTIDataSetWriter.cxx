@@ -14,29 +14,6 @@
 
 namespace
 {
-/*
- * @brief ParseCloudData parses a point cloud vtkPolyData to retrieve information
- * to export as a vector of floats containing (x, y, z, intensity) for each
- * point.
- * */
-std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity)
-{
-  std::vector<float> dataToWrite(4 * cloud->GetNumberOfPoints());
-
-  // TODO: select intensity array
-//  vtkDataArray* intensity = cloud->GetPointData()->GetArray("intensity");
-  for (int pointIndex = 0; pointIndex < cloud->GetNumberOfPoints(); ++pointIndex)
-  {
-    double* pos = cloud->GetPoint(pointIndex);
-    dataToWrite[4 * pointIndex] = static_cast<float>(pos[0]);
-    dataToWrite[4 * pointIndex + 1] = static_cast<float>(pos[1]);
-    dataToWrite[4 * pointIndex + 2] = static_cast<float>(pos[2]);
-    dataToWrite[4 * pointIndex + 3] = static_cast<float>(intensity->GetTuple1(pointIndex));
-  }
-
-  return dataToWrite;
-}
-
 
 /*
  * @brief WriteToBinaryFile writes the information to export in a binary file
@@ -121,6 +98,28 @@ void vtkLidarKITTIDataSetWriter::SetFolderName(std::string foldername)
   return;
 }
 
+std::vector<float> vtkLidarKITTIDataSetWriter::ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity)
+{
+  std::vector<float> dataToWrite(4 * cloud->GetNumberOfPoints());
+
+  for (int pointIndex = 0; pointIndex < cloud->GetNumberOfPoints(); ++pointIndex)
+  {
+    double* pos = cloud->GetPoint(pointIndex);
+    float ptIntensity = static_cast<float>(intensity->GetTuple1(pointIndex));
+    if (this->NormalizeIntensity)
+    {
+      ptIntensity /= this->InputIntensityMaxValue;
+    }
+
+    dataToWrite[4 * pointIndex] = static_cast<float>(pos[0]);
+    dataToWrite[4 * pointIndex + 1] = static_cast<float>(pos[1]);
+    dataToWrite[4 * pointIndex + 2] = static_cast<float>(pos[2]);
+    dataToWrite[4 * pointIndex + 3] = ptIntensity;
+  }
+
+  return dataToWrite;
+}
+
 //-----------------------------------------------------------------------------
 int vtkLidarKITTIDataSetWriter::RequestData(vtkInformation *, vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
@@ -149,7 +148,7 @@ int vtkLidarKITTIDataSetWriter::RequestData(vtkInformation *, vtkInformationVect
   }
 
   // Data for the .bin file are stored in a std::vector to make it easier to use
-  std::vector<float> dataToWrite = ParseCloudData(inCloud, intensity);
+  std::vector<float> dataToWrite = this->ParseCloudData(inCloud, intensity);
 
   WriteToBinaryFile(dataToWrite, frameFileName);
 

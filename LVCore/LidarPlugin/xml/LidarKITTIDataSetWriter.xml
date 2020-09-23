@@ -43,7 +43,7 @@
       </IntVectorProperty>
 
       <StringVectorProperty name="SelectIntensityArray"
-                            label="Array"
+                            label="Intensity Array"
                             command="SetInputArrayToProcess"
                             number_of_elements="5"
                             element_types="0 0 0 0 2"
@@ -66,6 +66,48 @@
           </RequiredProperties>
         </FieldDataDomain>
       </StringVectorProperty>
+
+      <IntVectorProperty name="NormalizeIntensity"
+                         command="SetNormalizeIntensity"
+                         number_of_elements="1"
+                         default_values="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Enable Intensity normalization. If activated, the intensity in the output
+          files is rescaled from 0-InputIntensityMaxValue to 0-1 (in order to match
+          the value range from the Kitti dataset)
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="InputIntensityMaxValue"
+                         command="SetInputIntensityMaxValue"
+                         number_of_elements="1"
+                         default_values="255."
+                         panel_visibility="advanced">
+        <Documentation>
+          Maximum value for the intensity value range. If NormalizeIntensity is activated,
+          the intensity in the output files is rescaled from 0-InputIntensityMaxValue to 0-1
+          (in order to match the value range from the Kitti dataset)
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="NormalizeIntensity"
+                                   value="1" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="File Parameters">
+        <Property name="FolderName" />
+        <Property name="NumberOfFileNameDigits" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Intensity field Parameters">
+        <Property name="SelectIntensityArray" />
+        <Property name="NormalizeIntensity" />
+        <Property name="InputIntensityMaxValue" />
+      </PropertyGroup>
 
 <!--
       <Hints>

@@ -35,6 +35,12 @@ public:
   vtkGetMacro(NumberOfFileNameDigits, unsigned int)
   vtkSetMacro(NumberOfFileNameDigits, unsigned int)
 
+  vtkGetMacro(NormalizeIntensity, bool)
+  vtkSetMacro(NormalizeIntensity, bool)
+
+  vtkGetMacro(InputIntensityMaxValue, float)
+  vtkSetMacro(InputIntensityMaxValue, float)
+
 protected:
   vtkLidarKITTIDataSetWriter();
   ~vtkLidarKITTIDataSetWriter() = default;
@@ -44,6 +50,13 @@ protected:
    * (used in RequestUpdateExtent)
    **/
   void UpdatePipelineIndex(vtkInformation *);
+
+  /*
+   * @brief ParseCloudData parses a point cloud vtkPolyData to retrieve information
+   * to export as a vector of floats containing (x, y, z, intensity) for each
+   * point.
+   * */
+  std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity);
 
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector*);
 
@@ -58,6 +71,11 @@ protected:
 
   // Desired number of digits in the output file names
   unsigned int NumberOfFileNameDigits = 6;
+
+  // Do normalize intensity to 0-1. By default, data is normalized from 0-255 to 0-1
+  bool NormalizeIntensity = 1;
+  float InputIntensityMaxValue = 255.;
+
 
 private:
   vtkLidarKITTIDataSetWriter(const vtkLidarKITTIDataSetWriter&) = delete;
