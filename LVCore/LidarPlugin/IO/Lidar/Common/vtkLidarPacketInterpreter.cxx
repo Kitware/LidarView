@@ -2,6 +2,9 @@
 
 #include <vtkTransform.h>
 
+#include <ctime>
+#include <sstream>
+
 namespace {
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
@@ -157,4 +160,17 @@ bool vtkLidarPacketInterpreter::IsValidPacket(unsigned char const * data, unsign
 void vtkLidarPacketInterpreter::ResetCurrentData()
 {
   this->ResetCurrentFrame();
+}
+
+//-----------------------------------------------------------------------------
+std::string vtkLidarPacketInterpreter::GetDefaultRecordFileName()
+{
+  std::stringstream defaultFileName;
+
+  // Add time string YYYY-mm-dd-HH-MM-SS
+  std::time_t t = std::time(nullptr);
+  std::tm tm = *std::localtime(&t);
+  defaultFileName << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S");
+
+  return defaultFileName.str();
 }
