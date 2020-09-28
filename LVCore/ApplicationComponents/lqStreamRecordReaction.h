@@ -4,6 +4,7 @@
 #include <QString>
 
 #include "pqReaction.h"
+#include <pqSettings.h>
 
 #include "lqapplicationcomponents_export.h"
 
@@ -47,6 +48,8 @@ private:
 
   // Filename where the stream data are saved
   QString recordingFilename;
+
+  pqSettings* const Settings;
 };
 
 #endif // LQSTREAMRECORDREACTION_H

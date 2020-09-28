@@ -37,7 +37,8 @@ bool isLastStream(pqPipelineSource* src)
 
 //-----------------------------------------------------------------------------
 lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool displayStopMessage, bool useAdvancedDialog)
-  : Superclass(action)
+  : Superclass(action),
+    Settings(pqApplicationCore::instance()->settings())
 {
   this->parentAction()->setEnabled(false);
   this->useAdvancedDialog = useAdvancedDialog;
@@ -109,6 +110,9 @@ void lqStreamRecordReaction::onTriggered()
     }
     else
     {
+      QString PreviousPath = QString(this->Settings->value("LidarPlugin/RecordReaction/DefaultFolder").toString());
+      defaultFileName = PreviousPath + "/" + defaultFileName;
+
       this->recordingFilename = QFileDialog::getSaveFileName(nullptr,
                       QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
     }
@@ -116,6 +120,10 @@ void lqStreamRecordReaction::onTriggered()
     {
       vtkStream::StartRecording(this->recordingFilename.toStdString());
       this->parentAction()->setChecked(true);
+
+      // Save the path where the pcap is saved
+      QFileInfo fileInfo(this->recordingFilename);
+      this->Settings->setValue("LidarPlugin/RecordReaction/DefaultFolder", fileInfo.absolutePath());
     }
 
   }
