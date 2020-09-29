@@ -19,6 +19,8 @@ variables:
   # This will enable to run the pipeline with the updated module
   TRIGGER_MODULE_PATH: '' # path of the module that trigger the pipeline relative to LidarView
   TRIGGER_MODULE_SHA: '' # commit sha of the module that trigger the pipeline
+  TRIGGER_MODULE_REPOSITORY_PATH: '' # path of the remote of the module that trigger the pipeline
+  TRIGGER_MODULE_REMOTE_NAME: '' # name given to the remote of the module that trigger the pipeline
   SB_BUILD_PREFIX: '' # use a unique value to have a custom SB dir for some branches and not rely on the generic one
                       # this may be usefull, when you make changes to the superbuild, and want to check
                       # that this change pass the CI pipeline, but in the mean time you don't want to
@@ -38,7 +40,8 @@ default:
     # so the next fetching and checkout will basically do nothing.
     # "$git checkout " is a glorified no-op (no operation), see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - cd $CI_PROJECT_DIR/$TRIGGER_MODULE_PATH
-    - git fetch
+    - git remote add $TRIGGER_MODULE_REMOTE_NAME $TRIGGER_MODULE_REPOSITORY_PATH
+    - git fetch $TRIGGER_MODULE_REMOTE_NAME
     - git checkout $TRIGGER_MODULE_SHA
   retry:
     max: 2
