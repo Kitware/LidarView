@@ -26,6 +26,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
 #include <vtkUnsignedIntArray.h>
+#include <vtkDoubleArray.h>
 
 #include <Eigen/Dense>
 
@@ -214,7 +215,7 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
 
     // Updates iterations index
     iterationMade++;
-    iterationPointer += 3; 
+    iterationPointer += 3;
   }
 
   // Now refine using all inliers
@@ -284,6 +285,13 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
     // copy points to output
     output->SetPoints(eigenVectorToVTKPoints(Points));
   }
+
+  // Add model params to field data
+  vtkSmartPointer<vtkDoubleArray> paramdata = vtkSmartPointer<vtkDoubleArray>::New();
+  paramdata->SetName("PlaneParam");
+  paramdata->SetNumberOfComponents(4);
+  paramdata->InsertNextTuple(this->PlaneParam);
+  output->GetFieldData()->AddArray(paramdata);
 
   return 1;
 }
