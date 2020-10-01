@@ -84,6 +84,7 @@ workflow:
 
 .superbuild:
   stage: superbuild
+  timeout: 5h
   extends: .default_rules
   script:
     - cmake -E remove_directory $superbuild_build_dir
