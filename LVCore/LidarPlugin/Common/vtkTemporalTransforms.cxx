@@ -266,55 +266,47 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
 {
   auto outputPoses = vtkSmartPointer<vtkTemporalTransforms>::New();
   outputPoses->DeepCopy(this);
+  const vtkIdType nbPoints = outputPoses->GetNumberOfPoints();
 
-  // We need to change the angle axis and position arrays
+  // First, convert the positions coordinates and the orientations
+  // into Eigen containers
+  std::vector<Eigen::VectorXd> Xin(nbPoints), Xout;
+  std::vector<Eigen::VectorXd> Qin(nbPoints), Qout;
   vtkDoubleArray* anglesAxisArray = vtkDoubleArray::SafeDownCast(this->GetOrientationArray());
-  vtkDoubleArray* xyzArray = vtkDoubleArray::SafeDownCast(this->GetTranslationArray());
-
-  // First, convert the positions coordinates and the orientation
-  // using Eigen container
-  std::vector<Eigen::VectorXd> X, Y;
-  std::vector<Eigen::VectorXd> Qin, Qout;
-  for (int k = 0; k < outputPoses->GetNumberOfPoints(); ++k)
+  for (vtkIdType k = 0; k < nbPoints; ++k)
   {
-    Eigen::VectorXd x(3, 1);
-    Eigen::VectorXd q(4, 1);
-    double currPos[3];
     // Positions
-    outputPoses->GetPoint(k, currPos);
-    x << currPos[0], currPos[1], currPos[2];
-    X.push_back(x);
+    Eigen::Vector3d pos;
+    outputPoses->GetPoint(k, pos.data());
+    Xin[k] = pos;  // x, y, z
 
     // Orientations
-    double* xyzw = anglesAxisArray->GetTuple4(k);
-    Eigen::AngleAxisd angleAxis(xyzw[3], Eigen::Vector3d(xyzw[0], xyzw[1], xyzw[2]));
+    double* xyza = anglesAxisArray->GetTuple4(k);
+    Eigen::AngleAxisd angleAxis(xyza[3], Eigen::Vector3d(xyza[0], xyza[1], xyza[2]));
     Eigen::Quaterniond quat(angleAxis);
-    q << quat.w(), quat.x(), quat.y(), quat.z();
-    Qin.push_back(q);
+    Qin[k] = quat.coeffs();  // x, y, z, w
   }
 
   // Smooth the trajectory
-  EuclideanMLSSmoothing(X, Y, polDeg, kernelRadius);
+  EuclideanMLSSmoothing(Xin, Xout, polDeg, kernelRadius);
 
-  // Smooth the orientations using an euclidean
-  // MLS algorithm and then reprojecting the points
-  // onto the unit quaternion sphere
+  // Smooth the orientations using an euclidean MLS algorithm.
+  // We will then reproject the quaternions back onto the unit sphere.
   EuclideanMLSSmoothing(Qin, Qout, polDeg, kernelRadius);
 
-  // Set the points
-  for (int k = 0; k < outputPoses->GetNumberOfPoints(); ++k)
+  // Set the filtered points and orientation
+  vtkDoubleArray* outputAnglesAxisArray = vtkDoubleArray::SafeDownCast(outputPoses->GetOrientationArray());
+  for (vtkIdType k = 0; k < nbPoints; ++k)
   {
     // Positions
-    double pos[3] = {Y[k](0), Y[k](1), Y[k](2)};
-    outputPoses->GetPoints()->SetPoint(k, pos);
-    xyzArray->SetTuple3(k, pos[0], pos[1], pos[2]);
+    outputPoses->GetPoints()->SetPoint(k, Xout[k].data());
 
     // Orientations
-    Eigen::Quaterniond quat(Qout[k](0), Qout[k](1), Qout[k](2), Qout[k](3));
+    // Reproject the quaternions back onto the unit sphere.
+    Eigen::Quaterniond quat(Qout[k].data());
     quat.normalize();
-    Eigen::AngleAxisd axisAngle(quat);
-    double xyzw[4] = {axisAngle.axis()(0), axisAngle.axis()(1), axisAngle.axis()(2), axisAngle.angle()};
-    anglesAxisArray->SetTuple4(k, xyzw[0], xyzw[1], xyzw[2], xyzw[3]);
+    Eigen::AngleAxisd angleAxis(quat);
+    outputAnglesAxisArray->SetTuple4(k, angleAxis.axis().x(), angleAxis.axis().y(), angleAxis.axis().z(), angleAxis.angle());
   }
   return outputPoses;
 }
