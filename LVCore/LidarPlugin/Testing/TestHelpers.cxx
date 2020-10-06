@@ -590,3 +590,138 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
 
   return retVal;
 }
+
+//-----------------------------------------------------------------------------
+int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
+                       const std::string& pcapFileName,
+                       const std::string& referenceFileName,
+                       bool shouldPreSend, int dataPort,
+                       const std::string correctionFileName)
+{
+  // return value indicate if the test passed
+  int retVal = 0;
+
+  vtkSmartPointer<vtkLidarStream> LidarStream = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream->SetLidarInterpreter(interpreter);
+  LidarStream->SetCalibrationFileName(correctionFileName);
+  LidarStream->SetListeningPort(dataPort);
+  LidarStream->SetIsCrashAnalysing(false);
+  LidarStream->SetIsForwarding(false);
+  LidarStream->SetMulticastAddress("224.0.0.5");
+  retVal += testLidarStream(LidarStream.Get(), pcapFileName, referenceFileName, shouldPreSend);
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
+                        vtkLidarPacketInterpreter* interpreter2,
+                        const std::string& pcapFileName,
+                        const std::string& referenceFileName,
+                        bool shouldPreSend, int dataPort,
+                        const std::string correctionFileName)
+{
+
+  vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream1->SetLidarInterpreter(interpreter1);
+  LidarStream1->SetCalibrationFileName(correctionFileName);
+  LidarStream1->SetListeningPort(dataPort);
+  LidarStream1->SetIsCrashAnalysing(false);
+  LidarStream1->SetForwardedPort(dataPort + 1);
+  LidarStream1->SetForwardedIpAddress("127.0.0.1");
+  LidarStream1->SetIsForwarding(true);
+
+  vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream2->SetLidarInterpreter(interpreter2);
+  LidarStream2->SetCalibrationFileName(correctionFileName);
+  LidarStream2->SetListeningPort(dataPort + 1);
+
+  int retVal = 0;
+  // get VTP file name from the reference file
+  std::vector<std::string> referenceFilesList;
+  referenceFilesList = GenerateFileList(referenceFileName);
+
+  // Set the value for sending packets
+  std::string destinationIp = "127.0.0.1";
+
+  // Case of live correction : Packet are sent a first time to save calibration
+  if (shouldPreSend)
+  {
+    LidarStream1->Start();
+    LidarStream2->Start();
+    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+    bool isOk = sender.sendAllPackets();
+    LidarStream1->Stop();
+    LidarStream2->Stop();
+
+    if (LidarStream1->GetNeedsUpdate())
+    {
+      LidarStream1->Update(); // discard frame decoded before next pass
+    }
+    if (LidarStream2->GetNeedsUpdate())
+    {
+      LidarStream2->Update(); // discard frame decoded before next pass
+    }
+    if (!isOk)
+    {
+      return 1;
+    }
+    interpreter1->ClearAllFramesAvailable();
+    interpreter1->ResetParserMetaData();
+    interpreter2->ClearAllFramesAvailable();
+    interpreter2->ResetParserMetaData();
+  }
+
+  LidarStream1->Start();
+  LidarStream2->Start();
+
+  if (interpreter2->GetIsCalibrated())
+  {
+    // Send all data on DataPort (listen by LidarStream1) and check the result of lidarStream2
+    retVal += SendAndTestAllFrames(LidarStream2, interpreter2, referenceFilesList, pcapFileName, destinationIp, dataPort);
+
+    LidarStream1->Stop();
+    LidarStream2->Stop();
+  }
+  else
+  {
+    std::cout << "Test failed: Interpreter is not calibrated." << std::endl;
+    retVal += 1;
+  }
+  std::cout << "Done." << std::endl;
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+int TestLidarRecording(vtkLidarPacketInterpreter* interpreter,
+                       const std::string& pcapFileName,
+                       const std::string& referenceFileName,
+                       bool shouldPreSend, int dataPort,
+                       const std::string correctionFileName)
+{
+  // return value indicate if the test passed
+  int retVal = 0;
+
+  // Create temporary file to test the recording (will be deleted)
+  size_t extentionIndex = pcapFileName.find_last_of(".");
+  std::string pcapName = pcapFileName.substr(0, extentionIndex);
+  std::string temporaryFile = pcapName + "-record.pcap"; // ! will be deleted
+
+  vtkSmartPointer<vtkLidarStream> LidarStream = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream->SetLidarInterpreter(interpreter);
+  LidarStream->SetCalibrationFileName(correctionFileName);
+  LidarStream->SetListeningPort(dataPort);
+  LidarStream->SetIsCrashAnalysing(false);
+  LidarStream->SetIsForwarding(false);
+  LidarStream->StartRecording(temporaryFile);
+  retVal += testLidarStream(LidarStream.Get(), pcapFileName, referenceFileName, shouldPreSend);
+  LidarStream->StopRecording();
+
+  // Send and test the recorded pcap
+  retVal += testLidarStream(LidarStream.Get(), temporaryFile, referenceFileName, shouldPreSend);
+
+  std::remove(temporaryFile.c_str());
+
+  return retVal;
+}

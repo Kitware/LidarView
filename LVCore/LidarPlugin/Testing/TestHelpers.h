@@ -177,4 +177,55 @@ int testLidarStream(vtkLidarStream* stream,
                     const std::string& referenceFileName,
                     bool preSend);
 
+/**
+ * @brief TestLidarMulticast compare the stream output to prerecorded frames using the multicast option
+ * @param interpreter
+ * @param pcapFileName file to replay
+ * @param referenceFileName the file containing the vtp to compare with
+ * @param preSend should all packets be sent in a pre-test pass first
+ * @param dataPort port where data should be received
+ * @param correctionFileName the correction file
+ * @return nb of error
+ */
+int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
+                       const std::string& pcapFileName,
+                       const std::string& referenceFileName,
+                       bool shouldPreSend, int dataPort,
+                       const std::string correctionFileName = "");
+
+/**
+ * @brief TestLidarForwarding compare the stream output to prerecorded frames using the forwarding option
+ * @param interpreter
+ * @param pcapFileName file to replay
+ * @param referenceFileName the file containing the vtp to compare with
+ * @param preSend should all packets be sent in a pre-test pass first
+ * @param dataPort port where data should be received
+ * @param correctionFileName the correction file
+ * @return nb of error
+ */
+int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
+                        vtkLidarPacketInterpreter* interpreter2,
+                        const std::string& pcapFileName,
+                        const std::string& referenceFileName,
+                        bool shouldPreSend, int dataPort,
+                        const std::string correctionFileName);
+
+
+/**
+ * @brief TestLidarRecording compare the stream output to prerecorded frames using the recording option
+ * @param interpreter
+ * @param pcapFileName file to replay
+ * @param referenceFileName the file containing the vtp to compare with
+ * @param preSend should all packets be sent in a pre-test pass first
+ * @param dataPort port where data should be received
+ * @param correctionFileName the correction file
+ * @return nb of error
+ */
+int TestLidarRecording(vtkLidarPacketInterpreter* interpreter,
+                       const std::string& pcapFileName,
+                       const std::string& referenceFileName,
+                       bool shouldPreSend, int dataPort,
+                       const std::string correctionFileName = "");
+
+
 #endif
