@@ -383,6 +383,31 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
 }
 
 //-----------------------------------------------------------------------------
+int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, bool shouldTestRPM)
+{
+  int retVal = 0;
+
+  // Check Points count
+  retVal += TestPointCount(currentFrame, currentReference);
+
+  // Check Points position
+  retVal += TestPointPositions(currentFrame, currentReference);
+
+  // Check PointData structure
+  retVal += TestPointDataStructure(currentFrame, currentReference);
+
+  // Check PointData values
+  retVal += TestPointDataValues(currentFrame, currentReference);
+
+  if (shouldTestRPM)
+  {
+    retVal += TestRPMValues(currentFrame, currentReference, 20.0);
+  }
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
 int testLidarReader(vtkLidarReader *reader,
                     double referenceNetworkTimeToDataTime,
                     const std::string& referenceFileName)
@@ -420,20 +445,7 @@ int testLidarReader(vtkLidarReader *reader,
     vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame);
     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
-    // Check points count
-    retVal += TestPointCount(currentFrame, currentReference);
-
-    // Check points position
-    retVal += TestPointPositions(currentFrame, currentReference);
-
-    // Check pointData structure
-    retVal += TestPointDataStructure(currentFrame, currentReference);
-
-    // Check pointData values
-    retVal += TestPointDataValues(currentFrame, currentReference);
-
-    // Check RPM values
-    retVal += TestRPMValues(currentFrame, currentReference);
+    CheckCurrentFrame(currentFrame, currentReference, true);
   }
 
   retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
@@ -453,6 +465,7 @@ int testLidarStream(vtkLidarStream *stream,
 {
   return testLidarStream(stream, pcapFileName, referenceFileName, preSend);
 }
+
 //-----------------------------------------------------------------------------
 int testLidarStream(vtkLidarStream *stream,
                     const std::string& pcapFileName,
@@ -496,87 +509,11 @@ int testLidarStream(vtkLidarStream *stream,
     interpreter->ResetParserMetaData();
   }
 
-  // Packets are sent, if a new frame is ready it's compare to the associated reference frame
-  std::cout << "Sending data... " << std::endl;
-  int idFrame = 0;
-
   stream->Start();
   if (interpreter->GetIsCalibrated())
   {
-    std::function<void()> testFrame = [&](){
-      // A new frame is ready
-      if (stream->GetNeedsUpdate())
-      {
-        stream->Update();
-
-        vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(stream->GetOutput());
-        vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-        // Check Points count
-        retVal += TestPointCount(currentFrame, currentReference);
-
-        // Check Points position
-        retVal += TestPointPositions(currentFrame, currentReference);
-
-        // Check PointData structure
-        retVal += TestPointDataStructure(currentFrame, currentReference);
-
-        // Check PointData values
-        retVal += TestPointDataValues(currentFrame, currentReference);
-
-        // Check RPM values
-        // This values are computed differently in stream and reader,
-        // so to use reader generated ground-truth, tolerance is generous.
-        // Also we do not expect correct RPM on first frame.
-        if (idFrame > 0)
-        {
-          retVal += TestRPMValues(currentFrame, currentReference, 20.0);
-        }
-
-        idFrame++;
-      }
-    };
-    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
-    // The packet are at 50% of the real speed. This is because our osx buildboot
-    // isn't good enought for handling 100%.
-    bool isOk = sender.sendAllPackets(0.5, 0, testFrame);
-    if (!isOk)
-    {
-        std::cout << "Test failed: Error while sending the packets." << std::endl;
-        return 1;
-    }
-
-    // Wait a bit for every packet to arrive and check if a last complete frame is available.
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    testFrame();
+    retVal += SendAndTestAllFrames(stream, interpreter, referenceFilesList, pcapFileName, destinationIp, dataPort);
     stream->Stop();
-
-   // check for a potential uncomplete last frame.
-    if (idFrame < referenceFilesList.size())
-    {
-      interpreter->SplitFrame();
-
-      vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
-      vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-      // Check Points count
-      retVal += TestPointCount(currentFrame, currentReference);
-
-      // Check Points position
-      retVal += TestPointPositions(currentFrame, currentReference);
-
-      // Check PointData structure
-      retVal += TestPointDataStructure(currentFrame, currentReference);
-
-      // Check PointData values
-      retVal += TestPointDataValues(currentFrame, currentReference);
-
-      // Do not check for the last RPM value as the frame is incomplete.
-
-      idFrame++;
-    }
-
-    retVal += TestFrameCount(idFrame, referenceFilesList.size());
   }
   else
   {
@@ -584,6 +521,72 @@ int testLidarStream(vtkLidarStream *stream,
     retVal += 1;
   }
   std::cout << "Done." << std::endl;
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* interpreter,
+                         std::vector<std::string> referenceFilesList,
+                         const std::string& pcapFileName,
+                         std::string destinationIp, int dataPort)
+{
+  int retVal = 0;
+
+  // Packets are sent, if a new frame is ready it's compare to the associated reference frame
+  std::cout << "Sending data... " << std::endl;
+  int idFrame = 0;
+
+  std::function<void()> testFrame = [&](){
+    // A new frame is ready
+    if (stream->GetNeedsUpdate())
+    {
+      stream->Update();
+
+      vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(stream->GetOutput());
+      vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+      // Check RPM values
+      // This values are computed differently in stream and reader,
+      // so to use reader generated ground-truth, tolerance is generous.
+      // Also we do not expect correct RPM on first frame.
+      bool shouldTestRPM = (idFrame > 0);
+
+      retVal += CheckCurrentFrame(currentFrame, currentReference, shouldTestRPM);
+
+      idFrame++;
+    }
+  };
+  vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+
+  // The packet are at 50% of the real speed. This is because our osx buildboot
+  // isn't good enought for handling 100%.
+  bool isOk = sender.sendAllPackets(0.5, 0, testFrame);
+  if (!isOk)
+  {
+      std::cout << "Test failed: Error while sending the packets." << std::endl;
+      return 1;
+  }
+
+  // Wait a bit for every packet to arrive and check if a last complete frame is available.
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  testFrame();
+
+  // check for a potential uncomplete last frame.
+  if (idFrame < referenceFilesList.size())
+   {
+     interpreter->SplitFrame();
+
+     vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
+     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+
+     // Do not check for the last RPM value as the frame is incomplete.
+     retVal += CheckCurrentFrame(currentFrame, currentReference, false);
+
+     idFrame++;
+   }
+
+   retVal += TestFrameCount(idFrame, referenceFilesList.size());
 
   return retVal;
 }

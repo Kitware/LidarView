@@ -20,6 +20,7 @@
 
 class vtkLidarReader;
 class vtkLidarStream;
+class vtkLidarPacketInterpreter;
 class vtkPolyData;
 
 
@@ -108,6 +109,15 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
                                double referenceNetworkTimeToLidarTime);
 
 /**
+ * @brief CheckCurrentFrameAgainst Compare 2 frames
+ * @param currentFrame Frame to compare
+ * @param currentReference Reference against compare the currentFrame
+ * @param shouldTestRPM true if the RPM should be tested
+ * @return nb of error
+ */
+int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, bool shouldTestRPM);
+
+/**
  * @brief testLidarReader compare the reader output to prerecorded frames
  * @param reader
  * @param referenceFileName the file containing the vtp to compare with
@@ -116,6 +126,24 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
 int testLidarReader(vtkLidarReader* reader,
                     double referenceNetworkTimeToDataTime,
                     const std::string& referenceFileName);
+
+
+/**
+ * @brief SendAndTestAllFrames send packets of pcapFileName on (destinationIp, dataPort)
+ *        and compare the frames output by interpreter to the referenceFilesLists
+ * @param stream the stream
+ * @param interpreter the interpreter
+ * @param pcapFileName file to replay
+ * @param referenceFilesList the list of the reference frames information
+ * @param destinationIp Ip on which the packets should be sent
+ * @param dataPort port on which the packets should be sent
+ * @return nb of error
+ */
+int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* interpreter,
+                         std::vector<std::string> referenceFilesList,
+                         const std::string& pcapFileName,
+                         std::string destinationIp, int dataPort);
+
 
 /**
  * @brief testLidarStream comapre the the stream output to prerecorded frames
