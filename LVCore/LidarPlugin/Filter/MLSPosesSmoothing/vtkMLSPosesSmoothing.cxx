@@ -42,7 +42,7 @@ int vtkMLSPosesSmoothing::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Smooth the poses data using a MLS (moving least square)
   vtkSmartPointer<vtkTemporalTransforms> toSmoothed = vtkTemporalTransforms::CreateFromPolyData(input);
-  vtkSmartPointer<vtkTemporalTransforms> smoothed = toSmoothed->MLSSmoothing(this->PolyDeg, this->KernelSize);
+  vtkSmartPointer<vtkTemporalTransforms> smoothed = toSmoothed->MLSSmoothing(this->PolyDeg, this->KernelRadius);
 
   // Get the output
   vtkPolyData *output = vtkPolyData::GetData(outputVector->GetInformationObject(0));

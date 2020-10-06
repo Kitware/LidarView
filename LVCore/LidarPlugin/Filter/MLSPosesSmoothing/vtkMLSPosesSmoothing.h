@@ -32,8 +32,8 @@ public:
   vtkGetMacro(PolyDeg, int)
   vtkSetMacro(PolyDeg, int)
 
-  vtkGetMacro(KernelSize, int)
-  vtkSetMacro(KernelSize, int)
+  vtkGetMacro(KernelRadius, int)
+  vtkSetMacro(KernelRadius, int)
 
 protected:
   vtkMLSPosesSmoothing() = default;
@@ -45,7 +45,8 @@ protected:
   int PolyDeg = 3;
 
   //! Size of the kernel rectangular function used
-  int KernelSize = 10;
+  //! Total window size is 2 * KernelRadius + 1
+  int KernelRadius = 10;
 private:
   vtkMLSPosesSmoothing(const vtkMLSPosesSmoothing&) = delete;
   void operator=(const vtkMLSPosesSmoothing&) = delete;
