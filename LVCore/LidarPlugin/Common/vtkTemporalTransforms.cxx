@@ -268,46 +268,61 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
   outputPoses->DeepCopy(this);
   const vtkIdType nbPoints = outputPoses->GetNumberOfPoints();
 
-  // First, convert the positions coordinates and the orientations
-  // into Eigen containers
+  // ----- Smooth positions -----
+
+  // Convert the positions to Eigen containers
   std::vector<Eigen::VectorXd> Xin(nbPoints), Xout;
-  std::vector<Eigen::VectorXd> Qin(nbPoints), Qout;
-  vtkDoubleArray* anglesAxisArray = vtkDoubleArray::SafeDownCast(this->GetOrientationArray());
   for (vtkIdType k = 0; k < nbPoints; ++k)
   {
-    // Positions
     Eigen::Vector3d pos;
     outputPoses->GetPoint(k, pos.data());
     Xin[k] = pos;  // x, y, z
-
-    // Orientations
-    double* xyza = anglesAxisArray->GetTuple4(k);
-    Eigen::AngleAxisd angleAxis(xyza[3], Eigen::Vector3d(xyza[0], xyza[1], xyza[2]));
-    Eigen::Quaterniond quat(angleAxis);
-    Qin[k] = quat.coeffs();  // x, y, z, w
   }
 
   // Smooth the trajectory
   EuclideanMLSSmoothing(Xin, Xout, polDeg, kernelRadius);
 
-  // Smooth the orientations using an euclidean MLS algorithm.
-  // We will then reproject the quaternions back onto the unit sphere.
-  EuclideanMLSSmoothing(Qin, Qout, polDeg, kernelRadius);
-
-  // Set the filtered points and orientation
-  vtkDoubleArray* outputAnglesAxisArray = vtkDoubleArray::SafeDownCast(outputPoses->GetOrientationArray());
+  // Fill the filtered points
   for (vtkIdType k = 0; k < nbPoints; ++k)
-  {
-    // Positions
     outputPoses->GetPoints()->SetPoint(k, Xout[k].data());
 
-    // Orientations
-    // Reproject the quaternions back onto the unit sphere.
-    Eigen::Quaterniond quat(Qout[k].data());
-    quat.normalize();
-    Eigen::AngleAxisd angleAxis(quat);
-    outputAnglesAxisArray->SetTuple4(k, angleAxis.axis().x(), angleAxis.axis().y(), angleAxis.axis().z(), angleAxis.angle());
+  // ----- Smooth orientations -----
+
+  // Check validity of orientation arrays
+  vtkDoubleArray* anglesAxisArray = vtkDoubleArray::SafeDownCast(this->GetOrientationArray());
+  vtkDoubleArray* outputAnglesAxisArray = vtkDoubleArray::SafeDownCast(outputPoses->GetOrientationArray());
+  bool smoothOrientations = anglesAxisArray && outputAnglesAxisArray;
+
+  if (smoothOrientations)
+  {
+    // Convert the orientations into Eigen containers
+    std::vector<Eigen::VectorXd> Qin(nbPoints), Qout;
+    for (vtkIdType k = 0; k < nbPoints; ++k)
+    {
+      double* xyza = anglesAxisArray->GetTuple4(k);
+      Eigen::AngleAxisd angleAxis(xyza[3], Eigen::Vector3d(xyza[0], xyza[1], xyza[2]));
+      Eigen::Quaterniond quat(angleAxis);
+      Qin[k] = quat.coeffs();  // x, y, z, w
+    }
+
+    // Smooth the quaternions components using an euclidean MLS algorithm.
+    // We will then reproject the quaternions back onto the unit sphere.
+    EuclideanMLSSmoothing(Qin, Qout, polDeg, kernelRadius);
+
+    // Set the filtered points and orientation
+    for (vtkIdType k = 0; k < nbPoints; ++k)
+    {
+      Eigen::Quaterniond quat(Qout[k].data());
+      quat.normalize();  // Reproject the quaternions back onto the unit sphere
+      Eigen::AngleAxisd angleAxis(quat);
+      outputAnglesAxisArray->SetTuple4(k, angleAxis.axis().x(), angleAxis.axis().y(), angleAxis.axis().z(), angleAxis.angle());
+    }
   }
+  else
+  {
+    vtkWarningMacro(<< "Unable to smooth orientations as orientation array is not available.");
+  }
+
   return outputPoses;
 }
 
