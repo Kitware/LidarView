@@ -18,9 +18,9 @@ namespace
 /*
  * @brief WriteToBinaryFile writes the information to export in a binary file
  * */
-void WriteToBinaryFile(std::vector<float> &inData, std::string filename)
+void WriteToBinaryFile(std::vector<float> &inData, const std::string &filename)
 {
-  ofstream fout(filename, ios::out | ios::binary);
+  std::ofstream fout(filename, std::ios::out | std::ios::binary);
   if (!fout.is_open())
   {
     std::cout << "Error: could not open file " << filename << " for writing." << std::endl;
@@ -64,7 +64,7 @@ void vtkLidarKITTIDataSetWriter::UpdatePipelineIndex(vtkInformation * inInfo)
   // check if the previous index is closer
   if (this->PipelineIndex > 0)
   {
- if (TimeSteps[this->PipelineIndex] - this->PipelineTime > this->PipelineTime - TimeSteps[this->PipelineIndex - 1])
+    if (TimeSteps[this->PipelineIndex] - this->PipelineTime > this->PipelineTime - TimeSteps[this->PipelineIndex - 1])
     {
       this->PipelineIndex -= 1;
     }
@@ -83,7 +83,7 @@ int vtkLidarKITTIDataSetWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(r
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarKITTIDataSetWriter::SetFolderName(std::string foldername)
+void vtkLidarKITTIDataSetWriter::SetFolderName(const std::string &foldername)
 {
   if (foldername.empty())
   {

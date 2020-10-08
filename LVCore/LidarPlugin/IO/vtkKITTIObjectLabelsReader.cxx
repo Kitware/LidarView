@@ -20,6 +20,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <numeric>
 
 # include <boost/filesystem.hpp>
 
@@ -46,7 +47,7 @@ typedef struct object {
 /**
  * @brief ParseObject parses a label line to create an `object` instance
  */
-object_t ParseObject(std::string line){
+object_t ParseObject(const std::string &line){
   std::stringstream ss(line);
   object_t object;
   std::string tmp_str;
@@ -84,7 +85,7 @@ object_t ParseObject(std::string line){
 }
 
 
-vtkSmartPointer<vtkPolyData> ApplyEigenIsometryToPolyData(Eigen::Isometry3d p, vtkSmartPointer<vtkPolyData> pd)
+vtkSmartPointer<vtkPolyData> ApplyEigenIsometryToPolyData(const Eigen::Isometry3d &p, vtkSmartPointer<vtkPolyData> pd)
 {
   vtkNew<vtkMatrix4x4> m;
   for (int i = 0; i < 4; ++i)
@@ -129,8 +130,8 @@ vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
   // In the ground truth, it looks like the vertical position is the one of the bottom of the object,
   // differently from the other dimensions
   Eigen::Translation3d ts(object.position[0], object.position[1] - object.height / 2, object.position[2]);
-  Eigen::Matrix3d r(Eigen::AngleAxisd(object.rotY, Eigen::Vector3d::UnitY()));  // in rad
-  Eigen::Isometry3d p(ts * Eigen::Quaterniond(r));
+  Eigen::AngleAxisd r(object.rotY, Eigen::Vector3d::UnitY());  // in rad
+  Eigen::Isometry3d p(ts * r);
 
   bb = ApplyEigenIsometryToPolyData(p, bb);
 
@@ -158,10 +159,10 @@ vtkSmartPointer<vtkPolyData> ConvertLabelToPolyData(const object_t object)
  * @brief ParseCalibFile parses a calibration file and returns the corresponding lidar to camera transformation
  * as an Eigen isometry
  **/
-Eigen::Isometry3d ParseCalibFile(std::string filename)
+Eigen::Isometry3d ParseCalibFile(const std::string &filename)
 {
-  fstream f;
-  f.open(filename, ios::in);
+  std::fstream f;
+  f.open(filename, std::ios::in);
   // In order to project the detections from the rectified camera coordinate system to the lidar coordinate system, only R0_rect and Tr_velo_to_cam are required
   // need to be extracted
   std::vector<double> P2, R0_rect, Tr_velo_to_cam;
@@ -185,10 +186,6 @@ Eigen::Isometry3d ParseCalibFile(std::string filename)
         {
           Tr_velo_to_cam.push_back(std::stod(key));
         }
-      }
-      else
-      {
-        // pass
       }
     }
   }
@@ -293,8 +290,8 @@ void vtkKITTIObjectLabelsReader::GetLabelData(int frameIndex, vtkMultiBlockDataS
   std::vector<object_t> objects;
 
   // parse label file (1 line per object)
-  fstream f;
-  f.open(filename, ios::in);
+  std::fstream f;
+  f.open(filename, std::ios::in);
   if (f.is_open()){
     std::string line;
     while(std::getline(f, line)){
@@ -326,7 +323,8 @@ void vtkKITTIObjectLabelsReader::GetLabelData(int frameIndex, vtkMultiBlockDataS
     auto bb = ConvertLabelToPolyData(objects[i]);
     if (this->UseCalibration)
     {
-      bb = ApplyEigenIsometryToPolyData(Lidar2Camera.inverse(), bb);
+      Eigen::Isometry3d inv = Lidar2Camera.inverse();
+      bb = ApplyEigenIsometryToPolyData(inv, bb);
     }
     output->SetBlock(i, bb);
   }
@@ -373,11 +371,8 @@ int vtkKITTIObjectLabelsReader::RequestInformation(vtkInformation* vtkNotUsed(re
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
   int numberOfTimesteps = this->NumberOfFrames;
-  std::vector<double> timesteps;
-  for (int i = 0; i < numberOfTimesteps; ++i)
-  {
-    timesteps.push_back(i);
-  }
+  std::vector<double> timesteps(numberOfTimesteps);
+  std::iota(timesteps.begin(), timesteps.end(), 0.);
 
   if (numberOfTimesteps)
   {

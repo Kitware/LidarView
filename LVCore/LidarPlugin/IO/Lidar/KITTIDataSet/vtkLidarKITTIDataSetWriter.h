@@ -29,8 +29,8 @@ public:
   vtkTypeMacro(vtkLidarKITTIDataSetWriter, vtkPolyDataAlgorithm);
   // void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkGetMacro(FolderName, std::string)
-  void SetFolderName(std::string);
+  vtkGetMacro(FolderName, const std::string&)
+  void SetFolderName(const std::string&);
 
   vtkGetMacro(NumberOfFileNameDigits, unsigned int)
   vtkSetMacro(NumberOfFileNameDigits, unsigned int)

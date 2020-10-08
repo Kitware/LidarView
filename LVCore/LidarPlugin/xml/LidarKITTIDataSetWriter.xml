@@ -5,7 +5,8 @@
            class="vtkLidarKITTIDataSetWriter"
            name="LidarKITTIDataSetWriter">
       <Documentation>
-        TODO
+        vtkLidarKITTIDataSetWriter generates binary files in the same format as
+        the Kitti dataset, containing the data of the input vtkPolyData.
       </Documentation>
 
       <InputProperty command="SetInputConnection"
