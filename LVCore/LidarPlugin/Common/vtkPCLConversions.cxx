@@ -168,9 +168,9 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
     for (vtkIdType i = 0; i < nr_points; ++i)
     {
       // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
+      if (!std::isfinite (cloud->points[i].x) ||
+          !std::isfinite (cloud->points[i].y) ||
+          !std::isfinite (cloud->points[i].z))
         continue;
 
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
@@ -210,9 +210,9 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
     for (vtkIdType i = 0; i < nr_points; ++i)
     {
       // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
+      if (!std::isfinite (cloud->points[i].x) ||
+          !std::isfinite (cloud->points[i].y) ||
+          !std::isfinite (cloud->points[i].z))
         continue;
 
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
@@ -259,9 +259,9 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
     for (vtkIdType i = 0; i < nr_points; ++i)
     {
       // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
+      if (!std::isfinite (cloud->points[i].x) ||
+          !std::isfinite (cloud->points[i].y) ||
+          !std::isfinite (cloud->points[i].z))
         continue;
 
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
@@ -312,9 +312,9 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
     for (vtkIdType i = 0; i < nr_points; ++i)
     {
       // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
+      if (!std::isfinite (cloud->points[i].x) ||
+          !std::isfinite (cloud->points[i].y) ||
+          !std::isfinite (cloud->points[i].z))
         continue;
 
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};

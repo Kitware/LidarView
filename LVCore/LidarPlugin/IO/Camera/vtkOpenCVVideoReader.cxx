@@ -261,7 +261,7 @@ int vtkOpenCVVideoReader::RequestInformation(vtkInformation* vtkNotUsed(request)
 
 //-----------------------------------------------------------------------------
 int vtkOpenCVVideoReader::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+  vtkInformationVector **vtkNotUsed(inputVector), vtkInformationVector *outputVector)
 {
   vtkImageData* output = vtkImageData::GetData(outputVector);
   vtkInformation* info = outputVector->GetInformationObject(0);

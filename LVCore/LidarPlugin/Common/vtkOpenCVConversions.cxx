@@ -108,7 +108,6 @@ cv::Mat VtkImageToCvImage(vtkSmartPointer<vtkImageData> inImg, bool flipHorizont
   // Interpret vtkImage as OpenCV object (pointing with the same data)
   auto openCVInterp = cv::Mat(height, width, CV_8UC3, inImg->GetScalarPointer());
 
-  size_t N = height * width * channels;
   if (flipHorizontally)
   {
     cv::flip(openCVInterp, openCVInterp, 0);

@@ -29,7 +29,7 @@ public:
   vtkTypeMacro(vtkTemporalTransforms,vtkPolyData)
 
   static vtkSmartPointer<vtkTemporalTransforms> CreateFromPolyData(vtkPolyData* poly,
-                                                                   char * OrientationArrayName = "Orientation(AxisAngle)");
+                                                                   const char* orientationArrayName = "Orientation(AxisAngle)");
   //  static vtkSmartPointer<vtkTemporalTransforms> CreateFromInterpolator(const vtkCustomTransformInterpolator*);
 
   vtkSmartPointer<vtkTransform> GetTransform(unsigned int transformNumber);
@@ -107,7 +107,7 @@ protected:
   vtkTemporalTransforms();
 
 private:
-  char * OrientationArrayName = "Orientation(AxisAngle)";
+  char const* OrientationArrayName = "Orientation(AxisAngle)";
   char const* TimeArrayName = "Time";
 
   vtkTemporalTransforms(const vtkTemporalTransforms&) /*= delete*/;

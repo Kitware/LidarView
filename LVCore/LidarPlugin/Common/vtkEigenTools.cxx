@@ -234,11 +234,12 @@ void EuclideanMLSSmoothing(const std::vector<Eigen::VectorXd>& X,
   Y = X;
 
   // Loop over the points of the trajectory
-  for (int pointIndex = 0; pointIndex < Y.size(); ++pointIndex)
+  int nbPoints = static_cast<int>(Y.size());
+  for (int pointIndex = 0; pointIndex < nbPoints; ++pointIndex)
   {
     // neighborhood information
     int minNeighIndex = std::max(0, pointIndex - kernelRadius);
-    int maxNeighIndex = std::min(static_cast<int>(Y.size()) - 1, pointIndex + kernelRadius);
+    int maxNeighIndex = std::min(nbPoints - 1, pointIndex + kernelRadius);
     int neighCardinal = maxNeighIndex - minNeighIndex + 1;
 
     // Loop over neighborhood to compute the normal equations
@@ -296,7 +297,7 @@ Eigen::VectorXd MultivariateMedian(const std::vector<Eigen::VectorXd> X, double 
 
   // Initialize the first median estimation to the mean
   Eigen::VectorXd Median = Eigen::VectorXd::Zero(X[0].size(), 1);
-  for (int i = 0; i < X.size(); ++i)
+  for (unsigned int i = 0; i < X.size(); ++i)
   {
     Median += X[i] / static_cast<double>(X.size());
   }
@@ -308,18 +309,18 @@ Eigen::VectorXd MultivariateMedian(const std::vector<Eigen::VectorXd> X, double 
   {
     Eigen::VectorXd nextMedian = Eigen::VectorXd::Zero(X[0].size(), 1);
     double sumInvDist = 0;
-    for (int i = 0; i < X.size(); ++i)
+    for (unsigned int i = 0; i < X.size(); ++i)
     {
       sumInvDist += 1.0 / (X[i] - Median).norm();
     }
-    for (int i = 0; i < X.size(); ++i)
+    for (unsigned int i = 0; i < X.size(); ++i)
     {
       nextMedian += X[i] / (X[i] - Median).norm();
     }
     Median = nextMedian / sumInvDist;
 
     Eigen::VectorXd residual = Eigen::VectorXd::Zero(X[0].size(), 1);
-    for (int i = 0; i < X.size(); ++i)
+    for (unsigned int i = 0; i < X.size(); ++i)
     {
       residual += (X[i] - Median).normalized();
     }

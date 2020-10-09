@@ -114,7 +114,7 @@ int vtkSeparateCloudKnn::RequestData(vtkInformation* vtkNotUsed(request),
     mat_index.query(apoint.data(), this->NbNeighbors, nearestIndex.data(), nearestDist.data());
 
     // get indices of neighbors
-    for (size_t i = 0; i < this->NbNeighbors; ++i)
+    for (int i = 0; i < this->NbNeighbors; ++i)
     {
       if ( (this->MaxDistance > 0.0) && (nearestDist[i] <= this->MaxDistance)) {
 

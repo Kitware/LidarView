@@ -104,8 +104,8 @@ int main(int argc, char* argv[])
     const unsigned char * data = 0;
     unsigned int dataLength = 0;
     double lastPacketNetworkTime = 0;
-    pcap_pkthdr* headerReference;
-    unsigned int dataHeaderLength;
+    pcap_pkthdr* headerReference = nullptr;
+    unsigned int dataHeaderLength = 0;
 
     if (!reader->Open(InputFile))
     {

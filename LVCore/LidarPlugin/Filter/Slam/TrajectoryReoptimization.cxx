@@ -99,7 +99,7 @@ PoseEstimationVector TrajectoryReoptimization(const PoseEstimationVector& absolu
   // - Regularizer that leads the attach to odometry data
   std::vector<Eigen::Matrix<double, 6, 1> > W(relativePoses.size());
   std::vector<double*> parameterBlocks(relativePoses.size());
-  for (int k = 0; k < relativePoses.size(); ++k)
+  for (unsigned int k = 0; k < relativePoses.size(); ++k)
   {
     W[k] = Eigen::Matrix<double, 6, 1>::Zero();
     parameterBlocks[k] = W[k].data();
@@ -136,7 +136,7 @@ PoseEstimationVector TrajectoryReoptimization(const PoseEstimationVector& absolu
   // one attached to the sensor at time t0
   PoseEstimationVector absoluteCorrectedPoses;
   Eigen::Matrix4d Hcorrected = Eigen::Matrix4d::Identity();
-  for (int poseIndex = 0; poseIndex < absolutePoses.size(); ++poseIndex)
+  for (unsigned int poseIndex = 0; poseIndex < absolutePoses.size(); ++poseIndex)
   {
     // Compute the current pose regarding world reference frame
     Eigen::Matrix4d dH = Eigen::Matrix4d::Identity();
@@ -223,7 +223,6 @@ void ConvertPolyDataToPoseEstimation(vtkSmartPointer<vtkPolyData> trajectory,
     double* variance = varianceArray->GetTuple(poseIndex);
     double* axisAngle = axisAngleArray->GetTuple(poseIndex);
     double* position = trajectory->GetPoint(poseIndex);
-    double angle = axisAngle[3];
     Eigen::Vector3d axis(axisAngle[0], axisAngle[1], axisAngle[2]);
 
     // Populate current absolute pose estimation information

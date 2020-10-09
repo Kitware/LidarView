@@ -31,11 +31,11 @@ PacketReceiver::PacketReceiver(int port,
                                std::string multicastAddress,
                                std::string localListeningAddress)
   : Port(port)
-  , ReceiverCallback(callback)
   , MulticastAddress(multicastAddress)
   , LocalListeningAddress(localListeningAddress)
   , Socket(IOService)
   , ForwardedSocket(IOService)
+  , ReceiverCallback(callback)
 {
   // Check that the provided multicast ipadress is valid
   // Multicast enforce the use of ipv4 protocol

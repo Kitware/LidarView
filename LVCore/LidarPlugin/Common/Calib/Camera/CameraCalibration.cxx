@@ -92,7 +92,7 @@ double LinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std
 
   // Compute the normal equations
   Eigen::MatrixXd A(2 * X.size(), 12);
-  for (int k = 0; k < X.size(); ++k)
+  for (unsigned int k = 0; k < X.size(); ++k)
   {
     A.row(2 * k) << X[k](0), X[k](1), X[k](2), 1,
                     0, 0, 0, 0,
@@ -113,7 +113,7 @@ double LinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std
 
   // Compute the RMSE
   double meanErr = 0;
-  for (int k = 0; k < X.size(); ++k)
+  for (unsigned int k = 0; k < X.size(); ++k)
   {
     Eigen::Vector4d homoX(X[k](0), X[k](1), X[k](2), 1);
     Eigen::Vector3d projX = P * homoX;
@@ -209,7 +209,7 @@ double NonLinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const 
   // Compute mean error
   GetMatrixFromParameters(W, P1);
   double meanErr = 0;
-  for (int k = 0; k < X.size(); ++k)
+  for (unsigned int k = 0; k < X.size(); ++k)
   {
     Eigen::Vector4d homoX(X[k](0), X[k](1), X[k](2), 1);
     Eigen::Vector3d projX = P1 * homoX;
@@ -246,7 +246,7 @@ double NonLinearFisheyeCalibration(const std::vector<Eigen::Vector3d>& X, const 
   ceres::Solve(options, &problem, &summary);
 
   double meanErr = 0;
-  for (int k = 0; k < X.size(); ++k)
+  for (unsigned int k = 0; k < X.size(); ++k)
   {
     meanErr += ((x[k] - FisheyeProjection(W, X[k])).transpose() * (x[k] - FisheyeProjection(W, X[k])))(0);
   }
@@ -299,7 +299,7 @@ double BrownConradyPinholeCalibration(const std::vector<Eigen::Vector3d>& X, con
   }
 
   double meanErr = 0;
-  for (int k = 0; k < X.size(); ++k)
+  for (unsigned int k = 0; k < X.size(); ++k)
   {
     meanErr += ((x[k] - BrownConradyPinholeProjection(W, X[k])).transpose() * (x[k] - BrownConradyPinholeProjection(W, X[k])))(0);
   }
@@ -365,7 +365,7 @@ Eigen::VectorXd FullCalibrationPipelineFromMatches(std::string filename, const s
   // Check that the optical axis of the camera is
   // correctly oriented according to the 3D points
   Eigen::Vector3d Xmean = Eigen::Vector3d::Zero();
-  for (int i = 0; i < X.size(); ++i)
+  for (unsigned int i = 0; i < X.size(); ++i)
   {
     Xmean += X[i] / static_cast<double>(X.size());
   }
@@ -397,7 +397,6 @@ Eigen::VectorXd FullCalibrationPipelineFromMatches(std::string filename, const s
 
   Eigen::Matrix<double, 11, 1> Wpinhole;
   GetParametersFromMatrix(K, R, T, Wpinhole);
-  Eigen::Matrix<double, 11, 1> Wpi = Wpinhole;
 
   // Then, refine the model obtained using linear
   // estimation by using a non-linear pinhole parameters

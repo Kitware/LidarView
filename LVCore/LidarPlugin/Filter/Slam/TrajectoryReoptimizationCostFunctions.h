@@ -115,7 +115,7 @@ public:
     // create a residual value per anchor poses available in the data
     // the residual will be the frobenius squared norm between the currently
     // estimated absolute pose and the corresponding anchor.
-    for (int anchor = 0; anchor < this->Hanchor.size(); ++anchor)
+    for (unsigned int anchor = 0; anchor < this->Hanchor.size(); ++anchor)
     {
       Eigen::Matrix<T, 4, 4> targetH;
       for (int i = 0; i < this->Hanchor[anchor].size(); ++i)
@@ -167,7 +167,7 @@ public:
         new ceres::DynamicAutoDiffCostFunction<TrajectoryReoptimizationResidual, Stride>(constraint);
 
     // Add all the parameter blocks that affect this contraint
-    for (int poseIndex = 0; poseIndex < argRelativePoses.size(); ++poseIndex)
+    for (unsigned int poseIndex = 0; poseIndex < argRelativePoses.size(); ++poseIndex)
     {
       // 6-dof correction associated to this pose
       function->AddParameterBlock(6);

@@ -77,7 +77,7 @@ struct KDTreeVectorOfVectorsAdaptor
 	  *  The user can also call index->... methods as desired.
 	  * \note nChecks_IGNORED is ignored but kept for compatibility with the original FLANN interface.
 	  */
-	inline void query(const num_t *query_point, const size_t num_closest, IndexType *out_indices, num_t *out_distances_sq, const int nChecks_IGNORED = 10) const
+	inline void query(const num_t *query_point, const size_t num_closest, IndexType *out_indices, num_t *out_distances_sq, const int /*nChecks_IGNORED*/ = 10) const
 	{
 		nanoflann::KNNResultSet<num_t,IndexType> resultSet(num_closest);
 		resultSet.init(out_indices, out_distances_sq);

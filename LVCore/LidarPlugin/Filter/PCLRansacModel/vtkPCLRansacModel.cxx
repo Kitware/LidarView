@@ -143,7 +143,7 @@ int vtkPCLRansacModel::RequestData(vtkInformation *vtkNotUsed(request),
   {
     InlierOutlierArray->InsertNextValue(0);
   }
-  for (int k = 0; k < inliers.size(); ++k)
+  for (unsigned int k = 0; k < inliers.size(); ++k)
   {
     InlierOutlierArray->SetValue(inliers[k], 255);
   }

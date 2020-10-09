@@ -29,7 +29,7 @@ std::vector<int> DBSCAN<T>::fit(std::vector<std::vector<T>> points)
   computeAdjacencyList();
   std::vector<int> label(_points.size(), LABEL::UNDEFINED);
   int currentClusterID = 0;
-  for (int i = 0; i < _points.size(); ++i)
+  for (unsigned int i = 0; i < _points.size(); ++i)
   {
     if (label[i] != LABEL::UNDEFINED)
     {
@@ -44,7 +44,7 @@ std::vector<int> DBSCAN<T>::fit(std::vector<std::vector<T>> points)
     currentClusterID++;
     label[i] = currentClusterID;
     std::vector<int> clusterPointIdx = _adjacencyList[i];
-    for (int j = 0; j < clusterPointIdx.size(); ++j )
+    for (unsigned int j = 0; j < clusterPointIdx.size(); ++j )
     {
       int& currentPointLabel = label[clusterPointIdx[j]];
       if (currentPointLabel == LABEL::NOISE)
@@ -95,10 +95,10 @@ void DBSCAN<T>::computeAdjacencyList()
   nanoflann::SearchParams params;
   params.sorted = false;
 
-  for (int i = 0; i < _points.size(); ++i)
+  for (unsigned int i = 0; i < _points.size(); ++i)
   {
     const size_t nMatches = mat_index.index->radiusSearch(_points[i].data(), _epsilon, ret_matches, params);
-    for (int j = 0; j < nMatches; ++j)
+    for (unsigned int j = 0; j < nMatches; ++j)
     {
       _adjacencyList[i].push_back(ret_matches[j].first);
     }

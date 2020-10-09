@@ -50,7 +50,7 @@ private:
   std::vector<std::vector<int>> _adjacencyList;
   int _nbCluster = 0;
   double _epsilon;
-  int _minPts;
+  unsigned int _minPts;
 };
 
 

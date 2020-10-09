@@ -73,7 +73,7 @@ void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W)
   boost::algorithm::split(values, line, boost::is_any_of(","));
   // initialize the parameters
   W = Eigen::VectorXd(values.size(), 1);
-  for (int i = 0; i < values.size(); ++i)
+  for (unsigned int i = 0; i < values.size(); ++i)
   {
     W(i) = std::atof(values[i].c_str());
   }

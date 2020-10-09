@@ -123,7 +123,7 @@ private:
   boost::asio::ip::udp::socket ForwardedSocket;
 
   /*!< Buffer which will saved the data that arrived via the network
-  /* It must be larger than the largest packet expected to be receive*/
+       It must be larger than the largest packet expected to be receive*/
   unsigned char RXBuffer[BUFFER_SIZE];
 
   /*!< Flag indicating if we should stop the listening, @todo check if we shouldn't use an atomic here */

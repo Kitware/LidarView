@@ -126,7 +126,7 @@ void ProjectAllPoints(pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud,
   // Project all the points on the image. If two differents points
   // are projected on the same pixel, we keep the closest one (according to
   // the center of the camera)
-  for (int i = 0; i < cloud->size(); ++i)
+  for (unsigned int i = 0; i < cloud->size(); ++i)
   {
     // Project the point into the image plan
     pcl::PointXYZINormal pt = cloud->points[i];
@@ -177,8 +177,8 @@ void ProjectAllPoints(pcl::PointCloud<pcl::PointXYZINormal>::Ptr cloud,
 void ComputePointVisibility(std::vector<bool>& isPointVisible,
                             const std::vector<Eigen::Vector3d>& projectionMatching,
                             const std::vector<bool>& hasPointProjected,
-                            unsigned int H,
-                            unsigned int W,
+                            int H,
+                            int W,
                             int L)
 {
   // Now, handle occultation using heuristic method.
@@ -194,7 +194,7 @@ void ComputePointVisibility(std::vector<bool>& isPointVisible,
         Eigen::Vector3d P = projectionMatching[i + H * j];
 
         int umin = std::max(0, i - L); int vmin = std::max(0, j - L);
-        int umax = std::min((int)(H) - 1, i + L); int vmax = std::min((int)(W) - 1, j + L);
+        int umax = std::min(H - 1, i + L); int vmax = std::min(W - 1, j + L);
         std::vector<double> solidAnglesPerSector(8, std::numeric_limits<double>::max());
         std::vector<bool> isSectorEmpty(8, true);
 
@@ -316,10 +316,9 @@ double QuadraticInterpolatation(const std::vector<Eigen::Vector2d>& points, cons
 //----------------------------------------------------------------------------
 void ComputeInterpolation(std::vector<cv::Mat> img, int L,
                           const std::vector<Eigen::Vector3d>& projectionMatching,
-                          Eigen::Vector3d cameraCenter,
-                          unsigned int H, unsigned int W)
+                          Eigen::Vector3d cameraCenter)
 {
-  for (int imgIndx = 0; imgIndx < img.size(); ++imgIndx)
+  for (unsigned int imgIndx = 0; imgIndx < img.size(); ++imgIndx)
   {
     // First, copy the input image
     cv::Mat rawImg;
@@ -437,7 +436,7 @@ void ComputeInterpolation(std::vector<cv::Mat> img, int L,
 //----------------------------------------------------------------------------
 void ComputeMedianFilter(std::vector<cv::Mat> img, int L)
 {
-  for (int imgIndx = 0; imgIndx < img.size(); ++imgIndx)
+  for (unsigned int imgIndx = 0; imgIndx < img.size(); ++imgIndx)
   {
     // First, copy the input image
     cv::Mat rawImg;
@@ -662,8 +661,8 @@ void MIDHOGCalibration::CreateSyntheticImage()
   this->SyntheticImage.push_back(255.0 * cv::Mat::ones(this->Image.size(), CV_8UC1));
   this->SyntheticImage.push_back(255.0 * cv::Mat::ones(this->Image.size(), CV_8UC1));
   this->SyntheticImage.push_back(255.0 * cv::Mat::ones(this->Image.size(), CV_8UC1));
-  unsigned int H = this->Image.rows;
-  unsigned int W = this->Image.cols;
+  int H = this->Image.rows;
+  int W = this->Image.cols;
 
   // Create the synthetic image
   // First, project all the points on the image. If two differents points
@@ -686,7 +685,7 @@ void MIDHOGCalibration::CreateSyntheticImage()
 
   // get the max intensity
   double maxD = 0;
-  for (int i = 0; i < projectionIntensity.size(); ++i)
+  for (unsigned int i = 0; i < projectionIntensity.size(); ++i)
   {
     maxD = std::max(projectionIntensity[i], maxD);
   }
@@ -711,7 +710,7 @@ void MIDHOGCalibration::CreateSyntheticImage()
   }
 
   // Finally, we will interpole missing data
-  ComputeInterpolation(this->SyntheticImage, this->NeighborRadiusInterpolation, projectionMatching, C, H, W);
+  ComputeInterpolation(this->SyntheticImage, this->NeighborRadiusInterpolation, projectionMatching, C);
 
   // Compute median filter to remove salt noise
   ComputeMedianFilter(this->SyntheticImage, this->NeighborRadiusMedianFilter);

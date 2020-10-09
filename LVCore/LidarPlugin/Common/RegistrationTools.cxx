@@ -72,9 +72,6 @@ Eigen::Matrix4d ICPPointToPlaneRegistration(pcl::PointCloud<pcl::PointXYZ>::Ptr 
     std::vector<Eigen::Vector3d> PointOnPlane, Points;
     std::vector<double> scores;
 
-    unsigned int tooFarCounter = 0;
-    unsigned int notPlanarCounter = 0;
-
     // loop to create ICP matches
     for (unsigned int pointIndex = 0; pointIndex < toAligned->size(); ++pointIndex)
     {

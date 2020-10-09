@@ -48,7 +48,7 @@ std::pair<double, AnglePositionVector> EstimateCalibrationFromPoses(const std::s
   vtkSmartPointer<vtkTemporalTransforms> trans1, trans2;
   trans1 = vtkTemporalTransformsReader::OpenTemporalTransforms(sourceSensorFilename);
   trans2 = vtkTemporalTransformsReader::OpenTemporalTransforms(targetSensorFilename);
-  return EstimateCalibrationFromPoses(trans1, trans2);
+  return EstimateCalibrationFromPoses(trans1, trans2, timeScaleAnalysisBound, timeScaleAnalysisStep, timeStep);
 }
 
 //----------------------------------------------------------------------------
@@ -146,7 +146,8 @@ vtkSmartPointer<vtkTemporalTransforms> EstimateCalibrationFromPosesAndApply(
                                             const double timeStep)
 {
   // Estimate the cycloidic transform that match the source trajectory on the target one
-  std::pair<double, AnglePositionVector> estimation = EstimateCalibrationFromPoses(sourceSensor, targetSensor);
+  std::pair<double, AnglePositionVector> estimation = EstimateCalibrationFromPoses(sourceSensor, targetSensor,
+                                                                                   timeScaleAnalysisBound, timeScaleAnalysisStep, timeStep);
   // Transform the source trajectory
   std::pair<Eigen::Vector3d, Eigen::Vector3d> dof6(estimation.second.segment(0, 3), estimation.second.segment(3, 3));
   vtkSmartPointer<vtkTransform> transform = GetTransformFromPosesParams(dof6);
