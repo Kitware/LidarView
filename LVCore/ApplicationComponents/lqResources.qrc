@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/lqResources">
+        <file>Icons/pqSaveState.png</file>
+        <file>Icons/pqLoadState.png</file>
+    </qresource>
+</RCC>

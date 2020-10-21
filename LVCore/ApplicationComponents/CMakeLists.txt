@@ -26,11 +26,19 @@ add_library(lqApplicationComponents
   lqStreamRecordDialog.h
   lqStreamRecordReaction.cxx
   lqStreamRecordReaction.h
+  SaveAndLoadLidarState/lqSaveLidarStateReaction.cxx
+  SaveAndLoadLidarState/lqSaveLidarStateReaction.h
+  SaveAndLoadLidarState/lqLoadLidarStateReaction.cxx
+  SaveAndLoadLidarState/lqLoadLidarStateReaction.h
+  SaveAndLoadLidarState/lqLidarStateDialog.cxx
+  SaveAndLoadLidarState/lqLidarStateDialog.h
+  lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/ctk/
+  ${CMAKE_CURRENT_SOURCE_DIR}/SaveAndLoadLidarState/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 target_link_libraries(lqApplicationComponents
