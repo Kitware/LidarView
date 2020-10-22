@@ -1,4 +1,5 @@
 add_subdirectory("ApplicationComponents/")
+add_subdirectory("DatasetIOPlugin/")
 add_subdirectory("LidarPlugin/")
 add_subdirectory("LidarSlamPlugin/")
 add_subdirectory("Python")
