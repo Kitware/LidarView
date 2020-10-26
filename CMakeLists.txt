@@ -134,7 +134,14 @@ find_package(PythonQt REQUIRED)
 # Find the PythonQt plugin library in ParaView lib directory
 get_target_property(paraview_lib_location pqCore LOCATION)
 get_filename_component(paraview_lib_location ${paraview_lib_location} PATH)
-find_library(PYTHONQTPLUGIN_LIBRARY PythonQtPlugin HINTS ${paraview_lib_location}  DOC "ParaView PythonQt plugin library")
+
+if(WIN32)
+  set(PYTHONQTPLUGIN_DIR ${paraview_lib_location}/../lib)
+else()
+  set(PYTHONQTPLUGIN_DIR ${paraview_lib_location}/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}/plugins/PythonQtPlugin)
+endif()
+
+find_library(PYTHONQTPLUGIN_LIBRARY PythonQtPlugin HINTS ${PYTHONQTPLUGIN_DIR}  DOC "ParaView PythonQt plugin library")
 mark_as_advanced(PYTHONQTPLUGIN_LIBRARY)
 
 if(WIN32 AND MSVC)
@@ -159,6 +166,9 @@ add_subdirectory(Application)
 # TODO: once we use Qt built from source on Windows, remove this manual installation
 # currently: PythonQt fails to build against our own build of Qt
 if (WIN32)
+  install(FILES "${paraview_lib_location}/plugins/PythonQtPlugin/PythonQtPlugin.dll"
+          DESTINATION ${VV_INSTALL_RUNTIME_DIR})
+
   foreach (qt5_opengl_lib IN ITEMS opengl32sw libEGL libGLESv2 libEGLd
       Qt5Core Qt5Gui Qt5Widgets Qt5Help Qt5Network Qt5PrintSupport Qt5Sql)
     install(
