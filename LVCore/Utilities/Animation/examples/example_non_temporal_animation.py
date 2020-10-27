@@ -5,6 +5,7 @@ It doesn't use Paraview animation mechanism, and isn't based on data timestamps.
 This script moves the camera along an absolute orbit path, and saves snapshots
 along trajectory.
 """
+from __future__ import print_function
 import os
 import paraview.simple as smp
 import camera_path as cp
@@ -44,4 +45,4 @@ for i in range(nb_frames):
     # Save render view snapshot
     image_name = os.path.join(frames_out_dir, "%06d.png" % (i))
     smp.SaveScreenshot(image_name)
-    print i
+    print(i)

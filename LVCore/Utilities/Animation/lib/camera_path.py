@@ -1,3 +1,4 @@
+from __future__ import print_function
 from scipy.spatial.transform import Rotation
 import numpy as np
 
@@ -70,7 +71,7 @@ class CameraPath:
 			else:
 				return 1.0 / (1.0 + (w / (1.0 - w)) ** (-beta))
 		else:
-			print "Invalid transition mode: ", self.transition_mode
+			print("Invalid transition mode: ", self.transition_mode)
 			return 0.0
 
 	def interpolate_position(self, step, R_lidar, T_lidar, prev_cam_pos):

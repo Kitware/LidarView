@@ -20,7 +20,7 @@ RUN apt-get update && \
         flex \
         byacc \
         python-minimal \
-        python2.7-dev \
+        python3.7-dev \
         libxext-dev \
         libxt-dev \
         libbz2-dev \

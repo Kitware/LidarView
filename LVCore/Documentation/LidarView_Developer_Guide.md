@@ -37,7 +37,7 @@ The required Qt version is 5.10.
 Qt is a desktop widget library that is used to provide user interface elements like windows and menus across the supported platforms Windows, Mac, and Linux.
 
 ### Python <a name="python"></a>
-The required Python version is 2.7.
+The required Python version is 3.7.
 LidarView uses libpython to embed a Python interpreter in the LidarView application.
 The core LidarView features are implemented in C++ libraries, and the libraries are wrapped for Python using VTK's Python wrapping tools.
 
@@ -153,13 +153,15 @@ The following packages are needed to build on Ubuntu 16.04:
 - flex
 - byacc
 - python-minimal
-- python2.7-dev
+- python3.7-dev
 - libxext-dev
 - libxt-dev
 - libbz2-dev
 - zlib1g-dev
 - freeglut3-dev
 - pkg-config
+
+Note that **CMake version 3.12 or higher** is needed, it is available at <https://cmake.org/>.
 
 #### If using qt5 system:
 - qtbase5-dev
