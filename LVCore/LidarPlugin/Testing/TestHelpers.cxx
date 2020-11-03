@@ -457,11 +457,11 @@ int testLidarReader(vtkLidarReader *reader,
 //-----------------------------------------------------------------------------
 int testLidarStream(vtkLidarStream *stream,
                     bool preSend,
-                    double preSendSpeed,
-                    double speed,
+                    double vtkNotUsed(preSendSpeed),
+                    double vtkNotUsed(speed),
                     const std::string &pcapFileName,
                     const std::string &referenceFileName,
-                    bool testLastFrame)
+                    bool vtkNotUsed(testLastFrame))
 {
   return testLidarStream(stream, pcapFileName, referenceFileName, preSend);
 }
@@ -535,7 +535,7 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
 
   // Packets are sent, if a new frame is ready it's compare to the associated reference frame
   std::cout << "Sending data... " << std::endl;
-  int idFrame = 0;
+  unsigned int idFrame = 0;
 
   std::function<void()> testFrame = [&](){
     // A new frame is ready
