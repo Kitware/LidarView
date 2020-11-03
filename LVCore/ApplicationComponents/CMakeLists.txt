@@ -41,6 +41,9 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/SaveAndLoadLidarState/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
+target_sources(lqApplicationComponents PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/lqHelper.cxx
+  )
 target_link_libraries(lqApplicationComponents
     PUBLIC
     pqApplicationComponents
