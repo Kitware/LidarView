@@ -575,7 +575,7 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
   // check for a potential uncomplete last frame.
   if (idFrame < referenceFilesList.size())
    {
-     interpreter->SplitFrame();
+     interpreter->SplitFrame(true);
 
      vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
      vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
