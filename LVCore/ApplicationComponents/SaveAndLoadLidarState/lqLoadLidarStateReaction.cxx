@@ -218,12 +218,12 @@ void lqLoadLidarStateReaction::UpdateProperty(vtkSMProxy * proxy,
       {
         std::cout << "Values to applied and base property does not have the same size" << std::endl;
       }
-      double d[values.size()];
+      std::vector<double> d;
       for(unsigned int j = 0; j < values.size(); j++)
       {
-        d[j] = std::stod(values[j]);
+        d.push_back(std::stod(values[j]));
       }
-      vtkSMPropertyHelper(prop).Set(d, values.size());
+      vtkSMPropertyHelper(prop).Set(d.data(), d.size());
     }
     else
     {
