@@ -472,6 +472,12 @@ int testLidarStream(vtkLidarStream *stream,
                     const std::string& referenceFileName,
                     bool preSend)
 {
+  if(!stream)
+  {
+    std::cout << "Stream is nullptr" << std::endl;
+    return 1;
+  }
+
   int retVal = 0;
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
@@ -489,6 +495,12 @@ int testLidarStream(vtkLidarStream *stream,
   const int dataPort = stream->GetListeningPort();
 
   auto interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
+
+  if(!interpreter)
+  {
+    std::cout << "Interpreter is nullptr" << std::endl;
+    return 1;
+  }
 
   // Case of live correction : Packet are sent a first time to save calibration
   if (preSend)
