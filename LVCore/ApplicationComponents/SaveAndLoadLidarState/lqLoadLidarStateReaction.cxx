@@ -15,6 +15,7 @@
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyIterator.h>
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMSourceProxy.h>
 #include <vtkSMBooleanDomain.h>
 
 #include <cstring>
@@ -118,6 +119,12 @@ void lqLoadLidarStateReaction::onTriggered()
     }
     //Update the proxy
     lidarCurrentProxy->UpdateSelfAndAllInputs();
+    vtkSMSourceProxy * sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(lidarCurrentProxy);
+    if(sourcelidarProxy)
+    {
+      sourcelidarProxy->UpdatePipelineInformation();
+    }
+    pqApplicationCore::instance()->render();
   }
 }
 
