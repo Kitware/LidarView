@@ -32,6 +32,11 @@ add_library(lqApplicationComponents
   SaveAndLoadLidarState/lqLoadLidarStateReaction.h
   SaveAndLoadLidarState/lqLidarStateDialog.cxx
   SaveAndLoadLidarState/lqLidarStateDialog.h
+  LidarCameraToolbar/lqLidarCameraReaction.cxx
+  LidarCameraToolbar/lqLidarCameraReaction.h
+  LidarCameraToolbar/lqLidarCameraToolbar.cxx
+  LidarCameraToolbar/lqLidarCameraToolbar.h
+  LidarCameraToolbar/lqLidarCameraToolbar.ui
   lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC
@@ -39,6 +44,7 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/ctk/
   ${CMAKE_CURRENT_SOURCE_DIR}/SaveAndLoadLidarState/
+  ${CMAKE_CURRENT_SOURCE_DIR}/LidarCameraToolbar/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 target_sources(lqApplicationComponents PUBLIC
