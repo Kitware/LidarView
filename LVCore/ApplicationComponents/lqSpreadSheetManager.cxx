@@ -164,19 +164,17 @@ void lqSpreadSheetManager::conditionnallyHideColumn(const std::string& condition
 //-----------------------------------------------------------------------------
 void lqSpreadSheetManager::onSpreadSheetEndRender()
 {
-  // endRender may not be the best signal to use because it will be called at
-  // each frame whereas we would prefer to update only when the source is
-  // changed. However I tried pqSpreadSheetView::showing and
-  // pqSpreadSheetView::viewportUpdated but none worked because column names
-  // are not yet updated
-  if (this->getCurrentShownObjectName() != this->lastShownObjectName)
-  {
-    conditionnallyHideColumn("Data", "Points_m_XYZ"); // hide dupe of pt coords
-    conditionnallyHideColumn("TrailingFrame", "Points_m_XYZ");
+  // Every time the spreadsheet has to be rendered:
+  // - we hide the column "Points_m_XYZ" because it's too wide.
+  // - we check which columns have to be displayed (some of them could have been hidden by the user
+  // We do this every time (not only for each new frame)
+  // Because if the user opens and closes the spreadsheet on the same frame, it should display the same things.
 
-    this->restoreColumnSelection();
-  }
-  this->lastShownObjectName = this->getCurrentShownObjectName();
+
+  conditionnallyHideColumn("Data", "Points_m_XYZ"); // hide dupe of pt coords
+  conditionnallyHideColumn("TrailingFrame", "Points_m_XYZ");
+
+  this->restoreColumnSelection();
 }
 
 //-----------------------------------------------------------------------------

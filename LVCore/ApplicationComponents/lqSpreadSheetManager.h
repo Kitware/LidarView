@@ -62,7 +62,6 @@ private:
                                 const std::string& columnName);
   void restoreColumnSelection();
   std::string getCurrentShownObjectName();
-  std::string lastShownObjectName = "";
 };
 
 #endif // __lqSpreadSheetManager_h
