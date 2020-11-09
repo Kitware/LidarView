@@ -17,13 +17,13 @@
 #include <pqObjectBuilder.h>
 #include <pqApplicationCore.h>
 #include <pqActiveObjects.h>
-#include <pqSettings.h>
 
 #include <assert.h>
 
 //-----------------------------------------------------------------------------
 lqSpreadSheetManager::lqSpreadSheetManager(QObject* parent) : QObject(parent)
 {
+  this->Settings = pqApplicationCore::instance()->settings();
 }
 
 //-----------------------------------------------------------------------------
@@ -213,8 +213,6 @@ void lqSpreadSheetManager::onSaveColumnSelection()
     return;
   }
 
-  pqSettings* settings = pqApplicationCore::instance()->settings();
-
   const int cols = this->SpreadSheetView->getViewModel()->columnCount();
   QStringList hiddenArrays;
   for (int i = 0; i < cols; i++)
@@ -227,16 +225,15 @@ void lqSpreadSheetManager::onSaveColumnSelection()
   }
 
   std::string key = getHiddenArraysKey(this->getCurrentShownObjectName());
-  settings->setValue(key.c_str(), hiddenArrays);
+  this->Settings->setValue(key.c_str(), hiddenArrays);
 }
 
 //-----------------------------------------------------------------------------
 void lqSpreadSheetManager::restoreColumnSelection()
 {
-  pqSettings* settings = pqApplicationCore::instance()->settings();
   std::string objectName = this->getCurrentShownObjectName();
   std::string key = getHiddenArraysKey(objectName);
-  QStringList hiddenArrays = settings->value(key.c_str()).toStringList();
+  QStringList hiddenArrays = this->Settings->value(key.c_str()).toStringList();
   foreach (QString array, hiddenArrays)
   {
     this->conditionnallyHideColumn(objectName, array.toStdString());

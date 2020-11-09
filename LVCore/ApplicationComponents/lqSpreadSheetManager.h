@@ -16,6 +16,7 @@
 #define __lqSpreadSheetManager_h
 
 #include <pqRenderView.h>
+#include <pqSettings.h>
 #include <pqSpreadSheetView.h>
 #include <pqSpreadSheetViewModel.h>
 #include <pqSpreadSheetViewDecorator.h>
@@ -54,6 +55,8 @@ private:
 
   pqSpreadSheetView* SpreadSheetView = nullptr;
   pqSpreadSheetViewDecorator* SpreadSheetViewDec = nullptr;
+
+  pqSettings* Settings;
 
   void constructSpreadSheet();
   void destructSpreadSheet();
