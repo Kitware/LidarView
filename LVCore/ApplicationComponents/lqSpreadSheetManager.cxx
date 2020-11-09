@@ -18,12 +18,22 @@
 #include <pqApplicationCore.h>
 #include <pqActiveObjects.h>
 
+#include <vtkEventQtSlotConnect.h>
+#include "vtkSMProperty.h"
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMViewProxy.h>
+
 #include <assert.h>
 
 //-----------------------------------------------------------------------------
 lqSpreadSheetManager::lqSpreadSheetManager(QObject* parent) : QObject(parent)
 {
   this->Settings = pqApplicationCore::instance()->settings();
+
+  // we disable the "show only selection" because otherwise if you quit LidarView with this option ON
+  // when you will open Lidarview again the Spreadsheet will be empty because no points are selected.
+  // This can be misleading for the user so we set this property to false on opening of lidarview
+  this->Settings->setValue("ShowOnlySelectedElement", false);
 }
 
 //-----------------------------------------------------------------------------
@@ -65,6 +75,12 @@ void lqSpreadSheetManager::constructSpreadSheet()
 
   QObject::connect(this->SpreadSheetView, SIGNAL(endRender()), this, SLOT(onSpreadSheetEndRender()));
   QObject::connect(this, SIGNAL(saveColumnSelection()), this, SLOT(onSaveColumnSelection()));
+
+  // Connect the "Selection only" property to a slot to save this property information
+  vtkEventQtSlotConnect* connector = vtkEventQtSlotConnect::New();
+  vtkSMViewProxy* viewModule = this->SpreadSheetView->getViewProxy();
+  connector->Connect(viewModule->GetProperty("SelectionOnly"), vtkCommand::ModifiedEvent,
+    this, SLOT(onSpreadSheetSelectionOnly()));
 
   this->SpreadSheetViewDec = new pqSpreadSheetViewDecorator(this->SpreadSheetView);
   this->SpreadSheetViewDec->setPrecision(3);
@@ -174,6 +190,7 @@ void lqSpreadSheetManager::onSpreadSheetEndRender()
   conditionnallyHideColumn("Data", "Points_m_XYZ"); // hide dupe of pt coords
   conditionnallyHideColumn("TrailingFrame", "Points_m_XYZ");
 
+  this->restoreShowOnlySelectedElement();
   this->restoreColumnSelection();
 }
 
@@ -238,6 +255,22 @@ void lqSpreadSheetManager::restoreColumnSelection()
   {
     this->conditionnallyHideColumn(objectName, array.toStdString());
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqSpreadSheetManager::onSpreadSheetSelectionOnly()
+{
+  // Save if "Show only selected elements" is enabled
+  int showOnlySelectedElement = vtkSMPropertyHelper(this->SpreadSheetView->getProxy(), "SelectionOnly").GetAsInt();
+  this->Settings->setValue("ShowOnlySelectedElement", showOnlySelectedElement);
+}
+
+//-----------------------------------------------------------------------------
+void lqSpreadSheetManager::restoreShowOnlySelectedElement()
+{
+  int showOnlySelectedElement = this->Settings->value("ShowOnlySelectedElement").toInt();
+  vtkSMPropertyHelper(this->SpreadSheetView->getProxy(), "SelectionOnly").Set(showOnlySelectedElement);
+  this->SpreadSheetView->getProxy()->UpdateProperty("SelectionOnly", true);
 }
 
 //-----------------------------------------------------------------------------

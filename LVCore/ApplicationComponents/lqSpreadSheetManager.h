@@ -49,6 +49,7 @@ protected slots:
   // only the list of hidden columns is saved
   void onSaveColumnSelection();
 
+  void onSpreadSheetSelectionOnly();
 private:
   QDockWidget* spreadSheetDock = nullptr;
   pqRenderView* mainView = nullptr;
@@ -64,6 +65,7 @@ private:
   void conditionnallyHideColumn(const std::string& conditionSrcName,
                                 const std::string& columnName);
   void restoreColumnSelection();
+  void restoreShowOnlySelectedElement();
   std::string getCurrentShownObjectName();
 };
 
