@@ -445,7 +445,7 @@ int testLidarReader(vtkLidarReader *reader,
     vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame);
     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
-    CheckCurrentFrame(currentFrame, currentReference, true);
+    retVal += CheckCurrentFrame(currentFrame, currentReference, true);
   }
 
   retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
