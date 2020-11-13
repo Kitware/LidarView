@@ -29,11 +29,6 @@
 lqSpreadSheetManager::lqSpreadSheetManager(QObject* parent) : QObject(parent)
 {
   this->Settings = pqApplicationCore::instance()->settings();
-
-  // we disable the "show only selection" because otherwise if you quit LidarView with this option ON
-  // when you will open Lidarview again the Spreadsheet will be empty because no points are selected.
-  // This can be misleading for the user so we set this property to false on opening of lidarview
-  this->Settings->setValue("ShowOnlySelectedElement", false);
 }
 
 //-----------------------------------------------------------------------------
