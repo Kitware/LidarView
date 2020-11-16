@@ -37,6 +37,8 @@ add_library(lqApplicationComponents
   LidarCameraToolbar/lqLidarCameraToolbar.cxx
   LidarCameraToolbar/lqLidarCameraToolbar.h
   LidarCameraToolbar/lqLidarCameraToolbar.ui
+  lqEnableAdvancedArraysReaction.cxx
+  lqEnableAdvancedArraysReaction.h
   lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC
