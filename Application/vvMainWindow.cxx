@@ -32,6 +32,7 @@
 #include "lqStreamRecordReaction.h"
 #include "lqSaveLidarStateReaction.h"
 #include "lqLoadLidarStateReaction.h"
+#include "lqEnableAdvancedArraysReaction.h"
 
 #include <vtkSMProxyManager.h>
 #include <vtkSMSessionProxyManager.h>
@@ -354,6 +355,9 @@ private:
     pqPythonShell* shell = qobject_cast<pqPythonShell*>(this->Ui.pythonShellDock->widget());
     connect(pqLidarViewManager::instance(), SIGNAL(pythonCommand(const QString&)), shell,
       SLOT(executeScript(const QString&)));
+
+    // Add save/load lidar state action
+    new lqEnableAdvancedArraysReaction(this->Ui.actionEnableAdvancedArrays);
   }
 };
 

@@ -167,7 +167,8 @@
    <addaction name="actionSpreadsheet"/>
    <addaction name="actionPython_Console"/>
    <addaction name="actionShowErrorDialog"/>
-  </widget>
+   <addaction name="actionEnableAdvancedArrays"/>
+</widget>
   <widget class="lqColorToolbar" name="colorToolBar">
    <property name="windowTitle">
     <string>Color Controls</string>
@@ -726,6 +727,18 @@
    </property>
    <property name="toolTip">
     <string>Show the error console.</string>
+   </property>
+  </action>
+  <action name="actionEnableAdvancedArrays">
+   <property name="icon">
+    <iconset resource="../LVCore/ApplicationComponents/lqResources.qrc">
+     <normaloff>:/lqResources/Icons/EnableAdvancedArrays.png</normaloff>:/lqResources/Icons/EnableAdvancedArrays.png</iconset>
+   </property>
+   <property name="text">
+    <string>Enable Advanced Arrays</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable the interpreter's advanced arrays.</string>
    </property>
   </action>
   <action name="actionAdvanceFeature">
