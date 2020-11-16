@@ -198,7 +198,7 @@ Eigen::Isometry3d ParseCalibFile(const std::string &filename)
 
   // Transform Tr_velo_to_cam into a 4x4 matrix using by adding a 1 as the bottom-right
   // element and 0's elsewhere.
-  assert(R0_rect.size == 9 && "R0_rect has an incorrect size, it should contain 3x3 elements");
+  assert(R0_rect.size() == 9 && "R0_rect has an incorrect size, it should contain 3x3 elements");
   std::vector<double>::iterator it = R0_rect.begin();
   R0_rect.insert(it+3, 0);
   it = R0_rect.begin();
@@ -210,7 +210,7 @@ Eigen::Isometry3d ParseCalibFile(const std::string &filename)
 
   // Transform Tr_velo_to_cam into a 4x4 matrix using by adding a 1 as the bottom-right
   // element and 0's elsewhere.
-  assert(Tr_velo_to_cam.size == 12 && "Tr_velo_to_cam has an incorrect size, it should contain 3x4 elements");
+  assert(Tr_velo_to_cam.size() == 12 && "Tr_velo_to_cam has an incorrect size, it should contain 3x4 elements");
   Tr_velo_to_cam.insert(Tr_velo_to_cam.end(), { 0, 0, 0, 1});
 
   Eigen::Matrix<double, 4, 4, Eigen::RowMajor> lidar2cam(Tr_velo_to_cam.data());
