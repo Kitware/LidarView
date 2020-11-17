@@ -137,6 +137,13 @@
     <BooleanDomain name="bool" />
   </IntVectorProperty>
 
+  <StringVectorProperty
+    name="DefaultRecordFileName"
+    command="GetDefaultRecordFileName"
+    panel_visibility="never"
+    information_only="1">
+  </StringVectorProperty>
+
   <IntVectorProperty name="LaserSelection"
                      command="SetLaserSelection"
                      information_property="LaserSelectionInfo"
