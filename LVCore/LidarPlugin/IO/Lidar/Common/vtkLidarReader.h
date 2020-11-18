@@ -44,8 +44,9 @@ public:
 
   /**
    * @brief GetSensorInformation return some sensor information used for display purposes
+   * @param shortVersion True to have a succinct version of the sensor information
    */
-  virtual std::string GetSensorInformation();
+  virtual std::string GetSensorInformation(bool shortVersion = false);
 
   /**
    * @copydoc vtkLidarPacketInterpreter::CalibrationFileName

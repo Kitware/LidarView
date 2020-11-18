@@ -112,9 +112,10 @@ public:
 
   /**
    * @brief GetSensorInformation return information to display to the user
+   * @param shortVersion True to have a succinct version of the sensor information
    * @return
    */
-  virtual std::string GetSensorInformation() = 0;
+  virtual std::string GetSensorInformation(bool shortVersion = false) = 0;
 
   /**
    * @brief CreateNewFrameInformation create a new frame information

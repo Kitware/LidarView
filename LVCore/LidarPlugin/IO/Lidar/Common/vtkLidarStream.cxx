@@ -43,9 +43,9 @@ int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkLidarStream::GetSensorInformation()
+std::string vtkLidarStream::GetSensorInformation(bool shortVersion)
 {
-  return this->GetLidarInterpreter()->GetSensorInformation();
+  return this->GetLidarInterpreter()->GetSensorInformation(shortVersion);
 }
 
 //-----------------------------------------------------------------------------
