@@ -120,11 +120,15 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 void lqPlayerControlsController::onTimeRangesChanged()
 {
   if (this->Scene)
-    {
+  {
     QPair<double, double> range = this->Scene->getClockTimeRange();
     emit this->timeRanges(range.first, range.second);
     this->duration = range.second - range.first;
+    if (speed != 0)
+    {
+      SetProperty(this->Scene, "Duration", this->duration / this->speed);
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -148,17 +152,6 @@ void lqPlayerControlsController::onPlay()
     SM_SCOPED_TRACE(CallMethod)
       .arg(this->Scene->getProxy())
       .arg("Play");
-
-    if (speed != 0)
-    {
-      SetProperty(this->Scene, "Duration", this->duration / this->speed);
-      SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
-    }
-    else
-    {
-      // there is no enum for mode 2...
-      SetProperty(this->Scene, "PlayMode", 2);
-    }
 
     this->Scene->getProxy()->InvokeCommand("Play");
 
@@ -232,7 +225,6 @@ void lqPlayerControlsController::onPause()
       return;
     }
     this->Scene->getProxy()->InvokeCommand("Stop");
-    SetProperty(this->Scene, "PlayMode", 2);
   }
 }
 
@@ -286,6 +278,21 @@ void lqPlayerControlsController::onLastFrame()
 void lqPlayerControlsController::onSpeedChange(double speed)
 {
   this->speed = speed;
+
+  // Update animation mode depending on speed
+  // If speed is valid, set animation PlayMode to REALTIME
+  if (speed != 0)
+  {
+    SetProperty(this->Scene, "Duration", this->duration / this->speed);
+    SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
+  }
+  // If speed is null, set animation PlayMode to SNAP TO TIMESTEPS to play all frames
+  else
+  {
+    // There is no enum for mode 2 'Snap To Timesteps'...
+    SetProperty(this->Scene, "PlayMode", 2);
+  }
+
   this->onPause();
 }
 
