@@ -63,6 +63,7 @@ public slots:
 protected slots:
   void onPlaying(bool);
   void onSpeedChanged();
+  void onPlayModeChanged();
   void setAnimationScene(pqAnimationScene*);
   void PressSlider();
   void ReleaseSlider();

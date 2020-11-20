@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lqPlayerControlsController.h"
 #include "pqAnimationScene.h"
+#include "vtkAnimationScene.h"
 #include <vtkSMProxy.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
@@ -135,7 +136,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   // we need to keep an order to display so we can't use hash table or set
   // however the developper is reponsable for for the uniqueness of each element
   this->UI->speedFactor.append(qMakePair(0.,   QString("All frames")));
-  this->UI->speedFactor.append(qMakePair(0.1, QString("x 0.1")));
+  this->UI->speedFactor.append(qMakePair(0.1,  QString("x 0.1")));
   this->UI->speedFactor.append(qMakePair(0.25, QString("x 0.25")));
   this->UI->speedFactor.append(qMakePair(0.5,  QString("x 0.5")));
   this->UI->speedFactor.append(qMakePair(1.,   QString("x 1"))) ;
@@ -144,7 +145,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   this->UI->speedFactor.append(qMakePair(5.,   QString("x 5")));
   this->UI->speedFactor.append(qMakePair(10.,  QString("x 10")));
   this->UI->speedFactor.append(qMakePair(20.,  QString("x 20")));
-  this->UI->speedFactor.append(qMakePair(100., QString("x100")));
+  this->UI->speedFactor.append(qMakePair(100., QString("x 100")));
 
   // add the widget to the toolbar
   this->addWidget(new QLabel("Speed:", this));
@@ -291,10 +292,45 @@ void lqPlayerControlsToolbar::onSpeedChanged()
 }
 
 //-----------------------------------------------------------------------------
+void lqPlayerControlsToolbar::onPlayModeChanged()
+{
+  // Get new animation play mode and current combo box index
+  int playMode = vtkSMPropertyHelper(this->Controller->getAnimationScene()->getProxy(), "PlayMode").GetAsInt();
+  int idx = this->UI->speedComboBox->currentIndex();
+
+  // If we are in 'Snap To Timesteps' mode (no enum defined yet),
+  // set combo box to 'All frames'
+  if (playMode == 2)
+  {
+    this->UI->speedComboBox->setCurrentIndex(0);
+  }
+
+  // If we are in 'Sequence' mode, disable combo box display
+  else if (playMode == vtkAnimationScene::PLAYMODE_SEQUENCE)
+  {
+    this->UI->speedComboBox->setCurrentIndex(-1);
+  }
+
+  // If we are now in 'Real Time' mode and were displaying neither 'All frames'
+  // nor a real time 'xS' speed, set combo box to 'x1'
+  else if (playMode == vtkAnimationScene::PLAYMODE_REALTIME && (idx == -1 || idx == 0))
+  {
+    // Find and set x1 item
+    for (int i = 0; i < this->UI->speedFactor.size(); ++i)
+    {
+      if (this->UI->speedFactor[i].first == 1.)
+        this->UI->speedComboBox->setCurrentIndex(i);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 void lqPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
 {
   this->UI->Links.clear();
   this->Controller->setAnimationScene(scene);
+
+  QObject::connect(scene, SIGNAL(playModeChanged()), this, SLOT(onPlayModeChanged()));
 
   this->UI->Links.addPropertyLink<lqPlayerControlsToolbarLinks>(
     this, "timeStepCount", SIGNAL(dummySignal()),
@@ -302,6 +338,9 @@ void lqPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
   this->UI->Links.addPropertyLink(
     this, "timeValue", SIGNAL(timeValueChanged()),
     scene->getProxy(), scene->getProxy()->GetProperty("AnimationTime"));
+
+  // Update animation mode according to current UI state
+  this->onSpeedChanged();
 }
 
 //-----------------------------------------------------------------------------
