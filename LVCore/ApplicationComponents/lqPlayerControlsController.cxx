@@ -61,6 +61,11 @@ void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int val
       (scene->getProxy()->GetProperty(property))->SetElements1(value);
   scene->getProxy()->UpdateProperty(property);
 }
+
+int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
+{
+  return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
+}
 }
 
 //-----------------------------------------------------------------------------
@@ -242,6 +247,11 @@ void lqPlayerControlsController::onFirstFrame()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPreviousFrame()
 {
+  // Get current animation PlayMode, and disable its signals so that toolbar
+  // will not be updated to avoid blinking
+  int playMode = GetProperty(this->Scene, "PlayMode");
+  bool signalsWereBlocked = this->Scene->blockSignals(true);
+
   emit this->beginNonUndoableChanges();
   SetProperty(this->Scene, "PlayMode", 2);
   this->Scene->getProxy()->InvokeCommand("GoToPrevious");
@@ -249,11 +259,20 @@ void lqPlayerControlsController::onPreviousFrame()
     .arg(this->Scene->getProxy())
     .arg("GoToPrevious");
   emit this->endNonUndoableChanges();
+
+  // Restore animation PlayMode and signals
+  SetProperty(this->Scene, "PlayMode", playMode);
+  this->Scene->blockSignals(signalsWereBlocked);
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onNextFrame()
 {
+  // Get current animation PlayMode, and disable its signals so that toolbar
+  // will not be updated to avoid blinking
+  int playMode = GetProperty(this->Scene, "PlayMode");
+  bool signalsWereBlocked = this->Scene->blockSignals(true);
+
   emit this->beginNonUndoableChanges();
   SetProperty(this->Scene, "PlayMode", 2);
   this->Scene->getProxy()->InvokeCommand("GoToNext");
@@ -261,6 +280,10 @@ void lqPlayerControlsController::onNextFrame()
     .arg(this->Scene->getProxy())
     .arg("GoToNext");
   emit this->endNonUndoableChanges();
+
+  // Restore animation PlayMode and signals
+  SetProperty(this->Scene, "PlayMode", playMode);
+  this->Scene->blockSignals(signalsWereBlocked);
 }
 
 //-----------------------------------------------------------------------------
