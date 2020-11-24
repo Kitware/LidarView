@@ -6,9 +6,13 @@
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
+#include <vtkSMSessionProxyManager.h>
 #include <vtkSMBooleanDomain.h>
 #include <vtkSMPropertyIterator.h>
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMProxyDefinitionManager.h>
+#include <vtkSMSessionProxyManager.h>
+#include <vtkPVProxyDefinitionIterator.h>
 
 #include <pqApplicationCore.h>
 #include <pqPipelineSource.h>
@@ -206,3 +210,34 @@ void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
     }
   }
 }
+
+//-----------------------------------------------------------------------------
+std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyToFindName)
+{
+  vtkSMSessionProxyManager* pxm = existingProxy->GetSessionProxyManager();
+
+  if(!pxm)
+  {
+    std::cout << "Couldn't get the SM Session Proxy Manager" << std::endl;
+    return "";
+  }
+
+  vtkSMProxyDefinitionManager* pxdm = pxm->GetProxyDefinitionManager();
+
+  if(!pxdm)
+  {
+    std::cout << "Couldn't get the SM Proxy Definition Manager" << std::endl;
+    return "";
+  }
+
+  vtkPVProxyDefinitionIterator* iter = pxdm->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+     if(strcmp(iter->GetProxyName(), proxyToFindName.c_str()) == 0)
+     {
+       return iter->GetGroupName();
+     }
+  }
+  return "";
+}
+

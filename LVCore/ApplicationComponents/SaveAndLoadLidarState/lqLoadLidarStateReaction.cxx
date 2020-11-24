@@ -91,6 +91,14 @@ void lqLoadLidarStateReaction::onTriggered()
         std::string propertyName = currentProp.propertyName;
         vtkSMProxy* lidarProxy = SearchProxyByName(lidarCurrentProxy, proxyName);
 
+        // If the proxy is not found, search proxy from the same proxygroup
+        // ex : Apply a property from an other LidarPacketInterpreter to the current one
+        if (lidarProxy == nullptr)
+        {
+          std::string proxyGroupName = GetGroupName(lidarCurrentProxy, proxyName);
+          lidarProxy = SearchProxyByGroupName(lidarCurrentProxy, proxyGroupName);
+        }
+
         if (lidarProxy == nullptr)
         {
           std::string message = "No matching proxy found. Property " + propertyName + " of the proxy " + proxyName + " not applied";

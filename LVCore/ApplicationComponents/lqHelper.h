@@ -60,4 +60,12 @@ vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propN
 void UpdateProperty(vtkSMProxy * proxy, const std::string & propNameToFind,
                     const std::vector<std::string> & values);
 
+/**
+ * @brief GetGroupName Get the name of the first group where appear a proxy
+ * @param existingProxy a proxy of the pipeline, use to get the ProxyDefinitionManager
+ * @param proxyToFindName name of the proxy to look for
+ * @return the name of the first group where a corresponding proxy is found
+ */
+std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyToFindName);
+
 #endif // LQHELPER_H
