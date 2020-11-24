@@ -91,13 +91,11 @@ int main(int argc, char* argv[])
   unsigned int GPSPort = vm["GPSPort"].as<unsigned int>();
   unsigned int display_frequency = vm["display-frequency"].as<unsigned int>();
 
-
-  // Create a Packet Sender
-  vvPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
-
   std::cout << "Start sending" << std::endl;
   do
   {
+    // Create a Packet Sender
+    vvPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
     sender.sendAllPackets(speed, display_frequency);
   } while (loop);
 
