@@ -323,8 +323,6 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
 
     smp.GetActiveView().ViewTime = 0.0
 
-    app.scene.UpdateAnimationUsingDataTimeSteps()
-
     posreader = smp.FindSource(posOrName)
 
     if posreader :
