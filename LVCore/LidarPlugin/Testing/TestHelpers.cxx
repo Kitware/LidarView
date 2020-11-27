@@ -275,8 +275,11 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
 
       if (!compare(frameTuple, referenceTuple, nbComp, 1e-12))
       {
-        if ((long)(*referenceTuple - *frameTuple) % 3600 * 1e6 == 0)
-          continue;
+        if ((int64_t)(*referenceTuple - *frameTuple) % 3600 * 1e6 == 0)
+        {
+          std::cerr << "Tuples converted in int64_t are equal up to 3600 * 1e6 " << std::endl;
+        }
+
         std::cerr << "failed : Tuples " << idTuple << " doesn't match for array " << idArray << " ("
                   << currentReferenceArray->GetName() << "). Expected "
                   << toString(referenceTuple, nbComp) << ", got " << toString(frameTuple, nbComp)
