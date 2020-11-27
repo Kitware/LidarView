@@ -41,11 +41,6 @@ UseGradientBackground = 1
 CameraViewAngle = 60
 # ---- End script parameters --------------------------------------------------
 
-
-if not os.path.isdir(framesOutDir):
-    os.makedirs(framesOutDir)
-
-
 # ---- Setup view -------------------------------------------------------------
 smp._DisableFirstRenderCameraReset()
 renderView1 = smp.GetActiveViewOrCreate('RenderView')
@@ -154,9 +149,9 @@ from temporal_animation_cue_helpers import tick, end_cue
 def start_cue(self):
     tach.start_cue_generic_setup(self)
     # Pseudo first person
-    # c1 = cp.FirstPersonView(self.i, self.i+40, focal_point=[0, 0, 1])
-    c1 = cp.ThirdPersonView(self.i, self.i+40, focal_point=[0, 0, 20], position=[0, -1.7, -3.5])
-    c2 = cp.ThirdPersonView(self.i+40, self.i+100, position=[0, -15, -30])
+    # c1 = cp.FirstPersonView(self.pose_idx, self.pose_idx+40, focal_point=[0, 0, 1])
+    c1 = cp.ThirdPersonView(self.pose_idx, self.pose_idx+40, focal_point=[0, 0, 20], position=[0, -1.7, -3.5])
+    c2 = cp.ThirdPersonView(self.pose_idx+40, self.pose_idx+100, position=[0, -15, -30])
     c2.set_transition(c1, 5, "s-shape")		# transition from c1
     self.cameras = [c1, c2]
 
