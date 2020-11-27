@@ -24,6 +24,12 @@
 
 class vtkPacketFileReader;
 
+/**
+ * \class vvPacketSender
+ * \brief This class is responsible to send all packets in a .pcap file once.
+ *        To send a pcap file multiples times, a new vvPacketSender should be created each time.
+*/
+
 class VTK_EXPORT vvPacketSender
 {
 public:
