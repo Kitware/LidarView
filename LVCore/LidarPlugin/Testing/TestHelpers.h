@@ -213,7 +213,8 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 
 /**
  * @brief TestLidarRecording compare the stream output to prerecorded frames using the recording option
- * @param interpreter
+ * @param interpreter1 interpreter for the stream that forwards the packet
+ * @param interpreter2 interpreter for the stream that tests the recorded pcap
  * @param pcapFileName file to replay
  * @param referenceFileName the file containing the vtp to compare with
  * @param preSend should all packets be sent in a pre-test pass first
@@ -221,7 +222,8 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
  * @param correctionFileName the correction file
  * @return nb of error
  */
-int TestLidarRecording(vtkLidarPacketInterpreter* interpreter,
+int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
+                       vtkLidarPacketInterpreter* interpreter2,
                        const std::string& pcapFileName,
                        const std::string& referenceFileName,
                        bool shouldPreSend, int dataPort,

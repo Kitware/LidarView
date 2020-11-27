@@ -706,7 +706,8 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 }
 
 //-----------------------------------------------------------------------------
-int TestLidarRecording(vtkLidarPacketInterpreter* interpreter,
+int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
+                       vtkLidarPacketInterpreter* interpreter2,
                        const std::string& pcapFileName,
                        const std::string& referenceFileName,
                        bool shouldPreSend, int dataPort,
@@ -720,18 +721,21 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter,
   std::string pcapName = pcapFileName.substr(0, extentionIndex);
   std::string temporaryFile = pcapName + "-record.pcap"; // ! will be deleted
 
-  vtkSmartPointer<vtkLidarStream> LidarStream = vtkSmartPointer<vtkLidarStream>::New();
-  LidarStream->SetLidarInterpreter(interpreter);
-  LidarStream->SetCalibrationFileName(correctionFileName);
-  LidarStream->SetListeningPort(dataPort);
-  LidarStream->SetIsCrashAnalysing(false);
-  LidarStream->SetIsForwarding(false);
-  LidarStream->StartRecording(temporaryFile);
-  retVal += testLidarStream(LidarStream.Get(), pcapFileName, referenceFileName, shouldPreSend);
-  LidarStream->StopRecording();
+  // Test the original pcap and record it to a temporary file
+  vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream1->SetLidarInterpreter(interpreter1);
+  LidarStream1->SetCalibrationFileName(correctionFileName);
+  LidarStream1->SetListeningPort(dataPort);
+  LidarStream1->StartRecording(temporaryFile);
+  retVal += testLidarStream(LidarStream1.Get(), pcapFileName, referenceFileName, shouldPreSend);
+  LidarStream1->StopRecording();
 
   // Send and test the recorded pcap
-  retVal += testLidarStream(LidarStream.Get(), temporaryFile, referenceFileName, shouldPreSend);
+  vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
+  LidarStream2->SetLidarInterpreter(interpreter2);
+  LidarStream2->SetCalibrationFileName(correctionFileName);
+  LidarStream2->SetListeningPort(dataPort);
+  retVal += testLidarStream(LidarStream2.Get(), temporaryFile, referenceFileName, shouldPreSend);
 
   std::remove(temporaryFile.c_str());
 
