@@ -9,6 +9,7 @@ set(scripts
     examples/example_non_temporal_animation.py
     examples/example_temporal_animation.py
     examples/example_static_temporal_animation.py
+    examples/follow_last_pose.py
 )
 
 install(FILES ${scripts} DESTINATION ${install_destination})
