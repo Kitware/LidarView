@@ -250,7 +250,7 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
       unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
       points->SetPoint(i, point);
-      rgbArray->SetTupleValue(i, color);
+      rgbArray->SetTypedTuple(i, color);
     }
   }
   else
@@ -267,7 +267,7 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
       unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
       points->SetPoint(j, point);
-      rgbArray->SetTupleValue(j, color);
+      rgbArray->SetTypedTuple(j, color);
       j++;
     }
     nr_points = j;
@@ -303,7 +303,7 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
       unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
       points->SetPoint(i, point);
-      rgbArray->SetTupleValue(i, color);
+      rgbArray->SetTypedTuple(i, color);
     }
   }
   else
@@ -320,7 +320,7 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
       float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
       unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
       points->SetPoint(j, point);
-      rgbArray->SetTupleValue(j, color);
+      rgbArray->SetTypedTuple(j, color);
       j++;
     }
     nr_points = j;
