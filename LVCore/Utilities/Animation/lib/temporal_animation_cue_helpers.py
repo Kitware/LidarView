@@ -73,7 +73,7 @@ params['trajectory_to_animation_time_offset'] = 0.
 params['cad_model_name'] = ""  # "" to disable CAD model
 
 # ----------------------------------------------------------------------------
-# Snapshots and output options
+# Snapshots options
 
 # Output directory for the generated frames ("" to disable saving)
 params['frames_output_dir'] = ""
@@ -83,6 +83,18 @@ params['image_resolution'] = (1920, 1080)
 
 # Snapshots files names format
 params['filename_format'] = "%06d.png"
+
+# ----------------------------------------------------------------------------
+# Video options
+
+# Name of the video generated using snapshots ("" to disable generation)
+params['video_output_path'] = ""
+
+# Output video frame rate [fps]
+params['video_framerate'] = 10.
+
+# ----------------------------------------------------------------------------
+# Other options
 
 # Print some additional info at each step
 params['verbose'] = True
@@ -145,6 +157,24 @@ def save_screenshot():
     else:
         return False
 
+
+# ----------------------------------------------------------------------------
+def generate_video():
+    """ Merge snapshots into a video to params['video_output_path'] if not empty.
+    Ensure ffmpeg is installed on your machine.
+    """
+    if params['video_output_path']:
+        # Create output directory where to store video
+        video_dir = os.path.dirname(params['video_output_path'])
+        if not os.path.isdir(video_dir):
+            os.makedirs(video_dir)
+
+        # Run ffmpeg using system prompt
+        images = os.path.join(params['frames_output_dir'], params['filename_format'])
+        os.system("ffmpeg -framerate {} -i {} {}".format(params['video_framerate'], images, params['video_output_path']))
+        return os.path.isfile(params['video_output_path'])
+    else:
+        return False
 
 #===============================================================================
 #   Animation cue methods
@@ -231,5 +261,10 @@ def tick(self):
 # ----------------------------------------------------------------------------
 def end_cue(self):
     """ Function called at the end of an animation """
+    # Generate video using snaphsots if necessary
+    success = generate_video()
+    if success and params['verbose']:
+        print("Video saved to " + params['video_output_path'])
+
     if params['verbose']:
         print("End of the animation")
