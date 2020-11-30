@@ -7,7 +7,7 @@ cue with a different camera path.
 
 This module provides helpers to help write minimal python script strings
 directly in your main script in the case of a temporal animation using an
-already existing trajectory :
+already existing trajectory:
  - They require providing a trajectory that will be used to build camera path.
  - Animations that depend on a time field of the trajectory.
 
@@ -19,8 +19,8 @@ import camera_path as cp
 # be directly imported from the temporal_animation_cue_helpers module
 # if they are used with their default keyword parameters
 
-tach.trajectory_name = "your-trajectory"
-tach.cad_model_name = "your-model"
+tach.params['trajectory_name'] = "your-trajectory"
+tach.params['cad_model_name'] = "your-model"
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)
@@ -31,52 +31,124 @@ def start_cue(self):
 from temporal_animation_cue_helpers import tick, end_cue
 ```
 """
+from __future__ import print_function
 import os
 import numpy as np
 from scipy.spatial.transform import Rotation
 import paraview.simple as smp
-import camera_path as cp
 from vtk.util import numpy_support
 
+#===============================================================================
+#   Parameters
+#===============================================================================
 
-## --- Default values that can be / need to be overriden-----------------------
-# Pipeline parameters.
+params = {}
 
-# trajectory filter/source name:
-# points to be considered as the camera trajectory for the first person view
-# (usually the vehicle trajectory). It must have the following PointData arrays:
-#   - Time (in seconds, must be synced with the frames timesteps)
-#   - Orientation(AxisAngle) (axis angle representation, in radians)
-trajectory_name = "firstPersonTrajectory"
-trajectory_time_array = "Time"
-trajectory_orientation_array = "Orientation(AxisAngle)"
+# ----------------------------------------------------------------------------
+# Trajectory filter/source
 
-# The time field of the trajectory must use the same time scale as the main view
-# or animation time. If this is not your case, set this offset properly :
-trajectory_to_animation_time_offset = 0.
+# Poses to be considered as the camera trajectory for the relative views
+# (usually the vehicle trajectory).
+params['trajectory_name'] = "trajectory"
 
-# cad model filter/source name ("" to disable CAD model dispaly):
+# Name of the PointData array encoding pose orientation
+# (axis angle representation XYZ-A, A in radians)
+params['trajectory_orientation_array'] = "Orientation(AxisAngle)"
+
+# Name of the PointData array encoding pose timestamp (in seconds)
+# If None/"", the last pose of the trajectory will be used. This can be useful
+# to track a single-pose or on-the-fly-built trajectory
+params['trajectory_time_array'] = "Time"
+
+# If used, the time array of the trajectory must use the same time scale as the
+# animation time. If this is not your case, set this offset properly.
+params['trajectory_to_animation_time_offset'] = 0.
+
+# ----------------------------------------------------------------------------
+# CAD model filter/source
+
 # Object mesh that is placed by the animation cue on the current point of the
 # trajectory at each timestep (usually a vehicle)
-cad_model_name = ""
+# This input needs to be a Transform filter, originally placed at identity pose.
+params['cad_model_name'] = ""  # "" to disable CAD model
 
-# Camera / Lidar orientation (need to be specified)
-# rotation which transforms the lidar tri-axe into the camera tri-axe
-cp.R_cam_to_lidar = Rotation.from_euler('XYZ', [0, 0, 0], degrees=True)
-
-# example calibration ENS drone
-# cp.R_cam_to_lidar = Rotation.from_euler('XYZ', [0.0, -90.0, 90.0], degrees=True)
-
-# example calibration la doua car
-# cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
-# rotations around X, Y, Z are intrinsic rotations, hence in the case of
-# dataset-la-doua, there is a first rotation around the Z axis (17 degrees) to
-# compensate the lidar front orientation, then rotations around Y and Z
-# ([0, 90, -90]) to have Z looking forward
+# ----------------------------------------------------------------------------
+# Snapshots and output options
 
 # Output directory for the generated frames ("" to disable saving)
-frames_output_dir = ""
+params['frames_output_dir'] = ""
 
+# Snapshots resolution (width x height), in pixels
+params['image_resolution'] = (1920, 1080)
+
+# Snapshots files names format
+params['filename_format'] = "%06d.png"
+
+# Print some additional info at each step
+params['verbose'] = True
+
+
+#===============================================================================
+#   Generic helpers
+#===============================================================================
+
+# ----------------------------------------------------------------------------
+def get_pose_idx_from_time(trajectory_timesteps):
+    """ Return the idx of the trajectory pose that best matches to current animation time """
+    animation_time = smp.GetAnimationScene().AnimationTime
+    trajectory_timesteps_offset = np.asarray(trajectory_timesteps) + params['trajectory_to_animation_time_offset']
+    return np.argmin(np.abs(trajectory_timesteps_offset - animation_time))
+
+
+# ----------------------------------------------------------------------------
+def update_camera(camera, pose_idx, position, orientation):
+    """ Update a camera path at a given step using current pose """
+    if camera and camera.timestep_inside_range(pose_idx):
+        view = smp.GetActiveView()
+        view.CameraPosition = camera.interpolate_position(pose_idx, orientation, position, np.asarray(list(view.CameraPosition)))
+        view.CameraFocalPoint = camera.interpolate_focal_point(pose_idx, orientation, position)
+        view.CameraViewUp = camera.interpolate_up_vector(pose_idx, orientation)
+        view.CenterOfRotation = view.CameraFocalPoint
+        return True
+    else:
+        return False
+
+
+# ----------------------------------------------------------------------------
+def update_cad_model(model, position, orientation):
+    """ Update 3D CAD model Transform filter pose """
+    if model:
+        # Update model pose (vtk Transform rotation are angle axis in degrees)
+        model.Transform.Translate = position
+        model.Transform.Rotate = np.rad2deg(orientation.as_rotvec())
+        return True
+    else:
+        return False
+
+
+# ----------------------------------------------------------------------------
+def save_screenshot():
+    """ Save screenshot to params['frames_output_dir'] if not empty """
+    if params['frames_output_dir']:
+        # Init images saving if not already done
+        if not hasattr(save_screenshot, 'image_index'):
+            save_screenshot.image_index = 0
+            # Create output directory where to store snapshots
+            if not os.path.isdir(params['frames_output_dir']):
+                os.makedirs(params['frames_output_dir'])
+
+        # Save screenshot
+        image_name = os.path.join(params['frames_output_dir'], params['filename_format'] % (save_screenshot.image_index))
+        smp.SaveScreenshot(image_name, ImageResolution=params['image_resolution'])
+        save_screenshot.image_index += 1
+        return True
+    else:
+        return False
+
+
+#===============================================================================
+#   Animation cue methods
+#===============================================================================
 
 # ----------------------------------------------------------------------------
 def start_cue_generic_setup(self):
@@ -86,10 +158,8 @@ def start_cue_generic_setup(self):
 
     The different steps it runs are:
         - getting the trajectory
-        - getting the frames orientations from trajectory
         - getting a 3D model (for example a car model to add to the frame display)
-        - initializing snapshots saving
-        - displaying the start timestep
+        - initializing camera path
 
     Example:
     ```python
@@ -100,95 +170,66 @@ def start_cue_generic_setup(self):
         self.cameras = [c1, c2]
     ```
     """
-    # get trajectory
-    trajectory_source = smp.FindSource(trajectory_name)
-    trajectory = trajectory_source.GetClientSideObject().GetOutput()
+    # Get the trajectory
+    traj_src = smp.FindSource(params['trajectory_name'])
+    self.trajectory = traj_src.GetClientSideObject().GetOutput() if traj_src else None
 
-    # get positions
-    points_data = trajectory.GetPoints().GetData()
-    self.pts = numpy_support.vtk_to_numpy(points_data).copy()
+    # Get the 3D model
+    self.model = smp.FindSource(params['cad_model_name']) if params['cad_model_name'] else None
 
-    # get rotations and convert lidarview axis angle to scipy Rotation
-    orientations_data = trajectory.GetPointData().GetArray(trajectory_orientation_array)
-    orientations = numpy_support.vtk_to_numpy(orientations_data).copy()
-    axis = orientations[:, :3]
-    angles = orientations[:, 3, np.newaxis]
-    axis_angles = axis * angles
-    self.orientations = [Rotation.from_rotvec(a) for a in axis_angles]
-
-    # get time data from trajectory
-    time_data = trajectory.GetPointData().GetArray(trajectory_time_array)
-    self.timesteps = numpy_support.vtk_to_numpy(time_data).copy()
-
-    # get the 3D model
-    self.model = smp.FindSource(cad_model_name) if cad_model_name else None
-
-    # define cameras
+    # Reset cameras and camera path step index
+    self.pose_idx = 0
     self.cameras = []
-
-    # create output directory where to store snapshots
-    if frames_output_dir and not os.path.isdir(frames_output_dir):
-        os.makedirs(frames_output_dir)
-    self.image_index = 0  # image index used for files naming
-
-    # find the frame index corresponding to the start time
-    animation_time = smp.GetAnimationScene().AnimationTime
-    self.pose_idx = np.argmin(np.abs(self.timesteps + trajectory_to_animation_time_offset - animation_time))
-    print "Start trajectory timestep: ", self.pose_idx
 
 
 # ----------------------------------------------------------------------------
-# TODO add decorator for tick in order to let the user choose the image
-# filename format
-def tick(self, filenameFormat="%06d.png", imageResolution=(1920, 1080)):
+def tick(self):
     """ Function called at each timestep
 
-    As a PythonAnimationCue script expects a `tick` function with only a `self`
-    argument, this function can be either directly used with its default kwargs
-    or wrapped in another function that provides its kwargs.
-
-    Ex:
-    ```python
-    import temporal_animation_cue_helpers as tach
-    def tick(self):
-        tach.tick(self, filenameFormat="...", imageResolution="...")
-    ```
+    The different steps it runs are:
+        - compute trajectory pose index corresponding to the current animation time
+        - extract the pose from the trajectory at this index
+        - update camera and model using updated pose
+        - update render view
+        - save screenshot
     """
-    # get current time and corresponding frame
-    animation_time = smp.GetAnimationScene().AnimationTime
-    self.pose_idx = np.argmin(np.abs(self.timesteps + trajectory_to_animation_time_offset - animation_time))
+    # Check that the trajectory source is valid
+    if not self.trajectory:
+        print("Trajectory source is invalid")
+        return
 
-    # lidar orientation and position
-    R_l = self.orientations[self.pose_idx]
-    T_l = self.pts[self.pose_idx, :]
+    # If the time array needs to be used, compute the pose index corresponding
+    # to the current animation time
+    if params['trajectory_time_array']:
+        time_data = self.trajectory.GetPointData().GetArray(params['trajectory_time_array'])
+        timesteps = numpy_support.vtk_to_numpy(time_data)
+        self.pose_idx = get_pose_idx_from_time(timesteps)
+    # Otherwise, use the last pose
+    else:
+        self.pose_idx = self.trajectory.GetNumberOfPoints() - 1
 
-    # move camera
-    for c in self.cameras:
-        if c.timestep_inside_range(self.pose_idx):
-            print "frame", self.pose_idx, "time", animation_time, ":", c.type
-            view = smp.GetActiveView()
-            view.CameraPosition = c.interpolate_position(self.pose_idx, R_l, T_l, np.asarray(list(view.CameraPosition)))
-            view.CameraFocalPoint = c.interpolate_focal_point(self.pose_idx, R_l, T_l)
-            view.CameraViewUp = c.interpolate_up_vector(self.pose_idx, R_l)
-            view.CenterOfRotation = view.CameraFocalPoint
-            break
+    # Get the 'pose_idx'th position and orientation from the trajectory
+    position = np.asarray(self.trajectory.GetPoints().GetData().GetTuple3(self.pose_idx))
+    axis_angle = np.asarray(self.trajectory.GetPointData().GetArray(params['trajectory_orientation_array']).GetTuple4(self.pose_idx))
+    orientation = Rotation.from_rotvec(axis_angle[:3] * axis_angle[3])
 
-    # move 3d model (vtk Transform rotation are angle axis in degrees)
-    if self.model:
-        self.model.Transform.Translate = T_l
-        self.model.Transform.Rotate = np.rad2deg(R_l.as_rotvec())
+    # Update camera path
+    for i, c in enumerate(self.cameras):
+        if update_camera(c, self.pose_idx, position, orientation) and params['verbose']:
+            print("time {}, pose {} : updating camera path {} of type '{}'".format(smp.GetAnimationScene().AnimationTime, self.pose_idx, i, c.type))
 
-    # update rendering
+    # Move 3d model if necessary
+    update_cad_model(self.model, position, orientation)
+
+    # Update rendering
     smp.Render()
 
-    # save frame
-    if frames_output_dir:
-        imageName = os.path.join(frames_output_dir, filenameFormat % (self.image_index))
-        smp.SaveScreenshot(imageName, ImageResolution=imageResolution)
-    self.image_index += 1
+    # Save frame if necessary
+    save_screenshot()
 
 
 # ----------------------------------------------------------------------------
 def end_cue(self):
     """ Function called at the end of an animation """
-    print("End of the animation")
+    if params['verbose']:
+        print("End of the animation")

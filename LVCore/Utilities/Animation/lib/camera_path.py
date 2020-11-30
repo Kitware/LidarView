@@ -16,8 +16,15 @@ each camera path need to be coherent.
 =======================================================================================================
 """
 
-# global variable defining the orientation of the camera w.r.t the lidar
+# Global variable defining the orientation of the camera w.r.t the lidar
 R_cam_to_lidar = Rotation.from_dcm(np.eye(3))	# identity by default
+
+# Example calibration la-doua car
+# R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+# Rotations around X, Y, Z are intrinsic rotations, hence in the case of
+# dataset-la-doua, there is a first rotation around the Z axis (17 degrees) to
+# compensate the lidar front orientation, then rotations around Y and Z
+# ([0, 90, -90]) to have Z looking forward
 
 class CameraPath:
 	""" Base class for camera path.
