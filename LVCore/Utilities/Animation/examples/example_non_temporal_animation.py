@@ -42,6 +42,6 @@ for i in range(nb_frames):
     smp.Render()
 
     # Save render view snapshot
-    image_name = os.path.join(frames_out_dir, "image_%04d.png" % (i))
+    image_name = os.path.join(frames_out_dir, "%06d.png" % (i))
     smp.SaveScreenshot(image_name)
     print i
