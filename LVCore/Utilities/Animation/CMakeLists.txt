@@ -8,6 +8,7 @@ set(scripts
     lib/temporal_animation_cue_helpers.py
     examples/example_non_temporal_animation.py
     examples/example_temporal_animation.py
+    examples/example_static_temporal_animation.py
 )
 
 install(FILES ${scripts} DESTINATION ${install_destination})
