@@ -16,6 +16,7 @@
 #ifndef VTKLIDARPROVIDERINTERNAL_H
 #define VTKLIDARPROVIDERINTERNAL_H
 
+#include <vtkSystemIncludes.h>
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
@@ -25,6 +26,11 @@
 #include "FrameInformation.h"
 
 class vtkTransform;
+
+enum FramingMethod_t {
+        INTERPRETER_FRAMING = 0, // the interpreter in charge of the framing
+        NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
+};
 
 class VTK_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
 {
@@ -58,10 +64,14 @@ public:
   virtual vtkSmartPointer<vtkTable> GetCalibrationTable() { return this->CalibrationData.Get(); }
 
   /**
-   * @brief SplitFrame take the current frame under construction and place it in another buffer
-   * @param force force the split even if the frame is empty
+   * @brief SplitFrame
+   *        Take the current frame under construction and place it in another buffer
+   *        if the current framing method is the same as framingMethodAskingForSplitFrame
+   * @param force force the split even if the frame is empty regardless of the Framing method
+   * @param framingMethodAskingForSplitFrame Framing method which ask for the splitFrame
+   *        by default it's called with the interpreter framing method to avoid modification of all specific interpreters
    */
-  virtual bool SplitFrame(bool force = false);
+  virtual bool SplitFrame(bool force = false, FramingMethod_t framingMethodAskingForSplitFrame = FramingMethod_t::INTERPRETER_FRAMING);
 
   /**
    * @brief PreProcessPacket is use to construct the frame index and get some corretion
@@ -74,6 +84,18 @@ public:
   virtual bool PreProcessPacket(unsigned char const * data, unsigned int dataLength,
                                 fpos_t filePosition = fpos_t(), double packetNetworkTime = 0,
                                 std::vector<FrameInformation>* frameCatalog = nullptr) = 0;
+
+  /**
+   * @brief PreProcessPacketWrapped is used to construct the frame index
+   *        It calls PreProcessPacket if the Framing method is the interpreter one
+   *        It calls FillFrameCatalogIfOutsideFramingMethod otherwise
+   * @param data raw data packet
+   * @param dataLength size of the data packet
+   * @param packetInfo[out] Miscellaneous information about the packet
+   */
+  virtual bool PreProcessPacketWrapped(unsigned char const * data, unsigned int dataLength,
+                                       fpos_t filePosition = fpos_t(), double packetNetworkTime = 0,
+                                       std::vector<FrameInformation>* frameCatalog = nullptr);
 
   /**
    * @brief IsLidarPacket check if the given packet is really a lidar packet
@@ -148,6 +170,8 @@ public:
 
   void ResetCurrentData() override;
 
+  void ProcessPacketWrapped(unsigned char const * data, unsigned int dataLength, double PacketNetworkTime) override;
+
   vtkGetMacro(CalibrationFileName, std::string)
   vtkSetMacro(CalibrationFileName, std::string)
 
@@ -188,6 +212,12 @@ public:
 
   vtkGetMacro(EnableAdvancedArrays, bool);
   vtkSetMacro(EnableAdvancedArrays, bool);
+
+  vtkSetMacro(FramingMethod, int)
+  vtkGetMacro(FramingMethod, int)
+
+  vtkSetMacro(FrameDuration_s, double)
+  vtkGetMacro(FrameDuration_s, double)
 
   vtkMTimeType GetMTime() override;
 
@@ -283,6 +313,12 @@ protected:
   double CropRegion[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
   bool EnableAdvancedArrays = false;
+
+  //! Framing method
+  int FramingMethod = FramingMethod_t::INTERPRETER_FRAMING;
+  double FrameDuration_s = 0;
+  unsigned long long LastNetworkTimeFrameNumber = 0;
+  unsigned long long previousFrameNumber = 0;
 
   vtkLidarPacketInterpreter() = default;
   virtual ~vtkLidarPacketInterpreter() = default;

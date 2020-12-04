@@ -7,6 +7,7 @@
 #include "SynchronizedQueue.h"
 #include "vtkInterpreter.h"
 #include "vtkStream.h"
+#include "LVTime.h"
 
 //----------------------------------------------------------------------------
 PacketConsumer::PacketConsumer(vtkStream* stream)
@@ -21,11 +22,19 @@ PacketConsumer::~PacketConsumer()
 }
 
 //----------------------------------------------------------------------------
-void PacketConsumer::HandleSensorData(const unsigned char *data, unsigned int length)
+void PacketConsumer::HandleSensorData(NetworkPacket* packet)
 {
+  const unsigned char *data = packet->GetPayloadData();
+  if(!data)
+  {
+    return;
+  }
+  const unsigned int length = packet->GetPayloadSize();
+
   if (!this->Stream->GetInterpreter()->IsValidPacket(data, length))
     return;
-  this->Stream->GetInterpreter()->ProcessPacket(data, length);
+
+  this->Stream->GetInterpreter()->ProcessPacketWrapped(data, length, GetElapsedTime(packet->ReceptionTime));
   if (this->Stream->GetInterpreter()->IsNewData())
   {
     {
@@ -43,7 +52,7 @@ void PacketConsumer::ThreadLoop()
   this->Stream->GetInterpreter()->ResetCurrentData();
   while (this->Packets->dequeue(packet))
   {
-    this->HandleSensorData(packet->GetPayloadData(), packet->GetPayloadSize());
+    this->HandleSensorData(packet);
     delete packet;
   }
 }

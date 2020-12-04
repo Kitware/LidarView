@@ -58,22 +58,26 @@ bool inside_interval_mod(double x, double a, double b, double mod)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPacketInterpreter::SplitFrame(bool force)
+bool vtkLidarPacketInterpreter::SplitFrame(bool force, FramingMethod_t framingMethodAskingForSplitFrame)
 {
-  const vtkIdType nPtsOfCurrentDataset= this->CurrentFrame->GetNumberOfPoints();
-  if (this->IgnoreEmptyFrames && (nPtsOfCurrentDataset == 0) && !force)
+  if (force || this->FramingMethod == framingMethodAskingForSplitFrame)
   {
-    return false;
+    const vtkIdType nPtsOfCurrentDataset= this->CurrentFrame->GetNumberOfPoints();
+    if (this->IgnoreEmptyFrames && (nPtsOfCurrentDataset == 0) && !force)
+    {
+      return false;
+    }
+
+    // add vertex to the polydata
+    this->CurrentFrame->SetVerts(NewVertexCells(this->CurrentFrame->GetNumberOfPoints()));
+    // split the frame
+    this->Frames.push_back(this->CurrentFrame);
+    // create a new frame
+    this->CurrentFrame = this->CreateNewEmptyFrame(0, nPtsOfCurrentDataset);
+
+    return true;
   }
-
-  // add vertex to the polydata
-  this->CurrentFrame->SetVerts(NewVertexCells(this->CurrentFrame->GetNumberOfPoints()));
-  // split the frame
-  this->Frames.push_back(this->CurrentFrame);
-  // create a new frame
-  this->CurrentFrame = this->CreateNewEmptyFrame(0, nPtsOfCurrentDataset);
-
-  return true;
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -160,6 +164,64 @@ bool vtkLidarPacketInterpreter::IsValidPacket(unsigned char const * data, unsign
 void vtkLidarPacketInterpreter::ResetCurrentData()
 {
   this->ResetCurrentFrame();
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarPacketInterpreter::ProcessPacketWrapped(unsigned char const * data,
+                                                  unsigned int dataLength,
+                                                  double PacketNetworkTime_s)
+{
+  // if the framing Method is the NetworkPacketTime one
+  // We check if the frame has te be split.
+  if(this->IsLidarPacket(data, dataLength) && this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
+  {
+    auto currentFrameNumber = static_cast<unsigned long long>(PacketNetworkTime_s / this->FrameDuration_s);
+    if (this->LastNetworkTimeFrameNumber != 0 // do not frame on first call of this function
+        && currentFrameNumber != this->LastNetworkTimeFrameNumber) // new frame found
+    {
+      this->SplitFrame(false, FramingMethod_t::NETWORK_PACKET_TIME_FRAMING);
+    }
+    this->LastNetworkTimeFrameNumber = currentFrameNumber;
+  }
+
+  // Interpreter the packet
+  this->ProcessPacket(data, dataLength);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarPacketInterpreter::PreProcessPacketWrapped(unsigned char const * data,
+                              unsigned int dataLength, fpos_t filePosition, double packetNetworkTime_s,
+                              std::vector<FrameInformation>* frameCatalog)
+{
+  // If the framing method is the interpreter one
+  // frameCatalog is filled with the PreProcessPacket function
+  if(this->FramingMethod == FramingMethod_t::INTERPRETER_FRAMING)
+  {
+    return this->PreProcessPacket(data, dataLength, filePosition, packetNetworkTime_s, frameCatalog);
+  }
+
+  // If the framing method is the network time packet one,
+  // frameCatalog is filled every frameDuration time.
+  if(this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
+  {
+    unsigned long long currentFrameNumber = static_cast<unsigned long long>(packetNetworkTime_s / this->FrameDuration_s);
+    if (currentFrameNumber != this->previousFrameNumber)
+    {
+      FrameInformation information;
+      information.FilePosition = filePosition;
+      information.FirstPacketNetworkTime = packetNetworkTime_s;
+      // FirstPacketDataTime is not well-defined, because we do not parse
+      // the data and thus cannot get data time, however providing a
+      // plausible value can help prevent breaking some algorithms.
+      // Possible improvement: first pass using INTERPRETER_FRAMING to
+      // compute the timeshift, then apply it to FirstPacketNetworkTime
+      information.FirstPacketDataTime = packetNetworkTime_s;
+      frameCatalog->push_back(information);
+      this->previousFrameNumber = currentFrameNumber;
+      return true;
+    }
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

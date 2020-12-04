@@ -39,7 +39,7 @@
 #include <vector>
 #include <unordered_map>
 #include "lidarplugin_export.h"
-
+#include "LVTime.h"
 /*
  * Useful links to get started with IPv4 and IPv6 headers:
  * - https://en.wikipedia.org/wiki/IPv4#Packet_structure
@@ -337,11 +337,6 @@ public:
   }
 
 protected:
-  double GetElapsedTime(const timeval& end, const timeval& start)
-  {
-    return (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.00;
-  }
-
   pcap_t* PCAPFile;
   std::string FileName;
   std::string LastError;

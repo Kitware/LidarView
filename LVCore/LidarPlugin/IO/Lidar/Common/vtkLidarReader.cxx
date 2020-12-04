@@ -100,7 +100,7 @@ int vtkLidarReader::ReadFrameInformation()
     }
 
     // add an index for the first Lidar packet
-    if (firstIteration)
+    if (firstIteration && this->GetInterpreter()->GetFramingMethod() == INTERPRETER_FRAMING)
     {
       // it is possible that the first packet contains 2 frames
       // (end and start of one), and as we rely on the packet header time
@@ -112,7 +112,7 @@ int vtkLidarReader::ReadFrameInformation()
     }
 
     // Get information about the current packet
-    this->Interpreter->PreProcessPacket(data, dataLength, lastFilePosition,
+    this->Interpreter->PreProcessPacketWrapped(data, dataLength, lastFilePosition,
                                         lastPacketNetworkTime, &this->FrameCatalog);
 
     this->Reader->GetFilePosition(&lastFilePosition);
@@ -217,7 +217,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
 
   const unsigned char* data = 0;
   unsigned int dataLength = 0;
-  double timeSinceStart;
+  double timeSinceStart = 0;
 
   // Update the interpreter meta data according to the requested frame
   FrameInformation currInfo= this->FrameCatalog[frameNumber];
@@ -235,7 +235,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
 
     // Process the lidar packet and check
     // if the required frame is ready
-    this->Interpreter->ProcessPacket(data, dataLength);
+    this->Interpreter->ProcessPacketWrapped(data, dataLength, timeSinceStart);
     if (this->Interpreter->IsNewFrameReady())
     {
       return this->Interpreter->GetLastFrameAvailable();
@@ -319,6 +319,13 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     return;
   }
 
+  if (!(this->GetInterpreter()->GetFramingMethod()!= INTERPRETER_FRAMING))
+  {
+    // not implemented yet, because not critical for the client
+    vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.")
+    return;
+  }
+
   vtkPacketFileWriter writer;
   if (!writer.Open(filename))
   {
@@ -383,7 +390,10 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     if (this->Interpreter->IsLidarPacket(data, dataLength))
     {
       // we need to count frames and some are split in multiple packets
-      bool isNewFrame = this->Interpreter->PreProcessPacket(data, dataLength);
+      // we give timeSinceStart in case Framing Method is not the interpreter one
+      bool isNewFrame = this->Interpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(),
+                                                                timeSinceStart);
+
       currentFrame += static_cast<int>(isNewFrame);
       this->UpdateProgress(0.0);
     }
@@ -499,7 +509,7 @@ int vtkLidarReader::RequestInformation(vtkInformation *vtkNotUsed(request),
     this->Interpreter->LoadCalibration(this->CalibrationFileName);
   }
 
-  if (this->Interpreter && !this->FileName.empty() && this->FrameCatalog.empty())
+  if (this->Interpreter && !this->FileName.empty())
   {
     this->ReadFrameInformation();
   }

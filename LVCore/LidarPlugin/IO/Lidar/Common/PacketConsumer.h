@@ -30,7 +30,7 @@ public:
   PacketConsumer(vtkStream * stream);
   ~PacketConsumer();
 
-  void HandleSensorData(const unsigned char* data, unsigned int length);
+  void HandleSensorData(NetworkPacket* packet);
 
   void Start();
 

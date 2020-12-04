@@ -24,10 +24,21 @@ public:
   vtkTypeMacro(vtkInterpreter, vtkAlgorithm)
 
   /**
+   * @brief WrapProcessPacket process the data packet to get the current informations
+   * @param data raw data packet
+   * @param dataLength size of the data packet
+   * @param PacketReceptionTime
+   */
+  virtual void ProcessPacketWrapped(unsigned char const * data, unsigned int dataLength, double vtkNotUsed(PacketNetworkTime))
+  {
+    this->ProcessPacket(data, dataLength);
+  }
+
+  /**
    * @brief ProcessPacket process the data packet to get the current informations
    * @param data raw data packet
-   * @param bytesReceived size of the data packet
-   * @param startPosition offset in the data packet used when a frame start in the middle of a packet
+   * @param dataLength size of the data packet
+   * @param PacketReceptionTime
    */
   virtual void ProcessPacket(unsigned char const * data, unsigned int dataLength) = 0;
 
