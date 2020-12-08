@@ -230,4 +230,6 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
                        const std::string correctionFileName = "");
 
 
+bool GetFrameTimeRange(vtkPolyData* frame, double& firstTime, double& lastTime);
+
 #endif

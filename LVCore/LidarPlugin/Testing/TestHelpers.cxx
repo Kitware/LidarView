@@ -744,3 +744,24 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
 
   return retVal;
 }
+
+//-----------------------------------------------------------------------------
+bool GetFrameTimeRange(vtkPolyData* frame, double& firstTime, double& lastTime)
+{
+  if (frame == nullptr)
+  {
+    return false;
+  }
+
+  vtkDataArray* timestamps = frame->GetPointData()->GetArray("timestamp");
+  if (timestamps == nullptr
+      || timestamps->GetNumberOfComponents() != 1
+      || timestamps->GetNumberOfTuples() < 1)
+  {
+    return false;
+  }
+
+  firstTime = 1e-6 * timestamps->GetTuple1(0);
+  lastTime = 1e-6 * timestamps->GetTuple1(timestamps->GetNumberOfTuples() - 1);
+  return true;
+}
