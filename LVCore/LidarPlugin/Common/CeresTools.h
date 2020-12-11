@@ -20,15 +20,23 @@
 #ifndef CERES_TOOLS_H
 #define CERES_TOOLS_H
 
-// EIGEN
-#include <Eigen/Dense>
-
 // CERES
-#include <ceres/ceres.h>
+#include <ceres/jet.h>
+#include <ceres/rotation.h>
+// EIGEN
+#include <Eigen/Geometry>
 
 namespace ceres
 {
-//-----------------------------------------------------------------------------
+namespace
+{
+//------------------------------------------------------------------------------
+/**
+ * \brief Get euler angles from rotation matrix
+ *
+ * It estimate the Euler-Angle RPY such that the whole roation matrix R is :
+ *   R(rx, ry, rz) = Rz(yaw) * Ry(pitch) * Rx(roll)
+ */
 template <typename T>
 Eigen::Matrix<T, 3, 1> MatrixToRollPitchYaw(const Eigen::Matrix<T, 3, 3>& rotation)
 {
@@ -40,20 +48,44 @@ Eigen::Matrix<T, 3, 1> MatrixToRollPitchYaw(const Eigen::Matrix<T, 3, 3>& rotati
   return eulerAngles;
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/**
+ * \brief Build rotation matrix from euler angles.
+ *
+ * It estimates R using the Euler-Angle mapping between R^3 and SO(3) :
+ *   R(rx, ry, rz) = Rz(yaw) * Ry(pitch) * Rx(roll)
+ */
 template <typename T>
-Eigen::Matrix<T, 3, 3> RollPitchYawToMatrix(T roll, T pitch, T yaw)
+Eigen::Matrix<T, 3, 3> RollPitchYawToMatrix(const T& roll, const T& pitch, const T& yaw)
 {
-  Eigen::Matrix<T, 3, 3> R;
-  T crx = ceres::cos(roll); T srx = ceres::sin(roll);
-  T cry = ceres::cos(pitch); T sry = ceres::sin(pitch);
-  T crz = ceres::cos(yaw); T srz = ceres::sin(yaw);
+  const T cx = ceres::cos(roll);   const T sx = ceres::sin(roll);
+  const T cy = ceres::cos(pitch);  const T sy = ceres::sin(pitch);
+  const T cz = ceres::cos(yaw);    const T sz = ceres::sin(yaw);
 
   // Compute final rotation value
-  R << cry*crz, (srx*sry*crz-crx*srz), (crx*sry*crz+srx*srz),
-       cry*srz, (srx*sry*srz+crx*crz), (crx*sry*srz-srx*crz),
-          -sry,               srx*cry,               crx*cry;
+  Eigen::Matrix<T, 3, 3> R;
+  R << cy*cz,  sx*sy*cz-cx*sz,  cx*sy*cz+sx*sz,
+       cy*sz,  sx*sy*sz+cx*cz,  cx*sy*sz-sx*cz,
+         -sy,           sx*cy,           cx*cy;
   return R;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * \brief Interpolate spherical linearly between two isometries (R0, T0) and (R1, T1).
+ * 
+ * At t=t0, the first isometry is returned, at t=t1 the second.
+ * The translation will be interpolated linearly and the rotation spherical linearly.
+ */
+template <typename T>
+Eigen::Transform<T, 3, Eigen::Isometry> LinearInterpolation(const Eigen::Matrix<T, 3, 3>& R0, const Eigen::Matrix<T, 3, 1>& T0,
+                                                            const Eigen::Matrix<T, 3, 3>& R1, const Eigen::Matrix<T, 3, 1>& T1,
+                                                            double t, double t0 = 0., double t1 = 1.)
+{
+  const double time = (t - t0) / (t1 - t0);
+  Eigen::Quaternion<T> rot(Eigen::Quaternion<T>(R0).slerp(time, Eigen::Quaternion<T>(R1)));
+  Eigen::Translation<T, 3> trans(T0 + time * (T1 - T0));
+  return trans * rot;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +159,7 @@ Express6DoFPoseInOtherCoordinateFrame(const Eigen::Matrix<double, 6, 1>& dof6,
 
   return std::pair<Eigen::Matrix<double, 6, 1>, Eigen::Matrix<double, 6, 6> >(newDof6, newDof6Jacobian);
 }
+};
 };
 
 #endif // CERES_TOOLS_H
