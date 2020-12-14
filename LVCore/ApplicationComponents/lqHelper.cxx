@@ -92,6 +92,12 @@ vtkSMProxy* SearchProxyByGroupName(vtkSMProxy * base_proxy, const std::string &p
   for (propIter->Begin(); !propIter->IsAtEnd(); propIter->Next())
   {
     vtkSMProperty* prop = propIter->GetProperty();
+    if(strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
+    {
+      // If the property is a simple "vtkSMProperty" (ex: "Start" for Stream proxy)
+      // "GetAsProxy" function will generate a warning
+      continue;
+    }
 
     // Search the proxy in the subProxy if its valid
     vtkSMProxy* propertyAsProxy = vtkSMPropertyHelper(prop).GetAsProxy();
