@@ -30,25 +30,30 @@ lqEnableAdvancedArraysReaction::lqEnableAdvancedArraysReaction(QAction *action)
 }
 
 //-----------------------------------------------------------------------------
-void lqEnableAdvancedArraysReaction::onTriggered()
+void lqEnableAdvancedArraysReaction::updateIcon(bool setEnable)
 {
-  int booleanToSet = 0;
-  // Declare the value to set to the property
-  if(this->parentAction()->isChecked())
+  if(setEnable)
   {
-    booleanToSet = 1; // the property should be set to "true"
-    // Change icon and tooltip of the button to disable advance array
-    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/DisableAdvancedArrays.png"));
-    this->parentAction()->setToolTip(QString("Disable the interpreter's advanced arrays."));
-
-  }
-  else
-  {
-    booleanToSet = 0; // the property should be set to "false"
-    // Change icon and tooltip of the button to enable advance array
+    // Set the icon on "Enable advanced Arrays"
     this->parentAction()->setIcon(QIcon(":/lqResources/Icons/EnableAdvancedArrays.png"));
     this->parentAction()->setToolTip(QString("Enable the interpreter's advanced arrays."));
   }
+  else
+  {
+    // Set the icon on "Disable advanced Arrays"
+    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/DisableAdvancedArrays.png"));
+    this->parentAction()->setToolTip(QString("Disable the interpreter's advanced arrays."));
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqEnableAdvancedArraysReaction::onTriggered()
+{
+  // The property should be set to true if the button is "checked
+  int booleanToSet = this->parentAction()->isChecked();
+
+  // The Ui should be update to the next available action
+  this->updateIcon(!this->parentAction()->isChecked());
 
   // Update all lidar proxy with the new property value
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();

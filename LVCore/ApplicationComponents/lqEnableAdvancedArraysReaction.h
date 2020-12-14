@@ -34,6 +34,7 @@ public slots:
 private:
   Q_DISABLE_COPY(lqEnableAdvancedArraysReaction)
 
+  void updateIcon(bool setEnable);
 };
 
 #endif // LqEnableAdvancedArraysReaction_h
