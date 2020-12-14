@@ -83,6 +83,48 @@ void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource *src)
   if (!this->parentAction()->isEnabled() && IsLidarProxy(src->getProxy()))
   {
     this->parentAction()->setEnabled(true);
+
+    // If the "Enable advanced Array" property is ON by default on a specific interpreter
+    // The first action of the button will be "Enable Advanced Arrays" and it will do nothing
+    // So the "Enable/Disable" button should be initialize according to the default value
+    // of the property "Enable Advanced Array" of the interpreter
+    std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
+    if(lidarProxys.empty())
+    {
+      return;
+    }
+    vtkSMProxy* proxy = lidarProxys[0];
+
+    // The Ui is updated, each time the Interpreter of the first Lidar Proxy is Modified
+    this->Connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    this->Connection->Connect(
+      proxy->GetProperty("PacketInterpreter"), vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
+
+    this->updateUI();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqEnableAdvancedArraysReaction::updateUI()
+{
+  // The choice of the button "Enable" or "Disable" is based on the first lidar of the pipeline
+  std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
+  if(lidarProxys.empty())
+  {
+    return;
+  }
+  vtkSMProxy* proxy = lidarProxys[0];
+
+  vtkSMProxy* interp = SearchProxyByGroupName(proxy, "LidarPacketInterpreter");
+  if(interp != nullptr)
+  {
+    vtkSMProperty* property = GetPropertyFromProxy(interp, "EnableAdvancedArrays");
+    bool enableAdvancedArrays = vtkSMPropertyHelper(property).GetAsInt();
+
+    // The Ui should be updated to the next available action : "disable/enable..."
+    // Check/Uncheck the "Enable Advanced Array" button
+    this->parentAction()->setChecked(enableAdvancedArrays);
+    this->updateIcon(!enableAdvancedArrays);
   }
 }
 
