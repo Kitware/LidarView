@@ -178,8 +178,16 @@ void vtkStream::Start()
 void vtkStream::Stop()
 {
   // destruct the thread is the inverse order of creation
-  this->ReceiverThread->Stop();
-  this->ConsumerThread->Stop();
+  if (this->ReceiverThread)
+  {
+    this->ReceiverThread->Stop();
+    this->ReceiverThread.reset();
+  }
+  if (this->ConsumerThread)
+  {
+    this->ConsumerThread->Stop();
+    this->ConsumerThread.reset();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -192,8 +200,11 @@ void vtkStream::StartRecording(const std::string &filename)
 //-----------------------------------------------------------------------------
 void vtkStream::StopRecording()
 {
-  vtkStream::WriterThread->Stop();
-  vtkStream::WriterThread.reset();
+  if (vtkStream::WriterThread)
+  {
+    vtkStream::WriterThread->Stop();
+    vtkStream::WriterThread.reset();
+  }
 }
 
 //-----------------------------------------------------------------------------
