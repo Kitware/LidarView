@@ -350,7 +350,15 @@ void lqPlayerControlsToolbar::setTimeValue(double value)
   this->UI->timeSpinBox->setValue(value);
   this->UI->timeSpinBox->blockSignals(false);
 
+  // Get the lowest frame index whose timestamp is bigger than 'value'
   int index = vtkSMTimeKeeperProxy::GetLowerBoundTimeStepIndex(this->timeKeeper(), value);
+  if (index > 0)
+  {
+    // Select the closest frame from input 'value' timestamp
+    double previousTime = this->Controller->getAnimationScene()->getTimeSteps()[index - 1];
+    double nextTime     = this->Controller->getAnimationScene()->getTimeSteps()[index];
+    index = std::abs(previousTime - value) < std::abs(nextTime - value) ? index - 1 : index;
+  }
 
   this->UI->frameQSpinBox->blockSignals(true);
   this->UI->frameQSpinBox->setValue(index);
