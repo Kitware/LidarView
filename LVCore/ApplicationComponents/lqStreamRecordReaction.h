@@ -50,6 +50,13 @@ private:
   QString recordingFilename;
 
   pqSettings* const Settings;
+  
+  // Actions when triggered :
+  // Open pop up to choose file path where to save stream + start stream recording with vtkstream + change state for next trigger
+  void StartRecordingReaction();
+  // Stop stream recording + open pop up to warn user + change state for next trigger, (recording must have been previously started)
+  void StopRecordingReaction();
+  
 };
 
 #endif // LQSTREAMRECORDREACTION_H

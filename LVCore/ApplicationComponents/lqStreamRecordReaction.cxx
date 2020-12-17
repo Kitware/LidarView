@@ -61,71 +61,82 @@ void lqStreamRecordReaction::onTriggered()
 {
   if (vtkStream::IsRecording())
   {
-    vtkStream::StopRecording();
-    this->parentAction()->setToolTip("Start Recording Stream Data");
-    this->parentAction()->setChecked(false);
+    this->StopRecordingReaction();
+  }
+  else
+  {
+    this->StartRecordingReaction();
+  }
+}
 
-    if(this->displayStopMessage)
+//-----------------------------------------------------------------------------
+void lqStreamRecordReaction::StartRecordingReaction()
+{
+  // Get the first lidar, as for now this function doesn't handle multiple lidar.
+  // When this code need to be upgrade for multiple lidar so that either
+  // a meta calibration file or individual calibration file are saved.
+  vtkLidarStream* lidar = nullptr;
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    auto* tmp = dynamic_cast<vtkLidarStream*> (src->getProxy()->GetClientSideObject());
+    if (tmp)
     {
-      // Display a feedback message to the user when the recording is stopped
-      QMessageBox stopRecordMsg;
-      const QString txt = "Stop Recording.\nStream data have been saved in the file ";
-      stopRecordMsg.setText(txt + this->recordingFilename);
-      stopRecordMsg.setStandardButtons(QMessageBox::Ok);
-      stopRecordMsg.exec();
+      lidar = tmp;
+      break;
+    }
+  }
+
+  assert(lidar);
+  vtkLidarPacketInterpreter* interpreter = lidar->GetLidarInterpreter();
+  assert(interpreter);
+
+  QString defaultFileName = QString::fromStdString(interpreter->GetDefaultRecordFileName() + ".pcap");
+  if(useAdvancedDialog)
+  {
+    lqStreamRecordDialog dialog(nullptr, defaultFileName);
+    if (dialog.exec())
+    {
+      this->parentAction()->setToolTip("Stop Recording Stream Data");
+      this->recordingFilename = dialog.recordingFile();
+      QFile::copy(QString::fromStdString(interpreter->GetCalibrationFileName()),
+                  dialog.calibrationFile());
     }
   }
   else
   {
-    // Get the first lidar, as for now this function doesn't handle multiple lidar.
-    // When this code need to be upgrade for multiple lidar so that either
-    // a meta calibration file or individual calibration file are saved.
-    vtkLidarStream* lidar = nullptr;
-    pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-    foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
-    {
-      auto* tmp = dynamic_cast<vtkLidarStream*> (src->getProxy()->GetClientSideObject());
-      if (tmp)
-      {
-        lidar = tmp;
-        break;
-      }
-    }
+    QString PreviousPath = QString(this->Settings->value("LidarPlugin/RecordReaction/DefaultFolder").toString());
+    defaultFileName = PreviousPath + "/" + defaultFileName;
 
-    assert(lidar);
-    vtkLidarPacketInterpreter* interpreter = lidar->GetLidarInterpreter();
-    assert(interpreter);
+    this->recordingFilename = QFileDialog::getSaveFileName(nullptr,
+                    QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
+  }
+  if (this->recordingFilename != "")
+  {
+    vtkStream::StartRecording(this->recordingFilename.toStdString());
+    this->parentAction()->setChecked(true);
 
-    QString defaultFileName = QString::fromStdString(interpreter->GetDefaultRecordFileName() + ".pcap");
-    if(useAdvancedDialog)
-    {
-      lqStreamRecordDialog dialog(nullptr, defaultFileName);
-      if (dialog.exec())
-      {
-        this->parentAction()->setToolTip("Stop Recording Stream Data");
-        this->recordingFilename = dialog.recordingFile();
-        QFile::copy(QString::fromStdString(interpreter->GetCalibrationFileName()),
-                    dialog.calibrationFile());
-      }
-    }
-    else
-    {
-      QString PreviousPath = QString(this->Settings->value("LidarPlugin/RecordReaction/DefaultFolder").toString());
-      defaultFileName = PreviousPath + "/" + defaultFileName;
+    // Save the path where the pcap is saved
+    QFileInfo fileInfo(this->recordingFilename);
+    this->Settings->setValue("LidarPlugin/RecordReaction/DefaultFolder", fileInfo.absolutePath());
+  }
+}
 
-      this->recordingFilename = QFileDialog::getSaveFileName(nullptr,
-                      QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
-    }
-    if (this->recordingFilename != "")
-    {
-      vtkStream::StartRecording(this->recordingFilename.toStdString());
-      this->parentAction()->setChecked(true);
+//-----------------------------------------------------------------------------
+void lqStreamRecordReaction::StopRecordingReaction()
+{
+  vtkStream::StopRecording();
+  this->parentAction()->setToolTip("Start Recording Stream Data");
+  this->parentAction()->setChecked(false);
 
-      // Save the path where the pcap is saved
-      QFileInfo fileInfo(this->recordingFilename);
-      this->Settings->setValue("LidarPlugin/RecordReaction/DefaultFolder", fileInfo.absolutePath());
-    }
-
+  if(this->displayStopMessage)
+  {
+    // Display a feedback message to the user when the recording is stopped
+    QMessageBox stopRecordMsg;
+    const QString txt = "Stop Recording.\nStream data have been saved in the file ";
+    stopRecordMsg.setText(txt + this->recordingFilename);
+    stopRecordMsg.setStandardButtons(QMessageBox::Ok);
+    stopRecordMsg.exec();
   }
 }
 
@@ -144,5 +155,9 @@ void lqStreamRecordReaction::onSourceRemoved(pqPipelineSource *src)
   if (this->parentAction()->isEnabled() && isLastStream(src))
   {
     this->parentAction()->setEnabled(false);
+    if (vtkStream::IsRecording())
+    {
+      this->StopRecordingReaction();
+    }
   }
 }
