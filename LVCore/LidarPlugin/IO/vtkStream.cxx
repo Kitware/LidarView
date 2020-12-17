@@ -149,14 +149,16 @@ void vtkStream::Start()
     vtkErrorMacro("no interpreter is set")
     return;
   }
-  // The order of creation matters, as the receiver thread will enqueue packets on the consumer thread
 
-  // Create and start the ConsumerThread
+  // Stop the stream, to handle successing call to Start()
+  //************************************
+  this->Stop();
+
+  // Create the ConsumerThread
   //************************************
   this->ConsumerThread = std::make_unique<PacketConsumer>(this);
-  this->ConsumerThread->Start();
 
-  // Create and start the ReceiverThread
+  // Create the ReceiverThread
   //**********************************
   this->ReceiverThread = std::make_unique<PacketReceiver>(this->ListeningPort,
                                                         std::bind(&vtkStream::EnqueuePacket, this, std::placeholders::_1),
@@ -171,6 +173,11 @@ void vtkStream::Start()
     this->ReceiverThread->EnableCrashAnalysing(GetCrashAnalysingFileName(), 5000);
   }
   this->ReceiverThread->SetFakeManufacturerMACAddress(this->Interpreter->GetManufacturerMACAddress());
+
+  // Start the different threads
+  //************************************
+  // The starting order matters, as the receiver thread will enqueue packets on the consumer thread
+  this->ConsumerThread->Start();
   this->ReceiverThread->Start();
 }
 
@@ -193,6 +200,7 @@ void vtkStream::Stop()
 //-----------------------------------------------------------------------------
 void vtkStream::StartRecording(const std::string &filename)
 {
+  vtkStream::StopRecording();
   vtkStream::WriterThread = std::make_unique<PacketFileWriter>();
   vtkStream::WriterThread->Start(filename);
 }
