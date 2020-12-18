@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vvMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/FileOpenDialog" command="filesSelected" arguments="@CMAKE_SOURCE_DIR@/TestData/HDL-64_Dual.pcap" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/ListWidget" command="setCurrent" arguments="5.0" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/ListWidget" command="setCheckState" arguments="5.0,0" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/ListWidget" command="setCurrent" arguments="0.0" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/ListWidget" command="setCheckState" arguments="0.0,0" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+</pqevents>

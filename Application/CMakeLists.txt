@@ -80,3 +80,10 @@ target_link_libraries(${SOFTWARE_NAME} PUBLIC
   lqApplicationComponents #actually LVCore/ApplicationComponents
   ApplicationUi
   )
+
+#-----------------------------------------------------------------------------
+# Option to build QtTesting
+#-----------------------------------------------------------------------------
+if(BUILD_TESTING)
+  add_subdirectory(QtTesting)
+endif()
