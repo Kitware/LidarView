@@ -144,6 +144,13 @@ void lqSaveLidarStateReaction::constructPropertiesInfo(vtkSMProxy * lidarProxy,
       continue;
     }
 
+    if(strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
+    {
+      // If the property is a simple "vtkSMProperty" (ex: "Start" for Stream proxy)
+      // "GetAsProxy" function will generate a warning
+      continue;
+    }
+
     // If the property is a valid proxy, we print all the properties of the proxy at the end
     vtkSMProxy* propertyAsProxy = vtkSMPropertyHelper(prop).GetAsProxy();
     if(propertyAsProxy)
