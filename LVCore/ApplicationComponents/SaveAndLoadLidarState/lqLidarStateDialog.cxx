@@ -7,10 +7,12 @@
 
 //-----------------------------------------------------------------------------
 lqLidarStateDialog::lqLidarStateDialog(QWidget *parent,
-                                       std::vector<propertyInfo>& propertiesVector) :
+                                       std::vector<propertyInfo>& propertiesVector,
+                                       const std::string& instruction) :
   QDialog(parent)
 {
   this->properties = propertiesVector;
+  this->instructions = QString(instruction.c_str());
 
   QVBoxLayout* vbox = new QVBoxLayout;
 
@@ -26,6 +28,22 @@ lqLidarStateDialog::lqLidarStateDialog(QWidget *parent,
 //-----------------------------------------------------------------------------
 void lqLidarStateDialog::CreateDialog(QVBoxLayout *vbox)
 {
+  // Display an information message if there is no property to display
+  if(this->properties.empty())
+  {
+    QLabel * label =  new QLabel(QString("No property available"));
+    vbox->addWidget(label, 0, Qt::AlignCenter);
+    return;
+  }
+
+  // Display a message to give a tip to the user :
+  if(!this->instructions.isEmpty())
+  {
+    QLabel * label =  new QLabel(this->instructions);
+    label->setStyleSheet("font: italic;font-size: 12px ; color: grey");
+    vbox->addWidget(label, 0, Qt::AlignLeft);
+  }
+
   for(unsigned int i = 0; i < this->properties.size(); i++)
   {
     propertyInfo currentProperty = this->properties[i];

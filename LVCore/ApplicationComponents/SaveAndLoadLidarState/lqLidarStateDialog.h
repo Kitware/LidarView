@@ -63,13 +63,17 @@ class lqLidarStateDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit lqLidarStateDialog(QWidget *parent, std::vector<propertyInfo>& propertiesVector);
+  explicit lqLidarStateDialog(QWidget *parent,
+                              std::vector<propertyInfo>& propertiesVector,
+                              const std::string& instruction = "");
 
   ~lqLidarStateDialog(){}
 
   void CreateDialog(QVBoxLayout * vbox);
 
   std::vector<propertyInfo> properties;
+
+  QString instructions;
 };
 #endif // LQLIDARSTATEDIALOG_H
 

@@ -80,7 +80,7 @@ void lqLoadLidarStateReaction::onTriggered()
     return;
   }
 
-  lqLidarStateDialog dialog(nullptr, propertyInfo);
+  lqLidarStateDialog dialog(nullptr, propertyInfo, "Please select the parameters to load");
   if(dialog.exec())
   {
     for(const auto & currentProp : dialog.properties)
