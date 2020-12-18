@@ -70,6 +70,12 @@ int vtkLidarReader::ReadFrameInformation()
   // reset the interpreter parser meta data
   this->Interpreter->ResetParserMetaData();
 
+  if (!this->Reader)
+  {
+    vtkErrorMacro("Could not open the pcap file")
+    return 0;
+  }
+
   // keep track of the file position
   // and the network timestamp of the
   // current udp packet to process
