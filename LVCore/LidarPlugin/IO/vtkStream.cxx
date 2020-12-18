@@ -50,12 +50,19 @@ std::string GetCrashAnalysingFileName()
     appDir += "LastData";
   }
 
-  // Checking if the application directory exists in the home directory and create it otherwise
-  boost::filesystem::path appDirPath(appDir.c_str());
-
-  if (!boost::filesystem::is_directory(appDirPath))
+  try
   {
-    boost::filesystem::create_directory(appDirPath);
+    // Checking if the application directory exists in the home directory and create it otherwise
+    boost::filesystem::path appDirPath(appDir.c_str());
+
+    if (!boost::filesystem::is_directory(appDirPath))
+    {
+      boost::filesystem::create_directories(appDirPath);
+    }
+  }
+  catch (std::exception const& e)
+  {
+    std::cout << "Failed to create directory for crash analysis : " << e.what() << std::endl;
   }
   return appDir;
 }
