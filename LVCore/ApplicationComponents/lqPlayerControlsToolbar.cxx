@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ui_lqPlayerControlsToolbar.h"
 
 #include <limits>
+#include <cmath>
 
 #include <QLabel>
 #include <QComboBox>
