@@ -31,6 +31,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSpreadSheetManager : public QObject
 
 public:
   lqSpreadSheetManager(QObject* parent);
+  ~lqSpreadSheetManager();
   void setSpreadSheetDockWidget(QDockWidget* dock);
   void setMainView(pqRenderView* view);
 signals:

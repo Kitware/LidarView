@@ -32,6 +32,12 @@ lqSpreadSheetManager::lqSpreadSheetManager(QObject* parent) : QObject(parent)
 }
 
 //-----------------------------------------------------------------------------
+lqSpreadSheetManager::~lqSpreadSheetManager()
+{
+  this->destructSpreadSheet();
+}
+
+//-----------------------------------------------------------------------------
 void lqSpreadSheetManager::setSpreadSheetDockWidget(QDockWidget* dock)
 {
   this->spreadSheetDock = dock;
@@ -113,15 +119,19 @@ void lqSpreadSheetManager::constructSpreadSheet()
 //-----------------------------------------------------------------------------
 void lqSpreadSheetManager::destructSpreadSheet()
 {
-  pqActiveObjects::instance().setActiveView(this->mainView);
+  if(this->SpreadSheetView)
+  {
+    pqActiveObjects::instance().setActiveView(this->mainView);
 
-  this->spreadSheetDock->setVisible(false);
-  this->spreadSheetDock->setWidget(nullptr);
+    this->spreadSheetDock->setVisible(false);
+    this->spreadSheetDock->setWidget(nullptr);
 
-  delete this->SpreadSheetViewDec;
-  this->SpreadSheetViewDec = nullptr;
+    delete this->SpreadSheetViewDec;
+    this->SpreadSheetViewDec = nullptr;
 
     pqApplicationCore::instance()->getObjectBuilder()->destroy(this->SpreadSheetView);
+    this->SpreadSheetView = nullptr; 
+  }
 }
 
 //-----------------------------------------------------------------------------
