@@ -121,8 +121,7 @@ void lqSpreadSheetManager::destructSpreadSheet()
   delete this->SpreadSheetViewDec;
   this->SpreadSheetViewDec = nullptr;
 
-  delete this->SpreadSheetView;
-  this->SpreadSheetView = nullptr;
+    pqApplicationCore::instance()->getObjectBuilder()->destroy(this->SpreadSheetView);
 }
 
 //-----------------------------------------------------------------------------
