@@ -37,11 +37,12 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
                                       vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  // get the available time steps from source (only once)
-  if (this->TimeSteps.size() == 0)
+  // get the available time steps from source
+  // This is done every time the number of timesteps is changed in the UI
+  int nb_time_steps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  if (this->TimeSteps.size() == 0 || this->TimeSteps.size() != (unsigned int) nb_time_steps)
   {
     double *time_steps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    int nb_time_steps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->TimeSteps.assign(time_steps, time_steps + nb_time_steps);
   }
 
