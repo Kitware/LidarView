@@ -1,7 +1,5 @@
 #include "vtkLidarPacketInterpreter.h"
 
-#include <vtkTransform.h>
-
 #include <ctime>
 #include <sstream>
 
@@ -133,19 +131,6 @@ bool vtkLidarPacketInterpreter::shouldBeCroppedOut(double pos[3])
       return false;
   }
   return !((pointInside && !this->CropOutside) || (!pointInside && this->CropOutside));
-}
-
-//-----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkLidarPacketInterpreter, SensorTransform, vtkTransform)
-
-//-----------------------------------------------------------------------------
-vtkMTimeType vtkLidarPacketInterpreter::GetMTime()
-{
-  if (this->SensorTransform)
-  {
-    return std::max(this->Superclass::GetMTime(), this->SensorTransform->GetMTime());
-  }
-  return this->Superclass::GetMTime();
 }
 
 //-----------------------------------------------------------------------------

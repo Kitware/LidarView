@@ -25,8 +25,6 @@
 #include "vtkInterpreter.h"
 #include "FrameInformation.h"
 
-class vtkTransform;
-
 enum FramingMethod_t {
         INTERPRETER_FRAMING = 0, // the interpreter in charge of the framing
         NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
@@ -196,12 +194,6 @@ public:
   vtkGetMacro(IgnoreEmptyFrames, bool)
   vtkSetMacro(IgnoreEmptyFrames, bool)
 
-  vtkGetMacro(ApplyTransform, bool)
-  vtkSetMacro(ApplyTransform, bool)
-
-  vtkGetObjectMacro(SensorTransform, vtkTransform)
-  virtual void SetSensorTransform(vtkTransform *);
-
   vtkGetMacro(CropMode, int)
   vtkSetMacro(CropMode, int)
 
@@ -218,8 +210,6 @@ public:
 
   vtkSetMacro(FrameDuration_s, double)
   vtkGetMacro(FrameDuration_s, double)
-
-  vtkMTimeType GetMTime() override;
 
 protected:
   /**
@@ -283,12 +273,6 @@ protected:
 
   //! Proccess/skip frame with 0 points
   bool IgnoreEmptyFrames = false;
-
-  //! Indicate if the vtkLidarProvider::SensorTransform is apply
-  bool ApplyTransform = false;
-
-  //! Fixed transform to apply to the Lidar points.
-  vtkTransform* SensorTransform = nullptr;
 
   //! Indicate which cropping mode should be used.
   int CropMode = CROP_MODE::None;

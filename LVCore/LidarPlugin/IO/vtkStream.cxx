@@ -81,6 +81,16 @@ vtkStream::~vtkStream()
 }
 
 //-----------------------------------------------------------------------------
+vtkMTimeType vtkStream::GetMTime()
+{
+  if (this->GetInterpreter())
+  {
+    return std::max(this->Superclass::GetMTime(), this->GetInterpreter()->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
+
+//-----------------------------------------------------------------------------
 template<class T>
 void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
   if (attribute != value)

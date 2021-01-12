@@ -49,8 +49,6 @@ public:
   vtkGetMacro(DetectFrameDropping, bool)
   vtkSetMacro(DetectFrameDropping, bool)
 
-  vtkMTimeType GetMTime() override;
-
   void AddNewData() override;
 
   void ClearAllDataAvailable() override;

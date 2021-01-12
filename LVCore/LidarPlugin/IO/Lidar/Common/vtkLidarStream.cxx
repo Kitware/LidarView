@@ -83,16 +83,6 @@ void vtkLidarStream::SetDummyProperty(int)
 }
 
 //-----------------------------------------------------------------------------
-vtkMTimeType vtkLidarStream::GetMTime()
-{
-  if (this->GetLidarInterpreter())
-  {
-    return std::max(this->Superclass::GetMTime(), this->GetLidarInterpreter()->GetMTime());
-  }
-  return this->Superclass::GetMTime();
-}
-
-//-----------------------------------------------------------------------------
 vtkLidarStream::vtkLidarStream()
 {
   this->SetNumberOfInputPorts(0);

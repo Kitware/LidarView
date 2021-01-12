@@ -53,6 +53,8 @@ public:
 
   int FillOutputPortInformation(int port, vtkInformation* info);
 
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkPositionOrientationPacketReader();
   ~vtkPositionOrientationPacketReader() = default;

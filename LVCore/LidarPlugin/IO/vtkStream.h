@@ -105,6 +105,8 @@ public:
    */
   std::mutex DataMutex;
 
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkStream();
   // WARNING: inheriting classes destructors must call Stop() on this base class

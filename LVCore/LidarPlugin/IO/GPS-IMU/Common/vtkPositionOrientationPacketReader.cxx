@@ -34,6 +34,16 @@ int vtkPositionOrientationPacketReader::FillOutputPortInformation(int port, vtkI
 }
 
 //-----------------------------------------------------------------------------
+vtkMTimeType vtkPositionOrientationPacketReader::GetMTime()
+{
+  if (this->Interpreter)
+  {
+    return std::max(this->Superclass::GetMTime(), this->Interpreter->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
+
+//-----------------------------------------------------------------------------
 void vtkPositionOrientationPacketReader::SetFileName(const std::string &filename)
 {
   if (filename == this->FileName)
@@ -130,6 +140,11 @@ int vtkPositionOrientationPacketReader::RequestData(vtkInformation *vtkNotUsed(r
 
   if (this->Interpreter)
   {
+    // We need to reset the interpreter data before filling it to avoid data stacking.
+    // For example, this can happen if the sensor transform is modified after a first instantiation
+    // The previous result needs to be erase to avoid having 2 trajectories
+    this->Interpreter->ResetCurrentData();
+
     this->Open();
     vtkSmartPointer<vtkPolyData> polydata;
     vtkSmartPointer<vtkTable> table;

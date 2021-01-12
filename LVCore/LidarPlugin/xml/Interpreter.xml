@@ -1,10 +1,50 @@
 <ServerManagerConfiguration>
 
+<!-- Begin PacketInterpreter -->
+<ProxyGroup name="base_PacketInterpreter_g">
+  <SourceProxy name="base_PacketInterpreter"
+         class="vtkInterpreter"
+         label="vtkInterpreter">
+
+  <IntVectorProperty
+      name="ApplyTransform"
+      animateable="0"
+      command="SetApplyTransform"
+      default_values="0"
+      number_of_elements="1"
+      panel_visibility="advanced">
+    <BooleanDomain name="bool" />
+    <Documentation>
+      Apply geolocation data
+    </Documentation>
+  </IntVectorProperty>
+
+  <ProxyProperty command="SetSensorTransform"
+                  name="Sensor Transform"
+                  panel_visibility="advanced">
+    <ProxyListDomain name="proxy_list">
+      <Proxy group="extended_sources"
+             name="Transform2" />
+    </ProxyListDomain>
+  </ProxyProperty>
+
+  <PropertyGroup label="Sensor Transform">
+    <Property name="ApplyTransform" />
+    <Property name="Sensor Transform" />
+  </PropertyGroup>
+
+  </SourceProxy>
+</ProxyGroup>
+<!-- End PacketInterpreter -->
+
+
 <!-- Begin LidarPacketInterpreter -->
 <ProxyGroup name="base_LidarPacketInterpreter_g">
   <SourceProxy name="base_LidarPacketInterpreter"
          class="vtkLidarPacketInterpreter"
-         label="vtkLidarPacketInterpreter">
+         label="vtkLidarPacketInterpreter"
+         base_proxygroup="base_PacketInterpreter_g"
+         base_proxyname="base_PacketInterpreter">
 
   <StringVectorProperty
     name="CalibrationFileName"
@@ -65,33 +105,6 @@
     <Property name="CropMode" />
     <Property name="CropOutside" />
     <Property name="CropRegion" />
-  </PropertyGroup>
-
-  <IntVectorProperty
-      name="ApplyTransform"
-      animateable="0"
-      command="SetApplyTransform"
-      default_values="0"
-      number_of_elements="1"
-      panel_visibility="advanced">
-    <BooleanDomain name="bool" />
-    <Documentation>
-      Apply geolocation data
-    </Documentation>
-  </IntVectorProperty>
-
-  <ProxyProperty command="SetSensorTransform"
-                  name="Sensor Transform"
-                  panel_visibility="advanced">
-    <ProxyListDomain name="proxy_list">
-      <Proxy group="extended_sources"
-             name="Transform2" />
-    </ProxyListDomain>
-  </ProxyProperty>
-
-  <PropertyGroup label="Sensor Transform">
-    <Property name="ApplyTransform" />
-    <Property name="Sensor Transform" />
   </PropertyGroup>
 
   <IntVectorProperty
@@ -202,5 +215,18 @@
   </SourceProxy>
 </ProxyGroup>
 <!-- End LidarPacketInterpreter -->
+
+
+<!-- Begin PositionOrientationPacketInterpreter -->
+<ProxyGroup name="base_PositionOrientationPacketInterpreter_g">
+  <SourceProxy name="base_PositionOrientationPacketInterpreter"
+         class="vtkPositionOrientationPacketInterpreter"
+         label="vtkPositionOrientationPacketInterpreter"
+         base_proxygroup="base_PacketInterpreter_g"
+         base_proxyname="base_PacketInterpreter">
+
+  </SourceProxy>
+</ProxyGroup>
+<!-- End PositionOrientationPacketInterpreter -->
 
 </ServerManagerConfiguration>
