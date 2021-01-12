@@ -38,7 +38,7 @@ default:
     # so the next fetching and checkout will basically do nothing.
     # "$git checkout " is a glorified no-op (no operation), see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - cd $CI_PROJECT_DIR/$TRIGGER_MODULE_PATH
-    - git fetch
+    - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
   retry:
     max: 2
