@@ -1,6 +1,11 @@
 # Copy the scripts when installing
-
-set(install_destination ${VV_INSTALL_LIBRARY_DIR}/site-packages)
+if(WIN32)
+  set(install_destination "${VV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
+elseif(APPLE)
+  set(install_destination ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python)
+else()
+  set(install_destination "${VV_INSTALL_LIBRARY_DIR}/../python${Python_VERSION}/site-packages")
+endif()
 
 set(scripts
     lib/camera_path.py

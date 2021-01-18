@@ -561,14 +561,14 @@ if (APPLE)
 
   # install libraries
   install(TARGETS ${libraries_to_install}
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Libraries
-          LIBRARY DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Libraries
+          RUNTIME DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 
   # install executables
   install(TARGETS ${executables_to_install}
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/bin
-          LIBRARY DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Libraries
+          RUNTIME DESTINATION "${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/bin"
+          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 
   # install paraview python modules
