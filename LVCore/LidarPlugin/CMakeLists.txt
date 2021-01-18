@@ -572,16 +572,11 @@ if (APPLE)
           COMPONENT Runtime)
 
   # install paraview python modules
-  install(DIRECTORY ${ParaView_DIR}/lib/site-packages/paraview DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python)
-  file(GLOB python_libs ${ParaView_DIR}/lib/*Python.so)
-  install(FILES ${python_libs} DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Libraries)
-
-  # # install some pdf
-  # install(FILES ${LidarView_SOURCE_DIR}/Documentation/LidarView_Developer_Guide.pdf DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Resources)
-  # configure_file(${LidarView_SOURCE_DIR}/Documentation/LidarView_Developer_Guide.pdf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SOFTWARE_NAME}.app/Contents/Resources/LidarView_Developer_Guide.pdf)
-
-  # install(FILES ${LidarView_SOURCE_DIR}/Documentation/LidarView_User_Guide.pdf DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Resources)
-  # configure_file(${LidarView_SOURCE_DIR}/Documentation/LidarView_User_Guide.pdf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SOFTWARE_NAME}.app/Contents/Resources/LidarView_User_Guide.pdf)
+  install(DIRECTORY ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/ DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python)
+  file(GLOB python_dylib ${ParaView_DIR}/lib/*Python*.dylib)
+  install(FILES ${python_dylib} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  file(GLOB python_so ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/vtkmodules/*Python.so)
+  install(FILES ${python_so} DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python/vtkmodules)
 
 else()
   # install libraries
