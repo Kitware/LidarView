@@ -148,7 +148,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 The following packages are needed to build on Ubuntu 16.04:
 
 - build-essential
-- cmake
+- **CMake version 3.12 or higher** is needed. As the `cmake` package available from Ubuntu 16.04 is not compatible, you need to get a supported version at <https://cmake.org/>.
 - git
 - flex
 - byacc
@@ -160,8 +160,6 @@ The following packages are needed to build on Ubuntu 16.04:
 - zlib1g-dev
 - freeglut3-dev
 - pkg-config
-
-Note that **CMake version 3.12 or higher** is needed, it is available at <https://cmake.org/>.
 
 #### If using qt5 system:
 - qtbase5-dev
