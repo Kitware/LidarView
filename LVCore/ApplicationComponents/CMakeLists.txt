@@ -60,16 +60,16 @@ target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)
 target_compile_definitions(lqApplicationComponents PRIVATE CTKCore_EXPORTS CTKWidgets_EXPORTS)
 include(GenerateExportHeader)
 generate_export_header(lqApplicationComponents)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lqapplicationcomponents_export.h DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lqapplicationcomponents_export.h DESTINATION ${LV_INSTALL_LIBRARY_DIR})
 # install libraries
 if (APPLE)
   install(TARGETS lqApplicationComponents
-          RUNTIME DESTINATION ${VV_INSTALL_LIBRARY_DIR}
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 else()
   install(TARGETS lqApplicationComponents
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION "bin"
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 endif()

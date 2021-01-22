@@ -11,7 +11,7 @@ function(custom_add_executable)
   if (WIN32)
     install(TARGETS ${ARGV0}
 	    RUNTIME DESTINATION ${INSTALL_LOCAL_DIR}
-	    LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+	    LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
 	    COMPONENT Runtime)
   endif(WIN32)
 endfunction(custom_add_executable)

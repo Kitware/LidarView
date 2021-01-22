@@ -41,11 +41,11 @@ function(python_module_install)
 
   # Install python module
   if(WIN32)
-    set(install_destination "${VV_INSTALL_RUNTIME_DIR}/Lib/site-packages")
+    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
   elseif(APPLE)
-    set(install_destination ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python)
+    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../Python")
   else()
-    set(install_destination "${VV_INSTALL_RUNTIME_DIR}/../lib/python${Python_VERSION}/site-packages")
+    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../python${Python_VERSION}/site-packages")
   endif()
 
   install(DIRECTORY  ${python_module_dir}/${python_module_install_NAME}

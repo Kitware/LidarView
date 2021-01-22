@@ -30,14 +30,14 @@ target_include_directories(DatasetIOPlugin
 # install libraries
 if (APPLE)
   install(TARGETS DatasetIOPlugin
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/MacOS/plugins
-          LIBRARY DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/MacOS/plugins
+          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Plugins
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Plugins
           COMPONENT Runtime)
 
 else()
   install(TARGETS DatasetIOPlugin
-          RUNTIME DESTINATION ${VV_INSTALL_LIBRARY_DIR}/plugins
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}/plugins
+          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/plugins
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}/plugins
           COMPONENT Runtime)
 endif()
 

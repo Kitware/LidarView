@@ -424,7 +424,7 @@ target_include_directories(LidarPlugin PUBLIC ${plugin_include_dirs})
 target_link_libraries(LidarPlugin PUBLIC ${deps})
 include(GenerateExportHeader)
 generate_export_header(LidarPlugin)
-install(FILES ${PROJECT_BINARY_DIR}/lidarplugin_export.h DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+install(FILES ${PROJECT_BINARY_DIR}/lidarplugin_export.h DESTINATION ${LV_INSTALL_LIBRARY_DIR})
 target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 if(WIN32)
   # -DBOOST_PROGRAM_OPTIONS_DYN_LINK is necessary to use boost as a dynamic library
@@ -442,7 +442,7 @@ endif(APPLE)
 set(CMAKE_SKIP_RPATH FALSE)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../${VV_INSTALL_LIBRARY_DIR}")
+SET(CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #-----------------------------------------------------------------------------
@@ -561,46 +561,46 @@ if (APPLE)
 
   # install libraries
   install(TARGETS ${libraries_to_install}
-          RUNTIME DESTINATION ${VV_INSTALL_LIBRARY_DIR}
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
   
   # install some dependencies for packaging
-  install(FILES ${PCAP_LIBRARY} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
-  install(FILES ${liblas_LIBRARY} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
-  install(FILES ${Boost_LIBRARIES} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  install(FILES ${PCAP_LIBRARY} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
+  install(FILES ${liblas_LIBRARY} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
+  install(FILES ${Boost_LIBRARIES} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
 
   # install executables
   install(TARGETS ${executables_to_install}
-          RUNTIME DESTINATION "${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/bin"
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../bin
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 
   # install paraview python modules
-  install(DIRECTORY ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/ DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python)
+  install(DIRECTORY ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/ DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python)
   file(GLOB python_dylib ${ParaView_DIR}/lib/*Python*.dylib)
-  install(FILES ${python_dylib} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+  install(FILES ${python_dylib} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   file(GLOB python_so ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/vtkmodules/*Python.so)
-  install(FILES ${python_so} DESTINATION ${VV_INSTALL_RUNTIME_DIR}/${SOFTWARE_NAME}.app/Contents/Python/vtkmodules)
+  install(FILES ${python_so} DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python/vtkmodules)
 
 else()
-  # install paraview libs in VV_INSTALL_LIBRARY_DIR
+  # install paraview libs in LV_INSTALL_LIBRARY_DIR
   # needed to run LidarView from install path
   if(UNIX)
     file(GLOB paraview_libs ${ParaView_DIR}/lib/lib*.so*)
-    install(FILES ${paraview_libs} DESTINATION ${VV_INSTALL_LIBRARY_DIR})
+    install(FILES ${paraview_libs} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   endif()
 
   # install libraries
   install(TARGETS ${libraries_to_install}
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION "bin"
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 
   # install executables
   install(TARGETS ${executables_to_install}
-          RUNTIME DESTINATION ${VV_INSTALL_RUNTIME_DIR}
-          LIBRARY DESTINATION ${VV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION "bin"
+          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           COMPONENT Runtime)
 endif()
 
