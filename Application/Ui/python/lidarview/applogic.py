@@ -25,7 +25,7 @@ from paraview import vtk
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-from vtkIOXMLPython import vtkXMLPolyDataWriter
+from vtk import vtkXMLPolyDataWriter
 import lidarviewcore.kiwiviewerExporter
 import gridAdjustmentDialog
 import aboutDialog
@@ -440,8 +440,8 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
 
     handler = servermanager.ActiveConnection.Session.GetProgressHandler()
     handler.PrepareProgress()
-    freq = handler.GetProgressFrequency()
-    handler.SetProgressFrequency(0.05)
+    interval = handler.GetProgressInterval()
+    handler.SetProgressInterval(0.05)
     tag = handler.AddObserver('ProgressEvent', onProgressEvent)
 
     # construct the reader, this calls UpdateInformation on the
@@ -476,7 +476,8 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
         processor = smp.ProcessingSample(reader)
 
     handler.RemoveObserver(tag)
-    handler.SetProgressFrequency(freq)
+    handler.LocalCleanupPendingProgress()
+    handler.SetProgressInterval(interval)
     progressDialog.close()
 
     smp.GetActiveView().ViewTime = 0.0
