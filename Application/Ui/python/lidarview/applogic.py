@@ -128,7 +128,7 @@ def hasArrayName(sourceProxy, arrayName):
         return False
 
     info = info.GetAttributeInformation(0)
-    for i in xrange(info.GetNumberOfArrays()):
+    for i in range(info.GetNumberOfArrays()):
         if info.GetArrayInformation(i).GetName() == arrayName:
             return True
     return False
@@ -315,7 +315,7 @@ def chooseCalibration(calibrationFilename=None):
 
             qm = dialog.sensorTransform()
             vmLidar = vtk.vtkMatrix4x4()
-            for row in xrange(4):
+            for row in range(4):
                 vmLidar.SetElement(row, 0, qm.row(row).x())
                 vmLidar.SetElement(row, 1, qm.row(row).y())
                 vmLidar.SetElement(row, 2, qm.row(row).z())
@@ -324,7 +324,7 @@ def chooseCalibration(calibrationFilename=None):
 
             qm = dialog.gpsTransform()
             vmGps = vtk.vtkMatrix4x4()
-            for row in xrange(4):
+            for row in range(4):
                 vmGps.SetElement(row, 0, qm.row(row).x())
                 vmGps.SetElement(row, 1, qm.row(row).y())
                 vmGps.SetElement(row, 2, qm.row(row).z())
@@ -1141,7 +1141,7 @@ def getNumberOfTimesteps():
 def unloadData():
     _repCache.clear()
 
-    for k, src in smp.GetSources().iteritems():
+    for k, src in smp.GetSources().items():
         if src != app.grid and src != smp.FindSource("RPM"):
             smp.Delete(src)
 
