@@ -14,6 +14,7 @@
 #include <vtkLidarStream.h>
 
 // ParaView includes.
+#include "pqActiveObjects.h"
 #include "pqApplicationCore.h"
 #include "pqPipelineSource.h"
 #include "pqSMAdaptor.h"
@@ -104,12 +105,25 @@ namespace
 }
 
 //-----------------------------------------------------------------------------
+lqSensorListWidget* lqSensorListWidget::Instance = 0;
+
+//-----------------------------------------------------------------------------
+lqSensorListWidget* lqSensorListWidget::instance()
+{
+  return lqSensorListWidget::Instance;
+}
+
+//-----------------------------------------------------------------------------
 lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
   QWidget(parent),
   lastLidarSource(nullptr),
   ui(new Ui::lqSensorListWidget)
 {
   ui->setupUi(this);
+
+  // Only 1 lqSensorListWidget instance can be created.
+  Q_ASSERT(lqSensorListWidget::Instance == NULL);
+  lqSensorListWidget::Instance = this;
 
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
@@ -123,6 +137,10 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
 //-----------------------------------------------------------------------------
 lqSensorListWidget::~lqSensorListWidget()
 {
+  if (lqSensorListWidget::Instance == this)
+  {
+    lqSensorListWidget::Instance = 0;
+  }
   delete ui;
 }
 

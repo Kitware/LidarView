@@ -27,6 +27,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     ~lqSensorListWidget();
 
     lqSensorWidget* findWidget(pqPipelineSource* src) const;
+    static lqSensorListWidget* instance();
 
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
@@ -39,6 +40,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     Ui::lqSensorListWidget *ui;
     pqPipelineSource* lastLidarSource;
     std::vector<lqSensorWidget*> sensorWidgets;
+    static lqSensorListWidget* Instance;
+
 };
 
 #endif // LQSENSORLISTWIDGET_H
