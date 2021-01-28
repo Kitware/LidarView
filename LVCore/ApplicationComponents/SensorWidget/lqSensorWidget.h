@@ -4,6 +4,7 @@
 #include "lqapplicationcomponents_export.h"
 
 #include <QWidget>
+#include <functional>
 
 class pqPipelineSource;
 
@@ -30,6 +31,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
     bool IsLinkedTo(pqPipelineSource* src) const;
     pqPipelineSource* GetPositionOrientationSource() const;
     void UpdateUI();
+    void SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 
   public slots:
     void onCalibrate();
@@ -46,6 +48,7 @@ private:
     Ui::lqSensorWidget* UI;
     pqPipelineSource* LidarSource;
     pqPipelineSource* PositionOrientationSource;
+    std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
 };
 
 #endif // LQSENSORWIDGET_H

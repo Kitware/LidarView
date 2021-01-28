@@ -173,6 +173,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     sensorWidget->SetLidarSource(src);
     this->sensorWidgets.push_back(sensorWidget);
     this->ui->sensorListLayout->addWidget(sensorWidget);
+    sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
   }
 
   if (isIMUStream(src))
@@ -219,5 +220,15 @@ void lqSensorListWidget::onDataUpdated(pqPipelineSource *src)
     {
       sensorWidget->UpdateUI();
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorListWidget::setCalibrationFunction(std::function<void (pqPipelineSource* &, pqPipelineSource* &)> function)
+{
+  this->CalibrationFunction = function;
+  for (lqSensorWidget* widget: this->sensorWidgets)
+  {
+    widget->SetCalibrationFunction(this->CalibrationFunction);
   }
 }

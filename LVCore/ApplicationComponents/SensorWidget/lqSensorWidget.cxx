@@ -27,6 +27,12 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
 }
 
 //-----------------------------------------------------------------------------
+void lqSensorWidget::SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function)
+{
+  this->CalibrationFunction = function;
+}
+
+//-----------------------------------------------------------------------------
 lqSensorWidget::~lqSensorWidget()
 {
   delete this->UI;
@@ -73,8 +79,10 @@ bool lqSensorWidget::IsLinkedTo(pqPipelineSource *src) const
 
 void lqSensorWidget::onCalibrate()
 {
-  if (this->lidarSource)
-    this->setLidarSource(this->lidarSource);
+  if(this->CalibrationFunction)
+  {
+    this->CalibrationFunction(this->LidarSource, this->PositionOrientationSource);
+  }
 }
 
 //-----------------------------------------------------------------------------

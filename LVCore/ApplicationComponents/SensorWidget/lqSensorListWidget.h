@@ -2,6 +2,7 @@
 #define LQSENSORLISTWIDGET_H
 
 #include "lqapplicationcomponents_export.h"
+#include <functional>
 #include <QWidget>
 
 class lqSensorWidget;
@@ -28,6 +29,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
 
     lqSensorWidget* findWidget(pqPipelineSource* src) const;
     static lqSensorListWidget* instance();
+    void setCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
@@ -42,7 +44,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     pqPipelineSource* lastLidarSource;
     std::vector<lqSensorWidget*> sensorWidgets;
     static lqSensorListWidget* Instance;
-
+    std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
 };
 
 #endif // LQSENSORLISTWIDGET_H
