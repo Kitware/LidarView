@@ -129,6 +129,7 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
   this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
   this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
   this->connect(smmodel, SIGNAL(nameChanged(pqServerManagerModelItem*)), SLOT(onNameChanged(pqServerManagerModelItem*)));
+  this->connect(smmodel, SIGNAL(dataUpdated(pqPipelineSource*)), SLOT(onDataUpdated(pqPipelineSource*)));
 
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
@@ -205,5 +206,18 @@ void lqSensorListWidget::onNameChanged(pqServerManagerModelItem *item)
     lqSensorWidget* sensorWidget = this->findWidget(src);
     if (sensorWidget)
       sensorWidget->SetLidarSource(src);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorListWidget::onDataUpdated(pqPipelineSource *src)
+{
+  if (isLidarStream(src))
+  {
+    lqSensorWidget* sensorWidget = this->findWidget(src);
+    if (sensorWidget)
+    {
+      sensorWidget->UpdateUI();
+    }
   }
 }

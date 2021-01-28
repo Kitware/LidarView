@@ -33,6 +33,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
     void onNameChanged(pqServerManagerModelItem* item);
+    void onDataUpdated(pqPipelineSource* src);
 
   private:
     Q_DISABLE_COPY(lqSensorListWidget)
