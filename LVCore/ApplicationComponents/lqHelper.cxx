@@ -200,7 +200,7 @@ void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
       if(propertyAsVariant.IsInt())
       {
         vtkSMBooleanDomain * boolDomain = vtkSMBooleanDomain::SafeDownCast(prop->FindDomain("vtkSMBooleanDomain"));
-        if(boolDomain)
+        if(boolDomain && (values[0].compare("false") == 0 || values[0].compare("true") == 0))
         {
           int value = (values[0].compare("false") == 0) ? 0 : 1;
           vtkSMPropertyHelper(prop).Set(value);
