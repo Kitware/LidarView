@@ -1,8 +1,11 @@
 #ifndef LQHELPER_H
 #define LQHELPER_H
 
+#include <pqPipelineSource.h>
 #include <vtkSMProperty.h>
 #include <vtkSMProxy.h>
+#include <vtkSmartPointer.h>
+
 #include <vector>
 
 /**
@@ -13,10 +16,23 @@
 bool IsLidarProxy(vtkSMProxy * proxy);
 
 /**
+ * @brief IsStreamProxy return true if the proxy is a LidarStream or a PositionOrientationStream
+ * @param proxy to test
+ * @return true if the proxy is a LidarStream or a PositionOrientationStream
+ */
+bool IsStreamProxy(vtkSMProxy * proxy);
+
+/**
  * @brief hasLidarProxy look for a lidar proxy in the pipeline
  * @return true if there is a lidar proxy in the pipeline
  */
 bool HasLidarProxy();
+
+/**
+ * @brief GetPipelineSourceFromProxy look for a lidar proxy in the pipeline
+ * @return pqPipelineSource found
+ */
+pqPipelineSource* GetPipelineSourceFromProxy(vtkSMProxy * proxy);
 
 /**
  * @brief SearchProxyByName search recursively a proxy in an other one using XMLName and XMLLabel
@@ -49,6 +65,16 @@ std::vector<vtkSMProxy*> GetLidarsProxy();
 vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propNameToFind);
 
 /**
+ * @brief UpdateProperty set the value to the property "propNameToFind" of the proxy
+ *        Create a std::vector containing value, and call the more generic function UpdateProperty
+ * @param proxy proxy where to search the property
+ * @param propNameToFind name of the property
+ * @param value value to set
+ */
+void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
+                    const std::string &value);
+
+/**
  * @brief UpdateProperty set the values to the property "propNameToFind" of the proxy
  *        If the property is not found in the proxy, a message is displayed but nothing is done.
  *        This function is useful, if the property type is unknown.
@@ -67,5 +93,14 @@ void UpdateProperty(vtkSMProxy * proxy, const std::string & propNameToFind,
  * @return the name of the first group where a corresponding proxy is found
  */
 std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyToFindName);
+
+/**
+ * @brief GetInterpreterTransform Get the interpreter transform of the proxy
+ * @param proxy proxy of the pipeline, containing an interpreter proxy
+ * @param translate will be filled by the function with the translation of the interpreter transform
+ * @param rotate will be filled by the function with the rotation of the interpreter transform
+
+ */
+void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate, std::vector<double>& rotate);
 
 #endif // LQHELPER_H

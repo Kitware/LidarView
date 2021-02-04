@@ -6,6 +6,7 @@
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
+#include "vtkPositionOrientationStream.h"
 #include <vtkSMSessionProxyManager.h>
 #include <vtkSMBooleanDomain.h>
 #include <vtkSMPropertyIterator.h>
@@ -15,11 +16,25 @@
 #include <vtkPVProxyDefinitionIterator.h>
 
 #include <pqApplicationCore.h>
-#include <pqPipelineSource.h>
 #include <pqServerManagerModel.h>
 
 #include <cstring>
 #include <iostream>
+
+//-----------------------------------------------------------------------------
+bool IsStreamProxy(vtkSMProxy * proxy)
+{
+  if(proxy != nullptr)
+  {
+    auto* tmp_lidar_stream = dynamic_cast<vtkLidarStream*> (proxy->GetClientSideObject());
+    auto* tmp_posOR_stream = dynamic_cast<vtkPositionOrientationStream*> (proxy->GetClientSideObject());
+    if (tmp_lidar_stream || tmp_posOR_stream)
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
 //-----------------------------------------------------------------------------
 bool IsLidarProxy(vtkSMProxy * proxy)
@@ -48,6 +63,23 @@ bool HasLidarProxy()
     }
   }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* GetPipelineSourceFromProxy(vtkSMProxy * proxy)
+{
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  if(smmodel)
+  {
+    foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+    {
+      if(src->getProxy()->GetGlobalID() == proxy->GetGlobalID())
+      {
+         return src;
+      }
+    }
+  }
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -160,6 +192,15 @@ vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propN
 
 //-----------------------------------------------------------------------------
 void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
+                    const std::string &value)
+{
+  std::vector<std::string> values;
+  values.push_back(value);
+  UpdateProperty(proxy, propNameToFind, values);
+}
+
+//-----------------------------------------------------------------------------
+void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
                     const std::vector<std::string> &values)
 {
   // If there is no value to set, the request is skipped
@@ -253,3 +294,23 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
   return "";
 }
 
+//-----------------------------------------------------------------------------
+void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
+                             std::vector<double>& rotate)
+{
+  vtkSMProperty * interpreterProp = proxy->GetProperty("PacketInterpreter");
+  assert(interpreterProp);
+  vtkSMProxy * interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
+  assert(interpreterProxy);
+  vtkSMProperty * transformProp = interpreterProxy->GetProperty("Sensor Transform");
+  assert(transformProp);
+  vtkSMProxy * transormProxy = vtkSMPropertyHelper(transformProp).GetAsProxy();
+  assert(transormProxy);
+  vtkSMProperty * translateProp = transormProxy->GetProperty("Position");
+  assert(translateProp);
+  vtkSMProperty * rotateProp = transormProxy->GetProperty("Rotation");
+  assert(rotateProp);
+
+  translate = vtkSMPropertyHelper(translateProp).GetDoubleArray();
+  rotate = vtkSMPropertyHelper(rotateProp).GetDoubleArray();
+}
