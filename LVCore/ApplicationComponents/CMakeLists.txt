@@ -39,6 +39,11 @@ add_library(lqApplicationComponents
   LidarCameraToolbar/lqLidarCameraToolbar.ui
   lqEnableAdvancedArraysReaction.cxx
   lqEnableAdvancedArraysReaction.h
+  SensorWidget/lqSensorListWidget.cxx
+  SensorWidget/lqSensorListWidget.h
+  SensorWidget/lqSensorWidget.cxx
+  SensorWidget/lqSensorWidget.h
+  SensorWidget/lqSensorWidget.ui
   lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC
@@ -47,6 +52,7 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/ctk/
   ${CMAKE_CURRENT_SOURCE_DIR}/SaveAndLoadLidarState/
   ${CMAKE_CURRENT_SOURCE_DIR}/LidarCameraToolbar/
+  ${CMAKE_CURRENT_SOURCE_DIR}/SensorWidget/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 target_sources(lqApplicationComponents PUBLIC
