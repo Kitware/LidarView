@@ -45,7 +45,7 @@ function(python_module_install)
   elseif(APPLE)
     set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../Python")
   else()
-    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../python${Python_VERSION}/site-packages")
+    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/python${Python_VERSION}/site-packages")
   endif()
 
   install(DIRECTORY  ${python_module_dir}/${python_module_install_NAME}
