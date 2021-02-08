@@ -1,6 +1,8 @@
 #include "vtkPacketFileReader.h"
 
-//------------------------------------------------------------------------------
+#include<iostream>
+#include <boost/endian/arithmetic.hpp>
+
 bool IPHeaderFunctions::getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo)
 {
   fragmentInfo.Reset();
@@ -130,6 +132,220 @@ unsigned int IPHeaderFunctions::getIPHeaderLength(unsigned char const* data)
     }
     return (header - data);
   }
+  std::cerr << "IP header not recognised" << std::endl;
   return 0;
 }
+//------------------------------------------------------------------------------
+bool IPHeaderFunctions::buildReassembledIPHeader(unsigned char* ipheader, const unsigned int ipHeaderLength, const unsigned int payloadSize)
+{
+  unsigned char const ipVersion = ipheader[0] >> 4;
+  if (ipVersion == 0x4)
+  {
+    //Set Total Length
+    boost::endian::big_uint16_t total_length = ipHeaderLength  + payloadSize ;
+    std::copy(
+      total_length.data(),
+      total_length.data() + 2,
+      ipheader + 2
+    );
+    //Reset fragment flag
+    ipheader[6] =0x40;
+    ipheader[7] =0x00;
+    return true;
+  }
+  if (ipVersion == 0x6)
+  {
+    // WIP Removing Fragment Extension Header is a tedious process.
+    // WIP This feature is not needed at the time, if ever needed
+    // WIP will likely be superseded by a more robust solution like Pcap++.
+    std::cerr << "IPv6 Reassembly not supported" << std::endl;
+    return false;
+  }
+  
+  std::cerr << "IP header not recognised" << std::endl;
+  return false;
+}
 
+bool vtkPacketFileReader::Open(const std::string& filename, std::string filter_arg)
+{
+  //Open savefile in tcpdump/libcap format
+  char errbuff[PCAP_ERRBUF_SIZE];
+  pcap_t* pcapFile = pcap_open_offline(filename.c_str(), errbuff);
+  if (!pcapFile)
+  {
+    this->LastError = errbuff;
+    return false;
+  }
+  
+  //Compute filter for the kernel-level engine filtering engine
+  bpf_program filter;
+  if (pcap_compile(pcapFile, &filter, filter_arg.c_str(), 0, PCAP_NETMASK_UNKNOWN) == -1)
+  {
+    this->LastError = pcap_geterr(pcapFile);
+    return false;
+  }
+  //Assocaite filter to pcap
+  if (pcap_setfilter(pcapFile, &filter) == -1)
+  {
+    this->LastError = pcap_geterr(pcapFile);
+    return false;
+  }
+
+  //Determine Datalink header size
+  const unsigned int loopback_header_size = 4;
+  const unsigned int ethernet_header_size = 14;
+  auto linktype = pcap_datalink(pcapFile);
+  switch (linktype)
+  {
+    case DLT_EN10MB:
+      this->FrameHeaderLength = ethernet_header_size;
+      break;
+    case DLT_NULL:
+      this->FrameHeaderLength = loopback_header_size;
+      break;
+    default:
+      this->LastError = "Unknown link type in pcap file. Cannot tell where the payload is.";
+      return false;
+  }
+
+  this->FileName = filename;
+  this->PCAPFile = pcapFile;
+  this->StartTime.tv_sec = this->StartTime.tv_usec = 0;
+  return true;
+}
+
+void vtkPacketFileReader::Close()
+{
+  if (this->PCAPFile)
+  {
+    pcap_close(this->PCAPFile);
+    this->PCAPFile = 0;
+    this->FileName.clear();
+  }
+}
+  
+bool vtkPacketFileReader::NextPacket(const unsigned char*& data, unsigned int& dataLength, double& timeSinceStart,
+  pcap_pkthdr** headerReference, unsigned int* dataHeaderLength )
+{
+  if (!this->PCAPFile)
+  {
+    return false;
+  }
+
+  //Clear Previous Reassembly Data if needed
+  if (this->RemoveAssembled)
+  {
+    auto it = this->Fragments.find(this->AssembledId);
+    this->Fragments.erase(it);
+    this->AssembledId = 0;
+    this->RemoveAssembled = false;
+  }
+
+  dataLength = 0;
+  pcap_pkthdr* header;
+  FragmentInfo fragmentInfo;
+  fragmentInfo.MoreFragments = true;
+  
+  while (fragmentInfo.MoreFragments)
+  {
+    unsigned char const * tmpData = nullptr;
+    int returnValue = pcap_next_ex(this->PCAPFile, &header, &tmpData);
+    if (returnValue < 0)
+    {
+      this->Close();
+      return false;
+    }
+
+    // Collect header values before they are removed.
+    IPHeaderFunctions::getFragmentInfo(tmpData + this->FrameHeaderLength, fragmentInfo);
+    timeSinceStart = GetElapsedTime(header->ts, this->StartTime);
+    
+    //Consts
+    const unsigned int ipHeaderLength = IPHeaderFunctions::getIPHeaderLength(tmpData + this->FrameHeaderLength);
+    if (ipHeaderLength == 0)
+    { 
+      continue;
+    } 
+    const unsigned int ethHeaderLength = this->FrameHeaderLength;
+    const unsigned int udpHeaderLength = 8;
+    
+    const unsigned int frameLength    = std::min(header->len,header->caplen); //CaptureLen cropping
+    const unsigned int ipPayloadLength = frameLength - (ethHeaderLength + ipHeaderLength);
+    
+    unsigned char const * ipPayloadPtr = tmpData + ethHeaderLength + ipHeaderLength;
+    
+    //Provide Header Info if requested
+    if (headerReference != NULL && dataHeaderLength != NULL)
+    {
+      *headerReference = header;
+      *dataHeaderLength = ethHeaderLength + ipHeaderLength + udpHeaderLength;
+    }
+    
+    //IP Reassembly
+    if ( fragmentInfo.MoreFragments || fragmentInfo.Offset > 0)
+    {
+      const unsigned int offset_frag  = fragmentInfo.Offset * FRAGMENT_OFFSET_STEP;
+      const unsigned int offset       = ethHeaderLength + ipHeaderLength + offset_frag;
+      const unsigned int requiredSize = offset + ipPayloadLength;
+
+      auto & fragmentTracker = this->Fragments[fragmentInfo.Identification];
+      auto & reassembledData = fragmentTracker.Data;
+      if (requiredSize > reassembledData.size())
+      {
+        reassembledData.resize(requiredSize);
+      }
+      std::copy(ipPayloadPtr, ipPayloadPtr + ipPayloadLength, reassembledData.begin() + offset);
+
+      // Update current collected payload size.
+      fragmentTracker.CurrentSize += ipPayloadLength;
+
+      // There may be gaps of size FRAGMENT_OFFSET_STEP between fragments.
+      // Add this to the current size, assumes that <number of fragments - 1> *
+      // Any given fragment is always larger than FRAGMENT_OFFSET_STEP,
+      // so that it cannot be omitted accidentally.
+      if (fragmentInfo.MoreFragments)
+      {
+        // WIP I doubt this increment has any use, gap mentioned above is included within offset_frag
+        // WIP commenting this line and replacing >= with == has no effects
+        fragmentTracker.CurrentSize += FRAGMENT_OFFSET_STEP; 
+      }else{
+        // Set the expected size if this is the final fragment.
+        fragmentTracker.ExpectedSize = offset_frag + ipPayloadLength;
+      }
+
+      // Return Reassembled Packet if complete.
+      if (fragmentTracker.ExpectedSize > 0 && fragmentTracker.CurrentSize >= fragmentTracker.ExpectedSize)
+      {
+        //Build Reassembled Packet Header off the last one received
+        std::copy(
+          tmpData,
+          ipPayloadPtr,
+          reassembledData.begin()
+        );
+        //Frame Header
+        header->len    = ethHeaderLength + ipHeaderLength  + fragmentTracker.ExpectedSize ;
+        header->caplen = header->len;
+        //IP Header
+        IPHeaderFunctions::buildReassembledIPHeader(reassembledData.data() + ethHeaderLength, ipHeaderLength, fragmentTracker.ExpectedSize);
+
+        // Delete the associated data on the next iteration.
+        this->AssembledId = fragmentInfo.Identification;
+        this->RemoveAssembled = true;
+        
+        //Point to dataPayload
+        data       = reassembledData.data() + ethHeaderLength + ipHeaderLength + udpHeaderLength;
+        dataLength = fragmentTracker.ExpectedSize - udpHeaderLength;
+        return true;
+      }
+    }
+    //Self Standing IP packet
+    else
+    {
+      //Point to dataPayload
+      data       = ipPayloadPtr    + udpHeaderLength;
+      dataLength = ipPayloadLength - udpHeaderLength;
+      return true;
+    }
+  }
+  return true;
+}

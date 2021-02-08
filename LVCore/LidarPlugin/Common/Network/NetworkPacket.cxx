@@ -3,6 +3,7 @@
 #include <iostream>
 
 #ifdef _MSC_VER
+#define NOMINMAX //std::min conflict
 #include <windows.h>
 
 namespace
