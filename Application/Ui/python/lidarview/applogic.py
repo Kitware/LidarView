@@ -344,48 +344,21 @@ def chooseCalibration(calibrationFilename=None):
         return result
 
 
-def openSensor():
+def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
-    calibration = chooseCalibration()
-    if not calibration:
-        return
+    sensor = smp.FindSource(lidarProxyName)
 
-    calibrationFile = calibration.calibrationFile
-    sensorTransform = calibration.sensorTransform
-    LidarPort = calibration.lidarPort
-    GPSPort = calibration.gpsPort
-    LIDARForwardingPort = calibration.lidarForwardingPort
-    GPSForwardingPort = calibration.gpsForwardingPort
-    isForwarding = calibration.isForwarding
-    ipAddressForwarding = calibration.ipAddressForwarding
-
-    close()
     app.grid = createGrid()
 
-    sensor = smp.LidarStream(guiName='Data', CalibrationFile=calibrationFile)
-    sensor.ListeningPort = LidarPort
-    sensor.ForwardedPort = LIDARForwardingPort
-    sensor.IsForwarding = isForwarding
-    sensor.IsCrashAnalysing = calibration.isCrashAnalysing
-    sensor.ForwardedIpAddress = ipAddressForwarding
+    sensor.Interpreter.UseIntraFiringAdjustment = app.actions['actionIntraFiringAdjust'].isChecked()
+    sensor.Interpreter.IgnoreZeroDistances = app.actions['actionIgnoreZeroDistances'].isChecked()
+    sensor.Interpreter.HideDropPoints = app.actions['actionHideDropPoints'].isChecked()
+    sensor.Interpreter.IgnoreEmptyFrames = app.actions['actionIgnoreEmptyFrames'].isChecked()
 
-    # Change the default interpreter if the pcap is a Velodyne one
-    if calibrationFile.endswith('.xml'):
-        sensor.Interpreter = 'Velodyne Meta Interpreter'
-
-    sensor.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
     sensor.UpdatePipeline()
-    sensor.Start()
 
-    if calibration.isEnableInterpretGPSPackets :
-        posOrSensor = smp.PositionOrientationStream(guiName='Position Orientation Data')
-        posOrSensor.ListeningPort = GPSPort
-        posOrSensor.ForwardedPort = GPSForwardingPort
-        posOrSensor.IsForwarding = isForwarding
-        posOrSensor.ForwardedIpAddress = ipAddressForwarding
-        posOrSensor.IsCrashAnalysing = calibration.isCrashAnalysing
-        posOrSensor.UpdatePipeline()
-        posOrSensor.Start()
+    if gpsProxyName:
+        app.position = smp.FindSource(gpsProxyName)
 
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(sensor)
@@ -393,8 +366,10 @@ def openSensor():
     smp.GetActiveView().ViewTime = 0.0
 
     app.sensor = sensor
+
     app.trailingFramesSpinBox.enabled = False
     app.colorByInitialized = False
+    LidarPort = sensor.GetClientSideObject().GetListeningPort()
     app.filenameLabel.setText('Live sensor stream (Port:'+str(LidarPort)+')' )
     app.positionPacketInfoLabel.setText('')
     enableSaveActions()
@@ -1612,7 +1587,6 @@ def setupActions():
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
     app.actions['actionExport_To_KiwiViewer'].connect('triggered()', onKiwiViewerExport)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
-    app.actions['actionChoose_Calibration_File'].connect('triggered()', onChooseCalibrationFile)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
     app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)
