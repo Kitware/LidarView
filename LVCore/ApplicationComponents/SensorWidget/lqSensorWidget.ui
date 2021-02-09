@@ -47,9 +47,9 @@
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item>
-      <widget class="QLabel" name="labelID">
+      <widget class="QLabel" name="lidarInfo">
        <property name="text">
-        <string>ID</string>
+        <string>lidarInfo</string>
        </property>
       </widget>
      </item>
@@ -109,6 +109,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="posOrInfo">
+     <property name="text">
+      <string> t</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="sizeConstraint">
       <enum>QLayout::SetMaximumSize</enum>
@@ -124,10 +131,6 @@
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{background-color:green}
-QPushButton:checked{background-color:red}</string>
        </property>
        <property name="text">
         <string>Stop</string>
@@ -154,22 +157,12 @@ QPushButton:checked{background-color:red}</string>
          <bold>true</bold>
         </font>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: blue;</string>
-       </property>
        <property name="text">
         <string>Calibrate</string>
        </property>
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelIP">
-     <property name="text">
-      <string>IP/Port</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

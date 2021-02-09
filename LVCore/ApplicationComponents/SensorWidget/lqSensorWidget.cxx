@@ -10,6 +10,8 @@
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 
+#include <cassert>
+
 //-----------------------------------------------------------------------------
 lqSensorWidget::lqSensorWidget(QWidget *parent) :
   QWidget(parent),
@@ -111,6 +113,7 @@ void lqSensorWidget::onToggled(bool checked)
         this->PositionOrientationSource->getProxy()->InvokeCommand("Start");
 
       this->UI->toggle->setText("Stop");
+      this->UI->toggle->setStyleSheet("color :red;");
     }
     else
     {
@@ -119,6 +122,8 @@ void lqSensorWidget::onToggled(bool checked)
         this->PositionOrientationSource->getProxy()->InvokeCommand("Stop");
 
       this->UI->toggle->setText("Start");
+      this->UI->toggle->setStyleSheet("color :green;");
+
     }
   }
 }
@@ -152,20 +157,36 @@ void lqSensorWidget::deleteSource(pqPipelineSource *src)
   }
 
   src = nullptr;
+
 }
 
 //-----------------------------------------------------------------------------
 void lqSensorWidget::UpdateUI()
 {
+  assert(this->LidarSource);
+  // Update UI with lidar information
+  vtkSMProxy * lidarProxy = this->LidarSource->getProxy();
+  vtkSMProperty * lidarPropListeningPort= lidarProxy->GetProperty("ListeningPort");
+  QString lidarListeningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(lidarPropListeningPort).GetAsInt()));
 
-  // Update UI with sensor information
-  vtkSMProxy * proxy = this->LidarSource->getProxy();
-  vtkSMProperty * PropListeningAddress= proxy->GetProperty("LocalListeningAddress");
-  QString listeningAddress = QString::fromStdString(vtkSMPropertyHelper(PropListeningAddress).GetAsString());
-  vtkSMProperty * PropListeningPort= proxy->GetProperty("ListeningPort");
-  QString listeningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(PropListeningPort).GetAsInt()));
+  QString lidarInfo = "Name: " + this->LidarSource->getSMName();
+  lidarInfo += "\t\t Port: " + lidarListeningPort;
+  this->UI->lidarInfo->setText(lidarInfo);
 
-  this->UI->labelID->setText("LIDAR ID :" + this->LidarSource->getSMName());
-  this->UI->labelIP->setText("IP/Port : " + listeningAddress +  " / " + listeningPort);
+  // Update UI with Position Orientation information
+  if(this->PositionOrientationSource)
+  {
+    vtkSMProxy * posOrProxy = this->PositionOrientationSource->getProxy();
+    vtkSMProperty * posOrPropListeningPort= posOrProxy->GetProperty("ListeningPort");
+    QString posOrlisteningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(posOrPropListeningPort).GetAsInt()));
+
+    QString posOrInfo = "Name: " + this->PositionOrientationSource->getSMName();
+    posOrInfo += "\t\t Port: " + posOrlisteningPort;
+    this->UI->posOrInfo->setText(posOrInfo);
+  }
+  else
+  {
+    this->UI->posOrInfo->setText(QString(""));
+  }
 
 }
