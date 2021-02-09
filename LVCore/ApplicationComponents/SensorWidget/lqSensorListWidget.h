@@ -31,6 +31,10 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     static lqSensorListWidget* instance();
     void setCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 
+    // Setter and Getter for the Position Orientation Source associated to the lidar widget lidarSrc
+    void setPosOrSourceToLidarSourceWidget(pqPipelineSource * lidarSrc, pqPipelineSource * posOrSrc);
+    pqPipelineSource* getPosOrSourceAssociatedToLidarSource(pqPipelineSource * lidarSrc);
+
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
@@ -41,7 +45,6 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     Q_DISABLE_COPY(lqSensorListWidget)
 
     Ui::lqSensorListWidget *ui;
-    pqPipelineSource* lastLidarSource;
     std::vector<lqSensorWidget*> sensorWidgets;
     static lqSensorListWidget* Instance;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;

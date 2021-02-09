@@ -57,11 +57,18 @@ void lqSensorWidget::SetLidarSource(pqPipelineSource* src)
 }
 
 //-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorWidget::GetLidarSource() const
+{
+  return this->LidarSource;
+}
+
+//-----------------------------------------------------------------------------
 void lqSensorWidget::SetPositionOrientationSource(pqPipelineSource* src)
 {
-  if (!src)
-    return;
-
+  // There is no obligation to have a Position Orientation source associated to the widget
+  // If the user delete the Position Orientation packet interpretation
+  // The PositionOrientationSource will be set to nullptr
+  // That's why we allow setting a null position orientation source
   this->PositionOrientationSource = src;
 }
 
@@ -72,11 +79,18 @@ pqPipelineSource* lqSensorWidget::GetPositionOrientationSource() const
 }
 
 //-----------------------------------------------------------------------------
-bool lqSensorWidget::IsLinkedTo(pqPipelineSource *src) const
+bool lqSensorWidget::IsWidgetLidarSource(pqPipelineSource *src) const
 {
   return this->LidarSource == src;
 }
 
+//-----------------------------------------------------------------------------
+bool lqSensorWidget::IsWidgetPositionOrientationSource(pqPipelineSource *src) const
+{
+  return this->PositionOrientationSource == src;
+}
+
+//-----------------------------------------------------------------------------
 void lqSensorWidget::onCalibrate()
 {
   if(this->CalibrationFunction)

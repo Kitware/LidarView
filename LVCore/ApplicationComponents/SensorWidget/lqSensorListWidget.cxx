@@ -101,7 +101,6 @@ lqSensorListWidget* lqSensorListWidget::instance()
 //-----------------------------------------------------------------------------
 lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
   QWidget(parent),
-  lastLidarSource(nullptr),
   ui(new Ui::lqSensorListWidget)
 {
   ui->setupUi(this);
@@ -133,11 +132,20 @@ lqSensorListWidget::~lqSensorListWidget()
 //-----------------------------------------------------------------------------
 lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 {
-  if (isLidarStream(src))
+  if (IsLidarStream(src))
   {
     for (lqSensorWidget* widget: this->sensorWidgets)
     {
-      if (widget->IsLinkedTo(src))
+      if (widget->IsWidgetLidarSource(src))
+        return widget;
+    }
+  }
+
+  if (IsPositionOrientationStream(src))
+  {
+    for (lqSensorWidget* widget: this->sensorWidgets)
+    {
+      if (widget->IsWidgetPositionOrientationSource(src))
         return widget;
     }
   }
@@ -150,9 +158,6 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 {
   if (IsLidarStream(src))
   {
-    // keep last added source
-    this->lastLidarSource = src;
-
     // add a sensorWidget to layout
     lqSensorWidget* sensorWidget = new lqSensorWidget(this);
     sensorWidget->SetLidarSource(src);
@@ -160,25 +165,32 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     this->ui->sensorListLayout->addWidget(sensorWidget);
     sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
   }
-
-  if (isIMUStream(src))
-  {
-    lqSensorWidget* sensorWidget = this->findWidget(this->lastLidarSource);
-    if (sensorWidget)
-      sensorWidget->SetPositionOrientationSource(src);
-  }
 }
 
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
 {
-  if (isLidarStream(src))
+  if (IsLidarStream(src))
+  {
+    for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
+    {
+      lqSensorWidget* widget = this->sensorWidgets[index];
+      if (widget->IsWidgetLidarSource(src))
+      {
+        this->sensorWidgets.erase(this->sensorWidgets.begin()+ index);
+        widget->onClose();
+      }
+    }
+  }
+
+  // If the removed source is a PosOr Source, we have to delete ot from its widget
+  else if (IsPositionOrientationStream(src))
   {
     lqSensorWidget* sensorWidget = this->findWidget(src);
-    if (sensorWidget)
+    if (sensorWidget && sensorWidget->GetPositionOrientationSource())
     {
-      sensorWidget->onClose();
-      std::remove(this->sensorWidgets.begin(), this->sensorWidgets.end(), sensorWidget);
+      sensorWidget->SetPositionOrientationSource(nullptr);
+      sensorWidget->UpdateUI();
     }
   }
 }
@@ -216,4 +228,26 @@ void lqSensorListWidget::setCalibrationFunction(std::function<void (pqPipelineSo
   {
     widget->SetCalibrationFunction(this->CalibrationFunction);
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorListWidget::setPosOrSourceToLidarSourceWidget(pqPipelineSource * lidarSrc, pqPipelineSource * posOrSrc)
+{
+  lqSensorWidget* widget = this->findWidget(lidarSrc);
+  if(widget)
+  {
+    widget->SetPositionOrientationSource(posOrSrc);
+    widget->UpdateUI();
+  }
+}
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorListWidget::getPosOrSourceAssociatedToLidarSource(pqPipelineSource * lidarSrc)
+{
+  lqSensorWidget* widget = this->findWidget(lidarSrc);
+  if(widget)
+  {
+    return widget->GetPositionOrientationSource();
+  }
+  return nullptr;
 }
