@@ -1,24 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 '''
 Simple tool to extract pcaps from ROS bag files.
 '''
-
+from __future__ import print_function
 import argparse
-import contextlib
-import logging
+import contextlib2 as contextlib
 import os
 
 import dpkt
 import rosbag
-
-
-# -----------------------------------------------------------------------------
-# Globals
-# -----------------------------------------------------------------------------
-
-logger = logging.getLogger(__name__)
-
 
 # -----------------------------------------------------------------------------
 # Packet functions.
@@ -107,7 +98,7 @@ def list_topics(bags):
         bags: An iterable over bag objects.
     '''
     for bag in bags:
-        print(bag.filename)
+        print("\nTopics list of ROS bag {}:".format(bag.filename))
         topics = set(topic for (topic, _, _) in bag.read_messages())
         print('  {}'.format('\n  '.join(sorted(topics))))
 
@@ -119,27 +110,35 @@ def extract_packets(bags):
     Args:
         bags: An iterable over bag objects.
     '''
-
     for bag in bags:
+        # Create directory to store extracted pcaps
+        print("\nProcessing ROS bag {}:".format(bag.filename))
         dirpath = '{}-pcaps'.format(bag.filename)
-        os.makedirs(dirpath, exist_ok=True)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+
+        # Loop over messages in bag
         with contextlib.ExitStack() as stack:
             writers = dict()
             for topic, message, _ in bag.read_messages():
+                # Try to acess the 'packets' field of the velodyne_msgs/VelodyneScan message
                 try:
                     packets = message.packets
                 except AttributeError:
                     continue
 
+                # Create or access pcap writer corresponding to this topic
                 name = '{}.pcap'.format(topic)
-                outpath = os.path.join(dirpath, name)
+                outpath = os.path.join(dirpath, name.lstrip('/'))
                 try:
                     writer = writers[outpath]
                 except KeyError:
                     handle = stack.enter_context(open(outpath, 'wb'))
+                    print("Writing pcap {}".format(outpath))
                     writer = dpkt.pcap.Writer(handle)
                     writers[outpath] = writer
-                logger.info('extracting packets from topic {} in {} to {}'.format(topic, bag.filename, outpath))
+
+                # Write raw packets to pcap
                 for packet in packets:
                     stamp = packet.stamp
                     secs = float(stamp.secs) + float(stamp.nsecs) / 1e9
@@ -166,12 +165,6 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        style='{',
-        format='[{asctime:s}] {levelname:s}: {message:s}',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
     try:
         main()
     except KeyboardInterrupt:
