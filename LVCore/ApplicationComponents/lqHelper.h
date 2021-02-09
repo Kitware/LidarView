@@ -9,6 +9,20 @@
 #include <vector>
 
 /**
+ * @brief IsPositionOrientationStream return true if the src is a PositionOrientationStream
+ * @param src to test
+ * @return true if the src is a PositionOrientationStream
+ */
+bool IsPositionOrientationStream(pqPipelineSource* src);
+
+/**
+ * @brief IsLidarStream return true if the src is a LidarStream
+ * @param src to test
+ * @return true if the src is a LidarStream
+ */
+bool IsLidarStream(pqPipelineSource* src);
+
+/**
  * @brief IsLidarProxy return true if the proxy is a LidarReader or a LidarStream
  * @param proxy to test
  * @return true if the proxy is a LidarReader or a LidarStream
@@ -16,11 +30,47 @@
 bool IsLidarProxy(vtkSMProxy * proxy);
 
 /**
+ * @brief IsPositionOrientationProxy return true if the proxy is a
+ *        PositionOrientationPacketReader or a PositionOrientationStream
+ * @param proxy to test
+ * @return true if the proxy is a PositionOrientationPacketReader or a PositionOrientationStream
+ */
+bool IsPositionOrientationProxy(vtkSMProxy * proxy);
+
+/**
  * @brief IsStreamProxy return true if the proxy is a LidarStream or a PositionOrientationStream
  * @param proxy to test
  * @return true if the proxy is a LidarStream or a PositionOrientationStream
  */
 bool IsStreamProxy(vtkSMProxy * proxy);
+
+/**
+ * @brief IsLidarReaderProxy return true if the proxy is a LidarReader
+ * @param proxy to test
+ * @return true if the proxy is a LidarReader
+ */
+bool IsLidarReaderProxy(vtkSMProxy * proxy);
+
+/**
+ * @brief IsLidarStreamProxy return true if the proxy is a LidarStream
+ * @param proxy to test
+ * @return true if the proxy is a LidarStream
+ */
+bool IsLidarStreamProxy(vtkSMProxy * proxy);
+
+/**
+ * @brief IsPositionOrientationReaderProxy return true if the proxy is a PositionOrientationPacketReader
+ * @param proxy to test
+ * @return true if the proxy is a PositionOrientationPacketReader
+ */
+bool IsPositionOrientationReaderProxy(vtkSMProxy * proxy);
+
+/**
+ * @brief IsPositionOrientationStreamProxy return true if the proxy is a PositionOrientationStream
+ * @param proxy to test
+ * @return true if the proxy is a PositionOrientationStream
+ */
+bool IsPositionOrientationStreamProxy(vtkSMProxy * proxy);
 
 /**
  * @brief hasLidarProxy look for a lidar proxy in the pipeline

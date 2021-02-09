@@ -6,6 +6,7 @@
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
+#include "vtkPositionOrientationPacketReader.h"
 #include "vtkPositionOrientationStream.h"
 #include <vtkSMSessionProxyManager.h>
 #include <vtkSMBooleanDomain.h>
@@ -22,13 +23,13 @@
 #include <iostream>
 
 //-----------------------------------------------------------------------------
-bool IsStreamProxy(vtkSMProxy * proxy)
+template<typename T>
+bool IsProxy(vtkSMProxy * proxy)
 {
   if(proxy != nullptr)
   {
-    auto* tmp_lidar_stream = dynamic_cast<vtkLidarStream*> (proxy->GetClientSideObject());
-    auto* tmp_posOR_stream = dynamic_cast<vtkPositionOrientationStream*> (proxy->GetClientSideObject());
-    if (tmp_lidar_stream || tmp_posOR_stream)
+    auto* tmp_objProxy= dynamic_cast<T> (proxy->GetClientSideObject());
+    if (tmp_objProxy)
     {
       return true;
     }
@@ -37,18 +38,58 @@ bool IsStreamProxy(vtkSMProxy * proxy)
 }
 
 //-----------------------------------------------------------------------------
+bool IsPositionOrientationStream(pqPipelineSource* src)
+{
+  return ( src != nullptr && IsPositionOrientationStreamProxy(src->getProxy()));
+}
+
+//-----------------------------------------------------------------------------
+bool IsLidarStream(pqPipelineSource* src)
+{
+  return ( src != nullptr && IsLidarStreamProxy(src->getProxy()));
+}
+
+//-----------------------------------------------------------------------------
+bool IsStreamProxy(vtkSMProxy * proxy)
+{
+  return IsLidarStreamProxy(proxy) || IsPositionOrientationStreamProxy(proxy);
+}
+
+//-----------------------------------------------------------------------------
 bool IsLidarProxy(vtkSMProxy * proxy)
 {
-  if(proxy != nullptr)
-  {
-    auto* tmp_stream = dynamic_cast<vtkLidarStream*> (proxy->GetClientSideObject());
-    auto* tmp_reader = dynamic_cast<vtkLidarReader*> (proxy->GetClientSideObject());
-    if (tmp_stream || tmp_reader)
-    {
-      return true;
-    }
-  }
-  return false;
+  return IsLidarReaderProxy(proxy) || IsLidarStreamProxy(proxy);
+}
+
+//-----------------------------------------------------------------------------
+bool IsPositionOrientationProxy(vtkSMProxy * proxy)
+{
+  return IsPositionOrientationReaderProxy(proxy) || IsPositionOrientationStreamProxy(proxy);
+}
+
+
+//-----------------------------------------------------------------------------
+bool IsLidarReaderProxy(vtkSMProxy * proxy)
+{
+  return IsProxy<vtkLidarReader *>(proxy);
+}
+
+//-----------------------------------------------------------------------------
+bool IsLidarStreamProxy(vtkSMProxy * proxy)
+{
+  return IsProxy<vtkLidarStream *>(proxy);
+}
+
+//-----------------------------------------------------------------------------
+bool IsPositionOrientationReaderProxy(vtkSMProxy * proxy)
+{
+  return IsProxy<vtkPositionOrientationPacketReader *>(proxy);
+}
+
+//-----------------------------------------------------------------------------
+bool IsPositionOrientationStreamProxy(vtkSMProxy * proxy)
+{
+  return IsProxy<vtkPositionOrientationStream *>(proxy);
 }
 
 //-----------------------------------------------------------------------------

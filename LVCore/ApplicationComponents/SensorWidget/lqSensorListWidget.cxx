@@ -14,14 +14,16 @@
 #include <vtkLidarStream.h>
 
 // ParaView includes.
-#include "pqActiveObjects.h"
-#include "pqApplicationCore.h"
-#include "pqPipelineSource.h"
-#include "pqSMAdaptor.h"
-#include "pqServerManagerModel.h"
-#include "pqServerManagerModelItem.h"
-#include "pqComponentsModule.h"
-#include "pqView.h"
+#include <pqActiveObjects.h>
+#include <pqApplicationCore.h>
+#include <pqPipelineSource.h>
+#include <pqSMAdaptor.h>
+#include <pqServerManagerModel.h>
+#include <pqServerManagerModelItem.h>
+#include <pqComponentsModule.h>
+#include <pqView.h>
+
+#include "lqHelper.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -87,23 +89,6 @@ namespace Ui
 } // namespace Ui
 QT_END_NAMESPACE
 
-namespace
-{
-  bool isIMUStream(pqPipelineSource* src)
-  {
-    return ( src != nullptr
-          && src->getProxy() != nullptr
-          && src->getProxy()->GetClientSideObject()->IsA("vtkPositionOrientationStream"));
-  }
-
-  bool isLidarStream(pqPipelineSource* src)
-  {
-    return ( src != nullptr
-          && src->getProxy() != nullptr
-          && src->getProxy()->GetClientSideObject()->IsA("vtkLidarStream"));
-  }
-}
-
 //-----------------------------------------------------------------------------
 lqSensorListWidget* lqSensorListWidget::Instance = 0;
 
@@ -163,7 +148,7 @@ lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 {
-  if (isLidarStream(src))
+  if (IsLidarStream(src))
   {
     // keep last added source
     this->lastLidarSource = src;
@@ -202,7 +187,7 @@ void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
 void lqSensorListWidget::onNameChanged(pqServerManagerModelItem *item)
 {
   auto* src = dynamic_cast<pqPipelineSource*> (item);
-  if (isLidarStream(src))
+  if (IsLidarStream(src))
   {
     lqSensorWidget* sensorWidget = this->findWidget(src);
     if (sensorWidget)
@@ -213,7 +198,7 @@ void lqSensorListWidget::onNameChanged(pqServerManagerModelItem *item)
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onDataUpdated(pqPipelineSource *src)
 {
-  if (isLidarStream(src))
+  if (IsLidarStream(src))
   {
     lqSensorWidget* sensorWidget = this->findWidget(src);
     if (sensorWidget)
