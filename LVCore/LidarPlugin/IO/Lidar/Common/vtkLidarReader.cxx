@@ -319,7 +319,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     return;
   }
 
-  if (!(this->GetInterpreter()->GetFramingMethod()!= INTERPRETER_FRAMING))
+  if (this->GetInterpreter()->GetFramingMethod()!= INTERPRETER_FRAMING)
   {
     // not implemented yet, because not critical for the client
     vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.")
