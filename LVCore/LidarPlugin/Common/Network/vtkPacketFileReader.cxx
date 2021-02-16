@@ -1,6 +1,6 @@
 #include "vtkPacketFileReader.h"
 
-#include<iostream>
+#include <iostream>
 #include <boost/endian/arithmetic.hpp>
 
 bool IPHeaderFunctions::getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo)
@@ -166,7 +166,8 @@ bool IPHeaderFunctions::buildReassembledIPHeader(unsigned char* ipheader, const 
   return false;
 }
 
-bool vtkPacketFileReader::Open(const std::string& filename, std::string filter_arg)
+//------------------------------------------------------------------------------
+bool vtkPacketFileReader::Open(const std::string& filename, std::string filter_arg, bool reassemble)
 {
   //Open savefile in tcpdump/libcap format
   char errbuff[PCAP_ERRBUF_SIZE];
@@ -177,14 +178,14 @@ bool vtkPacketFileReader::Open(const std::string& filename, std::string filter_a
     return false;
   }
   
-  //Compute filter for the kernel-level engine filtering engine
+  //Compute filter for the kernel-level filtering engine
   bpf_program filter;
   if (pcap_compile(pcapFile, &filter, filter_arg.c_str(), 0, PCAP_NETMASK_UNKNOWN) == -1)
   {
     this->LastError = pcap_geterr(pcapFile);
     return false;
   }
-  //Assocaite filter to pcap
+  //Associate filter to pcap
   if (pcap_setfilter(pcapFile, &filter) == -1)
   {
     this->LastError = pcap_geterr(pcapFile);
@@ -211,6 +212,7 @@ bool vtkPacketFileReader::Open(const std::string& filename, std::string filter_a
   this->FileName = filename;
   this->PCAPFile = pcapFile;
   this->StartTime.tv_sec = this->StartTime.tv_usec = 0;
+  this->Reassemble = reassemble;
   return true;
 }
 
@@ -222,6 +224,26 @@ void vtkPacketFileReader::Close()
     this->PCAPFile = 0;
     this->FileName.clear();
   }
+}
+
+void vtkPacketFileReader::GetFilePosition(fpos_t* position)
+{
+#ifdef _MSC_VER
+  pcap_fgetpos(this->PCAPFile, position);
+#else
+  FILE* f = pcap_file(this->PCAPFile);
+  fgetpos(f, position);
+#endif
+}
+
+void vtkPacketFileReader::SetFilePosition(fpos_t* position)
+{
+#ifdef _MSC_VER
+  pcap_fsetpos(this->PCAPFile, position);
+#else
+  FILE* f = pcap_file(this->PCAPFile);
+  fsetpos(f, position);
+#endif
 }
   
 bool vtkPacketFileReader::NextPacket(const unsigned char*& data, unsigned int& dataLength, double& timeSinceStart,
@@ -269,7 +291,8 @@ bool vtkPacketFileReader::NextPacket(const unsigned char*& data, unsigned int& d
     const unsigned int ethHeaderLength = this->FrameHeaderLength;
     const unsigned int udpHeaderLength = 8;
     
-    const unsigned int frameLength    = std::min(header->len,header->caplen); //CaptureLen cropping
+    //CaptureLen cropping
+    const unsigned int frameLength    = (std::min)(header->len,header->caplen); //windows.h conflict bypass
     const unsigned int ipPayloadLength = frameLength - (ethHeaderLength + ipHeaderLength);
     
     unsigned char const * ipPayloadPtr = tmpData + ethHeaderLength + ipHeaderLength;
@@ -282,7 +305,7 @@ bool vtkPacketFileReader::NextPacket(const unsigned char*& data, unsigned int& d
     }
     
     //IP Reassembly
-    if ( fragmentInfo.MoreFragments || fragmentInfo.Offset > 0)
+    if ( (fragmentInfo.MoreFragments || fragmentInfo.Offset > 0) && this->Reassemble )
     {
       const unsigned int offset_frag  = fragmentInfo.Offset * FRAGMENT_OFFSET_STEP;
       const unsigned int offset       = ethHeaderLength + ipHeaderLength + offset_frag;
@@ -338,7 +361,7 @@ bool vtkPacketFileReader::NextPacket(const unsigned char*& data, unsigned int& d
         return true;
       }
     }
-    //Self Standing IP packet
+    //Self Standing IP packet or Reassembly is not desired
     else
     {
       //Point to dataPayload

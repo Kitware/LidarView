@@ -285,7 +285,7 @@ int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::Open()
+void vtkLidarReader::Open(bool reassemble)
 {
   this->Close();
   this->Reader = new vtkPacketFileReader;
@@ -295,7 +295,7 @@ void vtkLidarReader::Open()
   {
     filterPCAP += " port " + std::to_string(this->LidarPort);
   }
-  if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
+  if (!this->Reader->Open(this->FileName, filterPCAP.c_str(), reassemble))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
                                                  << this->Reader->GetLastError())

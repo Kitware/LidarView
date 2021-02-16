@@ -32,12 +32,12 @@
 #ifndef __vtkPacketFileWriter_h
 #define __vtkPacketFileWriter_h
 
+#include "lidarplugin_export.h"
+#include "NetworkPacket.h"
+
 #include <pcap.h>
 #include <string>
 #include <vector>
-
-#include "lidarplugin_export.h"
-#include "NetworkPacket.h"
 
 class LIDARPLUGIN_EXPORT vtkPacketFileWriter
 {

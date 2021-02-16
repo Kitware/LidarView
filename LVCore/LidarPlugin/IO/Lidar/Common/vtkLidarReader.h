@@ -107,8 +107,9 @@ public:
    * @brief Open open the pcap file
    * @todo a decition should be made if the opening/closing of the pcap should be handle by
    * the class itself of the class user. Currently this is not clear
+   * @param reassemble Controls vtkPacketFileReader IP Reassembly
    */
-  virtual void Open();
+  virtual void Open(bool reassemble = true);
 
   /**
    * @brief Close close the pcap file

@@ -37,7 +37,7 @@ public:
   void SetCalibrationFileName(const std::string& vtkNotUsed(filename)) override {notImpementedBody}
 
   //! Not implemented
-  void Open() override {notImpementedBody}
+  void Open(bool vtkNotUsed(reassemble)) override {notImpementedBody}
 
   //! Not implemented
   void Close() override {notImpementedBody}

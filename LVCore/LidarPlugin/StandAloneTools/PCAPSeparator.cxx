@@ -27,7 +27,6 @@
 
 #include <vtkSmartPointer.h>
 
-#include "lidarplugin_export.h"
 #include "vtkPacketFileReader.h"
 #include "vtkPacketFileWriter.h"
 #include "NetworkPacket.h"

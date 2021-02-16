@@ -32,14 +32,18 @@
 #ifndef __vtkPacketFileReader_h
 #define __vtkPacketFileReader_h
 
+#include "lidarplugin_export.h"
+//Compliance with vtk's fpos_t policy, needs to be included before any libc header
+#include <vtkSystemIncludes.h> 
+#include "LVTime.h"
+
 #include <pcap.h>
 #include <string>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
 #include <unordered_map>
-#include "lidarplugin_export.h"
-#include "LVTime.h"
+
 /*
  * Useful links to get started with IPv4 and IPv6 headers:
  * - https://en.wikipedia.org/wiki/IPv4#Packet_structure
@@ -116,7 +120,7 @@ namespace IPHeaderFunctions
 }
 
 //------------------------------------------------------------------------------
-class vtkPacketFileReader
+class LIDARPLUGIN_EXPORT vtkPacketFileReader
 {
 public:
   vtkPacketFileReader()
@@ -128,33 +132,24 @@ public:
   {
     this->Close();
   }
-
-  bool Open(const std::string& filename, std::string filter_arg="udp");
+  
+  /**
+   * @brief Open Pcap capture
+   * @param[in] filename pcap file name.
+   * @param[in] filter_arg kernel-level packet filter parameter.
+   * @param[in] reassemble if disabled, data will be unusable as is.
+   *             This is solely used when saving a Pcap to file and original fragmentation is sought.
+   * Returns true is successful.
+  */
+  bool Open(const std::string& filename, std::string filter_arg="udp", bool reassemble = true);
   bool IsOpen() { return (this->PCAPFile != 0); }
   void Close();
 
   const std::string& GetLastError() { return this->LastError; }
   const std::string& GetFileName() { return this->FileName; }
 
-  void GetFilePosition(fpos_t* position)
-  {
-#ifdef _MSC_VER
-    pcap_fgetpos(this->PCAPFile, position);
-#else
-    FILE* f = pcap_file(this->PCAPFile);
-    fgetpos(f, position);
-#endif
-  }
-
-  void SetFilePosition(fpos_t* position)
-  {
-#ifdef _MSC_VER
-    pcap_fsetpos(this->PCAPFile, position);
-#else
-    FILE* f = pcap_file(this->PCAPFile);
-    fsetpos(f, position);
-#endif
-  }
+  void GetFilePosition(fpos_t* position);
+  void SetFilePosition(fpos_t* position);
 
   /**
    * @brief Read next UDP payload of the capture.
@@ -176,6 +171,7 @@ protected:
   std::string LastError;
   timeval StartTime;
   unsigned int FrameHeaderLength;
+  bool Reassemble;
 
 private:
   //! @brief A map of fragmented packet IDs to the collected array of fragments.
