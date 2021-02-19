@@ -47,7 +47,7 @@ PythonQt is used to build Qt applications using Python.
 PythonQt has support for wrapping types derived from Qt objects and VTK objects.
 
 ### Paraview (and VTK) <a name="paraview-vtk"></a>
-The required ParaView version is 5.4.
+The required ParaView version is 5.6.
 The required VTK version is 8.1.
 The ParaView repository includes VTK, so the superbuild only needs to checkout and build ParaView in order to satisfy both dependencies.
 A specific git commit sha1 is used instead of a specific released version.
