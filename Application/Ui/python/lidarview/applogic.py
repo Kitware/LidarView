@@ -25,14 +25,21 @@ from paraview import vtk
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-from vtkIOXMLPython import vtkXMLPolyDataWriter
+from vtk import vtkXMLPolyDataWriter
 import lidarviewcore.kiwiviewerExporter
 import gridAdjustmentDialog
 import aboutDialog
-import planefit
 import bisect
 
 from PythonQt.paraview import vvCalibrationDialog, vvCropReturnsDialog, vvSelectFramesDialog
+
+# import the vtk wrapping of the Lidar Plugin
+# this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
+# without this plugin, GetClientSideObject(), would return the first mother class known by paraview
+import LidarPluginPython
+
+import planefit
+
 
 _repCache = {}
 
@@ -78,7 +85,7 @@ class AppLogic(object):
 
         self.gridProperties = None
 
-        smp.LoadPlugin(vtkGetFileNameFromPluginName('PointCloudPlugin'))
+        #smp.LoadPlugin(vtkGetFileNameFromPluginName('PointCloudPlugin'))
         smp.LoadPlugin(vtkGetFileNameFromPluginName('EyeDomeLightingView'))
 
 
@@ -121,7 +128,7 @@ def hasArrayName(sourceProxy, arrayName):
         return False
 
     info = info.GetAttributeInformation(0)
-    for i in xrange(info.GetNumberOfArrays()):
+    for i in range(info.GetNumberOfArrays()):
         if info.GetArrayInformation(i).GetName() == arrayName:
             return True
     return False
@@ -308,7 +315,7 @@ def chooseCalibration(calibrationFilename=None):
 
             qm = dialog.sensorTransform()
             vmLidar = vtk.vtkMatrix4x4()
-            for row in xrange(4):
+            for row in range(4):
                 vmLidar.SetElement(row, 0, qm.row(row).x())
                 vmLidar.SetElement(row, 1, qm.row(row).y())
                 vmLidar.SetElement(row, 2, qm.row(row).z())
@@ -317,7 +324,7 @@ def chooseCalibration(calibrationFilename=None):
 
             qm = dialog.gpsTransform()
             vmGps = vtk.vtkMatrix4x4()
-            for row in xrange(4):
+            for row in range(4):
                 vmGps.SetElement(row, 0, qm.row(row).x())
                 vmGps.SetElement(row, 1, qm.row(row).y())
                 vmGps.SetElement(row, 2, qm.row(row).z())
@@ -440,8 +447,8 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
 
     handler = servermanager.ActiveConnection.Session.GetProgressHandler()
     handler.PrepareProgress()
-    freq = handler.GetProgressFrequency()
-    handler.SetProgressFrequency(0.05)
+    interval = handler.GetProgressInterval()
+    handler.SetProgressInterval(0.05)
     tag = handler.AddObserver('ProgressEvent', onProgressEvent)
 
     # construct the reader, this calls UpdateInformation on the
@@ -476,7 +483,8 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
         processor = smp.ProcessingSample(reader)
 
     handler.RemoveObserver(tag)
-    handler.SetProgressFrequency(freq)
+    handler.LocalCleanupPendingProgress()
+    handler.SetProgressInterval(interval)
     progressDialog.close()
 
     smp.GetActiveView().ViewTime = 0.0
@@ -1133,7 +1141,7 @@ def getNumberOfTimesteps():
 def unloadData():
     _repCache.clear()
 
-    for k, src in smp.GetSources().iteritems():
+    for k, src in smp.GetSources().items():
         if src != app.grid and src != smp.FindSource("RPM"):
             smp.Delete(src)
 
