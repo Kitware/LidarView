@@ -280,7 +280,7 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
     reader = getReader()
 
     if sensor:
-        nchannels =  sensor.GetPropertyValue('NumberOfChannels')
+        nchannels =  sensor.Interpreter.GetClientSideObject().GetNumberOfChannels()
         base = 'HDL-'
         if nchannels <= 16:
             base = 'VLP-'
