@@ -40,37 +40,37 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <item>
-      <widget class="QLabel" name="lidarInfo">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+     <widget class="QLabel" name="lidarName">
+      <property name="text">
+       <string>lidarName</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+      <widget class="QLabel" name="lidarPort">
        <property name="text">
-        <string>lidarInfo</string>
+        <string>lidarPort</string>
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="1" column="0">
+      <widget class="QLabel" name="posOrName">
+       <property name="text">
+        <string>posOrName</string>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="close">
+     <item row="1" column="1">
+     <widget class="QLabel" name="posOrPort">
+      <property name="text">
+       <string>posOrPort</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QPushButton" name="close">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -106,21 +106,7 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QLabel" name="posOrInfo">
-     <property name="text">
-      <string> t</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
-     </property>
-     <item>
+     <item row="2" column="0" >
       <widget class="QPushButton" name="toggle">
        <property name="font">
         <font>
@@ -149,7 +135,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="1">
       <widget class="QPushButton" name="calibrate">
        <property name="font">
         <font>
@@ -162,10 +148,8 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-  </layout>
+   </layout>
  </widget>
- <resources/>
- <connections/>
+<resources/>
+<connections/>
 </ui>

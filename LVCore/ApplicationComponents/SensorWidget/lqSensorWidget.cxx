@@ -169,9 +169,10 @@ void lqSensorWidget::UpdateUI()
   vtkSMProperty * lidarPropListeningPort= lidarProxy->GetProperty("ListeningPort");
   QString lidarListeningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(lidarPropListeningPort).GetAsInt()));
 
-  QString lidarInfo = "Name: " + this->LidarSource->getSMName();
-  lidarInfo += "\t\t Port: " + lidarListeningPort;
-  this->UI->lidarInfo->setText(lidarInfo);
+  QString lidarName = "Name: " + this->LidarSource->getSMName();
+  QString lidarPort = "Port: " + lidarListeningPort;
+  this->UI->lidarName->setText(lidarName);
+  this->UI->lidarPort->setText(lidarPort);
 
   // Update UI with Position Orientation information
   if(this->PositionOrientationSource)
@@ -180,13 +181,15 @@ void lqSensorWidget::UpdateUI()
     vtkSMProperty * posOrPropListeningPort= posOrProxy->GetProperty("ListeningPort");
     QString posOrlisteningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(posOrPropListeningPort).GetAsInt()));
 
-    QString posOrInfo = "Name: " + this->PositionOrientationSource->getSMName();
-    posOrInfo += "\t\t Port: " + posOrlisteningPort;
-    this->UI->posOrInfo->setText(posOrInfo);
+    QString posOrName = "Name: " + this->PositionOrientationSource->getSMName();
+    QString posOrPort = "Port: " + posOrlisteningPort;
+    this->UI->posOrName->setText(posOrName);
+    this->UI->posOrPort->setText(posOrPort);
   }
   else
   {
-    this->UI->posOrInfo->setText(QString(""));
+    this->UI->posOrName->setText(QString(""));
+    this->UI->posOrPort->setText(QString(""));
   }
 
 }
