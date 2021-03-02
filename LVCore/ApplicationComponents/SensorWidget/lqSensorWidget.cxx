@@ -54,8 +54,11 @@ void lqSensorWidget::SetLidarSource(pqPipelineSource* src)
   this->UI->toggle->setChecked(true);
   this->UI->toggle->setText("Stop");
 
-  this->UpdateUI();
+  this->onUpdateUI();
 
+  // Connect the source to update the UI if the name or the port change
+  QObject::connect(src, SIGNAL(nameChanged(pqServerManagerModelItem*)), this, SLOT(onUpdateUI()));
+  QObject::connect(src, SIGNAL(dataUpdated(pqPipelineSource*)), this, SLOT(onUpdateUI()));
 }
 
 //-----------------------------------------------------------------------------
@@ -72,6 +75,13 @@ void lqSensorWidget::SetPositionOrientationSource(pqPipelineSource* src)
   // The PositionOrientationSource will be set to nullptr
   // That's why we allow setting a null position orientation source
   this->PositionOrientationSource = src;
+
+  if(src)
+  {
+    // Connect the source to update the UI if the name or the port change
+    QObject::connect(src, SIGNAL(nameChanged(pqServerManagerModelItem*)), this, SLOT(onUpdateUI()));
+    QObject::connect(src, SIGNAL(dataUpdated(pqPipelineSource*)), this, SLOT(onUpdateUI()));
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -161,7 +171,7 @@ void lqSensorWidget::deleteSource(pqPipelineSource *src)
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::UpdateUI()
+void lqSensorWidget::onUpdateUI()
 {
   assert(this->LidarSource);
   // Update UI with lidar information

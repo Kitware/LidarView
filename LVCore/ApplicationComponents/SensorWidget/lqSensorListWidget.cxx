@@ -112,8 +112,6 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
   this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
-  this->connect(smmodel, SIGNAL(nameChanged(pqServerManagerModelItem*)), SLOT(onNameChanged(pqServerManagerModelItem*)));
-  this->connect(smmodel, SIGNAL(dataUpdated(pqPipelineSource*)), SLOT(onDataUpdated(pqPipelineSource*)));
 
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
@@ -190,32 +188,7 @@ void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
     if (sensorWidget && sensorWidget->GetPositionOrientationSource())
     {
       sensorWidget->SetPositionOrientationSource(nullptr);
-      sensorWidget->UpdateUI();
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqSensorListWidget::onNameChanged(pqServerManagerModelItem *item)
-{
-  auto* src = dynamic_cast<pqPipelineSource*> (item);
-  if (IsLidarStream(src))
-  {
-    lqSensorWidget* sensorWidget = this->findWidget(src);
-    if (sensorWidget)
-      sensorWidget->SetLidarSource(src);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqSensorListWidget::onDataUpdated(pqPipelineSource *src)
-{
-  if (IsLidarStream(src))
-  {
-    lqSensorWidget* sensorWidget = this->findWidget(src);
-    if (sensorWidget)
-    {
-      sensorWidget->UpdateUI();
+      sensorWidget->onUpdateUI();
     }
   }
 }
@@ -237,7 +210,7 @@ void lqSensorListWidget::setPosOrSourceToLidarSourceWidget(pqPipelineSource * li
   if(widget)
   {
     widget->SetPositionOrientationSource(posOrSrc);
-    widget->UpdateUI();
+    widget->onUpdateUI();
   }
 }
 
