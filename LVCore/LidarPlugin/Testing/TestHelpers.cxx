@@ -205,8 +205,8 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
   // number of tuples matches
   for (int idArray = 0; idArray < currentFrameNbPointDataArrays; ++idArray)
   {
-    vtkDataArray* currentFrameArray = currentFramePointData->GetArray(idArray);
-    vtkDataArray* currentReferenceArray = currentReferencePointData->GetArray(idArray);
+    vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(idArray);
+    vtkAbstractArray* currentReferenceArray = currentReferencePointData->GetAbstractArray(idArray);
 
     std::string currentFrameArrayName = currentFrameArray->GetName();
     std::string currentReferenceArrayName = currentReferenceArray->GetName();
@@ -248,6 +248,73 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
 }
 
 //-----------------------------------------------------------------------------
+int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* referenceArray)
+{
+
+  if(currentArray->GetNumberOfValues() != referenceArray->GetNumberOfValues())
+  {
+    std::cerr << "number of values does not match" << std::endl;
+    return 1;
+  }
+
+  for(int idValue = 0; idValue < currentArray->GetNumberOfValues(); idValue++)
+  {
+    vtkVariant currentValue = currentArray->GetVariantValue(idValue);
+    vtkVariant referenceValue = referenceArray->GetVariantValue(idValue);
+
+    if(currentValue.IsArray() && referenceValue.IsArray())
+    {
+      vtkAbstractArray* currentValueAsAbstractArray = currentValue.ToArray();
+      vtkAbstractArray* referenceValueAsAbstractArray = referenceValue.ToArray();
+      return CompareAbstractArray(currentValueAsAbstractArray, referenceValueAsAbstractArray);
+    }
+
+    else if(currentValue.IsString() && referenceValue.IsString())
+    {
+      vtkStdString currentValueAsString = currentValue.ToString();
+      vtkStdString referenceValueAsString = referenceValue.ToString();
+      if(currentValueAsString.compare(referenceValueAsString) == 1)
+      {
+        std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
+                  << referenceArray->GetName() << ". Expected "
+                  << referenceValueAsString << ", got " << currentValueAsString
+                  << std::endl;
+        return 1;
+      }
+    }
+
+    else if(currentValue.IsNumeric() && referenceValue.IsNumeric())
+    {
+      double currentDoubleValue = currentValue.ToDouble();
+      double referenceDoubleValue = referenceValue.ToDouble();
+      if(abs(currentDoubleValue - referenceDoubleValue) > 1e-12)
+      {
+        if ((referenceValue.ToTypeInt64() - currentValue.ToTypeInt64()) % 3600 * 1e6 == 0)
+        {
+          std::cerr << "Tuples converted in int64_t are equal up to 3600 * 1e6 " << std::endl;
+        }
+
+        std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
+                  << referenceArray->GetName() << ". Expected "
+                  << referenceDoubleValue << ", got " << currentDoubleValue
+                  << std::endl;
+
+        return 1;
+      }
+    }
+
+    else
+    {
+      std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
+                << referenceArray->GetName() << ". They don't have the same type"
+                << std::endl;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference)
 {
   std::cout << "Point Data Value : \t";
@@ -263,32 +330,14 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
   for (int idArray = 0; idArray < currentReferencePointData->GetNumberOfArrays(); ++idArray)
   {
     const char * arrayName = currentFramePointData->GetArrayName(idArray);
-    vtkDataArray* currentFrameArray = currentFramePointData->GetArray(arrayName);
-    vtkDataArray* currentReferenceArray = currentReferencePointData->GetArray(arrayName);
-
-    for (int idTuple = 0; idTuple < currentReferenceArray->GetNumberOfTuples(); ++idTuple)
+    vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(arrayName);
+    vtkAbstractArray* currentReferenceArray = currentReferencePointData->GetAbstractArray(arrayName);
+    if(CompareAbstractArray(currentFrameArray, currentReferenceArray))
     {
-      int nbComp = currentReferenceArray->GetNumberOfComponents();
-
-      double* frameTuple = currentFrameArray->GetTuple(idTuple);
-      double* referenceTuple = currentReferenceArray->GetTuple(idTuple);
-
-      if (!compare(frameTuple, referenceTuple, nbComp, 1e-12))
-      {
-        if ((int64_t)(*referenceTuple - *frameTuple) % 3600 * 1e6 == 0)
-        {
-          std::cerr << "Tuples converted in int64_t are equal up to 3600 * 1e6 " << std::endl;
-        }
-
-        std::cerr << "failed : Tuples " << idTuple << " doesn't match for array " << idArray << " ("
-                  << currentReferenceArray->GetName() << "). Expected "
-                  << toString(referenceTuple, nbComp) << ", got " << toString(frameTuple, nbComp)
-                  << std::endl;
-
-        return 1;
-      }
+      return 1;
     }
   }
+
   std::cout << "passed" << std::endl;
   return retVal;
 }
