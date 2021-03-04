@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vvMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Testing/Data/HDL-64_Dual/HDL-64_Dual.pcap" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/AddButton" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/CalibFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/CalibrationsFiles/HDL-64.xml" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/ListWidget" command="setCurrent" arguments="7.0" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/cameraToolbar/actionPositiveZ" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/cameraToolbar/actionZoomToData" command="activate" arguments="" />
+</pqevents>

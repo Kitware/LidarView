@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vvMainWindow/actionToggleProjection" command="set_boolean" arguments="true" />
+</pqevents>

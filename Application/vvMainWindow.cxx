@@ -62,6 +62,7 @@
 #include "pqAxesToolbar.h"
 #include "pqCameraToolbar.h"
 #include <pqParaViewBehaviors.h>
+#include <pqCommandLineOptionsBehavior.h>
 #include <pqDataRepresentation.h>
 #include <pqPythonShell.h>
 #include <pqLoadDataReaction.h>
@@ -149,12 +150,14 @@ private:
     pqParaViewBehaviors::enableCrashRecoveryBehavior();
     pqParaViewBehaviors::enableAutoLoadPluginXMLBehavior();
     pqParaViewBehaviors::enableDataTimeStepBehavior();
-    pqParaViewBehaviors::enableCommandLineOptionsBehavior();
     pqParaViewBehaviors::enableLiveSourceBehavior();
     pqParaViewBehaviors::enableApplyBehavior();
     pqParaViewBehaviors::enableStandardViewFrameActions();
     pqParaViewBehaviors::enableStandardPropertyWidgets();
     pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
+    // Do not instantiate this now, otherwise QtTesting will be run before the App UI is completely setup
+    // WIP does it mess with the following code ?
+    pqParaViewBehaviors::setEnableCommandLineOptionsBehavior(false);
 
     // Check if the settings are well formed i.e. if an OriginalMainWindow
     // state was previously saved. If not, we don't want to automatically
@@ -338,6 +341,9 @@ private:
       (this->Ui.actionHelpSlam ));
 
     pqActiveObjects::instance().setActiveView(this->MainView);
+
+    // Process commandline arguments, run tests at last
+    new pqCommandLineOptionsBehavior(window);
   }
 
   //-----------------------------------------------------------------------------

@@ -1,4 +1,7 @@
 <?xml version="1.0" ?>
 <pqevents>
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuTools" />
   <pqevent object="vvMainWindow/menubar/menuTools" command="activate" arguments="actionShowRPM" />
 </pqevents>
+
+

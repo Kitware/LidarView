@@ -3,5 +3,5 @@
   <pqevent object="vvMainWindow/actionToggleProjection" command="set_boolean" arguments="true" />
   <pqevent object="vvMainWindow/actionMeasure" command="set_boolean" arguments="true" />
   <pqevent object="vvMainWindow/actionToggleProjection" command="set_boolean" arguments="false" />
-  <pqcheck object="vvMainWindow/viewSettings/1QToolButton2" property="checked" arguments="false" />
+  <pqcheck object="vvMainWindow/viewSettings/0QToolButton2" property="checked" arguments="false" />
 </pqevents>
