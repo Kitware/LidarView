@@ -119,7 +119,6 @@ private:
     // create pythonshell
     pqPythonShell* shell = new pqPythonShell(window);
     shell->setObjectName("pythonShell");
-    shell->initialize();
     shell->setFontSize(8);
     this->Ui.pythonShellDock->setWidget(shell);
 
