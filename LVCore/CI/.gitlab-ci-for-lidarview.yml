@@ -279,6 +279,8 @@ windows_build:
 #    Test    #
 ##############
 linux_test:
+  variables:
+    DISPLAY: ":0"
   extends:
     - .linux_runner_config
     - .test
