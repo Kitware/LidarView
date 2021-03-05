@@ -688,7 +688,7 @@ def savePositionCSV(filename):
     smp.Delete(w)
 
 def saveCSVCurrentFrame(filename):
-    w = smp.CreateWriter(filename, smp.GetActiveSource())
+    w = smp.CreateWriter(filename, getLidar())
     w.Precision = 16
     w.FieldAssociation = 'Points'
     w.UpdatePipeline()
