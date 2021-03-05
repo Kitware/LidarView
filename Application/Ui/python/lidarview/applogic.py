@@ -881,6 +881,13 @@ def onSaveCSV():
             setTransformMode(oldTransform)
 
     else:
+        # It is not possible to save several frames as CSV during stream
+        if getSensor():
+            QtGui.QMessageBox.information(getMainWindow(),
+                                        'Save several frames as CSV is not available during stream',
+                                        'Please use the "Record" tool, and open the resulting pcap offline to process it.')
+            return
+
         fileName = getSaveFileName('Save CSV (to zip file)', 'zip', getDefaultSaveFileName('zip'))
         if fileName:
             oldTransform = transformMode()
