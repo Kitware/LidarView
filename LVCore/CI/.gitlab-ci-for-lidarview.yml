@@ -278,16 +278,20 @@ windows_build:
 ##############
 #    Test    #
 ##############
-linux_test:
+.test_X11_GUICAPS:
   variables:
     DISPLAY: ":0"
+
+linux_test:
   extends:
+    - .test_X11_GUICAPS
     - .linux_runner_config
     - .test
   needs: [linux_build]
 
 osx_test:
   extends:
+    - .test_X11_GUICAPS
     - .osx_runner_config
     - .test
   needs: [osx_build]
