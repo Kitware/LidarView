@@ -78,7 +78,9 @@
 // Declare the plugin to load.
 PV_PLUGIN_IMPORT_INIT(LidarPlugin);
 PV_PLUGIN_IMPORT_INIT(PythonQtPlugin);
-PV_PLUGIN_IMPORT_INIT(VelodynePlugin);
+//PV_PLUGIN_IMPORT_INIT(VelodynePlugin);
+PV_PLUGIN_IMPORT_INIT(HesaiPlugin)
+
 
 class vvMainWindow::pqInternals
 {
@@ -376,7 +378,8 @@ vvMainWindow::vvMainWindow()
 
   PV_PLUGIN_IMPORT(LidarPlugin);
   PV_PLUGIN_IMPORT(PythonQtPlugin);
-  PV_PLUGIN_IMPORT(VelodynePlugin);
+  //PV_PLUGIN_IMPORT(VelodynePlugin);
+  PV_PLUGIN_IMPORT(HesaiPlugin);
 
   // Branding
   std::stringstream ss;

@@ -72,7 +72,7 @@ target_link_libraries(${SOFTWARE_NAME}
   PUBLIC
     LidarPlugin
     ApplicationUi
-    VelodynePlugin
+    HesaiPlugin
     ${PYTHONQTPLUGIN_LIBRARY}
     ${PYTHONQT_LIBRARIES}
     lqApplicationComponents)
