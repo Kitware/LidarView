@@ -26,7 +26,7 @@ import PythonQt
 from PythonQt import QtCore, QtGui
 
 from vtk import vtkXMLPolyDataWriter
-import lidarviewcore.kiwiviewerExporter
+import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 import gridAdjustmentDialog
 import aboutDialog
 import bisect
@@ -280,7 +280,7 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
     reader = getReader()
 
     if sensor:
-        nchannels =  sensor.GetPropertyValue('NumberOfChannels')
+        nchannels =  sensor.Interpreter.GetClientSideObject().GetNumberOfChannels()
         base = 'HDL-'
         if nchannels <= 16:
             base = 'VLP-'
@@ -671,12 +671,12 @@ def rotateCSVFile(filename):
 
     # read the csv file, move the last 3 columns to the
     # front, and then overwrite the file with the result
-    csvFile = open(filename, 'rb')
+    csvFile = open(filename, 'rt')
     reader = csv.reader(csvFile, quoting=csv.QUOTE_NONNUMERIC)
     rows = [row[-3:] + row[:-3] for row in reader]
     csvFile.close()
 
-    writer = csv.writer(open(filename, 'wb'), quoting=csv.QUOTE_NONNUMERIC, delimiter=',')
+    writer = csv.writer(open(filename, 'wt'), quoting=csv.QUOTE_NONNUMERIC, delimiter=',', lineterminator = '\n')
     writer.writerows(rows)
 
 
@@ -688,7 +688,7 @@ def savePositionCSV(filename):
     smp.Delete(w)
 
 def saveCSVCurrentFrame(filename):
-    w = smp.CreateWriter(filename, smp.GetActiveSource())
+    w = smp.CreateWriter(filename, getLidar())
     w.Precision = 16
     w.FieldAssociation = 'Points'
     w.UpdatePipeline()
@@ -811,7 +811,7 @@ def getSaveFileName(title, extension, defaultFileName=None):
     nativeDialog = 0 if app.actions['actionNative_File_Dialogs'].isChecked() else QtGui.QFileDialog.DontUseNativeDialog
 
     filters = '%s (*.%s)' % (extension, extension)
-    selectedFilter = '*.%s' % extension
+    selectedFilter = '%s (*.%s)' % (extension, extension)
     fileName = QtGui.QFileDialog.getSaveFileName(getMainWindow(), title,
                         defaultFileName, filters, selectedFilter, nativeDialog)
 
@@ -881,6 +881,13 @@ def onSaveCSV():
             setTransformMode(oldTransform)
 
     else:
+        # It is not possible to save several frames as CSV during stream
+        if getSensor():
+            QtGui.QMessageBox.information(getMainWindow(),
+                                        'Save several frames as CSV is not available during stream',
+                                        'Please use the "Record" tool, and open the resulting pcap offline to process it.')
+            return
+
         fileName = getSaveFileName('Save CSV (to zip file)', 'zip', getDefaultSaveFileName('zip'))
         if fileName:
             oldTransform = transformMode()
@@ -1534,7 +1541,7 @@ def transformMode():
     if not reader:
         return None
 
-    if reader.ApplyTransform:
+    if reader.Interpreter.ApplyTransform:
         if app.relativeTransform:
             return 2 # relative
         else:
@@ -1548,7 +1555,7 @@ def setTransformMode(mode):
     reader = getReader()
 
     if reader:
-        reader.ApplyTransform = (mode > 0)
+        reader.Interpreter.ApplyTransform = (mode > 0)
     app.transformMode = mode
     app.relativeTransform = (mode == 2)
 
