@@ -7,7 +7,6 @@ message(STATUS "Building LidarPlugin with C++${CMAKE_CXX_STANDARD} standard")
 #-----------------------------------------------------------------------------
 # Temporary Fix
 #-----------------------------------------------------------------------------
-
 message(AUTHOR_WARNING "Until the 'Speedup interpolator' merge request is integrated to VTK, we provide the patch")
 set(interpolator_pach_until_vtk_update
   vtkPatch/vtkCustomPiecewiseFunction.cxx

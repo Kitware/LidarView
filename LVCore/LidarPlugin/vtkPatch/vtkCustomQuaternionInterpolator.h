@@ -55,7 +55,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-class vtkCustomQuaterniond;
+class vtkQuaterniond;
 class vtkCustomQuaternionList;
 
 class vtkCustomQuaternionInterpolator : public vtkObject
@@ -91,7 +91,7 @@ public:
   // Note that using the same time t value more than once replaces the
   // previous quaternion at t. At least one quaternions must be added to
   // define an interpolation functios.
-  void AddQuaternion(double t, const vtkCustomQuaterniond& q);
+  void AddQuaternion(double t, const vtkQuaterniond& q);
   void AddQuaternion(double t, double q[4]);
 
   // Description:
@@ -103,7 +103,7 @@ public:
   // Interpolate the list of quaternions and determine a new quaternion
   // (i.e., fill in the quaternion provided). If t is outside the range of
   // (min,max) values, then t is clamped to lie within the range.
-  void InterpolateQuaternion(double t, vtkCustomQuaterniond& q);
+  void InterpolateQuaternion(double t, vtkQuaterniond& q);
   void InterpolateQuaternion(double t, double q[4]);
 
 //BTX

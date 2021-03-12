@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkCustomQuaternion.h"
+#include "vtkQuaternion.h"
 #include "vtkCustomQuaternionInterpolator.h"
 #include <vector>
 
@@ -28,14 +28,14 @@ vtkStandardNewMacro(vtkCustomQuaternionInterpolator);
 struct TimedQuaternion
 {
   double Time;
-  vtkCustomQuaterniond Q;     //VTK's quaternion: unit rotation axis with angles in degrees
+  vtkQuaterniond Q;     //VTK's quaternion: unit rotation axis with angles in degrees
 
   TimedQuaternion()
     : Q(0.0)
     {
     this->Time = 0.0;
     }
-  TimedQuaternion(double t, vtkCustomQuaterniond q)
+  TimedQuaternion(double t, vtkQuaterniond q)
     {
     this->Time = t;
     this->Q = q;
@@ -106,13 +106,13 @@ void vtkCustomQuaternionInterpolator::Initialize()
 //----------------------------------------------------------------------------
 void vtkCustomQuaternionInterpolator::AddQuaternion(double t, double q[4])
 {
-  vtkCustomQuaterniond quat(q);
+  vtkQuaterniond quat(q);
   this->AddQuaternion(t, quat);
 }
 
 //----------------------------------------------------------------------------
 void vtkCustomQuaternionInterpolator::AddQuaternion(double t,
-                                              const vtkCustomQuaterniond& q)
+                                              const vtkQuaterniond& q)
 {
   int size = static_cast<int>(this->QuaternionList->size());
 
@@ -177,7 +177,7 @@ void vtkCustomQuaternionInterpolator::RemoveQuaternion(double t)
 //----------------------------------------------------------------------------
 void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
 {
-  vtkCustomQuaterniond quat(q);
+  vtkQuaterniond quat(q);
   this->InterpolateQuaternion(t, quat);
   for (int i = 0; i < 4; ++i)
     {
@@ -187,7 +187,7 @@ void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t, double q[4
 
 //----------------------------------------------------------------------------
 void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t,
-                                                      vtkCustomQuaterniond& q)
+                                                      vtkQuaterniond& q)
 {
   // The quaternion may be clamped if it is outside the range specified
   if ( t <= this->QuaternionList->front().Time )
@@ -240,7 +240,7 @@ void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t,
         }
       }
 
-    vtkCustomQuaterniond ai, bi, qc, qd;
+    vtkQuaterniond ai, bi, qc, qd;
     if ( i == 0 ) //initial interval
       {
       iter1 = iter;
@@ -248,7 +248,7 @@ void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t,
       iter3 = nextIter + 1;
 
       ai = iter1->Q.Normalized(); //just duplicate first quaternion
-      vtkCustomQuaterniond q1 = iter1->Q.Normalized();
+      vtkQuaterniond q1 = iter1->Q.Normalized();
       bi = q1.InnerPoint(iter2->Q.Normalized(), iter3->Q.Normalized());
       }
     else if ( i == (numQuats-2) ) //final interval
@@ -257,7 +257,7 @@ void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t,
       iter1 = iter;
       iter2 = nextIter;
 
-      vtkCustomQuaterniond q0 = iter0->Q.Normalized();
+      vtkQuaterniond q0 = iter0->Q.Normalized();
       ai = q0.InnerPoint(iter1->Q.Normalized(), iter2->Q.Normalized());
 
       bi = iter2->Q.Normalized(); //just duplicate last quaternion
@@ -269,15 +269,15 @@ void vtkCustomQuaternionInterpolator::InterpolateQuaternion(double t,
       iter2 = nextIter;
       iter3 = nextIter + 1;
 
-      vtkCustomQuaterniond q0 = iter0->Q.Normalized();
+      vtkQuaterniond q0 = iter0->Q.Normalized();
       ai = q0.InnerPoint(iter1->Q.Normalized(), iter2->Q.Normalized());
 
-      vtkCustomQuaterniond q1 = iter1->Q.Normalized();
+      vtkQuaterniond q1 = iter1->Q.Normalized();
       bi = q1.InnerPoint(iter2->Q.Normalized(), iter3->Q.Normalized());
       }
 
     // These three Slerp operations implement a Squad interpolation
-    vtkCustomQuaterniond q1 = iter1->Q.Normalized();
+    vtkQuaterniond q1 = iter1->Q.Normalized();
     qc = q1.Slerp(T,iter2->Q.Normalized());
     qd = ai.Slerp(T,bi);
     q = qc.Slerp(2.0*T*(1.0-T),qd);

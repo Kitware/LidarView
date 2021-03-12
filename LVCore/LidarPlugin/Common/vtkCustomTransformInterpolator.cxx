@@ -17,7 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
-#include "vtkPatch/vtkCustomQuaternion.h"
+#include "vtkQuaternion.h"
 #include "vtkPatch/vtkCustomQuaternionInterpolator.h"
 #include "vtkTransform.h"
 #include "vtkPatch/vtkCustomTupleInterpolator.h"
@@ -37,7 +37,7 @@ struct vtkQTransform
   double Time;
   double P[3];
   double S[3];
-  vtkCustomQuaterniond Q;
+  vtkQuaterniond Q;
 
   vtkQTransform()
   {
@@ -510,7 +510,7 @@ void vtkCustomTransformInterpolator::InterpolateTransform(double t, vtkTransform
   }
 
   double P[3], S[3], Q[4];
-  vtkCustomQuaterniond q;
+  vtkQuaterniond q;
   this->PositionInterpolator->InterpolateTupleDichotomic(t, P);
   this->ScaleInterpolator->InterpolateTupleDichotomic(t, S);
   this->RotationInterpolator->InterpolateQuaternion(t, q);
