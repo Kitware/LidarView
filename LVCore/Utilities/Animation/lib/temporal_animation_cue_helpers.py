@@ -81,6 +81,9 @@ params['frames_output_dir'] = ""
 # Snapshots resolution (width x height), in pixels
 params['image_resolution'] = (1920, 1080)
 
+# Save all views for the current layout? (If false, save only the current view)
+params['save_all_views_in_layout'] = False
+
 # Snapshots files names format
 params['filename_format'] = "%06d.png"
 
@@ -151,7 +154,14 @@ def save_screenshot():
 
         # Save screenshot
         image_name = os.path.join(params['frames_output_dir'], params['filename_format'] % (save_screenshot.image_index))
-        smp.SaveScreenshot(image_name, ImageResolution=params['image_resolution'])
+        if params['save_all_views_in_layout']:
+            view_or_layout = smp.GetLayout()
+        else:
+            view_or_layout = smp.GetActiveView()
+
+        smp.SaveScreenshot(image_name,
+                           view_or_layout,
+                           ImageResolution=params['image_resolution'])
         save_screenshot.image_index += 1
         return True
     else:
