@@ -15,13 +15,13 @@ add_library(lqApplicationComponents
   lqColorToolbar.cxx
   lqColorToolbar.h
   lqColorToolbar.ui
+  lqDockableSpreadSheetReaction.h
+  lqDockableSpreadSheetReaction.cxx
   lqPlayerControlsToolbar.cxx
   lqPlayerControlsToolbar.h
   lqPlayerControlsToolbar.ui
   lqPlayerControlsController.cxx
   lqPlayerControlsController.h
-  lqSpreadSheetManager.cxx
-  lqSpreadSheetManager.h
   lqStreamRecordDialog.cxx
   lqStreamRecordDialog.h
   lqStreamRecordReaction.cxx
