@@ -121,6 +121,7 @@ workflow:
 .test:
   variables:
     GIT_LFS_SKIP_SMUDGE: 0 # download the test data
+    DISPLAY: ":0" # Enable UI Capabilities, may not interfere too much on win32
   stage: test
   extends: .default_rules
   script:
@@ -278,20 +279,14 @@ windows_build:
 ##############
 #    Test    #
 ##############
-.test_X11_GUICAPS:
-  variables:
-    DISPLAY: ":0"
-
 linux_test:
   extends:
-    - .test_X11_GUICAPS
     - .linux_runner_config
     - .test
   needs: [linux_build]
 
 osx_test:
   extends:
-    - .test_X11_GUICAPS
     - .osx_runner_config
     - .test
   needs: [osx_build]
