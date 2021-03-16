@@ -29,6 +29,7 @@
 
 #include <vvPacketSender.h>
 
+#include <chrono>
 #include <sstream>
 
 #include <thread>
@@ -462,7 +463,8 @@ int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, 
 //-----------------------------------------------------------------------------
 int testLidarReader(vtkLidarReader *reader,
                     double referenceNetworkTimeToDataTime,
-                    const std::string& referenceFileName)
+                    const std::string& referenceFileName,
+                    const double FrequencyReference_Hz)
 {
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
@@ -470,6 +472,8 @@ int testLidarReader(vtkLidarReader *reader,
 
   // update the reader to have access to the frame
   reader->Update();
+
+  std::vector<std::chrono::nanoseconds> durations;
 
   // Check if we can read the PCAP file
   if (reader->GetNumberOfFrames() == 0)
@@ -494,14 +498,54 @@ int testLidarReader(vtkLidarReader *reader,
               << "FRAME " << idFrame << " ..." << std::endl
               << "---------------------" << std::endl;
 
+    // Get The current frame and compute the duration of its processing
+    auto start = std::chrono::high_resolution_clock::now();
     vtkPolyData* currentFrame = GetCurrentFrame(reader, idFrame);
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+    durations.push_back(duration);
+
+    // Get the current reference to compare the current frame
     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
     retVal += CheckCurrentFrame(currentFrame, currentReference, true);
   }
 
-  retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
+  // Check the frequency of the processing of a frame
+  if(durations.size() > 0)
+  {
+    std::cout << "Frequency : \t";
 
+    // Compute the mean of all duration
+    double mean_s = durations[0].count() * 1e-9;
+    for(unsigned int i = 1; i < durations.size(); i++)
+    {
+      mean_s = mean_s + (durations[i].count() * 1e-9);
+    }
+    mean_s = mean_s / durations.size();
+    if(mean_s == 0)
+    {
+      std::cerr << "failed : The mean duration of frame processing is equal to 0 s " << std::endl;
+      return 1;
+    }
+
+    double FrameFrequency_Hz = 1/mean_s;
+    if((FrameFrequency_Hz) >= FrequencyReference_Hz )
+    {
+      std::cout << "passed , expected" << FrequencyReference_Hz
+                << " Hz, got : " << (FrameFrequency_Hz) << "Hz." << std::endl;
+    }
+    else
+    {
+      std::cerr << "failed : The processing of the frame is to slow. Expected : "
+          << FrequencyReference_Hz << " Hz, got : " << (FrameFrequency_Hz) << "Hz." << std::endl;
+
+      retVal += 1;
+    }
+  }
+
+  retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
   return  retVal;
 
 }
@@ -623,9 +667,9 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
   };
   vvPacketSender sender(pcapFileName, destinationIp, dataPort);
 
-  // The packet are at 50% of the real speed. This is because our osx buildboot
-  // isn't good enought for handling 100%.
-  bool isOk = sender.sendAllPackets(0.5, 0, testFrame);
+  // The packet are at 15% of the real speed. This is because our osx and windows buildboots
+  // aren't good enought for handling 100%.
+  bool isOk = sender.sendAllPackets(0.15, 0, testFrame);
   if (!isOk)
   {
       std::cout << "Test failed: Error while sending the packets." << std::endl;

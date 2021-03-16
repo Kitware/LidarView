@@ -121,11 +121,13 @@ int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, 
  * @brief testLidarReader compare the reader output to prerecorded frames
  * @param reader
  * @param referenceFileName the file containing the vtp to compare with
+ * @param FrequencyReference_Hz the reference speed of the sensor
  * @return nb of error
  */
 int testLidarReader(vtkLidarReader* reader,
                     double referenceNetworkTimeToDataTime,
-                    const std::string& referenceFileName);
+                    const std::string& referenceFileName,
+                    const double FrequencyReference_Hz = 10);
 
 
 /**
