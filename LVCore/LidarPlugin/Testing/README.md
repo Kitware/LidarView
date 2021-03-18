@@ -1,61 +1,61 @@
-# HOW TO: Use LidarView testing
-
-
+# LidarView Testing Guide
+## Tests Definitions
 ### Reader tests definition
+Reader tests are based on the comparison of the processing of a reference recording
+**pcap** file with a **vtp** baseline file, that has been generated on a **stable version** of the Reader.
 
+## Run Tests
+### Get Test data and baselines
+Test Data and baselines are stored within **Git Large File Storage (LFS)**.
 
-The tests are based on the comparaison of the processing of a reference recording 
-**pcap** file with the baseline **vtp** file, that have been generate on a **stable version** of the Reader.
+If `git-lfs` was already installed prior to cloning LidarView's main repository and its submodules, Test Data should already have been downloaded.
 
-
-### Enable LidarView testing
-
-
-In LidarView CMAKE options, enable option `BUILD_TESTING`. Then rebuild LidarView.
-
-
-### Get test data and baseline
-
-
-The Test Data (**.pcap** file) and the baseline (**.vtp** file) are store on another 
-gitlab repository. This repository is a submodule of LidarView, to get this data simply run:
+If this is not the case, or you wish to update LFS files to the origin's versions use :
 ```
-git submodule update --init
+git lfs fetch --all && git lfs pull && \
+git submodule foreach --recursive "git lfs fetch --all && git lfs pull"
 ```
-This may took some minutes. Finally the test data and baseline could be found in `/TestData`
 
+TIP: If you want an overview of every LFS files use:
+```
+echo 'LidarView' && \
+git lfs ls-files --all | sed 's/^/    /' && \
+git submodule foreach --recursive "git lfs ls-files --all | sed 's/^/    /' "
+```
+
+TIP: If you wish to clone without Test Data use:
+```
+GIT_LFS_SKIP_SMUDGE=1 git clone ...
+```
+
+## Enable Testing and Run the Tests
+### Enable Testing
+In LidarView's build directory, enable CMAKE option `BUILD_TESTING`, then rebuild LidarView:
+```
+cmake . -DBUILD_TESTING=ON
+cmake --build . --target install
+```
 
 ### Run the tests
-
-To launch a test, use the program CTest. CTest needs to be run from the LidarView
-build directory.
-
-To use CTest from the command line on Linux or MacOS, do:
+From the LidarView build directory, use CTest:
 ```
+ctest -N
 ctest -R <REGEX_TEST_NAME> [-VV]
 ```
-
-* **-R** option enable to run run a specific test. This option is mandatory.
-* **TEST_NAME** is the name of the test to run. You can use `tab` to autocomplete a test name.
-* **-VV** option allows the test to be run in verbose mode, which displays more information. This option is optional.
 
 **Using CTest on Windows:** On Windows, you need to add the option
 `-C <debug/release>` according to your build type.
 
+### Generate Baselines
+**Disclaimer:** In the event that a significant change in how LidarView should process and ouput Data,
+the baselines would become irrelevant and need to be generated again for the Tests to pass again.
 
-### Update test data
+To generate new baselines automatically, invoke LidarView with the `--script`
+option using the `generateTestData.py` script.
 
-**Disclaimer:** In some rare cases, the functionality added to LidarView modifies
-some properties of the 3D points tested above, and thus the tests will return a 
-failure even if the values tested match the ones intended. Please run all the 
-tests and ensure that just the one intended to fail fails for your modifications
-before generating updated test data.
-
-To generate updated test data automatically, go to your LidarView build directory
-and launch LidarView with the option --script.
 On Linux:
 ```
-BUILD_DIR/lidarview/src/lidarview-build/bin/LidarView --script=BUILD_DIR/lidarview/src/lidarview-build/bin/generateTestData.py
+INSTALL_DIR/bin/LidarView --script=BUILD_DIR/lidarview/src/lidarview-build/bin/generateTestData.py
 ```
 On Windows:
 ```
@@ -66,11 +66,10 @@ On MacOS:
 open PACKAGE_DIR/LidarView.app --args --script=BUILD_DIR/lidarview/src/lidarview-build/bin/generateTestData.py
 ```
 Updated test data will be generated in `/TestData`. Commit your changes in the
-submodule `TestData` fisrt and then commit them on this repository.
+submodule `TestData` first and then commit them on this repository.
 
 
 ### Adding new test data
-
 Adding new test data means adding a PCAP file and associated VTP baseline files to
 LidarView-TestData. It has to be saved under `TestData`. If you need a custom
 calibration file, it has to be in the `share` directory. Then, edit
@@ -80,12 +79,12 @@ file to the list of tests data to generate.
 Finaly re generate LidarView with cmake, in order to create a new 'generateTestData.py' file
 and add a new test in the `CMakeList.txt`.
 
-Don't forget to commit your change!
+Don't forget to commit your changes!
 
 
-**Requirement for HDL-64 live calibration**: Your PCAP file need to have at
-least 12480 packets for it to works. The live calibration mode computes the
-calibration from appended received data packet and it's the minimum required
-to compute it correctly (the rolling calibration data span 4160 datapacket, but
-LidarView requires some redondancy to be on the safe side).
+**Requirement for HDL-64 live calibration**: 
+The live calibration mode computes the calibration on the fly from latest received data packet.
+Therefore your PCAP file needs to have a minimum of 12480 packets for it be computed correctly.  
+
+Note: The rolling calibration data span 4160 datapacket, but 3x redundancy is required to eliminate side-effects.
 
