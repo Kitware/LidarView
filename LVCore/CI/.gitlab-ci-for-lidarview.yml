@@ -7,7 +7,7 @@
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive # see https://docs.gitlab.com/ee/ci/git_submodules.html#using-git-submodules-in-your-ci-jobs
-  GIT_LFS_SKIP_SMUDGE: 1 # do not doawnload test data, see https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings
+  GIT_LFS_SKIP_SMUDGE: 1 # do not download test data, see https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings
   # user defined variable
   rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
   # - gitlab only evaluate variable at depth 1, so it's not possible to reuse
@@ -15,10 +15,10 @@ variables:
   #   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
   superbuild_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME
   lidarview_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
-  # This variable should set only if the script is trigger from a LidarView submodule
-  # This will enable to run the pipeline with the updated module
-  TRIGGER_MODULE_PATH: '' # path of the module that trigger the pipeline relative to LidarView
-  TRIGGER_MODULE_SHA: '' # commit sha of the module that trigger the pipeline
+  # Following variables should be set only if the script is triggered from a LidarView submodule
+  # It enables to run the pipeline with the updated module
+  TRIGGER_MODULE_PATH: '' # path of the module that triggered the pipeline relative to LidarView
+  TRIGGER_MODULE_SHA: ''  # commit sha of the module that triggered the pipeline
   SB_BUILD_PREFIX: '' # use a unique value to have a custom SB dir for some branches and not rely on the generic one
                       # this may be usefull, when you make changes to the superbuild, and want to check
                       # that this change pass the CI pipeline, but in the mean time you don't want to
