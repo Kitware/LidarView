@@ -114,7 +114,7 @@ endif(ENABLE_pcl)
 set(Boost_USE_MULTITHREADED ON)
 # the expected behavior of find_package when  used wiht REQUIRED and OPTIONAL_COMPONENTS
 # it not the one expected, as it also required the optional component...
-find_package(Boost REQUIRED COMPONENTS system thread filesystem program_options)
+find_package(Boost REQUIRED COMPONENTS system thread filesystem program_options iostreams)
 include_directories(${SYSTEM_OPTION} ${Boost_INCLUDE_DIRS})
 
 #--------------------------------------
