@@ -31,7 +31,6 @@ def start_cue(self):
 from temporal_animation_cue_helpers import tick, end_cue
 ```
 """
-from __future__ import print_function
 import os
 import numpy as np
 from scipy.spatial.transform import Rotation

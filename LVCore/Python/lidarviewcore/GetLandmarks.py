@@ -19,7 +19,6 @@
 # closest to the current camera center location. If the p-percentil points
 # cardinal is less than 3, compute the mean instead
 #==============================================================================
-from __future__ import print_function
 import numpy as np
 
 # -----------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 '''
 Simple tool to extract pcaps from ROS bag files.
 '''
-from __future__ import print_function
 import argparse
 import contextlib2 as contextlib
 import os

@@ -53,7 +53,6 @@ This point cloud is colored by label:
 - green:other
 
 """
-from __future__ import print_function
 import paraview.simple as smp
 import os
 

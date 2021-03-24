@@ -10,9 +10,6 @@
 # source: Danesfield project
 # link: https://github.com/Kitware/Danesfield/blob/master/danesfield/dtm.py
 
-# modifications: only prints, to run from Python2
-from __future__ import print_function
-
 
 """DTM (Digital Terrain Model) estimation from a DSM (Digital Surface Model)
 """
