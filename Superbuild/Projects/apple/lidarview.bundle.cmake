@@ -28,13 +28,20 @@ include("${LidarViewSuperBuild_SOURCE_DIR}/../Application/SoftwareInformation/br
 # - MUST end with .app (else its tree is not considered as an app by macOS)
 set(lidarview_appname "${SOFTWARE_NAME}.app")
 
+set(lidarview_additional_libraries)
+if(ENABLE_slam)
+  LIST(APPEND lidarview_additional_libraries "${superbuild_install_location}/bin/${lidarview_appname}/Contents/Libraries/libLidarSlam.dylib")
+endif()
+
 superbuild_apple_create_app(
   "\${CMAKE_INSTALL_PREFIX}"
   "${lidarview_appname}"
   "${superbuild_install_location}/bin/${lidarview_appname}/Contents/MacOS/${SOFTWARE_NAME}"
   CLEAN
   PLUGINS ${lidarview_plugin_paths}
-  SEARCH_DIRECTORIES "${superbuild_install_location}/lib" "${superbuild_install_location}/bin/${lidarview_appname}/Contents/Libraries")
+  SEARCH_DIRECTORIES "${superbuild_install_location}/lib" "${superbuild_install_location}/bin/${lidarview_appname}/Contents/Libraries"
+  ADDITIONAL_LIBRARIES ${lidarview_additional_libraries}
+  )
 
 install(
   FILES       "${plugins_file}"
