@@ -568,6 +568,10 @@ if (APPLE)
   install(FILES ${PCAP_LIBRARY} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   install(FILES ${liblas_LIBRARY} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   install(FILES ${Boost_LIBRARIES} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
+  FILE(GLOB flann_libraries ${CMAKE_INSTALL_PREFIX}/lib/libflann*)
+  FILE(GLOB pcl_libraries ${CMAKE_INSTALL_PREFIX}/lib/libpcl*)
+  install(FILES ${flann_libraries} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
+  install(FILES ${pcl_libraries} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
 
   # install executables
   install(TARGETS ${executables_to_install}
