@@ -8,6 +8,7 @@
 
 #include <vector>
 
+#include<QDialog>
 /**
  * @brief IsPositionOrientationStream return true if the src is a PositionOrientationStream
  * @param src to test
@@ -152,5 +153,11 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
 
  */
 void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate, std::vector<double>& rotate);
+
+/**
+ * @brief DisplayDialogOnActiveWindow Display the dialog on the active window
+ * @param dialog dialog to display
+ */
+void DisplayDialogOnActiveWindow(QDialog & dialog);
 
 #endif // LQHELPER_H
