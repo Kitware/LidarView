@@ -191,3 +191,11 @@ if (WIN32)
     DESTINATION "bin"
   )
 endif ()
+
+# reset boost RPATH on OSX
+# this is applied on LidarView app and tests
+# for more information see comments in lidarview.osx-boost-rpath.cmake
+install(SCRIPT
+  ${LidarView_SOURCE_DIR}/Superbuild/lidarview-superbuild/Projects/scripts/lidarview.osx-boost-rpath.cmake
+)
+
