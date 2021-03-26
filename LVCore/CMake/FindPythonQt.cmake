@@ -26,3 +26,18 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(PythonQt DEFAULT_MSG PYTHONQT_INCLUDE_DIR PYTH
 
 mark_as_advanced(PYTHONQT_INCLUDE_DIR)
 mark_as_advanced(PYTHONQT_LIBRARY)
+
+# Find the PythonQt plugin library in ParaView lib directory
+if(NOT DEFINED ParaView_DIR)
+  message(FATAL_ERROR "ParaView_DIR need to be defined to find PythonQtPlugin.")
+endif()
+
+if(WIN32)
+  set(PYTHONQTPLUGIN_DIR ${ParaView_DIR}/lib)
+else()
+  set(PYTHONQTPLUGIN_DIR ${ParaView_DIR}/lib/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}/plugins/PythonQtPlugin)
+endif()
+
+find_library(PYTHONQTPLUGIN_LIBRARY PythonQtPlugin HINTS ${PYTHONQTPLUGIN_DIR}  DOC "ParaView PythonQt plugin library")
+mark_as_advanced(PYTHONQTPLUGIN_DIR)
+mark_as_advanced(PYTHONQTPLUGIN_LIBRARY)

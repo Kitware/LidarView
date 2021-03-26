@@ -4,7 +4,7 @@ if(WIN32)
 elseif(APPLE)
   set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../Python")
 else()
-  set(install_destination "${LV_INSTALL_LIBRARY_DIR}/python${Python_VERSION}/site-packages")
+  set(install_destination "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
 endif()
 
 set(scripts

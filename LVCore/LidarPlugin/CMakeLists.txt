@@ -585,10 +585,10 @@ if (APPLE)
           COMPONENT Runtime)
 
   # install paraview python modules
-  install(DIRECTORY ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/ DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python)
+  install(DIRECTORY ${ParaView_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python)
   file(GLOB python_dylib ${ParaView_DIR}/lib/*Python*.dylib)
   install(FILES ${python_dylib} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
-  file(GLOB python_so ${ParaView_DIR}/lib/python${Python_VERSION}/site-packages/vtkmodules/*Python.so)
+  file(GLOB python_so ${ParaView_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/vtkmodules/*Python.so)
   install(FILES ${python_so} DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python/vtkmodules)
 
 else()
