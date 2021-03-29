@@ -1,5 +1,5 @@
 include(lidarview.bundle.common)
-include(${LidarViewSuperBuild_SOURCE_DIR}/lidarview-superbuild/CMake/bundle/apple/LidarviewBundle.cmake)
+include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/apple/LidarviewBundle.cmake)
 
 # My understanding is that these module are not processed automatically
 # by superbuild_apple_create_app because there is no path leading to

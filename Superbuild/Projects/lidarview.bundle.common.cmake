@@ -1,5 +1,7 @@
 set(LidarViewSuperBuild_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../")
-include(${LidarViewSuperBuild_SOURCE_DIR}/lidarview-superbuild/CMake/bundle/LidarviewBundleCommon.cmake)
+set(LidarViewSuperBuild_CMAKE_DIR "${LidarViewSuperBuild_SOURCE_DIR}/lidarview-superbuild/CMake")
+
+include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/LidarviewBundleCommon.cmake)
 
 # here we can add some optionnal lidarview executables in common with all platforms
 list(APPEND lidarview_executables
