@@ -33,7 +33,7 @@ The required boost version is 1.66.
 Boost is used for threading and synchronization, network communication and handling of the filesystem.
 
 ### Qt library <a name="qt-library"></a>
-The required Qt version is 5.10.
+The required Qt version is 5.10.1
 Qt is a desktop widget library that is used to provide user interface elements like windows and menus across the supported platforms Windows, Mac, and Linux.
 
 ### Python <a name="python"></a>
@@ -69,7 +69,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 - **ninja version 1.8.2** or higher, available at <https://github.com/ninja-build/ninja/releases>. There is no installer for this tool. You must extract the binary *ninja.exe* from *ninja-win.zip* and place it inside a directory that is inside your `%PATH%` environnement variable, such as `C:\Windows`.
 - **Microsoft Visual Studio** ***14*** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
 - **git**: we recommand using "Git for Windows" available at <https://gitforwindows.org/>.
-- **Qt 5.10.0** *(this dependency will be built automatically in the future)*. You can download the installer here: <http://download.qt.io/new_archive/qt/5.10/5.10.0/qt-opensource-windows-x86-5.10.0.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.0" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish".
+- **Qt 5.10.1** *(this dependency will be built automatically in the future)*. You can download the installer here: <http://download.qt.io/new_archive/qt/5.10/5.10.1/qt-opensource-windows-x86-5.10.1.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.1" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish".
 - [only for packaging] **NSIS version 3.04** is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>.
 
 ### Windows build instructions <a name="windows-build-instructions"></a>
@@ -112,7 +112,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 
 6. Inside the command prompt configure the build by entering:
 
-    `cmake <work-directory>\LV-src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.0/5.10.0/msvc2015_64/lib/cmake/Qt5"`
+    `cmake <work-directory>\LV-src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.10.1/5.10.1/msvc2015_64/lib/cmake/Qt5"`
 
     * Note that this command mentions the subdirectory "*Superbuild*" inside the source directory and not the source directory itself.
     * Note that the `Qt5_DIR` path must use **forward slashes** (like if it was an Unix PATH), because MSVC would otherwise take `\\Q` as a build option.
