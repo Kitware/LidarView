@@ -556,6 +556,11 @@ if (OpenCV_FOUND AND PCL_FOUND AND nanoflann_FOUND)
     )
 endif (OpenCV_FOUND AND PCL_FOUND AND nanoflann_FOUND)
 
+# This is normal Superbuild operation, on APPLE the Superbuild's
+# bundling script will only pick from LV_INSTALL_LIBRARY_DIR,
+# external dependencies have to be moved manually from their 
+# custom install directories to the MacOS hierarchy
+# It also enable us to filter more finely what ends up in the bundle
 if (APPLE)
 
   # install libraries
@@ -587,6 +592,7 @@ if (APPLE)
   install(FILES ${python_so} DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python/vtkmodules)
 
 else()
+  # TODO Address this undesired patch
   # install paraview libs in LV_INSTALL_LIBRARY_DIR
   # needed to run LidarView from install path
   if(UNIX)
