@@ -23,6 +23,13 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 
+#include <vtkSMProxy.h>
+#include <vtkSMPropertyHelper.h>
+
+#include "lqHelper.h"
+
+#include <cassert>
+
 //-----------------------------------------------------------------------------
 class vvCalibrationDialog::pqInternal : public Ui::vvCalibrationDialog
 {
@@ -63,6 +70,7 @@ public:
   void saveAdvancedConfiguration();
   void saveForwardIpAddress();
   void saveIsCrashAnalysing();
+  void saveEnableInterpretGPSPackets();
 
   void restoreSensorTransform();
   void restoreGpsTransform();
@@ -74,6 +82,7 @@ public:
   void restoreAdvancedConfiguration();
   void restoreForwardIpAddress();
   void restoreCrashAnalysing();
+  void restoreEnableInterpretGPSPackets();
 
   pqSettings* const Settings;
   QStringList BuiltInCalibrationFiles;
@@ -111,7 +120,7 @@ void vvCalibrationDialog::pqInternal::saveSensorTransform()
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/LidarOriginX", this->LidarXSpinBox->value());
   this->Settings->setValue(
-    "LidarPlugin/CalibrationFileDialog/lidarOriginY", this->LidarYSpinBox->value());
+    "LidarPlugin/CalibrationFileDialog/LidarOriginY", this->LidarYSpinBox->value());
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/LidarOriginZ", this->LidarZSpinBox->value());
   this->Settings->setValue(
@@ -218,6 +227,30 @@ void vvCalibrationDialog::pqInternal::restoreCrashAnalysing()
     this->CrashAnalysisCheckBox->setChecked(this->Settings
                                    ->value("LidarPlugin/CalibrationFileDialog/IsCrashAnalysing",
                                      this->CrashAnalysisCheckBox->isChecked())
+                                   .toBool());
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::saveEnableInterpretGPSPackets()
+{
+  // Only save the state if the Interpreter GPS Packet is enabled
+  if (this->EnableInterpretGPSPackets->isEnabled())
+  {
+    this->Settings->setValue(
+      "LidarPlugin/CalibrationFileDialog/EnableInterpretGPSPackets", this->EnableInterpretGPSPackets->isChecked());
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
+{
+  // Only restore the state if the Interpreter GPS Packet is enabled
+  if (this->EnableInterpretGPSPackets->isEnabled())
+  {
+    this->EnableInterpretGPSPackets->setChecked(this->Settings
+                                   ->value("LidarPlugin/CalibrationFileDialog/EnableInterpretGPSPackets",
+                                     this->EnableInterpretGPSPackets->isChecked())
                                    .toBool());
   }
 }
@@ -394,6 +427,10 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
   this->Internal->CrashAnalysisCheckBox->setEnabled(true);
   this->Internal->CrashAnalysisCheckBox->setChecked(false);
 
+  this->Internal->EnableInterpretGPSPackets->setVisible(true);
+  this->Internal->EnableInterpretGPSPackets->setEnabled(true);
+  this->Internal->EnableInterpretGPSPackets->setChecked(false);
+
   liveCalibrationItem->setText("HDL64 Live Corrections");
   liveCalibrationItem->setToolTip("Get Corrections from the data stream");
   liveCalibrationItem->setData(Qt::UserRole, "");
@@ -417,8 +454,27 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
   // The advancedConfiguration checkbox hides the three followings groupbox
   connect(this->Internal->AdvancedConfiguration, SIGNAL(toggled(bool)),
     this->Internal->LidarPositionOrientationGroup, SLOT(setVisible(bool)));
+  // The GPS Position Orientation group (and GPS port) is grey (not settable by the user)
+  // if "EnableInterpreterGPSPacket" is disable
   connect(this->Internal->AdvancedConfiguration, SIGNAL(toggled(bool)),
     this->Internal->GPSPositionOrientationGroup, SLOT(setVisible(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsRollSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsPitchSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsYawSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsXSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsYSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GpsZSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->GPSPortSpinBox, SLOT(setEnabled(bool)));
+  connect(this->Internal->EnableInterpretGPSPackets, SIGNAL(toggled(bool)),
+    this->Internal->gpsTimeOffsetSpinBox, SLOT(setEnabled(bool)));
+
   connect(this->Internal->AdvancedConfiguration, SIGNAL(toggled(bool)),
     this->Internal->NetworkGroup, SLOT(setVisible(bool)));
   connect(this->Internal->AdvancedConfiguration, SIGNAL(toggled(bool)),
@@ -442,11 +498,98 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
   this->Internal->restoreLidarForwardingPort();
   this->Internal->restoreForwardIpAddress();
   this->Internal->restoreCrashAnalysing();
+  this->Internal->restoreEnableInterpretGPSPackets();
+  this->Internal->restoreEnableForwarding();
   this->Internal->restoreAdvancedConfiguration();
 
   const QVariant& geometry =
     this->Internal->Settings->value("LidarPlugin/CalibrationFileDialog/Geometry");
   this->restoreGeometry(geometry.toByteArray());
+}
+
+//-----------------------------------------------------------------------------
+vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy * lidarProxy, vtkSMProxy * GPSProxy, QWidget* p)
+  : vvCalibrationDialog(p)
+{
+  if(!IsLidarProxy(lidarProxy))
+  {
+    std::cerr << "lidarProxy is not valid" << std::endl;
+    return;
+  }
+
+  // Set the Calibration file
+  QString lidarCalibrationFile = vtkSMPropertyHelper(lidarProxy->GetProperty("CalibrationFileName")).GetAsString();
+  // If the calibration is "" that means that the calibration is live
+  if(lidarCalibrationFile.isEmpty())
+  {
+    this->Internal->ListWidget->setCurrentRow(0);
+  }
+  for (int i = 1; i < this->Internal->ListWidget->count(); ++i)
+  {
+    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    if (lidarCalibrationFile.compare(currentFileName, Qt::CaseInsensitive) == 0)
+    {
+      this->Internal->ListWidget->setCurrentRow(i);
+    }
+  }
+
+  int lidarPort = vtkSMPropertyHelper(lidarProxy->GetProperty("ListeningPort")).GetAsInt();
+  this->Internal->LidarPortSpinBox->setValue(lidarPort);
+
+  bool isForwarding = vtkSMPropertyHelper(lidarProxy->GetProperty("IsForwarding")).GetAsInt();
+  this->Internal->EnableForwardingCheckBox->setChecked(isForwarding);
+
+  int lidarForwardedPort = vtkSMPropertyHelper(lidarProxy->GetProperty("ForwardedPort")).GetAsInt();
+  this->Internal->LidarForwardingPortSpinBox->setValue(lidarForwardedPort);
+
+  std::string forwardedIpAddress = vtkSMPropertyHelper(lidarProxy->GetProperty("ForwardedIpAddress")).GetAsString();
+  this->Internal->ipAddresslineEdit->setText(QString::fromStdString(forwardedIpAddress));
+
+  // Only restore the state if the crash analysing is enabled
+  if (this->Internal->CrashAnalysisCheckBox->isEnabled())
+  {
+    bool isCrashAnalysing = vtkSMPropertyHelper(lidarProxy->GetProperty("IsCrashAnalysing")).GetAsInt();
+    this->Internal->CrashAnalysisCheckBox->setChecked(isCrashAnalysing);
+  }
+
+  std::vector<double> translate;
+  std::vector<double> rotate;
+  GetInterpreterTransform(lidarProxy, translate, rotate);
+  assert(translate.size() == 3);
+  assert(rotate.size() == 3);
+  this->Internal->LidarXSpinBox->setValue(translate[0]);
+  this->Internal->LidarYSpinBox->setValue(translate[1]);
+  this->Internal->LidarZSpinBox->setValue(translate[2]);
+  this->Internal->LidarRollSpinBox->setValue(rotate[0]);
+  this->Internal->LidarPitchSpinBox->setValue(rotate[1]);
+  this->Internal->LidarYawSpinBox->setValue(rotate[2]);
+
+  if(GPSProxy && IsPositionOrientationProxy(GPSProxy))
+  {
+    this->Internal->EnableInterpretGPSPackets->setChecked(true);
+
+    int gpsPort = vtkSMPropertyHelper(GPSProxy->GetProperty("ListeningPort")).GetAsInt();
+    this->Internal->GPSPortSpinBox->setValue(gpsPort);
+
+    int gpsForwardingPort = vtkSMPropertyHelper(GPSProxy->GetProperty("ForwardedPort")).GetAsInt();
+    this->Internal->GPSForwardingPortSpinBox->setValue(gpsForwardingPort);
+
+    std::vector<double> gpsTranslate;
+    std::vector<double> gpsRotate;
+    GetInterpreterTransform(GPSProxy, gpsTranslate, gpsRotate);
+    assert(gpsTranslate.size() == 3);
+    assert(gpsRotate.size() == 3);
+    this->Internal->GpsXSpinBox->setValue(gpsTranslate[0]);
+    this->Internal->GpsYSpinBox->setValue(gpsTranslate[1]);
+    this->Internal->GpsZSpinBox->setValue(gpsTranslate[2]);
+    this->Internal->GpsRollSpinBox->setValue(gpsRotate[0]);
+    this->Internal->GpsPitchSpinBox->setValue(gpsRotate[1]);
+    this->Internal->GpsYawSpinBox->setValue(gpsRotate[2]);
+  }
+  else
+  {
+    this->Internal->EnableInterpretGPSPackets->setChecked(false);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -485,6 +628,8 @@ void vvCalibrationDialog::setDefaultConfiguration()
   this->Internal->ipAddresslineEdit->setText(defaultIpAddress);
   this->Internal->AdvancedConfiguration->setChecked(false);
   this->Internal->EnableForwardingCheckBox->setChecked(false);
+  this->Internal->CrashAnalysisCheckBox->setChecked(false);
+  this->Internal->EnableInterpretGPSPackets->setChecked(false);
   // lidar orientation values
   this->Internal->LidarPitchSpinBox->setValue(defaultSensorValue);
   this->Internal->LidarYawSpinBox->setValue(defaultSensorValue);
@@ -521,6 +666,12 @@ QString vvCalibrationDialog::selectedCalibrationFile() const
 bool vvCalibrationDialog::isCrashAnalysing() const
 {
   return this->Internal->CrashAnalysisCheckBox->isChecked();
+}
+
+//-----------------------------------------------------------------------------
+bool vvCalibrationDialog::isEnableInterpretGPSPackets() const
+{
+  return this->Internal->EnableInterpretGPSPackets->isChecked();
 }
 
 //-----------------------------------------------------------------------------
@@ -726,6 +877,8 @@ void vvCalibrationDialog::accept()
   this->Internal->saveAdvancedConfiguration();
   this->Internal->saveForwardIpAddress();
   this->Internal->saveIsCrashAnalysing();
+  this->Internal->saveEnableInterpretGPSPackets();
+
   QDialog::accept();
 }
 
@@ -742,9 +895,8 @@ void vvCalibrationDialog::addFile()
     this->Internal->Settings->value("LidarPlugin/OpenData/DefaultDir", QDir::homePath())
       .toString();
 
-  QString selectedFiler("*.xml");
   QString fileName = QFileDialog::getOpenFileName(
-    this, tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)"), &selectedFiler);
+    this, tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)"));
 
   if (fileName.isEmpty())
   {

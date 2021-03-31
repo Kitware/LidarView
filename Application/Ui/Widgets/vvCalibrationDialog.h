@@ -17,12 +17,15 @@
 #include <QDialog>
 #include <QMatrix4x4>
 
+class vtkSMProxy;
 class vvCalibrationDialog : public QDialog
 {
   Q_OBJECT
 
 public:
   vvCalibrationDialog(QWidget* p = 0);
+  vvCalibrationDialog(vtkSMProxy * lidarProxy, vtkSMProxy * GPSProxy, QWidget* p = 0);
+
   virtual ~vvCalibrationDialog();
 
   Q_INVOKABLE QString selectedCalibrationFile() const;
@@ -55,6 +58,7 @@ public:
   Q_INVOKABLE int gpsForwardingPort() const;
   Q_INVOKABLE bool isForwarding() const;
   Q_INVOKABLE bool isCrashAnalysing() const;
+  Q_INVOKABLE bool isEnableInterpretGPSPackets() const;
   Q_INVOKABLE QString ipAddressForwarding() const;
 
 protected:

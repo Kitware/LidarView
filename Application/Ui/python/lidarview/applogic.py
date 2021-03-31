@@ -271,6 +271,9 @@ def getReaderFileName():
     return filename[0] if isinstance(filename, servermanager.FileNameProperty) else filename
 
 
+def setDefaultSaveName(defaultSaveName):
+  app.DefaultSaveName = defaultSaveName
+
 def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
 
     sensor = getSensor()
@@ -309,6 +312,7 @@ def chooseCalibration(calibrationFilename=None):
             self.sensorTransform = vtk.vtkTransform()
             self.gpsTransform = vtk.vtkTransform()
             self.isCrashAnalysing = dialog.isCrashAnalysing()
+            self.isEnableInterpretGPSPackets = dialog.isEnableInterpretGPSPackets()
 
             qm = dialog.sensorTransform()
             vmLidar = vtk.vtkMatrix4x4()
@@ -340,47 +344,22 @@ def chooseCalibration(calibrationFilename=None):
         return result
 
 
-def openSensor():
+def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
-    calibration = chooseCalibration()
-    if not calibration:
-        return
+    sensor = smp.FindSource(lidarProxyName)
 
-    calibrationFile = calibration.calibrationFile
-    sensorTransform = calibration.sensorTransform
-    LidarPort = calibration.lidarPort
-    GPSPort = calibration.gpsPort
-    LIDARForwardingPort = calibration.lidarForwardingPort
-    GPSForwardingPort = calibration.gpsForwardingPort
-    isForwarding = calibration.isForwarding
-    ipAddressForwarding = calibration.ipAddressForwarding
+    if not app.grid :
+        app.grid = createGrid()
 
-    close()
-    app.grid = createGrid()
+    sensor.Interpreter.UseIntraFiringAdjustment = app.actions['actionIntraFiringAdjust'].isChecked()
+    sensor.Interpreter.IgnoreZeroDistances = app.actions['actionIgnoreZeroDistances'].isChecked()
+    sensor.Interpreter.HideDropPoints = app.actions['actionHideDropPoints'].isChecked()
+    sensor.Interpreter.IgnoreEmptyFrames = app.actions['actionIgnoreEmptyFrames'].isChecked()
 
-    sensor = smp.LidarStream(guiName='Data', CalibrationFile=calibrationFile)
-    sensor.ListeningPort = LidarPort
-    sensor.ForwardedPort = LIDARForwardingPort
-    sensor.IsForwarding = isForwarding
-    sensor.IsCrashAnalysing = calibration.isCrashAnalysing
-    sensor.ForwardedIpAddress = ipAddressForwarding
-
-    # Change the default interpreter if the pcap is a Velodyne one
-    if calibrationFile.endswith('.xml'):
-        sensor.Interpreter = 'Velodyne Meta Interpreter'
-
-    sensor.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
     sensor.UpdatePipeline()
-    sensor.Start()
 
-    posOrSensor = smp.PositionOrientationStream(guiName='Position Orientation Data')
-    posOrSensor.ListeningPort = GPSPort
-    posOrSensor.ForwardedPort = GPSForwardingPort
-    posOrSensor.IsForwarding = isForwarding
-    posOrSensor.ForwardedIpAddress = ipAddressForwarding
-    posOrSensor.IsCrashAnalysing = calibration.isCrashAnalysing
-    posOrSensor.UpdatePipeline()
-    posOrSensor.Start()
+    if gpsProxyName:
+        app.position = smp.FindSource(gpsProxyName)
 
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(sensor)
@@ -388,8 +367,10 @@ def openSensor():
     smp.GetActiveView().ViewTime = 0.0
 
     app.sensor = sensor
+
     app.trailingFramesSpinBox.enabled = False
     app.colorByInitialized = False
+    LidarPort = sensor.GetClientSideObject().GetListeningPort()
     app.filenameLabel.setText('Live sensor stream (Port:'+str(LidarPort)+')' )
     app.positionPacketInfoLabel.setText('')
     enableSaveActions()
@@ -490,53 +471,48 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
         prep = smp.Show(processor)
     app.scene.UpdateAnimationUsingDataTimeSteps()
 
-    if positionFilename is None:
+    if calibration.isEnableInterpretGPSPackets :
         posreader = smp.PositionOrientationReader(guiName='Position Orientation Data', FileName = filename)
-        # wrapping not currently working for plugins:
-        # posreader.GetClientSideObject().SetShouldWarnOnWeirdGPSData(app.geolocationToolBar.visible)
-    else:
-        posreader = smp.ApplanixPositionReader(guiName="Position",
-                                               FileName=positionFilename)
 
-    # wrapping not currently working for plugins:
-    # posreader.GetClientSideObject().SetCalibrationTransform(calibration.gpsTransform)
-    smp.Show(posreader)
+        # wrapping not currently working for plugins:
+        #posreader.GetClientSideObject().SetCalibrationTransform(calibration.gpsTransform)
+        smp.Show(posreader)
+
+        if positionFilename is None:
+            # only VelodyneHDLReader provides this information
+            # this information must be read after an update
+            # GetTimeSyncInfo() has the side effect of showing a message in the error
+            # console in the cases where the timeshift if computed
+            # wrapping not currently working for plugins:
+            # app.positionPacketInfoLabel.setText(posreader.GetClientSideObject().GetTimeSyncInfo())
+            pass
+
+        output0 = posreader.GetClientSideObject().GetOutput(0)
+        if output0.GetNumberOfPoints() != 0:
+
+            output1 = posreader.GetClientSideObject().GetOutputDataObject(1)
+            trange = output1.GetColumnByName("time").GetRange()
+
+            # Setup scalar bar
+            rep = smp.GetDisplayProperties(posreader)
+            rep.ColorArrayName = 'time'
+            rgbPoints = [trange[0], 0.0, 0.0, 1.0,
+                         trange[1], 1.0, 0.0, 0.0]
+            rep.LookupTable = smp.GetLookupTableForArray('time', 1,
+                                                         RGBPoints=rgbPoints,
+                                                         ScalarRangeInitialized=1.0)
+            sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
+            sb.Orientation = 'Horizontal'
+            app.position = posreader
+            if not app.actions['actionShowPosition'].isChecked():
+                smp.Hide(app.position)
+        else:
+            if positionFilename is not None:
+                QtGui.QMessageBox.warning(getMainWindow(), 'Georeferencing data invalid',
+                                          'File %s is empty or not supported' % positionFilename)
+            smp.Delete(posreader)
+
     smp.Show(app.trailingFrame)
-
-    if positionFilename is None:
-        # only VelodyneHDLReader provides this information
-        # this information must be read after an update
-        # GetTimeSyncInfo() has the side effect of showing a message in the error
-        # console in the cases where the timeshift if computed
-        # wrapping not currently working for plugins:
-        # app.positionPacketInfoLabel.setText(posreader.GetClientSideObject().GetTimeSyncInfo())
-        pass
-
-
-    pointsOutput = posreader.GetClientSideObject().GetOutput(0)
-    if pointsOutput.GetNumberOfPoints() != 0:
-        rawOutput = posreader.GetClientSideObject().GetOutputDataObject(1)
-        trange = rawOutput.GetColumnByName("time").GetRange()
-
-        # Setup scalar bar
-        rep = smp.GetDisplayProperties(posreader)
-        rep.ColorArrayName = 'time'
-        rgbPoints = [trange[0], 0.0, 0.0, 1.0,
-                     trange[1], 1.0, 0.0, 0.0]
-        rep.LookupTable = smp.GetLookupTableForArray('time', 1,
-                                                     RGBPoints=rgbPoints,
-                                                     ScalarRangeInitialized=1.0)
-        sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
-        sb.Orientation = 'Horizontal'
-        app.position = posreader
-        if not app.actions['actionShowPosition'].isChecked():
-            smp.Hide(app.position)
-    else:
-        if positionFilename is not None:
-            QtGui.QMessageBox.warning(getMainWindow(), 'Georeferencing data invalid',
-                                      'File %s is empty or not supported' % positionFilename)
-        smp.Delete(posreader)
-
     smp.SetActiveView(app.mainView)
 
     colorByIntensity(app.trailingFrame)
@@ -1612,7 +1588,6 @@ def setupActions():
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
     app.actions['actionExport_To_KiwiViewer'].connect('triggered()', onKiwiViewerExport)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
-    app.actions['actionChoose_Calibration_File'].connect('triggered()', onChooseCalibrationFile)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
     app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)

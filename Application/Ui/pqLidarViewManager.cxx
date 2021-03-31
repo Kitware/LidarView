@@ -374,12 +374,6 @@ void pqLidarViewManager::onMeasurementGrid(bool gridVisible)
 }
 
 //-----------------------------------------------------------------------------
-void pqLidarViewManager::onOpenSensor()
-{
-  this->runPython("lv.openSensor()\n");
-}
-
-//-----------------------------------------------------------------------------
 pqServer* pqLidarViewManager::getActiveServer()
 {
   pqApplicationCore* app = pqApplicationCore::instance();
