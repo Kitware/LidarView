@@ -7,7 +7,7 @@
 # here https://gitlab.kitware.com/cmake/cmake/-/issues/19315).
 
 # This script change paths for all boost dependencies from libboost_* to @rpath/libboost_* 
-message(WARNING "Applying Reset rpath for all boost dependencies path")
+message(STATUS "Applying Reset rpath for all boost dependencies path")
 get_filename_component(install_location "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
 # get a list of all boost lib used 
