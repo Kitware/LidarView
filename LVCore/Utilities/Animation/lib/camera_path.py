@@ -17,7 +17,7 @@ each camera path need to be coherent.
 """
 
 # Global variable defining the orientation of the camera w.r.t the lidar
-R_cam_to_lidar = Rotation.from_dcm(np.eye(3))	# identity by default
+R_cam_to_lidar = Rotation.from_matrix(np.eye(3))  # identity by default
 
 # Example calibration la-doua car
 # R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
