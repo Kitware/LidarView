@@ -129,7 +129,7 @@ workflow:
     - cd $lidarview_build_dir
     # in some occasion, the machine on which the runner run can be under heavily load
     # this may caused some failure (ex: Stream tests), so rerun the failing test
-    - ctest --timeout 60 --repeat until-pass:3
+    - ctest --timeout 120 --repeat until-pass:3
 
 .package:
   stage: package
