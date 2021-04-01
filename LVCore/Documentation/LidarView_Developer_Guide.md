@@ -21,38 +21,44 @@
 
 ## LidarView dependencies <a name="dependencies"></a>
 The LidarView application and libraries have several external library dependencies. As explained in the [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
+Below is a non-comprehensive list of LidarView's main dependencies:
 
-### PCAP library <a name="pcap-library"></a>
+ - **PCAP library** <a name="pcap-library"></a>
+
 The required pcap version is 1.4.
 Pcap is required to support saving captured packets to a file, and reading files containing saved packets.
 On Mac/Linux, only *libpcap* is required.
 On Windows, we use the *winpcap* project which includes *libpcap* but also includes Windows specific drivers. Since the winpcap project only provides Visual Studio project files, which may be out dated, the superbuild does not attempt to compile winpcap. Instead, a git repository containing headers and precompiled *.lib* and *.dll* files is used. The repository url is https://github.com/patmarion/winpcap.
 
-### Boost library <a name="boost-library"></a>
+ - **Boost library** <a name="boost-library"></a>
+
 The required boost version is 1.66.
 Boost is used for threading and synchronization, network communication and handling of the filesystem.
 
-### Qt library <a name="qt-library"></a>
+ - **Qt library** <a name="qt-library"></a>
+
 The required Qt version is 5.10.1
 Qt is a desktop widget library that is used to provide user interface elements like windows and menus across the supported platforms Windows, Mac, and Linux.
 
-### Python <a name="python"></a>
+ - **Python** <a name="python"></a>
+
 The required Python version is 3.7.
 LidarView uses libpython to embed a Python interpreter in the LidarView application.
 The core LidarView features are implemented in C++ libraries, and the libraries are wrapped for Python using VTK's Python wrapping tools.
 
-### PythonQt <a name="python-qt-library"></a>
+ - **PythonQt** <a name="python-qt-library"></a>
+
 PythonQt version is "patch_8" (see Superbuild/version.txt).
 PythonQt is used to build Qt applications using Python.
 PythonQt has support for wrapping types derived from Qt objects and VTK objects.
 
-### Paraview (and VTK) <a name="paraview-vtk"></a>
+ - **Paraview (and VTK)** <a name="paraview-vtk"></a>
+
 The required ParaView version is 5.6.
 The required VTK version is 8.1.
 The ParaView repository includes VTK, so the superbuild only needs to checkout and build ParaView in order to satisfy both dependencies.
 A specific git commit sha1 is used instead of a specific released version.
-The commit sha1 is very similar to the version 4.0 release but it has a few commits from the ParaView master branch cherry-picked onto it.
-The commits added are those that resolve some issues with the Python console and add the PythonQtPlugin for ParaView.
+The commit sha1 is very similar to the release version but with a few commits from the ParaView master branch cherry-picked onto it.
 The PythonQtPlugin is a small plugin that initializes the PythonQt library and makes it available in the ParaView Python console.
 
 ## Configure and build instructions <a name="configure-build"></a>
@@ -60,8 +66,8 @@ The LidarView software is hosted in git repositories that live on github.com (pu
 
 ### Superbuild Overview <a name="superbuild-overview"></a>
 LidarView can use a cmake *superbuild* to download and compile third party projects that are dependencies of LidarView.
-The superbuild is not mandatory but it is recommended. It eases building a lot for new developers.
-The superbuild will give you the option to use system installations of third party projects instead of compiling them as a superbuild step.
+The superbuild is not mandatory but it is recommended as it eases dependency management and build workflow.
+The superbuild will **give you the option to use system installations of third party projects instead of compiling them as a superbuild step**.
 Some dependencies, on certain platforms, must be compiled by the superbuild, and for them there is no option to use a system version.
 
 ### Windows dependencies <a name="windows-dependencies"></a>
