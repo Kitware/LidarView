@@ -7,3 +7,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${LidarView_CMAKE_DIR})
 
 # we include the module that allow us to configure the Lidarview project
 include(SetupLidarviewProject)
+
+# custom code here
+# ...
+
+# Must be invoked Last
+include(FinalizeLidarViewProject)
