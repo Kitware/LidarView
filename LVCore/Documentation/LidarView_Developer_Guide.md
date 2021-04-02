@@ -189,13 +189,13 @@ The following packages are needed to build on Ubuntu 16.04:
 
     `git clone <git url to LidarView repository> --recursive LidarView-source`
 
-    * Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 3. and 4.).
+    Note: Moving this directoy in the future will break all build environnements that were using it (you will have to redo steps 3. and 4.).
 
 2. Create a new directory to store the build.
 
     `mkdir <work-directory>/LidarView-build`
 
-    * **This directory must not be inside the LidarView source code directory**
+    * **This directory must not be inside the LidarView-source code directory**
 
 3. Configure the build by entering:
 
