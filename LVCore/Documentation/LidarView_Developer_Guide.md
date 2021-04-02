@@ -1,25 +1,37 @@
 # LidarView Developer Guide
 
-1. [LidarView dependencies](#dependencies)
-    1. [PCAP library](#pcap-library)
-    2. [Boost library](#boost-library)
-    3. [Qt library](#qt-library)
-    4. [Python](#python)
-    5. [Python Qt library](#python-qt-library)
-    6. [Paraview and VTK](#paraview-vtk)
-2. [Configure and build instructions](#configure-build)
+1. [LidarView Compilation Overview](#lv-compilation-overview)
     1. [Superbuild Overview](#superbuild-overview)
-    2. [Windows dependencies](#windows-dependencies)
-    3. [Windows build instructions](#windows-build-instructions)
-    4. [Linux dependencies](#linux-dependencies)
-    5. [Linux build instructions](#linux-build-instructions)
-    6. [Enabling additional LidarView features](#enabling-additional-lidarview-features)
-3. [Packaging instructions](#packaging)
-4. [Troubleshooting](#troubleshooting)
+    2. [LidarView dependencies](#dependencies)
+        1. [PCAP library](#pcap-library)
+        2. [Boost library](#boost-library)
+        3. [Qt library](#qt-library)
+        4. [Python](#python)
+        5. [Python Qt library](#python-qt-library)
+        6. [Paraview and VTK](#paraview-vtk)
+2. [Configure and build instructions](#configure-build)
+    1. [Windows Instructions](#windows-instructions)
+        1. [Windows dependencies](#windows-dependencies)
+        2. [Windows build instructions](#windows-build-instructions)
+    2. [Linux Instructions](#linux-instructions)
+        1. [Linux dependencies](#linux-dependencies)
+        2. [Linux build instructions](#linux-build-instructions)
+    3. [Apple Instructions](#apple-instructions)
+3. [Enabling additional LidarView features](#enabling-additional-lidarview-features)
+4. [Packaging instructions](#packaging)
+5. [Troubleshooting](#troubleshooting)
     1. [Superbuild failure with PCL enabled](#superbuild-failure-with-pcl-enabled)
     2. [Using superbuild with system-wide Boost install](#using-superbuild-with-system-wide-boost-install)
 
-## LidarView dependencies <a name="dependencies"></a>
+## LidarView Compilation Overview <a name="lv-compilation-overview"></a>
+
+### Superbuild Overview <a name="superbuild-overview"></a>
+LidarView can use a cmake *superbuild* to download and compile third party projects that are dependencies of LidarView.
+The superbuild is not mandatory but it is recommended as it eases dependency management and build workflow.
+The superbuild will **give you the option to use system installations of third party projects instead of compiling them as a superbuild step**.
+Some dependencies, on certain platforms, must be compiled by the superbuild, and for them there is no option to use a system version.
+
+### LidarView dependencies <a name="dependencies"></a>
 The LidarView application and libraries have several external library dependencies. As explained in the [Superbuild Overview](#superbuild-overview), **most of the dependencies will be downloaded and compiled automatically** during the build step. See [Configure and build instructions](#configure-build).
 Below is a non-comprehensive list of LidarView's main dependencies:
 
@@ -64,13 +76,9 @@ The PythonQtPlugin is a small plugin that initializes the PythonQt library and m
 ## Configure and build instructions <a name="configure-build"></a>
 The LidarView software is hosted in git repositories that live on github.com (public version) and gitlab.kitware.com (internal version).
 
-### Superbuild Overview <a name="superbuild-overview"></a>
-LidarView can use a cmake *superbuild* to download and compile third party projects that are dependencies of LidarView.
-The superbuild is not mandatory but it is recommended as it eases dependency management and build workflow.
-The superbuild will **give you the option to use system installations of third party projects instead of compiling them as a superbuild step**.
-Some dependencies, on certain platforms, must be compiled by the superbuild, and for them there is no option to use a system version.
+### Windows Instructions <a name="windows-instructions"></a>
 
-### Windows dependencies <a name="windows-dependencies"></a>
+#### Windows dependencies <a name="windows-dependencies"></a>
 - **CMake version 3.18.2** is confirmed to work, CMake is available at <https://cmake.org/>. Lower versions may not work (especially, avoid versions 3.17.4, 3.18.0 and 3.18.1 which may be incompatible with Paraview and thus LidarView, more info [here](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/5094)), higher versions will work.
 - **ninja version 1.8.2** or higher, available at <https://github.com/ninja-build/ninja/releases>. There is no installer for this tool. You must extract the binary *ninja.exe* from *ninja-win.zip* and place it inside a directory that is inside your `%PATH%` environnement variable, such as `C:\Windows`.
 - **Microsoft Visual Studio** ***14*** (2015) **Express** ("Desktop"). You can use this link to download the installer: <http://go.microsoft.com/fwlink/?LinkId=615464> This installer is pretty simple (no special options).
@@ -78,7 +86,7 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 - **Qt 5.10.1** *(this dependency will be built automatically in the future)*. You can download the installer here: <http://download.qt.io/new_archive/qt/5.10/5.10.1/qt-opensource-windows-x86-5.10.1.exe>. When installing you can keep the suggested installation path. Here is a walkthrough of the installer:  click "Next" > "Skip" > "Next" > keep default install path (advised) and click "Next" > Unfold "Qt" then unfold "Qt 5.10.1" and tick "**MSVC 2015 64-bits**" then click "Next" > "Next" > "Install" > wait for it to install then click "Next" > untick "Launch Qt Creator" and click "Finish".
 - [only for packaging] **NSIS version 3.04** is confirmed to work, NSIS is available at <https://nsis.sourceforge.io/Download>.
 
-### Windows build instructions <a name="windows-build-instructions"></a>
+#### Windows build instructions <a name="windows-build-instructions"></a>
 
 1. Create or go to a work directory where you will save LidarView sources and build directories.
 
@@ -150,36 +158,30 @@ Some dependencies, on certain platforms, must be compiled by the superbuild, and
 
     `git submodule update --init --recursive`
 
-### Linux dependencies <a name="linux-dependencies"></a>
+### Linux Instructions <a name="linux-instructions"></a>
+
+#### Linux dependencies <a name="linux-dependencies"></a>
 The following packages are needed to build on Ubuntu 16.04:
 
-- build-essential
 - **CMake version 3.12 or higher** is needed. As the `cmake` package available from Ubuntu 16.04 is not compatible, you need to get a supported version at <https://cmake.org/>.
+- build-essential
 - git
-- flex
-- byacc
-- python-minimal
+- flex byacc
 - python3.7-dev
-- libxext-dev
-- libxt-dev
-- libbz2-dev
-- zlib1g-dev
+- libxext-dev libxt-dev
+- libbz2-dev zlib1g-dev
 - freeglut3-dev
 - pkg-config
 
-#### If using qt5 system:
-- qtbase5-dev
-- qtmultimedia5-dev
-- qttools5-dev
-- qtbase5-private-dev
-- libqt5x11extras5-dev
+**If using qt5 system:**
 
-#### If opencv if enabled:
-- libavformat-dev
-- libavdevice-dev
-- libavcodec-dev
+- qtbase5-dev qtmultimedia5-dev qttools5-dev qtbase5-private-dev libqt5x11extras5-dev
 
-### Linux build instructions <a name="linux-build-instructions"></a>
+**If opencv if enabled:**
+
+- libavformat-dev libavdevice-dev libavcodec-dev
+
+#### Linux build instructions <a name="linux-build-instructions"></a>
 
 1. Clone LidarView's source code repository to a directory of your chosing, for example:
 
@@ -226,7 +228,9 @@ The following packages are needed to build on Ubuntu 16.04:
 
     `git submodule update --init --recursive`
 
-### Enabling additional LidarView features
+### Apple Instructions <a name="apple-instructions"></a>
+
+## Enabling additional LidarView features <a name="enabling-additional-lidarview-features"></a>
 
 The command presented in step Windows/6 or Linux/3 enables basic LidarView features, which use basic dependencies.
 To enable more features that rely on additional external libraries, you can use the `ENABLE_<lib>=True` flags. This will download and install the required dependencies, and enable the corresponding LidarView features.
