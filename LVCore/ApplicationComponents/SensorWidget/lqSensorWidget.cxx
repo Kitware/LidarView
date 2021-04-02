@@ -10,6 +10,8 @@
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 
+#include "vtkLidarStream.h"
+
 #include <cassert>
 
 //-----------------------------------------------------------------------------
@@ -178,11 +180,28 @@ void lqSensorWidget::onUpdateUI()
   vtkSMProxy * lidarProxy = this->LidarSource->getProxy();
   vtkSMProperty * lidarPropListeningPort= lidarProxy->GetProperty("ListeningPort");
   QString lidarListeningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(lidarPropListeningPort).GetAsInt()));
+  vtkSMProperty * lidarPropCalibName = lidarProxy->GetProperty("CalibrationFileName");
+  QString lidarCalibName = QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
 
-  QString lidarName = "Name: " + this->LidarSource->getSMName();
+  QString lidarName = this->LidarSource->getSMName();
   QString lidarPort = "Port: " + lidarListeningPort;
+  QString calibrationFileName = "Calibration Filename: " + lidarCalibName;
   this->UI->lidarName->setText(lidarName);
   this->UI->lidarPort->setText(lidarPort);
+  this->UI->CalibrationFile->setText(calibrationFileName);
+
+  // Get the Sensor Information with the vtkLidarStream
+  // We can not get the sensor information using the proxy
+  // because this is not working if the method called have arguments (even if we don't want to specfy it)
+  // And we want to have the shortVersion = True.
+  vtkLidarStream * lidarStream = vtkLidarStream::SafeDownCast(lidarProxy->GetClientSideObject());
+  if(!lidarStream)
+  {
+    return;
+  }
+  QString lidarSensorInfo = QString::fromStdString(lidarStream->GetSensorInformation(true));
+  QString sensorInfo = "Sensor Information: " + lidarSensorInfo;
+  this->UI->SensorInformation->setText(sensorInfo);
 
   // Update UI with Position Orientation information
   if(this->PositionOrientationSource)
@@ -191,7 +210,7 @@ void lqSensorWidget::onUpdateUI()
     vtkSMProperty * posOrPropListeningPort= posOrProxy->GetProperty("ListeningPort");
     QString posOrlisteningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(posOrPropListeningPort).GetAsInt()));
 
-    QString posOrName = "Name: " + this->PositionOrientationSource->getSMName();
+    QString posOrName = this->PositionOrientationSource->getSMName();
     QString posOrPort = "Port: " + posOrlisteningPort;
     this->UI->posOrName->setText(posOrName);
     this->UI->posOrPort->setText(posOrPort);
