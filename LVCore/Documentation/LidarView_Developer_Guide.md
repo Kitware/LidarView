@@ -74,7 +74,6 @@ The commit sha1 is very similar to the release version but with a few commits fr
 The PythonQtPlugin is a small plugin that initializes the PythonQt library and makes it available in the ParaView Python console.
 
 ## Configure and build instructions <a name="configure-build"></a>
-The LidarView software is hosted in git repositories that live on github.com (public version) and gitlab.kitware.com (internal version).
 
 ### Windows Instructions <a name="windows-instructions"></a>
 
