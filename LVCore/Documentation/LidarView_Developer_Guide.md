@@ -158,6 +158,8 @@ The LidarView software is hosted in git repositories that live on github.com (pu
 
     `git submodule update --init --recursive`
 
+---
+
 ### Linux Instructions <a name="linux-instructions"></a>
 
 #### Linux dependencies <a name="linux-dependencies"></a>
@@ -227,6 +229,8 @@ The following packages are needed to build on Ubuntu 16.04:
     `git checkout <branch>`
 
     `git submodule update --init --recursive`
+
+---
 
 ### Apple Instructions <a name="apple-instructions"></a>
 
