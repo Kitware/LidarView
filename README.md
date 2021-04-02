@@ -36,31 +36,11 @@ As a [Paraview](https://www.paraview.org/) based application, LidarView can effo
 # How to Get
 Lidarview has been tested on the following platforms:
 
-* Ubuntu  18
+* Ubuntu  18, Ubuntu 20
 * Windows x64
 * MacOS 10.10
 
-It may be possible to build under Ubuntu 20, provided that Qt5.10 is built from source and other details taken care of.
-
-## Binary Releases - LidarView v1.4.1
-
-### Linux ([Download Link](http://www.example.org))
-
-Dependencies:
-
-* Qt5.12 - [Installer](http://download.qt.io/official_releases/qt/5.12/5.12.10/qt-opensource-linux-x64-5.12.10.run)
-
-### Windows x64 ([Download Link](http://www.example.org))
-
-Dependencies:
-
-* Qt5.12 - [Installer](http://download.qt.io/official_releases/qt/5.12/5.12.10/qt-opensource-windows-x86-5.12.10.exe)
-
-### MacOS ([Download Link](http://www.example.org))
-
-Dependencies:
-
-* Qt5.12 - [Installer](http://download.qt.io/official_releases/qt/5.12/5.12.10/qt-opensource-mac-x64-5.12.10.dmg)
+See Download Links and Instructions in the [RELEASES.md](RELEASES.md)
 
 ## Build from source
 
