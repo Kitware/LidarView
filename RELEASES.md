@@ -32,8 +32,6 @@
 
 **Runtime Dependencies:**
 
-
-
 ### Windows x64 ([Download Link](http://www.example.org))
 
 **Runtime Dependencies:**
@@ -47,3 +45,12 @@
 * Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
 
 * Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+
+### Troubleshooting 
+
+**Graphic Bug with interleaved horizontal greenlines**
+Simillar problem to [this](https://discourse.slicer.org/t/green-horizontal-lines-appear-in-slicer-4-10-2-at-startup/12090).
+This occurs on Windows with NVIDIA Optimus mobile (Laptops) graphic cards.
+
+- Update you Drivers (Use NVIDIA Geforce Experience)
+- Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
