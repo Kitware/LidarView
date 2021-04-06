@@ -56,3 +56,6 @@ This occurs on Windows with NVIDIA Optimus mobile (Laptops) graphic cards.
 
 - Update you Drivers (Use NVIDIA Geforce Experience)
 - Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
+
+**There is no application installed for "shared library" files**
+This is a Nautilus configuration bug on Ubuntu, just launch via terminal using `./LidarView`
