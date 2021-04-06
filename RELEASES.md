@@ -1,8 +1,10 @@
 # LidarView Releases
 
+See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
+
 ## LidarView v1.4.1
 
-### Ubuntu 20.04 ([Download Link](http://www.example.org))
+### Ubuntu 20.04
 
 **Runtime Dependencies:**
 
@@ -28,17 +30,17 @@
   
 * Required packages: `libopengl0`
 
-### Ubuntu 18 ([Download Link](http://www.example.org))
+### Ubuntu 18
 
 **Runtime Dependencies:**
 
-### Windows x64 ([Download Link](http://www.example.org))
+### Windows x64
 
 **Runtime Dependencies:**
 
 * No dependencies required
 
-### MacOS ([Download Link](http://www.example.org))
+### MacOS
 
 **Runtime Dependencies:**
 

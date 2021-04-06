@@ -40,7 +40,9 @@ Lidarview has been tested on the following platforms:
 * Windows x64
 * MacOS 10.10
 
-See Download Links and Instructions in the [RELEASES.md](RELEASES.md)
+See Detailed Instructions in the [RELEASES.md](RELEASES.md).
+
+See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
 
 ## Build from source
 
