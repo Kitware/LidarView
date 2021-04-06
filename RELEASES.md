@@ -6,7 +6,7 @@
 
 **Runtime Dependencies:**
 
-* Qt5.12 - [Installer](http://download.qt.io/official_releases/qt/5.12/5.12.10/qt-opensource-linux-x64-5.12.10.run)
+* Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
 
     Run the installer offline to alleviate the need to register
     
@@ -19,6 +19,8 @@
     * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
     
 * Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+
+    Packages `build-essentials, zlib1g-dev` are required to build python
 
     Build and install with this oneliner:
     
