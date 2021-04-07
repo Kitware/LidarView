@@ -7,10 +7,6 @@
 #include <QString>
 #include <QObject>
 
-#include "vtkLidarReader.h"
-#include "vtkLidarStream.h"
-#include "vtkPositionOrientationPacketReader.h"
-#include "vtkPositionOrientationStream.h"
 #include <vtkSMSessionProxyManager.h>
 #include <vtkSMBooleanDomain.h>
 #include <vtkSMPropertyIterator.h>
@@ -19,26 +15,8 @@
 #include <vtkSMSessionProxyManager.h>
 #include <vtkPVProxyDefinitionIterator.h>
 
-#include <pqApplicationCore.h>
-#include <pqServerManagerModel.h>
-
 #include <cstring>
 #include <iostream>
-
-//-----------------------------------------------------------------------------
-template<typename T>
-bool IsProxy(vtkSMProxy * proxy)
-{
-  if(proxy != nullptr)
-  {
-    auto* tmp_objProxy= dynamic_cast<T> (proxy->GetClientSideObject());
-    if (tmp_objProxy)
-    {
-      return true;
-    }
-  }
-  return false;
-}
 
 //-----------------------------------------------------------------------------
 bool IsPositionOrientationStream(pqPipelineSource* src)
@@ -380,5 +358,18 @@ void DisplayDialogOnActiveWindow(QDialog & dialog)
                          availableScreenGeometry.y() + 100,
                          oldGeometry.width(), oldGeometry.height());
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void GetAllLinkedSources(pqPipelineSource * originSource,
+                         QSet<pqPipelineSource*>& consumerListSources)
+{
+  // Get all consumers: sources that are directly link to the originSource output
+  QList<pqPipelineSource*> subSources = originSource->getAllConsumers();
+  foreach (pqPipelineSource* src, subSources)
+  {
+    consumerListSources.insert(src);
+    GetAllLinkedSources(src, consumerListSources);
   }
 }

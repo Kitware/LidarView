@@ -1,10 +1,18 @@
 #ifndef LQHELPER_H
 #define LQHELPER_H
 
+#include <pqApplicationCore.h>
+#include <pqDeleteReaction.h>
 #include <pqPipelineSource.h>
+#include <pqServerManagerModel.h>
 #include <vtkSMProperty.h>
 #include <vtkSMProxy.h>
 #include <vtkSmartPointer.h>
+
+#include "vtkLidarReader.h"
+#include "vtkLidarStream.h"
+#include "vtkPositionOrientationPacketReader.h"
+#include "vtkPositionOrientationStream.h"
 
 #include <vector>
 
@@ -160,4 +168,48 @@ void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
  */
 void DisplayDialogOnActiveWindow(QDialog & dialog);
 
+/**
+ * @brief GetAllLinkedSources add recursively all consumers
+ *        (sources that are directly linked to a sources) of originSource
+ * @param originSource the source we want to list recursively all consumers
+ * @param consumerListSources list where all consumers of originSource will be added
+ */
+void GetAllLinkedSources(pqPipelineSource * originSource,
+                         QSet<pqPipelineSource*>& consumerListSources);
+
+
+template<typename T>
+bool IsProxy(vtkSMProxy * proxy)
+{
+  if(proxy != nullptr)
+  {
+    auto* tmp_objProxy= dynamic_cast<T> (proxy->GetClientSideObject());
+    if (tmp_objProxy)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+template<typename T>
+void RemoveAllProxyTypeFromPipelineBrowser()
+{
+  // We remove all lidarReader and PositionOrientationReader in the pipeline
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  if(smmodel == nullptr)
+  {
+    return;
+  }
+  QSet<pqPipelineSource*> sources;
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    if(IsProxy<T>(src->getProxy()))
+    {
+      GetAllLinkedSources(src, sources);
+      sources.insert(src);
+    }
+  }
+  pqDeleteReaction::deleteSources(sources);
+}
 #endif // LQHELPER_H
