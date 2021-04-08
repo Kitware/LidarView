@@ -91,7 +91,11 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
 
 ### Troubleshooting / FAQ <a name="faq-instructions"></a>
 
-* **Graphic Bug with interleaved horizontal greenlines**
+* **WINDOWS - Unrecognized Publisher**
+
+    Click `More Info -> Run Anyway`
+
+* **WINDOWS - Graphic Bug with interleaved horizontal greenlines**
 
     Simillar problem to [this](https://discourse.slicer.org/t/green-horizontal-lines-appear-in-slicer-4-10-2-at-startup/12090).
     This occurs on Windows with NVIDIA Optimus mobile (Laptops) graphic cards.
@@ -99,10 +103,10 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
     - Update you Drivers (Use NVIDIA Geforce Experience)
     - Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
 
-* **There is no application installed for "shared library" files**
+* **UBUNTU - There is no application installed for "shared library" files**
 
     This is a Nautilus configuration bug on Ubuntu, just launch via terminal using `./LidarView`
 
-* **QT Offline Installer asks for registration**
+* **UBUNTU - QT Offline Installer asks for registration**
 
     Disconnect your internet connection before starting the installer, registration will not be needed
