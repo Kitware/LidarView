@@ -34,6 +34,16 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
 
 **Runtime Dependencies:**
 
+* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+
+    Packages `build-essentials, zlib1g-dev` are required to build python
+
+    Build and install with this oneliner:
+    
+    `./configure --enable-shared && sudo make install`
+  
+* Required packages: `libopengl0`
+
 ### Windows x64
 
 **Runtime Dependencies:**
