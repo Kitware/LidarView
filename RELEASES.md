@@ -42,11 +42,20 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
 
 **Runtime Dependencies:**
 
-* Python 3.7.10, available as packages `sudo apt-get install python3.7-dev`
+* Python 3.7.10, not available as packages, you can get it from the 'deadsnakes' ppa:
+    
+    `sudo add-apt-repository ppa:deadsnakes/ppa`
+    
+    `sudo apt-get install python3.7-dev`
+    
+    (If you wish to build Python3.7.10 from the official source instead, see [Additional Instructions](#python-source))
   
 * Required packages:
-    `sudo apt-get install libopengl0`
 
+    `sudo apt-get install liblapack3`
+
+    `sudo apt-get install libopengl0`
+    
 (Note: this package is forward compatible with Ubuntu 20.04 with minor fixes, see [Additional Instructions](#ubuntu-forward))
 
 ### Additional Instructions <a name="additional-instructions"></a>
@@ -77,15 +86,9 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
         
 * **Using Ubuntu18.04 package on Ubuntu20.04** <a name="ubuntu-forward"></a>
     
-    Required Packages:
-
-    `sudo apt-get install python3.7-dev`
-
-    `sudo apt-get install liblapack3`
-
-    `sudo apt-get install libopengl0`
+    Follow [Ubuntu18.04 Instructions](#ubuntu18-instructions)
     
-    Minor libdouble-conversion version compatibility fix:
+    Fix a minor libdouble-conversion version compatibility issue:
     
     `sudo ln -s /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.1`
 
