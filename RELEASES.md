@@ -11,7 +11,13 @@ Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a m
 
 **Runtime Dependencies:**
 
-* Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
+* Qt5.12.8 - Packages available on ubuntu:
+
+    `sudo apt-get install qt5-default WIPWIP ADD MORE HERE`
+
+If you do not wish to install those packages, you can use the offline installer:
+
+    Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
 
     Run the installer offline to alleviate the need to register
     
