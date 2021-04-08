@@ -79,6 +79,10 @@ calibration file for that sensor needs to be chosen. The calibration
 file can be found on the individual product CD that was provided with the
 HDL-64E sensor.
 
+## SLAM Documentation
+
+More [Instructions](https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md) can be found in the [LidarSlam repository](https://gitlab.kitware.com/keu-computervision/slam)
+
 # Sample Data
 Sample data for LidarView can be obtained from:
 
