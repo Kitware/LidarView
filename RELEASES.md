@@ -7,6 +7,12 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
 Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a minor library version issue is taken care of:
 `"sudo ln -s /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.1"`
 
+### Windows x64
+
+**Runtime Dependencies:**
+
+* No dependencies required
+
 ### Ubuntu 20.04
 
 **Runtime Dependencies:**
@@ -58,12 +64,6 @@ Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a m
         `./configure --enable-shared && sudo make install`
   
 * Required packages: `libopengl0`
-
-### Windows x64
-
-**Runtime Dependencies:**
-
-* No dependencies required
 
 ### Troubleshooting / FAQ
 
