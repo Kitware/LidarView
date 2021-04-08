@@ -29,7 +29,9 @@ If you do not wish to install those packages, you can use the offline installer:
     
     * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
     
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+* Python 3.7.10, not available as packages
+
+    Download [Sources](https://www.python.org/downloads/release/python-3710/)
 
     Packages `build-essentials, zlib1g-dev` are required to build python
 
@@ -43,7 +45,11 @@ If you do not wish to install those packages, you can use the offline installer:
 
 **Runtime Dependencies:**
 
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+* Python 3.7.10, available as packages `sudo apt-get install python3.7-dev`
+
+If you do not wish to install this package, you can build from source:
+
+    Download [Sources](https://www.python.org/downloads/release/python-3710/)
 
     Packages `build-essentials, zlib1g-dev` are required to build python
 
