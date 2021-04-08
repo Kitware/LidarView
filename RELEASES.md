@@ -2,16 +2,67 @@
 
 See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
 
-## LidarView v1.4.1
+## LidarView v4.1.5
 
-Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a minor library version issue is taken care of:
-`"sudo ln -s /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.1"`
+1. [Windows](#windows-instructions)
+2. [Ubuntu20.04](#ubuntu20-instructions)
+3. [Ubuntu18.04](#ubuntu18-instructions)
+4. [Additional Instructions](#additional-instructions)
+5. [Troubleshooting / FAQ ](#faq-instructions)
 
-### Ubuntu 20.04
+### Windows x64 <a name="windows-instructions"></a>
 
 **Runtime Dependencies:**
 
-* Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
+* No dependencies required
+
+### Ubuntu 20.04 <a name="ubuntu20-instructions"></a>
+
+**Runtime Dependencies:**
+
+* Qt5.12.8 - Packages available on ubuntu:
+
+    `sudo apt-get install qt5-default libqt5help5 libqt5x11extras5`
+        
+    (If you do not wish to install those packages, you can use the offline installer, see [Additional Instructions](#qt-installer))
+
+        
+* Python 3.7.10, not available as packages, you can get it from the 'deadsnakes' ppa:
+    
+    `sudo add-apt-repository ppa:deadsnakes/ppa`
+    
+    `sudo apt-get install python3.7-dev`
+    
+    (If you wish to build Python3.7.10 from the official source instead, see [Additional Instructions](#python-source))
+  
+* Required packages:
+    `sudo apt-get install libopengl0`
+
+### Ubuntu 18.04 <a name="ubuntu18-instructions"></a>
+
+**Runtime Dependencies:**
+
+* Python 3.7.10, not available as packages, you can get it from the 'deadsnakes' ppa:
+    
+    `sudo add-apt-repository ppa:deadsnakes/ppa`
+    
+    `sudo apt-get install python3.7-dev`
+    
+    (If you wish to build Python3.7.10 from the official source instead, see [Additional Instructions](#python-source))
+  
+* Required packages:
+
+    `sudo apt-get install liblapack3`
+
+    `sudo apt-get install libopengl0`
+    
+(Note: this package is forward compatible with Ubuntu 20.04 with minor fixes, see [Additional Instructions](#ubuntu-forward))
+
+### Additional Instructions <a name="additional-instructions"></a>
+
+* **QT5.12.8 From Installer** <a name="qt-installer"></a>
+
+    Qt5.12.8 - [Offline Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
 
     Run the installer offline to alleviate the need to register
     
@@ -23,58 +74,48 @@ Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a m
     
     * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
     
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+* **Python3.7.10 build from source** <a name="python-source"></a>
+
+    Download [Sources](https://www.python.org/downloads/release/python-3710/)
 
     Packages `build-essentials, zlib1g-dev` are required to build python
 
     Build and install with this oneliner:
     
     `./configure --enable-shared && sudo make install`
-  
-* Required packages: `libopengl0`
-
-### Ubuntu 18
-
-**Runtime Dependencies:**
-
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
-
-    Packages `build-essentials, zlib1g-dev` are required to build python
-
-    Build and install with this oneliner:
+        
+* **Using Ubuntu18.04 package on Ubuntu20.04** <a name="ubuntu-forward"></a>
     
-    `./configure --enable-shared && sudo make install`
-  
-* Required packages: `libopengl0`
+    Follow [Ubuntu18.04 Instructions](#ubuntu18-instructions)
+    
+    Fix a minor libdouble-conversion version compatibility issue:
+    
+    `sudo ln -s /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.1`
 
-### Windows x64
+### Troubleshooting / FAQ <a name="faq-instructions"></a>
 
-**Runtime Dependencies:**
+* **WINDOWS - Unrecognized Publisher**
 
-* No dependencies required
+    Click `More Info -> Run Anyway`
 
-### MacOS
+* **WINDOWS - Graphic Bug with interleaved horizontal greenlines**
 
-**Runtime Dependencies:**
+    Simillar problem to [this](https://discourse.slicer.org/t/green-horizontal-lines-appear-in-slicer-4-10-2-at-startup/12090).
+    This occurs on Windows with NVIDIA Optimus mobile (Laptops) graphic cards.
 
-* Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
+    - Update you Drivers (Use NVIDIA Geforce Experience)
+    - Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
 
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
+* **UBUNTU - Cannot find Qt Packages "unable to locate package qt5-default"**
 
-### Troubleshooting / FAQ
+    Qt is [community software](https://packages.ubuntu.com/focal/qt5-default), Uncomment / add the `universe` ubuntu PPA in your `/etc/apt/sources.list`
+    
+    Example: `deb http://fr.archive.ubuntu.com/ubuntu/ focal universe`
 
-**Graphic Bug with interleaved horizontal greenlines**
+* **UBUNTU - There is no application installed for "shared library" files**
 
-Simillar problem to [this](https://discourse.slicer.org/t/green-horizontal-lines-appear-in-slicer-4-10-2-at-startup/12090).
-This occurs on Windows with NVIDIA Optimus mobile (Laptops) graphic cards.
+    This is a Nautilus configuration bug on Ubuntu, just launch via terminal using `./LidarView`
 
-- Update you Drivers (Use NVIDIA Geforce Experience)
-- Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
+* **UBUNTU - QT Offline Installer asks for registration**
 
-**There is no application installed for "shared library" files**
-
-This is a Nautilus configuration bug on Ubuntu, just launch via terminal using `./LidarView`
-
-**QT Offline Installer asks for registration**
-
-Disconnect your internet connection before starting the installer, registration will not be needed
+    Disconnect your internet connection before starting the installer, registration will not be needed
