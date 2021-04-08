@@ -162,9 +162,9 @@ The PythonQtPlugin is a small plugin that initializes the PythonQt library and m
 ### Linux Instructions <a name="linux-instructions"></a>
 
 #### Linux dependencies <a name="linux-dependencies"></a>
-The following packages are needed to build on Ubuntu 16.04:
+The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
 
-- **CMake version 3.12 or higher** is needed. As the `cmake` package available from Ubuntu 16.04 is not compatible, you need to get a supported version at <https://cmake.org/>.
+- **CMake version 3.12 or higher** is needed. As the `cmake` package available from Ubuntu may not compatible, you need to get a supported version at <https://cmake.org/>.
 - build-essential
 - git
 - flex byacc
@@ -174,9 +174,15 @@ The following packages are needed to build on Ubuntu 16.04:
 - freeglut3-dev
 - pkg-config
 
+**If using Ubuntu 20.04**
+
+- libnl-gen1-3-dev
+- libprotobuf-dev
+- libfreetype-dev
+
 **If using qt5 system:**
 
-- qtbase5-dev qtmultimedia5-dev qttools5-dev qtbase5-private-dev libqt5x11extras5-dev
+- qtbase5-dev qtmultimedia5-dev qttools5-dev qtbase5-private-dev libqt5x11extras5-dev libqt5svg5-dev
 
 **If opencv if enabled:**
 
