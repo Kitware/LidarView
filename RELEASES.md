@@ -103,6 +103,12 @@ See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarvi
     - Update you Drivers (Use NVIDIA Geforce Experience)
     - Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
 
+* **UBUNTU - Cannot find Qt Packages "unable to locate package qt5-default"**
+
+    Qt is [community software](https://packages.ubuntu.com/focal/qt5-default), Uncomment / add the `universe` ubuntu PPA in your `/etc/apt/sources.list`
+    
+    Example: `deb http://fr.archive.ubuntu.com/ubuntu/ focal universe`
+
 * **UBUNTU - There is no application installed for "shared library" files**
 
     This is a Nautilus configuration bug on Ubuntu, just launch via terminal using `./LidarView`
