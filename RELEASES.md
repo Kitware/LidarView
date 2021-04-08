@@ -2,7 +2,7 @@
 
 See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
 
-## LidarView v1.4.1
+## LidarView v4.1.5
 
 Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a minor library version issue is taken care of:
 `"sudo ln -s /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.1"`
@@ -39,7 +39,7 @@ If you do not wish to install those packages, you can use the offline installer:
   
 * Required packages: `libopengl0`
 
-### Ubuntu 18
+### Ubuntu 18.04
 
 **Runtime Dependencies:**
 
