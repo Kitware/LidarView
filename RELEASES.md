@@ -59,14 +59,6 @@ If you do not wish to install those packages, you can use the offline installer:
 
 * No dependencies required
 
-### MacOS
-
-**Runtime Dependencies:**
-
-* Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
-
-* Python 3.7.10 - [Sources](https://www.python.org/downloads/release/python-3710/)
-
 ### Troubleshooting / FAQ
 
 **Graphic Bug with interleaved horizontal greenlines**
