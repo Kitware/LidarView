@@ -15,20 +15,20 @@ Note that Ubuntu18 package is forward compatible with Ubuntu20,provided that a m
 
     `sudo apt-get install qt5-default WIPWIP ADD MORE HERE`
 
-If you do not wish to install those packages, you can use the offline installer:
+    * If you do not wish to install those packages, you can use the offline installer:
 
-    Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
+        Qt5.12.8 - [Installer](https://download.qt.io/official_releases/qt/5.12/5.12.8/qt-opensource-linux-x64-5.12.8.run)
 
-    Run the installer offline to alleviate the need to register
-    
-    * Note that only the `Desktop gcc 64-bit` component is needed
-    
-    Copy built libraries located in `~/Qt5.12.8/5.12.8/gcc_64/lib/` in your system.
-    
-    * We recommend copying those libs towards `/usr/local/lib`, and adding this directory to your ld configuration using:
-    
-    * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
-    
+        Run the installer offline to alleviate the need to register
+        
+        * Note that only the `Desktop gcc 64-bit` component is needed
+        
+        Copy built libraries located in `~/Qt5.12.8/5.12.8/gcc_64/lib/` in your system.
+        
+        * We recommend copying those libs towards `/usr/local/lib`, and adding this directory to your ld configuration using:
+        
+        * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
+        
 * Python 3.7.10, not available as packages
 
     Download [Sources](https://www.python.org/downloads/release/python-3710/)
@@ -47,15 +47,15 @@ If you do not wish to install those packages, you can use the offline installer:
 
 * Python 3.7.10, available as packages `sudo apt-get install python3.7-dev`
 
-If you do not wish to install this package, you can build from source:
+    * If you do not wish to install this package, you can build from source:
 
-    Download [Sources](https://www.python.org/downloads/release/python-3710/)
+        Download [Sources](https://www.python.org/downloads/release/python-3710/)
 
-    Packages `build-essentials, zlib1g-dev` are required to build python
+        Packages `build-essentials, zlib1g-dev` are required to build python
 
-    Build and install with this oneliner:
-    
-    `./configure --enable-shared && sudo make install`
+        Build and install with this oneliner:
+        
+        `./configure --enable-shared && sudo make install`
   
 * Required packages: `libopengl0`
 
