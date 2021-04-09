@@ -15,6 +15,10 @@
 
 #include "ui_vvCalibrationDialog.h"
 
+#include <pqActiveObjects.h>
+#include <pqCoreUtilities.h>
+#include <pqCoreUtilities.h>
+#include <pqFileDialog.h>
 #include <pqApplicationCore.h>
 #include <pqSettings.h>
 #include <pqCoreUtilities.h>
@@ -24,6 +28,8 @@
 #include <QDialog>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QDir>
+#include <QFileInfo>
 
 #include <vtkSMProxy.h>
 #include <vtkSMPropertyHelper.h>
@@ -934,6 +940,9 @@ void vvCalibrationDialog::onCurrentRowChanged(int row)
 //-----------------------------------------------------------------------------
 void vvCalibrationDialog::addFile()
 {
+  QString fileName;
+  pqServer* server = pqActiveObjects::instance().activeServer();
+  pqSettings* settings = pqApplicationCore::instance()->settings();
   QString defaultDir =
     this->Internal->Settings->value("LidarPlugin/OpenData/DefaultDir", QDir::homePath())
       .toString();
@@ -944,18 +953,16 @@ void vvCalibrationDialog::addFile()
   );
   dial.setObjectName("LidarFileCalibDialog");
   dial.setFileMode(pqFileDialog::ExistingFile);
-  if(dial.exec() == QDialog::Rejected)
+  if(dial.exec() == QDialog::Accepted)
   {
-    return;
+    QString fileName = dial.getSelectedFiles().at(0);
+    this->Internal->ListWidget->addItem(createEntry(fileName, false));
+    this->Internal->ListWidget->setCurrentRow(this->Internal->ListWidget->count() - 1);
+    this->Internal->saveFileList();
+
+    this->Internal->Settings->setValue(
+      "LidarPlugin/OpenData/DefaultDir", QFileInfo(fileName).absoluteDir().absolutePath());
   }
-
-  QString fileName = dial.getSelectedFiles().at(0);
-  this->Internal->ListWidget->addItem(createEntry(fileName, false));
-  this->Internal->ListWidget->setCurrentRow(this->Internal->ListWidget->count() - 1);
-  this->Internal->saveFileList();
-
-  this->Internal->Settings->setValue(
-    "LidarPlugin/OpenData/DefaultDir", QFileInfo(fileName).absoluteDir().absolutePath());
 }
 
 //-----------------------------------------------------------------------------

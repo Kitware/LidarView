@@ -7,12 +7,12 @@
 #include <vtkSMProxy.h>
 
 #include <pqActiveObjects.h>
+#include <pqCoreUtilities.h>
 #include <pqPVApplicationCore.h>
 #include <pqObjectBuilder.h>
 #include <pqPipelineSource.h>
 #include <pqSettings.h>
 #include <pqView.h>
-#include <pqCoreUtilities.h>
 #include <pqFileDialog.h>
 
 #include "lqHelper.h"
@@ -24,6 +24,8 @@
 #include <QApplication>
 #include <QProgressDialog>
 #include <QString>
+#include <QDir>
+#include <QFileInfo>
 
 #include <string>
 
@@ -63,6 +65,8 @@ lqOpenPcapReaction::lqOpenPcapReaction(QAction *action) :
 void lqOpenPcapReaction::onTriggered()
 {
   // Get the pcap filename
+  QString fileName;
+  pqServer* server = pqActiveObjects::instance().activeServer();
   pqSettings* settings = pqApplicationCore::instance()->settings();
   const char* defaultDir_path = "LidarPlugin/OpenData/DefaultDir";
   QString defaultDir = settings->value(defaultDir_path, QDir::homePath()).toString();
