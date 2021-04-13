@@ -14,6 +14,19 @@
 # limitations under the License.
 #===============================================================================
 
+#CXX Standard
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_EXTENSIONS OFF)
+
+#Old MSVC did not recognize "inline" but only "__inline"
+#Some Thirdparties still try to do the forbidden '#define inline __inline'
+if(WIN32 AND MSVC)
+  if(MSVC_VERSION GREATER 1699)
+    add_definitions(/D_ALLOW_KEYWORD_MACROS)
+  endif()
+endif()
+
+# Warnings
 if (MSVC)
     # Warning level 3, but disable some noisy warnings
     add_compile_options(/W3
