@@ -17,11 +17,12 @@ include("Application/SoftwareInformation/branding.cmake")
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
+#Old MSVC did not recognize "inline" but only "__inline"
+#Some Thirdparties still try to do the forbidden '#define inline __inline'
 if(WIN32 AND MSVC)
   if(MSVC_VERSION GREATER 1699)
     add_definitions(/D_ALLOW_KEYWORD_MACROS)
   endif()
-  add_definitions(/Dinline=__inline)
 endif()
 
 option(BUILD_DOC "Build documentation" OFF)
