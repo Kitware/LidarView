@@ -14,9 +14,10 @@
 # limitations under the License.
 #===============================================================================
 
-#CXX Standard
-set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_EXTENSIONS OFF)
+#CXX Standard #Overrides SB setting it to 11
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
+message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by default")
 
 #Old MSVC did not recognize "inline" but only "__inline"
 #Some Thirdparties still try to do the forbidden '#define inline __inline'

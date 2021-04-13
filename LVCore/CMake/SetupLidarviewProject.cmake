@@ -12,28 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#Set Variables
+option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
 include("Application/SoftwareInformation/branding.cmake")
-
-option(BUILD_DOC "Build documentation" OFF)
-option(BUILD_SHARED_LIBS "Build shared libs" ON)
-
+include(SetupOutputDirs)
 include(SetCompilationFlags)
+
+#Sanitize checks
+if(NOT LidarView_SOURCE_DIR OR NOT LidarView_BINARY_DIR)
+  message(FATAL_ERROR "LidarView Project variables not set")
+endif()
 include(CheckBuildType)
 
-if(BUILD_DOC)
-  include(SetupDoxygenDocumentation)
-endif()
-
+# Dependencies
 include(Git)
-include(ParaViewDetermineVersion)
-# Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
-file(STRINGS version.txt version_txt)
-extract_version_components("${version_txt}" "LV")
-determine_version(${LidarView_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
-
 include(CTest)
-
-find_package(ParaView REQUIRED)
 
 # Include findpythonlibs to get the function PYTHON_ADD_MODULE
 # needed in WRAP_PLUGIN_FOR_PYTHON
@@ -45,12 +38,27 @@ include(FindPythonLibs)
 # We force python to version 3.7 as it is the only one that has been tested
 find_package(Python3 3.7 EXACT QUIET REQUIRED COMPONENTS Interpreter)
 
-include(${PARAVIEW_USE_FILE})
-include(SetupOutputDirs)
-
 # Here we use a custom cmake file to find PythonQt and a PythonQtPlugin
 find_package(PythonQt REQUIRED)
 
+#PARAVIEW_USE_FILE must be included after Python
+find_package(ParaView REQUIRED)
+include(${PARAVIEW_USE_FILE})
+
+# Version
+include(ParaViewDetermineVersion)
+# Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
+file(STRINGS version.txt version_txt)
+extract_version_components("${version_txt}" "LV")
+determine_version(${LidarView_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
+
+# Doc
+option(BUILD_DOC "Build documentation" OFF)
+if(BUILD_DOC)
+  include(SetupDoxygenDocumentation)
+endif()
+
+# Modules
 add_subdirectory(Plugins)
 add_subdirectory(LVCore)
 add_subdirectory(Application)
@@ -59,4 +67,6 @@ add_subdirectory(Application)
 if (WIN32)
   include(SetupWindowsCustomInstall)
 endif ()
+
+
 
