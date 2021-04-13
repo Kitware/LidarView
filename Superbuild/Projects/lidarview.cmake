@@ -1,3 +1,5 @@
+cmake_dependent_option(Boost_NO_BOOST_CMAKE "Boost_NO_BOOST_CMAKE" ON "NOT USE_SYSTEM_boost" OFF)
+
 superbuild_add_project(lidarview
   DEPENDS paraview qt5 pcap boost eigen liblas yaml python python3 pythonqt
   DEPENDS_OPTIONAL pcl ceres opencv nanoflann g2o
@@ -12,6 +14,7 @@ superbuild_add_project(lidarview
     -DPYTHONQT_DIR:PATH=<INSTALL_DIR>
     -DBOOST_ROOT:PATH=<INSTALL_DIR>
     -DBOOST_LIBRARYDIR:PATH=<INSTALL_DIR>/lib
+    -DBoost_NO_BOOST_CMAKE:BOOL=${Boost_NO_BOOST_CMAKE}
     -DYAML_DIR:PATH=<INSTALL_DIR>/include/yaml-cpp
     -DEIGEN_INCLUDE_DIR:PATH=<INSTALL_DIR>/include/eigen3
     -DEIGEN3_DIR:PATH=<INSTALL_DIR>/share/eigen3/cmake
