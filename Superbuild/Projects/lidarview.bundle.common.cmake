@@ -1,6 +1,9 @@
+# Crossplatform Bundling scripts for $lidarview_appname 
+
 set(LidarViewSuperBuild_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../")
 set(LidarViewSuperBuild_CMAKE_DIR "${LidarViewSuperBuild_SOURCE_DIR}/lidarview-superbuild/CMake")
 
+# Trigger Crossplatform LidarView Bundling
 include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/LidarviewBundleCommon.cmake)
 
 # here we can add some optionnal lidarview executables in common with all platforms
