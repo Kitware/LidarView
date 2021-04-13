@@ -177,7 +177,7 @@ The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
 **If using Ubuntu 20.04**
 
 - libnl-gen1-3-dev
-- libprotobuf-dev
+- libprotobuf-dev protobuf-compiler
 - libfreetype-dev
 
 **If using qt5 system:**
