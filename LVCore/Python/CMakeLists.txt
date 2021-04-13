@@ -10,3 +10,10 @@ python_module_install(NAME lidarviewcore
                       lidarviewcore/kiwiviewerExporter.py
                       lidarviewcore/visualizationTools.py
                       )
+
+python_module_install(NAME lidarviewpythonplugin
+                      FILES
+                      lidarviewpythonplugin/__init__.py
+                      lidarviewpythonplugin/filters/__init__.py
+                      lidarviewpythonplugin/filters/SectionalViewFilter.py
+                      )
