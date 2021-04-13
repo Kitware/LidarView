@@ -24,13 +24,6 @@ if(WIN32 AND MSVC)
   add_definitions(/Dinline=__inline)
 endif()
 
-# Is this a 32 bit or 64bit build. Display this in about dialog.
-if ("${CMAKE_SIZEOF_VOID_P}" EQUAL 8)
-  set(LV_BUILD_ARCHITECTURE "64")
-else()
-  set(LV_BUILD_ARCHITECTURE "32")
-endif()
-
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_SHARED_LIBS "Build shared libs" ON)
 
