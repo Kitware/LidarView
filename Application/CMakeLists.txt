@@ -1,4 +1,22 @@
-include("SoftwareInformation/branding.cmake")
+#Sanitize checks
+if(NOT LV_INSTALL_LIBRARY_DIR )
+  message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
+endif()
+if(NOT SOFTWARE_NAME OR NOT VENDOR)
+  message(FATAL_ERROR "SOFTWARE_NAME or VENDOR branding not set")
+endif()
+if(NOT PARAVIEW_SPLASH_IMAGE OR NOT PARAVIEW_BUNDLE_ICON OR NOT PARAVIEW_APPLICATION_ICON)
+  message(FATAL_ERROR "PARAVIEW_SPLASH_IMAGE or PARAVIEW_BUNDLE_ICON or PARAVIEW_APPLICATION_ICON not set")
+endif()
+if(NOT LV_VERSION_FULL)
+  message(FATAL_ERROR "LV_VERSION_ variables not set")
+endif()
+if(NOT LV_BUILD_ARCHITECTURE)
+  message(FATAL_ERROR "LV_BUILD_ARCHITECTURE not set")
+endif()
+if(NOT PARAVIEW_VERSION_MAJOR OR NOT PARAVIEW_VERSION_MINOR)
+  message(FATAL_ERROR "PARAVIEW_VERSION_ not set")
+endif()
 
 add_subdirectory("Ui/")
 
@@ -52,6 +70,9 @@ target_include_directories(${SOFTWARE_NAME} PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR})
 
 # We directly link against the plugin and import them statically.
+if(NOT PYTHONQTPLUGIN_LIBRARY OR NOT PYTHONQT_LIBRARIES)
+  message(FATAL_ERROR "PYTHONQTPLUGIN_LIBRARY OR PYTHONQT_LIBRARIES not set")
+endif()
 target_link_libraries(${SOFTWARE_NAME}
   PUBLIC
     LidarPlugin
