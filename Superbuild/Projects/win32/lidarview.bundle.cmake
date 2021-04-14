@@ -13,6 +13,5 @@ include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/win32/LidarviewBundle.cmake)
 file(GLOB shared_files "${superbuild_install_location}/share/*.xml")
 install(FILES ${shared_files}
         DESTINATION "share"
-        COMPONENT superbuild
-        )
+        COMPONENT superbuild)
 unset(shared_files)
