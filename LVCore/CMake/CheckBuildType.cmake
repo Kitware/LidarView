@@ -14,8 +14,13 @@
 # limitations under the License.
 #===============================================================================
 
+#Sanitize checks
+if(NOT SOFTWARE_NAME )
+  message(FATAL_ERROR "SOFTWARE_NAME branding not set")
+endif()
+
 # Disallow in-source build
-if ("${LidarView_SOURCE_DIR}"  STREQUAL "${LidarView_BINARY_DIR}")
+if ("${CMAKE_SOURCE_DIR}"  STREQUAL "${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR
     "${SOFTWARE_NAME} requires an out of source Build. "
     "Please create a separate binary directory and run CMake there.")

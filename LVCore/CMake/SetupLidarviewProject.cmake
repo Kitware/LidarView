@@ -19,9 +19,6 @@ include(SetupOutputDirs)
 include(SetCompilationFlags)
 
 #Sanitize checks
-if(NOT LidarView_SOURCE_DIR OR NOT LidarView_BINARY_DIR)
-  message(FATAL_ERROR "LidarView Project variables not set")
-endif()
 include(CheckBuildType)
 
 # Dependencies
@@ -50,7 +47,7 @@ include(ParaViewDetermineVersion)
 # Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
 file(STRINGS version.txt version_txt)
 extract_version_components("${version_txt}" "LV")
-determine_version(${LidarView_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
+determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
 # Doc
 option(BUILD_DOC "Build documentation" OFF)
