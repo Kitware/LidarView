@@ -19,6 +19,9 @@ if(NOT SOFTWARE_NAME )
   message(FATAL_ERROR "SOFTWARE_NAME branding not set")
 endif()
 
+#------------------------------------------------------------------------------
+# Set VARIABLES
+
 #Set default OUTPUT_DIRECTORY, those apply to thirdparties
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 if(UNIX OR APPLE)
@@ -28,6 +31,20 @@ else()
 endif()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+# Setup install directories
+set(lidarview_appname "${SOFTWARE_NAME}.app")
+if (WIN32)
+  set(LV_INSTALL_LIBRARY_DIR bin)
+elseif(APPLE)
+  
+  set(LV_INSTALL_LIBRARY_DIR bin/${lidarview_appname}/Contents/Libraries)
+else()
+  set(LV_INSTALL_LIBRARY_DIR lib)
+endif()
+
+#------------------------------------------------------------------------------
+# Set RPATH
+
 # Setting this ensures that "make install" will leave rpaths to external
 # libraries (not part of the build-tree e.g. Qt, ffmpeg, etc.) intact on
 # "make install". This ensures that one can install a version of ParaView on the
@@ -35,17 +52,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 # following line and "make install" will strip all rpaths, which is default
 # behavior.
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-#------------------------------------------------------------------------------
-# Setup install directories (we use names with VTK_ prefix, since ParaView now
-# is built as a custom "VTK" library.
-if (WIN32)
-  set(LV_INSTALL_LIBRARY_DIR bin)
-elseif(APPLE)
-  set(LV_INSTALL_LIBRARY_DIR bin/${SOFTWARE_NAME}.app/Contents/Libraries)
-else()
-  set(LV_INSTALL_LIBRARY_DIR lib)
-endif()
 
 if (APPLE)
   set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
