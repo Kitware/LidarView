@@ -1,3 +1,8 @@
+#Sanitize checks
+if(NOT LV_INSTALL_LIBRARY_DIR )
+  message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
+endif()
+
 if (WIN32)
   set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/../../../../install/bin")
 else()

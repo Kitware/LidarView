@@ -33,8 +33,15 @@ endif()
 #--------------------------------------
 if(ParaView_SOURCE_DIR)
 
+  if(NOT VTK_INCLUDE_DIRS )
+    message(FATAL_ERROR "VTK_INCLUDE_DIRS not set or empty")
+  endif()
   include_directories(${SYSTEM_OPTION} ${VTK_INCLUDE_DIRS})
+  
   if(PARAVIEW_BUILD_QT_GUI)
+    if(NOT QT_USE_FILE OR NOT PARAVIEW_GUI_INCLUDE_DIRS)
+      message(FATAL_ERROR "QT_USE_FILE OR PARAVIEW_GUI_INCLUDE_DIRS not set or empty")
+    endif()
     include(${QT_USE_FILE})
     include_directories(${SYSTEM_OPTION} ${PARAVIEW_GUI_INCLUDE_DIRS})
   endif(PARAVIEW_BUILD_QT_GUI)

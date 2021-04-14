@@ -1,3 +1,8 @@
+#Sanitize checks
+if(NOT LV_INSTALL_LIBRARY_DIR )
+  message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
+endif()
+
 # Copy the scripts when installing
 if(WIN32)
   set(install_destination "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")

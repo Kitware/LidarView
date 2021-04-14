@@ -1,3 +1,8 @@
+#Sanitize checks
+if(NOT LV_INSTALL_LIBRARY_DIR )
+  message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
+endif()
+
 set(server_manager_xml
   Kitti/data/LidarKITTIDataSetReader.xml
   Kitti/data/LidarKITTIDataSetWriter.xml
