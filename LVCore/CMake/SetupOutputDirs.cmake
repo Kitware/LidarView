@@ -14,9 +14,9 @@
 # limitations under the License.
 #===============================================================================
 
-
+#Set default OUTPUT_DIRECTORY, those apply to thirdparties
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-if(UNIX)
+if(UNIX OR APPLE)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 else()
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
