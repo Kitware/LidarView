@@ -55,7 +55,11 @@ if(BUILD_DOC)
 endif()
 
 # Setup Dir Variables
+# - LV_INSTALL_LIBRARY_DIR
+# - LV_INSTALL_PYTHON_MODULES_DIR
+# - Branding related variables already set
 include(SetupOutputDirs)
+
 
 # Modules
 add_subdirectory(Plugins)
