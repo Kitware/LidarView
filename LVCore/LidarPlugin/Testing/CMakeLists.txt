@@ -4,7 +4,7 @@ if(NOT LV_INSTALL_LIBRARY_DIR )
 endif()
 
 if (WIN32)
-  set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/../../../../install/bin")
+  get_filename_component(INSTALL_LOCAL_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE)
 else()
   set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/bin")
 endif()
