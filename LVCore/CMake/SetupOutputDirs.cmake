@@ -14,6 +14,11 @@
 # limitations under the License.
 #===============================================================================
 
+#Sanitize checks
+if(NOT SOFTWARE_NAME )
+  message(FATAL_ERROR "SOFTWARE_NAME branding not set")
+endif()
+
 #Set default OUTPUT_DIRECTORY, those apply to thirdparties
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 if(UNIX OR APPLE)
@@ -30,7 +35,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 # following line and "make install" will strip all rpaths, which is default
 # behavior.
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 
 #------------------------------------------------------------------------------
 # Setup install directories (we use names with VTK_ prefix, since ParaView now
