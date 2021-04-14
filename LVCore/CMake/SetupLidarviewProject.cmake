@@ -15,7 +15,6 @@
 #Set Variables
 option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
 include("Application/SoftwareInformation/branding.cmake")
-include(SetupOutputDirs)
 include(SetCompilationFlags)
 
 #Sanitize checks
@@ -54,6 +53,9 @@ option(BUILD_DOC "Build documentation" OFF)
 if(BUILD_DOC)
   include(SetupDoxygenDocumentation)
 endif()
+
+# Setup Dir Variables
+include(SetupOutputDirs)
 
 # Modules
 add_subdirectory(Plugins)

@@ -2,14 +2,8 @@
 if(NOT LV_INSTALL_LIBRARY_DIR )
   message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
 endif()
-
-# Copy the scripts when installing
-if(WIN32)
-  set(install_destination "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
-elseif(APPLE)
-  set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../Python")
-else()
-  set(install_destination "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
+if(NOT LV_INSTALL_PYTHON_MODULES_DIR )
+  message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
 endif()
 
 set(scripts
@@ -23,4 +17,4 @@ set(scripts
     examples/run_slam.py
 )
 
-install(FILES ${scripts} DESTINATION ${install_destination})
+install(FILES ${scripts} DESTINATION ${LV_INSTALL_PYTHON_MODULES_DIR})

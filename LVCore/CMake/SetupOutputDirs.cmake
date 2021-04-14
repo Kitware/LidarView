@@ -42,6 +42,18 @@ else()
   set(LV_INSTALL_LIBRARY_DIR lib)
 endif()
 
+# Setup Python module DIR
+if(NOT Python3_VERSION_MAJOR OR NOT Python3_VERSION_MINOR)
+  message(FATAL_ERROR "Python3_VERSION_ variables not set")
+endif()
+if(WIN32)
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
+elseif(APPLE)
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/../Python")
+else()
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
+endif()
+
 #------------------------------------------------------------------------------
 # Set RPATH
 
