@@ -1,6 +1,5 @@
 set(SOFTWARE_NAME "LidarView")
 set(VENDOR "Kitware, Inc.")
-set(PROJECT_NAME "${SOFTWARE_NAME}")
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${SOFTWARE_NAME}")
 set(CPACK_PACKAGE_NAME "${SOFTWARE_NAME}")
@@ -15,6 +14,6 @@ set(PARAVIEW_APPLICATION_ICON logo.ico)	# (app icon)
 # You also need to change:
 #   - bottom_logo.png (bottom logo)
 
-add_definitions( -DPROJECT_NAME="${PROJECT_NAME}" )
+add_definitions( -DPROJECT_NAME="${SOFTWARE_NAME}" )
 add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
 #add_definitions( -DVENDOR="${VENDOR}" ) # spaces here confuses the vtkWrap
