@@ -9,5 +9,5 @@ launch_lidarview_CI:
     - tags
   trigger:
     project: lidarview/lidarview
-    branch: master
+    branch: lv-postbuild
     strategy: depend
