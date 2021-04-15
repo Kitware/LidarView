@@ -12,10 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#Sanitize checks
+if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
+  message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
+endif()
+
 #Set Variables
 option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
-include("Application/SoftwareInformation/branding.cmake")
 include(SetCompilationFlags)
+
+#Branding
+add_definitions( -DPROJECT_NAME="${SOFTWARE_NAME}" )
+add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
+#add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" ) # Not used
 
 #Sanitize checks
 include(CheckBuildType)
