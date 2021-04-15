@@ -7,6 +7,7 @@ superbuild_add_project(lidarview
   CMAKE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF
+    -DLV_BUILD_ARCHITECTURE=${LV_BUILD_ARCHITECTURE}
     -DParaView_DIR:PATH=${SuperBuild_BINARY_DIR}/common-superbuild/paraview/build
     -DVTK_DIR:PATH=${SuperBuild_BINARY_DIR}/common-superbuild/paraview/build/VTK
     -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}

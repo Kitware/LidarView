@@ -36,13 +36,6 @@ set (source_files
 # paraview from installed location.
 set (PARAVIEW_INSTALL_LIB_DIR "lib/paraview-${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}")
 
-# Is this a 32 bit or 64bit build. Display this in about dialog.
-if ("${CMAKE_SIZEOF_VOID_P}" EQUAL 8)
-  set(LV_BUILD_ARCHITECTURE "64")
-else()
-  set(LV_BUILD_ARCHITECTURE "32")
-endif()
-
 build_paraview_client(${SOFTWARE_NAME}
   TITLE "${SOFTWARE_NAME} ${LV_VERSION_FULL} ${LV_BUILD_ARCHITECTURE}-bit"
   ORGANIZATION "${VENDOR}"
