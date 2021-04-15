@@ -261,8 +261,8 @@ void lqPlayerControlsToolbar::onPlaying(bool playing)
     connect(this->UI->actionPlay, SIGNAL(triggered()),
       this->Controller, SLOT(onPause()));
     this->UI->actionPlay->setIcon(
-      QIcon(":/vvResources/Icons/media-playback-pause.png"));
-    this->UI->actionPlay->setText("Pa&use");
+      QIcon(":/lqResources/Icons/media-playback-pause.png"));
+    this->UI->actionPlay->setText("Pause");
     }
   else
     {
@@ -271,8 +271,8 @@ void lqPlayerControlsToolbar::onPlaying(bool playing)
     disconnect(this->UI->actionPlay, SIGNAL(triggered()),
       this->Controller, SLOT(onPause()));
     this->UI->actionPlay->setIcon(
-      QIcon(":/vvResources/Icons/media-playback-start.png"));
-    this->UI->actionPlay->setText("&Play");
+      QIcon(":/lqResources/Icons/media-playback-start.png"));
+    this->UI->actionPlay->setText("Play");
     }
 
   // this becomes a behavior.

@@ -24,8 +24,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-playback-start.png</normaloff>:/vvResources/Icons/media-playback-start.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-playback-start.png</normaloff>:/lqResources/Icons/media-playback-start.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Play</string>
@@ -39,8 +39,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-seek-backward.png</normaloff>:/vvResources/Icons/media-seek-backward.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-seek-backward.png</normaloff>:/lqResources/Icons/media-seek-backward.png</iconset>
    </property>
    <property name="text">
     <string>Pre&amp;vious Frame</string>
@@ -57,8 +57,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-skip-backward.png</normaloff>:/vvResources/Icons/media-skip-backward.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-skip-backward.png</normaloff>:/lqResources/Icons/media-skip-backward.png</iconset>
    </property>
    <property name="text">
     <string>&amp;First Frame</string>
@@ -72,8 +72,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-seek-forward.png</normaloff>:/vvResources/Icons/media-seek-forward.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-seek-forward.png</normaloff>:/lqResources/Icons/media-seek-forward.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Next Frame</string>
@@ -87,8 +87,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-skip-forward.png</normaloff>:/vvResources/Icons/media-skip-forward.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-skip-forward.png</normaloff>:/lqResources/Icons/media-skip-forward.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Last Frame</string>
@@ -105,8 +105,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/media-loop.png</normaloff>:/vvResources/Icons/media-loop.png</iconset>
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/media-loop.png</normaloff>:/lqResources/Icons/media-loop.png</iconset>
    </property>
    <property name="text">
     <string>L&amp;oop</string>
@@ -129,7 +129,7 @@
   <addaction name="actionLoop"/>
  </widget>
  <resources>
-  <include location="vvResources.qrc"/>
+  <include location="lqResources.qrc"/>
  </resources>
  <connections/>
 </ui>
