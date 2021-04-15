@@ -43,19 +43,21 @@ include(FindPythonLibs)
 # We force python to version 3.7 as it is the only one that has been tested
 find_package(Python3 3.7 EXACT QUIET REQUIRED COMPONENTS Interpreter)
 
-# Here we use a custom cmake file to find PythonQt and a PythonQtPlugin
-find_package(PythonQt REQUIRED)
-
-#PARAVIEW_USE_FILE must be included after Python
-find_package(ParaView REQUIRED)
-include(${PARAVIEW_USE_FILE})
-
 # Version
 include(ParaViewDetermineVersion)
 # Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
 file(STRINGS version.txt version_txt)
 extract_version_components("${version_txt}" "LV")
 determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
+
+#PARAVIEW_USE_FILE
+#must be included after Python and Determine version
+find_package(ParaView REQUIRED)
+include(${PARAVIEW_USE_FILE})
+
+# Here we use a custom cmake file to find PythonQt and a PythonQtPlugin
+# Find within Paraview Build directory, with Paraview Version
+find_package(PythonQt REQUIRED)
 
 # Doc
 option(BUILD_DOC "Build documentation" OFF)
