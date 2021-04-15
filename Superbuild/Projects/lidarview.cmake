@@ -5,9 +5,12 @@ superbuild_add_project(lidarview
   DEPENDS_OPTIONAL pcl ceres opencv nanoflann g2o
   DEFAULT_ON
   CMAKE_ARGS
+    #LidarView base configuration
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF
     -DLV_BUILD_ARCHITECTURE=${LV_BUILD_ARCHITECTURE}
+    -DSOFTWARE_NAME=${SOFTWARE_NAME}
+    -DSOFTWARE_VENDOR=${SOFTWARE_VENDOR}
     -DParaView_DIR:PATH=${SuperBuild_BINARY_DIR}/common-superbuild/paraview/build
     -DVTK_DIR:PATH=${SuperBuild_BINARY_DIR}/common-superbuild/paraview/build/VTK
     -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
@@ -27,6 +30,7 @@ superbuild_add_project(lidarview
     -DENABLE_g2o=${ENABLE_g2o}
     -DENABLE_slam=${ENABLE_slam}
     -DENABLE_old_slam=${ENABLE_old_slam}
+    #$lidarview_appname additional configuration
 )
 
 if (WIN32 OR APPLE)
