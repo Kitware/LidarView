@@ -29,7 +29,6 @@
 #include "ui_vvMainWindow.h"
 #include "lqDockableSpreadSheetReaction.h"
 #include "vvLoadDataReaction.h"
-#include "lqStreamRecordReaction.h"
 #include "lqSaveLidarStateReaction.h"
 #include "lqLoadLidarStateReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
@@ -222,7 +221,6 @@ private:
     window->setCentralWidget(mv);
 
     new lqDockableSpreadSheetReaction(this->Ui.actionSpreadsheet, window);
-    new lqStreamRecordReaction(this->Ui.actionRecord);
 
     this->MainView =
       qobject_cast<pqRenderView*>(this->Builder->createView(pqRenderView::renderViewType(), this->Server));
