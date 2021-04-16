@@ -22,5 +22,6 @@
         <file>Icons/media-seek-forward.png</file>
         <file>Icons/media-skip-backward.png</file>
         <file>Icons/media-skip-forward.png</file>
+        <file>Icons/lqRecord.png</file>
     </qresource>
 </RCC>

@@ -121,12 +121,25 @@
     <string>Loop</string>
    </property>
   </action>
+  <action name="actionRecord">
+   <property name="icon">
+    <iconset resource="lqResources.qrc">
+     <normaloff>:/lqResources/Icons/lqRecord.png</normaloff>:/lqResources/Icons/lqRecord.png</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+  </action>
   <addaction name="actionFirstFrame"/>
   <addaction name="actionPreviousFrame"/>
   <addaction name="actionPlay"/>
   <addaction name="actionNextFrame"/>
   <addaction name="actionLastFrame"/>
   <addaction name="actionLoop"/>
+  <addaction name="actionRecord"/>
  </widget>
  <resources>
   <include location="lqResources.qrc"/>

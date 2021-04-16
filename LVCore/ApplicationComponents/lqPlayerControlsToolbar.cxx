@@ -60,6 +60,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkSMTimeKeeperProxy.h>
 #include <pqPropertyLinks.h>
 
+#include "lqStreamRecordReaction.h"
+
 class lqPlayerControlsToolbar::pqInternals : public Ui::lqPlayerControlsToolbar
 {
 public:
@@ -149,7 +151,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   this->UI->speedFactor.append(qMakePair(100., QString("x 100")));
 
   // add the widget to the toolbar
-  this->addWidget(new QLabel("Speed:", this));
+  this->insertWidget(this->UI->actionRecord, new QLabel("Speed:", this));
   this->UI->speedComboBox = new QComboBox(this);
   for (int i = 0; i < this->UI->speedFactor.size(); ++i)
   {
@@ -159,7 +161,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
       this->UI->speedComboBox->setCurrentIndex(i);
     }
   }
-  this->addWidget(this->UI->speedComboBox);
+  this->insertWidget(this->UI->actionRecord, this->UI->speedComboBox);
 
   // create all connection
   QObject::connect(this->UI->speedComboBox, SIGNAL(currentIndexChanged(int)),
@@ -174,7 +176,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   // Add the Slider
   //------------------------//
   this->UI->frameSlider = new QSlider(Qt::Horizontal, this);
-  this->addWidget(this->UI->frameSlider);
+  this->insertWidget(this->UI->actionRecord, this->UI->frameSlider);
 
   // create connection
   this->connect(this->UI->frameSlider, SIGNAL(sliderPressed()),
@@ -187,9 +189,9 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   //------------------------//
   // Add the Time DoubleSpinBox
   //------------------------//
-  this->addWidget(new QLabel("Time", this));
+  this->insertWidget(this->UI->actionRecord, new QLabel("Time", this));
   this->UI->timeSpinBox = new QDoubleSpinBox(this);
-  this->addWidget(this->UI->timeSpinBox);
+  this->insertWidget(this->UI->actionRecord, this->UI->timeSpinBox);
 
     // create connection
   this->connect(this->UI->timeSpinBox, SIGNAL(valueChanged(double)),
@@ -198,11 +200,16 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   //------------------------//
   // Add the Frame SpinBox
   //------------------------//
-  this->addWidget(new QLabel("Frame", this));
+  this->insertWidget(this->UI->actionRecord, new QLabel("Frame", this));
   this->UI->frameQSpinBox = new QSpinBox(this);
-  this->addWidget(this->UI->frameQSpinBox);
+  this->insertWidget(this->UI->actionRecord, this->UI->frameQSpinBox);
   this->UI->frameLabel = new QLabel();
-  this->addWidget(this->UI->frameLabel);
+  this->insertWidget(this->UI->actionRecord, this->UI->frameLabel);
+
+  //------------------------//
+  // Add the Recording Reaction
+  //------------------------//
+  new lqStreamRecordReaction(this->UI->actionRecord);
 
   // create connection
   this->connect(this->UI->frameQSpinBox, SIGNAL(valueChanged(int)),
