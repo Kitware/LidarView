@@ -1,0 +1,30 @@
+#CheckoutRemote.cmake
+#Used by CI using cmake -DTRIGGER_MODULE_SHA=$TRIGGER_MODULE_SHA -DTRIGGER_MODULE_REMOTE_NAME=$TRIGGER_MODULE_REMOTE_NAME -DTRIGGER_MODULE_REPOSITORY_PATH=$TRIGGER_MODULE_REPOSITORY_PATH -P CI/CheckoutRemote.cmake
+
+#Stop if no remote checking is required
+if(NOT TRIGGER_MODULE_SHA OR NOT TRIGGER_MODULE_REMOTE_NAME OR NOT TRIGGER_MODULE_REPOSITORY_PATH)
+  message(STATUS "No Specific Remote requested for build.")
+  return() #exit script
+else()
+  message(STATUS "Requested checking out ${TRIGGER_MODULE_SHA} from ${TRIGGER_MODULE_REMOTE_NAME} in ${TRIGGER_MODULE_REPOSITORY_PATH}")
+endif()
+
+Find_package(Git QUIET)
+if(NOT GIT_EXECUTABLE)
+  message(FATAL_ERROR "error: could not find git")
+endif()
+
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} remote add ${TRIGGER_MODULE_REMOTE_NAME} ${TRIGGER_MODULE_REPOSITORY_PATH}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+  RESULT_VARIABLE result
+  OUTPUT_VARIABLE output
+  ERROR_VARIABLE  error
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_STRIP_TRAILING_WHITESPACE
+)
+if(result)
+  message(FATAL_ERROR "Adding remote failed: ${output} ${error}")
+endif
+
+
