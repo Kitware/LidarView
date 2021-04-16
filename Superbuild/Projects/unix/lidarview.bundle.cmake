@@ -1,4 +1,7 @@
+# Bundling Scripts Stack Entry for $lidarview_appname - Unix Specific
 include(lidarview.bundle.common)
+
+# Trigger Unix-specific LidarView Bundling
 include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/unix/LidarviewBundle.cmake)
 
 # Sensor calibration files

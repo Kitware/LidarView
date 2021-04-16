@@ -1,7 +1,6 @@
 # Add all subdirectories as Plugins
 
 function(list_directories curdir result)
-  # cf. https://stackoverflow.com/questions/7787823/cmake-how-to-get-the-name-of-all-subdirectories-of-a-directory
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
   set(tmp_result "")
   foreach(child ${children})
