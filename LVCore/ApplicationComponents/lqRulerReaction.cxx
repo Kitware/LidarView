@@ -1,6 +1,7 @@
 #include "lqRulerReaction.h"
 
 #include <QMouseEvent>
+#include <QtDebug>
 
 #include <pqQVTKWidget.h>
 #include <pqRenderView.h>
@@ -14,6 +15,8 @@
 lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v, lqRulerReaction::Mode m)
   : pqReaction(parent)
 {
+  Q_ASSERT(view);
+
   this->view = v;
   this->mode = m;
 
@@ -53,6 +56,12 @@ lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v, lqRulerReacti
 //-----------------------------------------------------------------------------
 void lqRulerReaction::onTriggered()
 {
+  if (!view)
+  {
+    qCritical() << "No View for lqRulerReaction:";
+    return;
+  }
+
   // need to be done first as the button status is used to know if the ruler is active or not.
   this->updateUI();
 
@@ -72,6 +81,12 @@ void lqRulerReaction::onTriggered()
 //-----------------------------------------------------------------------------
 void lqRulerReaction::onMouseEvent(QMouseEvent *event)
 {
+  if (!view)
+  {
+    qCritical() << "No View for lqRulerReaction:";
+    return;
+  }
+
   auto eventButton = event->buttons();
   auto eventModifier = event->modifiers();
   auto interactor = this->view->getRenderViewProxy()->GetInteractor();
@@ -116,8 +131,10 @@ void lqRulerReaction::onMouseEvent(QMouseEvent *event)
 QList<QVariant> lqRulerReaction::get3DPoint(QPoint coord)
 {
   if (!view)
+  {
     qCritical() << "No View for lqRulerReaction:";
-    return QList<QVariant>();;
+    return QList<QVariant>();
+  }
 
   vtkSMRenderViewProxy* viewProxy = view->getRenderViewProxy();
   if (!viewProxy)
@@ -155,6 +172,12 @@ QList<QVariant> lqRulerReaction::get3DPoint(QPoint coord)
 //-----------------------------------------------------------------------------
 void lqRulerReaction::displayRuler(bool value)
 {
+  if (!view)
+  {
+    qCritical() << "No View for lqRulerReaction:";
+    return;
+  }
+
   pqSMAdaptor::setElementProperty(this->distanceWidgetRepresentation->GetProperty("Visibility"), value);
   this->distanceWidgetRepresentation->UpdateVTKObjects();
   this->view->render();
@@ -164,7 +187,10 @@ void lqRulerReaction::displayRuler(bool value)
 void lqRulerReaction::updateUI()
 {
   if (!view)
+  {
+    qCritical() << "No View for lqRulerReaction:";
     return;
+  }
 
   if (mode == Mode::BETWEEN_2D_POINTS)
   {

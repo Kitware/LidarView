@@ -1,5 +1,7 @@
 #include "lqCameraParallelProjectionReaction.h"
 
+#include <QtDebug>
+
 #include <pqRenderView.h>
 #include <pqSMAdaptor.h>
 #include <vtkCommand.h>
@@ -10,6 +12,8 @@
 lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *parent,  pqRenderView* v)
   : pqReaction(parent)
 {
+  Q_ASSERT(view);
+
   this->view = v;
   this->parentAction()->setToolTip("Toggle between projective and orthogonal view");
   // update the button state is coherent with the camera projection mode
@@ -23,6 +27,12 @@ lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *
 
 void lqCameraParallelProjectionReaction::onTriggered()
 {
+  if (!view)
+  {
+    qCritical() << "No View for lqCameraParallelProjectionReaction:";
+    return;
+  }
+
   // switch mode
   vtkSMProperty* property = this->view->getProxy()->GetProperty("CameraParallelProjection");
   bool mode = !pqSMAdaptor::getElementProperty(property).toBool();
@@ -33,6 +43,12 @@ void lqCameraParallelProjectionReaction::onTriggered()
 
 void lqCameraParallelProjectionReaction::updateUI()
 {
+  if (!view)
+  {
+    qCritical() << "No View for lqCameraParallelProjectionReaction:";
+    return;
+  }
+
   bool mode = pqSMAdaptor::getElementProperty(this->view->getProxy()->GetProperty("CameraParallelProjection")).toBool();
   this->parentAction()->setChecked(mode);
   this->view->render();
