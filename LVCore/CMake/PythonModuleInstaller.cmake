@@ -1,3 +1,7 @@
+if(NOT LV_INSTALL_PYTHON_MODULES_DIR)
+  message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
+endif()
+
 # From inside a CMake function, it is not AFAIK possible to get the path
 # to the file defining the function.
 # Thus we set this variable outside the function (cannot unset it afterward).
@@ -40,16 +44,8 @@ function(python_module_install)
 
 
   # Install python module
-  if(WIN32)
-    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
-  elseif(APPLE)
-    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/../Python")
-  else()
-    set(install_destination "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
-  endif()
-
   install(DIRECTORY  ${python_module_dir}/${python_module_install_NAME}
-          DESTINATION ${install_destination}
+          DESTINATION ${LV_INSTALL_PYTHON_MODULES_DIR}
           COMPONENT Runtime
           USE_SOURCE_PERMISSIONS)
 endfunction()
