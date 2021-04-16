@@ -62,6 +62,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lqStreamRecordReaction.h"
 
+namespace  {
+void addShortCutToToolTip(QAction* action)
+{
+  if (!action->shortcut().isEmpty())
+  {
+    QString text = action->toolTip() + " <b>(" + action->shortcut().toString() + ")<b>";
+    action->setToolTip(text);
+  }
+}
+}
+
 class lqPlayerControlsToolbar::pqInternals : public Ui::lqPlayerControlsToolbar
 {
 public:
@@ -211,6 +222,14 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   //------------------------//
   new lqStreamRecordReaction(this->UI->actionRecord);
 
+  //------------------------//
+  // Add shortcut to tootip
+  //------------------------//
+  for (auto* action: this->findChildren<QAction*>())
+  {
+    addShortCutToToolTip(action);
+  }
+
   // create connection
   this->connect(this->UI->frameQSpinBox, SIGNAL(valueChanged(int)),
     this, SLOT(setTimeStep(int)));
@@ -261,26 +280,22 @@ lqPlayerControlsToolbar::~lqPlayerControlsToolbar()
 void lqPlayerControlsToolbar::onPlaying(bool playing)
 {
   this->UI->isPlaying = playing;
+  QAction* action = this->UI->actionPlay;
   if(playing)
     {
-    disconnect(this->UI->actionPlay, SIGNAL(triggered()),
-      this->Controller, SLOT(onPlay()));
-    connect(this->UI->actionPlay, SIGNAL(triggered()),
-      this->Controller, SLOT(onPause()));
-    this->UI->actionPlay->setIcon(
-      QIcon(":/lqResources/Icons/media-playback-pause.png"));
-    this->UI->actionPlay->setText("Pause");
+    disconnect(action, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
+    connect(action, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
+    action->setIcon(QIcon(":/lqResources/Icons/media-playback-pause.png"));
+    action->setToolTip("Pause");
     }
   else
     {
-    connect(this->UI->actionPlay, SIGNAL(triggered()),
-      this->Controller, SLOT(onPlay()));
-    disconnect(this->UI->actionPlay, SIGNAL(triggered()),
-      this->Controller, SLOT(onPause()));
-    this->UI->actionPlay->setIcon(
-      QIcon(":/lqResources/Icons/media-playback-start.png"));
-    this->UI->actionPlay->setText("Play");
+    connect(action, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
+    disconnect(action, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
+    action->setIcon(QIcon(":/lqResources/Icons/media-playback-start.png"));
+    action->setToolTip("Play");
     }
+  addShortCutToToolTip(action);
 
   // this becomes a behavior.
   // this->Implementation->Core->setSelectiveEn abledState(!playing);
@@ -394,8 +409,10 @@ void lqPlayerControlsToolbar::setTimeStepCount(int value)
   this->UI->frameLabel->setText(QString("of %1").arg(value));
   this->UI->actionFirstFrame->setToolTip(
     QString("First Frame (%1)").arg(0));
+  addShortCutToToolTip(this->UI->actionFirstFrame);
   this->UI->actionLastFrame->setToolTip(
     QString("Last Frame (%1)").arg(value));
+  addShortCutToToolTip(this->UI->actionLastFrame);
 
   double time = vtkSMTimeKeeperProxy::GetLowerBoundTimeStep(this->timeKeeper(), std::numeric_limits<double>::max());
   this->UI->timeSpinBox->setMaximum(time);
