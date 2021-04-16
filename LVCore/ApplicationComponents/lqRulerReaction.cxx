@@ -11,14 +11,27 @@
 #include <vtkRenderer.h>
 
 //-----------------------------------------------------------------------------
-lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v)
+lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v, lqRulerReaction::Mode m)
   : pqReaction(parent)
 {
   this->view = v;
-  this->parentAction()->setToolTip("Measure the distance (in meters) between two screen points."
-                                   "<br/>To draw a ruler line, click this button, then hold down"
-                                   "the <b>Ctrl key</b> and the <b>left button</b> of your mouse."
-                                   "<br/><u>This feature is only available in orthogonal projection.</u>");
+  this->mode = m;
+
+  QString toolTipText;
+  if (mode == Mode::BETWEEN_2D_POINTS)
+  {
+    toolTipText = "Measure the distance (in meters) between two screen points.          \
+                  <br/>To draw a ruler line, click this button, then hold down          \
+                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.         \
+                  <br/><u>This feature is only available in orthogonal projection.</u>";
+  }
+  else
+  {
+    toolTipText = "Measure the distance (in meters) between two 3D points.          \
+                  <br/>To draw a ruler line, click this button, then hold down      \
+                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.";
+  }
+  this->parentAction()->setToolTip(toolTipText);
 
   // Create a ruler and hide it for now
   vtkSMProxyManager* proxyManager = vtkSMProxyManager::GetProxyManager();
@@ -27,11 +40,13 @@ lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v)
   pp->AddProxy(this->distanceWidgetRepresentation);
   this->displayRuler(false);
 
-  // The Ui need to be update, each time the ParalllelProjection property is Modified
-  this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  this->connection->Connect(
-    this->view->getProxy()->GetProperty("CameraParallelProjection"), vtkCommand::ModifiedEvent, this, SLOT(onTriggered()));
-
+  if (mode == Mode::BETWEEN_2D_POINTS)
+  {
+    // The Ui need to be update, each time the ParalllelProjection property is Modified
+    this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    this->connection->Connect(
+      this->view->getProxy()->GetProperty("CameraParallelProjection"), vtkCommand::ModifiedEvent, this, SLOT(onTriggered()));
+  }
   this->updateUI();
 }
 
@@ -64,11 +79,10 @@ void lqRulerReaction::onMouseEvent(QMouseEvent *event)
   // Helper lambda to update the ruler widget coordinates points
   auto updateRulerPointWithMousePosition = [&](char* pointPropertyName)
   {
-    auto point = this->getPointFromCoordinate(event->pos());
+    auto point = this->get3DPoint(event->pos());
     pqSMAdaptor::setMultipleElementProperty(this->distanceWidgetRepresentation->GetProperty(pointPropertyName), point);
     this->distanceWidgetRepresentation->UpdateVTKObjects();
   };
-
   if (eventButton == Qt::MouseButton::LeftButton)
   {
     if (!this->mousePressed)
@@ -99,17 +113,43 @@ void lqRulerReaction::onMouseEvent(QMouseEvent *event)
 }
 
 //-----------------------------------------------------------------------------
-QList<QVariant> lqRulerReaction::getPointFromCoordinate(QPoint coord, double midPlaneDistance  )
+QList<QVariant> lqRulerReaction::get3DPoint(QPoint coord)
 {
+  if (!view)
+    qCritical() << "No View for lqRulerReaction:";
+    return QList<QVariant>();;
+
+  vtkSMRenderViewProxy* viewProxy = view->getRenderViewProxy();
+  if (!viewProxy)
+    return QList<QVariant>();
+
   auto viewSize = pqSMAdaptor::getMultipleElementProperty(this->view->getProxy()->GetProperty("ViewSize"));
   int windowHeight = viewSize[1].toInt();
-  double displayPoint[3] = {coord.x(), windowHeight - coord.y(), midPlaneDistance};
-  vtkRenderer* renderer = this->view->getRenderViewProxy()->GetRenderer();
-  renderer->SetDisplayPoint(displayPoint);
-  renderer->DisplayToWorld();
-  double* worldPoint = renderer->GetWorldPoint();
+
+  double position[3];
+
+  if (mode == Mode::BETWEEN_2D_POINTS)
+  {
+    double midPlaneDistance = 0.5;
+    double display3DPoint[3] = {coord.x(), windowHeight - coord.y(), midPlaneDistance};
+    vtkRenderer* renderer = viewProxy->GetRenderer();
+    renderer->SetDisplayPoint(display3DPoint);
+    renderer->DisplayToWorld();
+    renderer->GetWorldPoint(position);
+  }
+  else
+  {
+    int display3DPoint[2] = {coord.x(), windowHeight - coord.y()};
+    if (!viewProxy->ConvertDisplayToPointOnSurface(display3DPoint, position, true))
+    {
+      return QList<QVariant>();
+    }
+  }
+
   QList<QVariant> point3d;
-  point3d << worldPoint[0] << worldPoint[1] << worldPoint[2];
+  point3d << position[0] << position[1] << position[2];
+
+  return point3d;
 }
 
 //-----------------------------------------------------------------------------
@@ -125,10 +165,14 @@ void lqRulerReaction::updateUI()
 {
   if (!view)
     return;
-  bool mode = pqSMAdaptor::getElementProperty(this->view->getProxy()->GetProperty("CameraParallelProjection")).toBool();
-  this->parentAction()->setEnabled(mode);
-  if (!mode)
+
+  if (mode == Mode::BETWEEN_2D_POINTS)
   {
-    this->parentAction()->setChecked(false);
+    bool mode = pqSMAdaptor::getElementProperty(this->view->getProxy()->GetProperty("CameraParallelProjection")).toBool();
+    this->parentAction()->setEnabled(mode);
+    if (!mode)
+    {
+      this->parentAction()->setChecked(false);
+    }
   }
 }

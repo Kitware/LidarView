@@ -12,6 +12,8 @@ class vtkSMProxy;
 /**
  * @ingroup Reactions
  * Reaction to use a ruler to measure the distance between 2 points in a scene.
+ *
+ * This points could either be 2D in case the view is orthographic or 3D
  */
 class lqRulerReaction : public pqReaction
 {
@@ -19,7 +21,12 @@ class lqRulerReaction : public pqReaction
   typedef pqReaction Superclass;
 
 public:
-  lqRulerReaction(QAction* parent, pqRenderView* view);
+  enum Mode
+  {
+    BETWEEN_2D_POINTS,
+    BETWEEN_3D_POINTS,
+  };
+  lqRulerReaction(QAction* parent, pqRenderView* view, lqRulerReaction::Mode mode);
 
 protected slots:
   void updateUI();
@@ -34,7 +41,8 @@ protected slots:
    */
   void onMouseEvent(QMouseEvent* event);
 private:
-  QList<QVariant> getPointFromCoordinate(QPoint coord, double midPlaneDistance = 0.5);
+  Mode mode;
+  QList<QVariant> get3DPoint(QPoint);
   void displayRuler(bool value);
 
   Q_DISABLE_COPY(lqRulerReaction)
