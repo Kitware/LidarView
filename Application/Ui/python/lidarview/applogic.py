@@ -1638,9 +1638,6 @@ def setupActions():
     # Setup and add the playback speed control toolbar
     timeToolBar = mW.findChild('QToolBar','Player Control')
 
-    # Place the record button at the right place
-    timeToolBar.addAction(app.actions['actionRecord'])
-
     spinBoxLabel = QtGui.QLabel('TF:')
     spinBoxLabel.toolTip = "Number of trailing frames"
     timeToolBar.addWidget(spinBoxLabel)

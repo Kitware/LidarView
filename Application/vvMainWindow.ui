@@ -98,7 +98,6 @@
     <addaction name="separator"/>
     <addaction name="menuDebugging"/>
     <addaction name="separator"/>
-    <addaction name="actionRecord"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -776,15 +775,6 @@
     <string>Show the GPS Track</string>
    </property>
   </action>
-   <action name="actionRecord">
-    <property name="icon">
-     <iconset resource="Ui/Widgets/images/resources.qrc">
-      <normaloff>:/LidarViewPlugin/media-record.png</normaloff>:/LidarViewPlugin/media-record.png</iconset>
-    </property>
-    <property name="text">
-     <string>Record</string>
-    </property>
-    </action>
  </widget>
  <customwidgets>
   <customwidget>

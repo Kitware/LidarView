@@ -11,13 +11,6 @@
         <file>Icons/pqSpreadsheet16.png</file>
         <file>Icons/pqResetCamera32.png</file>
         <file>Icons/python_logo_124.png</file>
-        <file>Icons/pqXMinus32.png</file>
-        <file>Icons/pqXPlus32.png</file>
-        <file>Icons/pqYMinus32.png</file>
-        <file>Icons/pqYPlus32.png</file>
-        <file>Icons/pqZMinus32.png</file>
-        <file>Icons/pqZPlus32.png</file>
-        <file>Icons/ViewOrtho.png</file>
         <file>Icons/ViewPerspective.png</file>
         <file>Icons/Measurements.png</file>
         <file>SoftwareInformation/About.png</file>
@@ -26,21 +19,5 @@
         <file>Icons/errorConsole.png</file>
         <file>Icons/camera_logo.png</file>
         <file>Icons/icon_motion.png</file>
-        <file>Icons/media-skip-forward.png</file>
-        <file>Icons/media-skip-backward.png</file>
-        <file>Icons/media-seek-forward.png</file>
-        <file>Icons/media-seek-forward-3x.png</file>
-        <file>Icons/media-seek-forward-2x.png</file>
-        <file>Icons/media-seek-forward-0.25x.png</file>
-        <file>Icons/media-seek-forward-0.5x.png</file>
-        <file>Icons/media-seek-backward.png</file>
-        <file>Icons/media-seek-backward-3x.png</file>
-        <file>Icons/media-seek-backward-2x.png</file>
-        <file>Icons/media-seek-backward-0.25x.png</file>
-        <file>Icons/media-seek-backward-0.5x.png</file>
-        <file>Icons/media-playback-stop.png</file>
-        <file>Icons/media-playback-start.png</file>
-        <file>Icons/media-playback-pause.png</file>
-        <file>Icons/media-loop.png</file>
     </qresource>
 </RCC>
