@@ -190,7 +190,8 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionToggleProjection"/>
-   <addaction name="actionMeasure"/>
+   <addaction name="actionMeasure2D"/>
+   <addaction name="actionMeasure3D"/>
    <addaction name="actionPlaneFit"/>
    <addaction name="separator"/>
   </widget>
@@ -613,13 +614,13 @@
     <string>Toggle between projective and orthogonal view</string>
    </property>
   </action>
-  <action name="actionMeasure">
+  <action name="actionMeasure2D">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/Measurements.png</normaloff>:/vvResources/Icons/Measurements.png</iconset>
+    <iconset resource="../LVCore/ApplicationComponents/lqResources.qrc">
+     <normaloff>:/lqResources/Icons/lqRuler2D.png</normaloff>:/lqResources/Icons/lqRuler2D.png</iconset>
    </property>
    <property name="text">
     <string>Measure</string>
@@ -773,6 +774,15 @@
    </property>
    <property name="toolTip">
     <string>Show the GPS Track</string>
+   </property>
+  </action>
+  <action name="actionMeasure3D">
+   <property name="icon">
+    <iconset resource="../LVCore/ApplicationComponents/lqResources.qrc">
+     <normaloff>:/lqResources/Icons/lqRuler3D.png</normaloff>:/lqResources/Icons/lqRuler3D.png</iconset>
+   </property>
+   <property name="text">
+    <string>actionMeasure3D</string>
    </property>
   </action>
  </widget>

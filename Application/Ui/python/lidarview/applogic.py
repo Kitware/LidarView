@@ -67,8 +67,6 @@ class AppLogic(object):
     def __init__(self):
         self.createStatusBarWidgets()
 
-        self.mousePressed = False
-
         mainView = smp.GetActiveView()
         self.mainView = mainView
 
@@ -547,99 +545,6 @@ def showMeasurementGrid():
     smp.Render()
 
 
-# Start Functions related to ruler
-
-
-def createRuler():
-    pxm = servermanager.ProxyManager()
-    distancerep = pxm.NewProxy('representations', 'DistanceWidgetRepresentation')
-    distancerepeasy = servermanager._getPyProxy(distancerep)
-    smp.GetActiveView().Representations.append(distancerepeasy)
-    distancerepeasy.Visibility = False
-    smp.Render()
-
-    return distancerepeasy
-
-
-def hideRuler():
-    app.ruler.Visibility = False
-    smp.Render()
-
-
-def showRuler():
-    app.ruler.Visibility = True
-    smp.Render()
-
-def getPointFromCoordinate(coord, midPlaneDistance = 0.5):
-    assert len(coord) == 2
-
-    windowHeight = smp.GetActiveView().ViewSize[1]
-
-    displayPoint = [coord[0], windowHeight - coord[1], midPlaneDistance]
-    renderer = smp.GetActiveView().GetRenderer()
-    renderer.SetDisplayPoint(displayPoint)
-    renderer.DisplayToWorld()
-    world1 = renderer.GetWorldPoint()
-
-    return world1[:3]
-
-def toggleRulerContext():
-
-    measurmentState = app.actions['actionMeasure'].isChecked()
-
-    mW = getMainWindow()
-    vtkW = mW.findChild('pqQVTKWidget')
-
-    if measurmentState == True:
-        vtkW.connect('mouseEvent(QMouseEvent*)', setRulerCoordinates)
-
-    elif measurmentState == False:
-        vtkW.disconnect('mouseEvent(QMouseEvent*)', setRulerCoordinates)
-
-        app.mousePressed = False
-        hideRuler()
-
-
-def setRulerCoordinates(mouseEvent):
-
-    pqView = smp.GetActiveView()
-    rW = pqView.GetRenderWindow()
-    windowInteractor = rW.GetInteractor()
-    currentMouseState = mouseEvent.buttons()
-    currentKeyboardState = mouseEvent.modifiers()
-
-    if currentMouseState == 1:  #Left button pressed
-
-        if app.mousePressed == False: #For the first time
-
-            if currentKeyboardState == 67108864: #Control key pressed
-
-                app.mousePressed = True
-                app.ruler.Point1WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-
-                windowInteractor.Disable()
-
-        elif app.mousePressed == True: #Not for the first time
-
-            app.ruler.Point2WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-            showRuler()
-            smp.Render()
-
-    elif currentMouseState == 0: #Left button released
-
-        windowInteractor.Enable()
-
-        if  app.mousePressed == True: #For the first time
-
-            app.mousePressed = False
-            app.ruler.Point2WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-            showRuler()
-            smp.Render()
-
-
-# End Functions related to ruler
-
-
 def rotateCSVFile(filename):
 
     # read the csv file, move the last 3 columns to the
@@ -1052,7 +957,6 @@ def close():
     app.gridProperties.Color = app.grid.Color
 
     smp.GetAnimationScene().Stop()
-    hideRuler()
     unloadData()
     app.scene.AnimationTime = 0
     app.reader = None
@@ -1326,13 +1230,11 @@ def start():
     smp.GetActiveView().LODThreshold = 1e100
     app.DistanceResolutionM = 0.002
     app.grid = createGrid()
-    app.ruler = createRuler()
 
     resetCameraToForwardView()
 
     setupActions()
     disableSaveActions()
-    app.actions['actionMeasure'].setEnabled(view.CameraParallelProjection)
     setupStatusBar()
     hideColorByComponent()
     restoreNativeFileDialogsAction()
@@ -1480,20 +1382,6 @@ def onClearMenu():
     settings.setValue('LidarPlugin/RecentFiles', [])
     updateRecentFiles()
 
-def toggleProjectionType():
-
-    view = smp.GetActiveView()
-
-    view.CameraParallelProjection = not view.CameraParallelProjection
-    if app.actions['actionMeasure'].isChecked():
-        app.actions['actionMeasure'].trigger()
-        app.actions['actionMeasure'].toggle()
-
-    app.actions['actionMeasure'].setEnabled(view.CameraParallelProjection)
-    if not view.CameraParallelProjection:
-        app.actions['actionMeasure'].setChecked(False)
-
-    smp.Render()
 
 def toggleRPM():
     rpm = smp.FindSource("RPM")
@@ -1593,8 +1481,6 @@ def setupActions():
     app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)
     app.actions['actionClear_Menu'].connect('triggered()', onClearMenu)
 
-    app.actions['actionToggleProjection'].connect('triggered()', toggleProjectionType)
-    app.actions['actionMeasure'].connect('triggered()', toggleRulerContext)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)

@@ -34,6 +34,8 @@
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqOpenSensorReaction.h"
 #include "lqUpdateCalibrationReaction.h"
+#include "lqCameraParallelProjectionReaction.h"
+#include "lqRulerReaction.h"
 
 #include <vtkSMProxyManager.h>
 #include <vtkSMSessionProxyManager.h>
@@ -239,6 +241,10 @@ private:
 
     // Change calibration reaction
     new lqUpdateCalibrationReaction(this->Ui.actionChoose_Calibration_File);
+
+    new lqCameraParallelProjectionReaction(this->Ui.actionToggleProjection, this->MainView);
+    new lqRulerReaction(this->Ui.actionMeasure2D, this->MainView, lqRulerReaction::Mode::BETWEEN_2D_POINTS);
+    new lqRulerReaction(this->Ui.actionMeasure3D, this->MainView, lqRulerReaction::Mode::BETWEEN_3D_POINTS);
 
     // Specify each Properties Panel as we do want to present one panel per dock
     this->Ui.propertiesPanel->setPanelMode(pqPropertiesPanel::SOURCE_PROPERTIES);
