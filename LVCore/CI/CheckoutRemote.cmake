@@ -22,13 +22,13 @@ execute_process(
   ERROR_VARIABLE  error
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_STRIP_TRAILING_WHITESPACE
-  ECHO_OUTPUT_VARIABLE
-  ECHO_ERROR_VARIABLE
 )
+message(STATUS "output: ${output}") #CMake 3.18+ feature
+message(STATUS "error:  ${error}")
 if(result)
   string(FIND output "already exists" find_alreadyexists) #Adding the same remote is okay
   if(NOT find_alreadyexists)
-      message(FATAL_ERROR "Adding remote failed: ${output} ${error}")
+      message(FATAL_ERROR "Adding remote failed")
   endif()
 endif()
 
