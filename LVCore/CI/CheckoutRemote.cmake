@@ -24,7 +24,10 @@ execute_process(
   ERROR_STRIP_TRAILING_WHITESPACE
 )
 if(result)
-  message(FATAL_ERROR "Adding remote failed: ${output} ${error}")
+  #string(FIND output "already exists" find_alreadyexists) #Adding the same remote is okay
+  if(NOT find_alreadyexists)
+      message(FATAL_ERROR "Adding remote failed: ${output} ${error}")
+  endif()
 endif()
 
 
