@@ -25,6 +25,6 @@ execute_process(
 )
 if(result)
   message(FATAL_ERROR "Adding remote failed: ${output} ${error}")
-endif
+endif()
 
 
