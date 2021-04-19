@@ -9,6 +9,10 @@ else()
   message(STATUS "Requested checking out ${TRIGGER_MODULE_SHA} from ${TRIGGER_MODULE_REMOTE_NAME} in ${TRIGGER_MODULE_REPOSITORY_PATH}")
 endif()
 
+if(NOT CI_DEPLOY_PASSWORD)
+  message(FATAL_ERROR "CI RUNNER TOKEN is required")
+endif()
+
 Find_package(Git QUIET)
 if(NOT GIT_EXECUTABLE)
   message(FATAL_ERROR "error: could not find git")
@@ -16,7 +20,6 @@ endif()
 
 execute_process(
   COMMAND ${GIT_EXECUTABLE} remote add ${TRIGGER_MODULE_REMOTE_NAME} https://gitlab-ci-token:${CI_DEPLOY_PASSWORD}@${TRIGGER_MODULE_REPOSITORY_PATH}
-  WORKING_DIRECTORY ${TRIGGER_MODULE_REPOSITORY_PATH}
   RESULT_VARIABLE result
   OUTPUT_VARIABLE output
   ERROR_VARIABLE  error
