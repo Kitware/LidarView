@@ -25,10 +25,11 @@ variables:
   TRIGGER_MODULE_REMOTE_NAME:
     value: ''
     description: Define it if the SHA needs to be fetched from another remote
-  SB_BUILD_PREFIX: '' # use a unique value to have a custom SB dir for some branches and not rely on the generic one
-                      # this may be usefull, when you make changes to the superbuild, and want to check
-                      # that this change pass the CI pipeline, but in the mean time you don't want to
-                      # replace the common on.
+  SB_BUILD_PREFIX: 
+    value: '' 
+    description: |
+      Define it to have a custom SB directory for the pipeline and not rely on the generic one. 
+       Usefull, to check SB related changes on the CI without replacing/breaking the SB on master.
 
 stages:
   - superbuild
