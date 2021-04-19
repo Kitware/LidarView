@@ -49,7 +49,7 @@ default:
       cmake -DTRIGGER_MODULE_SHA=$TRIGGER_MODULE_SHA 
       -DTRIGGER_MODULE_REMOTE_NAME=$TRIGGER_MODULE_REMOTE_NAME 
       -DTRIGGER_MODULE_REPOSITORY_PATH=$TRIGGER_MODULE_REPOSITORY_PATH 
-      -P CI/CheckoutRemote.cmake
+      -P $CI_PROJECT_DIR/LVCore/CI/CheckoutRemote.cmake
     - git remote -v 
     - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
