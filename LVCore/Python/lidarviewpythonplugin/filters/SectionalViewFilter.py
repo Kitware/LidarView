@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation as R
 @smproxy.filter(name="SectionalView", label="Sectional View")
 @smproperty.input(name="Input", port_index=0)
 class SectionalViewFilter(VTKPythonAlgorithmBase):
-    """ Create a section view of the input function along the given plane by 
+    """ Create a section view of the input function along the given plane by
     selecting the points within a given distance of the plane and rotating the
     output so that the plane is aligned with the XY plane
     """
@@ -25,6 +25,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
                 outputType='vtkPolyData')
         self.planeOrigin = np.array([0, 0, 0])
         self.planeNormal = np.array([0, 0, 1])
+        self.matchPlaneUpWithDataZ = True
         self.width = 0.05
 
 
@@ -56,7 +57,19 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
 
         rotation = R.from_rotvec(rotVector)
         offset = rotation.apply(self.planeOrigin)
-        output.Points = rotation.apply(pts) - offset
+        points = rotation.apply(pts) - offset
+
+        if self.matchPlaneUpWithDataZ:
+            projectedZ = rotation.as_matrix()[:, 2]
+            projectedZ[2] = 0.
+            projectedZ /= np.linalg.norm(projectedZ)
+            rotAngle = np.arctan2(projectedZ[0], projectedZ[1])
+            rotVector = np.array([0., 0., 1.]) * rotAngle
+            rotation2D = R.from_rotvec(rotVector)
+            points = rotation2D.apply(points)
+
+        output.Points = points
+
         for key in input0.PointData.keys():
             output.PointData.append(input0.PointData[key][ptsToKeep], key)
 
@@ -86,7 +99,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
     @smproperty.doublevector(name="Width", default_values=0.05)
     @smdomain.doublerange()
     def SetWidth(self, w):
-        """ Half-Width of the section, the output contains all the points that 
+        """ Half-Width of the section, the output contains all the points that
         have a distance <= Width with the section plane"""
         if w <= 0:
             print("Please set a positive value for the section width.")
@@ -94,3 +107,18 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
             self.width = w
             self.Modified()
 
+    @smproperty.xml("""
+        <IntVectorProperty name="MatchPlaneUpWithDataZ"
+            number_of_elements="1"
+            default_values="1"
+            command="SetMatchPlaneUpWithDataZ">
+         <BooleanDomain name='bool'/>
+         <Documentation>
+            Do rotate the output plane in order to have the up direction
+            corresponding to the Z axis of the input data?
+         </Documentation>
+      </IntVectorProperty>
+      """)
+    def SetMatchPlaneUpWithDataZ(self, val):
+        self.matchPlaneUpWithDataZ = val
+        self.Modified()
