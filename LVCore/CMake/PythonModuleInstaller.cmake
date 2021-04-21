@@ -37,10 +37,10 @@ function(python_module_install)
     COMMAND ${Python3_EXECUTABLE}
     ARGS  "${compile_all_script}"
     DEPENDS ${copied_python_files}  ${compile_all_script}
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_complete"
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_complete-${python_module_install_NAME}"
     )
 
-  add_custom_target("${python_module_install_NAME}-python-module" ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/compile_complete")
+  add_custom_target("${python_module_install_NAME}-python-module" ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/compile_complete-${python_module_install_NAME}")
 
 
   # Install python module
