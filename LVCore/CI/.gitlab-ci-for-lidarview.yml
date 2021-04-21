@@ -153,6 +153,7 @@ workflow:
   extends: .default_rules
   needs: []
   script:
+    - cd $CI_PROJECT_DIR
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
     - git describe
