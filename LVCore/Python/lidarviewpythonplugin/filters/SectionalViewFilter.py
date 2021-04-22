@@ -23,7 +23,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
                 nOutputPorts=1,
                 inputType='vtkPolyData',
                 outputType='vtkPolyData')
-        self.planeOrigin = np.array([0, 0, 0])
+        self.planeOrigin = np.zeros(3)
         self.planeNormal = np.array([0, 0, 1])
         self.matchPlaneUpWithDataZ = True
         self.width = 0.05
@@ -44,7 +44,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         # Using help from https://stackoverflow.com/questions/10236557/getting-quaternion-to-rotate-between-two-vectors
         zaxis = np.array([0, 0, 1])
         if np.all(self.planeNormal == zaxis):
-            rotVector = np.array([0, 0, 0])
+            rotVector = np.zeros(3)
 
         elif np.all(self.planeNormal == -zaxis):
             rotVector = np.array([1, 0, 0]) * np.pi
@@ -52,7 +52,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         else:
             rotAxis = np.cross(self.planeNormal, zaxis)
             rotAxis = rotAxis / np.linalg.norm(rotAxis)
-            rotAngle = np.arccos(np.dot(self.planeNormal, zaxis))
+            rotAngle = np.arccos(self.planeNormal[2])
             rotVector = rotAxis * rotAngle
 
         rotation = R.from_rotvec(rotVector)
@@ -64,7 +64,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
             projectedZ[2] = 0.
             projectedZ /= np.linalg.norm(projectedZ)
             rotAngle = np.arctan2(projectedZ[0], projectedZ[1])
-            rotVector = np.array([0., 0., 1.]) * rotAngle
+            rotVector = zaxis * rotAngle
             rotation2D = R.from_rotvec(rotVector)
             points = rotation2D.apply(points)
 
