@@ -13,7 +13,7 @@ class QMainWindow;
 
 /**
 * @ingroup Reactions
-* Reaction to open on the fly a Spreadsheet with in new QDockWidget
+* Reaction to open a Spreadsheet in QDockWidget
 *
 * The spreadsheet has a number specificities:
 * - hide Points_m_XYZ array
@@ -22,6 +22,8 @@ class QMainWindow;
 * - add decorator to spreadsheet
 * - hide the line number in the spreadsheet
 *
+* The QDockWidget always exist but the spreadsheet is create/destruct on the fly when
+* the dock visibility change.
 */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqDockableSpreadSheetReaction : public pqReaction
 {
@@ -32,17 +34,19 @@ public:
   lqDockableSpreadSheetReaction(QAction* action, QMainWindow* mainWindow);
   ~lqDockableSpreadSheetReaction();
 
-public slots:
+protected slots:
   /**
   * Called when the action is triggered.
   */
   void onTriggered() override;
 
+  void onDockVisibilityChanged();
+
 private:
   Q_DISABLE_COPY(lqDockableSpreadSheetReaction)
 
-  void createDock();
-  void destroyDock();
+  void createSpreadSheet();
+  void destroySpreadSheet();
 
   void savePersistanceState();
   void restorePersistanceState();
