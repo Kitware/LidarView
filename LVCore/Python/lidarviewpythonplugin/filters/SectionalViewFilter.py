@@ -26,7 +26,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         self.planeOrigin = np.zeros(3)
         self.planeNormal = np.array([0, 0, 1])
         self.matchPlaneUpWithDataZ = True
-        self.width = 0.05
+        self.maxDistance = 0.05
 
 
     def RequestData(self, request, inInfo, outInfo):
@@ -36,7 +36,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         pts = input0.Points
         dist = np.dot((pts - self.planeOrigin),
                        self.planeNormal)
-        ptsToKeep = np.abs(dist) <= self.width
+        ptsToKeep = np.abs(dist) <= self.maxDistance
         pts = pts[ptsToKeep, :]
         dist = dist[ptsToKeep]
 
@@ -96,15 +96,16 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         self.planeNormal = np.array([x, y, z]) / np.linalg.norm([x, y, z])
         self.Modified()
 
-    @smproperty.doublevector(name="Width", default_values=0.05)
+    @smproperty.doublevector(name="MaxDistance", default_values=0.05)
     @smdomain.doublerange()
-    def SetWidth(self, w):
-        """ Half-Width of the section, the output contains all the points that
-        have a distance <= Width with the section plane"""
-        if w <= 0:
-            print("Please set a positive value for the section width.")
+    def SetMaxDistance(self, d):
+        """ Half-width of the section, the output contains all the points that
+        have a distance <= maxDistance with the section plane"""
+        if d <= 0:
+            print("Please set a positive value for MaxDistance",
+                  "(distance threshold for points to be displayed.)")
         else:
-            self.width = w
+            self.maxDistance = d
             self.Modified()
 
     @smproperty.xml("""
