@@ -30,6 +30,9 @@ variables:
     description: |
       Define it to have a custom SB directory for the pipeline and not rely on the generic one. 
        Usefull, to check SB related changes on the CI without replacing/breaking the SB on master.
+  SB_ADDITIONAL_PARAMS:
+    value: ''
+    description: Define additional params to SB CMake configure 
 
 stages:
   - superbuild
@@ -116,6 +119,7 @@ workflow:
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
       $sb_cmake_option_CMAKE_OSX_SDK
+      $SB_ADDITIONAL_PARAMS
       -DBUILD_TESTING=ON
       -Dsuperbuild_download_location="../downloads"
       $CI_PROJECT_DIR/Superbuild
