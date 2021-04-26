@@ -13,7 +13,7 @@ class vtkSMProxy;
  * @ingroup Reactions
  * Reaction to use a ruler to measure the distance between 2 points in a scene.
  *
- * This points could either be 2D in case the view is orthographic or 3D
+ * These points could either be 2D in case the view is orthographic or 3D
  */
 class lqRulerReaction : public pqReaction
 {
@@ -37,7 +37,7 @@ protected slots:
   void onTriggered() override;
 
   /**
-   * Update the ruler widget cordinate based on the mouse event.
+   * Update the ruler widget coordinate based on the mouse event.
    */
   void onMouseEvent(QMouseEvent* event);
 private:

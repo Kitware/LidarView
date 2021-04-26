@@ -19,7 +19,7 @@ lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *
   // update the button state is coherent with the camera projection mode
   updateUI();
 
-  // The Ui need to be update, each time the ParalllelProjection property is Modified
+  // The Ui needs to be updated, each time the ParalllelProjection property is modified
   this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
   this->connection->Connect(
     this->view->getProxy()->GetProperty("CameraParallelProjection"), vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
@@ -48,8 +48,8 @@ void lqCameraParallelProjectionReaction::updateUI()
     qCritical() << "No View for lqCameraParallelProjectionReaction:";
     return;
   }
-
-  bool mode = pqSMAdaptor::getElementProperty(this->view->getProxy()->GetProperty("CameraParallelProjection")).toBool();
+  vtkSMProperty* property = this->view->getProxy()->GetProperty("CameraParallelProjection");
+  bool mode = pqSMAdaptor::getElementProperty(property).toBool();
   this->parentAction()->setChecked(mode);
   this->view->render();
 }
