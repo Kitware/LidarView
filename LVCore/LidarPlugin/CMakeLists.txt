@@ -175,6 +175,7 @@ list(APPEND servermanager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkLASFileWriter.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkPCDWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkBoundingBoxReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkMotionDetector.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap/vtkBirdEyeViewSnap.cxx
@@ -252,6 +253,7 @@ list(APPEND servermanager_xml
   xml/MLSPosesSmoothing.xml
   xml/RansacPlaneModel.xml
   xml/TrailingFrame.xml
+  xml/PCDWriter.xml
   xml/ProcessingSample.xml
   xml/CameraProjector.xml
   xml/CameraMapper.xml

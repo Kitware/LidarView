@@ -1,0 +1,61 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="writers">
+    <WriterProxy name="PCDWriter" class="vtkPCDWriter">
+      <Documentation short_help="Write to PCD file">
+        Write to Point Cloud Data file format, used by pcl
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type" composite_data_supported="0">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <InputArrayDomain name="point_arrays" attribute_type="point" optional="1" />
+
+      </InputProperty>
+
+      <StringVectorProperty command="SetFileName"
+        name="FileName"
+        number_of_elements="1">
+        <Documentation>The path to the PCD file to write.</Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty
+          name="Binary"
+          command="SetBinary"
+          default_values="0"
+          number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Write the data in ascii or binary.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+          name="Float Point Precision"
+          command="SetFloatPointPrecision"
+          default_values="8"
+          number_of_elements="1">
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="Binary"
+                                   value="0" />
+        </Hints>
+        <Documentation>
+          Write the data in ascii or binary.
+        </Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <Property name="Input" show="0"/>
+        <Property name="FileName" show="0"/>
+        <WriterFactory extensions="pcd" file_description="PCD Point Cloud Data file format"/>
+      </Hints>
+    </WriterProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>
