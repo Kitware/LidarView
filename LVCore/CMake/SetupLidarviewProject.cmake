@@ -25,6 +25,9 @@ set(LV_BUILD_ARCHITECTURE ${LV_BUILD_ARCHITECTURE} CACHE INTERNAL "Architecture 
 if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
   message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
 endif()
+if(NOT superbuild_python_version)
+  message(FATAL_ERROR "superbuild_python_version not set")
+endif()
 
 include(CheckBuildType)
 
@@ -44,15 +47,12 @@ add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
 include(Git)
 include(CTest)
 
-# Include findpythonlibs to get the function PYTHON_ADD_MODULE
-# needed in WRAP_PLUGIN_FOR_PYTHON
-# Warning : Do not use find_package(PythonLibs) because it reset 
-# some PYTHON paths that can enter in conflicts with those found
-# during the superbuild (specially right on APPLE when a second
-# python version has been installed using homebrew)
-include(FindPythonLibs)
-# We force python to version 3.7 as it is the only one that has been tested
-find_package(Python3 3.7 EXACT QUIET REQUIRED COMPONENTS Interpreter)
+# Find Python
+message("Using Python ${superbuild_python_version}")
+find_package(Python3 ${superbuild_python_version} EXACT QUIET REQUIRED COMPONENTS Interpreter Development)
+if(NOT ${superbuild_python_version} EQUAL "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+  message(FATAL_ERROR "Superbuild and found Python Version mismatch")
+endif()
 
 # Version
 include(ParaViewDetermineVersion)
