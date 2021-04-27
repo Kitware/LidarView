@@ -4,6 +4,8 @@
 #include <pqReaction.h>
 #include <vtkSmartPointer.h>
 
+#include "lqapplicationcomponents_export.h"
+
 class pqRenderView;
 class QMouseEvent;
 class vtkEventQtSlotConnect;
@@ -15,7 +17,7 @@ class vtkSMProxy;
  *
  * These points could either be 2D in case the view is orthographic or 3D
  */
-class lqRulerReaction : public pqReaction
+class LQAPPLICATIONCOMPONENTS_EXPORT lqRulerReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;

@@ -4,6 +4,8 @@
 #include <pqReaction.h>
 #include <vtkSmartPointer.h>
 
+#include "lqapplicationcomponents_export.h"
+
 class pqRenderView;
 class vtkEventQtSlotConnect;
 
@@ -11,7 +13,7 @@ class vtkEventQtSlotConnect;
 * @ingroup Reactions
 * Reaction to change the camera projection type between perspective and parallel
 */
-class lqCameraParallelProjectionReaction : public pqReaction
+class LQAPPLICATIONCOMPONENTS_EXPORT lqCameraParallelProjectionReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;
