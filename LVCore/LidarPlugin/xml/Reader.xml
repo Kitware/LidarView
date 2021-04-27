@@ -170,6 +170,16 @@
       <Property name="PacketInterpreter" />
     </PropertyGroup>
 
+    <IntVectorProperty
+        name="PositionOrientationPort"
+        command="SetPositionOrientationPort"
+        default_values="-1"
+        number_of_elements="1">
+      <Documentation>
+        Specify which position orientation packets are read. To read all packets set the value to -1
+      </Documentation>
+    </IntVectorProperty>
+
   </SourceProxy>
 </ProxyGroup>
 <!-- End PositionOrientationReader -->

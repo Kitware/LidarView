@@ -60,7 +60,14 @@ void vtkPositionOrientationPacketReader::Open()
 {
   this->Close();
   this->Reader = new vtkPacketFileReader;
-  if (!this->Reader->Open(this->FileName))
+
+  std::string filterPCAP = "udp";
+  if (this->PositionOrientationPort != -1)
+  {
+    filterPCAP += " port " + std::to_string(this->PositionOrientationPort);
+  }
+
+  if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
                                                  << this->Reader->GetLastError())

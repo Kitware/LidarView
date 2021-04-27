@@ -55,6 +55,9 @@ public:
 
   vtkMTimeType GetMTime() override;
 
+  vtkGetMacro(PositionOrientationPort, int)
+  vtkSetMacro(PositionOrientationPort, int)
+
 protected:
   vtkPositionOrientationPacketReader();
   ~vtkPositionOrientationPacketReader() = default;
@@ -67,6 +70,10 @@ protected:
 
   //! libpcap wrapped reader which enable to get the raw pcap packet from the pcap file
   vtkPacketFileReader* Reader = nullptr;
+
+  //! Filter the packet to only read the packet received on a specify port
+  //! To read all packet use -1
+  int PositionOrientationPort = -1;
 
 private:
   vtkPositionOrientationPacketReader(const vtkPositionOrientationPacketReader&) = delete;
