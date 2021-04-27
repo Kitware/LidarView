@@ -1,15 +1,19 @@
 option(ENABLE_slam "Build Lidar SLAM (requires PCL, Ceres, nanoflann; optional g2o)" OFF)
 if(ENABLE_slam)
 
+  # Notify to build Paraview LidarSlamPlugin
   set(SLAM_PARAVIEW_PLUGIN ON CACHE INTERNAL "")
+  # Set install directories
   set(SLAM_INSTALL_LIBRARY_DIR ${LV_INSTALL_LIBRARY_DIR} CACHE INTERNAL "")
-
   if (APPLE)
     set(SLAM_INSTALL_PARAVIEW_PLUGIN_DIR ${LV_INSTALL_LIBRARY_DIR}/../Plugins CACHE INTERNAL "")
   else()
     set(SLAM_INSTALL_PARAVIEW_PLUGIN_DIR ${LV_INSTALL_LIBRARY_DIR}/plugins CACHE INTERNAL "")
   endif()
+  # Build LidarSlam lib as STATIC in order to have a standalone LidarSlamPlugin
+  set(BUILD_SHARED_LIBS OFF)
 
+  # Build SLAM lib and PV plugin
   add_subdirectory(LidarSlam)
 
 endif(ENABLE_slam)
