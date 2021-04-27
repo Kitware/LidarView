@@ -37,6 +37,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
 
     void SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 
+    virtual QString GetExplanationOnUI() = 0;
+
   public slots:
     virtual void onUpdateUI();
     void onCalibrate();

@@ -22,6 +22,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorReaderWidget : public lqSensorWidge
   public:
     explicit lqSensorReaderWidget(QWidget *parent = 0);
 
+  QString GetExplanationOnUI() override;
+
   public slots:
     void onUpdateUI() override;
 

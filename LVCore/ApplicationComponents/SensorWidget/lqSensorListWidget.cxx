@@ -4,6 +4,7 @@
 
 // QT includes.
 #include <QApplication>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <QSpacerItem>
 #include <QScrollArea>
@@ -40,6 +41,8 @@ namespace Ui
     QVBoxLayout* sensorListLayout;
     QSpacerItem* verticalSpacer;
 
+    QLabel* caption;
+
     void setupUi(QWidget *parent)
     {
         if (parent->objectName().isEmpty())
@@ -74,7 +77,10 @@ namespace Ui
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
         verticalLayout->addItem(verticalSpacer);
 
+        caption = new QLabel();
+
         scrollArea->setWidget(scrollAreaWidgetContents);
+        panelLayout->addWidget(caption);
         panelLayout->addWidget(scrollArea);
 
         retranslateUi(parent);
@@ -165,6 +171,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     this->sensorWidgets.push_back(sensorWidget);
     this->ui->sensorListLayout->addWidget(sensorWidget);
     sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
+    this->ui->caption->setText(sensorWidget->GetExplanationOnUI());
   }
 }
 

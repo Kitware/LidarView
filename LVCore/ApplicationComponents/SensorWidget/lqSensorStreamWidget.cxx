@@ -90,3 +90,13 @@ void lqSensorStreamWidget::onUpdateUI()
   this->UI->SensorInformation->setText(sensorInfo);
 
 }
+
+//-----------------------------------------------------------------------------
+QString lqSensorStreamWidget::GetExplanationOnUI()
+{
+  QString caption = "This widget displays all sensors you have open.\n\
+For each sensor, you can see its name, port, calibration file, ...\n\
+You can use the [calibrate] button to modify some options (translation, ...)\n\
+You can use the [start]/[stop] button to manage the stream.";
+  return caption;
+}
