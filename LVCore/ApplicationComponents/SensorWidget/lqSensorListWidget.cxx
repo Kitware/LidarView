@@ -1,5 +1,6 @@
 #include "lqSensorListWidget.h"
 #include "lqSensorStreamWidget.h"
+#include "lqSensorReaderWidget.h"
 
 // QT includes.
 #include <QApplication>
@@ -154,10 +155,12 @@ lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 {
-  if (IsLidarStreamProxy(src->getProxy()))
+  if (IsLidarProxy(src->getProxy()))
   {
-    // add a lqSensorStreamWidget to layout
-    lqSensorWidget* sensorWidget = new lqSensorStreamWidget(this);
+    // add a lqSensorReaderWidget to layout
+    lqSensorWidget* sensorWidget = IsLidarReaderProxy(src->getProxy())
+                                    ? static_cast<lqSensorWidget *>(new lqSensorReaderWidget(this))
+                                    : static_cast<lqSensorWidget *>(new lqSensorStreamWidget(this));
     sensorWidget->SetLidarSource(src);
     this->sensorWidgets.push_back(sensorWidget);
     this->ui->sensorListLayout->addWidget(sensorWidget);

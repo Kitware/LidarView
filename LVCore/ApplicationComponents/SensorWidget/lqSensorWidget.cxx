@@ -28,6 +28,7 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   this->UI->lidarPort->setVisible(false);
   this->UI->posOrPort->setVisible(false);
   this->UI->toggle->setVisible(false);
+  this->UI->PCAPFile->setVisible(false);
   this->UI->SensorInformation->setVisible(false);
 
   // create all connection

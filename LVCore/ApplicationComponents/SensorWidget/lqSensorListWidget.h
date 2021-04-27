@@ -14,10 +14,13 @@ namespace Ui {
 }
 
 /**
- * @brief The lqSensorListWidget enable to visualize a list of the opened LidarStream in the sensorlist Dock.
+ * @brief The lqSensorListWidget enable to visualize a list of the opened LidarStream or LidarReader
+ *  in the sensorlist Dock.
  *
  * This widget manage a list of lqSensorWidget according to signals generated when a lidar source is
  * added, removed or renamed.
+ * The lqSensorListWidget will not taking into accound previous created sensors.
+ * It should be created in the mainWindows
  */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
 {
