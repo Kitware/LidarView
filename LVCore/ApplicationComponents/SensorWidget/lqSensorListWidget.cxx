@@ -1,5 +1,5 @@
 #include "lqSensorListWidget.h"
-#include "lqSensorWidget.h"
+#include "lqSensorStreamWidget.h"
 
 // QT includes.
 #include <QApplication>
@@ -49,7 +49,7 @@ namespace Ui
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(parent->sizePolicy().hasHeightForWidth());
         parent->setSizePolicy(sizePolicy);
-        parent->setMinimumSize(QSize(180, 110));
+        parent->setMinimumSize(QSize(330, 110));
         parent->setMaximumSize(QSize(16777215, 16777215));
 
         panelLayout = new QVBoxLayout(parent);
@@ -130,7 +130,7 @@ lqSensorListWidget::~lqSensorListWidget()
 //-----------------------------------------------------------------------------
 lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 {
-  if (IsLidarStream(src))
+  if (IsLidarProxy(src->getProxy()))
   {
     for (lqSensorWidget* widget: this->sensorWidgets)
     {
@@ -139,7 +139,7 @@ lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
     }
   }
 
-  if (IsPositionOrientationStream(src))
+  if (IsPositionOrientationProxy(src->getProxy()))
   {
     for (lqSensorWidget* widget: this->sensorWidgets)
     {
@@ -154,10 +154,10 @@ lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 {
-  if (IsLidarStream(src))
+  if (IsLidarStreamProxy(src->getProxy()))
   {
-    // add a sensorWidget to layout
-    lqSensorWidget* sensorWidget = new lqSensorWidget(this);
+    // add a lqSensorStreamWidget to layout
+    lqSensorWidget* sensorWidget = new lqSensorStreamWidget(this);
     sensorWidget->SetLidarSource(src);
     this->sensorWidgets.push_back(sensorWidget);
     this->ui->sensorListLayout->addWidget(sensorWidget);
@@ -168,7 +168,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
 {
-  if (IsLidarStream(src))
+  if (IsLidarProxy(src->getProxy()))
   {
     for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
     {
@@ -182,7 +182,7 @@ void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
   }
 
   // If the removed source is a PosOr Source, we have to delete ot from its widget
-  else if (IsPositionOrientationStream(src))
+  else if (IsPositionOrientationProxy(src->getProxy()))
   {
     lqSensorWidget* sensorWidget = this->findWidget(src);
     if (sensorWidget && sensorWidget->GetPositionOrientationSource())

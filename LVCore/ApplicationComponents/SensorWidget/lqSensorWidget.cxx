@@ -24,8 +24,13 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
 {
   this->UI->setupUi(this);
 
+  // Clean Ui
+  this->UI->lidarPort->setVisible(false);
+  this->UI->posOrPort->setVisible(false);
+  this->UI->toggle->setVisible(false);
+  this->UI->SensorInformation->setVisible(false);
+
   // create all connection
-  this->connect(UI->toggle, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
   this->connect(UI->close, SIGNAL(clicked()), this, SLOT(onClose()));
   this->connect(UI->calibrate, SIGNAL(clicked()), this, SLOT(onCalibrate()));
 }
@@ -48,17 +53,8 @@ void lqSensorWidget::SetLidarSource(pqPipelineSource* src)
   if (!src)
     return;
 
-
-  // create lidarStream source and update port and calibration file path
+  // create lidarSource and update UI
   this->LidarSource = src;
-
-  // update toggle button state after start sensor
-  // here we don't use setChecked function to avoid emitting a toggled signal
-  // Note : when toggle signal is catched the stream Start is invoqued
-  // This is not what we want here
-  this->UI->toggle->setDown(true);
-  this->UI->toggle->setText("Stop");
-  this->UI->toggle->setStyleSheet("color :red;");
 
   this->onUpdateUI();
 
@@ -118,34 +114,22 @@ void lqSensorWidget::onCalibrate()
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::onToggled(bool checked)
+void lqSensorWidget::onClose()
 {
-  if (this->LidarSource)
+  if (this->LidarSource && !this->IsClosing)
   {
-    if (checked)
-    {
-      this->LidarSource->getProxy()->InvokeCommand("Start");
-      if (this->PositionOrientationSource)
-        this->PositionOrientationSource->getProxy()->InvokeCommand("Start");
+    this->IsClosing = true;
+    this->deleteSource(this->LidarSource);
 
-      this->UI->toggle->setText("Stop");
-      this->UI->toggle->setStyleSheet("color :red;");
-    }
-    else
-    {
-      this->LidarSource->getProxy()->InvokeCommand("Stop");
-      if (this->PositionOrientationSource)
-        this->PositionOrientationSource->getProxy()->InvokeCommand("Stop");
+    if (this->PositionOrientationSource)
+      this->deleteSource(this->PositionOrientationSource);
 
-      this->UI->toggle->setText("Start");
-      this->UI->toggle->setStyleSheet("color :green;");
-
-    }
+    this->deleteLater();
   }
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::onClose()
+void lqSensorWidget::onShowHide()
 {
   if (this->LidarSource && !this->IsClosing)
   {
@@ -180,49 +164,26 @@ void lqSensorWidget::deleteSource(pqPipelineSource *src)
 void lqSensorWidget::onUpdateUI()
 {
   assert(this->LidarSource);
+
   // Update UI with lidar information
   vtkSMProxy * lidarProxy = this->LidarSource->getProxy();
-  vtkSMProperty * lidarPropListeningPort= lidarProxy->GetProperty("ListeningPort");
-  QString lidarListeningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(lidarPropListeningPort).GetAsInt()));
   vtkSMProperty * lidarPropCalibName = lidarProxy->GetProperty("CalibrationFileName");
   QString lidarCalibName = QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
 
   QString lidarName = this->LidarSource->getSMName();
-  QString lidarPort = "Port: " + lidarListeningPort;
   QString calibrationFileName = "Calibration Filename: " + lidarCalibName;
   this->UI->lidarName->setText(lidarName);
-  this->UI->lidarPort->setText(lidarPort);
   this->UI->CalibrationFile->setText(calibrationFileName);
-
-  // Get the Sensor Information with the vtkLidarStream
-  // We can not get the sensor information using the proxy
-  // because this is not working if the method called have arguments (even if we don't want to specfy it)
-  // And we want to have the shortVersion = True.
-  vtkLidarStream * lidarStream = vtkLidarStream::SafeDownCast(lidarProxy->GetClientSideObject());
-  if(!lidarStream)
-  {
-    return;
-  }
-  QString lidarSensorInfo = QString::fromStdString(lidarStream->GetSensorInformation(true));
-  QString sensorInfo = "Sensor Information: " + lidarSensorInfo;
-  this->UI->SensorInformation->setText(sensorInfo);
 
   // Update UI with Position Orientation information
   if(this->PositionOrientationSource)
   {
-    vtkSMProxy * posOrProxy = this->PositionOrientationSource->getProxy();
-    vtkSMProperty * posOrPropListeningPort= posOrProxy->GetProperty("ListeningPort");
-    QString posOrlisteningPort = QString::fromStdString(std::to_string(vtkSMPropertyHelper(posOrPropListeningPort).GetAsInt()));
-
+    this->UI->posOrName->setVisible(true);
     QString posOrName = this->PositionOrientationSource->getSMName();
-    QString posOrPort = "Port: " + posOrlisteningPort;
     this->UI->posOrName->setText(posOrName);
-    this->UI->posOrPort->setText(posOrPort);
   }
   else
   {
-    this->UI->posOrName->setText(QString(""));
-    this->UI->posOrPort->setText(QString(""));
+    this->UI->posOrName->setVisible(false);
   }
-
 }

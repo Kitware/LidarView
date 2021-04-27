@@ -57,6 +57,8 @@ add_library(lqApplicationComponents
   SensorWidget/lqSensorWidget.cxx
   SensorWidget/lqSensorWidget.h
   SensorWidget/lqSensorWidget.ui
+  SensorWidget/lqSensorStreamWidget.cxx
+  SensorWidget/lqSensorStreamWidget.h
   lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC

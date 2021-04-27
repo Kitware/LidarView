@@ -38,21 +38,20 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
     void SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 
   public slots:
-    void onUpdateUI();
+    virtual void onUpdateUI();
     void onCalibrate();
     void onClose();
+    void onShowHide();
 
-private slots:
-    void onToggled(bool checked);
 
-private:
+protected:
     Q_DISABLE_COPY(lqSensorWidget)
     void deleteSource(pqPipelineSource* src);
 
-    bool IsClosing;
-    Ui::lqSensorWidget* UI;
     pqPipelineSource* LidarSource;
     pqPipelineSource* PositionOrientationSource;
+    bool IsClosing;
+    Ui::lqSensorWidget* UI;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
 };
 
