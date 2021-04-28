@@ -33,6 +33,8 @@ add_library(lqApplicationComponents
   lqStreamRecordDialog.h
   lqStreamRecordReaction.cxx
   lqStreamRecordReaction.h
+  lqViewFrameActions.cxx
+  lqViewFrameActions.h
   lqRulerReaction.h
   lqRulerReaction.cxx
   lqLiveSourceScalarColoringBehavior.cxx
