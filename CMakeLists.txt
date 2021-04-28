@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/LVCore/CMake")
 include(SetupLidarviewProject)
 
 # custom code here
-# ...
+add_subdirectory(Plugins/VelodynePlugin)
 
 # Must be invoked Last
 include(FinalizeLidarViewProject)
