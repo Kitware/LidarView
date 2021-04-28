@@ -55,12 +55,37 @@ file(STRINGS version.txt version_txt)
 extract_version_components("${version_txt}" "LV")
 determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
-#PARAVIEW
+# Paraview
 #must be included after Python and Determine version
+if( NOT ParaView_DIR)
+  message(WARNING "ParaView_DIR not found")
+  message(FATAL_ERROR "Building with external Paraview not yet implemented")
+endif()
 find_package(ParaView REQUIRED)
+message(STATUS "Paraview-${ParaView_VERSION} QT:${PARAVIEW_USE_QT} Python:${PARAVIEW_USE_PYTHON}")
 
-# Here we use a custom cmake file to find PythonQt and a PythonQtPlugin
-# Find within Paraview Build directory, with Paraview Version
+# VTK from Paraview
+if(NOT VTK_DIR)
+  message(WARNING "Is VTK provided by Paraview ?")
+endif()
+if(NOT VTK_FOUND )
+  message(FATAL_ERROR "VTK not found")
+endif()
+if(NOT VTK_VERSION )
+  message(FATAL_ERROR "VTK_VERSION not defined or empty, is VTK FOUND ?")
+endif()
+message(STATUS "VTK-${VTK_VERSION}")
+
+# Qt5
+if(NOT PARAVIEW_BUILD_QT_GUI) #Note Paraview cmake prefers using `PARAVIEW_USE_QT`and `PARAVIEW_USE_PYTHON`
+  message(FATAL_ERROR "PARAVIEW_BUILD_QT_GUI is OFF, Paraview must be built with Qt")
+endif()
+if(NOT Qt5_FOUND)
+    message(FATAL_ERROR "Qt5 not found")
+endif()
+message(STATUS "Qt: ${PARAVIEW_QT_VERSION}, actually ${Qt5Core_VERSION}")
+
+# PythonQt and a PythonQtPlugin from Paraview, custom made
 find_package(PythonQt REQUIRED)
 
 # Doc
