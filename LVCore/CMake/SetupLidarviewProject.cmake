@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#This allows incremental build within the ExternalProject dir `lidarview-sb/common-sb/lidarview/build`
+set(SOFTWARE_NAME   ${SOFTWARE_NAME}   CACHE INTERNAL "LidarView-Based app name")
+set(SOFTWARE_VENDOR ${SOFTWARE_VENDOR} CACHE INTERNAL "LidarView-Based app vendor")
+set(LV_BUILD_ARCHITECTURE ${LV_BUILD_ARCHITECTURE} CACHE INTERNAL "Architecture address byte width")
+
 #Sanitize checks
 if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
   message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
