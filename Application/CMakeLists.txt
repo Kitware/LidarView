@@ -38,26 +38,30 @@ set (PARAVIEW_INSTALL_LIB_DIR "lib/paraview-${paraview_version}")
 # You also need to change:
 #   - bottom_logo.png (bottom logo)
 
-build_paraview_client(${SOFTWARE_NAME}
-  TITLE "${SOFTWARE_NAME} ${LV_VERSION_FULL} ${LV_BUILD_ARCHITECTURE}-bit"
+paraview_client_add(
+  NAME lidarview #wip should be lidarview right?
+  NAMESPACE "LidarView"
+  VERSION ${LV_VERSION_FULL}
+  APPLICATION_NAME "${SOFTWARE_NAME}"
   ORGANIZATION "${SOFTWARE_VENDOR}"
-  VERSION_MAJOR ${LV_VERSION_MAJOR}
-  VERSION_MINOR ${LV_VERSION_MINOR}
-  VERSION_PATCH ${LV_VERSION_PATCH}
-  PVMAIN_WINDOW vvMainWindow
-  PVMAIN_WINDOW_INCLUDE vvMainWindow.h
-  SPLASH_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/Splash.jpg"
-  # right now the bundle's logo.icns file must be at the root of LidarView sources
-  # this problem is due to paraview/src/CMake/ParaViewBranding.cmake,
-  # on line: GET_FILENAME_COMPONENT(bundle_icon_file "${BPC_BUNDLE_ICON}" NAME)
-  BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
+  TITLE "${SOFTWARE_NAME} ${LV_VERSION_FULL} ${LV_BUILD_ARCHITECTURE}-bit"
+  SPLASH_IMAGE     "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/Splash.jpg"
+  BUNDLE_ICON      "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
   APPLICATION_ICON "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/logo.ico"
+  
+  #REQUIRED_PLUGINS LidarPlugin #unknown
+  PLUGINS_TARGETS   LidarView::LidarPlugin
+  
+  MAIN_WINDOW_CLASS vvMainWindow
+  MAIN_WINDOW_INCLUDE vvMainWindow.h
   SOURCES ${source_files}
-  GUI_CONFIGURATION_XMLS
+  APPLICATION_XMLS
     ${CMAKE_CURRENT_SOURCE_DIR}/vvSources.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/vvFilters.xml
-  INSTALL_BIN_DIR "bin"
-  INSTALL_LIB_DIR ${LV_INSTALL_LIBRARY_DIR}
+    
+  #BUNDLE_DESTINATION #wip useful macosx?
+  RUNTIME_DESTINATION ${LV_INSTALL_RUNTIME_DIR}
+  LIBRARY_DESTINATION ${LV_INSTALL_LIBRARY_DIR}
 )
 
 target_include_directories(${SOFTWARE_NAME} PUBLIC
