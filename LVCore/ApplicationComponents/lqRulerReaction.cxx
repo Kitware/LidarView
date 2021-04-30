@@ -66,11 +66,11 @@ void lqRulerReaction::onTriggered()
   if (this->parentAction()->isChecked())
   {
     this->mousePressed = false;
-    QObject::connect(v, &pqQVTKWidget::mouseEvent, this, &lqRulerReaction::onMouseEvent);
+    QObject::connect(v, &pqQVTKWidget::notifyQApplication, this, &lqRulerReaction::onMouseEvent);
   }
   else
   {
-    QObject::disconnect(v, &pqQVTKWidget::mouseEvent, this, &lqRulerReaction::onMouseEvent);
+    QObject::disconnect(v, &pqQVTKWidget::notifyQApplication, this, &lqRulerReaction::onMouseEvent);
     this->displayRuler(false);
   }
 }
