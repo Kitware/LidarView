@@ -57,12 +57,18 @@ determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
 # Paraview
 #must be included after Python and Determine version
-if( NOT ParaView_DIR)
+if(NOT ParaView_DIR)
   message(WARNING "ParaView_DIR not found")
   message(FATAL_ERROR "Building with external Paraview not yet implemented")
 endif()
+#[[
+# Disabled Because of weird behavior of paraview.cmake
+if(NOT PARAVIEW_USE_PYTHON)
+  message(FATAL_ERROR "PARAVIEW_USE_PYTHON not set but required")
+endif()
+]]
 find_package(ParaView REQUIRED)
-message(STATUS "Paraview-${ParaView_VERSION} QT:${PARAVIEW_USE_QT} Python:${PARAVIEW_USE_PYTHON}")
+message(STATUS "Paraview-${ParaView_VERSION}")
 
 # VTK from Paraview
 if(NOT VTK_DIR)
@@ -77,14 +83,14 @@ endif()
 message(STATUS "VTK-${VTK_VERSION}")
 
 # Qt5
-if(NOT PARAVIEW_BUILD_QT_GUI) #Note Paraview cmake prefers using `PARAVIEW_USE_QT`and `PARAVIEW_USE_PYTHON`
+if(NOT PARAVIEW_USE_QT)
   message(FATAL_ERROR "PARAVIEW_BUILD_QT_GUI is OFF, Paraview must be built with Qt")
 endif()
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui UiTools Svg)
 if(NOT Qt5_FOUND)
     message(FATAL_ERROR "Qt5 not found")
 endif()
 message(STATUS "Qt: ${PARAVIEW_QT_VERSION}, actually ${Qt5Core_VERSION}")
-
 # PythonQt and a PythonQtPlugin from Paraview, custom made
 find_package(PythonQt REQUIRED)
 
