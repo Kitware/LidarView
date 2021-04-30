@@ -7,8 +7,14 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 import vtk
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 
+epsilon = 1e-5
+
+def ComputeRotation(rotAngle, rotAxis):
+    cosa = np.cos(rotAngle)
+    sina = np.sin(rotAngle)
+    ux = np.array([[0., -rotAxis[2], rotAxis[1]], [rotAxis[2], 0., -rotAxis[0]], [-rotAxis[1], rotAxis[0], 0.]])
+    return cosa * np.identity(3) + sina * ux + (1 - cosa) * np.outer(rotAxis, rotAxis)
 
 @smproxy.filter(name="SectionalView", label="Sectional View")
 @smproperty.input(name="Input", port_index=0)
@@ -24,7 +30,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
                 inputType='vtkPolyData',
                 outputType='vtkPolyData')
         self.planeOrigin = np.zeros(3)
-        self.planeNormal = np.array([0, 0, 1])
+        self.planeNormal = np.array([0., 0., 1.])
         self.matchPlaneUpWithDataZ = True
         self.maxDistance = 0.05
 
@@ -40,33 +46,32 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
         pts = pts[ptsToKeep, :]
         dist = dist[ptsToKeep]
 
-        # Compute rotation quateronion to project points onto XY plane
-        # Using help from https://stackoverflow.com/questions/10236557/getting-quaternion-to-rotate-between-two-vectors
-        zaxis = np.array([0, 0, 1])
-        if np.all(self.planeNormal == zaxis):
-            rotVector = np.zeros(3)
+        # Compute rotation to project points onto XY plane
+        zaxis = np.array([0., 0., 1.])
+        R = np.identity(3)
+        if np.dot(self.planeNormal, zaxis) < -(1. - epsilon):
+            R[0][0] = -1.
+            R[1][1] = -1.
 
-        elif np.all(self.planeNormal == -zaxis):
-            rotVector = np.array([1, 0, 0]) * np.pi
-
-        else:
+        elif np.dot(self.planeNormal, zaxis) < (1. - epsilon):
             rotAxis = np.cross(self.planeNormal, zaxis)
             rotAxis = rotAxis / np.linalg.norm(rotAxis)
             rotAngle = np.arccos(self.planeNormal[2])
-            rotVector = rotAxis * rotAngle
+            R = ComputeRotation(rotAngle, rotAxis)
 
-        rotation = R.from_rotvec(rotVector)
-        offset = rotation.apply(self.planeOrigin)
-        points = rotation.apply(pts) - offset
+        offset = np.dot(self.planeOrigin, R)
+        points = np.dot(pts, R) - offset
 
         if self.matchPlaneUpWithDataZ:
-            projectedZ = rotation.as_matrix()[:, 2]
+            projectedZ = R[:, 2]
             projectedZ[2] = 0.
+            if np.linalg.norm(projectedZ) < epsilon:
+                print("Can not align 2D Y with 3D Z")
+                return 0
             projectedZ /= np.linalg.norm(projectedZ)
             rotAngle = np.arctan2(projectedZ[0], projectedZ[1])
-            rotVector = zaxis * rotAngle
-            rotation2D = R.from_rotvec(rotVector)
-            points = rotation2D.apply(points)
+            R = ComputeRotation(rotAngle, zaxis)
+            points = np.dot(points, R)
 
         output.Points = points
 
