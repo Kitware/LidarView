@@ -87,10 +87,36 @@ target_include_directories(lqApplicationComponents PUBLIC
 target_sources(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/lqHelper.cxx
   )
-target_link_libraries(lqApplicationComponents
-    PUBLIC
-    pqApplicationComponents
-    LidarPlugin)
+target_link_libraries(lqApplicationComponents PUBLIC
+  Qt5::Core #wip may be needed elsewhere
+  Qt5::Widgets
+  Qt5::UiTools
+  Qt5::Gui
+  Qt5::Help
+  Qt5::Network
+  Qt5::Sql
+  Qt5::Svg
+  ParaView::pqCore
+  ParaView::pqWidgets
+  ParaView::pqComponents
+  ParaView::pqApplicationComponents
+  ParaView::pqPython
+  ParaView::pvpythonmodules
+  ParaView::PythonInitializer
+  ParaView::RemotingAnimation
+  ParaView::RemotingApplication
+  ParaView::RemotingClientServerStream
+  ParaView::RemotingCore
+  ParaView::RemotingLive
+  ParaView::RemotingMisc
+  ParaView::RemotingServerManager
+  ParaView::RemotingServerManagerPython
+  ParaView::RemotingSettings
+  ParaView::RemotingViews
+  ParaView::RemotingViewsPython
+  
+  LidarCore # Only way to get the headers at compile time
+  )
 target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)
 target_compile_definitions(lqApplicationComponents PRIVATE CTKCore_EXPORTS CTKWidgets_EXPORTS)
 include(GenerateExportHeader)
