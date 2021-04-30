@@ -35,6 +35,8 @@ add_library(lqApplicationComponents
   lqStreamRecordReaction.h
   lqRulerReaction.h
   lqRulerReaction.cxx
+  lqLiveSourceScalarColoringBehavior.cxx
+  lqLiveSourceScalarColoringBehavior.h
   SaveAndLoadLidarState/lqSaveLidarStateReaction.cxx
   SaveAndLoadLidarState/lqSaveLidarStateReaction.h
   SaveAndLoadLidarState/lqLoadLidarStateReaction.cxx
