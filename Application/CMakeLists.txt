@@ -1,4 +1,4 @@
-#Sanitize checks
+# Sanitize checks
 if(NOT LV_INSTALL_LIBRARY_DIR )
   message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
 endif()
@@ -10,9 +10,6 @@ if(NOT LV_VERSION_FULL)
 endif()
 if(NOT LV_BUILD_ARCHITECTURE)
   message(FATAL_ERROR "LV_BUILD_ARCHITECTURE not set")
-endif()
-if(NOT paraview_version)
-  message(FATAL_ERROR "paraview_version not set")
 endif()
 
 add_subdirectory("Ui/")
@@ -39,7 +36,7 @@ set (PARAVIEW_INSTALL_LIB_DIR "lib/paraview-${paraview_version}")
 #   - bottom_logo.png (bottom logo)
 
 paraview_client_add(
-  NAME lidarview #wip should be lidarview right?
+  NAME lidarview #Name of the Target
   NAMESPACE "LidarView"
   VERSION ${LV_VERSION_FULL}
   APPLICATION_NAME "${SOFTWARE_NAME}"
@@ -49,34 +46,44 @@ paraview_client_add(
   BUNDLE_ICON      "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
   APPLICATION_ICON "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/logo.ico"
   
-  #REQUIRED_PLUGINS LidarPlugin #unknown
-  PLUGINS_TARGETS   LidarView::LidarPlugin
-  
+  REQUIRED_PLUGINS LidarPlugin VelodynePlugin
+
   MAIN_WINDOW_CLASS vvMainWindow
   MAIN_WINDOW_INCLUDE vvMainWindow.h
   SOURCES ${source_files}
   APPLICATION_XMLS
     ${CMAKE_CURRENT_SOURCE_DIR}/vvSources.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/vvFilters.xml
-    
-  #BUNDLE_DESTINATION #wip useful macosx?
+  
   RUNTIME_DESTINATION ${LV_INSTALL_RUNTIME_DIR}
   LIBRARY_DESTINATION ${LV_INSTALL_LIBRARY_DIR}
 )
 
-target_include_directories(${SOFTWARE_NAME} PUBLIC
+target_include_directories(lidarview PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR})
 
 # We directly link against the plugin and import them statically.
-if(NOT PYTHONQTPLUGIN_LIBRARY OR NOT PYTHONQT_LIBRARIES)
-  message(FATAL_ERROR "PYTHONQTPLUGIN_LIBRARY OR PYTHONQT_LIBRARIES not set")
-endif()
-target_link_libraries(${SOFTWARE_NAME}
-  PUBLIC
-    LidarPlugin
-    ApplicationUi
-    VelodynePlugin
-    ${PYTHONQTPLUGIN_LIBRARY}
-    ${PYTHONQT_LIBRARIES}
-    lqApplicationComponents)
+target_link_libraries(${SOFTWARE_NAME} PUBLIC
+  Qt5::Core
+  Qt5::Widgets
+  Qt5::UiTools
+  Qt5::Gui
+  Qt5::Help
+  Qt5::Network
+  Qt5::Sql
+  Qt5::Svg
+  ParaView::pqCore
+  ParaView::pqWidgets
+  ParaView::pqComponents
+  ParaView::pqApplicationComponents
+  ParaView::pqPython
+  ParaView::pvpythonmodules
+  ParaView::PythonInitializer
+  PythonQtPlugin # The plugin is needed to be loaded statically
+  lqApplicationComponents #actually LVCore/ApplicationComponents
+  ApplicationUi
+  )
+  
+# Set executable name to be uppercase
+set_target_properties(lidarview PROPERTIES OUTPUT_NAME "${SOFTWARE_NAME}")
