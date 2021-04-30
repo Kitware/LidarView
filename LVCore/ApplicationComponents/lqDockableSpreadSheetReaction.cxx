@@ -86,7 +86,7 @@ void lqDockableSpreadSheetReaction::createSpreadSheet()
   // construct the view
   assert(!this->pqView);
   this->pqView = qobject_cast<pqSpreadSheetView*>
-      (pqApplicationCore::instance()->getObjectBuilder()->createView(pqSpreadSheetView::spreadsheetViewType(), pqApplicationCore::instance()->getActiveServer(), true));
+      (pqApplicationCore::instance()->getObjectBuilder()->createView(pqSpreadSheetView::spreadsheetViewType(), pqApplicationCore::instance()->getActiveServer()));
   this->pqView->rename("main spreadsheet view");
   this->pqView->getProxy()->UpdateVTKObjects();
 
