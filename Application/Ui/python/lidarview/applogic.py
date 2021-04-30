@@ -155,7 +155,6 @@ def openData(filename):
     enableSaveActions()
     addRecentFile(filename)
     app.actions['actionSavePCAP'].setEnabled(False)
-    app.actions['actionChoose_Calibration_File'].setEnabled(False)
     app.actions['actionCropReturns'].setEnabled(False)
     app.actions['actionShowRPM'].enabled = True
 
@@ -293,56 +292,6 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
         if appendFrameNumber:
             suffix = '%s (Frame %04d)' % (suffix, int(app.scene.AnimationTime))
         return '%s%s.%s' % (basename, suffix, extension)
-
-
-def chooseCalibration(calibrationFilename=None):
-
-    class Calibration(object):
-        def __init__(self, dialog):
-            self.calibrationFile = dialog.selectedCalibrationFile()
-            self.gpsYaw = dialog.gpsYaw()
-            self.gpsRoll = dialog.gpsRoll()
-            self.gpsPitch = dialog.gpsPitch()
-            self.lidarPort = dialog.lidarPort()
-            self.gpsPort = dialog.gpsPort()
-            self.gpsForwardingPort = dialog.gpsForwardingPort()
-            self.lidarForwardingPort = dialog.lidarForwardingPort()
-            self.isForwarding = dialog.isForwarding()
-            self.ipAddressForwarding = dialog.ipAddressForwarding()
-            self.sensorTransform = vtk.vtkTransform()
-            self.gpsTransform = vtk.vtkTransform()
-            self.isCrashAnalysing = dialog.isCrashAnalysing()
-            self.isEnableInterpretGPSPackets = dialog.isEnableInterpretGPSPackets()
-
-            qm = dialog.sensorTransform()
-            vmLidar = vtk.vtkMatrix4x4()
-            for row in range(4):
-                vmLidar.SetElement(row, 0, qm.row(row).x())
-                vmLidar.SetElement(row, 1, qm.row(row).y())
-                vmLidar.SetElement(row, 2, qm.row(row).z())
-                vmLidar.SetElement(row, 3, qm.row(row).w())
-            self.sensorTransform.SetMatrix(vmLidar)
-
-            qm = dialog.gpsTransform()
-            vmGps = vtk.vtkMatrix4x4()
-            for row in range(4):
-                vmGps.SetElement(row, 0, qm.row(row).x())
-                vmGps.SetElement(row, 1, qm.row(row).y())
-                vmGps.SetElement(row, 2, qm.row(row).z())
-                vmGps.SetElement(row, 3, qm.row(row).w())
-            self.gpsTransform.SetMatrix(vmGps)
-
-
-    dialog = vvCalibrationDialog(getMainWindow())
-    if calibrationFilename is None:
-        if not dialog.exec_():
-            return None
-        return Calibration(dialog)
-    else:
-        result = Calibration(dialog)
-        result.calibrationFile = calibrationFilename
-        return result
-
 
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
@@ -1020,7 +969,7 @@ def close():
 
 def _setSaveActionsEnabled(enabled):
     for action in ('SaveCSV', 'SavePCAP', 'SaveLAS', 'Export_To_KiwiViewer',
-                   'Close', 'Choose_Calibration_File', 'CropReturns'):
+                   'Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
@@ -1099,22 +1048,6 @@ def getLidarPacketInterpreter():
 
 def getPosition():
     return getattr(app, 'position', None)
-
-def onChooseCalibrationFile():
-
-    calibration = chooseCalibration()
-    if not calibration:
-        return
-
-    calibrationFile = calibration.calibrationFile
-    sensorTransform = calibration.sensorTransform
-
-    lidar = getLidar()
-    if lidar:
-        lidar.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
-        lidar.CalibrationFile = calibrationFile
-        updateUIwithNewLidar()
-
 
 def onCropReturns(show = True):
     dialog = vvCropReturnsDialog(getMainWindow())
