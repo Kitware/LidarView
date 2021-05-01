@@ -86,7 +86,7 @@ PacketReceiver::PacketReceiver(int port,
 
           vtkGenericWarningMacro("Listening on " << listen_address.to_string() << " local IP, with multicast group " << multicast_address.to_string() << " ONLY.");
         }
-        catch(std::exception e)
+        catch(std::exception& e)
         {
           vtkGenericWarningMacro("Error while setting listening address for multicast, please correct it or leave empty to listen on all local ip addresses");
         }
@@ -132,7 +132,7 @@ PacketReceiver::PacketReceiver(int port,
         // Bind the socket to listen address (specific or INADDR_ANY) and to the defined port
         this->Socket.bind(boost::asio::ip::udp::endpoint(listen_address, port));
       }
-      catch(std::exception e)
+      catch(std::exception& e)
       {
         vtkGenericWarningMacro("Error while setting listening address, please correct it or leave empty to ignore");
       }
