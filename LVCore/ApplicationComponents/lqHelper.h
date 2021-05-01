@@ -18,6 +18,7 @@
 #include <vector>
 
 #include<QDialog>
+#include<QSet>
 
 /* This file contains some helpers function to manage proxy (stream and reader)
  * If you want to update some property of a proxy use
@@ -259,7 +260,11 @@ void RemoveAllProxyTypeFromPipelineBrowser()
       sources.insert(src);
     }
   }
-  pqDeleteReaction::deleteSources(sources);
+  QSet<pqProxy*> sources_proxy;
+  foreach(pqPipelineSource* src, sources){
+    sources_proxy.insert(static_cast<pqProxy*>(src));
+  }
+  pqDeleteReaction::deleteSources(sources_proxy);
 }
 
 
