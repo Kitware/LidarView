@@ -106,7 +106,7 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
                         vtkInformationVector** vtkNotUsed(inputVector),
                         vtkInformationVector* outputVector)
 {
-  if (!this->FileName)
+  if (!this->GetFileName())
   {
     vtkErrorMacro("Please select the file to read")
     return 1;
@@ -114,7 +114,7 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
 
   // Read the data from the file
   vtkNew<vtkDelimitedTextReader> csvReader;
-  csvReader->SetFileName(this->FileName);
+  csvReader->SetFileName(this->GetFileName());
   csvReader->DetectNumericColumnsOn();
   csvReader->SetFieldDelimiterCharacters(",");
   csvReader->ForceDoubleOn();
