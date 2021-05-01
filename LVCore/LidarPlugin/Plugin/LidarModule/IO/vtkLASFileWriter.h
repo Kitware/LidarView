@@ -88,9 +88,9 @@ public:
   int ProcessRequest(
                   vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE; // from vtkAlgorithm
+                  vtkInformationVector*) override; // from vtkAlgorithm
   // For debug purpose only:
-  void Update() VTK_OVERRIDE; // from vtkAlgorithm
+  void Update() override; // from vtkAlgorithm
 
   enum
   {
@@ -104,13 +104,13 @@ protected:
 
   int RequestInformation(vtkInformation* request,
                          vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) VTK_OVERRIDE;
+                         vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
 private:
   vtkLASFileWriter(const vtkLASFileWriter&) = delete;
