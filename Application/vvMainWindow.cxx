@@ -57,7 +57,6 @@
 #include <pqPythonManager.h>
 #include <pqTabbedMultiViewWidget.h>
 #include <pqSetName.h>
-#include <vtkPVPlugin.h>
 #include <vtkSMPropertyHelper.h>
 #include "pqAxesToolbar.h"
 #include "pqCameraToolbar.h"
@@ -81,9 +80,9 @@
 #include "lqPlayerControlsToolbar.h"
 
 // Declare the plugin to load.
-PV_PLUGIN_IMPORT_INIT(LidarPlugin);
-PV_PLUGIN_IMPORT_INIT(PythonQtPlugin);
-PV_PLUGIN_IMPORT_INIT(VelodynePlugin);
+#define PARAVIEW_BUILDING_PLUGIN
+#include "vtkPVPlugin.h"
+PV_PLUGIN_IMPORT_INIT(PythonQtPlugin); //could link it dynamically actually wip ?
 
 class vvMainWindow::pqInternals
 {
@@ -386,9 +385,7 @@ vvMainWindow::vvMainWindow()
   this->connect(this->Internals->Ui.outputWidget, SIGNAL(messageDisplayed(const QString&, int)),
     SLOT(handleMessage(const QString&, int)));
 
-  PV_PLUGIN_IMPORT(LidarPlugin);
   PV_PLUGIN_IMPORT(PythonQtPlugin);
-  PV_PLUGIN_IMPORT(VelodynePlugin);
 
   // Branding
   std::stringstream ss;
