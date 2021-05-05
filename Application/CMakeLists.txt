@@ -26,10 +26,6 @@ set (source_files
   vvMainWindow.h
   )
 
-# This ensure that build_paraview_client() adds an "forwarding path" to locate
-# paraview from installed location.
-set (PARAVIEW_INSTALL_LIB_DIR "lib/paraview-${paraview_version}")
-
 # Please make sure to adapt the AboutDialog text in the followin file
 #  Lidar\python\lidarview\aboutDialog.py
 # You also need to change:
