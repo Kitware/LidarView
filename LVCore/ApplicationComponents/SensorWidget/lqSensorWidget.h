@@ -7,6 +7,7 @@
 #include <functional>
 
 class pqPipelineSource;
+class pqProxy;
 
 namespace Ui {
   class lqSensorWidget;
@@ -58,7 +59,7 @@ signals:
 
 protected:
     Q_DISABLE_COPY(lqSensorWidget)
-    void deleteSource(pqPipelineSource* src);
+    void deleteSource(pqProxy* src);
 
     void focusInEvent(QFocusEvent *event) override;
 

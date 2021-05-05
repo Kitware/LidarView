@@ -6,6 +6,7 @@
 
 #include <pqApplicationCore.h>
 #include <pqPipelineSource.h>
+#include <pqProxy.h>
 #include <pqObjectBuilder.h>
 #include <pqSMAdaptor.h>
 
@@ -201,13 +202,13 @@ void lqSensorWidget::onSaveLidarState()
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::deleteSource(pqPipelineSource *src)
+void lqSensorWidget::deleteSource(pqProxy *src)
 {
   if (src)
   {
     pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
-
-    for (pqPipelineSource* consumer: src->getAllConsumers())
+    //Wip check if src is source right ?
+    for (pqPipelineSource* consumer: static_cast<pqPipelineSource*>(src)->getAllConsumers())
       builder->destroy(consumer);
 
     builder->destroy(src);
