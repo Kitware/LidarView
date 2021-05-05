@@ -21,10 +21,10 @@
 //-----------------------------------------------------------------------------
 lqSensorWidget::lqSensorWidget(QWidget *parent) :
   QWidget(parent),
-  LidarSource(nullptr),
-  PositionOrientationSource(nullptr),
   IsClosing(false),
-  UI(new Ui::lqSensorWidget)
+  UI(new Ui::lqSensorWidget),
+  LidarSource(nullptr),
+  PositionOrientationSource(nullptr)
 {
   this->UI->setupUi(this);
 
