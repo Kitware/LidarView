@@ -59,13 +59,6 @@
                       function="Input" />
           </RequiredProperties>
         </ArrayListDomain>
-       <!-- In versions of ParaView greater than 5.6, the FieldDataDomain element is not needed. -->
-        <FieldDataDomain name="field_list">
-          <RequiredProperties>
-            <Property name="PointCloud"
-                      function="Input" />
-          </RequiredProperties>
-        </FieldDataDomain>
       </StringVectorProperty>
 
       <IntVectorProperty name="NormalizeIntensity"
