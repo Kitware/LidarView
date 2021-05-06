@@ -2,50 +2,47 @@ if(NOT LV_INSTALL_PYTHON_MODULES_DIR)
   message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
 endif()
 
-# From inside a CMake function, it is not AFAIK possible to get the path
-# to the file defining the function.
-# Thus we set this variable outside the function (cannot unset it afterward).
-set(python_module_install_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
+include(CMakeParseArguments)
 
 function(python_module_install)
-  cmake_parse_arguments(python_module_install "" "NAME" "FILES" ${ARGN})
+  cmake_parse_arguments(python_module_install "" "NAME;PATH" "FILES" ${ARGN})
 
+  if(NOT python_module_install_NAME)
+    message(FATAL_ERROR "python_module_install requires NAME argument")
+  endif()
+
+  if(NOT python_module_install_PATH)
+    # Assume the Path is the directly python_module_install_NAME
+    set(python_module_install_PATH ${python_module_install_NAME})
+  endif()
+
+  if(python_module_install_FILES)
+    message(DEPRECATION "python_module_install FILES is deprecated, you must bundle into a python module and supply its NAME")
+    message(FATAL_ERROR "Stopping...")
+  endif()
+
+  # Compilation directory
   set(python_module_dir "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/site-packages")
+  set(module_compile_dir "${python_module_dir}/${python_module_install_NAME}")
+  set(module_install_dir "${LV_INSTALL_PYTHON_MODULES_DIR}/${python_module_install_NAME}")
 
-  # Copy python files
-  set(copied_python_files)
-  foreach(file ${python_module_install_FILES})
-    set(src "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
-    set(tgt "${python_module_dir}/${file}")
-    set(copied_python_files ${copied_python_files} ${tgt})
-    get_filename_component(tgtDir ${tgt} PATH)
-    file(MAKE_DIRECTORY ${tgtDir})
-    add_custom_command(DEPENDS ${src}
-                       COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt}
-                       OUTPUT ${tgt}
-                       COMMENT "source copy")
-  endforeach(file)
+  # Set a Custom Command to do at the end
+  # WIP could have been done right away with execute process, but unsure about DEPENDS
+  add_custom_target("Python-module-${python_module_install_NAME}" ALL
+    # Move to Compil dir
+    COMMAND ${CMAKE_COMMAND} -E echo "Getting module at ${python_module_install_PATH}"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${python_module_install_PATH} ${module_compile_dir}
+    # Compile module
+    COMMAND ${CMAKE_COMMAND} -E echo "Compiling ${module_compile_dir}"
+    COMMAND ${Python3_EXECUTABLE} -c "import compileall;compileall.compile_dir('${module_compile_dir}')"
+    # Clean and Install compiled module
+    COMMAND ${CMAKE_COMMAND} -E echo "Installing to ${CMAKE_INSTALL_PREFIX}/${module_install_dir}"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${module_install_dir}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${module_compile_dir} ${CMAKE_INSTALL_PREFIX}/${module_install_dir}
+    DEPENDS ${copied_python_files}
+    COMMENT "Python-module-${python_module_install_NAME}"
+    VERBATIM
+    USES_TERMINAL
+  )
 
-  # Byte compile python files
-  set(compile_all_script "${CMAKE_CURRENT_BINARY_DIR}/compile_all.py")
-
-  configure_file("${python_module_install_LIST_DIR}/PythonModuleInstaller_compile_all.py.in"
-                 ${compile_all_script}
-                 @ONLY IMMEDIATE)
-
-  add_custom_command(
-    COMMAND ${Python3_EXECUTABLE}
-    ARGS  "${compile_all_script}"
-    DEPENDS ${copied_python_files}  ${compile_all_script}
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/compile_complete-${python_module_install_NAME}"
-    )
-
-  add_custom_target("${python_module_install_NAME}-python-module" ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/compile_complete-${python_module_install_NAME}")
-
-
-  # Install python module
-  install(DIRECTORY  ${python_module_dir}/${python_module_install_NAME}
-          DESTINATION ${LV_INSTALL_PYTHON_MODULES_DIR}
-          COMPONENT Runtime
-          USE_SOURCE_PERMISSIONS)
 endfunction()
