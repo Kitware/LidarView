@@ -61,12 +61,7 @@ if(NOT ParaView_DIR)
   message(WARNING "ParaView_DIR not found")
   message(FATAL_ERROR "Building with external Paraview not yet implemented")
 endif()
-#[[
-# Disabled Because of weird behavior of paraview.cmake
-if(NOT PARAVIEW_USE_PYTHON)
-  message(FATAL_ERROR "PARAVIEW_USE_PYTHON not set but required")
-endif()
-]]
+
 find_package(ParaView REQUIRED)
 message(STATUS "Paraview-${ParaView_VERSION}")
 
