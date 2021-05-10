@@ -30,8 +30,8 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
                 inputType='vtkPolyData',
                 outputType='vtkPolyData')
         self.planeOrigin = np.zeros(3)
-        self.planeNormal = np.array([0., 0., 1.])
-        self.matchPlaneUpWithDataZ = True
+        self.planeNormal = np.array([1., 0., 0.])
+        self.YDirection = np.array([0., 0., 1.])
         self.maxDistance = 0.05
 
 
@@ -59,19 +59,18 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
             rotAngle = np.arccos(self.planeNormal[2])
             R = ComputeRotation(rotAngle, rotAxis)
 
-        offset = np.dot(self.planeOrigin, R)
-        points = np.dot(pts, R) - offset
-
-        if self.matchPlaneUpWithDataZ:
-            projectedZ = R[:, 2]
-            projectedZ[2] = 0.
-            if np.linalg.norm(projectedZ) < epsilon:
-                print("Can not align 2D Y with 3D Z")
-                return 0
-            projectedZ /= np.linalg.norm(projectedZ)
-            rotAngle = np.arctan2(projectedZ[0], projectedZ[1])
-            R = ComputeRotation(rotAngle, zaxis)
-            points = np.dot(points, R)
+        offset = np.dot(R, self.planeOrigin)
+        points = np.dot(pts, R.transpose()) - offset
+        
+        projected3dYAxis = np.dot(R, self.YDirection)
+        projected3dYAxis[2] = 0.
+        if np.linalg.norm(projected3dYAxis) < epsilon:
+            print("Can not align 2D Y with 3D axis parameter")
+            return 0
+        projected3dYAxis /= np.linalg.norm(projected3dYAxis)
+        rotAngle = np.arctan2(projected3dYAxis[0], projected3dYAxis[1])
+        R = ComputeRotation(rotAngle, zaxis)
+        points = np.dot(points, R.transpose())
 
         output.Points = points
 
@@ -89,13 +88,13 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
 
         return 1
 
-    @smproperty.doublevector(name="Origin", default_values=[0, 0, 0])
+    @smproperty.doublevector(name="Origin", default_values=[0., 0., 0.])
     def SetOrigin(self, x, y, z):
         """ Set the origin of the section plane """
         self.planeOrigin = np.array([x, y, z])
         self.Modified()
 
-    @smproperty.doublevector(name="Normal", default_values=[0, 0, 1])
+    @smproperty.doublevector(name="Normal", default_values=[1., 0., 0.])
     def SetNormal(self, x, y, z):
         """ Set the normal vector of the section plane """
         self.planeNormal = np.array([x, y, z]) / np.linalg.norm([x, y, z])
@@ -113,18 +112,8 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
             self.maxDistance = d
             self.Modified()
 
-    @smproperty.xml("""
-        <IntVectorProperty name="MatchPlaneUpWithDataZ"
-            number_of_elements="1"
-            default_values="1"
-            command="SetMatchPlaneUpWithDataZ">
-         <BooleanDomain name='bool'/>
-         <Documentation>
-            Do rotate the output plane in order to have the up direction
-            corresponding to the Z axis of the input data?
-         </Documentation>
-      </IntVectorProperty>
-      """)
-    def SetMatchPlaneUpWithDataZ(self, val):
-        self.matchPlaneUpWithDataZ = val
+    @smproperty.doublevector(name="YDirection", default_values=[0., 0., 1.])
+    def SetYDirection(self, nx, ny, nz):
+        """ Set the Y direction of the section"""
+        self.YDirection = np.array([nx, ny, nz]) / np.linalg.norm([nx, ny, nz])
         self.Modified()
