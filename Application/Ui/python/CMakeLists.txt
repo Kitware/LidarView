@@ -7,4 +7,5 @@ python_module_install(NAME lidarview
                       lidarview/gridAdjustmentDialog.py
                       lidarview/planefit.py
                       lidarview/aboutDialog.py
+                      lidarview/cut.py
                       )

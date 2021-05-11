@@ -31,15 +31,17 @@ import gridAdjustmentDialog
 import aboutDialog
 import bisect
 
-from PythonQt.paraview import vvCalibrationDialog, vvCropReturnsDialog, vvSelectFramesDialog
+from PythonQt.paraview import vvCalibrationDialog, vvCropReturnsDialog, vvSelectFramesDialog, pqActiveObjects
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
 import LidarPluginPython
+import lidarviewpythonplugin
 
 import planefit
 
+import cut
 
 _repCache = {}
 
@@ -544,6 +546,33 @@ def showMeasurementGrid():
     rep.Visibility = 1
     smp.Render()
 
+def toggleCutContext():
+    if smp.FindSource("SLAMonline1"):
+        if app.actions['actionCut'].isChecked():
+            getMainWindow().findChild("QDockWidget", "propertiesDock").visible = True
+            getMainWindow().findChild("QDockWidget", "pipelineBrowserDock").visible = True
+            getMainWindow().centralWidget().findChild('pqMultiViewWidget').setDecorationsVisible(True)
+            cut.init()
+            ao.connect("viewChanged(pqView*)", adaptToView)
+        else:
+            if not app.actions['actionAdvanceFeature'].checked:
+                getMainWindow().centralWidget().findChild('pqMultiViewWidget').setDecorationsVisible(False)
+            ao.disconnect("viewChanged(pqView*)", adaptToView)
+            cut.close()
+    else:
+        print("You have to run the SLAM first")
+        app.actions['actionCut'].setChecked(False)
+
+def adaptToView(viewChanged):
+    renderview2 = smp.FindViewOrCreate('RenderView2', viewtype='RenderView')
+    renderview1 = smp.FindViewOrCreate('RenderView1', viewtype='RenderView')
+    view = smp.GetActiveView()
+    if view == renderview1:
+        clip = smp.FindSource('SectionClip')
+        smp.SetActiveSource(clip)
+    elif view == renderview2:
+        orthoSect = smp.FindSource('OrthogonalSectioning')
+        smp.SetActiveSource(orthoSect)
 
 def rotateCSVFile(filename):
 
@@ -1240,7 +1269,8 @@ def start():
     restoreNativeFileDialogsAction()
     updateRecentFiles()
     createRPMBehaviour()
-
+    global ao
+    ao = pqActiveObjects()
 
 def findQObjectByName(widgets, name):
     for w in widgets:
@@ -1481,6 +1511,7 @@ def setupActions():
     app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)
     app.actions['actionClear_Menu'].connect('triggered()', onClearMenu)
 
+    app.actions['actionCut'].connect('triggered()', toggleCutContext)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)

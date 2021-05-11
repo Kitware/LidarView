@@ -193,6 +193,7 @@
    <addaction name="actionMeasure2D"/>
    <addaction name="actionMeasure3D"/>
    <addaction name="actionPlaneFit"/>
+   <addaction name="actionCut"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="geolocationToolbar">
@@ -639,6 +640,21 @@
    </property>
    <property name="toolTip">
     <string>Plane Fit to selection</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="vvResources.qrc">
+     <normaloff>:/vvResources/Icons/section.png</normaloff>:/vvResources/Icons/section.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="toolTip">
+    <string>Create section</string>
    </property>
   </action>
   <action name="actionSavePositionCSV">
