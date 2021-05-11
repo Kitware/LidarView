@@ -1,7 +1,7 @@
 """This module contains tools that help visualization
 
 You can use its functions by executing from the Python shell:
-"from  lidarview import visualizationTools"
+"import  lidarviewcore.visualizationTools as visualizationTools"
 "visualizationTools.someFunction()"
 
 Features:
