@@ -32,7 +32,7 @@ lqRulerReaction::lqRulerReaction(QAction *parent, pqRenderView *v, lqRulerReacti
                   the <b>Ctrl key</b> and the <b>left button</b> of your mouse.";
   }
   this->parentAction()->setToolTip(toolTipText);
-
+  this->parentAction()->setCheckable(true);
   // Create a ruler and hide it for now
   vtkSMProxyManager* proxyManager = vtkSMProxyManager::GetProxyManager();
   this->distanceWidgetRepresentation = proxyManager->NewProxy("representations", "DistanceWidgetRepresentation");

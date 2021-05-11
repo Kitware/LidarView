@@ -51,5 +51,7 @@ void lqCameraParallelProjectionReaction::updateUI()
   vtkSMProperty* property = this->view->getProxy()->GetProperty("CameraParallelProjection");
   bool mode = pqSMAdaptor::getElementProperty(property).toBool();
   this->parentAction()->setChecked(mode);
+  QIcon icon = mode ? QIcon(":/lqResources/Icons/lqViewOrtho.png") : QIcon(":/lqResources/Icons/lqViewPerspective.png");
+  this->parentAction()->setIcon(icon);
   this->view->render();
 }
