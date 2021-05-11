@@ -76,6 +76,7 @@
 #include <sstream>
 
 #include "lqPlayerControlsToolbar.h"
+#include "lqViewFrameActions.h"
 
 // Declare the plugin to load.
 PV_PLUGIN_IMPORT_INIT(LidarPlugin);
@@ -148,9 +149,13 @@ private:
     pqParaViewBehaviors::enableCommandLineOptionsBehavior();
     pqParaViewBehaviors::enableLiveSourceBehavior();
     pqParaViewBehaviors::enableApplyBehavior();
-    pqParaViewBehaviors::enableStandardViewFrameActions();
     pqParaViewBehaviors::enableStandardPropertyWidgets();
     pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
+
+    // Use a custom ViewFrameActions interface
+    pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
+    pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+    pgm->addInterface(new lqViewFrameActions);
 
     // Check if the settings are well formed i.e. if an OriginalMainWindow
     // state was previously saved. If not, we don't want to automatically
