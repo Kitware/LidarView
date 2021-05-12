@@ -36,6 +36,7 @@ variables:
 
 stages:
   - superbuild
+  - clean
   - configure
   - build
   - test
@@ -96,7 +97,7 @@ workflow:
     - if: $DISABLE_LINUX && $CI_JOB_NAME =~ /^linux*/
       when: never
     # define the manual job
-    - if: $CI_JOB_STAGE == "superbuild" || $CI_JOB_STAGE == "package"
+    - if: $CI_JOB_STAGE == "superbuild" || $CI_JOB_STAGE == "clean" || $CI_JOB_STAGE == "package"
       when: manual
       # need to allow_failure as otherwise, this manual jobs will caused the pipeline status to be marked as "Blocked"
       # see https://gitlab.com/gitlab-org/gitlab/-/issues/27095
@@ -124,6 +125,13 @@ workflow:
       -Dsuperbuild_download_location="../downloads"
       $CI_PROJECT_DIR/Superbuild
     - cmake --build . --parallel 8
+
+.clean:
+  stage: clean
+  extends: .default_rules
+  script:
+    - cd $lidarview_build_dir
+    - cmake --build . --target clean 
 
 .configure:
   stage: configure
@@ -262,7 +270,25 @@ windows_superbuild:
     - .superbuild
 
 ##############
-#  Analize   #
+#    Clean   #
+##############
+linux_clean:
+  extends:
+    - .linux_runner_config
+    - .clean
+
+osx_clean:
+  extends:
+    - .osx_runner_config
+    - .clean
+
+windows_clean:
+  extends:
+    - .windows_runner_config
+    - .clean
+
+##############
+#  Configure #
 ##############
 linux_configure:
   extends:
