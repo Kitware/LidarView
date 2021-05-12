@@ -30,12 +30,12 @@ void PacketConsumer::HandleSensorData(NetworkPacket* packet)
     return;
   }
   const unsigned int length = packet->GetPayloadSize();
-
-  if (!this->Stream->GetInterpreter()->IsValidPacket(data, length))
+  vtkInterpreter * interp = this->Stream->GetInterpreter();
+  if (!interp->IsValidPacket(data, length))
     return;
 
-  this->Stream->GetInterpreter()->ProcessPacketWrapped(data, length, GetElapsedTime(packet->ReceptionTime));
-  if (this->Stream->GetInterpreter()->IsNewData())
+  interp->ProcessPacketWrapped(data, length, GetElapsedTime(packet->ReceptionTime));
+  if (interp->IsNewData())
   {
     {
       std::lock_guard<std::mutex> lock(this->Stream->DataMutex);
