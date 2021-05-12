@@ -159,7 +159,7 @@ The PythonQtPlugin is a small plugin that initializes the PythonQt library and m
 
 ---
 
-### Linux Instructions <a name="linux-instructions"></a>
+### Linux build Instructions <a name="linux-instructions"></a>
 
 #### Linux dependencies <a name="linux-dependencies"></a>
 The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
@@ -173,12 +173,18 @@ The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
 - libbz2-dev zlib1g-dev
 - freeglut3-dev
 - pkg-config
+- libffi-dev
+
+The Ubuntu 18.04 one-liner is: `sudo apt-get install build-essential git flex byacc python3.7-dev libxext-dev libxt-dev libbz2-dev zlib1g-dev freeglut3-dev pkg-config libffi-dev`
+
 
 **If using Ubuntu 20.04**
 
 - libnl-gen1-3-dev
 - libprotobuf-dev protobuf-compiler
 - libfreetype-dev
+
+The Ubuntu 18.04 one-liner is: `sudo apt-get install build-essential git flex byacc python3.7-dev libxext-dev libxt-dev libbz2-dev zlib1g-dev freeglut3-dev pkg-config libffi-dev libnl-gen1-3-dev libprotobuf-dev protobuf-compiler libfreetype-dev`
 
 **If using qt5 system:**
 
@@ -188,7 +194,7 @@ The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
 
 - libavformat-dev libavdevice-dev libavcodec-dev
 
-#### Linux build instructions <a name="linux-build-instructions"></a>
+#### Linux compiling instructions <a name="linux-build-instructions"></a>
 
 1. Clone LidarView's source code repository to a directory of your chosing, for example:
 
