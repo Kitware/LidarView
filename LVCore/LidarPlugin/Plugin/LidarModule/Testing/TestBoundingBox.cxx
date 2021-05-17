@@ -62,7 +62,7 @@ int TestBoundingBox()
   obb.Orientation = RollPitchYawToMatrix(Eigen::Vector3d(1.14, -1.078, 0.78));
 
   // check the IsInside using monte-carlo method
-  unsigned int M = 50000000;
+  int M = 50000000;
   unsigned int fracM = 0;
   for (int i = 0; i < M; ++i)
   {

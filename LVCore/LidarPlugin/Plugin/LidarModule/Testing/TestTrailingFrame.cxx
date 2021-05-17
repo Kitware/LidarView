@@ -46,7 +46,7 @@ bool check_multi_block_frames(vtkMultiBlockDataSet* multiblock, std::vector<doub
         return false;
     }
 
-    for (int i = 0; i < multiblock->GetNumberOfBlocks(); ++i)
+    for (int i = 0; i < static_cast<int>(multiblock->GetNumberOfBlocks()); ++i)
     {
         auto poly_data_ptr = multiblock->GetBlock(i);
         if (poly_data_ptr == nullptr)
@@ -82,7 +82,7 @@ bool check_trailing_frames(vtkTrailingFrame* tf, vtkInformation* info, double *t
     auto tf_out=  vtkMultiBlockDataSet::SafeDownCast(tf->GetOutputDataObject(0));
     // extract the previous frames time steps
     std::vector<double> sub_time_steps(nb_trailing_frames + 1, -1.0);
-    for (int i = 0; i < sub_time_steps.size() && time_index - i >= 0; ++i)
+    for (int i = 0; i < static_cast<int>(sub_time_steps.size()) && time_index - i >= 0; ++i)
     {
         sub_time_steps[i] = time_steps[time_index - i];
     }
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
     // get available time steps
     tf->UpdateInformation();
     vtkInformation* outInfo = tf->GetOutputInformation(0);
-    int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    //int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     double *time_steps  = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
     bool res = true;
