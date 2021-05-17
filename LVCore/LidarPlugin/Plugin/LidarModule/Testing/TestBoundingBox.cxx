@@ -32,7 +32,6 @@
 int TestBoundingBox()
 {
   double epsilon = 1e-3;
-  const unsigned int N = 4;
 
   Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
   OrientedBoundingBox<3> obb;
