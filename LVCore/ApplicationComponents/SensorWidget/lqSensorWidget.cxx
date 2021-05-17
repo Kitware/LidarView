@@ -53,8 +53,12 @@ void lqSensorWidget::SetLidarSource(pqPipelineSource* src)
   this->LidarSource = src;
 
   // update toggle button state after start sensor
-  this->UI->toggle->setChecked(true);
+  // here we don't use setChecked function to avoid emitting a toggled signal
+  // Note : when toggle signal is catched the stream Start is invoqued
+  // This is not what we want here
+  this->UI->toggle->setDown(true);
   this->UI->toggle->setText("Stop");
+  this->UI->toggle->setStyleSheet("color :red;");
 
   this->onUpdateUI();
 
