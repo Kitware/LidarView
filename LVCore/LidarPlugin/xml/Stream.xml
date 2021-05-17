@@ -212,7 +212,9 @@
     </ProxyProperty>
 
     <Hints>
-      <LiveSource />
+      <!-- Force the pipeline to try to update the stream every 10 millisecond in case new data are available.
+           This enable to have Lidar up to 100hz -->
+      <LiveSource interval="10"/>
     </Hints>
 
  </SourceProxy>
