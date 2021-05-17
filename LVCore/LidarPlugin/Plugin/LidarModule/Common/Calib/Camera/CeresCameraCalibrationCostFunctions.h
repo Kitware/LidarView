@@ -351,7 +351,7 @@ public:
 private:
   Eigen::Vector3d X;
   Eigen::Vector2d x;
-  std::vector<bool> ActivatedParams = std::vector<bool>(0);
+  std::vector<bool> ActivatedParams = (std::vector<bool>(0));
   Eigen::VectorXd W0;
 };
 }

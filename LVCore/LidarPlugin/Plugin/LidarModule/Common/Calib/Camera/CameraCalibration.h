@@ -120,7 +120,7 @@ LIDARMODULE_EXPORT double NonLinearFisheyeCalibration(const std::vector<Eigen::V
 LIDARMODULE_EXPORT double BrownConradyPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x,
                                       Eigen::Matrix<double, 17, 1>& W, unsigned int it = 1000,
                                       double initLossScale = 5.0, double finalLossScale = 0.60,
-                                      const std::vector<bool>& shouldOptimizeParam = std::vector<bool>(0));
+                                      const std::vector<bool>& shouldOptimizeParam = (std::vector<bool>(0)));
 
 /**
    * @brief CalibrationMatrixDecomposition Decompose the pinhole camera model
