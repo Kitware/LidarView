@@ -89,7 +89,7 @@ void lqRulerReaction::onMouseEvent(QMouseEvent *event)
   auto interactor = this->view->getRenderViewProxy()->GetInteractor();
 
   // Helper lambda to update the ruler widget coordinates points
-  auto updateRulerPointWithMousePosition = [&](char* pointPropertyName)
+  auto updateRulerPointWithMousePosition = [&](const char* pointPropertyName)
   {
     auto point = this->get3DPoint(event->pos());
     pqSMAdaptor::setMultipleElementProperty(this->distanceWidgetRepresentation->GetProperty(pointPropertyName), point);
