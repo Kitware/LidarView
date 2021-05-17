@@ -97,6 +97,10 @@ def close():
         slamView = smp.FindViewOrCreate('RenderView1', viewtype='RenderView')
     smp.SetActiveView(slamView)
 
+    exTraj = smp.FindSource('ExtractTrajectory')
+    if exTraj:
+        smp.Delete(exTraj)
+
     orthoSect = smp.FindSource('OrthogonalSectioning')
     if orthoSect:
         smp.Delete(orthoSect)
