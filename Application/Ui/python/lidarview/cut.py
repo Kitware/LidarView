@@ -25,6 +25,9 @@ def init():
             layout.Collapse(i)
 
     slam = smp.FindSource('SLAMonline1')
+    if slam is None:
+        slam = smp.FindSource('SLAMoffline1')
+    
     # Display Planar map on SlamView
     PlanarMapDisplay = smp.Show(smp.OutputPort(slam, 3), slamView)
     PlanarMapDisplay.Representation = 'Surface'

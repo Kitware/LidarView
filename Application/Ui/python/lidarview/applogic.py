@@ -547,7 +547,7 @@ def showMeasurementGrid():
     smp.Render()
 
 def toggleCutContext():
-    if smp.FindSource("SLAMonline1"):
+    if smp.FindSource("SLAMonline1") or smp.FindSource("SLAMoffline1"):
         if app.actions['actionCut'].isChecked():
             getMainWindow().findChild("QDockWidget", "propertiesDock").visible = True
             getMainWindow().findChild("QDockWidget", "pipelineBrowserDock").visible = True
