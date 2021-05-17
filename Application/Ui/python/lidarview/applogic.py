@@ -564,13 +564,15 @@ def toggleCutContext():
         app.actions['actionCut'].setChecked(False)
 
 def adaptToView(viewChanged):
-    renderview2 = smp.FindViewOrCreate('RenderView2', viewtype='RenderView')
-    renderview1 = smp.FindViewOrCreate('RenderView1', viewtype='RenderView')
+    slamView = smp.FindView('SlamView')
+    sectionView = smp.FindView('SectionView')
     view = smp.GetActiveView()
-    if view == renderview1:
+    if view is None:
+        return
+    if view == slamView:
         clip = smp.FindSource('SectionClip')
         smp.SetActiveSource(clip)
-    elif view == renderview2:
+    elif view == sectionView:
         orthoSect = smp.FindSource('OrthogonalSectioning')
         smp.SetActiveSource(orthoSect)
 
