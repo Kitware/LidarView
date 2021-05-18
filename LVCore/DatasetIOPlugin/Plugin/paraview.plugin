@@ -1,0 +1,16 @@
+NAME
+  DatasetIOPlugin
+DESCRIPTION
+  Plugin to read/write standard point cloud datasets files
+REQUIRES_MODULES
+  VTK::CommonColor
+  VTK::CommonComputationalGeometry
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersSources

@@ -16,33 +16,19 @@ set(server_manager_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/Kitti/labels/vtkKITTIObjectLabelsReader.cxx
 )
 
-set(server_sources
-  )
+set(server_sources)
 
-ADD_PARAVIEW_PLUGIN(DatasetIOPlugin "1.0"
+# Create Plugin
+paraview_add_plugin(DatasetIOPlugin
+  VERSION "1.0"
   SERVER_MANAGER_XML ${server_manager_xml}
-  SERVER_MANAGER_SOURCES ${server_manager_sources}
-  SERVER_SOURCES ${server_sources})
+  SOURCES ${server_manager_sources} ${server_sources}
+)
 
-target_link_libraries(DatasetIOPlugin PUBLIC LidarPlugin)
+target_link_libraries(DatasetIOPlugin PUBLIC LidarModule)
 target_include_directories(DatasetIOPlugin
   PUBLIC
   Kitti/
   Kitti/data
   Kitti/labels
 )
-
-# install libraries
-if (APPLE)
-  install(TARGETS DatasetIOPlugin
-          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Plugins
-          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Plugins
-          COMPONENT Runtime)
-
-else()
-  install(TARGETS DatasetIOPlugin
-          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/plugins
-          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}/plugins
-          COMPONENT Runtime)
-endif()
-
