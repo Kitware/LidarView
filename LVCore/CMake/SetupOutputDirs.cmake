@@ -14,60 +14,59 @@
 # limitations under the License.
 #===============================================================================
 
-#Sanitize checks
+#------------------------------------------------------------------------------
+# Set Install Architecture Relative Variables
+# WARNING ALL THOSE SHOULD REMAIN RELATIVE FOR USE WITH SB-PACKAGING
+# Relative from ${CMAKE_PREFIX_PATH}, either /install or package build dir
+
+# Sanitize checks
 if(NOT SOFTWARE_NAME )
   message(FATAL_ERROR "SOFTWARE_NAME branding not set")
 endif()
 
-#------------------------------------------------------------------------------
-# Set VARIABLES
+# Setup install runtime directory
+set(LV_INSTALL_RUNTIME_DIR bin)
 
-#Set default OUTPUT_DIRECTORY, those apply to thirdparties
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-if(UNIX OR APPLE)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-else()
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-endif()
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-
-# Setup install directories
-set(lidarview_appname "${SOFTWARE_NAME}.app")
+# Setup install library directory
 if (WIN32)
   set(LV_INSTALL_LIBRARY_DIR bin)
 elseif(APPLE)
-  
-  set(LV_INSTALL_LIBRARY_DIR bin/${lidarview_appname}/Contents/Libraries)
-else()
+  set(LV_INSTALL_LIBRARY_DIR bin/${SOFTWARE_NAME}.app/Contents/Libraries)
+elseif(UNIX)
   set(LV_INSTALL_LIBRARY_DIR lib)
-endif()
-
-# Setup Python module DIR
-if(NOT Python3_VERSION_MAJOR OR NOT Python3_VERSION_MINOR)
-  message(FATAL_ERROR "Python3_VERSION_ variables not set")
-endif()
-if(WIN32)
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
-elseif(APPLE)
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/../Python")
 else()
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
+  message(FATAL_ERROR "Platform unsupported")
 endif()
 
-#------------------------------------------------------------------------------
-# Set RPATH
+# Setup build LV Plugin subdir # For use in PV Plugin build macros
+# WARNING: RELATIVE TO BUILD DIR NOT INSTALL
+set(LV_PLUGIN_BUILD_SUBDIRECTORY "plugins")
 
-# Setting this ensures that "make install" will leave rpaths to external
-# libraries (not part of the build-tree e.g. Qt, ffmpeg, etc.) intact on
-# "make install". This ensures that one can install a version of ParaView on the
-# build machine without any issues. If this not desired, simply comment the
-# following line and "make install" will strip all rpaths, which is default
-# behavior.
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# Setup install LV Plugin subdir # Where it should be installed / packaged
+if (WIN32)
+  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins") #wip windows should be empty ???
+elseif(APPLE)
+  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${SOFTWARE_NAME}.app/Contents/Plugins") # wip this is so wrong omg ...
+elseif(UNIX)
+  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
+endif()
 
-if (APPLE)
-  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
+# Setup install PV Plugin subdir
+if (WIN32)
+  set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
+elseif (APPLE)
+  set(LV_INSTALL_PV_PLUGIN_SUBDIR "Applications/paraview.app/Contents/Plugins") #wip not tested
+  message(WARNING "I HAVE NO IDEA WHERE ON MACOSX PV plugin dir is, namely for PYTHONQTPLUGIN_DIR")
+elseif (UNIX)
+  set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
+endif ()
 
-  # ensure that we don't build forwarding executables on apple.
-  set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
+# Setup install Include dir
+set(LV_INSTALL_INCLUDE_DIR "include") #wipwip ideally with version suffix like pv
+
+# Setup install Ressources path
+if(APPLE)
+  set(LV_INSTALL_RESOURCE_DIR "${SOFTWARE_NAME}.app/Contents/Resources")
+else()
+  set(LV_INSTALL_RESOURCE_DIR "share")
 endif()
