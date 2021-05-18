@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#CMake
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_policy(SET CMP0057 NEW) #if() supports IN_LIST #ParaviewPlugin.cmake
+
 #This allows incremental build within the ExternalProject dir `lidarview-sb/common-sb/lidarview/build`
 set(SOFTWARE_NAME   ${SOFTWARE_NAME}   CACHE INTERNAL "LidarView-Based app name")
 set(SOFTWARE_VENDOR ${SOFTWARE_VENDOR} CACHE INTERNAL "LidarView-Based app vendor")
@@ -100,7 +104,6 @@ endif()
 # - LV_INSTALL_PYTHON_MODULES_DIR
 # - Branding related variables already set
 include(SetupOutputDirs)
-
 
 # Modules
 add_subdirectory(Plugins)
