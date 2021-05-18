@@ -106,9 +106,7 @@ endif()
 include(SetupOutputDirs)
 
 # Modules
-add_subdirectory(Plugins)
 add_subdirectory(LVCore)
-add_subdirectory(Application)
 
 # On windows, we install all needed tools manually in install dir
 if (WIN32)
