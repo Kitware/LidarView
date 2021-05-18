@@ -114,6 +114,9 @@ bool test_sentence(NMEAParser& parser,
 
 int main(int argc, char* argv[])
 {
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+  
   double unused_double = 42.0;
   int unused_int = 42;
   NMEALocation::FixType unused_type_of_fix = NMEALocation::GPS_FIX;
