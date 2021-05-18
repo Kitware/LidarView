@@ -55,10 +55,9 @@ file(STRINGS version.txt version_txt)
 extract_version_components("${version_txt}" "LV")
 determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
-#PARAVIEW_USE_FILE
+#PARAVIEW
 #must be included after Python and Determine version
 find_package(ParaView REQUIRED)
-include(${PARAVIEW_USE_FILE})
 
 # Here we use a custom cmake file to find PythonQt and a PythonQtPlugin
 # Find within Paraview Build directory, with Paraview Version
