@@ -27,6 +27,8 @@
 // EIGEN
 #include <Eigen/Dense>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief vtkPlaneProjector Projects a 3d point cloud onto a plane.
  *        It returns:
@@ -36,7 +38,7 @@
  *        The plane to project on can either be user defined or passed as input
  */
 
-class VTK_EXPORT vtkPlaneProjector : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkPlaneProjector : public vtkPolyDataAlgorithm
 {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

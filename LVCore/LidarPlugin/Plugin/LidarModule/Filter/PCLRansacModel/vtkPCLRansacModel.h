@@ -21,11 +21,13 @@
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief The vtkPCLRansacModel class will quickly be replace by classes from the pcl plugin
  * so no time should be spend developping this class
  */
-class VTK_EXPORT vtkPCLRansacModel : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkPCLRansacModel : public vtkPolyDataAlgorithm
 {
   public:
   static vtkPCLRansacModel *New();

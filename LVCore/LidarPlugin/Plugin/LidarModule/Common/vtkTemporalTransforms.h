@@ -9,6 +9,8 @@
 
 #include <Eigen/Geometry>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief The vtkTemporalTransforms class store some vtkTransform associated with time
  * as a polyData containing a polyline where each point correspond to timestamp
@@ -22,7 +24,7 @@
  * It can be used to pass an vtkTransformInterpolator between 2 filter: a filter inherit from
  * vtkAlgorithm, and it can only take a vtkDataObject as input/output.
  */
-class VTK_EXPORT vtkTemporalTransforms : public vtkPolyData
+class LIDARMODULE_EXPORT vtkTemporalTransforms : public vtkPolyData
 {
 public:
   static vtkTemporalTransforms *New();

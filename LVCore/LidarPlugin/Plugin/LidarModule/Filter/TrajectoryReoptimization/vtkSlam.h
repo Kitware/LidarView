@@ -84,6 +84,8 @@
 #include "KalmanFilter.h"
 #include "vtkTemporalTransforms.h"
 
+#include "LidarModuleModule.h"
+
 // This custom macro is needed to make the SlamManager time agnostic
 // The SlamManager need to know when RequestData is call, if it's due
 // to a new timestep been requested or due to Slam parameters been changed.
@@ -111,7 +113,7 @@ virtual type Get##name () { \
 class vtkSpinningSensorKeypointExtractor;
 class vtkTable;
 
-class VTK_EXPORT vtkSlam : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkSlam : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSlam *New();

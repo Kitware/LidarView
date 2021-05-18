@@ -19,7 +19,9 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-class VTK_EXPORT vtkRansacPlaneModel : public vtkPolyDataAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkRansacPlaneModel : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRansacPlaneModel *New();

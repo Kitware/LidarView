@@ -27,8 +27,9 @@
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 
+#include "LidarModuleModule.h"
 
-class VTK_EXPORT vtkDBSCANClustering : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkDBSCANClustering : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDBSCANClustering *New();

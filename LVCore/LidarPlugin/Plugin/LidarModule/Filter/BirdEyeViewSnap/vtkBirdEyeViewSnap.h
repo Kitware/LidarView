@@ -25,7 +25,9 @@
 // EIGEN
 #include <Eigen/Dense>
 
-class VTK_EXPORT vtkBirdEyeViewSnap : public vtkPolyDataAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkBirdEyeViewSnap : public vtkPolyDataAlgorithm
 {
 public:
   static vtkBirdEyeViewSnap *New();

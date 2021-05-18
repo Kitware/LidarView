@@ -22,9 +22,9 @@
 #include <algorithm>
 #include <sstream>
 
-#include "vtkPacketFileReader.h"
-#include "vtkOpenCVConversions.h"
-#include "statistics.h"
+#include "Common/Network/vtkPacketFileReader.h"
+#include "Common/vtkOpenCVConversions.h"
+#include "Common/statistics.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

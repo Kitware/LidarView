@@ -19,10 +19,12 @@
 #include <deque>
 #include <memory>
 
-#include "vtkStream.h"
+#include "IO/vtkStream.h"
 #include "vtkLidarPacketInterpreter.h"
 
-class VTK_EXPORT vtkLidarStream : public vtkStream
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkLidarStream : public vtkStream
 {
 public:
   static vtkLidarStream* New();

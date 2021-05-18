@@ -3,9 +3,9 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 
-#include "vtkPacketFileWriter.h"
-#include "vtkPacketFileReader.h"
-#include "statistics.h"
+#include "Common/Network/vtkPacketFileWriter.h"
+#include "Common/Network/vtkPacketFileReader.h"
+#include "Common/statistics.h"
 
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>

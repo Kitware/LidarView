@@ -30,7 +30,7 @@
 // STD
 #include <vector>
 
-#include "lidarplugin_export.h"
+#include "LidarModuleModule.h"
 
 /**
    * @brief AvgUnitQuaternions Computes and returns the average unit quaternion
@@ -60,7 +60,7 @@ Eigen::Matrix3d AvgRotation(const std::vector<Eigen::Matrix3d>& rotations);
    * with (X, Y, Z) being an orthonormal basis of R^3
    * @param rotation input rotation to decompose
    */
-Eigen::Vector3d LIDARPLUGIN_EXPORT MatrixToRollPitchYaw(const Eigen::Matrix3d& rotation);
+Eigen::Vector3d LIDARMODULE_EXPORT MatrixToRollPitchYaw(const Eigen::Matrix3d& rotation);
 
 /**
    * @brief RollPitchYawToMatrix Computes the rotation matrix from Euler
@@ -75,8 +75,8 @@ Eigen::Vector3d LIDARPLUGIN_EXPORT MatrixToRollPitchYaw(const Eigen::Matrix3d& r
    * @param pitch is the angle around Y-axis (in radian)
    * @param yaw is the angle around Z-axis (in radian)
    */
-Eigen::Matrix3d LIDARPLUGIN_EXPORT RollPitchYawToMatrix(double roll, double pitch, double yaw);
-Eigen::Matrix3d LIDARPLUGIN_EXPORT RollPitchYawToMatrix(const Eigen::Vector3d& angles);
+Eigen::Matrix3d LIDARMODULE_EXPORT RollPitchYawToMatrix(double roll, double pitch, double yaw);
+Eigen::Matrix3d LIDARMODULE_EXPORT RollPitchYawToMatrix(const Eigen::Vector3d& angles);
 
 /**
   * @brief RollPitchYawInDegreeToMatrix Computes the rotation matrix from Euler
@@ -91,26 +91,26 @@ Eigen::Matrix3d LIDARPLUGIN_EXPORT RollPitchYawToMatrix(const Eigen::Vector3d& a
   * @param pitch is the angle around Y-axis (in dedgree)
   * @param yaw is the angle around Z-axis (in dedgree)
   */
-Eigen::Matrix3d LIDARPLUGIN_EXPORT RollPitchYawInDegreeToMatrix(double roll, double pitch, double yaw);
+Eigen::Matrix3d LIDARMODULE_EXPORT RollPitchYawInDegreeToMatrix(double roll, double pitch, double yaw);
 
 /**
   * @brief SignedAngle Computes the signed angle between two vectors
   * @param v1 first vector
   * @param v2 second vector
   */
-double LIDARPLUGIN_EXPORT SignedAngle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2);
+double LIDARMODULE_EXPORT SignedAngle(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2);
 
 /**
   * @brief AngleFromMatrix Computes the rotation angle (from angle axis representation) of a 3d rotation matrix
   * @param R Rotation Matrix
   */
-double LIDARPLUGIN_EXPORT AngleFromMatrix(const Eigen::Matrix3d& R);
+double LIDARMODULE_EXPORT AngleFromMatrix(const Eigen::Matrix3d& R);
 
 /**
   * @brief IsMatrixFinite Check if all the coefficients of a matrix are finite
   * @param M matrix to checkr
   */
-bool LIDARPLUGIN_EXPORT IsMatrixFinite(const Eigen::Matrix3d& M);
+bool LIDARMODULE_EXPORT IsMatrixFinite(const Eigen::Matrix3d& M);
 
 /**
   * @brief GetSphericalCoordinates compute the spherical coordinates
@@ -121,10 +121,10 @@ bool LIDARPLUGIN_EXPORT IsMatrixFinite(const Eigen::Matrix3d& M);
   *        (basis of the direction vector space)
   * @param Origin origin of the affine space reference frame
   */
-Eigen::Vector3d LIDARPLUGIN_EXPORT GetSphericalCoordinates(const Eigen::Vector3d& X,
+Eigen::Vector3d LIDARMODULE_EXPORT GetSphericalCoordinates(const Eigen::Vector3d& X,
                                                                  const Eigen::Matrix3d& Basis,
                                                                  const Eigen::Vector3d& Origin);
-Eigen::Vector3d LIDARPLUGIN_EXPORT GetSphericalCoordinates(const Eigen::Vector3d& X);
+Eigen::Vector3d LIDARMODULE_EXPORT GetSphericalCoordinates(const Eigen::Vector3d& X);
 
 /**
   * @brief ComputeHomography compute the best homography (minimizing
@@ -156,7 +156,7 @@ void EuclideanMLSSmoothing(const std::vector<Eigen::VectorXd>& X,
    *        descent algorithm with specific step value
    * @param X The list of R^n vectors we want to compute the median
    */
-Eigen::VectorXd LIDARPLUGIN_EXPORT MultivariateMedian(const std::vector<Eigen::VectorXd> X, double epsilon = 1e-6, unsigned int maxCount = 10000);
+Eigen::VectorXd LIDARMODULE_EXPORT MultivariateMedian(const std::vector<Eigen::VectorXd> X, double epsilon = 1e-6, unsigned int maxCount = 10000);
 
 Eigen::Matrix<double, 4, 4> ToEigen(vtkMatrix4x4* M);
 
@@ -164,7 +164,7 @@ Eigen::Matrix<double, 4, 4> ToEigen(vtkTransform* T);
 
 Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(vtkMatrix4x4* M);
 
-Eigen::Transform<double, 3, Eigen::Affine> LIDARPLUGIN_EXPORT ToEigenTransform(vtkTransform* T);
+Eigen::Transform<double, 3, Eigen::Affine> LIDARMODULE_EXPORT ToEigenTransform(vtkTransform* T);
 
 Eigen::Transform<double, 3, Eigen::Affine> ToEigenTransform(const Eigen::Matrix3d& R, const Eigen::Vector3d& T);
 

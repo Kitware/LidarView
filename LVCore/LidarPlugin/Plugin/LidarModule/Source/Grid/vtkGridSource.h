@@ -32,10 +32,12 @@
 #ifndef _vtkGridSource_h
 #define _vtkGridSource_h
 
+#include "LidarModuleModule.h"
+
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 
-class VTK_EXPORT vtkGridSource : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkGridSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGridSource* New();

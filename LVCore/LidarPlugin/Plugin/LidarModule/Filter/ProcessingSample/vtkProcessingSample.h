@@ -24,7 +24,9 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-class VTK_EXPORT vtkProcessingSample : public vtkPolyDataAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkProcessingSample : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkProcessingSample, vtkPolyDataAlgorithm)

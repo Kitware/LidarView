@@ -7,12 +7,14 @@
 #include <vtkNew.h>
 #include <vtkMultiBlockDataSet.h>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief The vtkTrailingFrame class is a filter that combine consecutive timestep
  * of its input to produce a multiblock.
  * The input of this filter must produce only consecutive interger timestep.
  */
-class VTK_EXPORT vtkTrailingFrame : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkTrailingFrame : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTrailingFrame* New();

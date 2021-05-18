@@ -32,11 +32,13 @@
 #include <pcl/PointIndices.h>
 #include <pcl/ModelCoefficients.h>
 
+#include "LidarModuleModule.h"
+
 class vtkPolyData;
 class vtkCellArray;
 class vtkIntArray;
 
-class VTK_EXPORT vtkPCLConversions : public vtkObject
+class LIDARMODULE_EXPORT vtkPCLConversions : public vtkObject
 {
 public:
 

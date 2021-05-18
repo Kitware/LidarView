@@ -25,13 +25,15 @@
 // EIGEN
 #include <Eigen/Dense>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief vtkPointCloudLinearProjector Projects a 3D point cloud
  *        onto a plane and creates an image whose pixels represent
  *        a rank filter value of the projected 3D points that lies
  *        within a same pixel
  */
-class VTK_EXPORT vtkPointCloudLinearProjector : public vtkImageAlgorithm
+class LIDARMODULE_EXPORT vtkPointCloudLinearProjector : public vtkImageAlgorithm
 {
 public:
   static vtkPointCloudLinearProjector *New();

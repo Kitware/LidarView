@@ -23,7 +23,7 @@
 // VTK
 #include <vtkImageAlgorithm.h>
 #include <vtkSmartPointer.h>
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 
 // EIGEN
 #include <Eigen/Dense>
@@ -31,7 +31,9 @@
 // LOCAL
 #include "CameraModel.h"
 
-class VTK_EXPORT vtkCameraProjector : public vtkImageAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkCameraProjector : public vtkImageAlgorithm
 {
 public:
   static vtkCameraProjector *New();

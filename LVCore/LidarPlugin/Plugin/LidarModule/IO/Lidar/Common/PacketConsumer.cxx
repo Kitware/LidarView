@@ -5,9 +5,9 @@
 
 #include "NetworkPacket.h"
 #include "SynchronizedQueue.h"
-#include "vtkInterpreter.h"
-#include "vtkStream.h"
-#include "LVTime.h"
+#include "IO/vtkInterpreter.h"
+#include "IO/vtkStream.h"
+#include "Common/LVTime.h"
 
 //----------------------------------------------------------------------------
 PacketConsumer::PacketConsumer(vtkStream* stream)

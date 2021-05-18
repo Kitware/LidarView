@@ -24,11 +24,13 @@
 // Log structure: https://github.com/ArduPilot/ardupilot/blob/master/libraries/DataFlash/LogStructure.h#L1166
 // GPS/RTK Data: http://ardupilot.org/copter/docs/common-gps-blending.html
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief Parse some DataFlash messages produced by ArduPilot.
  * Currently we only parse parts of the GPS message.
  */
-class VTK_EXPORT vtkArduPilotDataFlashLogReader : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkArduPilotDataFlashLogReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkArduPilotDataFlashLogReader *New();

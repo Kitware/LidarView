@@ -23,6 +23,8 @@
 #include <vtkSmartPointer.h>
 #include "vtkTemporalTransforms.h"
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief vtkTemporalTransformsReader reads a csv file to generate a vtkTemporalTransform.
  *
@@ -45,7 +47,7 @@
  * This is a bug solved in recent ParaViews.
  * see: https://gitlab.kitware.com/paraview/paraview/issues/17594
  */
-class VTK_EXPORT vtkTemporalTransformsReader : public vtkPolyDataReader
+class LIDARMODULE_EXPORT vtkTemporalTransformsReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTemporalTransformsReader* New();

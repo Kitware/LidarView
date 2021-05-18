@@ -22,7 +22,7 @@
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageData.h>
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 
 // EIGEN
 #include <Eigen/Dense>
@@ -30,10 +30,12 @@
 // LOCAL
 #include "CameraModel.h"
 
+#include "LidarModuleModule.h"
+
 //! Map 3D points to their projection using a camera model. The output contains
 //! texture coordinates that can be used for texture mapping
 
-class VTK_EXPORT vtkCameraMapper : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkCameraMapper : public vtkPolyDataAlgorithm
 {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

@@ -15,9 +15,9 @@
 #include <Eigen/Eigenvalues>
 
 #include "vtkConversions.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "vtkTimeCalibration.h"
-#include "statistics.h"
+#include "Common/statistics.h"
 #include "eigenFFTCorrelation.h"
 #include "interpolator1D.h"
 

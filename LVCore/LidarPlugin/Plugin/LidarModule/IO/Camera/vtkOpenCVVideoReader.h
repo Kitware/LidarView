@@ -26,9 +26,11 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
+#include "LidarModuleModule.h"
+
 class vtkOpenCVVideoReaderInternal;
 
-class VTK_EXPORT vtkOpenCVVideoReader : public vtkImageAlgorithm
+class LIDARMODULE_EXPORT vtkOpenCVVideoReader : public vtkImageAlgorithm
 {
 public:
   static vtkOpenCVVideoReader *New();

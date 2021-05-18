@@ -21,6 +21,8 @@
 
 #include "LASFileWriter.h"
 
+#include "LidarModuleModule.h"
+
 // This class should be turned into something more generic.
 // If you need to write point clouds to another format than LAS,
 // please consider doing that.
@@ -42,7 +44,7 @@
 // }
 
 // Currently we require the input to be using UTM coordinates
-class VTK_EXPORT vtkLASFileWriter : public vtkDataObjectAlgorithm
+class LIDARMODULE_EXPORT vtkLASFileWriter : public vtkDataObjectAlgorithm
 {
 public:
   static vtkLASFileWriter* New();

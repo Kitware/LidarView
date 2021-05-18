@@ -24,6 +24,8 @@
 
 #include "SpinningSensorKeypointExtractor.h"
 
+#include "LidarModuleModule.h"
+
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //
@@ -44,7 +46,7 @@ virtual void Set##name (type _arg) \
  *  creation of a proxy. This way we get a free GUI.
  *  It should only implement setter for the proxy, and a getter to the underlying keypointExtractor.
  */
-class VTK_EXPORT vtkSpinningSensorKeypointExtractor : public vtkObject
+class LIDARMODULE_EXPORT vtkSpinningSensorKeypointExtractor : public vtkObject
 {
 public:
   static vtkSpinningSensorKeypointExtractor *New();

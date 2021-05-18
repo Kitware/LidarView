@@ -24,11 +24,12 @@
 
 #include <vtkImageAlgorithm.h>
 
-#include "vtkPacketFileReader.h"
-#include "FrameInformation.h"
+#include "Common/Network/vtkPacketFileReader.h"
+#include "IO/FrameInformation.h"
 
+#include "LidarModuleModule.h"
 
-class VTK_EXPORT vtkPCAPImageReader : public vtkImageAlgorithm
+class LIDARMODULE_EXPORT vtkPCAPImageReader : public vtkImageAlgorithm
 {
 public:
   static vtkPCAPImageReader* New();

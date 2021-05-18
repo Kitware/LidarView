@@ -45,7 +45,7 @@
 #include "vtkConversions.h"
 #include "RegistrationTools.h"
 #include "vtkTemporalTransforms.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "CeresTools.h"
 #include "vtkConversions.h"
 

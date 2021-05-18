@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "vvPacketSender.h"
-#include "vtkPacketFileReader.h"
+#include "Common/Network/vtkPacketFileReader.h"
 
 #include <chrono>
 #include <thread>

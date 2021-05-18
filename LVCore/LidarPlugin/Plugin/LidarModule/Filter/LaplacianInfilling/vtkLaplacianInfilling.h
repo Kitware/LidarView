@@ -20,11 +20,13 @@
 // VTK
 #include <vtkImageAlgorithm.h>
 
+#include "LidarModuleModule.h"
+
 /**
  * @brief vtkLaplacianInfilling fill missing data in an image
  *        solving the Dirichlet problem.
  */
-class VTK_EXPORT vtkLaplacianInfilling : public vtkImageAlgorithm
+class LIDARMODULE_EXPORT vtkLaplacianInfilling : public vtkImageAlgorithm
 {
 public:
   static vtkLaplacianInfilling *New();

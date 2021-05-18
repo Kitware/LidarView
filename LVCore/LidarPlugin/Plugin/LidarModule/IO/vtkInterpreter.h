@@ -18,9 +18,11 @@
 
 #include <vtkAlgorithm.h>
 
+#include "LidarModuleModule.h"
+
 class vtkTransform;
 
-class VTK_EXPORT vtkInterpreter : public vtkAlgorithm
+class LIDARMODULE_EXPORT vtkInterpreter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkInterpreter, vtkAlgorithm)

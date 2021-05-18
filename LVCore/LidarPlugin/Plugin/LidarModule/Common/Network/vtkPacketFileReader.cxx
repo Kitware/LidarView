@@ -1,4 +1,4 @@
-#include "vtkPacketFileReader.h"
+#include "Common/Network/vtkPacketFileReader.h"
 
 #include <iostream>
 #include <boost/endian/arithmetic.hpp>

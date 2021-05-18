@@ -17,7 +17,7 @@
 
 //LOCAL
 #include "CategoriesConfig.h"
-#include "BoundingBox.h"
+#include "Common/BoundingBox.h"
 #include "SegmentedCloudTransformations.h"
 #include "vtkBoundingBox.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"

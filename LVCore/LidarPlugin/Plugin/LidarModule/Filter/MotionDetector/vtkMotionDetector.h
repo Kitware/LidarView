@@ -45,7 +45,9 @@
 // EIGEN
 #include <Eigen/Dense>
 
-class VTK_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMotionDetector *New();

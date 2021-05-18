@@ -19,11 +19,13 @@
 #include "vtkLidarPacketInterpreter.h"
 #include <vtkPolyDataAlgorithm.h>
 
+#include "LidarModuleModule.h"
+
 class vtkPacketFileReader;
 
 //! @todo a decition should be made if the opening/closing of the pcap should be handle by
 //! the class itself of the class user. Currently this is not clear
-class VTK_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
+class LIDARMODULE_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarReader* New();

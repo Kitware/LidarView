@@ -15,7 +15,7 @@
 // limitations under the License.
 //=========================================================================
 
-#include "vtkStream.h"
+#include "IO/vtkStream.h"
 
 #include <boost/filesystem.hpp>
 

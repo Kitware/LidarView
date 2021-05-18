@@ -25,11 +25,11 @@
 #include <sys/time.h>
 #endif
 
-#include "lidarplugin_export.h"
+#include "LidarModuleModule.h"
 #include <ctime>
 
-double LIDARPLUGIN_EXPORT GetElapsedTime(const timeval& now);
+double LIDARMODULE_EXPORT GetElapsedTime(const timeval& now);
 
-double LIDARPLUGIN_EXPORT GetElapsedTime(const timeval& end, const timeval& start);
+double LIDARMODULE_EXPORT GetElapsedTime(const timeval& end, const timeval& start);
 
 #endif // LVTIME_H

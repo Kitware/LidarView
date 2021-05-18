@@ -67,10 +67,10 @@ It successively:
 // LOCAL
 #include "vtkPCLConversions.h"
 #include "vtkTemporalTransforms.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "vtkBoundingBoxReader.h"
 #include "CameraProjection.h"
-#include "BoundingBox.h"
+#include "Common/BoundingBox.h"
 #include "vtkEigenTools.h"
 #include "CategoriesConfig.h"
 #include "FramesSeriesUtils.h"

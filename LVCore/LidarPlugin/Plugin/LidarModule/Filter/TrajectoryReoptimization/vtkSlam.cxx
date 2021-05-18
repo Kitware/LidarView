@@ -70,7 +70,7 @@
 
 // LOCAL
 #include "vtkSlam.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "vtkTemporalTransforms.h"
 #include "vtkSpinningSensorKeypointExtractor.h"
 #include "vtkEigenTools.h"

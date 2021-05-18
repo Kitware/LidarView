@@ -19,7 +19,7 @@
 
 // LOCAL
 #include "vtkGeometricCalibration.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "vtkEigenTools.h"
 #include "vtkConversions.h"
 #include "vtkTemporalTransformsReader.h"

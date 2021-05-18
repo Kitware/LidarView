@@ -1,6 +1,6 @@
 // LOCAL
 #include "vtkTemporalTransforms.h"
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 #include "CameraModel.h"
 #include "vtkEigenTools.h"
 #include "FramesSeriesUtils.h"

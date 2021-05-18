@@ -29,9 +29,9 @@
 #include <vtkCustomTransformInterpolator.h>
 #include <Eigen/SVD>
 
-#include "lidarplugin_export.h"
+#include "LidarModuleModule.h"
 #include "vtkTemporalTransforms.h"
-#include "statistics.h"
+#include "Common/statistics.h"
 
 /**
 * \brief This function identifies turns in the pose trajectory of a car-like
@@ -108,7 +108,7 @@ std::vector<std::vector<double>> ComputeTurns(
 * \param ransacValidationRatio between 0 and 1, should be taken as big as
 * possible but I had to lower it down to 0.15 for some real life datasets.
 **/
-void LIDARPLUGIN_EXPORT ComputeCarCalibrationRotationScale(
+void LIDARMODULE_EXPORT ComputeCarCalibrationRotationScale(
         const vtkSmartPointer<vtkTemporalTransforms> reference,
         const vtkSmartPointer<vtkTemporalTransforms> aligned,
         double curveTreshold,

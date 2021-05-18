@@ -22,15 +22,17 @@
 #include <vtkTable.h>
 #include <vtkPolyData.h>
 
-#include "vtkInterpreter.h"
-#include "FrameInformation.h"
+#include "IO/vtkInterpreter.h"
+#include "IO/FrameInformation.h"
+
+#include "LidarModuleModule.h"
 
 enum FramingMethod_t {
         INTERPRETER_FRAMING = 0, // the interpreter in charge of the framing
         NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
 };
 
-class VTK_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
+class LIDARMODULE_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)

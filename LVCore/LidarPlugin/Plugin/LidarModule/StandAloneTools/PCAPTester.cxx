@@ -1,7 +1,7 @@
 #include "vtkLidarReader.h"
 #include "vtkVelodynePacketInterpreter.h"
 #include "vtkVelodyneHDLPositionReader.h"
-#include "statistics.h"
+#include "Common/statistics.h"
 
 #include "vtkFieldData.h"
 #include "vtkPointData.h"

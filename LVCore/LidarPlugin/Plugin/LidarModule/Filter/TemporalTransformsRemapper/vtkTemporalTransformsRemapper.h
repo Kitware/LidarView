@@ -3,7 +3,9 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-class VTK_EXPORT vtkTemporalTransformsRemapper : public vtkPolyDataAlgorithm
+#include "LidarModuleModule.h"
+
+class LIDARMODULE_EXPORT vtkTemporalTransformsRemapper : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTemporalTransformsRemapper *New();

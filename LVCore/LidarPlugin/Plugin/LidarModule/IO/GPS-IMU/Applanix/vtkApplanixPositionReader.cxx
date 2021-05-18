@@ -28,7 +28,7 @@
 
 #include "vtkApplanixPositionReader.h"
 
-#include "vtkCustomTransformInterpolator.h"
+#include "Common/vtkCustomTransformInterpolator.h"
 
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>

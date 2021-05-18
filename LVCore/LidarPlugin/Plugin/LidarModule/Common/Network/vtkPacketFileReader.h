@@ -32,10 +32,10 @@
 #ifndef __vtkPacketFileReader_h
 #define __vtkPacketFileReader_h
 
-#include "lidarplugin_export.h"
+#include "LidarModuleModule.h"
 //Compliance with vtk's fpos_t policy, needs to be included before any libc header
 #include <vtkSystemIncludes.h> 
-#include "LVTime.h"
+#include "Common/LVTime.h"
 
 #include <pcap.h>
 #include <string>
@@ -105,7 +105,7 @@ namespace IPHeaderFunctions
    * @param[out] fragmentInfo The collected fragment info.
    * @return     True if the information could be retrieved, false otherwise.
    */
-  LIDARPLUGIN_EXPORT bool getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
+  LIDARMODULE_EXPORT bool getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
 
   //----------------------------------------------------------------------------
   /*!
@@ -114,13 +114,13 @@ namespace IPHeaderFunctions
    * @return    The number of bytes in the IP header, or 0 if this could not be
    *            determined.
    */
-  LIDARPLUGIN_EXPORT unsigned int getIPHeaderLength(unsigned char const* data);
+  LIDARMODULE_EXPORT unsigned int getIPHeaderLength(unsigned char const* data);
   
   bool buildReassembledIPHeader(unsigned char* iphdrdata, const unsigned int ipHeaderLength, const unsigned int payloadSize);
 }
 
 //------------------------------------------------------------------------------
-class LIDARPLUGIN_EXPORT vtkPacketFileReader
+class LIDARMODULE_EXPORT vtkPacketFileReader
 {
 public:
   vtkPacketFileReader()

@@ -17,13 +17,15 @@
 #ifndef VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
 #define VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
 
-#include <vtkInterpreter.h>
+#include <IO/vtkInterpreter.h>
+
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkPolyData.h>
 
+#include "LidarModuleModule.h"
 
-class VTK_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
+class LIDARMODULE_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkPositionOrientationPacketInterpreter, vtkInterpreter)
