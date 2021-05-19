@@ -10,6 +10,7 @@
 #include "Widgets/vvCropReturnsDialog.h"
 #include "Widgets/vvLaserSelectionDialog.h"
 #include "Widgets/vvSelectFramesDialog.h"
+#include <pqActiveObjects.h>
 
 class vvPythonQtDecorators : public QObject
 {
@@ -24,6 +25,7 @@ public:
     this->registerClassForPythonQt(&vvCropReturnsDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvLaserSelectionDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvSelectFramesDialog::staticMetaObject);
+    this->registerClassForPythonQt(&pqActiveObjects::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -51,6 +53,11 @@ public slots:
   vvLaserSelectionDialog* new_vvLaserSelectionDialog(QWidget* arg0)
   {
     return new vvLaserSelectionDialog(arg0);
+  }
+
+  pqActiveObjects* new_pqActiveObjects()
+  {
+    return pqActiveObjects::instancePtr();
   }
 
   QVector<int> getLaserSelectionSelector(vvLaserSelectionDialog* inst)
