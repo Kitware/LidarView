@@ -50,7 +50,7 @@
  * TODO Calibration between camera and lidar from calibration file
 */
 
-class VTK_EXPORT vtkKITTIObjectLabelsReader : public vtkMultiBlockDataSetAlgorithm
+class vtkKITTIObjectLabelsReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkKITTIObjectLabelsReader* New();

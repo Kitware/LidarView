@@ -22,7 +22,7 @@
  * @warning In the kitti setup, x is pointing forward, and z upwards, make sure
  * your data is oriented the same way before using this writer
  **/
-class VTK_EXPORT vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
+class vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarKITTIDataSetWriter* New();

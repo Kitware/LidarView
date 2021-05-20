@@ -18,7 +18,7 @@ std::cerr << typeid(this).name() << "::" << __FUNCTION__ << " is not implemented
  * @brief The vtkLidarKITTIDataSetReader class
  * @warning Only a small subset of method are implemented
  */
-class VTK_EXPORT vtkLidarKITTIDataSetReader : public vtkLidarReader
+class vtkLidarKITTIDataSetReader : public vtkLidarReader
 {
 public:
   static vtkLidarKITTIDataSetReader* New();
