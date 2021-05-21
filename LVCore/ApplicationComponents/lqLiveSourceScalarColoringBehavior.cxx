@@ -109,27 +109,36 @@ bool lqLiveSourceScalarColoringBehavior::TrySetScalarColoring(pqPipelineSource* 
       for (int i = 0; i < nbPort; ++i)
       {
         auto* pvrp = vtkSMPVRepresentationProxy::SafeDownCast(viewProxy->FindRepresentation(proxy, i));
+        // if a representation exist
         if (pvrp)
         {
-          // check if ScalarColoring is already properly set
-          if( !pvrp->GetUsingScalarColoring() )
+          // check if the data has a scalar array
+          if (proxy->GetDataInformation(i) &&
+              proxy->GetDataInformation(i)->GetPointDataInformation() &&
+              proxy->GetDataInformation(i)->GetPointDataInformation()->GetAttributeInformation(vtkDataSetAttributes::SCALARS))
           {
-            // check if there is a scalar array
-            if (proxy->GetDataInformation(i) &&
-                proxy->GetDataInformation(i)->GetPointDataInformation() &&
-                proxy->GetDataInformation(i)->GetPointDataInformation()->GetAttributeInformation(vtkDataSetAttributes::SCALARS))
+            auto* pdInfo = proxy->GetDataInformation(i)->GetPointDataInformation();
+            char* arrayName = pdInfo->GetAttributeInformation(vtkDataSetAttributes::SCALARS)->GetName();
+            // check if ScalarColoring is already properly set
+            if( !pvrp->GetUsingScalarColoring() )
             {
-              char* arrayName = proxy->GetDataInformation(i)->GetPointDataInformation()->GetAttributeInformation(vtkDataSetAttributes::SCALARS)->GetName();
               pvrp->SetScalarColoring(arrayName, vtkDataObject::AttributeTypes::POINT);
-              // Do not set hasSucceed to true here, as it will force the rescaling on the next DataUpdated.
-              // This enable to handle case where the Live Source produce incomplete data the first time
-              // This is particulary true for the Lidar Stream, where the first frame is almost always incomplete.
             }
-          }
-          else
-          {
-            pvrp->RescaleTransferFunctionToDataRange(false, false); // Recale transfertFunction only if it's not loocked
-            hasSucceed = true;
+            else
+            {
+              if (pdInfo->GetArrayInformation(arrayName))
+              {
+                double range[2];
+                pdInfo->GetArrayInformation(arrayName)->GetComponentRange(0, range);
+                // check if the given scalar range is not [0,0]
+                if (range[0] != 0 || range[1] != 0)
+                {
+                  pvrp->RescaleTransferFunctionToDataRange(false, false); // Recale transfertFunction only if it's not loocked
+                  hasSucceed = true;
+                }
+              }
+
+            }
           }
         }
       }

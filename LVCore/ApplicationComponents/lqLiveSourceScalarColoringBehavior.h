@@ -66,7 +66,7 @@ protected slots:
 protected:
   /**
    * @brief Try to set and rescale the scalar coloring for each representation
-   * Return true, if procedure has completed (successfully or not) and false it the procedure should
+   * Return true, if procedure has completed and false it the procedure should
    * be tried again later.
   */
   virtual bool TrySetScalarColoring(pqPipelineSource* src);
