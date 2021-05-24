@@ -11,5 +11,8 @@ include(SetupLidarviewProject)
 # custom code here
 add_subdirectory(Plugins/VelodynePlugin)
 
+# Application
+add_subdirectory(Application)
+
 # Must be invoked Last
 include(FinalizeLidarViewProject)
