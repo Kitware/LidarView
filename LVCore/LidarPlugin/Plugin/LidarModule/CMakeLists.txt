@@ -82,9 +82,6 @@ endif()
 #--------------------------------------
 # Boost dependency
 #--------------------------------------
-set(Boost_USE_MULTITHREADED ON) #wipwip
-# the expected behavior of find_package when  used wiht REQUIRED and OPTIONAL_COMPONENTS
-# it not the one expected, as it also required the optional component...
 find_package(Boost REQUIRED COMPONENTS system thread filesystem program_options iostreams)
 list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 list(APPEND LIDARPLUGIN_DEPS              ${Boost_LIBRARIES})
