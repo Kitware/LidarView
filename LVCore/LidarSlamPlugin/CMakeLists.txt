@@ -13,6 +13,9 @@ if(LIDARVIEW_BUILD_SLAM)
   # Build LidarSlam lib as STATIC in order to have a standalone LidarSlamPlugin
   set(BUILD_SHARED_LIBS OFF)
 
+  # LidarSlam could use g2o in the future relying on ENABLE_g2o, We disable this for now and keep this line for future reference.
+  set(ENABLE_g2o OFF)
+
   # Build SLAM lib and PV plugin
   add_subdirectory(LidarSlam)
 
