@@ -156,7 +156,12 @@ endif(ENABLE_nanoflann)
 #-----------------------------------------------------------------------------
 # Build Paraview Plugin
 #-----------------------------------------------------------------------------
-
+# Set Variables
+set(servermanager_sources)
+set(sources_which_inherit_from_vtkObject)
+set(sources_which_do_not_inherit_from_vtkObject)
+set(servermanager_xml)
+set(plugin_include_dirs)
 
 # Old Slam sources
 # ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/KalmanFilter.cxx
@@ -288,7 +293,7 @@ endif()
 # other source code than won't be wrap by paraview but are needed to create the plugin
 # We make the distinction on that inherit from vtkObject as this one will be also wrap
 # in python later on
-set(sources_which_inherit_from_vtkObject
+list(APPEND sources_which_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkCustomTransformInterpolator.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkTemporalTransforms.cxx
   )
@@ -357,7 +362,7 @@ list(APPEND deps
 
 message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 # folder where to look for header file
-set(plugin_include_dirs
+list(APPEND plugin_include_dirs
   ${PCAP_INCLUDE_DIR}
   ${EIGEN_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
