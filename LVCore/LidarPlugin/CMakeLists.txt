@@ -158,6 +158,13 @@ endif(ENABLE_nanoflann)
 #-----------------------------------------------------------------------------
 
 
+# Old Slam sources
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/KalmanFilter.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel/MotionModel.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/TrajectoryReoptimization.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel
+
 # sources that will be wrap by paraview
 # this sources will also be wrap in python in another plugin
 # WARNING in case of inheritance, put also the upper classes
@@ -205,21 +212,6 @@ if (PCL_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel.cxx
     )
 endif(PCL_FOUND)
-
-option(ENABLE_old_slam "Build old deprecated Lidar SLAM (requires PCL, Ceres, nanoflann). Should not be used if new SLAM is being built." OFF)
-mark_as_advanced(ENABLE_old_slam)
-if (ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
-  message("Old deprecated SLAM is enabled. Please ensure that new SLAM is disabled to prevent runtime filters loading errors.")
-  list(APPEND servermanager_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSlam.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSpinningSensorKeypointExtractor.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/vtkSlamManager.cxx
-    )
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/Slam.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/SpinningSensorKeypointExtractor.cxx
-    )
-endif(ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
 
 if (OpenCV_FOUND)
   list(APPEND servermanager_sources
@@ -279,13 +271,6 @@ if (Ceres_FOUND)
     )
 endif(Ceres_FOUND)
 
-if (ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
-  list(APPEND servermanager_xml
-    xml/Slam.xml
-    )
-endif(ENABLE_old_slam AND PCL_FOUND AND Ceres_FOUND AND nanoflann_FOUND)
-
-
 if (nanoflann_FOUND)
   list(APPEND servermanager_sources
        ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
@@ -320,7 +305,6 @@ list(APPEND sources_which_do_not_inherit_from_vtkObject
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/LASFileWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/CategoriesConfig.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkSphericalMap.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/KalmanFilter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileReader.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
@@ -344,12 +328,10 @@ if (Ceres_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkGeometricCalibration.cxx
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraCalibration.cxx
-      ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/MotionModel/MotionModel.cxx
       )
 endif (Ceres_FOUND)
 if (PCL_FOUND AND Ceres_FOUND)
   list(APPEND sources_which_do_not_inherit_from_vtkObject
-      ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/TrajectoryReoptimization.cxx
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/RegistrationTools.cxx
       )
 endif(PCL_FOUND AND Ceres_FOUND)
@@ -414,8 +396,6 @@ set(plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Slam/MotionModel
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid
