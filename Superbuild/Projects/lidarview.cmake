@@ -23,7 +23,6 @@ superbuild_add_project(lidarview
     -DENABLE_nanoflann=${ENABLE_nanoflann}
     -DENABLE_g2o=${ENABLE_g2o}
     -DENABLE_slam=${ENABLE_slam}
-    -DENABLE_old_slam=${ENABLE_old_slam}
     #$lidarview_appname additional configuration
 )
 
