@@ -22,7 +22,7 @@ superbuild_add_project(lidarview
     -DENABLE_opencv=${ENABLE_opencv}
     -DENABLE_nanoflann=${ENABLE_nanoflann}
     -DENABLE_g2o=${ENABLE_g2o}
-    -DENABLE_slam=${ENABLE_slam}
+    -DLIDARVIEW_BUILD_SLAM=${LIDARVIEW_BUILD_SLAM}
     #$lidarview_appname additional configuration
 )
 
