@@ -250,7 +250,7 @@ The Ubuntu 18.04 one-liner is: `sudo apt-get install build-essential git flex by
 The command presented in step Windows/6 or Linux/3 enables basic LidarView features, which use basic dependencies.
 To enable more features that rely on additional external libraries, you can use the `ENABLE_<lib>=True` flags. This will download and install the required dependencies, and enable the corresponding LidarView features.
 
-For example, to build LidarView with SLAM support, use `-DENABLE_ceres=True -DENABLE_nanoflann=True -DENABLE_pcl=True -DENABLE_slam=True` (more info in [How to SLAM with LidarView](https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md)).
+For example, to build LidarView with SLAM support, use `-DENABLE_ceres=True -DENABLE_nanoflann=True -DENABLE_pcl=True -DLIDARVIEW_BUILD_SLAM=True` (more info in [How to SLAM with LidarView](https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md)).
 
 ## Packaging instructions <a name="packaging"></a>
 

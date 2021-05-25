@@ -1,5 +1,5 @@
-option(ENABLE_slam "Build Lidar SLAM (requires PCL, Ceres, nanoflann; optional g2o)" OFF)
-if(ENABLE_slam)
+option(LIDARVIEW_BUILD_SLAM "Build Lidar SLAM (requires PCL, Ceres, nanoflann; optional g2o)" OFF)
+if(LIDARVIEW_BUILD_SLAM)
 
   # Notify to build Paraview LidarSlamPlugin
   set(SLAM_PARAVIEW_PLUGIN ON CACHE INTERNAL "")
@@ -16,4 +16,4 @@ if(ENABLE_slam)
   # Build SLAM lib and PV plugin
   add_subdirectory(LidarSlam)
 
-endif(ENABLE_slam)
+endif()
