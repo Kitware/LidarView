@@ -17,11 +17,13 @@ superbuild_add_project(lidarview
     -Dqt_version:STRING=${qt_version}
     -DPYTHONQT_DIR:PATH=<INSTALL_DIR>
     -DBoost_NO_BOOST_CMAKE:BOOL=${Boost_NO_BOOST_CMAKE}
+    #$lidarview_appname dependencies options
     -DENABLE_pcl=${ENABLE_pcl}
     -DENABLE_ceres=${ENABLE_ceres}
     -DENABLE_opencv=${ENABLE_opencv}
     -DENABLE_nanoflann=${ENABLE_nanoflann}
     -DENABLE_g2o=${ENABLE_g2o}
+    #$lidarview_appname features options
     -DLIDARVIEW_BUILD_SLAM=${LIDARVIEW_BUILD_SLAM}
     #$lidarview_appname additional configuration
 )
