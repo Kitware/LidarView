@@ -184,7 +184,7 @@ workflow:
       - ./*.exe
       - ./*.tar.gz
       - ./*.tar.xz
-    expire_in: 1 day
+    expire_in: 1 week
 
 ########################
 # System configuration #
