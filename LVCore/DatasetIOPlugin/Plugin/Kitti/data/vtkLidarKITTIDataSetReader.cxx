@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-# include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 
 namespace  {
 //-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarKITTIDataSetReader::GetFrame(int frameNumbe
     ss << std::setw(this->NumberOfFileNameDigits) << std::setfill('0') << i;
     std::string filename = this->GetFileName() + ss.str() + ".bin";
 
-    ifstream is;
+    std::ifstream is;
     is.open(filename, ios::binary|ios::in);
     // get length of file:
     is.seekg(0, ios::end);
