@@ -44,7 +44,7 @@ PacketReceiver::PacketReceiver(int port,
     // Check the listening address
     boost::system::error_code errCode;
     boost::asio::ip::address listen_address = boost::asio::ip::address::from_string(LocalListeningAddress, errCode);
-    if(errCode != 0)
+    if(errCode != boost::system::errc::success)
     {
       vtkGenericWarningMacro("Listen address is not valid, listening on all local ip addresses on v4");
       listen_address = boost::asio::ip::address_v4::any();
@@ -68,7 +68,7 @@ PacketReceiver::PacketReceiver(int port,
       {
         vtkGenericWarningMacro("Multicast ip address must be an ipv4 address");
       }
-      else if (errCode == 0 && multicast_address.is_multicast())
+      else if (errCode == boost::system::errc::success && multicast_address.is_multicast())
       {
         try
         {
@@ -104,7 +104,7 @@ PacketReceiver::PacketReceiver(int port,
     // Check the listening address
     boost::system::error_code errCode;
     boost::asio::ip::address listen_address = boost::asio::ip::address::from_string(LocalListeningAddress, errCode);
-    if(errCode != 0)
+    if(errCode != boost::system::errc::success)
     {
       vtkGenericWarningMacro("Listen address is not valid, listening on all local ip addresses on v6");
       listen_address = boost::asio::ip::address_v6::any();
@@ -167,7 +167,7 @@ void PacketReceiver::EnableForwarding(int forwardport, const std::string& forwar
   // Check that the provided forwarding ipadress is valid
   boost::system::error_code errCode;
   boost::asio::ip::address ipAddressForwarding = boost::asio::ip::address::from_string(forwarddestinationIp, errCode);
-  if(errCode == 0)
+  if(errCode == boost::system::errc::success)
   {
     this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardport);
     this->ForwardedSocket.open(ForwardEndpoint.protocol());
