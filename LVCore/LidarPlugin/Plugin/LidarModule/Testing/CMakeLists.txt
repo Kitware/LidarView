@@ -4,9 +4,9 @@ if(NOT LV_INSTALL_LIBRARY_DIR )
 endif()
 
 if (WIN32)
-  get_filename_component(TEST_BINARY_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE)
+  get_filename_component(TEST_BINARY_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE) #wip not tested
 else()
-  set(TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
+  set(TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/lib/plugins/LidarPlugin")
 endif()
 
 set(data_dir ${CMAKE_CURRENT_SOURCE_DIR}/Data)
@@ -17,37 +17,37 @@ function(custom_add_executable)
     install(TARGETS ${ARGV0}
 	    RUNTIME DESTINATION ${TEST_BINARY_DIR}
 	    LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-	    COMPONENT Runtime)
+	  )
   endif(WIN32)
 endfunction(custom_add_executable)
 
 # Add TestHelpers
-target_sources(LidarPluginMod PUBLIC
+target_sources(LidarModule PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers.cxx
   )
-target_include_directories(LidarPluginMod PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(LidarModule PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Default Tests
 custom_add_executable(TestNMEAParser TestNMEAParser.cxx)
-target_link_libraries(TestNMEAParser LidarPluginMod)
+target_link_libraries(TestNMEAParser LidarModule)
 
 custom_add_executable(TestTrailingFrame TestTrailingFrame.cxx)
-target_link_libraries(TestTrailingFrame LidarPluginMod)
+target_link_libraries(TestTrailingFrame LidarModule)
 
 custom_add_executable(TestRansacPlaneModel TestRansacPlaneModel.cxx)
-target_link_libraries(TestRansacPlaneModel LidarPluginMod)
+target_link_libraries(TestRansacPlaneModel LidarModule)
 
 #custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx )
-#target_link_libraries(TestVtkEigenTools LidarPluginMod)
+#target_link_libraries(TestVtkEigenTools LidarModule)
 #add_test(TestVtkEigenTools
 #  ${TEST_BINARY_DIR}/TestVtkEigenTools
 #)
 
 custom_add_executable(TestBoundingBox TestBoundingBox.cxx)
-target_link_libraries(TestBoundingBox LidarPluginMod)
+target_link_libraries(TestBoundingBox LidarModule)
 
 custom_add_executable(TestTemporalTransformsReaderWriter TestTemporalTransformsReaderWriter.cxx )
-target_link_libraries(TestTemporalTransformsReaderWriter LidarPluginMod)
+target_link_libraries(TestTemporalTransformsReaderWriter LidarModule)
 
 add_test(TestNMEAParser
   ${TEST_BINARY_DIR}/TestNMEAParser
@@ -72,7 +72,7 @@ add_test(TestBoundingBox
 )
 
 #custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
-#target_link_libraries(TestScaleCalibration-MM LidarPluginMod)
+#target_link_libraries(TestScaleCalibration-MM LidarModule)
 #add_test(TestScaleCalibration-MM
 #  ${TEST_BINARY_DIR}/TestScaleCalibration-MM
 #  ${data_dir}/trajectories
@@ -80,14 +80,14 @@ add_test(TestBoundingBox
 
 # Comment this test are they randomly fail on osx (error and even segfault)
 #custom_add_executable(TestTimeCalibration-LaDoua TestTimeCalibration-LaDoua.cxx)
-#target_link_libraries(TestTimeCalibration-LaDoua LidarPluginMod)
+#target_link_libraries(TestTimeCalibration-LaDoua LidarModule)
 #add_test(TestTimeCalibration-LaDoua
 #  ${TEST_BINARY_DIR}/TestTimeCalibration-LaDoua
 #  ${data_dir}/trajectories/la_doua_dataset
 #)
 
 #custom_add_executable(TestTimeCalibration-MM TestTimeCalibration-MM.cxx)
-#target_link_libraries(TestTimeCalibration-MM LidarPluginMod)
+#target_link_libraries(TestTimeCalibration-MM LidarModule)
 
 #add_test(TestTimeCalibration-MM
 #  ${TEST_BINARY_DIR}/TestTimeCalibration-MM
@@ -98,35 +98,35 @@ add_test(TestBoundingBox
 if(LIDARVIEW_BUILD_CALIBFROMPOSES)
   
   custom_add_executable(TestCameraCalibration TestCameraCalibration.cxx)
-  target_link_libraries(TestCameraCalibration LidarPluginMod)
+  target_link_libraries(TestCameraCalibration LidarModule)
   add_test(TestCameraCalibration
     ${TEST_BINARY_DIR}/TestCameraCalibration
     ${data_dir}/Camera/MatchedPoints_3D_2D
   )
 
   custom_add_executable(TestCarGeometricCalibration-MM TestCarGeometricCalibration-MM.cxx)
-  target_link_libraries(TestCarGeometricCalibration-MM LidarPluginMod)
+  target_link_libraries(TestCarGeometricCalibration-MM LidarModule)
   add_test(TestCarGeometricCalibration-MM
     ${TEST_BINARY_DIR}/TestCarGeometricCalibration-MM
     ${data_dir}/trajectories
   )
 
   custom_add_executable(TestCarGeometricCalibration-LaDoua TestCarGeometricCalibration-LaDoua.cxx)
-  target_link_libraries(TestCarGeometricCalibration-LaDoua LidarPluginMod)
+  target_link_libraries(TestCarGeometricCalibration-LaDoua LidarModule)
   add_test(TestCarGeometricCalibration-LaDoua
     ${TEST_BINARY_DIR}/TestCarGeometricCalibration-LaDoua
     ${data_dir}/trajectories/la_doua_dataset
   )
   
   custom_add_executable(TestGeometricCalibration-MM TestGeometricCalibration-MM.cxx)
-  target_link_libraries(TestGeometricCalibration-MM LidarPluginMod)
+  target_link_libraries(TestGeometricCalibration-MM LidarModule)
   add_test(TestGeometricCalibration-MM
     ${TEST_BINARY_DIR}/TestGeometricCalibration-MM
     ${data_dir}/trajectories
   )
 
   custom_add_executable(TestGeometricCalibration-LaDoua TestGeometricCalibration-LaDoua.cxx)
-  target_link_libraries(TestGeometricCalibration-LaDoua LidarPluginMod)
+  target_link_libraries(TestGeometricCalibration-LaDoua LidarModule)
   add_test(TestGeometricCalibration-LaDoua
     ${TEST_BINARY_DIR}/TestGeometricCalibration-LaDoua
     ${data_dir}/trajectories/la_doua_dataset
@@ -136,7 +136,7 @@ endif()
 
 if (LIDARVIEW_BUILD_MIDHOG)
   custom_add_executable(TestMIDHOG TestMIDHOG.cxx)
-  target_link_libraries(TestMIDHOG LidarPluginMod)
+  target_link_libraries(TestMIDHOG LidarModule)
   add_test(TestMIDHOG
     ${TEST_BINARY_DIR}/TestMIDHOG
   )
@@ -153,7 +153,7 @@ endif()
 #  )
 #
 #  custom_add_executable(TestTrajectoryReoptimization TestTrajectoryReoptimization.cxx)
-#  target_link_libraries(TestTrajectoryReoptimization LidarPluginMod)
+#  target_link_libraries(TestTrajectoryReoptimization LidarModule)
 #  add_test(TestTrajectoryReoptimization
 #    ${TEST_BINARY_DIR}/TestTrajectoryReoptimization
 #    ${data_dir}/trajectories/mm05_reoptimization
