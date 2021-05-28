@@ -12,7 +12,7 @@ bool robustReadYamlValueAsBool(YAML::Node node)
   {
     ret = node.as<bool>();
   }
-  catch (YAML::BadConversion)
+  catch (YAML::BadConversion&)
   {
     int intRet = node.as<int>();
     ret = (intRet != 0);
