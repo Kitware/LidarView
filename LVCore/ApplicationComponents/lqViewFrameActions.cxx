@@ -39,7 +39,7 @@ void lqViewFrameActions::frameConnected(pqViewFrame* frame, pqView* view)
 }
 
 //-----------------------------------------------------------------------------
-bool lqViewFrameActions::isButtonVisible(const std::string& buttonName, pqView* view)
+bool lqViewFrameActions::isButtonVisible(const std::string& buttonName, pqView* vtkNotUsed(view) )
 {
   QList<std::string> disabled_button {"SelectSurfaceCells",
                                       "SelectFrustumCells",
