@@ -32,7 +32,7 @@ variables:
        Usefull, to check SB related changes on the CI without replacing/breaking the SB on master.
   SB_ADDITIONAL_PARAMS:
     value: ''
-    description: Define additional params to SB CMake configure 
+    description: Define additional params to SB CMake configure, WARNING POWERSHELL ONLY SUPPORTS A SINGLE PARAM
 
 stages:
   - superbuild
