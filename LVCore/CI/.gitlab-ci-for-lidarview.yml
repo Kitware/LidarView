@@ -196,6 +196,9 @@ workflow:
 #   runner configuration file (congif.toml)
 
 .linux_runner_config:
+  variables:
+    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
+    sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
   tags: [unix]
   resource_group: linux_machine
 
