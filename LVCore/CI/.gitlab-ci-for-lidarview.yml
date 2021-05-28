@@ -120,6 +120,10 @@ workflow:
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
       $sb_cmake_option_CMAKE_OSX_SDK
+      -DENABLE_ceres=True
+      -DENABLE_nanoflann=True
+      -DENABLE_pcl=True
+      -DLIDARVIEW_BUILD_SLAM=True
       $SB_ADDITIONAL_PARAMS
       -DBUILD_TESTING=ON
       -Dsuperbuild_download_location="../downloads"
