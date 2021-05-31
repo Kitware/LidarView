@@ -208,7 +208,7 @@ workflow:
     sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10
     sb_cmake_option_CMAKE_OSX_SDK: -DCMAKE_OSX_SDK=macosx10.12
     sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
-    sb_cmake_option_QT5_DIR: -DQt5_DIR=/Users/veloviewci/Dev/Qt5.10.1/5.10.1/clang_64/lib/cmake/Qt5
+    sb_cmake_option_QT5_DIR: -DQt5_DIR=/Users/gitlab-runner/Qt5.12.9/5.12.9/clang_64/lib/cmake/Qt5
   tags: [osx]
   resource_group: osx_machine
 
