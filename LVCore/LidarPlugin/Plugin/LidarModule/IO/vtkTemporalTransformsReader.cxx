@@ -97,8 +97,16 @@ vtkStandardNewMacro(vtkTemporalTransformsReader)
 //-----------------------------------------------------------------------------
 vtkTemporalTransformsReader::vtkTemporalTransformsReader()
 {
+  this->FileName = nullptr;
+  
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+}
+
+//-----------------------------------------------------------------------------
+vtkTemporalTransformsReader::~vtkTemporalTransformsReader()
+{
+  delete[] this->FileName;
 }
 
 //-----------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 #include <string>
 
 // VTK
-#include <vtkPolyDataReader.h>
+#include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 #include "vtkTemporalTransforms.h"
 
@@ -51,7 +51,7 @@ class LIDARMODULE_EXPORT vtkTemporalTransformsReader : public vtkPolyDataAlgorit
 {
 public:
   static vtkTemporalTransformsReader* New();
-  vtkTypeMacro(vtkTemporalTransformsReader,vtkPolyDataReader)
+  vtkTypeMacro(vtkTemporalTransformsReader,vtkPolyDataAlgorithm)
 
   static vtkSmartPointer<vtkTemporalTransforms> OpenTemporalTransforms(const std::string& filename);
 
@@ -62,9 +62,18 @@ public:
   vtkGetMacro(TimeOffset, double)
   vtkSetMacro(TimeOffset, double)
   //@}
+  
+  //@{
+  /**
+   * @copydoc vtkTemporalTransformsReader::FileName
+   */
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+  //@}
 
 protected:
   vtkTemporalTransformsReader();
+  ~vtkTemporalTransformsReader() override;
 
   //! Read the data from the csv file and fill TrajectoryCahce
   //! can throw an error
@@ -77,6 +86,7 @@ protected:
 private:
   //! TimeOffset in seconds relative to the system clock
   double TimeOffset = 0.0;
+  char* FileName;
 
   vtkTemporalTransformsReader(const vtkTemporalTransformsReader&) = delete;
   void operator =(const vtkTemporalTransformsReader&) = delete;
