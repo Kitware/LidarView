@@ -442,22 +442,6 @@ add_custom_command(
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #-----------------------------------------------------------------------------
-# WIPWIP BOOST FLAGS
-#-----------------------------------------------------------------------------
-#wip should look a bit more into this and add this at boost level if needed ?
-#WIPWIP I REMOVED IT FROM THE STANDALONES THOSE WILL NEED A HELPER maybe
-#[[
-if(WIN32)
-  # -DBOOST_PROGRAM_OPTIONS_DYN_LINK is necessary to use boost as a dynamic library
-  # more about it here: https://svn.boost.org/trac10/ticket/13326
-  target_compile_definitions(LidarPluginMod PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-endif(WIN32)
-if (APPLE)
-  target_compile_definitions(LidarPluginMod PRIVATE -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-endif(APPLE)
-]]
-
-#-----------------------------------------------------------------------------
 # Build PacketFileSender target which enable to playback a recorded pcap on the network
 #-----------------------------------------------------------------------------
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
