@@ -282,6 +282,7 @@ void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
       {
         vtkSMPropertyHelper(prop).Set(values[0].c_str());
       }
+      proxy->UpdateProperty(propNameToFind.c_str());
     }
   }
 }
