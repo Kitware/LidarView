@@ -8,6 +8,7 @@
 #include <vtkSMProperty.h>
 #include <vtkSMProxy.h>
 #include <vtkSmartPointer.h>
+#include <vtkSMPropertyHelper.h>
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
@@ -17,6 +18,14 @@
 #include <vector>
 
 #include<QDialog>
+
+/* This file contains some helpers function to manage proxy (stream and reader)
+ * If you want to update some property of a proxy use
+ * vtkSMPropertyHelper(proxy, "propertyName").Set(value);
+ * and then to update your changes you have to use
+ * vtkSMProxy->UpdateProperty("propertyName") or vtkSMProxy->UpdateVTKObjects();
+ */
+
 /**
  * @brief IsPositionOrientationStream return true if the src is a PositionOrientationStream
  * @param src to test
@@ -124,28 +133,6 @@ std::vector<vtkSMProxy*> GetLidarsProxy();
 vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propNameToFind);
 
 /**
- * @brief UpdateProperty set the value to the property "propNameToFind" of the proxy
- *        Create a std::vector containing value, and call the more generic function UpdateProperty
- * @param proxy proxy where to search the property
- * @param propNameToFind name of the property
- * @param value value to set
- */
-void UpdateProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
-                    const std::string &value);
-
-/**
- * @brief UpdateProperty set the values to the property "propNameToFind" of the proxy
- *        If the property is not found in the proxy, a message is displayed but nothing is done.
- *        This function is useful, if the property type is unknown.
- *        If it is known, you should directly use vtkSMPropertyHelper to set the property
- * @param proxy proxy where to search the property
- * @param propNameToFind name of the property
- * @param values properties values to set
- */
-void UpdateProperty(vtkSMProxy * proxy, const std::string & propNameToFind,
-                    const std::vector<std::string> & values);
-
-/**
  * @brief GetGroupName Get the name of the first group where appear a proxy
  * @param existingProxy a proxy of the pipeline, use to get the ProxyDefinitionManager
  * @param proxyToFindName name of the proxy to look for
@@ -212,4 +199,5 @@ void RemoveAllProxyTypeFromPipelineBrowser()
   }
   pqDeleteReaction::deleteSources(sources);
 }
+
 #endif // LQHELPER_H
