@@ -127,10 +127,10 @@ if (APPLE)
   install(TARGETS lqApplicationComponents
           RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
+  )
 else()
   install(TARGETS lqApplicationComponents
           RUNTIME DESTINATION "bin"
           LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
+  )
 endif()
