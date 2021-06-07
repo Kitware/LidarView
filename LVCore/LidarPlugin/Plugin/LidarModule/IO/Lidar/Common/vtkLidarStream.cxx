@@ -140,7 +140,7 @@ int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
       std::stringstream text;
       text << "WARNING : At frame " << std::right << std::setw(6) << this->LastFrameProcessed
            << " Drop " << std::right << std::setw(2) << numberOfFrameAvailable-1 << " frame(s)\n";
-      vtkWarningMacro( << text.str() )
+      vtkWarningMacro( << text.str() );
     }
   }
 

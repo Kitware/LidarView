@@ -51,7 +51,7 @@ PacketReceiver::PacketReceiver(int port,
     }
     if (listen_address.is_v6())
     {
-      vtkGenericWarningMacro("Multicast with ipv6 proctocol is not supported.")
+      vtkGenericWarningMacro("Multicast with ipv6 proctocol is not supported.");
     }
     else
     {
@@ -66,7 +66,7 @@ PacketReceiver::PacketReceiver(int port,
       boost::asio::ip::address multicast_address = boost::asio::ip::address::from_string(multicastAddress, errCode);
       if (multicast_address.is_v6())
       {
-        vtkGenericWarningMacro("Multicast ip address must be an ipv4 addresse");
+        vtkGenericWarningMacro("Multicast ip address must be an ipv4 address");
       }
       else if (errCode == 0 && multicast_address.is_multicast())
       {

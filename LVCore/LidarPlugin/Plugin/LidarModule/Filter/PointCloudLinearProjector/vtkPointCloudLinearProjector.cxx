@@ -60,7 +60,7 @@ int vtkPointCloudLinearProjector::RequestInformation(vtkInformation *vtkNotUsed(
 {
   if (this->Resolution[0] <= 0 || this->Resolution[1] <= 0)
   {
-    vtkWarningMacro("Resolution must be positive, not " << this->Resolution[0] << "x" << this->Resolution[1] << ".")
+    vtkWarningMacro("Resolution must be positive, not " << this->Resolution[0] << "x" << this->Resolution[1] << ".");
     return VTK_ERROR;
   }
 

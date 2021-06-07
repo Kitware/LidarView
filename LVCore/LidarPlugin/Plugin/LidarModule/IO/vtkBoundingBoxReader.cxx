@@ -151,7 +151,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
 {
   if (this->FileName.empty())
   {
-    vtkErrorMacro("Please specify a file name")
+    vtkErrorMacro("Please specify a file name");
     return VTK_ERROR;
   }
   auto *output = vtkMultiBlockDataSet::GetData(outputVector->GetInformationObject(0));
@@ -159,7 +159,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
   YAML::Node node = YAML::LoadFile(this->FileName);
   YAML::Node objects = node["objects"];
   if (!objects)
-    vtkErrorMacro("In yaml file, no 'objects' key at level 0!")
+    vtkErrorMacro("In yaml file, no 'objects' key at level 0!");
 
   output->SetNumberOfBlocks(objects.size());
   for (unsigned int i = 0; i < objects.size(); ++i)
@@ -199,7 +199,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       else
       {
-        vtkErrorMacro("Either the 'type' key is missing or this type of bounding box is not supported")
+        vtkErrorMacro("Either the 'type' key is missing or this type of bounding box is not supported");
       }
 
       // Add label
@@ -261,7 +261,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       output->SetBlock(i, bb);
 
     } catch (YAML::BadConversion& e) {
-      vtkErrorMacro(<< "YAML::BadConversion : " << e.what() << "\nThe yaml file is ill-formed")
+      vtkErrorMacro(<< "YAML::BadConversion : " << e.what() << "\nThe yaml file is ill-formed");
     }
   }
 

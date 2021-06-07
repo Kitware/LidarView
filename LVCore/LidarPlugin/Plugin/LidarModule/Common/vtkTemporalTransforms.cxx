@@ -118,7 +118,7 @@ vtkSmartPointer<vtkCustomTransformInterpolator> vtkTemporalTransforms::CreateInt
     }
     else
     {
-      vtkErrorMacro("Timestamp " << i << "is not a number")
+      vtkErrorMacro("Timestamp " << i << "is not a number");
     }
   }
   interpolator->Modified();
@@ -131,7 +131,7 @@ void vtkTemporalTransforms::SetOrientationArray(vtkDoubleArray *array)
   if (array->GetNumberOfComponents() != 4)
   {
     vtkErrorMacro(<< "The orientation array has " << array->GetNumberOfComponents()
-                  << ". 4 components are expected")
+                  << ". 4 components are expected");
   }
   array->SetName(this->OrientationArrayName);
   this->GetPointData()->AddArray(array);
@@ -143,7 +143,7 @@ void vtkTemporalTransforms::SetTranslationArray(vtkDataArray *array)
   if (array->GetNumberOfComponents() != 3)
   {
     vtkErrorMacro(<< "The translation array has " << array->GetNumberOfComponents()
-                  << ". 3 components are expected")
+                  << ". 3 components are expected");
   }
   auto points =  vtkSmartPointer<vtkPoints>::New();
   this->SetPoints(points);
@@ -167,7 +167,7 @@ void vtkTemporalTransforms::SetTimeArray(vtkDoubleArray *array)
   if (array->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro(<< "The time array has " << array->GetNumberOfComponents()
-                  << ". 1 component is expected")
+                  << ". 1 component is expected");
   }
   array->SetName(this->TimeArrayName);
   this->GetPointData()->AddArray(array);

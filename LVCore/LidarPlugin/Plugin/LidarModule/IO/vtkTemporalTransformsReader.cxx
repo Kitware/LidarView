@@ -108,7 +108,7 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
 {
   if (!this->GetFileName())
   {
-    vtkErrorMacro("Please select the file to read")
+    vtkErrorMacro("Please select the file to read");
     return 1;
   }
 
@@ -127,7 +127,7 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
   {
     vtkErrorMacro("The file you try to read has only " << table->GetNumberOfColumns() << " colums."
                    << "This reader needs to have a CVS file with the following colum:"
-                   << "time, roll, pitch, yaw, X, Y, Z")
+                   << "time, roll, pitch, yaw, X, Y, Z");
   }
 
   auto translation = vtkSmartPointer<vtkDoubleArray>::New();
@@ -144,7 +144,7 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
   try {
     array = createArrayIndex(table);
   } catch (std::string e) {
-    vtkErrorMacro(<< e)
+    vtkErrorMacro(<< e);
     return 1;
   }
 

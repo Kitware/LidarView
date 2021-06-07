@@ -132,7 +132,7 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
       auto trajectoryTemp = vtkTemporalTransforms::CreateFromPolyData(lidarTrajectory);
       if (trajectoryTemp == nullptr)
       {
-        vtkWarningMacro("warning: could not read trajectory from input")
+        vtkWarningMacro("warning: could not read trajectory from input");
                         return VTK_ERROR;
       }
       this->Trajectory= trajectoryTemp->CreateInterpolator();
@@ -164,7 +164,7 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
 
   if (this->UseTrajectoryToCorrectPoints && (timestampArray == nullptr))
   {
-    vtkWarningMacro("Point cloud does not have an 'adjustedtime' array. Trajectory won't be used to correct points.")
+    vtkWarningMacro("Point cloud does not have an 'adjustedtime' array. Trajectory won't be used to correct points.");
   }
 
   Eigen::VectorXd W = this->Model.GetParametersVector();
@@ -234,7 +234,7 @@ void vtkCameraMapper::SetCalibrationFileName(const std::string &argfilename)
   }
   if (!ret)
   {
-    vtkWarningMacro("Calibration parameters could not be read from file.")
+    vtkWarningMacro("Calibration parameters could not be read from file.");
   }
   this->Modified();
 }

@@ -121,7 +121,7 @@ int vtkOpenCVImageMapper::RequestData(vtkInformation* vtkNotUsed(request),
   auto tcoordsArray = outImg->GetPointData()->GetArray("TextureCoordinates");
   if (tcoordsArray == nullptr)
   {
-    vtkErrorMacro("Coords input daoes not have a 'TextureCoordinates' point data")
+    vtkErrorMacro("Coords input daoes not have a 'TextureCoordinates' point data");
   }
   auto floatTCoords = vtkSmartPointer<vtkFloatArray>::New();
   floatTCoords->DeepCopy(tcoordsArray);  // Deep copy to convert to float data
@@ -170,7 +170,7 @@ int vtkOpenCVImageMapper::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (this->OutFolderPath.empty())
     {
-      vtkWarningMacro("No folder path provided, skip saving output images.")
+      vtkWarningMacro("No folder path provided, skip saving output images.");
     }
     else
     {

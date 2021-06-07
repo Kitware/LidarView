@@ -201,7 +201,7 @@ int vtkPCAPImageReader::ReadFrameInformation()
 
   if (this->FrameCatalog.size() == 0)
   {
-    vtkErrorMacro("The reader could not parse the pcap file")
+    vtkErrorMacro("The reader could not parse the pcap file");
   }
 
   for (size_t i = 0; i < this->FrameCatalog.size(); i++)
@@ -214,7 +214,7 @@ int vtkPCAPImageReader::ReadFrameInformation()
   if (timeBugDetected)
   {
     vtkWarningMacro("detected a bug in packet times (time not monotonic)."
-                    " Fixing it by adding 1.0 second to packet time")
+                    " Fixing it by adding 1.0 second to packet time");
   }
 
   return this->GetNumberOfFrames();
@@ -267,7 +267,7 @@ cv::Mat vtkPCAPImageReader::GetOpenCVFrame(int frameNumber)
 {
   if (!this->Reader)
   {
-    vtkErrorMacro("GetOpenCVFrame() called but packet file reader is not open.")
+    vtkErrorMacro("GetOpenCVFrame() called but packet file reader is not open.");
     return cv::Mat(0, 0, CV_8UC3);
   }
 
@@ -281,7 +281,7 @@ cv::Mat vtkPCAPImageReader::GetOpenCVFrame(int frameNumber)
 
   if (!this->Reader->NextPacket(data, dataLength, timeSinceStart))
   {
-    vtkErrorMacro("vtkPacketFileReader::GetOpenCVFrame() failed to access packet")
+    vtkErrorMacro("vtkPacketFileReader::GetOpenCVFrame() failed to access packet");
     return cv::Mat(0, 0, CV_8UC3);
   }
 
@@ -293,7 +293,7 @@ cv::Mat vtkPCAPImageReader::GetOpenCVFrame(int frameNumber)
   cv::Mat decodedImage = cv::imdecode(rawData,cv::IMREAD_UNCHANGED|cv::IMREAD_COLOR);
   if (decodedImage.data == nullptr)
   {
-    vtkErrorMacro("Error decoding raw image data")
+    vtkErrorMacro("Error decoding raw image data");
     return cv::Mat(0, 0, CV_8UC3);
   }
   return decodedImage;
@@ -313,7 +313,7 @@ void vtkPCAPImageReader::Open()
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                                                 << this->Reader->GetLastError())
+                                                 << this->Reader->GetLastError());
     this->Close();
   }
 }

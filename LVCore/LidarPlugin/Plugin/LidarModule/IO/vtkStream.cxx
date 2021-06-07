@@ -163,7 +163,7 @@ void vtkStream::Start()
 {
   if (!this->Interpreter)
   {
-    vtkErrorMacro("no interpreter is set")
+    vtkErrorMacro("no interpreter is set");
     return;
   }
 

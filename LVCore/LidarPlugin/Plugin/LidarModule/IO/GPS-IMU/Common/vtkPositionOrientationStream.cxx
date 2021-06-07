@@ -26,7 +26,7 @@ void DeepReverseCopy(vtkTable* input, vtkTable* output)
     if (original->GetNumberOfComponents() != 1)
     {
       vtkGenericWarningMacro(<< "Currently only array with one componenets are supported, "
-                             << "this is not the case of array :" << original->GetName())
+                             << "this is not the case of array :" << original->GetName());
       continue;
     }
 

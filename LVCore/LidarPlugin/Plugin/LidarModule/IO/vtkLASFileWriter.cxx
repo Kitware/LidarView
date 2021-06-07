@@ -122,7 +122,7 @@ int vtkLASFileWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    vtkErrorMacro("There are no time steps, not writing anything")
+    vtkErrorMacro("There are no time steps, not writing anything");
     return 0;
   }
 

@@ -94,7 +94,7 @@ int vtkPlaneProjector::RequestData(vtkInformation* vtkNotUsed(request),
     }
     if (!planeFromInputOk)
     {
-      vtkWarningMacro("Could not get plane from input, using user provided plane instead")
+      vtkWarningMacro("Could not get plane from input, using user provided plane instead");
     }
   }
 

@@ -72,7 +72,7 @@ int vtkLidarReader::ReadFrameInformation()
 
   if (!this->Reader)
   {
-    vtkErrorMacro("Could not open the pcap file")
+    vtkErrorMacro("Could not open the pcap file");
     return 0;
   }
 
@@ -120,7 +120,7 @@ int vtkLidarReader::ReadFrameInformation()
 
   if (this->FrameCatalog.size() == 1)
   {
-    vtkErrorMacro("The reader could not parse the pcap file")
+    vtkErrorMacro("The reader could not parse the pcap file");
   }
 
   this->NetworkTimeToDataTime = 0.0; // default value if no frames seen
@@ -136,7 +136,7 @@ int vtkLidarReader::ReadFrameInformation()
 
   if (this->FrameCatalog.size() == 1)
   {
-    vtkErrorMacro("The reader could not parse the pcap file")
+    vtkErrorMacro("The reader could not parse the pcap file");
   }
 
   return this->GetNumberOfFrames();
@@ -319,7 +319,7 @@ void vtkLidarReader::Open(bool reassemble)
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str(), reassemble))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                                                 << this->Reader->GetLastError())
+                                                 << this->Reader->GetLastError());
     this->Close();
   }
 }
@@ -336,14 +336,14 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
 {
   if (!this->Reader)
   {
-    vtkErrorMacro("SaveFrame() called but packet file reader is not open.")
+    vtkErrorMacro("SaveFrame() called but packet file reader is not open.");
     return;
   }
 
   if (this->GetInterpreter()->GetFramingMethod()!= INTERPRETER_FRAMING)
   {
     // not implemented yet, because not critical for the client
-    vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.")
+    vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.");
     return;
   }
 
@@ -494,7 +494,7 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
       std::stringstream text;
       text << "WARNING : At frame " << std::right << std::setw(6) << frameRequested
            << " Drop " << std::right << std::setw(2) << step-1 << " frame(s)\n";
-      vtkWarningMacro( << text.str() )
+      vtkWarningMacro( << text.str() );
     }
   }
   this->LastFrameProcessed = frameRequested;

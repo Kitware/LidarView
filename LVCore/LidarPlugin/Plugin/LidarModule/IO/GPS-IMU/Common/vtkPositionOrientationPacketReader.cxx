@@ -70,7 +70,7 @@ void vtkPositionOrientationPacketReader::Open()
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                                                 << this->Reader->GetLastError())
+                                                 << this->Reader->GetLastError());
     this->Close();
   }
 }

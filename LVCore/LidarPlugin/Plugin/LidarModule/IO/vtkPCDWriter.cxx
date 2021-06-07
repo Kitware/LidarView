@@ -40,14 +40,14 @@ void vtkPCDWriter::WriteData()
 
   if (!polyData && polyData->GetNumberOfPoints() == 0)
   {
-    vtkErrorMacro("No points to save")
+    vtkErrorMacro("No points to save");
     return;
   }
 
   // check endianness as binary PCD file should be in little-endian
   if (this->Binary && is_big_endian())
   {
-    vtkErrorMacro("Binary mode is not supported on big_endian architecture")
+    vtkErrorMacro("Binary mode is not supported on big_endian architecture");
     return;
   }
 
@@ -86,7 +86,7 @@ void vtkPCDWriter::WriteHeader(vtkPolyData* polydata, ofstream& file)
   // so use this conviention even if it isn"t specify by the standart
   if (polydata->GetPoints()->GetDataType() == VTK_DOUBLE)
   {
-    vtkWarningMacro("Possible loss of precision on (x, y, z) as they will be stored on 32 bits instead of 64 bits")
+    vtkWarningMacro("Possible loss of precision on (x, y, z) as they will be stored on 32 bits instead of 64 bits");
   }
   fields << "x y z";
   sizes  << "4 4 4";
@@ -126,7 +126,7 @@ void vtkPCDWriter::WriteHeader(vtkPolyData* polydata, ofstream& file)
     if (reservedNamed.count(arrayName))
     {
       vtkWarningMacro("Postfixed array named " << arrayName << " with '_array' as arrays "
-                      "named 'x' 'y' and 'z' are reserved for point coordinates")
+                      "named 'x' 'y' and 'z' are reserved for point coordinates");
       arrayName.append("_array");
     }
 

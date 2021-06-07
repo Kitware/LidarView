@@ -180,7 +180,7 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
       auto trajectoryTemp = vtkTemporalTransforms::CreateFromPolyData(lidarTrajectory);
       if (trajectoryTemp == nullptr)
       {
-        vtkWarningMacro("warning: could not read trajectory from input 1")
+        vtkWarningMacro("warning: could not read trajectory from input 1");
                         return VTK_ERROR;
       }
       this->Trajectory= trajectoryTemp->CreateInterpolator();
@@ -326,7 +326,7 @@ void vtkCameraProjector::SetFileName(const std::string &argfilename)
   int ret = this->Model.LoadParamsFromFile(this->Filename);
   if (!ret)
   {
-    vtkWarningMacro("Calibration parameters could not be read from file.")
+    vtkWarningMacro("Calibration parameters could not be read from file.");
   }
   this->Modified();
 }
