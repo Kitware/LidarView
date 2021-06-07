@@ -1,0 +1,28 @@
+# Configuration entry
+set(SOFTWARE_NAME "@SOFTWARE_NAME@")
+set(LV_INSTALL_LIBRARY_DIR "@LV_INSTALL_LIBRARY_DIR@")
+set(LV_INSTALL_RUNTIME_DIR "@LV_INSTALL_RUNTIME_DIR@")
+set(LV_PLUGIN_BUILD_SUBDIRECTORY "@LV_PLUGIN_BUILD_SUBDIRECTORY@")
+set(LV_PLUGIN_INSTALL_SUBDIRECTORY "@LV_PLUGIN_INSTALL_SUBDIRECTORY@")
+set(paraview_version "@paraview_version@")
+
+# Fetch Every Plugins xmls # WIP IS THIS CROSS PLATFORM ?
+file(GLOB lidarview_plugins_xmls
+  "${CMAKE_CURRENT_BINARY_DIR}/${LV_INSTALL_LIBRARY_DIR}/${LV_PLUGIN_BUILD_SUBDIRECTORY}/*.xml"
+)
+
+# Generate Configuration file
+set(lidarview_conf_content)
+# Add PV Plugins
+string(APPEND lidarview_conf_content "../${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins/paraview.plugins.xml\n")
+# Add LV Plugins
+foreach(lidarview_plugins_xml IN LISTS lidarview_plugins_xmls)
+  get_filename_component(xml_name ${lidarview_plugins_xml} NAME)
+  string(APPEND lidarview_conf_content "../${LV_PLUGIN_INSTALL_SUBDIRECTORY}/${xml_name}\n") #WIPWIP
+endforeach()
+
+# Install Configuration file
+message(STATUS "Output ${SOFTWARE_NAME}.conf")
+file(WRITE   "${CMAKE_CURRENT_BINARY_DIR}/${SOFTWARE_NAME}.conf" "${lidarview_conf_content}") # Name of the Client target
+file(INSTALL "${CMAKE_CURRENT_BINARY_DIR}/${SOFTWARE_NAME}.conf" DESTINATION "${CMAKE_INSTALL_PREFIX}/${LV_INSTALL_RUNTIME_DIR}")
+#install(FILES) and file(INSTALL) differ in relative paths handling
