@@ -335,12 +335,12 @@ int vtkKITTIObjectLabelsReader::RequestData(vtkInformation *, vtkInformationVect
 {
   if (this->FolderName.empty())
   {
-    vtkErrorMacro("Please specify a folder name")
+    vtkErrorMacro("Please specify a folder name");
     return VTK_ERROR;
   }
   if (this->UseCalibration && this->CalibFolderName.empty())
   {
-    vtkErrorMacro("Please specify a calibration folder path or untick 'Use Calibration'")
+    vtkErrorMacro("Please specify a calibration folder path or untick 'Use Calibration'");
     return VTK_ERROR;
   }
   auto *output = vtkMultiBlockDataSet::GetData(outputVector->GetInformationObject(0));

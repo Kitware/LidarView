@@ -153,7 +153,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarKITTIDataSetReader::GetFrame(int frameNumbe
         laser_id++;
         if (laser_id >= this->NbrLaser)
         {
-          vtkErrorMacro("An error occur while parsing the frame, more than 64 lasers where detected. The last point won't be processed")
+          vtkErrorMacro("An error occur while parsing the frame, more than 64 lasers where detected. The last point won't be processed");
           break;
         }
       }

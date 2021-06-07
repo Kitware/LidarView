@@ -143,7 +143,7 @@ int vtkLidarKITTIDataSetWriter::RequestData(vtkInformation *, vtkInformationVect
   vtkDataArray* intensity = this->GetInputArrayToProcess(0, inputVector);
   if (!intensity)
   {
-    vtkErrorMacro(<<"No Intensity array selected.")
+    vtkErrorMacro(<<"No Intensity array selected.");
     return 1;
   }
 
