@@ -143,7 +143,6 @@ def openData(filename):
     rep = smp.Show(reader)
     rep.InterpolateScalarsBeforeMapping = 0
     setDefaultLookupTables(reader)
-    colorByIntensity(reader)
 
     showSourceInSpreadSheet(reader)
 
@@ -153,9 +152,7 @@ def openData(filename):
     app.filenameLabel.setText('File: %s' % os.path.basename(filename))
 
     enableSaveActions()
-    addRecentFile(filename)
     app.actions['actionSavePCAP'].setEnabled(False)
-    app.actions['actionChoose_Calibration_File'].setEnabled(False)
     app.actions['actionCropReturns'].setEnabled(False)
     app.actions['actionShowRPM'].enabled = True
 
@@ -237,6 +234,33 @@ def setDefaultLookupTables(sourceProxy):
                100.0, 1.0, 1.0, 0.0,
                256.0, 1.0, 0.0, 0.0])
 
+    # LUT for 'reflectivity'
+    smp.GetLookupTableForArray(
+       'reflectivity', 1,
+       ScalarRangeInitialized=1.0,
+       ColorSpace='HSV',
+       RGBPoints=[0.0, 0.0, 0.0, 1.0,
+                100.0, 1.0, 1.0, 0.0,
+                256.0, 1.0, 0.0, 0.0])
+
+    # LUT for 'dual_distance'
+    smp.GetLookupTableForArray(
+      'dual_distance', 1,
+      InterpretValuesAsCategories=True, NumberOfTableValues=3,
+      RGBPoints=[-1.0, 0.1, 0.5, 0.7,
+                  0.0, 0.9, 0.9, 0.9,
+                 +1.0, 0.8, 0.2, 0.3],
+      Annotations=['-1', 'near', '0', 'dual', '1', 'far'])
+
+    # LUT for 'dual_intensity'
+    smp.GetLookupTableForArray(
+      'dual_intensity', 1,
+      InterpretValuesAsCategories=True, NumberOfTableValues=3,
+      RGBPoints=[-1.0, 0.5, 0.2, 0.8,
+                  0.0, 0.6, 0.6, 0.6,
+                 +1.0, 1.0, 0.9, 0.4],
+      Annotations=['-1', 'low', '0', 'dual', '1', 'high'])
+
     # LUT for 'laser_id'. This LUT is extracted from the XML calibration file
     # which doesn't exist in live stream mode
     if False and getReader() is not None:
@@ -248,18 +272,6 @@ def setDefaultLookupTables(sourceProxy):
           ScalarRangeInitialized=1.0,
           ColorSpace='RGB',
           RGBPoints=rgbRaw)
-
-def colorByIntensity(sourceProxy):
-
-    if not hasArrayName(sourceProxy, 'intensity'):
-        return False
-
-    setDefaultLookupTables(sourceProxy)
-    rep = smp.GetDisplayProperties(sourceProxy)
-    rep.ColorArrayName = 'intensity'
-    rep.LookupTable = smp.GetLookupTableForArray('intensity', 1)
-    return True
-
 
 def getTimeStamp():
     format = '%Y-%m-%d-%H-%M-%S'
@@ -293,56 +305,6 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
         if appendFrameNumber:
             suffix = '%s (Frame %04d)' % (suffix, int(app.scene.AnimationTime))
         return '%s%s.%s' % (basename, suffix, extension)
-
-
-def chooseCalibration(calibrationFilename=None):
-
-    class Calibration(object):
-        def __init__(self, dialog):
-            self.calibrationFile = dialog.selectedCalibrationFile()
-            self.gpsYaw = dialog.gpsYaw()
-            self.gpsRoll = dialog.gpsRoll()
-            self.gpsPitch = dialog.gpsPitch()
-            self.lidarPort = dialog.lidarPort()
-            self.gpsPort = dialog.gpsPort()
-            self.gpsForwardingPort = dialog.gpsForwardingPort()
-            self.lidarForwardingPort = dialog.lidarForwardingPort()
-            self.isForwarding = dialog.isForwarding()
-            self.ipAddressForwarding = dialog.ipAddressForwarding()
-            self.sensorTransform = vtk.vtkTransform()
-            self.gpsTransform = vtk.vtkTransform()
-            self.isCrashAnalysing = dialog.isCrashAnalysing()
-            self.isEnableInterpretGPSPackets = dialog.isEnableInterpretGPSPackets()
-
-            qm = dialog.sensorTransform()
-            vmLidar = vtk.vtkMatrix4x4()
-            for row in range(4):
-                vmLidar.SetElement(row, 0, qm.row(row).x())
-                vmLidar.SetElement(row, 1, qm.row(row).y())
-                vmLidar.SetElement(row, 2, qm.row(row).z())
-                vmLidar.SetElement(row, 3, qm.row(row).w())
-            self.sensorTransform.SetMatrix(vmLidar)
-
-            qm = dialog.gpsTransform()
-            vmGps = vtk.vtkMatrix4x4()
-            for row in range(4):
-                vmGps.SetElement(row, 0, qm.row(row).x())
-                vmGps.SetElement(row, 1, qm.row(row).y())
-                vmGps.SetElement(row, 2, qm.row(row).z())
-                vmGps.SetElement(row, 3, qm.row(row).w())
-            self.gpsTransform.SetMatrix(vmGps)
-
-
-    dialog = vvCalibrationDialog(getMainWindow())
-    if calibrationFilename is None:
-        if not dialog.exec_():
-            return None
-        return Calibration(dialog)
-    else:
-        result = Calibration(dialog)
-        result.calibrationFile = calibrationFilename
-        return result
-
 
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
@@ -395,55 +357,29 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     app.DistanceResolutionM = sensor.Interpreter.GetClientSideObject().GetDistanceResolutionM()
     app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
-
+    setDefaultLookupTables(sensor)
     updateUIwithNewLidar()
 
 
-def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrationUIArgs=None):
+def UpdateApplogicReader(lidarName, posOrName):
 
-    calibration = chooseCalibration(calibrationFilename)
-    if not calibration:
-        return
+    reader = smp.FindSource(lidarName)
 
-    if calibrationFilename is not None and calibrationUIArgs is not None and isinstance(calibrationUIArgs, dict):
-        for k in calibrationUIArgs.keys():
-          if hasattr(calibration, k):
-            setattr(calibration, k, calibrationUIArgs[k])
+    if not reader :
+      return
 
-    calibrationFile = calibration.calibrationFile
-    sensorTransform = calibration.sensorTransform
-
-    close()
-
-    def onProgressEvent(o, e):
-        PythonQt.QtGui.QApplication.instance().processEvents()
-
-    progressDialog = QtGui.QProgressDialog('Reading packet file...', '', 0, 0, getMainWindow())
-    progressDialog.setCancelButton(None)
-    progressDialog.setModal(True)
-    progressDialog.show()
-
-    handler = servermanager.ActiveConnection.Session.GetProgressHandler()
-    handler.PrepareProgress()
-    interval = handler.GetProgressInterval()
-    handler.SetProgressInterval(0.05)
-    tag = handler.AddObserver('ProgressEvent', onProgressEvent)
-
-    # construct the reader, this calls UpdateInformation on the
-    # reader which scans the pcap file and emits progress events
-    reader = smp.LidarReader(guiName='Data',
-                             CalibrationFile = calibrationFile,
-                             FileName = filename)
-
-    # Change the default interpreter if the pcap is a Velodyne one
-    if calibrationFile.endswith('.xml'):
-        reader.Interpreter = 'Velodyne Meta Interpreter'
+    # We create a grid only if there is not a previous one
+    # This avoid creating a grid for every open sensor
+    # In long term this should be moved to the reaction
+    if not app.grid :
+        app.grid = createGrid()
 
     reader.UpdatePipelineInformation()
     app.reader = reader
     app.trailingFramesSpinBox.enabled = True
     app.trailingFrame = smp.TrailingFrame(guiName="TrailingFrame", Input=getLidar(), NumberOfTrailingFrames=app.trailingFramesSpinBox.value)
 
+    filename = reader.FileName
     displayableFilename = os.path.basename(filename)
     # shorten the name to display because the status bar gives a lower bound to main window width
     shortDisplayableFilename = (displayableFilename[:20] + '...' + displayableFilename[-20:]) if len(displayableFilename) > 43 else displayableFilename
@@ -453,17 +389,11 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
     app.positionPacketInfoLabel.setText('') # will be updated later if possible
     onCropReturns(False) # Dont show the dialog just restore settings
 
-    reader.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
-
     lidarPacketInterpreter = getLidarPacketInterpreter()
 
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(reader)
 
-    handler.RemoveObserver(tag)
-    handler.LocalCleanupPendingProgress()
-    handler.SetProgressInterval(interval)
-    progressDialog.close()
 
     smp.GetActiveView().ViewTime = 0.0
 
@@ -471,22 +401,9 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
         prep = smp.Show(processor)
     app.scene.UpdateAnimationUsingDataTimeSteps()
 
-    if calibration.isEnableInterpretGPSPackets :
-        posreader = smp.PositionOrientationReader(guiName='Position Orientation Data', FileName = filename)
+    posreader = smp.FindSource(posOrName)
 
-        # wrapping not currently working for plugins:
-        #posreader.GetClientSideObject().SetCalibrationTransform(calibration.gpsTransform)
-        smp.Show(posreader)
-
-        if positionFilename is None:
-            # only VelodyneHDLReader provides this information
-            # this information must be read after an update
-            # GetTimeSyncInfo() has the side effect of showing a message in the error
-            # console in the cases where the timeshift if computed
-            # wrapping not currently working for plugins:
-            # app.positionPacketInfoLabel.setText(posreader.GetClientSideObject().GetTimeSyncInfo())
-            pass
-
+    if posreader :
         output0 = posreader.GetClientSideObject().GetOutput(0)
         if output0.GetNumberOfPoints() != 0:
 
@@ -504,35 +421,25 @@ def openPCAP(filename, positionFilename=None, calibrationFilename=None, calibrat
             sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
             sb.Orientation = 'Horizontal'
             app.position = posreader
-            if not app.actions['actionShowPosition'].isChecked():
-                smp.Hide(app.position)
-        else:
-            if positionFilename is not None:
-                QtGui.QMessageBox.warning(getMainWindow(), 'Georeferencing data invalid',
-                                          'File %s is empty or not supported' % positionFilename)
-            smp.Delete(posreader)
 
-    smp.Show(app.trailingFrame)
+
     smp.SetActiveView(app.mainView)
-
-    colorByIntensity(app.trailingFrame)
 
     showSourceInSpreadSheet(app.trailingFrame)
 
     enableSaveActions()
-    addRecentFile(filename)
 
     app.actions['actionShowRPM'].enabled = True
 
     #Auto adjustment of the grid size with the distance resolution
     app.DistanceResolutionM = reader.Interpreter.GetClientSideObject().GetDistanceResolutionM()
-    app.grid = createGrid()
     app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
 
+    setDefaultLookupTables(app.trailingFrame)
+    smp.Show(app.trailingFrame)
     smp.SetActiveSource(app.trailingFrame)
     updateUIwithNewLidar()
-
 
 
 def hideMeasurementGrid():
@@ -1070,7 +977,7 @@ def close():
 
 def _setSaveActionsEnabled(enabled):
     for action in ('SaveCSV', 'SavePCAP', 'SaveLAS', 'Export_To_KiwiViewer',
-                   'Close', 'Choose_Calibration_File', 'CropReturns'):
+                   'Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
@@ -1149,22 +1056,6 @@ def getLidarPacketInterpreter():
 
 def getPosition():
     return getattr(app, 'position', None)
-
-def onChooseCalibrationFile():
-
-    calibration = chooseCalibration()
-    if not calibration:
-        return
-
-    calibrationFile = calibration.calibrationFile
-    sensorTransform = calibration.sensorTransform
-
-    lidar = getLidar()
-    if lidar:
-        lidar.Interpreter.GetClientSideObject().SetSensorTransform(sensorTransform)
-        lidar.CalibrationFile = calibrationFile
-        updateUIwithNewLidar()
-
 
 def onCropReturns(show = True):
     dialog = vvCropReturnsDialog(getMainWindow())
@@ -1336,7 +1227,6 @@ def start():
     setupStatusBar()
     hideColorByComponent()
     restoreNativeFileDialogsAction()
-    updateRecentFiles()
     createRPMBehaviour()
 
 
@@ -1413,72 +1303,6 @@ def adjustScalarBarRangeLabelFormat():
         sb = smp.GetScalarBar(smp.GetLookupTableForArray(arrayName, []))
         sb.RangeLabelFormat = '%g'
         smp.Render()
-
-
-
-def addRecentFile(filename):
-    maxRecentFiles = 4
-    recentFiles = getRecentFiles()
-
-    # workaround to get system-locale to unicode conversion of filename
-    recentFiles.insert(0, filename)
-    getPVSettings().setValue('LidarPlugin/RecentFiles', recentFiles)
-    unicodeFilename = getPVSettings().value('LidarPlugin/RecentFiles')[0]
-    recentFiles = recentFiles[1:]
-
-    try:
-        recentFiles.remove(unicodeFilename)
-    except ValueError:
-        pass
-
-    recentFiles = recentFiles[:maxRecentFiles]
-    recentFiles.insert(0, unicodeFilename)
-
-    getPVSettings().setValue('LidarPlugin/RecentFiles', recentFiles)
-
-    updateRecentFiles()
-
-
-def openRecentFile(filename):
-    if not os.path.isfile(filename):
-        QtGui.QMessageBox.warning(getMainWindow(), 'File not found', 'File not found: %s' % filename)
-        return
-
-    if os.path.splitext(filename)[1].lower() == '.pcap':
-        openPCAP(filename)
-    else:
-        openData(filename)
-
-
-def getRecentFiles():
-    return list(getPVSettings().value('LidarPlugin/RecentFiles', []) or [])
-
-
-def updateRecentFiles():
-    settings = getPVSettings()
-    recentFiles = getRecentFiles()
-    recentFilesMenu = findQObjectByName(findQObjectByName(getMainWindow().menuBar().children(), 'menu_File').children(), 'menuRecent_Files')
-
-    clearMenuAction = app.actions['actionClear_Menu']
-    for action in recentFilesMenu.actions()[:-2]:
-        recentFilesMenu.removeAction(action)
-
-    def createActionFunction(filename):
-        def f():
-            openRecentFile(filename)
-        return f
-
-    actions = []
-    for filename in recentFiles:
-        actions.append(QtGui.QAction(os.path.basename(filename), recentFilesMenu))
-        actions[-1].connect('triggered()', createActionFunction(filename))
-    recentFilesMenu.insertActions(recentFilesMenu.actions()[0], actions)
-
-
-def onClearMenu():
-    settings = getPVSettings()
-    settings.setValue('LidarPlugin/RecentFiles', [])
-    updateRecentFiles()
 
 def toggleProjectionType():
 
@@ -1591,7 +1415,6 @@ def setupActions():
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
     app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)
-    app.actions['actionClear_Menu'].connect('triggered()', onClearMenu)
 
     app.actions['actionToggleProjection'].connect('triggered()', toggleProjectionType)
     app.actions['actionMeasure'].connect('triggered()', toggleRulerContext)

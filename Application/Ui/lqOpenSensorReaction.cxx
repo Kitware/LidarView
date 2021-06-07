@@ -8,9 +8,11 @@
 #include <vtkSMProxy.h>
 
 #include <pqActiveObjects.h>
+#include <pqDeleteReaction.h>
 #include <pqPVApplicationCore.h>
 #include <pqObjectBuilder.h>
 #include <pqPipelineSource.h>
+#include <pqServerManagerModel.h>
 #include <pqView.h>
 
 #include "lqHelper.h"
@@ -46,6 +48,20 @@ void lqOpenSensorReaction::onTriggered()
     return;
   }
 
+  // We remove all lidarReader and PositionOrientationReader (and every filter depending on them) in the pipeline
+  // TODO : As soon as LidarReader is available in multi sensor mode, we have to remove only the vtkLidarReader sources
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader *>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader *>();
+
+  // If the user don't enable multi sensors, we have to clean the pipeline by removing all stream
+  // In the lqSensorListWidget, every PositionOrientationStream is linked to a LidarStream
+  // If a LidarStream is delete, it will automatically delete its PositionOrientationStream.
+  // So we just have to delete all lidarStream.
+  if(!dialog.isEnableMultiSensors())
+  {
+    RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream *>();
+  }
+
   // Create the lidarSensor
   // We have to use pqObjectBuilder::createSource to add the created source to the pipeline
   // The source will be created immediately so the signal "sourceAdded" of the pqServerManagerModel
@@ -76,6 +92,4 @@ void lqOpenSensorReaction::onTriggered()
 
   //Update applogic to be able to use function only define in applogic.
   pqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
-
-  pqActiveObjects::instance().setActiveSource(lidarSource);
 }
