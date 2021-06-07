@@ -90,8 +90,16 @@ if(NOT Qt5_FOUND)
     message(FATAL_ERROR "Qt5 not found")
 endif()
 message(STATUS "Qt: ${PARAVIEW_QT_VERSION}, actually ${Qt5Core_VERSION}")
-# PythonQt and a PythonQtPlugin from Paraview, custom made
+
+# Find PythonQt from Paraview's PythonQtPlugin Directory
+# We also need to set this variable for PythonQtPlugin to build itself
+# wip bad af, needs more checking
+set(PYTHONQTPLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/../lidarview-superbuild/common-superbuild/paraview/src/Plugins/PythonQtPlugin")
+list(INSERT CMAKE_MODULE_PATH 0  "${PYTHONQTPLUGIN_DIR}/cmake")
 find_package(PythonQt REQUIRED)
+if(NOT PythonQt_FOUND OR NOT TARGET PythonQt::PythonQt)
+  message(FATAL_ERROR "PythonQt::PythonQt not FOUND")
+endif()
 
 # Doc
 option(BUILD_DOC "Build documentation" OFF)
@@ -101,6 +109,8 @@ endif()
 
 # Setup Dir Variables
 # - LV_INSTALL_LIBRARY_DIR
+# - LV_INSTALL_PLUGIN_DIR
+# - LV_INSTALL_PV_PLUGIN_DIR
 # - LV_INSTALL_PYTHON_MODULES_DIR
 # - Branding related variables already set
 include(SetupOutputDirs)
