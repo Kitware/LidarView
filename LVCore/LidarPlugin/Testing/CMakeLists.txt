@@ -110,31 +110,31 @@ add_test(TestBoundingBox
 
 # Optional Tests
 if(LIDARVIEW_BUILD_CALIBFROMPOSES)
-  add_executable(TestCameraCalibration TestCameraCalibration.cxx)
+  custom_add_executable(TestCameraCalibration TestCameraCalibration.cxx)
   target_link_libraries(TestCameraCalibration LidarPlugin)
+  add_test(TestCameraCalibration
+    ${INSTALL_LOCAL_DIR}/TestCameraCalibration
+    ${data_dir}/Camera/MatchedPoints_3D_2D
+  )
 
-  add_executable(TestGeometricCalibration-MM TestGeometricCalibration-MM.cxx)
+  custom_add_executable(TestGeometricCalibration-MM TestGeometricCalibration-MM.cxx)
   target_link_libraries(TestGeometricCalibration-MM LidarPlugin)
   add_test(TestGeometricCalibration-MM
     ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-MM
     ${data_dir}/trajectories
   )
 
-  add_executable(TestGeometricCalibration-LaDoua TestGeometricCalibration-LaDoua.cxx)
+  custom_add_executable(TestGeometricCalibration-LaDoua TestGeometricCalibration-LaDoua.cxx)
   target_link_libraries(TestGeometricCalibration-LaDoua LidarPlugin)
   add_test(TestGeometricCalibration-LaDoua
     ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-LaDoua
     ${data_dir}/trajectories/la_doua_dataset
   )
 
-  add_test(TestCameraCalibration
-    ${INSTALL_LOCAL_DIR}/TestCameraCalibration
-    ${data_dir}/Camera/MatchedPoints_3D_2D
-  )
 endif()
 
 if (LIDARVIEW_BUILD_MIDHOG)
-  add_executable(TestMIDHOG TestMIDHOG.cxx)
+  custom_add_executable(TestMIDHOG TestMIDHOG.cxx)
   target_link_libraries(TestMIDHOG LidarPlugin)
   add_test(TestMIDHOG
     ${INSTALL_LOCAL_DIR}/TestMIDHOG

@@ -27,6 +27,8 @@
 // EIGEN
 #include <Eigen/Dense>
 
+#include "lidarplugin_export.h"
+
 /**
    * @brief LoadMatchesFromCSV Load 2D - 3D matches from a .csv file. These matches are
    *        then used to estimate the geometric and optic calibration of the camera. The
@@ -37,7 +39,7 @@
    * @param X 3D keypoints associated to the 2D keypoints
    * @param x 2D keypoints associated to the 3D keypoints
    */
-void LoadMatchesFromCSV(std::string filename, std::vector<Eigen::Vector3d>& X, std::vector<Eigen::Vector2d>& x);
+LIDARPLUGIN_EXPORT void LoadMatchesFromCSV(std::string filename, std::vector<Eigen::Vector3d>& X, std::vector<Eigen::Vector2d>& x);
 
 /**
    * @brief LinearPinholeCalibration Compute the pinhole camera model parameters
@@ -55,7 +57,7 @@ void LoadMatchesFromCSV(std::string filename, std::vector<Eigen::Vector3d>& X, s
    * @param x 2D keypoints associated to the 3D keypoints
    * @param P camera projection matrix estimated
    */
-double LinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x, Eigen::Matrix<double, 3, 4>& P);
+LIDARPLUGIN_EXPORT double LinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x, Eigen::Matrix<double, 3, 4>& P);
 
 /**
    * @brief NonLinearPinholeCalibration Compute the pinhole camera model parameters
@@ -72,7 +74,7 @@ double LinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std
    * @param x 2D keypoints associated to the 3D keypoints
    * @param P W pinhole camera model parameters estimated
    */
-double NonLinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x, Eigen::Matrix<double, 11, 1>& W);
+LIDARPLUGIN_EXPORT double NonLinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x, Eigen::Matrix<double, 11, 1>& W);
 
 /**
    * @brief NonLinearFisheyeCalibration Compute the fisheye camera model parameters
@@ -89,7 +91,7 @@ double NonLinearPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const 
    * @param x 2D keypoints associated to the 3D keypoints
    * @param P W fisheye camera model parameters estimated
    */
-double NonLinearFisheyeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x,
+LIDARPLUGIN_EXPORT double NonLinearFisheyeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x,
                                    Eigen::Matrix<double, 15, 1>& W, unsigned int it = 1000);
 
 /**
@@ -115,7 +117,7 @@ double NonLinearFisheyeCalibration(const std::vector<Eigen::Vector3d>& X, const 
    *        reprojection error
    * @param shouldOptimizeParam Indicates which parameters should be optimized
    */
-double BrownConradyPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x,
+LIDARPLUGIN_EXPORT double BrownConradyPinholeCalibration(const std::vector<Eigen::Vector3d>& X, const std::vector<Eigen::Vector2d>& x,
                                       Eigen::Matrix<double, 17, 1>& W, unsigned int it = 1000,
                                       double initLossScale = 5.0, double finalLossScale = 0.60,
                                       const std::vector<bool>& shouldOptimizeParam = std::vector<bool>(0));
@@ -129,7 +131,7 @@ double BrownConradyPinholeCalibration(const std::vector<Eigen::Vector3d>& X, con
    * @param R orientation of the camera (extrinsic parameters)
    * @param T position of the camera (extrinsic parameters)
    */
-void CalibrationMatrixDecomposition(const Eigen::Matrix<double, 3, 4>& P, Eigen::Matrix3d& K, Eigen::Matrix3d& R, Eigen::Vector3d& T);
+LIDARPLUGIN_EXPORT void CalibrationMatrixDecomposition(const Eigen::Matrix<double, 3, 4>& P, Eigen::Matrix3d& K, Eigen::Matrix3d& R, Eigen::Vector3d& T);
 
 /**
    * @brief CalibrationMatrixDecomposition Decompose the pinhole camera model
@@ -140,7 +142,7 @@ void CalibrationMatrixDecomposition(const Eigen::Matrix<double, 3, 4>& P, Eigen:
    * @param T position of the camera (extrinsic parameters)
    * @param W pinhole model parameters
    */
-void GetParametersFromMatrix(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& T, Eigen::Matrix<double, 11, 1>& W);
+LIDARPLUGIN_EXPORT void GetParametersFromMatrix(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R, const Eigen::Vector3d& T, Eigen::Matrix<double, 11, 1>& W);
 
 /**
    * @brief GetMatrixFromParameters Compose the pinhole camera model
@@ -149,7 +151,7 @@ void GetParametersFromMatrix(const Eigen::Matrix3d& K, const Eigen::Matrix3d& R,
    * @param W pinhole model parameters
    * @param P camera projection matrix
    */
-void GetMatrixFromParameters(const Eigen::Matrix<double, 11, 1>& W, Eigen::Matrix<double, 3, 4>& P);
+LIDARPLUGIN_EXPORT void GetMatrixFromParameters(const Eigen::Matrix<double, 11, 1>& W, Eigen::Matrix<double, 3, 4>& P);
 Eigen::Matrix<double, 3, 4> GetMatrixFromParameters(const Eigen::Matrix<double, 11, 1>& W);
 
 /**
@@ -161,7 +163,7 @@ Eigen::Matrix<double, 3, 4> GetMatrixFromParameters(const Eigen::Matrix<double, 
    * @param filename file containing the matches
    * @param activatedParams Indicates which params should be optimized
    */
-Eigen::VectorXd FullCalibrationPipelineFromMatches(std::string filename,
+LIDARPLUGIN_EXPORT Eigen::VectorXd FullCalibrationPipelineFromMatches(std::string filename,
                                                    const std::vector<bool>& activatedParams = std::vector<bool>(0));
 
 #endif // CAMERA_CALIBRATION_H

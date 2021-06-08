@@ -27,13 +27,15 @@
 // EIGEN
 #include <Eigen/Dense>
 
+#include "lidarplugin_export.h"
+
 /**
    * @brief LoadCameraParamsFromCSV Load parameters from a csv file
    *
    * @param filename filename that contains the parameters
    * @param W loaded parameters
    */
-void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W);
+LIDARPLUGIN_EXPORT void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W);
 
 /**
    * @brief WriteCameraParamsCSV Write parameters into a csv file
@@ -41,7 +43,7 @@ void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W);
    * @param filename filename to write the camera parameters
    * @param W to write parameters
    */
-void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
+LIDARPLUGIN_EXPORT void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
 
 /**
    * @brief FisheyeProjection Project a 3D point using a fisheye camera model
@@ -51,7 +53,7 @@ void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
    * @param X 3D point to project
    * @param shouldClip Clip points that are behind the camera plane
    */
-Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
+LIDARPLUGIN_EXPORT Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
                                   const Eigen::Vector3d& X,
                                   bool shouldClip = false);
 
@@ -68,7 +70,7 @@ Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
    *        non injective behaviour between 3D direction and 2D pixels
    * @param fovAngle angle of the field of view
    */
-Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>& W,
+LIDARPLUGIN_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>& W,
                                               const Eigen::Vector3d& X,
                                               bool shouldPlaneClip = false);
 
@@ -80,6 +82,6 @@ Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>
    * @param vmin minimal value of the reflectivity signal
    * @param vmax maximal value of the reflectivity signal
    */
-Eigen::Vector3d GetRGBColourFromReflectivity(double v, double vmin, double vmax);
+LIDARPLUGIN_EXPORT Eigen::Vector3d GetRGBColourFromReflectivity(double v, double vmin, double vmax);
 
 #endif // CAMERA_PROJECTION_H
