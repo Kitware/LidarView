@@ -51,7 +51,7 @@ void lqSensorReaderWidget::onUpdateUI()
 
 QString lqSensorReaderWidget::GetExplanationOnUI()
 {
-  QString caption = "This widget displays all readers you have open.\n\
+  QString caption = "This widget displays all readers currently opened.\n\
 For each sensor, you can see its name, port, pcap and calibration file.\n\
 You can use the [calibrate] button to modify some options (translation, ...)";
   return caption;
