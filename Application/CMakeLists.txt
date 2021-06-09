@@ -32,7 +32,7 @@ set (source_files
 #   - bottom_logo.png (bottom logo)
 
 paraview_client_add(
-  NAME lidarview #Name of the Target
+  NAME ${SOFTWARE_NAME} #Name of the Target
   NAMESPACE "LidarView"
   VERSION ${LV_VERSION_FULL}
   APPLICATION_NAME "${SOFTWARE_NAME}"
@@ -55,7 +55,7 @@ paraview_client_add(
   LIBRARY_DESTINATION ${LV_INSTALL_LIBRARY_DIR}
 )
 
-target_include_directories(lidarview PUBLIC
+target_include_directories(${SOFTWARE_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -80,6 +80,3 @@ target_link_libraries(${SOFTWARE_NAME} PUBLIC
   lqApplicationComponents #actually LVCore/ApplicationComponents
   ApplicationUi
   )
-  
-# Set executable name to be uppercase
-set_target_properties(lidarview PROPERTIES OUTPUT_NAME "${SOFTWARE_NAME}")
