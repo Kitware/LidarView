@@ -26,17 +26,16 @@ if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
   message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
 endif()
 
-#Set Variables
+include(CheckBuildType)
+
+# Set Variables
 option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
 include(SetCompilationFlags)
 
-#Branding
+# Branding
 add_definitions( -DPROJECT_NAME="${SOFTWARE_NAME}" )
 add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
-#add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" ) # Not used
-
-#Sanitize checks
-include(CheckBuildType)
+add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" )
 
 # Advertise Python version
 add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
@@ -121,8 +120,10 @@ include(SetupOutputDirs)
 # Modules
 add_subdirectory(LVCore)
 
+# Fixup-Install
 # On windows, we install all needed tools manually in install dir
 if (WIN32)
+  # Ship Qt5, Python3
   include(SetupWindowsCustomInstall)
 endif ()
 
