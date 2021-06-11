@@ -38,6 +38,9 @@ add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
 #Sanitize checks
 include(CheckBuildType)
 
+# Advertise Python version
+add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
+
 # Dependencies
 include(Git)
 include(CTest)
