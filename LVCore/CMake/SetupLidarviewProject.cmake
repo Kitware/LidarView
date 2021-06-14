@@ -28,9 +28,13 @@ endif()
 if(NOT superbuild_python_version)
   message(FATAL_ERROR "superbuild_python_version not set")
 endif()
+if(NOT paraview_version)
+  message(FATAL_ERROR "paraview_version not set")
+endif()
 
 include(CheckBuildType)
 
+#-------------------------------------------------------------------------------
 # Set Variables
 option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
 include(SetCompilationFlags)
@@ -43,6 +47,7 @@ add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" )
 # Advertise Python version
 add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
 
+#-------------------------------------------------------------------------------
 # Dependencies
 include(Git)
 include(CTest)
@@ -70,6 +75,7 @@ endif()
 
 find_package(ParaView REQUIRED)
 message(STATUS "Paraview-${ParaView_VERSION}")
+# WIP should check if EQUAL ${paraview_version}, in the event of from-source builds
 
 # VTK from Paraview
 if(NOT VTK_DIR)
@@ -109,14 +115,38 @@ if(BUILD_DOC)
   include(SetupDoxygenDocumentation)
 endif()
 
-# Setup Dir Variables
-# - LV_INSTALL_LIBRARY_DIR
-# - LV_INSTALL_PLUGIN_DIR
-# - LV_INSTALL_PV_PLUGIN_DIR
-# - LV_INSTALL_PYTHON_MODULES_DIR
-# - Branding related variables already set
+#-------------------------------------------------------------------------------
+# Set Relative Path Variables
 include(SetupOutputDirs)
 
+#-------------------------------------------------------------------------------
+# Set Absolute Variables
+
+# Set default OUTPUT_DIRECTORY, like PV prefer those instead of platform-specifics ones
+# This is the most common for third-parties be GNUInstallDirs compliant,
+# so a 'fixup-install-dir' step is required anyway
+# Remember the common-cb/CMakeLists.txt sets CMAKE_INSTALL_PREFIX for install for every projects
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+if(UNIX OR APPLE)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+else()
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+# Setup Python module DIR
+if(NOT Python3_VERSION_MAJOR OR NOT Python3_VERSION_MINOR)
+  message(FATAL_ERROR "Python3_VERSION_ variables not set")
+endif()
+if(WIN32)
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
+elseif(APPLE)
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/../Python") #wip use only Python ? or ${CMAKE_BINARY_DIR}  ${CMAKE_INSTALL_PREFIX} ?
+else()
+  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
+endif()
+
+#-------------------------------------------------------------------------------
 # Set RPATH
 # Setting this ensures that install directory builds work out of the box
 # WIP we could set this higher than at the LidarPlugin level
@@ -135,6 +165,7 @@ if (APPLE)
 endif()
 ]]
 
+#-------------------------------------------------------------------------------
 # Modules
 add_subdirectory(LVCore)
 
