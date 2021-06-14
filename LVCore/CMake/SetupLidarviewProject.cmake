@@ -117,6 +117,24 @@ endif()
 # - Branding related variables already set
 include(SetupOutputDirs)
 
+# Set RPATH
+# Setting this ensures that install directory builds work out of the box
+# WIP we could set this higher than at the LidarPlugin level
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# WIP make sure on apple its necessary or not
+#[[
+if (APPLE)
+  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
+  #wip not even sure it does anything I dont see a single @executable_path
+  #@rpath is more flexible #set CMAKE_MACOSX_RPATH
+  #CMAKE_INSTALL_NAME_DIR
+
+  # ensure that we don't build forwarding executables on apple.
+  set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
+endif()
+]]
+
 # Modules
 add_subdirectory(LVCore)
 
