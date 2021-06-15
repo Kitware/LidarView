@@ -19,6 +19,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by default")
 
+# MSVC MT is not enforced # Wip to investigate
+if(WIN32 AND MSVC)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+endif()
+
 #Old MSVC did not recognize "inline" but only "__inline"
 #Some Thirdparties still try to do the forbidden '#define inline __inline'
 if(WIN32 AND MSVC)
