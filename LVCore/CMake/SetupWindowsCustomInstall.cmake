@@ -14,22 +14,9 @@
 # limitations under the License.
 #===============================================================================
 
-install(FILES "${ParaView_DIR}/bin/plugins/PythonQtPlugin/PythonQtPlugin.dll"
-	      DESTINATION "bin"
-        )
-
-# install some python libs needed to launch Lidarview from the install dir
-get_filename_component(python_lib_location ${Python3_LIBRARY} PATH)
-install(DIRECTORY "${python_lib_location}/../Lib" 
-        DESTINATION "bin"
-        )
-
-install(FILES "${python_lib_location}/../python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}.dll" 
-        DESTINATION "bin"
-        )
-
+# Ship Qt5
 foreach (qt5_opengl_lib IN ITEMS opengl32sw libEGL libGLESv2 libEGLd
-  Qt5Core Qt5Gui Qt5Widgets Qt5Help Qt5Network Qt5PrintSupport Qt5Sql)
+  Qt5Core Qt5Gui Qt5Widgets Qt5Help Qt5Network Qt5Svg)
 install(FILES "${Qt5_DIR}/../../../bin/${qt5_opengl_lib}.dll"
         DESTINATION "bin"
         )
@@ -37,7 +24,23 @@ endforeach ()
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/platforms"
         DESTINATION "bin"
         )
-# see comment in: Superbuild/Projects/win32/lidarview.bundle.cmake
+
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/styles"
+        DESTINATION "bin"
+        )
+#may not be needed
+install(DIRECTORY "${Qt5_DIR}/../../../plugins/iconengines"
+        DESTINATION "bin"
+        )
+install(DIRECTORY "${Qt5_DIR}/../../../plugins/imageformats"
+        DESTINATION "bin"
+        )
+
+# Ship Python #WIP May not be necessary
+get_filename_component(python_lib_location ${Python3_LIBRARY} PATH)
+install(FILES "${python_lib_location}/../python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}.dll" 
+        DESTINATION "bin"
+        )
+install(DIRECTORY "${python_lib_location}/../Lib" 
         DESTINATION "bin"
         )
