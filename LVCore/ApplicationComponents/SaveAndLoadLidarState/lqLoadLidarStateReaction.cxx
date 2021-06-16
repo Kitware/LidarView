@@ -67,7 +67,7 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
   {
     file >> contents;
   }
-  catch(std::exception& e)
+  catch(...)
   {
     QMessageBox::warning(nullptr, tr(""), tr("Json file not valid") );
     return;
@@ -79,7 +79,7 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
   {
     ParseJsonContent(contents, "",propertyInfo);
   }
-  catch(std::exception& e)
+  catch(...)
   {
     QMessageBox::warning(nullptr, tr(""), tr("Error when parsing json information") );
     return;
