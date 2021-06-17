@@ -12,13 +12,14 @@ get_filename_component(install_location "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
 # get a list of all boost lib used 
 file(GLOB boost_libs LIST_DIRECTORIES false "${install_location}/lib/libboost*.dylib")
+file(GLOB flann_libs LIST_DIRECTORIES false "${install_location}/lib/libflann*.dylib")
 
 # get all app and tests on which to change boost path
 file(GLOB app_list LIST_DIRECTORIES false "${install_location}/bin/*/Contents/MacOS/*")
 file(GLOB lib_list LIST_DIRECTORIES false "lib/*.dylib" "${install_location}/lib/*.dylib")
 file(GLOB test_list LIST_DIRECTORIES false "bin/Test*")
 
-foreach (boost_lib IN LISTS boost_libs)
+foreach (boost_lib IN LISTS boost_libs flann_libs)
   get_filename_component(libboost_name "${boost_lib}" NAME)
   MESSAGE("Setting RPATH for ${boost_lib}")
   foreach (bin_name IN LISTS app_list lib_list test_list)

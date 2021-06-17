@@ -1,7 +1,7 @@
-# Patch reset boost RPATH on OSX
+# Patch reset boost/flann RPATH on OSX
 # this is applied on LidarView app and tests
-# for more information see comments in lidarview.osx-boost-rpath.cmake
-install(SCRIPT "LVCore/CMake/scripts/lidarview.osx-boost-rpath.cmake")
+# for more information see comments in lidarview.osx-rpath.cmake
+install(SCRIPT "LVCore/CMake/scripts/lidarview.osx-rpath.cmake")
 
 # Patch ZLIB RPATH on Unix/OSX
 # this is applied on LidarView app and tests
