@@ -1,0 +1,26 @@
+NAME
+  LidarModule
+DEPENDS
+  VTK::CommonColor
+  VTK::CommonComputationalGeometry
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::FiltersGeometry
+  VTK::FiltersExtraction    #vtkGridSource
+  VTK::jsoncpp              #output format
+  VTK::IOImage              #vtkPNGWriter
+  VTK::libproj              #GPSProjectionUtils
+  VTK::IOInfovis            #vtkTemporalTransformsReader needs vtkDelimitedTextReader
+  VTK::IOXML                #Test needs vtkXMLPolyDataReader
+  VTK::CommonComputationalGeometry #vtkCustomTupleInterpolator needs vtkKochanekSpline
+  VTK::RenderingCore        #vtkCustomTransformInterpolator needs vtkProp3D
+  ParaView::VTKExtensionsCore       #Test needs vtkPVXMLParser.h
+PRIVATE_DEPENDS
+  VTK::CommonCore

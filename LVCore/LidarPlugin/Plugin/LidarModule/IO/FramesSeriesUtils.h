@@ -50,10 +50,10 @@
 
 #include "vtkEigenTools.h"
 
-#include "lidarplugin_export.h"
+#include "LidarPluginModModule.h"
 
 
-class LIDARPLUGIN_EXPORT FileSeries
+class LIDARPLUGINMOD_EXPORT FileSeries
 {
   std::string filename = "";
   Json::Value files;
@@ -70,30 +70,30 @@ public:
 namespace FramesSeries
 {
   // Get number of frames in a series
-  size_t LIDARPLUGIN_EXPORT GetNumberOfClouds(std::string cloudFrameSeries);
+  size_t LIDARPLUGINMOD_EXPORT GetNumberOfClouds(std::string cloudFrameSeries);
 
   // Read file/time from series file value at given index
-  void LIDARPLUGIN_EXPORT ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
+  void LIDARPLUGINMOD_EXPORT ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
 
   // Return name (without extension) + time for closest frame in series described in file
-  std::pair<std::string, double> LIDARPLUGIN_EXPORT GetClosestItemInSeries(std::string filename,
+  std::pair<std::string, double> LIDARPLUGINMOD_EXPORT GetClosestItemInSeries(std::string filename,
                                                         double time,
                                                         double maxTemporalDist);
 
   // Fill cloud from frame path
-  vtkSmartPointer<vtkPolyData> LIDARPLUGIN_EXPORT ReadCloudFrame(std::string pathToVTP);
+  vtkSmartPointer<vtkPolyData> LIDARPLUGINMOD_EXPORT ReadCloudFrame(std::string pathToVTP);
 
   // Write cloud frame to vtp
-  void LIDARPLUGIN_EXPORT GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
-  int LIDARPLUGIN_EXPORT WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
+  void LIDARPLUGINMOD_EXPORT GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
+  int LIDARPLUGINMOD_EXPORT WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
 
 }
 
 // Cloud interpolation
-std::pair<Eigen::Matrix3d, Eigen::Vector3d> LIDARPLUGIN_EXPORT GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
+std::pair<Eigen::Matrix3d, Eigen::Vector3d> LIDARPLUGINMOD_EXPORT GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                                           double time);
 
-vtkSmartPointer<vtkPolyData> LIDARPLUGIN_EXPORT ReferenceFrameChange(vtkSmartPointer<vtkPolyData> cloud,
+vtkSmartPointer<vtkPolyData> LIDARPLUGINMOD_EXPORT ReferenceFrameChange(vtkSmartPointer<vtkPolyData> cloud,
                                                     vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                                     double time);
 
