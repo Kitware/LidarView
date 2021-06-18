@@ -1,0 +1,7 @@
+NAME
+  LidarPlugin
+DESCRIPTION
+  Lidar Data Plugin
+REQUIRES_MODULES
+  VTK::CommonCore
+  

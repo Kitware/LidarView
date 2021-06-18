@@ -1,13 +1,12 @@
-project(LidarPlugin)
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
+message(STATUS "Building LidarModule with C++${CMAKE_CXX_STANDARD} standard")
+
 include(CMakeDependentOption)
 
-set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
-message(STATUS "Building LidarPlugin with C++${CMAKE_CXX_STANDARD} standard")
-
 #-----------------------------------------------------------------------------
-# Temporary Fix
+# VTK Temporary Patches
 #-----------------------------------------------------------------------------
+#See https://gitlab.kitware.com/LidarView/lidarview-core/-/issues/36
 message(AUTHOR_WARNING "Until the 'Speedup interpolator' merge request is integrated to VTK, we provide the patch")
 set(interpolator_pach_until_vtk_update
   vtkPatch/vtkCustomPiecewiseFunction.cxx
@@ -18,54 +17,39 @@ set(interpolator_pach_until_vtk_update
 #-----------------------------------------------------------------------------
 # Option to hide/show external warning library
 #-----------------------------------------------------------------------------
-
 set(SYSTEM_OPTION)
 option(BUILD_HIDE_WARNING_FROM_EXTERNAL_DEPENDENCIES "hide external libraries warning, by handling them as system libraries" ON)
 if(BUILD_HIDE_WARNING_FROM_EXTERNAL_DEPENDENCIES)
   set(SYSTEM_OPTION SYSTEM)
 endif()
 
+# Helpers
+function(include_directories_system scope include_dirs)
+  include_directories(${SYSTEM_OPTION} ${scope} ${include_dirs})
+endfunction(include_directories_system )
+
+function(target_link_libraries_system target scope)
+  set(libs ${ARGN})
+  foreach(lib ${libs})
+    get_target_property(lib_include_dirs ${lib} INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(${target} ${SYSTEM_OPTION} ${scope} ${lib_include_dirs})
+    target_link_libraries(${target} ${scope} ${lib})
+  endforeach(lib)
+endfunction(target_link_libraries_system )
+
 #-----------------------------------------------------------------------------
 # Handle plugin library dependencies
 #-----------------------------------------------------------------------------
-
-#--------------------------------------
-# ParaView dependency
-#--------------------------------------
-if(ParaView_SOURCE_DIR)
-
-  if(NOT VTK_INCLUDE_DIRS )
-    message(FATAL_ERROR "VTK_INCLUDE_DIRS not set or empty")
-  endif()
-  include_directories(${SYSTEM_OPTION} ${VTK_INCLUDE_DIRS})
-
-  if(PARAVIEW_BUILD_QT_GUI)
-    if(NOT QT_USE_FILE OR NOT PARAVIEW_GUI_INCLUDE_DIRS)
-      message(FATAL_ERROR "QT_USE_FILE OR PARAVIEW_GUI_INCLUDE_DIRS not set or empty")
-    endif()
-    include(${QT_USE_FILE})
-    include_directories(${SYSTEM_OPTION} ${PARAVIEW_GUI_INCLUDE_DIRS})
-  endif(PARAVIEW_BUILD_QT_GUI)
-
-else(ParaView_SOURCE_DIR)
-  find_package(ParaView REQUIRED)
-  include(${PARAVIEW_USE_FILE})
-
-endif(ParaView_SOURCE_DIR)
-
-#--------------------------------------
-# vtklibproj module
-#--------------------------------------
-vtk_module_load(vtklibproj)
-
+set(LIDARPLUGIN_DEPS_INCLUDE_DIRS)
+set(LIDARPLUGIN_DEPS)
 
 #--------------------------------------
 # pcap dependency
 #--------------------------------------
 find_library(PCAP_LIBRARY pcap DOC "pcap library")
 find_path(PCAP_INCLUDE_DIR pcap.h DOC "pcap include directory")
-mark_as_advanced(PCAP_LIBRARY PCAP_INCLUDE_DIR)
-include_directories(${SYSTEM_OPTION} ${PCAP_INCLUDE_DIR})
+list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${PCAP_INCLUDE_DIR})
+list(APPEND LIDARPLUGIN_DEPS              ${PCAP_LIBRARY})
 
 #--------------------------------------
 # liblas dependency
@@ -77,99 +61,86 @@ endif()
 
 find_library(liblas_LIBRARY ${LASNAME} DOC "liblas library")
 find_path(liblas_INCLUDE_DIR liblas/version.hpp DOC "liblas include directory")
-mark_as_advanced(liblas_LIBRARY liblas_INCLUDE_DIR)
-include_directories(${SYSTEM_OPTION} ${liblas_INCLUDE_DIR})
-
+list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${liblas_INCLUDE_DIR})
+list(APPEND LIDARPLUGIN_DEPS              ${liblas_LIBRARY})
 #--------------------------------------
 # Eigen dependency
 #--------------------------------------
-find_package(Eigen REQUIRED)
-#include_directories(${SYSTEM_OPTION} ${EIGEN_INCLUDE_DIR})
+find_package(Eigen3 REQUIRED)
+list(APPEND LIDARPLUGIN_DEPS              Eigen3::Eigen)
+#wipwip things to check between eigen vs eigen3 from ceres etc
 
 #--------------------------------------
 # Yaml dependency
 #--------------------------------------
 find_package(yaml-cpp REQUIRED)
-include_directories(${SYSTEM_OPTION} ${YAML_CPP_INCLUDE_DIR})
-
-#--------------------------------------
-# PCL dependency
-#--------------------------------------
-option(ENABLE_pcl "PCL will be required for filters using pcl (PCLRansacFilter, Slam, ...)" OFF)
-if (ENABLE_pcl)
-  find_package(PCL REQUIRED)
-  include_directories(${SYSTEM_OPTION} ${PCL_INCLUDE_DIRS})
-  add_definitions(${PCL_DEFINITIONS})
-
-  # Since PCL 1.9, PCL_DEFINITIONS is deprecated as options are directly
-  # included in targets or in PCL_COMPILE_OPTIONS.
-  # We need to check if some flags were used by PCL as they could build a
-  # different version of Eigen, not compatible with default one.
-  list(APPEND pcl_compile_flags ${PCL_DEFINITIONS} ${PCL_COMPILE_OPTIONS})
-  string(FIND "${pcl_compile_flags}" "-march=native" pcl_use_march_native)
-  if (${pcl_use_march_native} GREATER -1)
-    message(WARNING "PCL assumes '-march=native' flag was used, which may enable AVX optimizations.\n"
-                    "Please ensure that other libs using Eigen are also compiled with the same SSE/AVX flags, "
-                    "as it could change memory alignement between these versions. Otherwise, the program could "
-                    "segfault allocating/freeing dynamic objects. See here for more info : "
-                    "https://github.com/ethz-asl/eigen_catkin/wiki/Eigen-Memory-Issues#mismatched-build-flags")
-  endif()
-endif(ENABLE_pcl)
+list(APPEND LIDARPLUGIN_DEPS              yaml-cpp )
+if(NOT TARGET yaml-cpp)
+  message(FATAL_ERROR "yaml-cpp not found")
+endif()
 
 #--------------------------------------
 # Boost dependency
 #--------------------------------------
-set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_MULTITHREADED ON) #wipwip
 # the expected behavior of find_package when  used wiht REQUIRED and OPTIONAL_COMPONENTS
 # it not the one expected, as it also required the optional component...
 find_package(Boost REQUIRED COMPONENTS system thread filesystem program_options iostreams)
-include_directories(${SYSTEM_OPTION} ${Boost_INCLUDE_DIRS})
+list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+list(APPEND LIDARPLUGIN_DEPS              ${Boost_LIBRARIES})
 
 #--------------------------------------
-# Ceres dependency
+# PCL dependency - optional
+#--------------------------------------
+option(ENABLE_pcl "PCL will be required for filters using pcl (PCLRansacFilter, Slam, ...)" OFF)
+if (ENABLE_pcl)
+  find_package(PCL REQUIRED)
+  
+  #WIP not clean #contains a NIP "-Dno-qhull"
+  add_definitions(${PCL_DEFINITIONS})
+  
+  list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${PCL_INCLUDE_DIRS}) #wip make it better
+  list(APPEND LIDARPLUGIN_DEPS ${PCL_LIBRARIES} )
+endif(ENABLE_pcl)
+
+#--------------------------------------
+# Ceres dependency - optional
 #--------------------------------------
 option(ENABLE_ceres "Ceres is required for filters using non-linear least square optimization (Slam, autocalibration, ...)" OFF)
 if (ENABLE_ceres)
   find_package(Ceres REQUIRED)
-  include_directories(${SYSTEM_OPTION} ${CERES_INCLUDE_DIRS})
+  list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${CERES_INCLUDE_DIRS})
+  list(APPEND LIDARPLUGIN_DEPS              ${CERES_LIBRARIES})
 endif(ENABLE_ceres)
 
 #--------------------------------------
-# Opencv dependency
+# Opencv dependency - optional
 #--------------------------------------
 option(ENABLE_opencv "OpenCV is required for handling lidar-camera multisensor systems" OFF)
 if (ENABLE_opencv)
   find_package(OpenCV REQUIRED)
-  include_directories(${SYSTEM_OPTION} ${OpenCV_INCLUDE_DIRS})
+  list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS})
+  list(APPEND LIDARPLUGIN_DEPS              ${OpenCV_LIBRARIES})
 endif(ENABLE_opencv)
 
 #--------------------------------------
-# nanoflann dependency
+# nanoflann dependency - optional
 #--------------------------------------
 option(ENABLE_nanoflann "Nanoflann will be required for filters using some optimized kdtree (SLAM, DBSCAN, ...)" OFF)
-  if (ENABLE_nanoflann)
-  # because nanoflann use modern C++, no need to specify the include dir or anything else
-  # you just need to link against the target nanoflann::nanoflann
+if (ENABLE_nanoflann)
   find_package(nanoflann REQUIRED)
-  list(APPEND deps nanoflann::nanoflann)
+  list(APPEND LIDARPLUGIN_DEPS nanoflann::nanoflann)
 endif(ENABLE_nanoflann)
 
 #-----------------------------------------------------------------------------
 # Build Paraview Plugin
 #-----------------------------------------------------------------------------
-# Set Variables
-set(servermanager_sources)
-set(sources_which_inherit_from_vtkObject)
-set(sources_which_do_not_inherit_from_vtkObject)
-set(servermanager_xml)
-set(plugin_include_dirs)
+set(lidarplugin_sources)
+set(lidarplugin_headers) #WIP this looks less effective than classes
+set(lidarplugin_classes)
+set(lidarplugin_xml)
 
-# Old Slam sources
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/KalmanFilter.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel/MotionModel.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/TrajectoryReoptimization.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel
+set(plugin_include_dirs)
 
 # Optional Sources
 # Built by default if dependencies are enabled, option available to disable them
@@ -177,17 +148,21 @@ set(plugin_include_dirs)
 # CalibrationFromPoses
 cmake_dependent_option(LIDARVIEW_BUILD_CALIBFROMPOSES "Build CalibrationFromPoses" ON "Ceres_FOUND" OFF)
 if(LIDARVIEW_BUILD_CALIBFROMPOSES)
-  list(APPEND servermanager_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses/vtkCalibrationFromPoses.cxx )
-  list(APPEND servermanager_xml
-    xml/CalibrationFromPoses.xml )
-  list(APPEND plugin_include_dirs
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses )
-
-  list(APPEND servermanager_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper/vtkTemporalTransformsRemapper.cxx
+  list(APPEND lidarplugin_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses/vtkCalibrationFromPoses.cxx
+    ) 
+  list(APPEND lidarplugin_xml
+    xml/CalibrationFromPoses.xml
     )
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
+    
+  list(APPEND plugin_include_dirs
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses ) #wip this is wrongly placed
+
+  list(APPEND lidarplugin_classes
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper/vtkTemporalTransformsRemapper #wipwip
+    )
+    
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkGeometricCalibration.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraCalibration.cxx
     )
@@ -196,17 +171,16 @@ endif()
 # OpenCV extensions
 cmake_dependent_option(LIDARVIEW_BUILD_OPENCVEXTENSIONS "Build OpenCV extensions" ON "OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_OPENCVEXTENSIONS)
-  list(APPEND servermanager_sources
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkPCAPImageReader.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkOpenCVVideoReader.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/OpenCVImageMapper/vtkOpenCVImageMapper.cxx
     )
-  list(APPEND servermanager_xml
+  list(APPEND lidarplugin_xml
     xml/PCAPImageReader.xml
     xml/OpenCVImageMapper.xml
     )
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
-    ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkOpenCVConversions.cxx
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkOpenCVConversions.cxx
     )
 endif()
@@ -214,15 +188,15 @@ endif()
 # CloudTools
 cmake_dependent_option(LIDARVIEW_BUILD_CLOUDTOOLS "Build CloudTools" ON "nanoflann_FOUND" OFF)
 if (LIDARVIEW_BUILD_CLOUDTOOLS)
-  list(APPEND servermanager_sources
+  list(APPEND lidarplugin_sources
        ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
        ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering.cxx
        )
-  list(APPEND servermanager_xml
+  list(APPEND lidarplugin_xml
        xml/SeparateCloudKnn.xml
        xml/DBSCANClustering.xml
        )
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
+  list(APPEND lidarplugin_sources
        ${CMAKE_CURRENT_SOURCE_DIR}/Common/SegmentedCloudTransformations.cxx
        )
 endif()
@@ -230,67 +204,67 @@ endif()
 # RegistrationTools
 cmake_dependent_option(LIDARVIEW_BUILD_REGTOOLS "Build RegistrationTools" ON "PCL_FOUND;Ceres_FOUND" OFF)
 if (LIDARVIEW_BUILD_REGTOOLS)
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
+  list(APPEND lidarplugin_sources
       ${CMAKE_CURRENT_SOURCE_DIR}/Common/RegistrationTools.cxx )
 endif()
 
 # MIDHOG Filter extensions
 cmake_dependent_option(LIDARVIEW_BUILD_MIDHOG "Build MIDHOG Filter" ON "PCL_FOUND;Ceres_FOUND;OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_MIDHOG)
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/CameraLidar/MIDHOG.cxx )
 endif()
 
 # PCL Miscs
 cmake_dependent_option(LIDARVIEW_BUILD_PCLMISCS "Build PCL Miscs" ON "PCL_FOUND" OFF)
 if (LIDARVIEW_BUILD_PCLMISCS)
-  list(APPEND servermanager_sources
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel.cxx )
-  list(APPEND servermanager_xml
-    xml/PCLRansacModel.xml )
+  list(APPEND lidarplugin_xml
+    xml/PCLRansacModel.xml
+    )
 
-  list(APPEND sources_which_do_not_inherit_from_vtkObject
+  list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPCLConversions.cxx
     )
 endif()
 
-# LidarPlugin default wrapped sources
-# those will be wrapped into paraview proxies and in Python
-# WARNING in case of inheritance, put also the upper classes
-list(APPEND servermanager_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarStream.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarPacketInterpreter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix/vtkApplanixPositionReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/ArduPilotDataFlashLogReader/vtkArduPilotDataFlashLogReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationPacketInterpreter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationPacketReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationStream.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkStream.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkInterpreter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkLASFileWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkPCDWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkBoundingBoxReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkMotionDetector.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap/vtkBirdEyeViewSnap.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector/vtkCameraProjector.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraMapper/vtkCameraMapper.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PlaneProjector/vtkPlaneProjector.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage/vtkLidarRawSignalImage.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PointCloudLinearProjector/vtkPointCloudLinearProjector.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LaplacianInfilling/vtkLaplacianInfilling.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MLSPosesSmoothing/vtkMLSPosesSmoothing.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample/vtkProcessingSample.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Ransac/vtkRansacPlaneModel.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier/vtkTemporalTransformsApplier.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame/vtkTrailingFrame.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.cxx
+# Old Slam sources
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/KalmanFilter.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel/MotionModel.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/TrajectoryReoptimization.cxx
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
+# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel
+
+# Should dissociate back into wrapped / non-wrapped lists
+# LidarPlugin sources 
+list(APPEND lidarplugin_sources
+  ${CMAKE_CURRENT_SOURCE_DIR}/${interpolator_pach_until_vtk_update}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/NetworkPacket.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileWriter.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkEigenTools.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/CameraProjection.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraModel.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkConversions.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Temporal/vtkTimeCalibration.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkCarGeometricCalibration.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPipelineTools.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkHelper.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/LVTime.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/CrashAnalysing.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketReceiver.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketFileWriter.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketConsumer.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/FramesSeriesUtils.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/NMEAParser.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/GPSProjectionUtils.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/CategoriesConfig.cxx
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkSphericalMap.cxx
   )
 
-# LidarPlugin default xml proxy descriptions
-list(APPEND servermanager_xml
+# LidarPlugin xml files that describe the proxy of the wrap sources in paraview
+list(APPEND lidarplugin_xml
   xml/Reader.xml
   xml/Stream.xml
   xml/Interpreter.xml
@@ -319,58 +293,8 @@ list(APPEND servermanager_xml
   xml/OpenCVVideoReader.xml
   )
 
-# LidarPlugin default non-wrapped sources
-list(APPEND sources_which_inherit_from_vtkObject
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkCustomTransformInterpolator.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkTemporalTransforms.cxx
-  )
-list(APPEND sources_which_do_not_inherit_from_vtkObject
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/CrashAnalysing.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketReceiver.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketFileWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketConsumer.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/FramesSeriesUtils.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/NetworkPacket.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/NMEAParser.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/GPSProjectionUtils.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkLASFileWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/LASFileWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/CategoriesConfig.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkSphericalMap.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileWriter.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileReader.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkEigenTools.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/CameraProjection.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Camera/CameraModel.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/${interpolator_pach_until_vtk_update}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkConversions.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Temporal/vtkTimeCalibration.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkCarGeometricCalibration.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkPipelineTools.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkHelper.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/Common/LVTime.cxx
-  )
-
-# LidarPlugin default dependencies
-list(APPEND deps
-  ${PCAP_LIBRARY}
-  ${liblas_LIBRARY}
-  ${Boost_LIBRARIES}
-  "vtkIOInfovis" # https://public.kitware.com/pipermail/paraview/2016-January/036010.html
-  ${vtklibproj_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ${CERES_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${YAML_CPP_LIBRARIES}
-  )
-
-# LidarPlugin default Include Directories
+# LidarPlugin Header directories, used to relax inclusion expliciteness
 list(APPEND plugin_include_dirs
-  ${PCAP_INCLUDE_DIR}
-  ${EIGEN_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
-  ${vtklibproj_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Common
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/ML
@@ -380,13 +304,13 @@ list(APPEND plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Temporal
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/CameraLidar
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/NanoflannAdaptor
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/ArduPilotDataFlashLogReader/
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO
+  #${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses #wipwip this is wrongly placed
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector
@@ -404,71 +328,155 @@ list(APPEND plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid
   )
 
-# LidarPlugin Plugin Creation
-add_paraview_plugin(LidarPlugin "1.0"
-  SERVER_MANAGER_SOURCES ${servermanager_sources}
-  SERVER_MANAGER_XML ${servermanager_xml}
-  SERVER_SOURCES ${sources_which_inherit_from_vtkObject} ${sources_which_do_not_inherit_from_vtkObject}
-  # GUI_SOURCES ${gui_sources}
-  REQUIRED_ON_SERVER)
-target_include_directories(LidarPlugin PUBLIC ${plugin_include_dirs})
-target_link_libraries(LidarPlugin PUBLIC ${deps})
-include(GenerateExportHeader)
-generate_export_header(LidarPlugin)
-install(FILES ${PROJECT_BINARY_DIR}/lidarplugin_export.h DESTINATION ${LV_INSTALL_LIBRARY_DIR})
-target_include_directories(LidarPlugin PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+# LidarPlugin Wrapped Headers / Classes
+# Only add to `lidarplugin_classes` or `lidarplugin_headers` if you want to have the wrapping
+# WIP Wrapping the whole plugin requires a large filestructure rework and selective classes picking
+
+#list(APPEND lidarplugin_headers
+#  ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.h
+#  )
+
+set(lidarplugin_classes)
+list(APPEND lidarplugin_classes
+  ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix/vtkApplanixPositionReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/ArduPilotDataFlashLogReader/vtkArduPilotDataFlashLogReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationPacketInterpreter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationPacketReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/vtkPositionOrientationStream
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkInterpreter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarStream
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarPacketInterpreter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/vtkLidarReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkStream
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkTemporalTransformsWriter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkLASFileWriter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/LASFileWriter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkPCDWriter
+  ${CMAKE_CURRENT_SOURCE_DIR}/IO/vtkBoundingBoxReader
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame/vtkTrailingFrame
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MotionDetector/vtkMotionDetector
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/BirdEyeViewSnap/vtkBirdEyeViewSnap
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraProjector/vtkCameraProjector
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CameraMapper/vtkCameraMapper
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PlaneProjector/vtkPlaneProjector
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LidarRawSignalImage/vtkLidarRawSignalImage
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PointCloudLinearProjector/vtkPointCloudLinearProjector
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/LaplacianInfilling/vtkLaplacianInfilling
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/MLSPosesSmoothing/vtkMLSPosesSmoothing
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample/vtkProcessingSample
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/Ransac/vtkRansacPlaneModel
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier/vtkTemporalTransformsApplier
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkCustomTransformInterpolator
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/vtkTemporalTransforms
+  ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileReader
+  )
+
+# WIP should be wrapped ?
+#list(APPEND lidarplugin_templates
+#  ${CMAKE_CURRENT_SOURCE_DIR}/Common/BoundingBox
+#  ${CMAKE_CURRENT_SOURCE_DIR}/Common/DBSCAN/DBSCAN
+#  )
+
+# Create Module
+vtk_module_add_module(LidarModule
+  FORCE_STATIC # Using FORCE_STATIC build the vtk module statically into the plugin library, to avoid confusion when loading                
+  SOURCES ${lidarplugin_sources} # Will not trigger a PV wrapping
+  CLASSES ${lidarplugin_classes} # Those will be PV ClientServer wrapped #shorcut for sources x.cxx x.h  
+  HEADERS ${lidarplugin_headers} # Those will be PV ClientServer wrapped
+  #TEMPLATES ${lidarplugin_templates} # Those will be PV ClientServer wrapped
+  #PRIVATE_* variants exists and will not be wrapped, CLASSES are always PRIVATE/NOT-WRAPPED
+)
+paraview_add_server_manager_xmls(
+  MODULE LidarModule
+  XMLS  ${lidarplugin_xml}
+)
+#WIP Following line could be removed if explicit path are used in every header file, paraview style
+target_include_directories(LidarModule PUBLIC ${plugin_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/vtkPatch ) #Relax include path expliciteness, does not help wrapping
+# Private Dependencies
+target_include_directories(LidarModule ${SYSTEM_OPTION} PUBLIC ${LIDARPLUGIN_DEPS_INCLUDE_DIRS}) #Does not make wrapping work
+target_link_libraries     (LidarModule PUBLIC ${LIDARPLUGIN_DEPS})
+
+#-----------------------------------------------------------------------------
+# The Python Bindings are kept for LEGACY REASON  and is pending for removal
+# Simply use "import LidarPlugin.LidarModule" and you have acces to the wrapped c++ code
+# DO NOT FOR ANY REASON USE the method GetClientSideObject() to have acces to the vtkObject directly.
+#-----------------------------------------------------------------------------
+# Python Wrapping
+if(NOT LV_INSTALL_PYTHON_MODULES_DIR)
+  message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
+endif()
+
+# Use import ${LV_LIDARPLUGIN_PYTHON_PKG}.LidarModule
+set(LV_LIDARPLUGIN_PYTHON_PKG "LidarPlugin")
+vtk_module_wrap_python(
+  MODULES         LidarModule # Target will be LidarModulePython
+  BUILD_STATIC    OFF
+  INSTALL_HEADERS OFF
+  PYTHON_PACKAGE  "${LV_LIDARPLUGIN_PYTHON_PKG}" # This is the name of the python module to import
+  MODULE_DESTINATION  "${LV_INSTALL_PYTHON_MODULES_DIR}" #"." #does not really like #without CMAKE_INSTALL_PREFIX
+  LIBRARY_DESTINATION "${LV_INSTALL_LIBRARY_DIR}"
+  DEPENDS         VTK::vtkpythonmodules
+)
+
+# WIP could maybe simplify import subpackage with this ?
+#file(WRITE "${CMAKE_PREFIX_PATH}/${LV_LIDARPLUGIN_PYTHON_PKG}/${LV_LIDARPLUGIN_PYTHON_PKG}/__init__.py" "some code that does the import *")
+#see https://stackoverflow.com/questions/3365740/how-to-import-all-submodules 
+
+#[[
+# Install Python Module wrapped manually #Could be used to alleviate too long of a path?
+add_custom_command(
+  TARGET LidarModulePython POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/${LV_LIDARPLUGIN_PYTHON_PKG}" "${CMAKE_PREFIX_PATH}/${LV_INSTALL_PYTHON_MODULES_DIR}"
+  COMMENT "Install LidarModulePython"
+  USES_TERMINAL
+)
+]]
+
+#-----------------------------------------------------------------------------
+# RPATH HANDLING
+#-----------------------------------------------------------------------------
+# Eases Install Directory RPATHS, default PV behavior
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+#-----------------------------------------------------------------------------
+# WIPWIP BOOST FLAGS
+#-----------------------------------------------------------------------------
+#wip should look a bit more into this and add this at boost level if needed ?
+#WIPWIP I REMOVED IT FROM THE STANDALONES THOSE WILL NEED A HELPER maybe
+#[[
 if(WIN32)
   # -DBOOST_PROGRAM_OPTIONS_DYN_LINK is necessary to use boost as a dynamic library
   # more about it here: https://svn.boost.org/trac10/ticket/13326
-  target_compile_definitions(LidarPlugin PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  target_compile_definitions(LidarPluginMod PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(WIN32)
 if (APPLE)
-  target_compile_definitions(LidarPlugin PRIVATE -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
+  target_compile_definitions(LidarPluginMod PRIVATE -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
 endif(APPLE)
-
-# The main application executable uses a "forward exectuable"
-# that sets LD_LIBRARY_PATH to the appropriate location before calling the
-# original executable, so that dynamic libraries can be found.
-# For the executanles of the standalone tools it is simpler to modify rpaths:
-set(CMAKE_SKIP_RPATH FALSE)
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-SET(CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+]]
 
 #-----------------------------------------------------------------------------
 # Build PacketFileSender target which enable to playback a recorded pcap on the network
 #-----------------------------------------------------------------------------
-
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
-target_include_directories(PacketFileSender PRIVATE Common/Network)
-target_link_libraries(PacketFileSender LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
-if(WIN32)
-  target_compile_definitions(PacketFileSender PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-endif(WIN32)
-
+target_link_libraries(PacketFileSender LINK_PUBLIC LidarModule)
 
 #-----------------------------------------------------------------------------
 # Build PCAPSeparator target which enable to split a recorded pcap on two
 #-----------------------------------------------------------------------------
-
 add_executable(PCAPSeparator StandAloneTools/PCAPSeparator.cxx)
-target_link_libraries(PCAPSeparator LINK_PUBLIC LidarPlugin ${ALL_BOOST_LIBRARIES})
-if(WIN32)
-  target_compile_definitions(PCAPSeparator PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-endif(WIN32)
+target_link_libraries(PCAPSeparator LINK_PUBLIC LidarModule)
 
+#-----------------------------------------------------------------------------
+# Build PCAPTester target which enable ???, has been disabled for some time now
+#-----------------------------------------------------------------------------
 #add_executable(PCAPTester StandAloneTools/PCAPTester.cxx)
-#target_include_directories(LidarPlugin PRIVATE ${plugin_include_dirs})
-#target_link_libraries(PCAPTester LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
-#if(WIN32)
-#  target_compile_definitions(PCAPTester PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-#endif(WIN32)
+#target_link_libraries(PCAPTester LINK_PUBLIC LidarModule)
 
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
@@ -477,18 +485,10 @@ endif(WIN32)
 cmake_dependent_option(LIDARVIEW_BUILD_IMGDETECTIONS "Build ImageDetections" ON "PCL_FOUND;OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_IMGDETECTIONS)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
-  target_include_directories(BBoxFromImagesDetections PRIVATE ${plugin_include_dirs})
-  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
-  if(WIN32)
-    target_compile_definitions(BBoxFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-  endif(WIN32)
+  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarModule)
 
   add_executable(LabelCloudFromImagesDetections StandAloneTools/LabelCloudFromImagesDetections.cxx)
-  target_include_directories(LabelCloudFromImagesDetections PRIVATE ${plugin_include_dirs})
-  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
-  if(WIN32)
-    target_compile_definitions(LabelCloudFromImagesDetections PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-  endif(WIN32)
+  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarModule)
 
 endif()
 
@@ -496,52 +496,37 @@ endif()
 cmake_dependent_option(LIDARVIEW_BUILD_POSTPROCLABELCLOUD "Build PostProcessLabelCloud" ON "PCL_FOUND;OpenCV_FOUND;nanoflann_FOUND" OFF)
 if (LIDARVIEW_BUILD_POSTPROCLABELCLOUD)
   add_executable(PostProcessLabelCloud StandAloneTools/PostProcessLabelCloud.cxx)
-  target_include_directories(PostProcessLabelCloud PRIVATE ${plugin_include_dirs})
-  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarPlugin ${Boost_LIBRARIES})
-  if(WIN32)
-    target_compile_definitions(PostProcessLabelCloud PRIVATE -DWIN32 -DBOOST_PROGRAM_OPTIONS_DYN_LINK=1)
-  endif(WIN32)
+  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarModule)
+
 endif()
 
-
 #-----------------------------------------------------------------------------
-# This code is here for LEGACY REASON and should NOT BE USED and even REMOVE at some point !!!!
-# It's actually nice to expose the classes in python, but the more freedom we have
-# the more dirty the code get...
-# Create a static and dynamic python target named LidarPluginPython and
-# (LidarPluginPythonD that wrap all the classes that inherit from vtk in python.
-# When a paraview plugin is created, you only have acces to the Filter exposed
-# with a proxy, and you can but SHOULDN'T used the method GetClientSideObject()
-# to have acces to the vtkObject directly.
-# With what is done here you have acces to all the vtk inherit  C++ code, even if
-# it's not exposed in paraview.
-# Simply used "import LidarPluginPython" and you have acces to the
-# wrapped c++ code
+# Option to build some tests
 #-----------------------------------------------------------------------------
-
-# needed as we can't use target_include_directories because the target are not defined yet
-include_directories(${plugin_include_dirs})
-set(towrap
-  ${servermanager_sources}
-  ${sources_which_inherit_from_vtkObject}
-  )
-# the quoted "" are needed otherwise only the first file of the list will be process
-WRAP_PLUGIN_FOR_PYTHON(LidarPlugin "${towrap}" "NOTTHERE")
+option(BUILD_TESTING "Build some unitary test" OFF)
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()
 
 #-----------------------------------------------------------------------------
 # Install targets and ressources
 #-----------------------------------------------------------------------------
-
-set(libraries_to_install
-  LidarPlugin
-  LidarPluginPython
-  LidarPluginPythonD
-  )
-
+# The following executables need to land in `/install` to end in the package
 set(executables_to_install
   PacketFileSender
-  PCAPSeparator
-#  PCAPTester
+  #PCAPSeparator # does not end in the package
+  #PCAPTester # been disabled for some time now
+  )
+install(TARGETS ${executables_to_install}
+        RUNTIME DESTINATION "${LV_INSTALL_RUNTIME_DIR}"
+        LIBRARY DESTINATION "${LV_INSTALL_LIBRARY_DIR}"
+)
+
+#WIPWIP DISABLED FOR LATER macosx install mainly
+#[[
+set(libraries_to_install
+  #LidarModule # ??
+  #Other for unix ?
   )
 
 if (LIDARVIEW_BUILD_IMGDETECTIONS)
@@ -557,7 +542,8 @@ if (LIDARVIEW_BUILD_POSTPROCLABELCLOUD)
     )
 endif()
 
-# This is normal Superbuild operation, on APPLE the Superbuild's
+# WIP IS THIS STILL A THING in PV59 ?
+# This is `normal` Superbuild operation, on APPLE the Superbuild's 
 # bundling script will only pick from LV_INSTALL_LIBRARY_DIR,
 # external dependencies have to be moved manually from their
 # custom install directories to the MacOS hierarchy
@@ -568,7 +554,7 @@ if (APPLE)
   install(TARGETS ${libraries_to_install}
           RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}
           LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
+  )
 
   # install some dependencies for packaging
   install(FILES ${PCAP_LIBRARY} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
@@ -579,12 +565,6 @@ if (APPLE)
   install(FILES ${flann_libraries} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   install(FILES ${pcl_libraries} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
 
-  # install executables
-  install(TARGETS ${executables_to_install}
-          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../bin
-          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
-
   # install paraview python modules
   install(DIRECTORY ${ParaView_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python)
   file(GLOB python_dylib ${ParaView_DIR}/lib/*Python*.dylib)
@@ -593,7 +573,8 @@ if (APPLE)
   install(FILES ${python_so} DESTINATION ${LV_INSTALL_LIBRARY_DIR}/../Python/vtkmodules)
 
 else()
-  # TODO Address this undesired patch
+  # WIP THIS IS REALLY WEIRD, but PV5.9 now PV install itself
+  # TODO Address this undesired patch linux and windows ??
   # install paraview libs in LV_INSTALL_LIBRARY_DIR
   # needed to run LidarView from install path
   if(UNIX)
@@ -601,24 +582,5 @@ else()
     install(FILES ${paraview_libs} DESTINATION ${LV_INSTALL_LIBRARY_DIR})
   endif()
 
-  # install libraries
-  install(TARGETS ${libraries_to_install}
-          RUNTIME DESTINATION "bin"
-          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
-
-  # install executables
-  install(TARGETS ${executables_to_install}
-          RUNTIME DESTINATION "bin"
-          LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
-          COMPONENT Runtime)
 endif()
-
-#-----------------------------------------------------------------------------
-# Option to build some tests
-#-----------------------------------------------------------------------------
-
-option(BUILD_TESTING "Build some unitary test" OFF)
-if(BUILD_TESTING)
-  add_subdirectory(Testing)
-endif()
+]]
