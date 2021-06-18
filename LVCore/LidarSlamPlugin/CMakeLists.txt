@@ -1,3 +1,8 @@
+#Sanitize checks
+if(NOT LV_INSTALL_LIBRARY_DIR)
+  message(FATAL_ERROR "Var LV_INSTALL_LIBRARY_DIR not set")
+endif()
+
 option(LIDARVIEW_BUILD_SLAM "Build Lidar SLAM (requires PCL, Ceres, nanoflann; optional g2o)" OFF)
 if(LIDARVIEW_BUILD_SLAM)
 
