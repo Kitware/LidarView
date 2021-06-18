@@ -174,8 +174,9 @@ The following packages are needed to build on Ubuntu 16.04/18.04/20.04:
 - freeglut3-dev
 - pkg-config
 - libffi-dev
+- patchelf
 
-The Ubuntu 18.04 one-liner is: `sudo apt-get install build-essential git flex byacc python3.7-dev libxext-dev libxt-dev libbz2-dev zlib1g-dev freeglut3-dev pkg-config libffi-dev`
+The Ubuntu 18.04 one-liner is: `sudo apt-get install build-essential git flex byacc python3.7-dev libxext-dev libxt-dev libbz2-dev zlib1g-dev freeglut3-dev pkg-config libffi-dev patchelf`
 
 
 **If using Ubuntu 20.04**
