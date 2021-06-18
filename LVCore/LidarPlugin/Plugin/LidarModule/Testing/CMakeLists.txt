@@ -4,9 +4,9 @@ if(NOT LV_INSTALL_LIBRARY_DIR )
 endif()
 
 if (WIN32)
-  get_filename_component(INSTALL_LOCAL_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE)
+  get_filename_component(TEST_BINARY_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE)
 else()
-  set(INSTALL_LOCAL_DIR "${CMAKE_BINARY_DIR}/bin")
+  set(TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
 endif()
 
 set(data_dir ${CMAKE_CURRENT_SOURCE_DIR}/Data)
@@ -15,7 +15,7 @@ function(custom_add_executable)
   add_executable(${ARGV})
   if (WIN32)
     install(TARGETS ${ARGV0}
-	    RUNTIME DESTINATION ${INSTALL_LOCAL_DIR}
+	    RUNTIME DESTINATION ${TEST_BINARY_DIR}
 	    LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
 	    COMPONENT Runtime)
   endif(WIN32)
@@ -40,7 +40,7 @@ target_link_libraries(TestRansacPlaneModel LidarPluginMod)
 #custom_add_executable(TestVtkEigenTools TestVtkEigenTools.cxx )
 #target_link_libraries(TestVtkEigenTools LidarPluginMod)
 #add_test(TestVtkEigenTools
-#  ${INSTALL_LOCAL_DIR}/TestVtkEigenTools
+#  ${TEST_BINARY_DIR}/TestVtkEigenTools
 #)
 
 custom_add_executable(TestBoundingBox TestBoundingBox.cxx)
@@ -50,31 +50,31 @@ custom_add_executable(TestTemporalTransformsReaderWriter TestTemporalTransformsR
 target_link_libraries(TestTemporalTransformsReaderWriter LidarPluginMod)
 
 add_test(TestNMEAParser
-  ${INSTALL_LOCAL_DIR}/TestNMEAParser
+  ${TEST_BINARY_DIR}/TestNMEAParser
 )
 
 add_test(TestTrailingFrame
-  ${INSTALL_LOCAL_DIR}/TestTrailingFrame
+  ${TEST_BINARY_DIR}/TestTrailingFrame
 )
 
 add_test(TestRansacPlaneModel
-  ${INSTALL_LOCAL_DIR}/TestRansacPlaneModel
+  ${TEST_BINARY_DIR}/TestRansacPlaneModel
 )
 
 add_test(TestTemporalTransformsReaderWriter
-  ${INSTALL_LOCAL_DIR}/TestTemporalTransformsReaderWriter
+  ${TEST_BINARY_DIR}/TestTemporalTransformsReaderWriter
   ${data_dir}/trajectories/mm04/orbslam2-no-loop-closure.csv
   ${data_dir}/trajectories/mm04/orbslam2-no-loop-closure.csv.temporary
 )
 
 add_test(TestBoundingBox
-  ${INSTALL_LOCAL_DIR}/TestBoundingBox
+  ${TEST_BINARY_DIR}/TestBoundingBox
 )
 
 #custom_add_executable(TestScaleCalibration-MM TestScaleCalibration-MM.cxx)
 #target_link_libraries(TestScaleCalibration-MM LidarPluginMod)
 #add_test(TestScaleCalibration-MM
-#  ${INSTALL_LOCAL_DIR}/TestScaleCalibration-MM
+#  ${TEST_BINARY_DIR}/TestScaleCalibration-MM
 #  ${data_dir}/trajectories
 #)
 
@@ -82,7 +82,7 @@ add_test(TestBoundingBox
 #custom_add_executable(TestTimeCalibration-LaDoua TestTimeCalibration-LaDoua.cxx)
 #target_link_libraries(TestTimeCalibration-LaDoua LidarPluginMod)
 #add_test(TestTimeCalibration-LaDoua
-#  ${INSTALL_LOCAL_DIR}/TestTimeCalibration-LaDoua
+#  ${TEST_BINARY_DIR}/TestTimeCalibration-LaDoua
 #  ${data_dir}/trajectories/la_doua_dataset
 #)
 
@@ -90,7 +90,7 @@ add_test(TestBoundingBox
 #target_link_libraries(TestTimeCalibration-MM LidarPluginMod)
 
 #add_test(TestTimeCalibration-MM
-#  ${INSTALL_LOCAL_DIR}/TestTimeCalibration-MM
+#  ${TEST_BINARY_DIR}/TestTimeCalibration-MM
 #  ${data_dir}/trajectories
 #)
 
@@ -100,35 +100,35 @@ if(LIDARVIEW_BUILD_CALIBFROMPOSES)
   custom_add_executable(TestCameraCalibration TestCameraCalibration.cxx)
   target_link_libraries(TestCameraCalibration LidarPluginMod)
   add_test(TestCameraCalibration
-    ${INSTALL_LOCAL_DIR}/TestCameraCalibration
+    ${TEST_BINARY_DIR}/TestCameraCalibration
     ${data_dir}/Camera/MatchedPoints_3D_2D
   )
 
   custom_add_executable(TestCarGeometricCalibration-MM TestCarGeometricCalibration-MM.cxx)
   target_link_libraries(TestCarGeometricCalibration-MM LidarPluginMod)
   add_test(TestCarGeometricCalibration-MM
-    ${INSTALL_LOCAL_DIR}/TestCarGeometricCalibration-MM
+    ${TEST_BINARY_DIR}/TestCarGeometricCalibration-MM
     ${data_dir}/trajectories
   )
 
   custom_add_executable(TestCarGeometricCalibration-LaDoua TestCarGeometricCalibration-LaDoua.cxx)
   target_link_libraries(TestCarGeometricCalibration-LaDoua LidarPluginMod)
   add_test(TestCarGeometricCalibration-LaDoua
-    ${INSTALL_LOCAL_DIR}/TestCarGeometricCalibration-LaDoua
+    ${TEST_BINARY_DIR}/TestCarGeometricCalibration-LaDoua
     ${data_dir}/trajectories/la_doua_dataset
   )
   
   custom_add_executable(TestGeometricCalibration-MM TestGeometricCalibration-MM.cxx)
   target_link_libraries(TestGeometricCalibration-MM LidarPluginMod)
   add_test(TestGeometricCalibration-MM
-    ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-MM
+    ${TEST_BINARY_DIR}/TestGeometricCalibration-MM
     ${data_dir}/trajectories
   )
 
   custom_add_executable(TestGeometricCalibration-LaDoua TestGeometricCalibration-LaDoua.cxx)
   target_link_libraries(TestGeometricCalibration-LaDoua LidarPluginMod)
   add_test(TestGeometricCalibration-LaDoua
-    ${INSTALL_LOCAL_DIR}/TestGeometricCalibration-LaDoua
+    ${TEST_BINARY_DIR}/TestGeometricCalibration-LaDoua
     ${data_dir}/trajectories/la_doua_dataset
   )
   
@@ -138,7 +138,7 @@ if (LIDARVIEW_BUILD_MIDHOG)
   custom_add_executable(TestMIDHOG TestMIDHOG.cxx)
   target_link_libraries(TestMIDHOG LidarPluginMod)
   add_test(TestMIDHOG
-    ${INSTALL_LOCAL_DIR}/TestMIDHOG
+    ${TEST_BINARY_DIR}/TestMIDHOG
   )
 endif()
 
@@ -146,7 +146,7 @@ endif()
 #if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
 #  custom_add_executable(TestSlam TestSlam.cxx)
 #  add_test(TestSlam
-#    ${INSTALL_LOCAL_DIR}/TestSlam
+#    ${TEST_BINARY_DIR}/TestSlam
 #    ${data_dir}/Slam/VLP-16_slam_test_data.pcap
 #    ${data_dir}/Slam/RefSlam.vtp
 #    ${CMAKE_SOURCE_DIR}/share/VLP-16.xml
@@ -155,7 +155,7 @@ endif()
 #  custom_add_executable(TestTrajectoryReoptimization TestTrajectoryReoptimization.cxx)
 #  target_link_libraries(TestTrajectoryReoptimization LidarPluginMod)
 #  add_test(TestTrajectoryReoptimization
-#    ${INSTALL_LOCAL_DIR}/TestTrajectoryReoptimization
+#    ${TEST_BINARY_DIR}/TestTrajectoryReoptimization
 #    ${data_dir}/trajectories/mm05_reoptimization
 #  )
 #endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
