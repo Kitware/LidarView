@@ -147,12 +147,14 @@ else()
 endif()
 
 #-------------------------------------------------------------------------------
-# Set RPATH
-# Setting this ensures that install directory builds work out of the box
-# WIP we could set this higher than at the LidarPlugin level
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# RPATH Legacy notes
+# This is not necessarry anymore thanks to the behavior of PV Client macros
+# Setting this globally will pollute Plugins, because of PVPlugin.cmake 'saved_rpath' mechanisms
+# Optionally set this on a local basis for libraries, and sometimes recommend as the package fixup-bundle script
+# will assume that it relies only on system-libs and the binary will wrongly link on undesried system libs (See Project/PythonQt)
+# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# WIP make sure on apple its necessary or not
+# WIPWIP TODO APPLE make sure on apple its necessary or not
 #[[
 if (APPLE)
   set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
