@@ -438,8 +438,18 @@ add_custom_command(
 #-----------------------------------------------------------------------------
 # RPATH HANDLING
 #-----------------------------------------------------------------------------
-# Eases Install Directory RPATHS, default PV behavior
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# ParaviewPLugin.cmake set CMAKE_INSTALL_RPATH RAPH to relpath between LIBRARY_DIR and plugin's LIBRARY_SUBDIR
+# This will not for the execs, not inside /lib/plugins`
+# We need to Set RPATHS ourselves here ParaViewClient.cmake Style
+#Wip check which rpath ahve been introduced up to here
+if(APPLE)
+  message(FATAL_ERROR "WIP CHECK MY RAPH HERE ==${}")
+  list(APPEND CMAKE_INSTALL_RPATH "@loader_path/???")
+elseif(UNIX)
+  #WIP this is not necessarry
+  #Set Explicit /lib DIR RPATH to avoid diamond depencencies issues (e.g libz)
+  #list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
+endif()
 
 #-----------------------------------------------------------------------------
 # Build PacketFileSender target which enable to playback a recorded pcap on the network
@@ -495,7 +505,7 @@ endif()
 # The following executables need to land in `/install` to end in the package
 set(executables_to_install
   PacketFileSender
-  #PCAPSeparator # does not end in the package
+  PCAPSeparator # does not end in the package
   #PCAPTester # been disabled for some time now
   )
 install(TARGETS ${executables_to_install}
@@ -533,7 +543,7 @@ if (APPLE)
 
   # install libraries
   install(TARGETS ${libraries_to_install}
-          RUNTIME DESTINATION ${LV_INSTALL_LIBRARY_DIR}
+          RUNTIME DESTINATION ${LV_INSTALL_RUNTIME_DIR}
           LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
   )
 
