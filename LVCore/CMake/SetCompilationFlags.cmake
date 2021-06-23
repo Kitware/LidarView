@@ -41,6 +41,6 @@ if (MSVC)
 
 else()
     # Warning level all and extra
-    add_compile_options(-Wall -Wextra)
+    add_compile_options(-Wall -Wextra -Wsuggest-override)
 
 endif()
