@@ -27,7 +27,7 @@ class vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
 public:
   static vtkLidarKITTIDataSetWriter* New();
   vtkTypeMacro(vtkLidarKITTIDataSetWriter, vtkPolyDataAlgorithm);
-  // void PrintSelf(ostream& os, vtkIndent indent);
+  // void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetMacro(FolderName, const std::string&)
   void SetFolderName(const std::string&);
@@ -58,9 +58,9 @@ protected:
    * */
   std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity);
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector*);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   // Name of the folder to write the frames to
   std::string FolderName;
