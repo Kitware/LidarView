@@ -109,7 +109,7 @@ public:
     }
 
 protected:
-  virtual QVariant currentServerManagerValue(bool use_unchecked) const
+  virtual QVariant currentServerManagerValue(bool use_unchecked) const override
     {
     Q_ASSERT(use_unchecked == false);
     Q_UNUSED(use_unchecked);
