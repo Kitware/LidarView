@@ -32,7 +32,7 @@ class LIDARMODULE_EXPORT vtkBirdEyeViewSnap : public vtkPolyDataAlgorithm
 public:
   static vtkBirdEyeViewSnap *New();
   vtkTypeMacro(vtkBirdEyeViewSnap, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Set Orientation of the plane
   // to generate the bird eye view
@@ -53,7 +53,7 @@ protected:
   ~vtkBirdEyeViewSnap();
 
   // Request data
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   // copy operators

@@ -42,7 +42,7 @@ class LIDARMODULE_EXPORT vtkGridSource : public vtkPolyDataAlgorithm
 public:
   static vtkGridSource* New();
   vtkTypeMacro(vtkGridSource, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetMacro(GridNbTicks, int);
   vtkGetMacro(GridNbTicks, int);
@@ -72,7 +72,7 @@ protected:
   vtkGridSource();
   ~vtkGridSource();
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // width of the grid in number of square
   int GridNbTicks;

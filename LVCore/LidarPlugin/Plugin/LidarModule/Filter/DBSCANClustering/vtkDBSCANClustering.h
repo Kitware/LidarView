@@ -42,7 +42,7 @@ protected:
   vtkDBSCANClustering() = default;
   ~vtkDBSCANClustering() = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   vtkDBSCANClustering(const vtkDBSCANClustering&) = delete;

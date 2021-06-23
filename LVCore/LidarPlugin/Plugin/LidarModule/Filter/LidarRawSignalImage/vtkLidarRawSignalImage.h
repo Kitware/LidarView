@@ -35,7 +35,7 @@ class LIDARMODULE_EXPORT vtkLidarRawSignalImage : public vtkImageAlgorithm
 public:
   static vtkLidarRawSignalImage *New();
   vtkTypeMacro(vtkLidarRawSignalImage, vtkImageAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //! @{
   //! @copydoc Width

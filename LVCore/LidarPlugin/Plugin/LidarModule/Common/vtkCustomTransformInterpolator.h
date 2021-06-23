@@ -64,7 +64,7 @@ class LIDARMODULE_EXPORT vtkCustomTransformInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCustomTransformInterpolator, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Instantiate the class.
@@ -172,7 +172,7 @@ public:
   // Description:
   // Override GetMTime() because we depend on the interpolators which may be
   // modified outside of this class.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkCustomTransformInterpolator();

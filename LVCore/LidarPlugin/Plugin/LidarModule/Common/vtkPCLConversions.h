@@ -46,7 +46,7 @@ public:
 
   vtkTypeMacro(vtkPCLConversions, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkSmartPointer<vtkPolyData> PolyDataFromPCDFile(const std::string& filename);
 

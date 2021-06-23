@@ -42,7 +42,7 @@ public:
   vtkGetMacro(DetectFrameDropping, bool)
   vtkSetMacro(DetectFrameDropping, bool)
 
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() override;
 
   /**
    * @brief GetSensorInformation return some sensor information used for display purposes
@@ -144,11 +144,11 @@ protected:
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   //! Indicate if we should detect that some frames are dropped
   bool DetectFrameDropping = false;

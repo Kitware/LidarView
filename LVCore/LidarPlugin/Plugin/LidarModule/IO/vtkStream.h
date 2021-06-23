@@ -121,7 +121,7 @@ protected:
 
   virtual int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) = 0;
+                  vtkInformationVector* outputVector) override = 0;
 
   //! Generic Interpreter
   vtkSmartPointer<vtkInterpreter> Interpreter;

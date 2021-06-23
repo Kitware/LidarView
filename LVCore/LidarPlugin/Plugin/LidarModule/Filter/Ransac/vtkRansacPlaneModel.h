@@ -62,7 +62,7 @@ public:
 protected:
   vtkRansacPlaneModel() = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   vtkRansacPlaneModel(const vtkRansacPlaneModel&) = delete;

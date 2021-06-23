@@ -95,7 +95,7 @@ protected:
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * @brief Calibrate Set the Calibration file in the LidarInterpreter and launch calibration

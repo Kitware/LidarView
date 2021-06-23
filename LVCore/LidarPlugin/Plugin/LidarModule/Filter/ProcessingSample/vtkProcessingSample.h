@@ -30,13 +30,13 @@ class LIDARMODULE_EXPORT vtkProcessingSample : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkProcessingSample, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkProcessingSample* New();
 
 protected:
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
 
   vtkProcessingSample();
   virtual ~vtkProcessingSample();

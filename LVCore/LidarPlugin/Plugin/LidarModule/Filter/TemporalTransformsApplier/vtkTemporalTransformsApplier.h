@@ -54,7 +54,7 @@ public:
    * @brief Override GetMTime() because we depend on the TransformInterpolator
    * which may be modified outside of this class.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() override;
 
   vtkGetMacro(ConversionFactorToSecond, double)
   vtkSetMacro(ConversionFactorToSecond, double)
@@ -64,11 +64,11 @@ protected:
 
   int RequestInformation(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
 
 private:
     //! Indicate if a different transform should be apply to each point,

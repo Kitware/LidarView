@@ -51,9 +51,9 @@ public:
 
   int RequestData(vtkInformation *vtkNotUsed(request),
                   vtkInformationVector **vtkNotUsed(inputVector),
-                  vtkInformationVector *outputVector);
+                  vtkInformationVector *outputVector) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   vtkMTimeType GetMTime() override;
 

@@ -32,7 +32,7 @@ class LIDARMODULE_EXPORT vtkPCLRansacModel : public vtkPolyDataAlgorithm
   public:
   static vtkPCLRansacModel *New();
   vtkTypeMacro(vtkPCLRansacModel, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum Model {
     Circle2D = 0,
@@ -62,7 +62,7 @@ protected:
   ~vtkPCLRansacModel();
 
   // Request data
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   //! Maximum distance from point to model, to consider the point part of the model
   double DistanceThreshold;

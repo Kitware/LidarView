@@ -44,7 +44,7 @@ class LIDARMODULE_EXPORT vtkApplanixPositionReader : public vtkPolyDataAlgorithm
 public:
   static vtkApplanixPositionReader* New();
   vtkTypeMacro(vtkApplanixPositionReader, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   vtkSetStringMacro(FileName);
@@ -84,7 +84,7 @@ protected:
   vtkApplanixPositionReader();
   virtual ~vtkApplanixPositionReader();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
 

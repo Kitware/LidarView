@@ -48,7 +48,7 @@ protected:
   vtkCalibrationFromPoses();
   ~vtkCalibrationFromPoses() = default;
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:

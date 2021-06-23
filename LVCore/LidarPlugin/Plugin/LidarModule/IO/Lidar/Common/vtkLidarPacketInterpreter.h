@@ -36,7 +36,7 @@ class LIDARMODULE_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)
-  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) {}
+  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} //TODO
 
   /**
    * @brief The CropModeEnum enum to select the cropping mode

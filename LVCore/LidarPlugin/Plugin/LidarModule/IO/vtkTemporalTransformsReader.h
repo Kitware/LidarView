@@ -81,7 +81,7 @@ protected:
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
 
 private:
   //! TimeOffset in seconds relative to the system clock

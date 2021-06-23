@@ -52,7 +52,7 @@ class LIDARMODULE_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
 public:
   static vtkMotionDetector *New();
   vtkTypeMacro(vtkMotionDetector, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Add a frame to update the motion estimator
   void AddFrame(vtkSmartPointer<vtkPolyData>& polydata);
@@ -65,7 +65,7 @@ protected:
   vtkMotionDetector();
   ~vtkMotionDetector();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   // copy operators

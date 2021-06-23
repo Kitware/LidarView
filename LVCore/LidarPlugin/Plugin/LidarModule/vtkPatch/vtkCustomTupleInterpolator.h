@@ -52,7 +52,7 @@ class vtkCustomTupleInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCustomTupleInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Instantiate the class.

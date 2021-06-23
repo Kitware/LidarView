@@ -62,7 +62,7 @@ class vtkCustomQuaternionInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCustomQuaternionInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Instantiate the class.
