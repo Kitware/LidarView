@@ -64,7 +64,7 @@ void lqLiveSourceScalarColoringBehavior::onSourceAdded(pqPipelineSource* src)
   vtkSMProxy* proxy = src->getProxy();
   if (auto hints = proxy->GetHints())
   {
-    if (auto liveHints = hints->FindNestedElementByName("LiveSource"))
+    if (hints->FindNestedElementByName("LiveSource"))
     {
       //Ask live source to report its updates
       this->connect(src, SIGNAL(dataUpdated(pqPipelineSource*)), SLOT(onDataUpdated(pqPipelineSource*)));
