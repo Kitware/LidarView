@@ -50,7 +50,7 @@ protected slots:
   void saveSortIndicator();
 
 public slots:
-  virtual void accept();
+  virtual void accept() override;
   void onDisplayMoreCorrectionsChanged();
 
 signals:
