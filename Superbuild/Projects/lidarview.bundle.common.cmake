@@ -4,6 +4,9 @@ set(LidarViewSuperBuild_SOURCE_DIR "${superbuild_source_directory}")
 set(LidarViewSuperBuild_CMAKE_DIR "${LidarViewSuperBuild_SOURCE_DIR}/lidarview-superbuild/CMake")
 set(LidarViewSuperBuild_LVCORE_CMAKE_DIR "${LidarViewSuperBuild_SOURCE_DIR}/../LVCore/CMake")
 
+# Make sure Branding is set early
+include(${LidarViewSuperBuild_SOURCE_DIR}/../Application/branding.cmake)
+
 # Trigger Crossplatform LidarView Bundling
 include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/LidarviewBundleCommon.cmake)
 
