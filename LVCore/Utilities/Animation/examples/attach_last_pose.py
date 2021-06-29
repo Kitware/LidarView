@@ -1,5 +1,5 @@
 """
-Focus camera on last pose of a given trajectory during live run.
+Attach a fixed camera to the last pose of a given trajectory during live run.
 Example :
 - open a lidar pcap
 - apply SLAM Online filter on the Data/Frame entry
