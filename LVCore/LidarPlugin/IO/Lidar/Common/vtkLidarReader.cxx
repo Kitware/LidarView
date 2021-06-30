@@ -154,7 +154,14 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation *info)
   double timeOffset = this->GetInterpreter()->GetTimeOffset();
   for (size_t i = 0; i < numberOfTimesteps; ++i)
   {
-    timesteps[i] = this->FrameCatalog[i].FirstPacketNetworkTime + timeOffset;
+    if(UsePacketTimeForDisplayTime)
+    {
+      timesteps[i] = this->FrameCatalog[i].FirstPacketDataTime;
+    }
+    else
+    {
+      timesteps[i] = this->FrameCatalog[i].FirstPacketNetworkTime + timeOffset;
+    }
   }
   if (this->FrameCatalog.size())
   {
@@ -267,6 +274,13 @@ int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
                               packetTime,
                               [](FrameInformation& fp, double d)
                                 { return fp.FirstPacketNetworkTime < d; });
+
+  if (idx == this->FrameCatalog.end())
+  {
+    vtkErrorMacro("Cannot meet timestep request: " << packetTime);
+    return 0;
+  }
+
   auto frameRequested = std::distance(this->FrameCatalog.begin(), idx);
   return static_cast<int>(frameRequested);
 }
@@ -280,6 +294,13 @@ int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
                               dataTime,
                               [](FrameInformation& fp, double d)
                                 { return fp.FirstPacketDataTime < d; });
+
+  if (idx == this->FrameCatalog.end())
+  {
+    vtkErrorMacro("Cannot meet timestep request: " << dataTime);
+    return 0;
+  }
+
   auto frameRequested = std::distance(this->FrameCatalog.begin(), idx);
   return static_cast<int>(frameRequested);
 }
@@ -454,20 +475,14 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
     timestep = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }
 
-  // iterating over all timesteps until finding the first one with a greater time value
-  auto idx = std::lower_bound(this->FrameCatalog.begin(),
-                              this->FrameCatalog.end(),
-                              timestep,
-                              [](FrameInformation& fp, double d)
-                                { return fp.FirstPacketNetworkTime < d; });
-
-  auto frameRequested = std::distance(this->FrameCatalog.begin(), idx);
-
-  if (idx == this->FrameCatalog.end())
+  int frameRequested = 0;
+  if(this->UsePacketTimeForDisplayTime)
   {
-    vtkErrorMacro("Cannot meet timestep request: " << frameRequested << ".  Have "
-                                                   << this->GetNumberOfFrames() << " datasets.");
-    return 0;
+    frameRequested = GetFrameIndexForDataTime(timestep);
+  }
+  else
+  {
+    frameRequested = GetFrameIndexForPacketTime(timestep);
   }
 
   // detect frame dropping

@@ -130,6 +130,9 @@ public:
   vtkGetMacro(ShowFirstAndLastFrame, bool)
   vtkSetMacro(ShowFirstAndLastFrame, bool)
 
+  vtkGetMacro(UsePacketTimeForDisplayTime, bool)
+  vtkSetMacro(UsePacketTimeForDisplayTime, bool)
+
   int GetLidarPort() { return this->LidarPort; }
   void SetLidarPort(int _arg);
 
@@ -175,6 +178,10 @@ protected:
   //! Filter the packet to only read the packet received on a specify port
   //! To read all packet use -1
   int LidarPort = -1;
+
+  //! True to display the packet time in the UI pipeline
+  //! False to display the network time in the UI pipeline
+  bool UsePacketTimeForDisplayTime = false;
 
 private:
   /**

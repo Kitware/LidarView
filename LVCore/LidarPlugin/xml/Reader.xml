@@ -121,6 +121,19 @@
       <SimpleDoubleInformationHelper />
     </DoubleVectorProperty>
 
+    <IntVectorProperty
+        name="DisplayPacketTime"
+        animateable="0"
+        command="SetUsePacketTimeForDisplayTime"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Set it to true to display the data time (from the lidar packet) in the pipeline
+      </Documentation>
+    </IntVectorProperty>
+
     <Hints>
       <ReaderFactory extensions="pcap"
          file_description="Lidar Data File"/>
