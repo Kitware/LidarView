@@ -91,12 +91,15 @@ list(APPEND LIDARPLUGIN_DEPS              ${Boost_LIBRARIES})
 #--------------------------------------
 option(ENABLE_pcl "PCL will be required for filters using pcl (PCLRansacFilter, Slam, ...)" OFF)
 if (ENABLE_pcl)
-  find_package(PCL REQUIRED)
+  find_package(PCL REQUIRED COMPONENTS common kdtree registration io)
   
   #WIP not clean #contains a NIP "-Dno-qhull"
   add_definitions(${PCL_DEFINITIONS})
   
   list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${PCL_INCLUDE_DIRS}) #wip make it better
+  # We cannot let PCL include VTK itself as it conflicts with how vtk_module does it,
+  # This prevent build command too long on Win32
+  list(FILTER PCL_LIBRARIES EXCLUDE REGEX "VTK::.*")
   list(APPEND LIDARPLUGIN_DEPS ${PCL_LIBRARIES} )
 endif(ENABLE_pcl)
 
