@@ -1,7 +1,5 @@
 include(PythonModuleInstaller)
 
-python_module_install(NAME pipeline_setup_helpers
-                      FILES
-                      pipeline_setup_helpers/pipeline_setup_helpers.py
-                      pipeline_setup_helpers/__init__.py
-                      )
+python_module_install(
+  NAME pipeline_setup_helpers
+  PATH ${CMAKE_CURRENT_LIST_DIR}/pipeline_setup_helpers)
