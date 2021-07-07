@@ -417,6 +417,28 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="SaveLidarState">
+          <property name="icon">
+            <iconset resource="../LVCore/ApplicationComponents/lqResources.qrc">
+            <normaloff>:/lqResources/Icons/pqSaveState.png</normaloff>:/lqResources/Icons/pqSaveState.png</iconset>
+          </property>
+          <property name="toolTip">
+            <string>Save Lidar state</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="LoadLidarState">
+          <property name="icon">
+            <iconset resource="../LVCore/ApplicationComponents/lqResources.qrc">
+            <normaloff>:/lqResources/Icons/pqLoadState.png</normaloff>:/lqResources/Icons/pqLoadState.png</iconset>
+          </property>
+          <property name="toolTip">
+            <string>Load Lidar state</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

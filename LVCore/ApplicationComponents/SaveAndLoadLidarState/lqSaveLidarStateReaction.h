@@ -25,6 +25,9 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSaveLidarStateReaction : public pqReactio
 public:
   lqSaveLidarStateReaction(QAction* action);
 
+  static void SaveLidarState(vtkSMProxy * lidarProxy);
+
+
 public slots:
   /**
   * Called when the action is triggered.
@@ -40,7 +43,7 @@ private:
    * @param lidarProxy proxy to extract the properties
    * @param propertiesVector contains all the properties (names, value) of the current proxy and ots sub-proxy.
    */
-  void constructPropertiesInfo(vtkSMProxy * lidarProxy, std::vector<propertyInfo>& propertiesVector);
+  static void constructPropertiesInfo(vtkSMProxy * lidarProxy, std::vector<propertyInfo>& propertiesVector);
 
   /**
    * @brief getValueOfPropAsString get the values of a property
@@ -48,7 +51,7 @@ private:
    * @return The std::vector containing the values of the property prop.
    *         If the property is a not an array, only the first element is fill
    */
-  std::vector<std::string> getValueOfPropAsString(vtkSMProperty * prop);
+  static std::vector<std::string> getValueOfPropAsString(vtkSMProperty * prop);
 
 };
 

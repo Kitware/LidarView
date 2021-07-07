@@ -44,7 +44,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
     void onCalibrate();
     void onClose();
     void onShowHide();
-
+    void onSaveLidarState();
+    void onLoadLidarState();
 
 protected:
     Q_DISABLE_COPY(lqSensorWidget)

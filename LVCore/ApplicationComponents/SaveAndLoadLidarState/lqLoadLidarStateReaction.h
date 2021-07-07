@@ -25,6 +25,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqLoadLidarStateReaction : public pqReactio
 public:
   lqLoadLidarStateReaction(QAction* action);
 
+  static void LoadLidarState(vtkSMProxy * lidarCurrentProxy);
+
   /**
    * @brief UpdateProxyProperty set the values to the property "propNameToFind" of the proxy
    *        If the property is not found in the proxy, a message is displayed but nothing is done.
@@ -55,7 +57,7 @@ private:
    * @param ObjectName name of the current proxy
    * @param propertyInfo vector to write information (name, value) of the found properties
    */
-  void ParseJsonContent(Json::Value contents, std::string ObjectName, std::vector<propertyInfo>& propertyInfo);
+  static void ParseJsonContent(Json::Value contents, std::string ObjectName, std::vector<propertyInfo>& propertyInfo);
 
 };
 

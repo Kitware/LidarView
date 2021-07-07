@@ -30,16 +30,6 @@ lqLoadLidarStateReaction::lqLoadLidarStateReaction(QAction *action)
 //-----------------------------------------------------------------------------
 void lqLoadLidarStateReaction::onTriggered()
 {
- // Get the Lidar state file
- QString LidarStateFile = QFileDialog::getOpenFileName(nullptr,
-                                  QString("Choose the lidar state file to load on the first lidar"),
-                                  "", QString("json (*.json)"));
-
-  if(LidarStateFile.isEmpty())
-  {
-    return;
-  }
-
   // Get the first lidar source
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
 
@@ -54,7 +44,21 @@ void lqLoadLidarStateReaction::onTriggered()
     QMessageBox::warning(nullptr, tr(""), tr("Multiple lidars sources found, only the first one will be updated") );
   }
 
-  vtkSMProxy * lidarCurrentProxy = lidarProxys[0];
+  lqLoadLidarStateReaction::LoadLidarState(lidarProxys[0]);
+}
+
+//-----------------------------------------------------------------------------
+void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
+{
+  // Get the Lidar state file
+  QString LidarStateFile = QFileDialog::getOpenFileName(nullptr,
+                                 QString("Choose the lidar state file to load on the first lidar"),
+                                 "", QString("json (*.json)"));
+
+  if(LidarStateFile.isEmpty())
+  {
+    return;
+  }
 
   // Read and get information of the JSON file
   Json::Value contents;
@@ -73,7 +77,7 @@ void lqLoadLidarStateReaction::onTriggered()
   std::vector<propertyInfo> propertyInfo;
   try
   {
-    this->ParseJsonContent(contents, "",propertyInfo);
+    ParseJsonContent(contents, "",propertyInfo);
   }
   catch(std::exception e)
   {

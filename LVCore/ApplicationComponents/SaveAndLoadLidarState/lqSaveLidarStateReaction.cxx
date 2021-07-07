@@ -28,17 +28,6 @@ lqSaveLidarStateReaction::lqSaveLidarStateReaction(QAction *action)
 //-----------------------------------------------------------------------------
 void lqSaveLidarStateReaction::onTriggered()
 {
-  // Save Lidar Save information file
-  QString defaultFileName = QString("SaveLidarInformation.json");
-  QString StateFile = QFileDialog::getSaveFileName(nullptr,
-                                 QString("File to save the first lidar information:"),
-                                 defaultFileName, QString("json (*.json)"));
-
-  if(StateFile.isEmpty())
-  {
-    return;
-  }
-
   // Get the first lidar source  
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   if(smmodel == nullptr)
@@ -67,6 +56,23 @@ void lqSaveLidarStateReaction::onTriggered()
     return;
   }
 
+  lqSaveLidarStateReaction::SaveLidarState(lidarProxy);
+
+}
+
+//-----------------------------------------------------------------------------
+void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy * lidarProxy)
+{
+  // Save Lidar Save information file
+  QString defaultFileName = QString("SaveLidarInformation.json");
+  QString StateFile = QFileDialog::getSaveFileName(nullptr,
+                                 QString("File to save the first lidar information:"),
+                                 defaultFileName, QString("json (*.json)"));
+
+  if(StateFile.isEmpty())
+  {
+    return;
+  }
   std::vector<propertyInfo> propertiesInfo;
   constructPropertiesInfo(lidarProxy, propertiesInfo);
 
@@ -174,7 +180,7 @@ void lqSaveLidarStateReaction::constructPropertiesInfo(vtkSMProxy * lidarProxy,
   // We want all specific properties of a proxy stick together
   for(unsigned int p = 0; p < proxysToCompute.size(); p++)
   {
-    this->constructPropertiesInfo(proxysToCompute[p], propertiesVector);
+    constructPropertiesInfo(proxysToCompute[p], propertiesVector);
   }
 }
 

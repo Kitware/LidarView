@@ -1,6 +1,9 @@
 #include "lqSensorWidget.h"
 #include "ui_lqSensorWidget.h"
 
+#include "lqLoadLidarStateReaction.h"
+#include "lqSaveLidarStateReaction.h"
+
 #include <pqApplicationCore.h>
 #include <pqPipelineSource.h>
 #include <pqObjectBuilder.h>
@@ -34,6 +37,9 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   // create all connection
   this->connect(UI->close, SIGNAL(clicked()), this, SLOT(onClose()));
   this->connect(UI->calibrate, SIGNAL(clicked()), this, SLOT(onCalibrate()));
+  this->connect(UI->SaveLidarState, SIGNAL(clicked()), this, SLOT(onSaveLidarState()));
+  this->connect(UI->LoadLidarState, SIGNAL(clicked()), this, SLOT(onLoadLidarState()));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -141,6 +147,24 @@ void lqSensorWidget::onShowHide()
       this->deleteSource(this->PositionOrientationSource);
 
     this->deleteLater();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorWidget::onLoadLidarState()
+{
+  if (this->LidarSource)
+  {
+    lqLoadLidarStateReaction::LoadLidarState(this->LidarSource->getProxy());
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorWidget::onSaveLidarState()
+{
+  if (this->LidarSource)
+  {
+    lqSaveLidarStateReaction::SaveLidarState(this->LidarSource->getProxy());
   }
 }
 
