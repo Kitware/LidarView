@@ -35,6 +35,8 @@
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
 #include "lqUpdateCalibrationReaction.h"
+#include "lqSaveLidarFrameReaction.h"
+#include "lqSaveLASReaction.h"
 
 #include <vtkSMProxyManager.h>
 #include <vtkSMSessionProxyManager.h>
@@ -67,6 +69,7 @@
 #include <QToolBar>
 #include <QShortcut>
 #include <QMenu>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QUrl>
 #include <QDockWidget>
@@ -349,6 +352,11 @@ private:
     lqSensorListWidget * listSensor = lqSensorListWidget::instance();
     listSensor->setCalibrationFunction(&lqUpdateCalibrationReaction::UpdateExistingSource);
 
+    new lqSaveLidarFrameReaction(this->Ui.actionSavePCD, "PCDWriter", "pcd", false, false, true, true);
+    new lqSaveLidarFrameReaction(this->Ui.actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
+    new lqSaveLidarFrameReaction(this->Ui.actionSavePLY, "PPLYWriter", "ply", false, false, true, true);
+    new lqSaveLASReaction(this->Ui.actionSaveLAS, false, false, true, true);
+
     connect(this->Ui.actionMeasurement_Grid, SIGNAL(toggled(bool)), pqLidarViewManager::instance(),
       SLOT(onMeasurementGrid(bool)));
 
@@ -444,6 +452,11 @@ void vvMainWindow::dropEvent(QDropEvent* evt)
   if (files[0].endsWith(".pcap"))
   {
     lqOpenPcapReaction::createSourceFromFile(files[0]);
+  }
+  else if (files[0].endsWith(".pcd"))
+  {
+    QMessageBox::warning(nullptr, tr(""), tr("Unsupported input format") );
+    return;
   }
   else
   {
