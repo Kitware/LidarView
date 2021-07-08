@@ -242,24 +242,44 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
 }
 
 //-----------------------------------------------------------------------------
-void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
+bool GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
                              std::vector<double>& rotate)
 {
   vtkSMProperty * interpreterProp = proxy->GetProperty("PacketInterpreter");
-  assert(interpreterProp);
+  if(!interpreterProp)
+  {
+    return false;
+  }
+
   vtkSMProxy * interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
-  assert(interpreterProxy);
+  if(!interpreterProxy)
+  {
+    return false;
+  }
+
   vtkSMProperty * transformProp = interpreterProxy->GetProperty("Sensor Transform");
-  assert(transformProp);
+  if(!transformProp)
+  {
+    return false;
+  }
+
   vtkSMProxy * transormProxy = vtkSMPropertyHelper(transformProp).GetAsProxy();
-  assert(transormProxy);
+  if(!transormProxy)
+  {
+    return false;
+  }
+
   vtkSMProperty * translateProp = transormProxy->GetProperty("Position");
-  assert(translateProp);
   vtkSMProperty * rotateProp = transormProxy->GetProperty("Rotation");
-  assert(rotateProp);
+  if(!rotateProp || !translateProp)
+  {
+    return false;
+  }
 
   translate = vtkSMPropertyHelper(translateProp).GetDoubleArray();
   rotate = vtkSMPropertyHelper(rotateProp).GetDoubleArray();
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------

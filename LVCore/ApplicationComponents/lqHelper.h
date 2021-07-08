@@ -145,9 +145,9 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
  * @param proxy proxy of the pipeline, containing an interpreter proxy
  * @param translate will be filled by the function with the translation of the interpreter transform
  * @param rotate will be filled by the function with the rotation of the interpreter transform
-
+ * @return true if the translate and the rotate vector have been well filled, false otherwise
  */
-void GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate, std::vector<double>& rotate);
+bool GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate, std::vector<double>& rotate);
 
 /**
  * @brief DisplayDialogOnActiveWindow Display the dialog on the active window
