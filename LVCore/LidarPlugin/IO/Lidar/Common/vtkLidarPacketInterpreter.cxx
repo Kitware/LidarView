@@ -113,9 +113,10 @@ bool vtkLidarPacketInterpreter::shouldBeCroppedOut(double pos[3])
     case CROP_MODE::Spherical:
     {
       double R = std::sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
-      // azimuth in [0°, 360°]
-      double azimuth = 180.0 + (180.0 / vtkMath::Pi()) * std::atan2(pos[1], pos[0]);
-      // vertAngle in [-90°, 90°], increasing with z
+      // azimuth in [-180°, 180°]
+      // The choosen convention is clockwise from +y, hence -atan2(-x, y)
+      double azimuth = (180.0 / vtkMath::Pi()) * std::atan2(pos[0], pos[1]);
+      // vertAngle in [-90°, 90°], increasing with z - 0 is horizontal
       double vertAngle = 90.0 - (180.0 / vtkMath::Pi()) * std::acos(pos[2] / R);
 
       pointInside = inside_interval_mod(azimuth, this->CropRegion[0], this->CropRegion[1], 360.0);

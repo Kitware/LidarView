@@ -288,7 +288,8 @@ protected:
   //! Depending on the CroppingMode selected this can have different meaning:
   //! - Cartesian -> [x_min, x_max, y_min, y_max, z_min, z_max]
   //! - Spherical -> [azimuth_min, azimuth_max, vertAngle_min, vertAngle_max, r_min, r_max]
-  //! (0° <= azimuth <= 360° (mod 360°), -90° <= vertAngle <= 90°, r >= 0.0,
+  //! The choosen convention is clockwise from y+
+  //! (-180° <= azimuth <= 180, -90° <= vertAngle <= 90°, r >= 0.0,
   //! vertAngle increasing with z and vertAngle = 0 in plane z = 0)
   //! any interval is valid for the azimuthal but [ a, b ] is different from
   //! [ b, a ]
