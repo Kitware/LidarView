@@ -98,6 +98,11 @@ if(NOT Qt5_FOUND)
     message(FATAL_ERROR "Qt5 not found")
 endif()
 message(STATUS "Qt: ${PARAVIEW_QT_VERSION}, actually ${Qt5Core_VERSION}")
+#Fix SYSTEM Qt5 RPATH handling at install, WIP could base off "USE_SYSTEM_qt5"
+if(NOT Qt5_DIR)
+  message(FATAL_ERROR "Qt5_DIR not set")
+endif()
+list(APPEND CMAKE_INSTALL_RPATH "${Qt5_DIR}/../../")
 
 # Find PythonQt from Paraview's PythonQtPlugin Directory
 # We also need to set this variable for PythonQtPlugin to build itself
