@@ -323,13 +323,20 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
   vtkPoints* const points = data->GetPoints();
   vtkDataArray* const intensityData = data->GetPointData()->GetArray("intensity");
   vtkDataArray* const laserIdData = data->GetPointData()->GetArray("laser_id");
-  vtkDataArray* const timestampData = data->GetPointData()->GetArray("adjustedtime");
+  vtkDataArray* timestampData = data->GetPointData()->GetArray("adjustedtime");
+  double timeToSec = 1e-6;
+  if(timestampData == nullptr)
+  {
+    timestampData = data->GetPointData()->GetArray("Raw_Timestamp");
+    timeToSec = 1e-9;
+  }
+
   vtkDataArray* const colorData = data->GetPointData()->GetArray("camera_color");
 
   const vtkIdType numPoints = points->GetNumberOfPoints();
   for (vtkIdType n = 0; n < numPoints; ++n)
   {
-    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * 1e-6;
+    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
     // This test implements the time-clamping feature
     if (time >= this->MinTime && time <= this->MaxTime)
     {
@@ -376,12 +383,18 @@ void LASFileWriter::FlushMetaData()
 void LASFileWriter::UpdateMetaData(vtkPolyData* data)
 {
   vtkPoints* const points = data->GetPoints();
-  vtkDataArray* const timestampData = data->GetPointData()->GetArray("timestamp");
+  vtkDataArray* timestampData = data->GetPointData()->GetArray("timestamp");
+  double timeToSec = 1e-6;
+  if(timestampData == nullptr)
+  {
+    timestampData = data->GetPointData()->GetArray("Raw_Timestamp");
+    timeToSec = 1e-9;
+  }
 
   const vtkIdType numPoints = points->GetNumberOfPoints();
   for (vtkIdType n = 0; n < numPoints; ++n)
   {
-    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * 1e-6;
+    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
     if (time >= this->MinTime && time <= this->MaxTime)
     {
       Eigen::Vector3d pos;
