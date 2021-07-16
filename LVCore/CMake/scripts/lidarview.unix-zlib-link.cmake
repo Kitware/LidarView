@@ -10,11 +10,15 @@
 if(NOT UNIX)
   message(FATAL_ERROR "This patch only Applies to UNIX")
 endif()
+find_program(HAS_PATCHELF "patchelf")
+IF(NOT HAS_PATCHELF)
+  message(FATAL_ERROR "patchelf utility not installed")
+endif()
 
 message(STATUS "Applying Zlib link fix to every test binaries path")
 get_filename_component(install_location "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
-# get all app and tests on which to change boost path
+# get all app and tests on which to change paths
 file(GLOB app_list LIST_DIRECTORIES false "${install_location}/bin/*")
 file(GLOB test_list LIST_DIRECTORIES false "bin/Test*")
 
