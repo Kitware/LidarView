@@ -11,3 +11,6 @@
 [submodule "Plugins/pclplugin"]
 	path = Plugins/pclplugin
 	url = git@gitlab.kitware.com:paraview/pclplugin.git
+[submodule "Plugins/TreeSegPlugin"]
+	path = Plugins/TreeSegPlugin
+	url = git@gitlab.kitware.com:keu-computervision/treesegplugin.git
