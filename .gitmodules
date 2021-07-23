@@ -8,3 +8,6 @@
 [submodule "Plugins/VelodynePlugin"]
 	path = Plugins/VelodynePlugin
 	url = https://gitlab.kitware.com/LidarView/velodyneplugin.git
+[submodule "Plugins/pclplugin"]
+	path = Plugins/pclplugin
+	url = git@gitlab.kitware.com:paraview/pclplugin.git
