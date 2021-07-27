@@ -23,6 +23,8 @@ and screenshots of the currently displayed point cloud can be easily exported wi
 As a [Paraview](https://www.paraview.org/) based application, LidarView can effortlessly offer Paraview's features and plugins.
 
 ![LidarView](Application/SoftwareInformation/LidarViewExample.png)
+    Lidar data processed by [Kitware's SLAM](#slam) within LidarView
+
 
 # Features
 
@@ -43,19 +45,24 @@ As a [Paraview](https://www.paraview.org/) based application, LidarView can effo
 
 # How to get
 
-Lidarview has been tested on the following platforms:
+Lidarview is maintained on the following platforms:
 
 * Ubuntu 18, Ubuntu 20
 * Windows x64
 * MacOS 10.10
 
-See Detailed Instructions in the [RELEASES.md](RELEASES.md).
+See detailed general installation instructions on the [`LVCore/Documentation/INSTALLATION.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/INSTALLATION.md) page.
 
-See Download Links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
+See the Detailed installation instructions for the current and older releases on the [RELEASES.md](RELEASES.md) page.
+
+See associated download links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
 
 ## Build from source
 
-Most of the LidarView common codebase lies within the [LVCore](LVCore) repository.
+Most of the LidarView common codebase lies within:
+
+ * [LVCore](LVCore) repository.
+ * [LidarView-superbuild](Superbuild/lidarview-superbuild) repository.
 
 Detailed Instructions to build and package LidarView are available under [`LVCore/Documentation/LidarView_Developer_Guide.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/LidarView_Developer_Guide.md).
 
@@ -84,7 +91,7 @@ one is prompted to choose a calibration file.
 This calibration can either be directly embedded in LidarView,
 or may be loaded from a custom location.
 
-## SLAM documentation
+## SLAM documentation <a name="slam"></a>
 
 More [instructions](https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md) can be found on the [LidarSlam repository](https://gitlab.kitware.com/keu-computervision/slam).
 
