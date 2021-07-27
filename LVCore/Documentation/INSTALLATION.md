@@ -65,7 +65,7 @@ The following sections details what dependencies to install prior to running a L
   
 * Required packages:
 
-    `sudo apt-get install libopengl0`
+    `sudo apt-get install libopengl0 liblapack3`
 
 ### Ubuntu 18.04 <a name="ubuntu18-instructions"></a>
 
