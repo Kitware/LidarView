@@ -6,28 +6,28 @@
     1. [Windows](#windows-instructions)
     2. [Ubuntu20.04](#ubuntu20-instructions)
     3. [Ubuntu18.04](#ubuntu18-instructions)
-4. [Additional Instructions](#additional-instructions)
-5. [Troubleshooting / FAQ ](#faq-instructions)
+    4. [SLAM](#slam-instructions)
+4. [Troubleshooting / FAQ ](#faq-instructions)
 
 
 ## Overview <a name="overview"></a>
 
 This document gather information about the required installation steps to run LidarView-based Apps binary releases,
- built with the latest versions the following repositories: 
+ built with the latest versions the following repositories:
 
  - [LVCore](https://gitlab.kitware.com/LidarView/lidarview-core)
  - [LidarView-superbuild](https://gitlab.kitware.com/LidarView/lidarview-superbuild)
- 
+
 This document mirrors some information from the [LidarView Developer Guide](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/LidarView_Developer_Guide.md) but from an user point of view.
 
 ## General Information <a name="general-information"></a>
 
-Note that current LidarView-baseline software stack is typically based on the following major elements:
+Note that current LidarView-baseline software stack is typically based on the following embedded elements:
 
- - Paraview 5.6.1 (embedded)
- - VTK 8.2 (embedded)
- - Qt 5.12.9 
- - Python 3.7.10
+ - Paraview 5.9.0
+ - VTK 9.0.2
+ - Qt 5.12.9
+ - Python 3.9.5
 
 Aside from Runtime compatibility, also keep in mind the following aspects:
 
@@ -48,69 +48,22 @@ The following sections details what dependencies to install prior to running a L
 
 **Runtime Dependencies:**
 
-* Qt5.12.9 - Available as packages:
-
-    `sudo apt-get install qt5-default libqt5help5 libqt5x11extras5`
-        
-    (If you do not wish to install those packages, you can use the offline installer locally, see [Additional Instructions](#qt-installer))
-
-        
-* Python 3.7.10 - Not available as packages, you can get it from the 'deadsnakes' ppa:
-
-    `sudo add-apt-repository ppa:deadsnakes/ppa`
-    
-    `sudo apt-get install python3.7-dev`
-    
-    (If you wish to build Python3.7.10 from the official source instead, see [Additional Instructions](#python-source))
-  
-* Required packages:
-
-    `sudo apt-get install libopengl0 liblapack3`
+* Required packages: `sudo apt-get install libopengl0`
 
 ### Ubuntu 18.04 <a name="ubuntu18-instructions"></a>
 
 **Runtime Dependencies:**
 
-* QT5.12.9 - Not available as packages - From Installer
+* Required packages: `sudo apt-get install libopengl0`
 
-    See instructions in section [Additional Instructions](#qt-installer)
+### SLAM <a name="slam-instructions"></a>
 
-* Python 3.7.10 - Available as package:
-    
-    `sudo apt-get install python3.7-dev`
-    
-    (If you wish to build Python3.7.10 from the official source instead, see [Additional Instructions](#python-source))
-  
-* Required packages:
+**Runtime Dependencies:**
 
-    `sudo apt-get install libopengl0 liblapack3`
-    
-### Additional Instructions <a name="additional-instructions"></a>
+If your LidarView-based binary was supplied with SLAM, install LAPACK package on Ubuntu20.04/18.04
 
-* **QT5.12.9 From Installer** <a name="qt-installer"></a>
+* Required packages: `sudo apt-get install liblapack3`
 
-    Qt5.12.9 - [Offline Installer](https://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-linux-x64-5.12.9.run)
-
-    Run the installer offline to alleviate the need to register
-    
-    * Note that only the `Desktop gcc 64-bit` component is needed
-    
-    Copy built libraries located in `~/Qt5.12.9/5.12.9/gcc_64/lib/` in your system.
-    
-    * We recommend copying those libs towards `/usr/local/lib`, and adding this directory to your ld configuration using:
-    
-    * `sudo echo "/usr/local/lib" >> /etc/ld.so.conf && sudo ldconfig`
-    
-* **Python3.7.10 build from source** <a name="python-source"></a>
-
-    Download [Sources](https://www.python.org/downloads/release/python-3710/)
-
-    Packages `build-essentials, zlib1g-dev` are required to build python
-
-    Build and install with this oneliner:
-    
-    `./configure --enable-shared && sudo make install`
-        
 ## Troubleshooting / FAQ <a name="faq-instructions"></a>
 
 * **WINDOWS - Unrecognized Publisher**
@@ -124,12 +77,6 @@ The following sections details what dependencies to install prior to running a L
 
     - Update you Drivers (Use NVIDIA Geforce Experience)
     - Select `High-performance NVIDIA processor` in NVIDIA control panel / Manage 3d settings / Preferred graphics processor
-
-* **UBUNTU - Cannot find Qt Packages "unable to locate package qt5-default"**
-
-    Qt is [community software](https://packages.ubuntu.com/focal/qt5-default), Uncomment / add the `universe` ubuntu PPA in your `/etc/apt/sources.list`
-    
-    Example: `deb http://fr.archive.ubuntu.com/ubuntu/ focal universe`
 
 * **UBUNTU - There is no application installed for "shared library" files**
 
