@@ -122,6 +122,17 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
 
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
+
+  // Save background color which will represent the not-selected widget
+  // Create the darker selected-widget color
+  int r, g, b;
+  this->palette().color(QPalette::Background).getRgb(&r, &g, &b);
+  colorWidget[0] = r;
+  colorWidget[1] = g;
+  colorWidget[2] = b;
+  colorSelectedWidget[0] = (int) r * 0.8;
+  colorSelectedWidget[1] = (int) g * 0.8;
+  colorSelectedWidget[2] = (int) b * 0.8;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,6 +183,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     this->ui->sensorListLayout->addWidget(sensorWidget);
     sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
     this->ui->caption->setText(sensorWidget->GetExplanationOnUI());
+    this->connect(sensorWidget, SIGNAL(selected(lqSensorWidget*)), SLOT(onSelected(lqSensorWidget*)));
   }
 }
 
@@ -233,4 +245,22 @@ pqPipelineSource* lqSensorListWidget::getPosOrSourceAssociatedToLidarSource(pqPi
     return widget->GetPositionOrientationSource();
   }
   return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorListWidget::onSelected(lqSensorWidget * widget)
+{
+  // Un select all element
+  for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
+  {
+    lqSensorWidget* sw = this->sensorWidgets[index];
+    sw->setStyleSheet(QString("background-color:rgb(%1,%2,%3);")
+                      .arg(colorWidget[0]).arg(colorWidget[1]).arg(colorWidget[2]));
+  }
+
+  // Select the selected element
+  widget->setStyleSheet(QString("background-color:rgb(%1,%2,%3);")
+                        .arg(colorSelectedWidget[0]).arg(colorSelectedWidget[1]).arg(colorSelectedWidget[2]));
+
+  pqActiveObjects::instance().setActiveSource(widget->GetLidarSource());
 }

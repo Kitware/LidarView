@@ -40,6 +40,7 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   this->connect(UI->SaveLidarState, SIGNAL(clicked()), this, SLOT(onSaveLidarState()));
   this->connect(UI->LoadLidarState, SIGNAL(clicked()), this, SLOT(onLoadLidarState()));
 
+  this->setFocusPolicy(Qt::StrongFocus);
 }
 
 //-----------------------------------------------------------------------------
@@ -211,4 +212,10 @@ void lqSensorWidget::onUpdateUI()
   {
     this->UI->posOrName->setVisible(false);
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorWidget::focusInEvent(QFocusEvent* e)
+{
+  emit selected(this);
 }

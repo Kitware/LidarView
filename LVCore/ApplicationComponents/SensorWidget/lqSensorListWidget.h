@@ -41,6 +41,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
+    void onSelected(lqSensorWidget * widget);
 
   private:
     Q_DISABLE_COPY(lqSensorListWidget)
@@ -49,6 +50,9 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     std::vector<lqSensorWidget*> sensorWidgets;
     static lqSensorListWidget* Instance;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
+
+    int colorWidget[3];
+    int colorSelectedWidget[3];
 };
 
 #endif // LQSENSORLISTWIDGET_H

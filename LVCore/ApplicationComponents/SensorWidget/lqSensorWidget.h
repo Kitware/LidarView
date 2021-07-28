@@ -47,9 +47,14 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
     void onSaveLidarState();
     void onLoadLidarState();
 
+signals:
+    void selected(lqSensorWidget*);
+
 protected:
     Q_DISABLE_COPY(lqSensorWidget)
     void deleteSource(pqPipelineSource* src);
+
+    void focusInEvent(QFocusEvent *event) override;
 
     pqPipelineSource* LidarSource;
     pqPipelineSource* PositionOrientationSource;
