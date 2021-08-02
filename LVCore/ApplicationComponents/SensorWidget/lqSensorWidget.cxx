@@ -215,7 +215,7 @@ void lqSensorWidget::onUpdateUI()
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::focusInEvent(QFocusEvent* e)
+void lqSensorWidget::focusInEvent(QFocusEvent*)
 {
   emit selected(this);
 }
