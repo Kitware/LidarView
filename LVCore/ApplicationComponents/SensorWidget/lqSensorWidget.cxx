@@ -41,6 +41,8 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   this->connect(UI->LoadLidarState, SIGNAL(clicked()), this, SLOT(onLoadLidarState()));
 
   this->setFocusPolicy(Qt::StrongFocus);
+
+  this->SourceToDisplay = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -75,6 +77,21 @@ void lqSensorWidget::SetLidarSource(pqPipelineSource* src)
 pqPipelineSource* lqSensorWidget::GetLidarSource() const
 {
   return this->LidarSource;
+}
+
+//-----------------------------------------------------------------------------
+void lqSensorWidget::SetSourceToDisplay(pqPipelineSource* src)
+{
+  if (!src)
+    return;
+
+  this->SourceToDisplay = src;
+}
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorWidget::GetSourceToDisplay() const
+{
+  return this->SourceToDisplay;
 }
 
 //-----------------------------------------------------------------------------

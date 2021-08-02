@@ -248,6 +248,28 @@ pqPipelineSource* lqSensorListWidget::getPosOrSourceAssociatedToLidarSource(pqPi
 }
 
 //-----------------------------------------------------------------------------
+void lqSensorListWidget::setSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc,
+                                                               pqPipelineSource * otherSrc)
+{
+  lqSensorWidget* widget = this->findWidget(lidarSrc);
+  if(widget)
+  {
+    widget->SetSourceToDisplay(otherSrc);
+  }
+}
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorListWidget::getSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc)
+{
+  lqSensorWidget* widget = this->findWidget(lidarSrc);
+  if(widget)
+  {
+    return widget->GetSourceToDisplay();
+  }
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
 void lqSensorListWidget::onSelected(lqSensorWidget * widget)
 {
   // Un select all element
@@ -262,5 +284,12 @@ void lqSensorListWidget::onSelected(lqSensorWidget * widget)
   widget->setStyleSheet(QString("background-color:rgb(%1,%2,%3);")
                         .arg(colorSelectedWidget[0]).arg(colorSelectedWidget[1]).arg(colorSelectedWidget[2]));
 
-  pqActiveObjects::instance().setActiveSource(widget->GetLidarSource());
+  if(widget->GetSourceToDisplay())
+  {
+    pqActiveObjects::instance().setActiveSource(widget->GetSourceToDisplay());
+  }
+  else
+  {
+    pqActiveObjects::instance().setActiveSource(widget->GetLidarSource());
+  }
 }

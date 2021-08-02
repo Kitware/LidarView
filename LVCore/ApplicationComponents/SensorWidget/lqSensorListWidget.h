@@ -38,6 +38,11 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     void setPosOrSourceToLidarSourceWidget(pqPipelineSource * lidarSrc, pqPipelineSource * posOrSrc);
     pqPipelineSource* getPosOrSourceAssociatedToLidarSource(pqPipelineSource * lidarSrc);
 
+    // Setter and Getter for the SourceToDisplay associated to the lidar widget lidarSrc
+    // The SourceToDisplay is the source that will be selected in the pipeline browser when the widget is selected
+    void setSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc, pqPipelineSource * otherSrc);
+    pqPipelineSource* getSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc);
+
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
