@@ -130,6 +130,20 @@ bool lqSensorWidget::IsWidgetPositionOrientationSource(pqPipelineSource *src) co
 }
 
 //-----------------------------------------------------------------------------
+bool lqSensorWidget::IsWidgetSourceToDisplay(pqPipelineSource *src) const
+{
+  return this->SourceToDisplay == src;
+}
+
+//-----------------------------------------------------------------------------
+bool lqSensorWidget::IsAttachedToWidget(pqPipelineSource * src) const
+{
+  return this->IsWidgetLidarSource(src) ||
+         this->IsWidgetPositionOrientationSource(src) ||
+         this->IsAttachedToWidget(src);
+}
+
+//-----------------------------------------------------------------------------
 void lqSensorWidget::onCalibrate()
 {
   if(this->CalibrationFunction)

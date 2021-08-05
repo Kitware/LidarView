@@ -37,6 +37,9 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
 
     bool IsWidgetLidarSource(pqPipelineSource* src) const;
     bool IsWidgetPositionOrientationSource(pqPipelineSource *src) const;
+    bool IsWidgetSourceToDisplay(pqPipelineSource *src) const;
+
+    bool IsAttachedToWidget(pqPipelineSource *src) const;
 
     void SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function);
 

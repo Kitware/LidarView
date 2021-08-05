@@ -293,3 +293,37 @@ void lqSensorListWidget::onSelected(lqSensorWidget * widget)
     pqActiveObjects::instance().setActiveSource(widget->GetLidarSource());
   }
 }
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorListWidget::getActiveLidarSource()
+{
+  pqPipelineSource * activeSource = pqActiveObjects::instance().activeSource();
+
+  for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
+  {
+    lqSensorWidget* sw = this->sensorWidgets[index];
+
+    if(sw->IsAttachedToWidget(activeSource))
+    {
+      return sw->GetLidarSource();
+    }
+  }
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorListWidget::getActiveSourceToDisplay()
+{
+  pqPipelineSource * activeSource = pqActiveObjects::instance().activeSource();
+
+  for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
+  {
+    lqSensorWidget* sw = this->sensorWidgets[index];
+
+    if(sw->IsAttachedToWidget(activeSource))
+    {
+      return sw->GetSourceToDisplay();
+    }
+  }
+  return nullptr;
+}

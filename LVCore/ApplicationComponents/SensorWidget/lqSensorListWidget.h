@@ -43,6 +43,24 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     void setSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc, pqPipelineSource * otherSrc);
     pqPipelineSource* getSourceToDisplayToLidarSourceWidget(pqPipelineSource * lidarSrc);
 
+    /**
+     * @brief getActiveLidarSource
+     *        Get the Lidar Source associated to the selected pqPipelineSource
+     *        If the selected pqPipelineSource is not associated to a sensorWidget, nullptr is returned.
+     *        This allows to get the Lidar associated to the other source (as TrainlingFrame) Selected
+     * @return The LidarSource associated to the selected widget
+     */
+    pqPipelineSource* getActiveLidarSource();
+
+    /**
+     * @brief getActiveSourceToDisplay
+     *        Get the Source To Display associated to the selected pqPipelineSource
+     *        If the selected pqPipelineSource is not associated to a sensorWidget, nullptr is returned.
+     *        This allows to get the Source To Display (as trailing frame) associated to lidar source Selected
+     * @return The OtherSource associated to the selected widget
+     */
+    pqPipelineSource* getActiveSourceToDisplay();
+
   protected slots:
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
