@@ -699,6 +699,21 @@ QString vvCalibrationDialog::selectedCalibrationFile() const
 }
 
 //-----------------------------------------------------------------------------
+QString vvCalibrationDialog::selectedInterpreterName() const
+{
+  // Return first Checked RadioButton
+  Q_FOREACH(QRadioButton* button,  this->Internal->InterpreterBox->findChildren<QRadioButton*>())
+  {
+    if(button->isChecked()){
+      return button->objectName();
+    }
+  }
+  
+  // None Checked
+  return QString();
+}
+
+//-----------------------------------------------------------------------------
 bool vvCalibrationDialog::isCrashAnalysing() const
 {
   return this->Internal->CrashAnalysisCheckBox->isChecked();
@@ -940,7 +955,7 @@ void vvCalibrationDialog::addFile()
 
   pqFileDialog dial(
     pqActiveObjects::instance().activeServer(), pqCoreUtilities::mainWidget(),
-    tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)")
+    tr("Choose Calibration File"), defaultDir
   );
   dial.setObjectName("LidarFileCalibDialog");
   dial.setFileMode(pqFileDialog::ExistingFile);

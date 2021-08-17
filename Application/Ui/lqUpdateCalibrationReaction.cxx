@@ -109,6 +109,7 @@ void lqUpdateCalibrationReaction::setNetworkCalibration(vtkSMProxy * proxy, doub
 
 //-----------------------------------------------------------------------------
 void lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(vtkSMProxy * proxy,
+                                                                          QString interpreterName,
                                                                           QString calibrationFile)
 {
   if(IsLidarProxy(proxy))
@@ -123,21 +124,42 @@ void lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(vtkSMP
     vtkSMProxyProperty* proxyProperty =  vtkSMProxyProperty::SafeDownCast(interpreterProp);
     if (!proxyProperty)
     {
+      qCritical() << "LidarProxy has no Interpreter Property";
       return;
     }
 
     vtkSMProxyListDomain * proxyListDomain = vtkSMProxyListDomain::SafeDownCast(proxyProperty->FindDomain("vtkSMProxyListDomain"));
     if (!proxyListDomain)
     {
+      qCritical() << "LidarProxy Interpreter has no proxyListDomain";
       return;
     }
 
-    vtkSMProxy* defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneMetaPacketInterpreter");
-    if ((calibrationFile.contains("velarray", Qt::CaseInsensitive)))
-    {
-      defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneSpecialVelarrayPacketInterpreter");
+    // Choose Interpreter
+    // WIP Dawn of the Heterogeneous Sensors Features
+    // probably should detect Plugin loading state
+    vtkSMProxy* defaultProxy = nullptr;
+    if      (interpreterName == "interpreterRadio_hesai"){
+      // Set General Packet Interpreter based on SDK as default
+      defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "HesaiGeneralPacketInterpreter");
+      // Set Custom Interpreter for Pandar128 if name implies it
+      if ((calibrationFile.contains("Pandar128", Qt::CaseInsensitive)))
+      {
+        defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "HesaiPacketInterpreter");
+      }
+    }else if(interpreterName == "interpreterRadio_velodyne"){
+      // Set Meta Interpreter as Default
+      defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneMetaPacketInterpreter");
+      // Use SpecialVelarray if name implies it
+      if ((calibrationFile.contains("velarray", Qt::CaseInsensitive)))
+      {
+        defaultProxy = proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneSpecialVelarrayPacketInterpreter");
+      }
+    }else{
+      qCritical() << "Unknown Interpreter Type";
+      return;
     }
-
+    
     // Set the found proxy in the proxy list domain to the lidar property
     // This allows to update the "drop down" menu in the interpreter ui property
     vtkSMPropertyHelper(interpreterProp).Set(defaultProxy);
@@ -158,7 +180,7 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource* & lidarSou
   }
 
   // Set the calibration File and the lidar interpreter
-  lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(lidarProxy, dialog.selectedCalibrationFile());
+  lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(lidarProxy, dialog.selectedInterpreterName(), dialog.selectedCalibrationFile());
 
 
   // Set the transform of the lidar Sensor

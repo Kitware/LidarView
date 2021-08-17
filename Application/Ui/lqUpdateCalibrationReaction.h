@@ -29,7 +29,7 @@ public:
                                     bool isForwarding, QString ipAddressForwarding,
                                     bool isCrashAnalysing, bool multiSensors);
 
-  static void setCalibrationFileAndDefaultInterpreter(vtkSMProxy * proxy, QString calibrationFile);
+  static void setCalibrationFileAndDefaultInterpreter(vtkSMProxy * proxy, QString interpreterName ,QString calibrationFile);
 
 
   static void UpdateCalibration(pqPipelineSource* & lidarSource,
