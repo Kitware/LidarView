@@ -937,7 +937,7 @@ void vvCalibrationDialog::addFile()
       .toString();
 
   QString fileName = QFileDialog::getOpenFileName(
-    this, tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)"));
+    this, tr("Choose Calibration File"), defaultDir);
 
   if (fileName.isEmpty())
   {
