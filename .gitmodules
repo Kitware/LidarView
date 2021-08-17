@@ -8,3 +8,6 @@
 [submodule "Plugins/VelodynePlugin"]
 	path = Plugins/VelodynePlugin
 	url = https://gitlab.kitware.com/LidarView/velodyneplugin.git
+[submodule "Plugins/HesaiPlugin"]
+	path = Plugins/HesaiPlugin
+	url = ../HesaiPlugin
