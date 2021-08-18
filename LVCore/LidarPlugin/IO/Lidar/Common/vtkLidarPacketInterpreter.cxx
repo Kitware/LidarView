@@ -58,7 +58,7 @@ bool inside_interval_mod(double x, double a, double b, double mod)
 //-----------------------------------------------------------------------------
 bool vtkLidarPacketInterpreter::SplitFrame(bool force, FramingMethod_t framingMethodAskingForSplitFrame)
 {
-  if (force || this->FramingMethod == framingMethodAskingForSplitFrame)
+  if ((force || this->FramingMethod == framingMethodAskingForSplitFrame) && this->CurrentFrame)
   {
     const vtkIdType nPtsOfCurrentDataset= this->CurrentFrame->GetNumberOfPoints();
     if (this->IgnoreEmptyFrames && (nPtsOfCurrentDataset == 0) && !force)
