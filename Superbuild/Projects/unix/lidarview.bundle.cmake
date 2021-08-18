@@ -5,7 +5,7 @@ include(lidarview.bundle.common)
 include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/unix/LidarviewBundle.cmake)
 
 # Sensor calibration files
-file(GLOB shared_files "${superbuild_install_location}/share/*.xml")
+file(GLOB shared_files "${superbuild_install_location}/share/*.csv")
 install(FILES ${shared_files}
         DESTINATION "share"
         COMPONENT superbuild)

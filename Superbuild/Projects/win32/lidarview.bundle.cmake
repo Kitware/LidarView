@@ -10,7 +10,7 @@ list(APPEND lidarview_modules "${superbuild_install_location}/bin/VelodynePlugin
 include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/win32/LidarviewBundle.cmake)
 
 # Sensor calibration files
-file(GLOB shared_files "${superbuild_install_location}/share/*.xml")
+file(GLOB shared_files "${superbuild_install_location}/share/*.csv")
 install(FILES ${shared_files}
         DESTINATION "share"
         COMPONENT superbuild)
