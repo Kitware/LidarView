@@ -1229,6 +1229,19 @@ def start():
     restoreNativeFileDialogsAction()
     createRPMBehaviour()
 
+    ##############################
+    ### specific for SIDO DEMO ###
+    ##############################
+
+    # TODO hide all useless Menu and ToolBar
+
+    # start a stream
+    stream = smp.LidarStream()
+    stream.CalibrationFile = os.path.dirname(__file__) + "/../../../../share/correction_file_Pandar128.csv"
+
+    stream.Start()
+    smp.Show(stream)
+
 
 def findQObjectByName(widgets, name):
     for w in widgets:
