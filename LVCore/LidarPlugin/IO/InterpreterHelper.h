@@ -15,6 +15,8 @@
 #ifndef InterpreterHelper_h
 #define InterpreterHelper_h
 
+#include <vtkTable.h>
+
 //! @brief Simple getter that handles conversion to native unsigned integer types.
 #define GET_NATIVE_UINT(n, attr) uint ## n ##_t Get ## attr() const { return this->attr; }
 #define SET_NATIVE_UINT(n, attr) void Set ## attr(uint ## n ##_t x) { this->attr = x; }
@@ -35,5 +37,60 @@
 //! Insert a new bitfield value x into y.
 #define BF_SET(y, x, start, len)    ( y= ((y) &~ BF_MASK(start, len)) | BF_PREP(x, start, len) )
 
+template<typename T, typename I, typename U>
+void SetValueIfNotNull(T& array, I id, U value)
+{
+  if (array != nullptr)
+  {
+    array->SetValue(id, value);
+  }
+}
+
+template<typename T, typename U>
+void InsertNextValueIfNotNull(T& array, U value)
+{
+  if (array != nullptr)
+  {
+    array->InsertNextValue(value);
+  }
+}
+
+template<typename T, typename I, typename U>
+void InsertValueIfNotNull(T& array, I index, U value)
+{
+  if (array != nullptr)
+  {
+    array->InsertValue(index,value);
+  }
+}
+
+template<typename T, typename U>
+void AddArrayIfNotNull(T* holder, U& array)
+{
+  if (holder != nullptr && array != nullptr)
+  {
+    holder->AddArray(array);
+  }
+}
+
+template<typename T, typename U>
+void AddArrayIfNotEmpty(T* holder, U& array)
+{
+  if (holder != nullptr && array != nullptr && array->GetNumberOfValues() != 0)
+  {
+    holder->AddArray(array);
+  }
+}
+
+template <typename T>
+void AddArrayToTableIfNotNull(T& array, vtkTable* table, char const * name)
+{
+  if (table != nullptr)
+  {
+    array = T::New();
+    array->SetName(name);
+    table->AddColumn(array);
+  }
+}
 
 #endif // InterpreterHelper_h
