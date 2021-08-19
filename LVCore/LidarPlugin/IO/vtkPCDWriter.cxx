@@ -211,11 +211,18 @@ void vtkPCDWriter::WriteBody(vtkPolyData* polydata, ofstream& file)
         int dataType = array->GetDataType();
         for (int k = 0; k < array->GetNumberOfComponents(); ++k)
         {
-          switch (dataType)
+          if(dataType == VTK_UNSIGNED_CHAR)
           {
-            vtkTemplateAliasMacro(file << " " << static_cast<VTK_TT>(array->GetComponent(i,k)));
-            default:
-              vtkErrorMacro("unknow vtk type encountered in array " << array->GetName());
+            file << " " << static_cast<int>(array->GetComponent(i,k));
+          }
+          else
+          {
+            switch (dataType)
+            {
+              vtkTemplateAliasMacro(file << " " << static_cast<VTK_TT>(array->GetComponent(i,k)));
+              default:
+                vtkErrorMacro("unknow vtk type encountered in array " << array->GetName());
+            }
           }
         }
       }
