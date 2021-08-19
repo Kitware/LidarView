@@ -140,7 +140,7 @@ bool lqSensorWidget::IsAttachedToWidget(pqPipelineSource * src) const
 {
   return this->IsWidgetLidarSource(src) ||
          this->IsWidgetPositionOrientationSource(src) ||
-         this->IsAttachedToWidget(src);
+         this->IsWidgetSourceToDisplay(src);
 }
 
 //-----------------------------------------------------------------------------
