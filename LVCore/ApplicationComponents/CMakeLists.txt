@@ -66,6 +66,11 @@ add_library(lqApplicationComponents
   SaveLidarFrame/lqSelectLidarFrameDialog.cxx
   SaveLidarFrame/lqSelectLidarFrameDialog.h
   SaveLidarFrame/lqSelectLidarFrameDialog.ui
+  SaveLidarFrame/SaveAsLas/lqSaveLASReaction.cxx
+  SaveLidarFrame/SaveAsLas/lqSaveLASReaction.h
+  SaveLidarFrame/SaveAsLas/lqSaveLASDialog.cxx
+  SaveLidarFrame/SaveAsLas/lqSaveLASDialog.h
+  SaveLidarFrame/SaveAsLas/lqSaveLASDialog.ui
   lqResources.qrc
   )
 target_include_directories(lqApplicationComponents PUBLIC
@@ -76,6 +81,7 @@ target_include_directories(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/LidarCameraToolbar/
   ${CMAKE_CURRENT_SOURCE_DIR}/SensorWidget/
   ${CMAKE_CURRENT_SOURCE_DIR}/SaveLidarFrame/
+  ${CMAKE_CURRENT_SOURCE_DIR}/SaveLidarFrame/SaveAsLas/
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 target_sources(lqApplicationComponents PUBLIC
