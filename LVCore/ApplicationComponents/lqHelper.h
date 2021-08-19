@@ -41,6 +41,13 @@ bool IsPositionOrientationStream(pqPipelineSource* src);
 bool IsLidarStream(pqPipelineSource* src);
 
 /**
+ * @brief IsLidarReader return true if the src is a LidarReader
+ * @param src to test
+ * @return true if the src is a LidarReader
+ */
+bool IsLidarReader(pqPipelineSource* src);
+
+/**
  * @brief IsLidarProxy return true if the proxy is a LidarReader or a LidarStream
  * @param proxy to test
  * @return true if the proxy is a LidarReader or a LidarStream
@@ -164,6 +171,13 @@ void DisplayDialogOnActiveWindow(QDialog & dialog);
 void GetAllLinkedSources(pqPipelineSource * originSource,
                          QSet<pqPipelineSource*>& consumerListSources);
 
+/**
+ * @brief GetFrameIndexOfTimestamp Get the Frame index of a given timestamp in the application
+ * @param timestamp timestamp to get the number of frame
+ * @return the frame index associated to timestamp in the application
+ */
+int GetFrameIndexOfTimestamp(double timestamp);
+
 
 template<typename T>
 bool IsProxy(vtkSMProxy * proxy)
@@ -177,6 +191,32 @@ bool IsProxy(vtkSMProxy * proxy)
     }
   }
   return false;
+}
+
+
+template<typename T>
+std::vector<vtkSMProxy*> GetProxies()
+{
+  std::vector<vtkSMProxy*> proxys;
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  if(smmodel == nullptr)
+  {
+    return proxys;
+  }
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    if(IsProxy<T*>(src->getProxy()))
+    {
+      proxys.push_back(src->getProxy());
+    }
+  }
+  return proxys;
+}
+
+template<typename T>
+bool HasProxy()
+{
+  return !GetProxies<T>().empty();
 }
 
 template<typename T>

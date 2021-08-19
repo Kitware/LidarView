@@ -1,5 +1,9 @@
 #include "lqHelper.h"
 
+#include <pqPVApplicationCore.h>
+#include <pqAnimationManager.h>
+#include <pqAnimationScene.h>
+
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMessageBox>
@@ -28,6 +32,12 @@ bool IsPositionOrientationStream(pqPipelineSource* src)
 bool IsLidarStream(pqPipelineSource* src)
 {
   return ( src != nullptr && IsLidarStreamProxy(src->getProxy()));
+}
+
+//-----------------------------------------------------------------------------
+bool IsLidarReader(pqPipelineSource* src)
+{
+  return ( src != nullptr && IsLidarReaderProxy(src->getProxy()));
 }
 
 //-----------------------------------------------------------------------------
@@ -317,4 +327,30 @@ void GetAllLinkedSources(pqPipelineSource * originSource,
     consumerListSources.insert(src);
     GetAllLinkedSources(src, consumerListSources);
   }
+}
+
+//-----------------------------------------------------------------------------
+int GetFrameIndexOfTimestamp(double timestamp)
+{
+  pqAnimationManager* mgr = pqPVApplicationCore::instance()->animationManager();
+  pqAnimationScene* scene = mgr->getActiveScene();
+  QList<double> allTimes = scene->getTimeSteps();
+
+  // If the indexFrame is the last frame, we don't have to test anything else.
+  // The condition depending of indexFrame+1 will never be tested in that case.
+  // In LV, the frame number change when the middle between 2 timesteps is reached :
+  // For example, if we have 3 frames:
+  // frame 0 at time 1.12, frame 1 at time 1.22 and frame 2 at time 1.32
+  // frame 0 is from time 1.12 to 1.17
+  // frame 1 is from 1.18 to 1.27
+  // frame 2 "starts" at time 1.28
+  int indexFrame = 0;
+  while(allTimes.size() > 0 &&
+        indexFrame != allTimes.size() -1 &&
+        timestamp > allTimes[indexFrame] &&
+        timestamp >= ((allTimes[indexFrame] + allTimes[indexFrame+1]) / 2) )
+  {
+    indexFrame++;
+  }
+  return indexFrame;
 }
