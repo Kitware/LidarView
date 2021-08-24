@@ -37,6 +37,46 @@
 //! Insert a new bitfield value x into y.
 #define BF_SET(y, x, start, len)    ( y= ((y) &~ BF_MASK(start, len)) | BF_PREP(x, start, len) )
 
+//------------------------------------------------------------------------------
+/*!
+ * @brief         Initialize an array for datapoint attributes and add it to the
+ *                polyData.
+ * @tparam        T                         The type of the array. This is templated so
+ *                                          that the caller does not need to consider the
+ *                                          type, which may change with the
+ *                                          specification.
+ * @param[in]     isAdvanced                The variable used to defined the current array as advanced 
+ * @param[in,out] array                     The input array.
+ * @param[in]     name                      The name of the array to be created
+ * @param[in]     np                        The number of elements that the array must be
+ *                                          able to hold after initialization.
+ * @param[in]     prereservedNp             The number of elements to prereserve.
+ * @param[out]    pd                        The PolyData instance to which the array
+ *                                          should be added.
+ * @param[in]     isAdvancedArrayEnabled    The current advanced array status
+ */
+template<typename T>
+void InitArrayForPolyData(bool isAdvanced, T& array, const char* name, vtkIdType np, vtkIdType prereservedNp, vtkPolyData* pd, bool isAdvancedArrayEnabled = false)
+{
+  if (isAdvanced && !isAdvancedArrayEnabled)
+  {
+    array = nullptr;
+    return;
+  }
+
+  array = T::New();
+  array->Allocate(prereservedNp);
+  array->SetName(name);
+  if (np > 0)
+  {
+    array->SetNumberOfTuples(np);
+  }
+  if (pd)
+  {
+    pd->GetPointData()->AddArray(array);
+  }
+}
+
 template<typename T, typename I, typename U>
 void SetValueIfNotNull(T& array, I id, U value)
 {
