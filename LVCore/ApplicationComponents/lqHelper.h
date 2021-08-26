@@ -179,6 +179,12 @@ void GetAllLinkedSources(pqPipelineSource * originSource,
 int GetFrameIndexOfTimestamp(double timestamp);
 
 
+/**
+ * @brief IsProxy Test if a vtkSMProxy can be cast into a type T
+ * @param T cast type to test
+ * @param proxy vtkSMProxy to test
+ * @return true if the proxy can be cast in type T
+ */
 template<typename T>
 bool IsProxy(vtkSMProxy * proxy)
 {
@@ -193,7 +199,11 @@ bool IsProxy(vtkSMProxy * proxy)
   return false;
 }
 
-
+/**
+ * @brief GetProxies Get all vtkSMProxy that can be cast into a type T in the pipeline
+ * @param T cast type to test
+ * @return vector of all vtkSMProxies of the pipeline that can be cast in type T
+ */
 template<typename T>
 std::vector<vtkSMProxy*> GetProxies()
 {
@@ -213,12 +223,24 @@ std::vector<vtkSMProxy*> GetProxies()
   return proxys;
 }
 
+
+/**
+ * @brief HasProxy Test if there is proxies that can be cast in T in the pipeline
+ * @param T cast type to test
+ * @return true if there is at least one proxy that can be cast into t in the pipeline
+ */
 template<typename T>
 bool HasProxy()
 {
   return !GetProxies<T>().empty();
 }
 
+
+/**
+ * @brief RemoveAllProxyTypeFromPipelineBrowser
+ *        Delete all sources of the pipeline that can be cast in T
+ * @param T type of the sources to remove
+ */
 template<typename T>
 void RemoveAllProxyTypeFromPipelineBrowser()
 {
