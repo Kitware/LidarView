@@ -313,11 +313,6 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     if not app.grid :
         app.grid = createGrid()
 
-    sensor.Interpreter.UseIntraFiringAdjustment = app.actions['actionIntraFiringAdjust'].isChecked()
-    sensor.Interpreter.IgnoreZeroDistances = app.actions['actionIgnoreZeroDistances'].isChecked()
-    sensor.Interpreter.HideDropPoints = app.actions['actionHideDropPoints'].isChecked()
-    sensor.Interpreter.IgnoreEmptyFrames = app.actions['actionIgnoreEmptyFrames'].isChecked()
-
     sensor.UpdatePipeline()
 
     if gpsProxyName:
