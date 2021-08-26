@@ -262,4 +262,42 @@ void RemoveAllProxyTypeFromPipelineBrowser()
   pqDeleteReaction::deleteSources(sources);
 }
 
+
+/**
+ * @brief GetLidarProxyOfInterpreter
+ *        Find the lidarProxy of type T (lidarReader or lidarStream)
+ *        that have for interpreter specificInterpreter
+ * @param proxyType type of the proxy to return
+ * @param interpreterType type of the specificInterpreter
+ * @return the VTKSMProxy of type proxyType that have for interpreter specificInterpreter
+ */
+//-----------------------------------------------------------------------------
+template<typename proxyType, typename interpreterType>
+vtkSMProxy * GetLidarProxyOfInterpreter(vtkSmartPointer<interpreterType> specificInterpreter)
+{
+  std::vector<vtkSMProxy*> lidarProxies = GetProxies<proxyType>();
+  for (vtkSMProxy* lidarProxy : lidarProxies)
+  {
+    vtkSMProperty* interpProp = lidarProxy->GetProperty("PacketInterpreter");
+    if(!interpProp)
+    {
+      continue;
+    }
+
+    vtkSMProxy * interpProxy = vtkSMPropertyHelper(interpProp).GetAsProxy();
+    if(!interpProxy)
+    {
+      continue;
+    }
+
+    vtkSmartPointer<interpreterType> interp =
+        interpreterType::SafeDownCast(interpProxy->GetClientSideObject());
+    if(interp && interp == specificInterpreter)
+    {
+      return lidarProxy;
+    }
+  }
+  return nullptr;
+}
+
 #endif // LQHELPER_H
