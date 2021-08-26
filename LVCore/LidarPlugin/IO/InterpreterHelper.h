@@ -15,6 +15,8 @@
 #ifndef InterpreterHelper_h
 #define InterpreterHelper_h
 
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkTable.h>
 
 //! @brief Simple getter that handles conversion to native unsigned integer types.
