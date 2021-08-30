@@ -1,7 +1,7 @@
 cmake_dependent_option(Boost_NO_BOOST_CMAKE "Boost_NO_BOOST_CMAKE" ON "NOT USE_SYSTEM_boost" OFF)
 
 superbuild_add_project(lidarview
-  DEPENDS cxx11 paraview qt5 pcap boost eigen liblas yaml python python3 pythonqt
+  DEPENDS cxx11 paraview qt5 pcap boost eigen liblas yaml python3 pythonqt
   DEPENDS_OPTIONAL pcl ceres opencv nanoflann g2o
   DEFAULT_ON
   CMAKE_ARGS
