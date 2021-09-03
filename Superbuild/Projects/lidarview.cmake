@@ -1,5 +1,3 @@
-cmake_dependent_option(Boost_NO_BOOST_CMAKE "Boost_NO_BOOST_CMAKE" ON "NOT USE_SYSTEM_boost" OFF)
-
 superbuild_add_project(lidarview
   DEPENDS cxx11 paraview qt5 pcap boost eigen liblas yaml python3 pythonqt
   DEPENDS_OPTIONAL pcl ceres opencv nanoflann g2o
@@ -14,7 +12,6 @@ superbuild_add_project(lidarview
     -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
     -Dparaview_version=${paraview_version}
     -Dqt_version:STRING=${qt_version}
-    -DBoost_NO_BOOST_CMAKE:BOOL=${Boost_NO_BOOST_CMAKE}
     #$lidarview_appname dependencies options
     -DENABLE_pcl=${ENABLE_pcl}
     -DENABLE_ceres=${ENABLE_ceres}
