@@ -1,6 +1,7 @@
 #include "Common/Network/vtkPacketFileReader.h"
 
 #include <iostream>
+#include <algorithm>
 #include <boost/endian/arithmetic.hpp>
 
 bool IPHeaderFunctions::getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo)
