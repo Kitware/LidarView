@@ -8,3 +8,6 @@
 [submodule "Plugins/VelodynePlugin"]
 	path = Plugins/VelodynePlugin
 	url = ../VelodynePlugin
+[submodule "Plugins/HesaiPlugin"]
+	path = Plugins/HesaiPlugin
+	url = ../HesaiPlugin
