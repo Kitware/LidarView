@@ -23,14 +23,6 @@ endif()
 install(SCRIPT "LVCore/CMake/scripts/lidarview.osx-rpath.cmake")
 ]]
 
-# Patch ZLIB RPATH on Unix/OSX
-# this is applied on LidarView app and tests
-# for more information see comments in lidarview.unix-zlib-link.cmake
-if(UNIX AND NOT APPLE)
-  message(WARNING "Forcing zlib.1.2.11 NEEDED using `patchelf` in Lidarplugin to avoid PCL/QT conflicts")
-  install(SCRIPT "LVCore/CMake/scripts/lidarview.unix-zlib-link.cmake")
-endif()
-
 # Generate Configuration File (Plugins AutoLoad) #wipwip will mostlikely need to fecth them from builddir/LV_PLUGIN_INSTALL_SUBRID
 # Example : 'install/bin/LidarView.conf' must contain '../lib/plugins/lidarview.plugins.xml'
 set(genconf_script "GenerateConfiguration.cmake")
