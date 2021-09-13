@@ -104,6 +104,12 @@ LiDAR data samples for LidarView can be obtained from:
 * [MIDAS](http://www.midasplatform.org/) in the [Velodyne LiDAR collection](http://midas3.kitware.com/midas/community/29)
 * Kitware's demos shared [drive](https://drive.google.com/drive/folders/1yrNUelUsjKcXdC8FH8DpXeOPTyiB_pLS?usp=sharing)
 
+# For Github users
+[Github](https://github.com/Kitware/LidarView) is a mirror of the
+[official repository](https://gitlab.kitware.com/LidarView/LidarView).
+We do not actively monitor issues or pull request on Github. Please use the
+[official repository](https://gitlab.kitware.com/LidarView/LidarView) to report issues or contributes fixes.
+
 # License
 
 The source code for LidarView is made available under the Apache 2.0 license.
