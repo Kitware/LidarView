@@ -5,6 +5,12 @@ the temporal_animation_cue_helpers lib to follow a camera path along time.
 You can run this script with the command:
 `./install/bin/LidarView --script=${LV_SOURCES}/LVCore/Utilities/Animation/examples/example_temporal_animation.py`
 
+In order to generate the video frm the images saved by this script, use:
+
+```
+ffmpeg  -i <out folder>/<pcap_file basename>/%06d.png -c:v libx264  -pix_fmt yuv420p -filter:v fps=00 <output video path> -loglevel error
+
+```
 It has been tested and tuned on the LiDAR dataset from la-doua-22-03.
 """
 import os
