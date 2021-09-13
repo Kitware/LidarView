@@ -76,7 +76,7 @@ class AppLogic(object):
         self.relativeTransform = False
 
         self.reader = None
-        self.trailingFrame = None
+        self.trailingFrame = []
         self.position = None
         self.sensor = None
 
@@ -356,7 +356,7 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     updateUIwithNewLidar()
 
 
-def UpdateApplogicReader(lidarName, posOrName):
+def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
 
     reader = smp.FindSource(lidarName)
 
@@ -372,7 +372,10 @@ def UpdateApplogicReader(lidarName, posOrName):
     reader.UpdatePipelineInformation()
     app.reader = reader
     app.trailingFramesSpinBox.enabled = True
-    app.trailingFrame = smp.TrailingFrame(guiName="TrailingFrame", Input=getLidar(), NumberOfTrailingFrames=app.trailingFramesSpinBox.value)
+    current_trailingFrame = smp.FindSource(trailingFrameName)
+    if not current_trailingFrame :
+        return
+    current_trailingFrame.NumberOfTrailingFrames=app.trailingFramesSpinBox.value
 
     filename = reader.FileName
     displayableFilename = os.path.basename(filename)
@@ -420,7 +423,7 @@ def UpdateApplogicReader(lidarName, posOrName):
 
     smp.SetActiveView(app.mainView)
 
-    showSourceInSpreadSheet(app.trailingFrame)
+    showSourceInSpreadSheet(current_trailingFrame)
 
     enableSaveActions()
 
@@ -431,9 +434,8 @@ def UpdateApplogicReader(lidarName, posOrName):
     app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
 
-    setDefaultLookupTables(app.trailingFrame)
-    smp.Show(app.trailingFrame)
-    smp.SetActiveSource(app.trailingFrame)
+    setDefaultLookupTables(current_trailingFrame)
+    app.trailingFrame.append(current_trailingFrame)
     updateUIwithNewLidar()
 
 
@@ -959,7 +961,7 @@ def close():
     app.scene.AnimationTime = 0
     app.reader = None
     app.sensor = None
-    app.trailingFrame = None
+    app.trailingFrame = []
     smp.Delete(app.grid)
 
     smp.HideUnusedScalarBars()
@@ -971,7 +973,7 @@ def close():
 
 
 def _setSaveActionsEnabled(enabled):
-    for action in ('SaveCSV', 'SavePCAP', 'SaveLAS', 'Export_To_KiwiViewer',
+    for action in ('SavePCAP', 'Export_To_KiwiViewer',
                    'Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
@@ -1028,7 +1030,7 @@ def unloadData():
             smp.Delete(src)
 
     app.reader = None
-    app.trailingFrame = None
+    app.trailingFrame = []
     app.position = None
     app.sensor = None
 
@@ -1258,8 +1260,7 @@ def addShortcuts(keySequenceStr, function):
 
 
 def onTrailingFramesChanged(numFrames):
-    tr = smp.FindSource("TrailingFrame")
-    if tr:
+    for tr in app.trailingFrame :
         tr.NumberOfTrailingFrames = numFrames
         smp.Render()
 
@@ -1400,9 +1401,7 @@ def setupActions():
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
 
     app.actions['actionClose'].connect('triggered()', close)
-    app.actions['actionSaveCSV'].connect('triggered()', onSaveCSV)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
-    app.actions['actionSaveLAS'].connect('triggered()', onSaveLAS)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
     app.actions['actionExport_To_KiwiViewer'].connect('triggered()', onKiwiViewerExport)
