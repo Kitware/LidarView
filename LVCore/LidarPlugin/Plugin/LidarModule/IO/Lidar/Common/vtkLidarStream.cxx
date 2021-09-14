@@ -19,9 +19,9 @@
 
 #include <sstream>
 
-#include <boost/filesystem.hpp>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarStream)
@@ -56,12 +56,12 @@ void vtkLidarStream::SetCalibrationFileName(const std::string &filename)
     return;
   }
 
-  if (!boost::filesystem::exists(filename) ||
-    boost::filesystem::is_directory(filename))
+  if (!vtksys::SystemTools::FileExists(filename) ||
+    vtksys::SystemTools::FileIsDirectory(filename))
   {
     std::ostringstream errorMessage("Invalid sensor configuration file ");
     errorMessage << filename << ": ";
-    if (!boost::filesystem::exists(filename))
+    if (!vtksys::SystemTools::FileExists(filename))
     {
       errorMessage << "File not found!";
     }

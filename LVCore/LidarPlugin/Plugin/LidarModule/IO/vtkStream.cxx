@@ -17,7 +17,7 @@
 
 #include "IO/vtkStream.h"
 
-#include <boost/filesystem.hpp>
+#include <vtksys/SystemTools.hxx>
 
 #include "PacketConsumer.h"
 #include "PacketFileWriter.h"
@@ -26,10 +26,8 @@
 std::unique_ptr<PacketFileWriter> vtkStream::WriterThread = nullptr;
 
 namespace {
-std::string GetCrashAnalysingFileName()
+bool GetCrashAnalysingFileName(std::string& appDir)
 {
-  std::string appDir;
-
   // the home directory path is contained in the HOME environment variable on UNIX systems
   if (getenv("HOME"))
   {
@@ -50,21 +48,18 @@ std::string GetCrashAnalysingFileName()
     appDir += "LastData";
   }
 
-  try
+  // Checking if the application directory exists in the home directory and create it otherwise
+  if (!vtksys::SystemTools::FileIsDirectory(appDir))
   {
-    // Checking if the application directory exists in the home directory and create it otherwise
-    boost::filesystem::path appDirPath(appDir.c_str());
-
-    if (!boost::filesystem::is_directory(appDirPath))
-    {
-      boost::filesystem::create_directories(appDirPath);
+    bool success = vtksys::SystemTools::MakeDirectory(appDir.c_str());	
+    if(!success){
+      std::cout << "Failed to create directory for crash analysis" << std::endl;
+      return false;
     }
+
   }
-  catch (std::exception const& e)
-  {
-    std::cout << "Failed to create directory for crash analysis : " << e.what() << std::endl;
-  }
-  return appDir;
+
+  return true;
 }
 }
 
@@ -187,7 +182,12 @@ void vtkStream::Start()
   }
   if (this->IsCrashAnalysing)
   {
-    this->ReceiverThread->EnableCrashAnalysing(GetCrashAnalysingFileName(), 5000);
+    std::string appDir;
+    bool success = GetCrashAnalysingFileName(appDir);
+    if(!success){
+      vtkErrorMacro("Unable to get Crash Analysis file");  
+    }
+    this->ReceiverThread->EnableCrashAnalysing(appDir, 5000);
   }
   this->ReceiverThread->SetFakeManufacturerMACAddress(this->Interpreter->GetManufacturerMACAddress());
 

@@ -1,7 +1,6 @@
 #include "vtkLidarReader.h"
 
 #include <sstream>
-#include <boost/filesystem.hpp>
 
 #include "Common/Network/vtkPacketFileWriter.h"
 #include "Common/Network/vtkPacketFileReader.h"
@@ -10,6 +9,7 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
 vtkLidarReader::vtkLidarReader()
@@ -541,12 +541,12 @@ void vtkLidarReader::SetCalibrationFileName(const std::string &filename)
     return;
   }
 
-  if (!boost::filesystem::exists(filename) ||
-    boost::filesystem::is_directory(filename))
+  if (!vtksys::SystemTools::FileExists(filename) ||
+    vtksys::SystemTools::FileIsDirectory(filename))
   {
     std::ostringstream errorMessage("Invalid sensor configuration file ");
     errorMessage << filename << ": ";
-    if (!boost::filesystem::exists(filename))
+    if (!vtksys::SystemTools::FileExists(filename))
     {
       errorMessage << "File not found!";
     }
