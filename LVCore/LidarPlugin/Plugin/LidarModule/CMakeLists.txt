@@ -256,7 +256,6 @@ list(APPEND lidarplugin_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketReceiver.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketFileWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/Lidar/Common/PacketConsumer.cxx
-  ${CMAKE_CURRENT_SOURCE_DIR}/IO/FramesSeriesUtils.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/NMEAParser.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Common/GPSProjectionUtils.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/CategoriesConfig.cxx
@@ -475,6 +474,10 @@ target_link_libraries(PCAPSeparator LINK_PUBLIC LidarModule)
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
 #-----------------------------------------------------------------------------
+# Tools for point cloud/image segmentation, IO/FramesSeriesUtils.cxx
+# Code has hardly been maintained, This is kept for future reference only
+# A rewrite in Python would make those tools easier to use
+#[[
 # ImageDetections
 cmake_dependent_option(LIDARVIEW_BUILD_IMGDETECTIONS "Build ImageDetections" ON "PCL_FOUND;OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_IMGDETECTIONS)
@@ -493,7 +496,7 @@ if (LIDARVIEW_BUILD_POSTPROCLABELCLOUD)
   target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarModule)
 
 endif()
-
+]]
 #-----------------------------------------------------------------------------
 # Option to build some tests
 #-----------------------------------------------------------------------------
