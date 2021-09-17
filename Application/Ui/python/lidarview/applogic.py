@@ -1233,8 +1233,6 @@ def start():
     ### specific for SIDO DEMO ###
     ##############################
 
-    # TODO hide all useless Menu and ToolBar
-
     # start a stream
     stream = smp.LidarStream()
     stream.CalibrationFile = os.path.dirname(__file__) + "/../../../../share/correction_file_Pandar128.csv"
@@ -1384,6 +1382,19 @@ def onToogleAdvancedGUI(updateSettings = True):
   # hide/show Advance menu
   menuAdvance = getMainWindow().findChild("QMenu", "menuAdvance").menuAction()
   menuAdvance.visible = not menuAdvance.visible
+
+  ##############################
+  ### specific for SIDO DEMO ###
+  ##############################
+  menuViews = getMainWindow().findChild("QMenu", "menuViews").menuAction()
+  menuViews.visible = not menuViews.visible
+  getMainWindow().showFullScreen()
+  getMainWindow().statusBar().setVisible(menuAdvance.visible)
+  getMainWindow().findChild("QToolBar", "toolBar").setVisible(menuAdvance.visible)
+  getMainWindow().findChild("lqColorToolbar", "colorToolBar").setVisible(menuAdvance.visible)
+  getMainWindow().findChild("QToolBar", "viewSettings").setVisible(menuAdvance.visible)
+  getMainWindow().findChild("QToolBar", "geolocationToolbar").setVisible(menuAdvance.visible)
+
   # hide/show view decorator
   getMainWindow().centralWidget().toggleWidgetDecoration()
   # update the UserSettings
