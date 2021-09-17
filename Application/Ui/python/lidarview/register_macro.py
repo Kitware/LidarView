@@ -62,6 +62,14 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     if tf:
         Delete(tf)
 
+    # Delete last vtpPlanesData and vtpEdgesData if exists
+    pdReader1 = FindSource("XMLPolyDataReader1")
+    if pdReader1:
+        Delete(pdReader1)
+    pdReader2 = FindSource("XMLPolyDataReader2")
+    if pdReader2:
+        Delete(pdReader2)
+
     view = GetActiveView()
     if view is None:
         view = CreateView("DemoView")
