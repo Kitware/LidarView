@@ -39,6 +39,7 @@ from PythonQt.paraview import vvCalibrationDialog, vvCropReturnsDialog, vvSelect
 import LidarPluginPython
 
 import lidarview.planefit as planefit
+import lidarview.register_macro as register_macro
 
 
 _repCache = {}
@@ -160,6 +161,8 @@ def openData(filename):
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
+def registerMacro():
+    register_macro.run()
 
 def findPresetByName(name):
     presets = servermanager.vtkSMTransferFunctionPresets()
@@ -1445,7 +1448,7 @@ def setupActions():
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
-
+    app.actions['actionRegisterMacro'].connect('triggered()', registerMacro)
     # Restore action states from settings
     settings = getPVSettings()
 

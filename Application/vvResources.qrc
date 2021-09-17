@@ -19,5 +19,6 @@
         <file>Icons/errorConsole.png</file>
         <file>Icons/camera_logo.png</file>
         <file>Icons/icon_motion.png</file>
+        <file>registerDialog.ui</file>
     </qresource>
 </RCC>

@@ -206,6 +206,18 @@
    </attribute>
    <addaction name="actionShowPosition"/>
   </widget>
+  <widget class="QToolBar" name="Macros toolBars">
+   <property name="windowTitle">
+    <string>Geolocation Controls</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionRegisterMacro"/>
+  </widget>
   <widget class="QDockWidget" name="colorMapEditorDock">
    <property name="windowTitle">
     <string>Color Map Editor</string>
@@ -773,6 +785,14 @@
    </property>
    <property name="toolTip">
     <string>Show the GPS Track</string>
+   </property>
+  </action>
+  <action name="actionRegisterMacro">
+   <property name="icon">
+    <iconset theme="RegisterMacro"/>
+   </property>
+   <property name="text">
+    <string>RegisterMacro</string>
    </property>
   </action>
  </widget>

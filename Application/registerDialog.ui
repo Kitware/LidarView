@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>547</width>
-    <height>177</height>
+    <height>250</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -61,142 +61,185 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="lidarModeLabel_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>LidarMode</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="lidarModeComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>16</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>Stream</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Reader</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="pcapFilenameLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>PcapFilename</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="pcapFilenameLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="calibFilenameLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>CalibFilename</string>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="calibFilenameLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="1">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="lidarModeLabel_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>LidarMode</string>
-         </property>
-         <property name="openExternalLinks">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="lidarModeComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>20</width>
-           <height>16</height>
-          </size>
-         </property>
-         <item>
-          <property name="text">
-           <string>Stream</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Reader</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="6">
-      <widget class="QLabel" name="zLabel">
-       <property name="text">
-        <string>z</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="7">
-      <widget class="QDoubleSpinBox" name="zSpinBox"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="rollLabel">
-       <property name="text">
-        <string>roll</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
-      <widget class="QDoubleSpinBox" name="xSpinBox"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="xLabel">
-       <property name="text">
-        <string>x</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="7">
-      <widget class="QDoubleSpinBox" name="yawSpinBox"/>
-     </item>
-     <item row="0" column="5">
-      <widget class="QDoubleSpinBox" name="ySpinBox"/>
-     </item>
-     <item row="1" column="3">
-      <widget class="QDoubleSpinBox" name="rollSpinBox"/>
-     </item>
-     <item row="1" column="4">
-      <widget class="QLabel" name="pitchLabel">
-       <property name="text">
-        <string>Pitch</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QDoubleSpinBox" name="pitchSpinBox"/>
-     </item>
-     <item row="0" column="4">
       <widget class="QLabel" name="yLabel">
        <property name="text">
         <string>y</string>
        </property>
       </widget>
      </item>
+     <item row="0" column="6">
+      <widget class="QDoubleSpinBox" name="zSpinBox"/>
+     </item>
+     <item row="1" column="6">
+      <widget class="QDoubleSpinBox" name="yawSpinBox"/>
+     </item>
+     <item row="0" column="4">
+      <widget class="QDoubleSpinBox" name="ySpinBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="rollLabel">
+       <property name="text">
+        <string>roll</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
-      <widget class="Line" name="line">
+      <widget class="QLabel" name="xLabel">
+       <property name="text">
+        <string>x</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QDoubleSpinBox" name="rollSpinBox"/>
+     </item>
+     <item row="1" column="4">
+      <widget class="QDoubleSpinBox" name="pitchSpinBox"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="Line" name="line_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="1" column="6">
+     <item row="0" column="2">
+      <widget class="QDoubleSpinBox" name="xSpinBox"/>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLabel" name="pitchLabel">
+       <property name="text">
+        <string>Pitch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QLabel" name="zLabel">
+       <property name="text">
+        <string>z</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
       <widget class="QLabel" name="yawLabel">
        <property name="text">
         <string>Yaw</string>
        </property>
       </widget>
-     </item>
-     <item row="2" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
      </item>
     </layout>
    </item>
