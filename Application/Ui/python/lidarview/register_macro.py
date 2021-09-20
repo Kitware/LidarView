@@ -240,11 +240,12 @@ def run():
     # ----------------------------------------PCAP params------------------------------------------------
     # Initial Pcap filename to use in lidar Reader mode
     initialPcapFilename = "/home/jerome/Dev/data/hesai/128_OPENROAD.pcap"
+    calibFilenameToFind = "correction_file_Pandar128.csv"
 
     # Velodyne
-    # initialCalibFilename = os.path.join(os.getcwd(), "..", "share", "VLP-16.xml")
+    # initialCalibFilename = os.path.join(os.getcwd(), "..", "share", calibFilenameToFind)
     # if not(os.path.isfile(initialCalibFilename)):
-    #     initialCalibFilename = os.path.join(os.getcwd(), "share", "VLP-16.xml")
+    #     initialCalibFilename = os.path.join(os.getcwd(), "share", calibFilenameToFind)
     # initialInterpreter = 'Velodyne Meta Interpreter'
 
     # Ouster
@@ -252,7 +253,12 @@ def run():
     # initialInterpreter = 'Ouster Interpreter'
 
     # Hesai
-    initialCalibFilename = "/home/jerome/Dev/data/hesai/correction_ file_Pandar128.csv"
+    initialCalibFilename = os.path.join(os.getcwd(), "..", "share", calibFilenameToFind)
+    if not(os.path.isfile(initialCalibFilename)):
+        initialCalibFilename = os.path.join(os.getcwd(), "share", calibFilenameToFind)
+    
+    if not(os.path.isfile(initialCalibFilename)):
+        initialCalibFilename = ""
     initialInterpreter = 'Hesai Packet Interpreter'
 
     # ------------------------------------Get inputs from dialog-----------------------------------------
