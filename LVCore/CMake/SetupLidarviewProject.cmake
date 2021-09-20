@@ -19,7 +19,7 @@ cmake_policy(SET CMP0057 NEW) #if() supports IN_LIST #ParaviewPlugin.cmake
 #This allows incremental build within the ExternalProject dir `lidarview-sb/common-sb/lidarview/build`
 set(SOFTWARE_NAME   ${SOFTWARE_NAME}   CACHE INTERNAL "LidarView-Based app name")
 set(SOFTWARE_VENDOR ${SOFTWARE_VENDOR} CACHE INTERNAL "LidarView-Based app vendor")
-set(LV_BUILD_ARCHITECTURE ${LV_BUILD_ARCHITECTURE} CACHE INTERNAL "Architecture address byte width")
+set(LV_BUILD_PLATFORM ${LV_BUILD_PLATFORM} CACHE INTERNAL "Platform Distribution and Architecture")
 
 #Sanitize checks
 if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
