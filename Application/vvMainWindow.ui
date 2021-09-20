@@ -115,6 +115,8 @@
      </property>
     </action>
     <addaction name="actionAbout_LidarView"/>
+    <addaction name="actionHelpSupport"/>
+    <addaction name="actionHelpSlam"/>
     <addaction name="separator"/>
     <addaction name="actionResetDefaultSettings"/>
     <addaction name="actionAdvanceFeature"/>
@@ -590,6 +592,16 @@
   <action name="actionAbout_LidarView">
    <property name="text">
     <string>About ...</string>
+   </property>
+  </action>
+  <action name="actionHelpSupport">
+   <property name="text">
+    <string>Professional Support</string>
+   </property>
+  </action>
+  <action name="actionHelpSlam">
+   <property name="text">
+    <string>How to SLAM</string>
    </property>
   </action>
   <action name="actionRecent_file1">

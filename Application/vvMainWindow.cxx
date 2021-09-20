@@ -50,6 +50,7 @@
 #include <pqRenderViewSelectionReaction.h>
 #include <pqDeleteReaction.h>
 #include <pqHelpReaction.h>
+#include <pqDesktopServicesReaction.h>
 #include <pqServer.h>
 #include <pqSettings.h>
 #include <pqLidarViewManager.h>
@@ -328,6 +329,13 @@ private:
     // build Paraview macro menu
     QMenu *paraviewMacroMenu = this->Ui.menuAdvance->addMenu("Macro (Paraview)");
     pqParaViewMenuBuilders::buildMacrosMenu(*paraviewMacroMenu);
+
+    // Add Professional Support / How to SLAM Menu Actions
+    new pqDesktopServicesReaction(QUrl("https://www.kitware.com/what-we-offer"),
+      (this->Ui.actionHelpSupport ));
+
+    new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md"),
+      (this->Ui.actionHelpSlam ));
 
     pqActiveObjects::instance().setActiveView(this->MainView);
   }
