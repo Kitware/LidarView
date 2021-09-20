@@ -31,7 +31,7 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     edgesMapFile = initialMapsPrefix + 'edges.vtp'
 
     if not os.path.exists(planesMapFile) or not os.path.exists(edgesMapFile):
-        print("Abort SLAM register : planesMapFile or edgesMapFile is missing")
+        print("Abort SLAM register : {} or {} is missing".format(planesMapFile, edgesMapFile))
         return
 
 
@@ -40,6 +40,12 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
         stream = FindSource("LidarStream1")
     elif lidarMode == 1:
         # ----------------------------------------Set Reader Mode--------------------------------------------
+        
+        # Check if pcap or calibration file can be found
+        if not os.path.exists(pathPCAP) or not os.path.exists(calibFile):
+            print("Abort SLAM register : {} or {} is missing".format(pathPCAP, calibFile))
+            return
+
         stream = LidarReader(CalibrationFile = calibFile, FileName = pathPCAP)
         stream.Interpreter = interpreterName
         fr = FindSource("Frame")
