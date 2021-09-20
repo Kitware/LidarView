@@ -9,5 +9,5 @@ include(${LidarViewSuperBuild_CMAKE_DIR}/bundle/unix/LidarviewBundle.cmake)
 # Install Sensor calibration files
 file(GLOB shared_files "${share_path}/*.xml")
 install(FILES ${shared_files}
-        DESTINATION "${share_dest}")
+        DESTINATION "${LV_INSTALL_RESOURCE_DIR}")
 unset(shared_files)
