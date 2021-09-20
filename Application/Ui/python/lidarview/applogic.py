@@ -1394,7 +1394,11 @@ def onToogleAdvancedGUI(updateSettings = True):
   ##############################
   menuViews = getMainWindow().findChild("QMenu", "menuViews").menuAction()
   menuViews.visible = not menuViews.visible
-  getMainWindow().showFullScreen()
+
+  if menuAdvance.visible:
+    getMainWindow().showMaximized()   
+  else:
+    getMainWindow().showFullScreen()
   getMainWindow().statusBar().setVisible(menuAdvance.visible)
   getMainWindow().findChild("QToolBar", "toolBar").setVisible(menuAdvance.visible)
   getMainWindow().findChild("lqColorToolbar", "colorToolBar").setVisible(menuAdvance.visible)
