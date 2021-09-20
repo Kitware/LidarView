@@ -1456,14 +1456,10 @@ def setupActions():
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
     app.actions['actionRegisterMacro'].connect('triggered()', registerMacro)
-    # Restore action states from settings
-    settings = getPVSettings()
-
-
-    advanceMode = int(settings.value("LidarPlugin/AdvanceFeature/Enable", 0))
-    if not advanceMode:
-      app.actions['actionAdvanceFeature'].checked = False
-      onToogleAdvancedGUI(updateSettings=False)
+    
+    # Always disable advanced mode on startup
+    app.actions['actionAdvanceFeature'].checked = False
+    onToogleAdvancedGUI(updateSettings=False)
 
     # Setup and add the geolocation toolbar
     geolocationToolBar = mW.findChild('QToolBar', 'geolocationToolbar')
