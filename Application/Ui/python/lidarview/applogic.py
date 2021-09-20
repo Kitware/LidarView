@@ -1238,7 +1238,7 @@ def start():
 
     # start a stream
     stream = smp.LidarStream()
-    stream.CalibrationFile = os.path.dirname(__file__) + "/../../../../share/correction_file_Pandar128.csv"
+    stream.CalibrationFile = os.path.dirname(__file__) + "/../../../../share/angle_correction_PandarXT.csv"
 
     # Enable advanced mode to get all needed arrays for Hesai data
     stream.Interpreter.EnableAdvancedArrays = 1

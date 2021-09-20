@@ -240,7 +240,7 @@ def run():
     # ----------------------------------------PCAP params------------------------------------------------
     # Initial Pcap filename to use in lidar Reader mode
     initialPcapFilename = "/home/jerome/Dev/data/hesai/128_OPENROAD.pcap"
-    calibFilenameToFind = "correction_file_Pandar128.csv"
+    calibFilenameToFind = "angle_correction_PandarXT.csv"
 
     # Velodyne
     # initialCalibFilename = os.path.join(os.getcwd(), "..", "share", calibFilenameToFind)

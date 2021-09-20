@@ -28,7 +28,7 @@ import pipeline_setup_helpers as psh
 #################
 # Input LiDAR frames and trajectory files
 pcap_file  = '/data/tmp/hesai_demo/128_OPENROAD.pcap'
-calib_file = '/data/tmp/hesai_demo/correction_file_Pandar128.csv'
+calib_file = '/data/tmp/hesai_demo/angle_correction_PandarXT.csv'
 traj_file = '/data/tmp/hesai_demo/traj.poses'
 
 # Path to where the car model is stored, set to "" to skip displaying a car at
