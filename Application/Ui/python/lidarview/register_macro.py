@@ -25,16 +25,6 @@ def getMainWindow():
     return findQObjectByName(QtGui.QApplication.topLevelWidgets(), 'vvMainWindow')
 
 def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interpreterName, initialPose):
-    # Planes map file loading for display:
-    planesMapFile = initialMapsPrefix + 'planes.vtp'
-    # Edges map file loading for display:
-    edgesMapFile = initialMapsPrefix + 'edges.vtp'
-
-    if not os.path.exists(planesMapFile) or not os.path.exists(edgesMapFile):
-        print("Abort SLAM register : {} or {} is missing".format(planesMapFile, edgesMapFile))
-        return
-
-
     if lidarMode == 0 :
         # ----------------------------------------Set Stream Mode--------------------------------------------
         stream = FindSource("LidarStream1")
@@ -53,6 +43,20 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     else:
         return
 
+    # Check if there is some data on lidar reader or stream ouputPort(0)
+    lidarData = stream.GetClientSideObject().GetOutput(0)
+    if lidarData.GetNumberOfPoints() == 0:
+        print("Abort SLAM register : lidar frame is empty")
+        return
+    
+    # Planes map file loading for display:
+    planesMapFile = initialMapsPrefix + 'planes.vtp'
+    # Edges map file loading for display:
+    edgesMapFile = initialMapsPrefix + 'edges.vtp'
+
+    if not os.path.exists(planesMapFile) or not os.path.exists(edgesMapFile):
+        print("Abort SLAM register : {} or {} is missing".format(planesMapFile, edgesMapFile))
+        return
 
     # --------------------------------------Clean--------------------------------------
     paraview.simple._DisableFirstRenderCameraReset()
