@@ -44,7 +44,6 @@
 
 #include <QApplication>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QLabel>
 #include <QMainWindow>

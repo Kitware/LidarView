@@ -22,7 +22,6 @@
 
 #include <QPushButton>
 #include <QDialog>
-#include <QFileDialog>
 #include <QStyle>
 
 #include "ctkDoubleRangeSlider.h"

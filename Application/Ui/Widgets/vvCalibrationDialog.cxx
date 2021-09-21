@@ -17,9 +17,11 @@
 
 #include <pqApplicationCore.h>
 #include <pqSettings.h>
+#include <pqCoreUtilities.h>
+#include <pqFileDialog.h>
+#include <pqActiveObjects.h>
 
 #include <QDialog>
-#include <QFileDialog>
 #include <QListWidget>
 #include <QListWidgetItem>
 
@@ -936,14 +938,18 @@ void vvCalibrationDialog::addFile()
     this->Internal->Settings->value("LidarPlugin/OpenData/DefaultDir", QDir::homePath())
       .toString();
 
-  QString fileName = QFileDialog::getOpenFileName(
-    this, tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)"));
-
-  if (fileName.isEmpty())
+  pqFileDialog dial(
+    pqActiveObjects::instance().activeServer(), pqCoreUtilities::mainWidget(),
+    tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)")
+  );
+  dial.setObjectName("LidarFileCalibDialog");
+  dial.setFileMode(pqFileDialog::ExistingFile);
+  if(dial.exec() == QDialog::Rejected)
   {
     return;
   }
 
+  QString fileName = dial.getSelectedFiles().at(0);
   this->Internal->ListWidget->addItem(createEntry(fileName, false));
   this->Internal->ListWidget->setCurrentRow(this->Internal->ListWidget->count() - 1);
   this->Internal->saveFileList();
