@@ -30,7 +30,7 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
         stream = FindSource("LidarStream1")
     elif lidarMode == 1:
         # ----------------------------------------Set Reader Mode--------------------------------------------
-        
+
         # Check if pcap or calibration file can be found
         if not os.path.exists(pathPCAP) or not os.path.exists(calibFile):
             print("Abort SLAM register : {} or {} is missing".format(pathPCAP, calibFile))
@@ -48,7 +48,7 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     if lidarData.GetNumberOfPoints() == 0:
         print("Abort SLAM register : lidar frame is empty")
         return
-    
+
     # Planes map file loading for display:
     planesMapFile = initialMapsPrefix + 'planes.vtp'
     # Edges map file loading for display:
@@ -94,9 +94,17 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     # create 2 'XML PolyData Reader'
     vtpPlanesData = XMLPolyDataReader(FileName=[planesMapFile])
     vtpPlanesData.PointArrayStatus = ['Intensity']
+    planesMapDisplay = Show(vtpPlanesData, view)
+    ColorBy(planesMapDisplay, ('POINTS', 'Intensity'), True)
+    planesMapDisplaySeparate = GetColorTransferFunction('Intensity', planesMapDisplay, separate=True)
+    planesMapDisplaySeparate.ApplyPreset('jet', True)
 
     vtpEdgesData = XMLPolyDataReader(FileName=[edgesMapFile])
     vtpEdgesData.PointArrayStatus = ['Intensity']
+    edgesMapDisplay = Show(vtpEdgesData, view)
+    ColorBy(edgesMapDisplay, ('POINTS', 'Intensity'), True)
+    edgesMapDisplaySeparate = GetColorTransferFunction('Intensity', edgesMapDisplay, separate=True)
+    edgesMapDisplaySeparate.ApplyPreset('jet', True)
 
     # Colorize by intensity
     # Planes
@@ -127,6 +135,7 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     slam.Timearray = ['POINTS', 'Timestamp']
     slam.Intensityarray = ['POINTS', 'Intensity']
     slam.Laserringidarray = ['POINTS', 'LaserID']
+    slam.Timetosecondsfactor = 1
 
     # Initialization
     slam.Initialmapfilesprefix = initialMapsPrefix
@@ -137,11 +146,11 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     slam.Keypointsextractor = 'Spinning Sensor Keypoint Extractor'
     slam.Keypointsextractor.Mindistancetosensor = 1.0
     slam.Keypointsextractor.Minlaserbeamtosurfaceangle = 10.0
-    slam.Keypointsextractor.Neighborhoodwidth = 8
+    slam.Keypointsextractor.Neighborhoodwidth = 5
     slam.Keypointsextractor.Planemaxsinusangle = 0.5
     slam.Keypointsextractor.Edgeminsinusangle = 0.86
     slam.Keypointsextractor.Edgeminsaliencydistance = 1.5
-    slam.Keypointsextractor.Edgeminintensitygap = 50.
+    slam.Keypointsextractor.Edgeminintensitygap = 1e6
     slam.Keypointsextractor.Edgemindepthgap = 0.5
 
     # General
@@ -225,6 +234,9 @@ def doSLAMRegister(lidarMode, initialMapsPrefix, pathPCAP, calibFile, interprete
     # Display the new input scanned points transformed by the registration pose computed
     frameDisplay = Show(frame, view)
     frameDisplay.UserTransform = transformMatrix.flatten().tolist()
+    ColorBy(frameDisplay, ('POINTS', 'Intensity'), True)
+    displayIntensity = GetColorTransferFunction('Intensity', frameDisplay, separate=True)
+    displayIntensity.ApplyPreset('RdOrYl', True)
     view.Update()
 
 
@@ -233,13 +245,13 @@ def run():
     # -------------------------------------SLAM Register Parameters--------------------------------------
 
     # Initial maps files prefix (PCD files) for SLAM init:
-    initialMapsPrefix = "/home/jerome/Dev/data/hesai/slam/"
+    initialMapsPrefix = "/Demo_Hesai/"
     # Initial pose (where the Lidar is approximately in the maps)
     initialPose = [0.0, 0.0, 0.0, 0.0, 0.0, 3.14]
 
     # ----------------------------------------PCAP params------------------------------------------------
     # Initial Pcap filename to use in lidar Reader mode
-    initialPcapFilename = "/home/jerome/Dev/data/hesai/128_OPENROAD.pcap"
+    initialPcapFilename = "/Demo_Hesai/data_test.pcap"
     calibFilenameToFind = "angle_correction_PandarXT.csv"
 
     # Velodyne
@@ -256,7 +268,7 @@ def run():
     initialCalibFilename = os.path.join(os.getcwd(), "..", "share", calibFilenameToFind)
     if not(os.path.isfile(initialCalibFilename)):
         initialCalibFilename = os.path.join(os.getcwd(), "share", calibFilenameToFind)
-    
+
     if not(os.path.isfile(initialCalibFilename)):
         initialCalibFilename = ""
     initialInterpreter = 'Hesai Packet Interpreter'
