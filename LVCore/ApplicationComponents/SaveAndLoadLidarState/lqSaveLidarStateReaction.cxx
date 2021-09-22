@@ -79,7 +79,8 @@ void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy * lidarProxy)
   lqLidarStateDialog dialog(nullptr, propertiesInfo, "Please select the parameters to save");
   if(dialog.exec())
   {
-    Json::StyledStreamWriter writer;
+    Json::StreamWriterBuilder builder;
+    const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
     std::ofstream configFile(StateFile.toStdString());
 
     Json::Value data;
@@ -118,7 +119,7 @@ void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy * lidarProxy)
     {
       QMessageBox::information(nullptr, QObject::tr(""), QObject::tr("Saved json file is empty (no parameter selected)"));
     }
-    writer.write(configFile, data);
+    writer->write(data, &configFile);
   }
 
 }
