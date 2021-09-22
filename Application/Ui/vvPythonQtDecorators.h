@@ -6,9 +6,7 @@
 #include <QObject>
 
 #include "pqLidarViewManager.h"
-#include "Widgets/vvCalibrationDialog.h"
 #include "Widgets/vvCropReturnsDialog.h"
-#include "Widgets/vvLaserSelectionDialog.h"
 #include "Widgets/vvSelectFramesDialog.h"
 #include <pqActiveObjects.h>
 
@@ -21,9 +19,7 @@ public:
     : QObject(parent)
   {
     this->registerClassForPythonQt(&pqLidarViewManager::staticMetaObject);
-    this->registerClassForPythonQt(&vvCalibrationDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvCropReturnsDialog::staticMetaObject);
-    this->registerClassForPythonQt(&vvLaserSelectionDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvSelectFramesDialog::staticMetaObject);
     this->registerClassForPythonQt(&pqActiveObjects::staticMetaObject);
   }
@@ -35,11 +31,6 @@ public:
 
 public slots:
 
-  vvCalibrationDialog* new_vvCalibrationDialog(QWidget* arg0)
-  {
-    return new vvCalibrationDialog(arg0);
-  }
-
   vvCropReturnsDialog* new_vvCropReturnsDialog(QWidget* arg0)
   {
     return new vvCropReturnsDialog(arg0);
@@ -50,44 +41,9 @@ public slots:
     return new vvSelectFramesDialog(arg0);
   }
 
-  vvLaserSelectionDialog* new_vvLaserSelectionDialog(QWidget* arg0)
-  {
-    return new vvLaserSelectionDialog(arg0);
-  }
-
   pqActiveObjects* new_pqActiveObjects()
   {
     return pqActiveObjects::instancePtr();
-  }
-
-  QVector<int> getLaserSelectionSelector(vvLaserSelectionDialog* inst)
-  {
-    return inst->getLaserSelectionSelector();
-  }
-
-  void setLaserSelectionSelector(vvLaserSelectionDialog* inst, const QVector<int>& arg0)
-  {
-    inst->setLaserSelectionSelector(arg0);
-  }
-
-  bool isDisplayMoreSelectionsChecked(vvLaserSelectionDialog* inst)
-  {
-    return inst->isDisplayMoreSelectionsChecked();
-  }
-
-  void setDisplayMoreSelectionsChecked(vvLaserSelectionDialog* inst, bool arg0)
-  {
-    inst->setDisplayMoreSelectionsChecked(arg0);
-  }
-
-  void setLasersCorrections(vvLaserSelectionDialog* inst, const QVector<double>& arg0,
-    const QVector<double>& arg1, const QVector<double>& arg2, const QVector<double>& arg3,
-    const QVector<double>& arg4, const QVector<double>& arg5, const QVector<double>& arg6,
-    const QVector<double>& arg7, const QVector<double>& arg8, const QVector<double>& arg9,
-    const QVector<double>& arg10, int arg11)
-  {
-    inst->setLasersCorrections(
-      arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
   }
 
   void static_pqLidarViewManager_saveFramesToPCAP(
