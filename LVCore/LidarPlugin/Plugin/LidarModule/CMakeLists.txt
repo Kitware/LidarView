@@ -401,6 +401,14 @@ target_include_directories(LidarModule PUBLIC ${plugin_include_dirs} ${CMAKE_CUR
 target_include_directories(LidarModule ${SYSTEM_OPTION} PUBLIC ${LIDARPLUGIN_DEPS_INCLUDE_DIRS}) #Does not make wrapping work
 target_link_libraries     (LidarModule PUBLIC ${LIDARPLUGIN_DEPS})
 
+# fpos_t Consistency, see VTK, vtkjsoncpp #WIP how to import VTK variable
+target_compile_definitions(LidarModule
+  PUBLIC
+    _LARGEFILE_SOURCE
+    _LARGEFILE64_SOURCE
+    _LARGE_FILES
+    _FILE_OFFSET_BITS=64)
+
 #-----------------------------------------------------------------------------
 # The Python Bindings are kept for LEGACY REASON  and is pending for removal
 # Simply use "import LidarPlugin.LidarModule" and you have acces to the wrapped c++ code
