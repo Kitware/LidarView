@@ -15,7 +15,6 @@
 import os
 import csv
 import datetime
-import time
 import math
 import sys
 import paraview.simple as smp
@@ -31,15 +30,14 @@ import lidarview.gridAdjustmentDialog as gridAdjustmentDialog
 import lidarview.aboutDialog as aboutDialog
 import bisect
 
-from PythonQt.paraview import vvCalibrationDialog, vvCropReturnsDialog, vvSelectFramesDialog
+from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
-import LidarPluginPython
+import LidarPlugin.LidarCore
 
 import lidarview.planefit as planefit
-
 
 _repCache = {}
 
@@ -82,8 +80,9 @@ class AppLogic(object):
 
         self.gridProperties = None
 
+        #Not plugins anymore, kept for future reference
         #smp.LoadPlugin(vtkGetFileNameFromPluginName('PointCloudPlugin'))
-        smp.LoadPlugin(vtkGetFileNameFromPluginName('EyeDomeLightingView'))
+        #smp.LoadPlugin(vtkGetFileNameFromPluginName('EyeDomeLightingView'))
 
 
     def createStatusBarWidgets(self):
@@ -220,10 +219,9 @@ def createDSRColorsPreset():
 def setDefaultLookupTables(sourceProxy):
     createDSRColorsPreset()
 
-    presets = servermanager.vtkSMTransferFunctionPresets()
-
-    dsrIndex = findPresetByName("DSR Colors")
-    presetDSR = presets.GetPresetAsString(dsrIndex)
+    #presets = servermanager.vtkSMTransferFunctionPresets()
+    #dsrIndex = findPresetByName("DSR Colors")
+    #presetDSR = presets.GetPresetAsString(dsrIndex)
 
     # LUT for 'intensity'
     smp.GetLookupTableForArray(
@@ -334,14 +332,14 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     onCropReturns(False) # Dont show the dialog just restore settings
 
-    rep = smp.Show(sensor)
+#   rep = smp.Show(sensor)
 #    rep.InterpolateScalarsBeforeMapping = 0
 #    if app.sensor.GetClientSideObject().GetNumberOfChannels() == 128:
 #        rep.Representation = 'Point Cloud'
 #        rep.ColorArrayName = 'intensity'
 
     if SAMPLE_PROCESSING_MODE:
-        prep = smp.Show(processor)
+        smp.Show(processor)
     smp.Render()
 
     showSourceInSpreadSheet(sensor)
@@ -387,8 +385,6 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
     app.positionPacketInfoLabel.setText('') # will be updated later if possible
     onCropReturns(False) # Dont show the dialog just restore settings
 
-    lidarPacketInterpreter = getLidarPacketInterpreter()
-
     if SAMPLE_PROCESSING_MODE:
         processor = smp.ProcessingSample(reader)
 
@@ -396,7 +392,7 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
     smp.GetActiveView().ViewTime = 0.0
 
     if SAMPLE_PROCESSING_MODE:
-        prep = smp.Show(processor)
+        smp.Show(processor)
     app.scene.UpdateAnimationUsingDataTimeSteps()
 
     posreader = smp.FindSource(posOrName)
@@ -674,11 +670,6 @@ def saveLAS(filename, timesteps, transform = 0):
     kiwiviewerExporter.shutil.rmtree(tempDir)
 
 
-def getTimeStamp():
-    format = '%Y-%m-%d-%H-%M-%S'
-    return datetime.datetime.now().strftime(format)
-
-
 def getSaveFileName(title, extension, defaultFileName=None):
 
     settings = getPVSettings()
@@ -704,7 +695,7 @@ def restoreNativeFileDialogsAction():
 
 def onNativeFileDialogsAction():
     settings = getPVSettings()
-    defaultDir = settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
+    settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
 
 
 def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=False, frameTransformVisibility=False):

@@ -12,6 +12,8 @@
 #include <pqPipelineSource.h>
 #include <pqSettings.h>
 #include <pqView.h>
+#include <pqCoreUtilities.h>
+#include <pqFileDialog.h>
 
 #include "lqHelper.h"
 #include "lqUpdateCalibrationReaction.h"
@@ -20,9 +22,9 @@
 #include "lqSensorListWidget.h"
 
 #include <QApplication>
-#include <QFileDialog>
 #include <QProgressDialog>
 #include <QString>
+
 #include <string>
 
 #include <vtkCommand.h>
@@ -62,18 +64,24 @@ void lqOpenPcapReaction::onTriggered()
 {
   // Get the pcap filename
   pqSettings* settings = pqApplicationCore::instance()->settings();
-  QString defaultDir = settings->value("LidarPlugin/OpenData/DefaultDir", QDir::homePath()).toString();
-  QString filename = QFileDialog::getOpenFileName(nullptr,
-                                 QString("Open LiDAR File"),
-                                 defaultDir, QString("Wireshark Capture (*.pcap)"));
+  const char* defaultDir_path = "LidarPlugin/OpenData/DefaultDir";
+  QString defaultDir = settings->value(defaultDir_path, QDir::homePath()).toString();
 
-  if (!filename.isNull() && !filename.isEmpty())
+  pqFileDialog dial(
+    pqActiveObjects::instance().activeServer(), pqCoreUtilities::mainWidget(),
+    tr("Open LiDAR File"), defaultDir, tr("Wireshark Capture (*.pcap)")
+  );
+  dial.setObjectName("LidarFileOpenDialog");
+  dial.setFileMode(pqFileDialog::ExistingFile);
+  if(dial.exec() == QDialog::Rejected)
   {
-    QFileInfo fileInfo(filename);
-    settings->setValue("LidarPlugin/OpenData/DefaultDir", fileInfo.absolutePath());
-
-    lqOpenPcapReaction::createSourceFromFile(filename);
+    return;
   }
+  QString fileName = dial.getSelectedFiles().at(0);
+  QFileInfo fileInfo(fileName);
+  settings->setValue(defaultDir_path, fileInfo.absolutePath());
+
+  lqOpenPcapReaction::createSourceFromFile(fileName);
 }
 
 //-----------------------------------------------------------------------------

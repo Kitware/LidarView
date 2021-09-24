@@ -1,10 +1,6 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20.3)
 
 project(LidarViewSuperBuild)
-
-#LidarView-based app Branding
-set(SOFTWARE_NAME   "LidarView")
-set(SOFTWARE_VENDOR "Kitware, Inc.")
 
 #-----------------------------------------------------------------------------
 # All the function and variable bellow are here because we rely on lidarview's

@@ -15,12 +15,13 @@
 
 #include "ui_vvCropReturnsDialog.h"
 
+#include <vtkSetGet.h> //vtkNotUsed
+
 #include <pqApplicationCore.h>
 #include <pqSettings.h>
 
 #include <QPushButton>
 #include <QDialog>
-#include <QFileDialog>
 #include <QStyle>
 
 #include "ctkDoubleRangeSlider.h"
