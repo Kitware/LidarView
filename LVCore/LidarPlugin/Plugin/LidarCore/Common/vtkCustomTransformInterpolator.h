@@ -50,7 +50,7 @@
 #include <vtkObject.h>
 #include <vector>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class vtkTransform;
 class vtkMatrix4x4;
@@ -60,7 +60,7 @@ class vtkCustomQuaternionInterpolator;
 class vtkTransformList;
 struct vtkQTransform;
 
-class LIDARMODULE_EXPORT vtkCustomTransformInterpolator : public vtkObject
+class LIDARCORE_EXPORT vtkCustomTransformInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCustomTransformInterpolator, vtkObject)

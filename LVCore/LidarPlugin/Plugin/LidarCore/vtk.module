@@ -1,5 +1,5 @@
 NAME
-  LidarModule
+  LidarCore
 DEPENDS
   VTK::CommonColor
   VTK::CommonComputationalGeometry

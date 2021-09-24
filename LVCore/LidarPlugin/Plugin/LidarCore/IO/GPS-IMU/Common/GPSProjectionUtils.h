@@ -21,12 +21,12 @@
 #include <string>
 #include <vtk_libproj.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-int LIDARMODULE_EXPORT LatLongToZone(double lat, double lon);
+int LIDARCORE_EXPORT LatLongToZone(double lat, double lon);
 
 
-class LIDARMODULE_EXPORT UTMProjector
+class LIDARCORE_EXPORT UTMProjector
 {
   public:
   UTMProjector(bool shouldWarnOnWeirdGPSData = false)

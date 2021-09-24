@@ -20,7 +20,7 @@
 
 #include <vtkImageAlgorithm.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class vtkTable;
 
@@ -30,7 +30,7 @@ class vtkTable;
  *
  * @warning one image column corresponds to one laser.
  */
-class LIDARMODULE_EXPORT vtkLidarRawSignalImage : public vtkImageAlgorithm
+class LIDARCORE_EXPORT vtkLidarRawSignalImage : public vtkImageAlgorithm
 {
 public:
   static vtkLidarRawSignalImage *New();

@@ -25,9 +25,9 @@
 #include "IO/vtkStream.h"
 #include "vtkPositionOrientationPacketInterpreter.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkPositionOrientationStream : public vtkStream
+class LIDARCORE_EXPORT vtkPositionOrientationStream : public vtkStream
 {
 public:
   static vtkPositionOrientationStream* New();

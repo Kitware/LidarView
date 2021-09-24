@@ -9,7 +9,7 @@
 
 #include <Eigen/Geometry>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 /**
  * @brief The vtkTemporalTransforms class store some vtkTransform associated with time
@@ -24,7 +24,7 @@
  * It can be used to pass an vtkTransformInterpolator between 2 filter: a filter inherit from
  * vtkAlgorithm, and it can only take a vtkDataObject as input/output.
  */
-class LIDARMODULE_EXPORT vtkTemporalTransforms : public vtkPolyData
+class LIDARCORE_EXPORT vtkTemporalTransforms : public vtkPolyData
 {
 public:
   static vtkTemporalTransforms *New();

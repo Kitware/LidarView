@@ -27,7 +27,7 @@
 // OPENCV
 #include <opencv2/core.hpp>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 /**
  * @brief vtkOpenCVImageMapper Takes an image with texture coordinates and an
@@ -38,7 +38,7 @@
  * for invalid image points (using vtkValidPointMask).
  */
 
-class LIDARMODULE_EXPORT vtkOpenCVImageMapper : public vtkImageAlgorithm
+class LIDARCORE_EXPORT vtkOpenCVImageMapper : public vtkImageAlgorithm
 {
 public:
   static vtkOpenCVImageMapper *New();

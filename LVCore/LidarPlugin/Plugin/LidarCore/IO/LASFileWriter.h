@@ -39,11 +39,11 @@
 
 #include <Eigen/Dense>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class vtkPolyData;
 
-class LIDARMODULE_EXPORT LASFileWriter
+class LIDARCORE_EXPORT LASFileWriter
 {
 public:
   LASFileWriter();

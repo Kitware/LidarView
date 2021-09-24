@@ -31,9 +31,9 @@
 // LOCAL
 #include "CameraModel.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkCameraProjector : public vtkImageAlgorithm
+class LIDARCORE_EXPORT vtkCameraProjector : public vtkImageAlgorithm
 {
 public:
   static vtkCameraProjector *New();

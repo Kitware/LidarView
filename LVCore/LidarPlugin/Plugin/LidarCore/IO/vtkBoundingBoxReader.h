@@ -5,12 +5,12 @@
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 /**
  * @brief The vtkBoundingBoxReader create Bounding boxes from a specific yaml format. Right now only 2D bounding boxes are supported.
  */
-class LIDARMODULE_EXPORT vtkBoundingBoxReader : public vtkMultiBlockDataSetAlgorithm
+class LIDARCORE_EXPORT vtkBoundingBoxReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkBoundingBoxReader* New();

@@ -20,7 +20,7 @@
 #include <vtkSetGet.h>
 #include "vtkSlam.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 // This custom macro is needed to make the SlamManager time agnostic
 // The SlamManager needs to know when RequestData is called and if it's due
@@ -41,7 +41,7 @@ virtual void Set##name (type _arg) \
   } \
 }
 
-class LIDARMODULE_EXPORT vtkSlamManager : public vtkSlam
+class LIDARCORE_EXPORT vtkSlamManager : public vtkSlam
 {
 public:
   static vtkSlamManager *New();

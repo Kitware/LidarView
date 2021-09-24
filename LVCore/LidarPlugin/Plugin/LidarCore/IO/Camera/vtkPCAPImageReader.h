@@ -27,9 +27,9 @@
 #include "Common/Network/vtkPacketFileReader.h"
 #include "IO/FrameInformation.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkPCAPImageReader : public vtkImageAlgorithm
+class LIDARCORE_EXPORT vtkPCAPImageReader : public vtkImageAlgorithm
 {
 public:
   static vtkPCAPImageReader* New();

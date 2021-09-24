@@ -23,7 +23,7 @@
 //LOCAL
 #include "CategoriesConfig.h"
 #include "Common/BoundingBox.h"
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 // VTK
 #include <vtkSmartPointer.h>
@@ -129,7 +129,7 @@ public:
  *        segmentedCloud.GetPointCloud();
  *        """
 */
-class LIDARMODULE_EXPORT SegmentedCloud
+class LIDARCORE_EXPORT SegmentedCloud
 {
 public:
 

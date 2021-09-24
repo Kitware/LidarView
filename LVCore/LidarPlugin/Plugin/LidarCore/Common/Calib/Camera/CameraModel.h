@@ -27,7 +27,7 @@
 // EIGEN
 #include <Eigen/Dense>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 enum ProjectionType
 {
@@ -43,7 +43,7 @@ enum ProjectionType
    *        2- Intrinsic parameters, representing the focal and pixel grid
    *        3- Optical parameters, representing the optical system distortions
    */
-class LIDARMODULE_EXPORT CameraModel
+class LIDARCORE_EXPORT CameraModel
 {
 public:
   CameraModel() = default;

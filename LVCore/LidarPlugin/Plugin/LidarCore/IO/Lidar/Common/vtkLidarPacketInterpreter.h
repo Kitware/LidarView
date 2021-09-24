@@ -25,14 +25,14 @@
 #include "IO/vtkInterpreter.h"
 #include "IO/FrameInformation.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 enum FramingMethod_t {
         INTERPRETER_FRAMING = 0, // the interpreter in charge of the framing
         NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
 };
 
-class LIDARMODULE_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
+class LIDARCORE_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)

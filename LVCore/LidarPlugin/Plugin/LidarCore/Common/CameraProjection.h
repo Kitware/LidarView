@@ -27,7 +27,7 @@
 // EIGEN
 #include <Eigen/Dense>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 /**
    * @brief LoadCameraParamsFromCSV Load parameters from a csv file
@@ -35,7 +35,7 @@
    * @param filename filename that contains the parameters
    * @param W loaded parameters
    */
-LIDARMODULE_EXPORT void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W);
+LIDARCORE_EXPORT void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W);
 
 /**
    * @brief WriteCameraParamsCSV Write parameters into a csv file
@@ -43,7 +43,7 @@ LIDARMODULE_EXPORT void LoadCameraParamsFromCSV(std::string filename, Eigen::Vec
    * @param filename filename to write the camera parameters
    * @param W to write parameters
    */
-LIDARMODULE_EXPORT void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
+LIDARCORE_EXPORT void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
 
 /**
    * @brief FisheyeProjection Project a 3D point using a fisheye camera model
@@ -53,7 +53,7 @@ LIDARMODULE_EXPORT void WriteCameraParamsCSV(std::string filename, Eigen::Vector
    * @param X 3D point to project
    * @param shouldClip Clip points that are behind the camera plane
    */
-LIDARMODULE_EXPORT Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
+LIDARCORE_EXPORT Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
                                   const Eigen::Vector3d& X,
                                   bool shouldClip = false);
 
@@ -70,7 +70,7 @@ LIDARMODULE_EXPORT Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double,
    *        non injective behaviour between 3D direction and 2D pixels
    * @param fovAngle angle of the field of view
    */
-LIDARMODULE_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>& W,
+LIDARCORE_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Matrix<double, 17, 1>& W,
                                               const Eigen::Vector3d& X,
                                               bool shouldPlaneClip = false);
 
@@ -82,6 +82,6 @@ LIDARMODULE_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(const Eigen::Ma
    * @param vmin minimal value of the reflectivity signal
    * @param vmax maximal value of the reflectivity signal
    */
-LIDARMODULE_EXPORT Eigen::Vector3d GetRGBColourFromReflectivity(double v, double vmin, double vmax);
+LIDARCORE_EXPORT Eigen::Vector3d GetRGBColourFromReflectivity(double v, double vmin, double vmax);
 
 #endif // CAMERA_PROJECTION_H

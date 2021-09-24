@@ -25,9 +25,9 @@
 
 #include "vtkPositionOrientationPacketInterpreter.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkPositionOrientationPacketReader : public vtkPolyDataAlgorithm
+class LIDARCORE_EXPORT vtkPositionOrientationPacketReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPositionOrientationPacketReader* New();

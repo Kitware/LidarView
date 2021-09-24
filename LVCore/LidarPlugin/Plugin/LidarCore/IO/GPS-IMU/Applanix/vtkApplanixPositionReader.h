@@ -34,12 +34,12 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class vtkTransform;
 class vtkCustomTransformInterpolator;
 
-class LIDARMODULE_EXPORT vtkApplanixPositionReader : public vtkPolyDataAlgorithm
+class LIDARCORE_EXPORT vtkApplanixPositionReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkApplanixPositionReader* New();

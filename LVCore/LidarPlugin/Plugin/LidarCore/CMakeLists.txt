@@ -1,5 +1,5 @@
 set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard")
-message(STATUS "Building LidarModule with C++${CMAKE_CXX_STANDARD} standard")
+message(STATUS "Building LidarCore with C++${CMAKE_CXX_STANDARD} standard")
 
 include(CMakeDependentOption)
 
@@ -383,7 +383,7 @@ list(APPEND lidarplugin_classes
 #  )
 
 # Create Module
-vtk_module_add_module(LidarModule
+vtk_module_add_module(LidarCore
   FORCE_STATIC # Using FORCE_STATIC build the vtk module statically into the plugin library, to avoid confusion when loading                
   SOURCES ${lidarplugin_sources} # Will not trigger a PV wrapping
   CLASSES ${lidarplugin_classes} # Those will be PV ClientServer wrapped #shorcut for sources x.cxx x.h  
@@ -392,17 +392,17 @@ vtk_module_add_module(LidarModule
   #PRIVATE_* variants exists and will not be wrapped, CLASSES are always PRIVATE/NOT-WRAPPED
 )
 paraview_add_server_manager_xmls(
-  MODULE LidarModule
+  MODULE LidarCore
   XMLS  ${lidarplugin_xml}
 )
 #WIP Following line could be removed if explicit path are used in every header file, paraview style
-target_include_directories(LidarModule PUBLIC ${plugin_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/vtkPatch ) #Relax include path expliciteness, does not help wrapping
+target_include_directories(LidarCore PUBLIC ${plugin_include_dirs} ${CMAKE_CURRENT_SOURCE_DIR}/vtkPatch ) #Relax include path expliciteness, does not help wrapping
 # Private Dependencies
-target_include_directories(LidarModule ${SYSTEM_OPTION} PUBLIC ${LIDARPLUGIN_DEPS_INCLUDE_DIRS}) #Does not make wrapping work
-target_link_libraries     (LidarModule PUBLIC ${LIDARPLUGIN_DEPS})
+target_include_directories(LidarCore ${SYSTEM_OPTION} PUBLIC ${LIDARPLUGIN_DEPS_INCLUDE_DIRS}) #Does not make wrapping work
+target_link_libraries     (LidarCore PUBLIC ${LIDARPLUGIN_DEPS})
 
 # fpos_t Consistency, see VTK, vtkjsoncpp #WIP how to import VTK variable
-target_compile_definitions(LidarModule
+target_compile_definitions(LidarCore
   PUBLIC
     _LARGEFILE_SOURCE
     _LARGEFILE64_SOURCE
@@ -411,7 +411,7 @@ target_compile_definitions(LidarModule
 
 #-----------------------------------------------------------------------------
 # The Python Bindings are kept for LEGACY REASON  and is pending for removal
-# Simply use "import LidarPlugin.LidarModule" and you have acces to the wrapped c++ code
+# Simply use "import LidarPlugin.LidarCore" and you have acces to the wrapped c++ code
 # DO NOT FOR ANY REASON USE the method GetClientSideObject() to have acces to the vtkObject directly.
 #-----------------------------------------------------------------------------
 # Python Wrapping
@@ -419,10 +419,10 @@ if(NOT LV_INSTALL_PYTHON_MODULES_DIR)
   message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
 endif()
 
-# Use import ${LV_LIDARPLUGIN_PYTHON_PKG}.LidarModule
+# Use import ${LV_LIDARPLUGIN_PYTHON_PKG}.LidarCore
 set(LV_LIDARPLUGIN_PYTHON_PKG "LidarPlugin")
 vtk_module_wrap_python(
-  MODULES         LidarModule # Target will be LidarModulePython
+  MODULES         LidarCore # Target will be LidarCorePython
   BUILD_STATIC    OFF
   INSTALL_HEADERS OFF
   PYTHON_PACKAGE  "${LV_LIDARPLUGIN_PYTHON_PKG}" # This is the name of the python module to import
@@ -438,9 +438,9 @@ vtk_module_wrap_python(
 #[[
 # Install Python Module wrapped manually #Could be used to alleviate too long of a path?
 add_custom_command(
-  TARGET LidarModulePython POST_BUILD
+  TARGET LidarCorePython POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/${LV_LIDARPLUGIN_PYTHON_PKG}" "${CMAKE_PREFIX_PATH}/${LV_INSTALL_PYTHON_MODULES_DIR}"
-  COMMENT "Install LidarModulePython"
+  COMMENT "Install LidarCorePython"
   USES_TERMINAL
 )
 ]]
@@ -465,19 +465,19 @@ endif()
 # Build PacketFileSender target which enable to playback a recorded pcap on the network
 #-----------------------------------------------------------------------------
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
-target_link_libraries(PacketFileSender LINK_PUBLIC LidarModule)
+target_link_libraries(PacketFileSender LINK_PUBLIC LidarCore)
 
 #-----------------------------------------------------------------------------
 # Build PCAPSeparator target which enable to split a recorded pcap on two
 #-----------------------------------------------------------------------------
 add_executable(PCAPSeparator StandAloneTools/PCAPSeparator.cxx)
-target_link_libraries(PCAPSeparator LINK_PUBLIC LidarModule)
+target_link_libraries(PCAPSeparator LINK_PUBLIC LidarCore)
 
 #-----------------------------------------------------------------------------
 # Build PCAPTester target which enable ???, has been disabled for some time now
 #-----------------------------------------------------------------------------
 #add_executable(PCAPTester StandAloneTools/PCAPTester.cxx)
-#target_link_libraries(PCAPTester LINK_PUBLIC LidarModule)
+#target_link_libraries(PCAPTester LINK_PUBLIC LidarCore)
 
 #-----------------------------------------------------------------------------
 # Build StandAlone targets which provide different thirparty tools
@@ -490,10 +490,10 @@ target_link_libraries(PCAPSeparator LINK_PUBLIC LidarModule)
 cmake_dependent_option(LIDARVIEW_BUILD_IMGDETECTIONS "Build ImageDetections" ON "PCL_FOUND;OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_IMGDETECTIONS)
   add_executable(BBoxFromImagesDetections StandAloneTools/BBoxFromImagesDetections.cxx)
-  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarModule)
+  target_link_libraries(BBoxFromImagesDetections LINK_PUBLIC LidarCore)
 
   add_executable(LabelCloudFromImagesDetections StandAloneTools/LabelCloudFromImagesDetections.cxx)
-  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarModule)
+  target_link_libraries(LabelCloudFromImagesDetections LINK_PUBLIC LidarCore)
 
 endif()
 
@@ -501,7 +501,7 @@ endif()
 cmake_dependent_option(LIDARVIEW_BUILD_POSTPROCLABELCLOUD "Build PostProcessLabelCloud" ON "PCL_FOUND;OpenCV_FOUND;nanoflann_FOUND" OFF)
 if (LIDARVIEW_BUILD_POSTPROCLABELCLOUD)
   add_executable(PostProcessLabelCloud StandAloneTools/PostProcessLabelCloud.cxx)
-  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarModule)
+  target_link_libraries(PostProcessLabelCloud LINK_PUBLIC LidarCore)
 
 endif()
 ]]
@@ -530,7 +530,7 @@ install(TARGETS ${executables_to_install}
 #WIPWIP DISABLED FOR LATER macosx install mainly
 #[[
 set(libraries_to_install
-  #LidarModule # ??
+  #LidarCore # ??
   #Other for unix ?
   )
 

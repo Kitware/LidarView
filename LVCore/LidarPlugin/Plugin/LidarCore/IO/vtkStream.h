@@ -25,7 +25,7 @@
 
 #include "IO/vtkInterpreter.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class NetworkPacket;
 class PacketConsumer;
@@ -33,7 +33,7 @@ class PacketFileWriter;
 class PacketReceiver;
 class vtkInterpreter;
 
-class LIDARMODULE_EXPORT vtkStream : public vtkDataObjectAlgorithm
+class LIDARCORE_EXPORT vtkStream : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkStream, vtkDataObjectAlgorithm)

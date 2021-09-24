@@ -22,9 +22,9 @@
 #include "IO/vtkStream.h"
 #include "vtkLidarPacketInterpreter.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkLidarStream : public vtkStream
+class LIDARCORE_EXPORT vtkLidarStream : public vtkStream
 {
 public:
   static vtkLidarStream* New();

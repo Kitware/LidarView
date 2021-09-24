@@ -23,9 +23,9 @@
 #include <vtkTable.h>
 #include <vtkPolyData.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
+class LIDARCORE_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkPositionOrientationPacketInterpreter, vtkInterpreter)

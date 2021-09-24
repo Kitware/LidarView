@@ -20,7 +20,7 @@
 
 #include "Common/vtkCustomTransformInterpolator.h"
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 /**
  * @brief The vtkTemporalTransformsApplier take 2 inputs : a vtkTemporalTransforms which
@@ -28,7 +28,7 @@
  * The filter will apply the transform corresponding to the pipeline time or to the current
  * pointcloud time. This Option can be manage with the InterpolateEachPoint paramater
  */
-class LIDARMODULE_EXPORT vtkTemporalTransformsApplier : public vtkPolyDataAlgorithm
+class LIDARCORE_EXPORT vtkTemporalTransformsApplier : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTemporalTransformsApplier* New();

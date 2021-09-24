@@ -3,7 +3,7 @@
 
 #include <vtkWriter.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
 class vtkPolyData;
 
@@ -15,7 +15,7 @@ class vtkPolyData;
  * @TODO: - update to timeseries in PV 5.9
  *        - update to passarray in PV 5.X
  */
-class LIDARMODULE_EXPORT vtkPCDWriter : public vtkWriter
+class LIDARCORE_EXPORT vtkPCDWriter : public vtkWriter
 {
 public:
   static vtkPCDWriter* New();

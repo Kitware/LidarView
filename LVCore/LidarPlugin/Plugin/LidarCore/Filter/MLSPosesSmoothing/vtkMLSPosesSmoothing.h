@@ -23,9 +23,9 @@
 // VTK
 #include <vtkPolyDataAlgorithm.h>
 
-#include "LidarModuleModule.h"
+#include "LidarCoreModule.h"
 
-class LIDARMODULE_EXPORT vtkMLSPosesSmoothing : public vtkPolyDataAlgorithm
+class LIDARCORE_EXPORT vtkMLSPosesSmoothing : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMLSPosesSmoothing *New();
