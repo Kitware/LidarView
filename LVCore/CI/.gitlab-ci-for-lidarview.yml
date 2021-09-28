@@ -250,7 +250,7 @@ workflow:
     GIT_CLONE_PATH: C:\\S/$CI_PROJECT_ID
     superbuild_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID
     lidarview_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
-    vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC'
+    vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build'
     architecture: x86_amd64
     sb_cmake_option_GENERATOR: -GNinja
     sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
