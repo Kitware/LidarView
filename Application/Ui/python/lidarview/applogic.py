@@ -34,7 +34,7 @@ from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
-import LidarPlugin.LidarCore
+import LidarPlugin.LidarCore  # NOQA
 
 import lidarview.planefit as planefit
 
