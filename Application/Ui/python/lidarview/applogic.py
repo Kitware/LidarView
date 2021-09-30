@@ -129,7 +129,7 @@ def hasArrayName(sourceProxy, arrayName):
             return True
     return False
 
-
+# Used by pqLidarViewManager
 def openData(filename):
 
     close()
@@ -304,6 +304,7 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
             suffix = '%s (Frame %04d)' % (suffix, int(app.scene.AnimationTime))
         return '%s%s.%s' % (basename, suffix, extension)
 
+# Used by Ui/lqOpenPcapReaction Ui/lqOpenSensorReaction
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     sensor = smp.FindSource(lidarProxyName)
