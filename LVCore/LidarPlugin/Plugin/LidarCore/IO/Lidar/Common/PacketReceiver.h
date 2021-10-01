@@ -29,7 +29,7 @@ template<typename T>
 class SynchronizedQueue;
 
 /*!< Size of the buffer used to store the data received */
-#define BUFFER_SIZE 32000
+#define BUFFER_SIZE 34000
 
 /*!< Number of packed save when the option CrashAnalysing is set */
 #define NBR_PACKETS_SAVED  1500
