@@ -17,7 +17,7 @@
 
 #include "lqHelper.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "pqLidarViewManager.h"
+#include "lqLidarViewManager.h"
 #include "vvCalibrationDialog.h"
 #include "lqSensorListWidget.h"
 
@@ -94,7 +94,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
 
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
-  vvCalibrationDialog dialog(pqLidarViewManager::instance()->getMainWindow());
+  vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow());
   //DisplayDialogOnActiveWindow(dialog);
   if (!dialog.exec())
   {
@@ -102,7 +102,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   }
 
   // Create a progress bar so the user see that VeloView is running
-  QProgressDialog progress("Reading pcap", "", 0, 0, pqLidarViewManager::getMainWindow());
+  QProgressDialog progress("Reading pcap", "", 0, 0, lqLidarViewManager::getMainWindow());
   progress.setCancelButton(nullptr);
   progress.setModal(true);
   progress.show();
@@ -174,7 +174,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   listSensor->setSourceToDisplayToLidarSourceWidget(lidarSource, trailingFrameFilter);
 
   //Update applogic to be able to use function only define in applogic.
-  pqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicReader('%1', '%2', '%3')\n").arg(lidarName, posOrName, trailingFrameName));
+  lqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicReader('%1', '%2', '%3')\n").arg(lidarName, posOrName, trailingFrameName));
 
   // Show the trailing frame
   controller->Show(trailingFrameFilter->getSourceProxy(), 0, view->getViewProxy());

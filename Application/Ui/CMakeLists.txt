@@ -19,8 +19,8 @@ add_library(ApplicationUi
   Widgets/vvSelectFramesDialog.ui
   Widgets/images/resources.qrc
 
-  pqLidarViewManager.cxx
-  pqLidarViewManager.h
+  lqLidarViewManager.cxx
+  lqLidarViewManager.h
   lqOpenPcapReaction.cxx
   lqOpenPcapReaction.h
   lqOpenRecentFilesReaction.cxx
@@ -29,7 +29,7 @@ add_library(ApplicationUi
   lqOpenSensorReaction.h
   lqUpdateCalibrationReaction.cxx
   lqUpdateCalibrationReaction.h
-  vvPythonQtDecorators.h
+  lqPythonQtLidarView.h # LV Specific PythonQt Decorators
   )
 target_link_libraries(ApplicationUi PUBLIC
   ParaView::pqCore

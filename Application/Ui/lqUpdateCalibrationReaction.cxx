@@ -18,7 +18,7 @@
 
 #include "lqHelper.h"
 #include "lqSensorListWidget.h"
-#include "pqLidarViewManager.h"
+#include "lqLidarViewManager.h"
 #include "vvCalibrationDialog.h"
 
 #include <cctype>
@@ -241,7 +241,7 @@ void lqUpdateCalibrationReaction::UpdateExistingSource(pqPipelineSource* & lidar
 
   // Create the dialog with the proxy so the dialog has the proxy information
   vvCalibrationDialog dialog(lidarSource->getProxy(), posOrProxy,
-                             pqLidarViewManager::instance()->getMainWindow());
+                             lqLidarViewManager::instance()->getMainWindow());
   DisplayDialogOnActiveWindow(dialog);
 
   // Launch the calibration Dialog

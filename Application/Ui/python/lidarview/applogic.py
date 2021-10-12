@@ -98,7 +98,7 @@ def hasArrayName(sourceProxy, arrayName):
             return True
     return False
 
-# Used by pqLidarViewManager
+# Used by lqLidarViewManager
 def openData(filename):
 
     onClose()
@@ -428,11 +428,11 @@ def saveLASFrames(filename, first, last, transform = 0):
     if getPosition() is not None:
         position = getPosition().GetClientSideObject().GetOutput()
 
-        PythonQt.paraview.pqLidarViewManager.saveFramesToLAS(
+        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
             reader, position, first, last, filename, transform)
 
     else:
-        PythonQt.paraview.pqLidarViewManager.saveFramesToLAS(
+        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
             reader, None, first, last, filename, transform)
 
 
@@ -687,7 +687,7 @@ def onSavePCAP():
     if not fileName:
         return
 
-    PythonQt.paraview.pqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
+    PythonQt.paraview.lqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
 
 
 def onSaveScreenshot():

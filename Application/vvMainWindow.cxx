@@ -27,47 +27,54 @@
 
 #include "vvMainWindow.h"
 #include "ui_vvMainWindow.h"
+
 #include "lqDockableSpreadSheetReaction.h"
-#include "lqSaveLidarStateReaction.h"
-#include "lqLoadLidarStateReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
-#include "lqOpenSensorReaction.h"
+#include "lqLoadLidarStateReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
-#include "lqUpdateCalibrationReaction.h"
-#include "lqSaveLidarFrameReaction.h"
+#include "lqOpenSensorReaction.h"
 #include "lqSaveLASReaction.h"
-
-#include <vtkSMProxyManager.h>
-#include <vtkSMSessionProxyManager.h>
+#include "lqSaveLidarFrameReaction.h"
+#include "lqSaveLidarStateReaction.h"
+#include "lqUpdateCalibrationReaction.h"
+#include <lqLidarViewManager.h>
+#include <lqSensorListWidget.h>
+#include <lqCameraParallelProjectionReaction.h>
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
+#include <pqAxesToolbar.h>
+#include <pqCameraToolbar.h>
+#include <pqDataRepresentation.h>
+#include <pqDeleteReaction.h>
+#include <pqDesktopServicesReaction.h>
+#include <pqHelpReaction.h>
 #include <pqInterfaceTracker.h>
+#include <pqLoadDataReaction.h>
+#include <pqMainWindowEventManager.h>
 #include <pqObjectBuilder.h>
 #include <pqOutputWidget.h>
-#include <pqRenderView.h>
-#include <pqRenderViewSelectionReaction.h>
-#include <pqDeleteReaction.h>
-#include <pqHelpReaction.h>
-#include <pqDesktopServicesReaction.h>
-#include <pqServer.h>
-#include <pqSettings.h>
-#include <pqLidarViewManager.h>
+#include <pqParaViewBehaviors.h>
 #include <pqParaViewMenuBuilders.h>
 #include <pqPythonManager.h>
-#include <pqTabbedMultiViewWidget.h>
+#include <pqRenderView.h>
+#include <pqRenderViewSelectionReaction.h>
+#include <pqServer.h>
 #include <pqSetName.h>
-#include <vtkSMPropertyHelper.h>
-#include "pqAxesToolbar.h"
-#include "pqCameraToolbar.h"
-#include <pqParaViewBehaviors.h>
-#include <pqDataRepresentation.h>
+#include <pqSettings.h>
+#include <pqTabbedMultiViewWidget.h>
+
+#include <vtksys/SystemTools.hxx>
+
+// LidarView is always Python Enabled
+#include <pvpythonmodules.h>
 #include <pqPythonShell.h>
-#include <pqLoadDataReaction.h>
+#include <pqPythonDebugLeaksView.h>
+typedef pqPythonDebugLeaksView DebugLeaksViewType;
+
 
 #include <QToolBar>
-#include <QShortcut>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -80,344 +87,96 @@
 #include <sstream>
 
 #include "lqPlayerControlsToolbar.h"
+#include "lqViewFrameActions.h"
 
-// Declare the plugin to load.
+// Declare static plugin to load.
 #define PARAVIEW_BUILDING_PLUGIN
 #include "vtkPVPlugin.h"
-PV_PLUGIN_IMPORT_INIT(PythonQtPlugin); //could link it dynamically actually wip ?
+PV_PLUGIN_IMPORT_INIT(PythonQtPlugin); // WIP could be Dynamically loaded
 
-class vvMainWindow::pqInternals
+//-----------------------------------------------------------------------------
+class vvMainWindow::pqInternals : public Ui::vvMainWindow
 {
 public:
-  pqInternals(vvMainWindow* window)
-    : Ui()
-    , MainView(0)
+  pqInternals():
+    Ui::vvMainWindow()
   {
-    this->Ui.setupUi(window);
-    this->paraviewInit(window);
-    this->setupUi();
-
-    window->show();
-    window->raise();
-    window->activateWindow();
-  }
-  Ui::vvMainWindow Ui;
-  pqRenderView* MainView = nullptr;
-  pqServer* Server = nullptr;
-  pqObjectBuilder* Builder = nullptr;
-
-private:
-  void paraviewInit(vvMainWindow* window)
-  {
-    pqApplicationCore* core = pqApplicationCore::instance();
-
-    // need to be created before the first scene
-    QToolBar* vcrToolbar = new lqPlayerControlsToolbar(window)
-      << pqSetName("Player Control");
-    window->addToolBar(Qt::TopToolBarArea, vcrToolbar);
-
-    QToolBar* cameraToolbar = new pqCameraToolbar(window)
-      << pqSetName("cameraToolbar");
-    window->addToolBar(Qt::TopToolBarArea, cameraToolbar);
-
-    QToolBar* axesToolbar = new pqAxesToolbar(window)
-      << pqSetName("axesToolbar");
-    window->addToolBar(Qt::TopToolBarArea, axesToolbar);
-
-    // create pythonshell
-    pqPythonShell* shell = new pqPythonShell(window);
-    shell->setObjectName("pythonShell");
-    shell->setFontSize(8);
-    this->Ui.pythonShellDock->setWidget(shell);
-    pqLidarViewManager::instance()->setPythonShell(shell);
-
-    // Give the macros menu to the pqPythonMacroSupervisor
-    pqPythonManager* manager =
-      qobject_cast<pqPythonManager*>(pqApplicationCore::instance()->manager("PYTHON_MANAGER"));
-    if (manager)
-    {
-      QToolBar* macrosToolbar = new QToolBar("Macros Toolbars", window)
-        << pqSetName("MacrosToolbar");
-      manager->addWidgetForRunMacros(macrosToolbar);
-      window->addToolBar(Qt::TopToolBarArea, macrosToolbar);
-    }
-
-    // Define application behaviors.
-    pqParaViewBehaviors::enableQuickLaunchShortcuts();
-    pqParaViewBehaviors::enableSpreadSheetVisibilityBehavior();
-    pqParaViewBehaviors::enableObjectPickingBehavior();
-    pqParaViewBehaviors::enableCrashRecoveryBehavior();
-    pqParaViewBehaviors::enableAutoLoadPluginXMLBehavior();
-    pqParaViewBehaviors::enableDataTimeStepBehavior();
-    pqParaViewBehaviors::enableCommandLineOptionsBehavior();
-    pqParaViewBehaviors::enableLiveSourceBehavior();
-    pqParaViewBehaviors::enableApplyBehavior();
-    pqParaViewBehaviors::enableStandardViewFrameActions();
-    pqParaViewBehaviors::enableStandardPropertyWidgets();
-    pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
-
-    // Check if the settings are well formed i.e. if an OriginalMainWindow
-    // state was previously saved. If not, we don't want to automatically
-    // restore the settings state nor save it on quitting LidarView.
-    // An OriginalMainWindow state will be force saved once the UI is completly
-    // set up.
-    pqSettings* const settings = pqApplicationCore::instance()->settings();
-    bool shouldClearSettings = false;
-    QStringList keys = settings->allKeys();
-
-    if (keys.size() == 0)
-    {
-      // There were no settings before, let's save the current state as
-      // OriginalMainWindow state
-      shouldClearSettings = true;
-    }
-    else
-    {
-      // Checks if the existing settings are well formed and if not, clear them.
-      // An original MainWindow state will be force saved later once the UI is
-      // entirely set up
-      for (int keyIndex = 0; keyIndex < keys.size(); ++keyIndex)
-      {
-        if (keys[keyIndex].contains("OriginalMainWindow"))
-        {
-          shouldClearSettings = true;
-          break;
-        }
-      }
-    }
-
-    if (shouldClearSettings)
-    {
-      pqParaViewBehaviors::enablePersistentMainWindowStateBehavior();
-    }
-    else
-    {
-      if (keys.size() > 0)
-      {
-        vtkGenericWarningMacro("Settings weren't set correctly. Clearing settings.");
-      }
-
-      // As pqPersistentMainWindowStateBehavior is not created right now,
-      // we can clear the settings as the current bad state won't be saved on
-      // closing LidarView
-      settings->clear();
-    }
-
-    // the paraview behaviors, which will in our case instantiate the enableStandardViewFrameActions
-    // must be created before creating the first renderview, otherwise this view won't have the default
-    // view toolbar buttons/actions
-    new pqParaViewBehaviors(window, window);
-
-    // Connect to builtin server.
-    this->Builder = core->getObjectBuilder();
-    this->Server = this->Builder->createServer(pqServerResource("builtin:"));
-    pqActiveObjects::instance().setActiveServer(this->Server);
-
-    // Set default render view settings
-    vtkSMSessionProxyManager* pxm =
-      vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager();
-    vtkSMProxy* renderviewsettings = pxm->GetProxy("RenderViewSettings");
-    assert(renderviewsettings);
-
-    vtkSMPropertyHelper(renderviewsettings, "ResolveCoincidentTopology").Set(0);
-
-    // Set the central widget
-    pqTabbedMultiViewWidget* mv = new pqTabbedMultiViewWidget;
-    mv->setTabVisibility(false);
-    window->setCentralWidget(mv);
-
-    new lqDockableSpreadSheetReaction(this->Ui.actionSpreadsheet, window);
-
-    this->MainView =
-      qobject_cast<pqRenderView*>(this->Builder->createView(pqRenderView::renderViewType(), this->Server));
-    assert(this->MainView);
-
-    // Add view to layout
-    this->Builder->addToLayout(this->MainView);
-
-    vtkSMPropertyHelper(this->MainView->getProxy(), "CenterAxesVisibility").Set(0);
-    double bgcolor[3] = { 0, 0, 0 };
-    vtkSMPropertyHelper(this->MainView->getProxy(), "Background").Set(bgcolor, 3);
-    // MultiSamples doesn't work, we need to set that up before registering the proxy.
-    // vtkSMPropertyHelper(view->getProxy(),"MultiSamples").Set(1);
-    this->MainView->getProxy()->UpdateVTKObjects();
-
-    // Add save/load lidar state action
-    new lqSaveLidarStateReaction(this->Ui.actionSaveLidarState);
-    new lqLoadLidarStateReaction(this->Ui.actionLoadLidarState);
-
-    // Change calibration reaction
-    new lqUpdateCalibrationReaction(this->Ui.actionChoose_Calibration_File);
-
-    // Specify each Properties Panel as we do want to present one panel per dock
-    this->Ui.propertiesPanel->setPanelMode(pqPropertiesPanel::SOURCE_PROPERTIES);
-    this->Ui.viewPropertiesPanel->setPanelMode(pqPropertiesPanel::VIEW_PROPERTIES);
-    this->Ui.displayPropertiesPanel->setPanelMode(pqPropertiesPanel::DISPLAY_PROPERTIES);
-
-    // Enable help from the properties panel.
-    QObject::connect(this->Ui.propertiesPanel,
-      SIGNAL(helpRequested(const QString&, const QString&)),
-      window, SLOT(showHelpForProxy(const QString&, const QString&)));
-
-    /// hook delete to pqDeleteReaction.
-    QAction* tempDeleteAction = new QAction(window);
-    pqDeleteReaction* handler = new pqDeleteReaction(tempDeleteAction);
-    handler->connect(this->Ui.propertiesPanel,
-      SIGNAL(deleteRequested(pqProxy*)),
-      SLOT(deleteSource(pqProxy*)));
-
-    // specify how corner are occupied by the dockable widget
-    window->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    window->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    window->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-    window->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-
-    // organize dockable widget in tab
-    window->setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
-    window->tabifyDockWidget(this->Ui.propertiesDock, this->Ui.colorMapEditorDock);
-    window->tabifyDockWidget(this->Ui.viewPropertiesDock, this->Ui.colorMapEditorDock);
-    window->tabifyDockWidget(this->Ui.displayPropertiesDock, this->Ui.colorMapEditorDock);
-    window->tabifyDockWidget(this->Ui.informationDock, this->Ui.memoryInspectorDock);
-    window->tabifyDockWidget(this->Ui.informationDock, this->Ui.viewAnimationDock);
-    window->tabifyDockWidget(this->Ui.informationDock, this->Ui.outputWidgetDock);
-    window->tabifyDockWidget(this->Ui.informationDock, this->Ui.pythonShellDock);
-
-    // hide docker by default
-    this->Ui.pipelineBrowserDock->hide();
-    this->Ui.propertiesDock->hide();
-    this->Ui.viewPropertiesDock->hide();
-    this->Ui.displayPropertiesDock->hide();
-    this->Ui.colorMapEditorDock->hide();
-    this->Ui.informationDock->hide();
-    this->Ui.memoryInspectorDock->hide();
-    this->Ui.viewAnimationDock->hide();
-    this->Ui.outputWidgetDock->hide();
-    this->Ui.pythonShellDock->hide();
-    this->Ui.sensorListDock->hide();
-
-    // Setup the View menu. This must be setup after all toolbars and dockwidgets
-    // have been created.
-    pqParaViewMenuBuilders::buildViewMenu(*this->Ui.menuViews, *window);
-
-    /// If you want to automatically add a menu for sources as requested in the
-    /// configuration pass in a non-null main window.
-    pqParaViewMenuBuilders::buildSourcesMenu(*this->Ui.menuSources, nullptr);
-
-    /// If you want to automatically add a menu for filters as requested in the
-    /// configuration pass in a non-null main window.
-    pqParaViewMenuBuilders::buildFiltersMenu(*this->Ui.menuFilters, nullptr);
-
-    // setup the context menu for the pipeline browser.
-    pqParaViewMenuBuilders::buildPipelineBrowserContextMenu(*this->Ui.pipelineBrowser->contextMenu());
-
-    // build Paraview file menu
-    QMenu *paraviewFileMenu = this->Ui.menuAdvance->addMenu("File (Paraview)");
-    pqParaViewMenuBuilders::buildFileMenu(*paraviewFileMenu);
-    // for some reason the menu builder rename the QMenu...
-    paraviewFileMenu->setTitle("File (Paraview)");
-
-    // build Paraview edit menu
-    QMenu *paraviewEditMenu = this->Ui.menuAdvance->addMenu("Edit (Paraview)");
-    // for some reason the menu builder rename the QMenu...
-    pqParaViewMenuBuilders::buildEditMenu(*paraviewEditMenu);
-    paraviewEditMenu->setTitle("Edit (Paraview)");
-
-    // build Paraview tools menu
-    QMenu *paraviewToolsMenu = this->Ui.menuAdvance->addMenu("Tools (Paraview)");
-    pqParaViewMenuBuilders::buildToolsMenu(*paraviewToolsMenu);
-
-    // build Paraview macro menu
-    QMenu *paraviewMacroMenu = this->Ui.menuAdvance->addMenu("Macro (Paraview)");
-    pqParaViewMenuBuilders::buildMacrosMenu(*paraviewMacroMenu);
-
-    // Add Professional Support / How to SLAM Menu Actions
-    new pqDesktopServicesReaction(QUrl("https://www.kitware.com/what-we-offer"),
-      (this->Ui.actionHelpSupport ));
-
-    new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md"),
-      (this->Ui.actionHelpSlam ));
-
-    pqActiveObjects::instance().setActiveView(this->MainView);
-  }
-
-  //-----------------------------------------------------------------------------
-  void setupUi()
-  {
-    new pqRenderViewSelectionReaction(this->Ui.actionSelect_Visible_Points, this->MainView,
-      pqRenderViewSelectionReaction::SELECT_SURFACE_POINTS);
-    new pqRenderViewSelectionReaction(this->Ui.actionSelect_All_Points, this->MainView,
-      pqRenderViewSelectionReaction::SELECT_FRUSTUM_POINTS);
-
-    pqLidarViewManager::instance()->setup();
-
-    pqSettings* const settings = pqApplicationCore::instance()->settings();
-    const QVariant& gridVisible =
-      settings->value("LidarPlugin/MeasurementGrid/Visibility", true);
-    this->Ui.actionMeasurement_Grid->setChecked(gridVisible.toBool());
-
-    new lqOpenSensorReaction(this->Ui.actionOpen_Sensor_Stream);
-    new lqOpenPcapReaction(this->Ui.actionOpenPcap);
-
-    new lqOpenRecentFilesReaction(this->Ui.menuRecent_Files, this->Ui.actionClear_Menu);
-
-    lqSensorListWidget * listSensor = lqSensorListWidget::instance();
-    listSensor->setCalibrationFunction(&lqUpdateCalibrationReaction::UpdateExistingSource);
-
-    new lqSaveLidarFrameReaction(this->Ui.actionSavePCD, "PCDWriter", "pcd", false, false, true, true);
-    new lqSaveLidarFrameReaction(this->Ui.actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
-    new lqSaveLidarFrameReaction(this->Ui.actionSavePLY, "PPLYWriter", "ply", false, false, true, true);
-    new lqSaveLASReaction(this->Ui.actionSaveLAS, false, false, true, true);
-
-    connect(this->Ui.actionMeasurement_Grid, SIGNAL(toggled(bool)), pqLidarViewManager::instance(),
-      SLOT(onMeasurementGrid(bool)));
-
-    connect(this->Ui.actionResetDefaultSettings, SIGNAL(triggered()),
-      pqLidarViewManager::instance(), SLOT(onResetDefaultSettings()));
-
-    connect(this->Ui.actionShowErrorDialog, SIGNAL(triggered()), this->Ui.outputWidgetDock,
-      SLOT(show()));
-
-    connect(this->Ui.actionPython_Console, SIGNAL(triggered()), this->Ui.pythonShellDock,
-      SLOT(show()));
-
-    // Add save/load lidar state action
-    new lqEnableAdvancedArraysReaction(this->Ui.actionEnableAdvancedArrays);
   }
 };
 
 //-----------------------------------------------------------------------------
 vvMainWindow::vvMainWindow()
-  : Internals(new vvMainWindow::pqInternals(this))
 {
-  pqApplicationCore::instance()->registerManager(
-    "COLOR_EDITOR_PANEL", this->Internals->Ui.colorMapEditorDock);
-  this->Internals->Ui.colorMapEditorDock->hide();
+  // ParaView Init Start
+  // DebugLeaksView MUST be instantiated first
+  DebugLeaksViewType* leaksView = nullptr;
+  if (vtksys::SystemTools::GetEnv("PV_DEBUG_LEAKS_VIEW"))
+  {
+    leaksView = new DebugLeaksViewType(this);
+    leaksView->setWindowFlags(Qt::Window);
+    leaksView->show();
+  }
 
-  // show output widget if we received an error message.
-  this->connect(this->Internals->Ui.outputWidget, SIGNAL(messageDisplayed(const QString&, int)),
-    SLOT(handleMessage(const QString&, int)));
+  // Connect to builtin server.
+  pqServer* server = pqApplicationCore::instance()->getObjectBuilder()->createServer(pqServerResource("builtin:"));
+  pqActiveObjects::instance().setActiveServer(server);
 
+  // PVPython
+  pvpythonmodules_load();
+
+  // Internals
+  this->Internals = new pqInternals();
+  this->Internals->setupUi(this);
+  //this->Internals->outputWidgetDock->hide(); // This is default ParaView, we give the App choice first
+  //this->Internals->pythonShellDock->hide();  // Kept for reference
+  //this->Internals->materialEditorDock->hide();
+
+  // Load Plugins
   PV_PLUGIN_IMPORT(PythonQtPlugin);
 
-  // Branding
-  std::stringstream ss;
-  ss << "Reset " << SOFTWARE_NAME << " settings";
-  QString text = QString(ss.str().c_str());
-  this->Internals->Ui.actionResetDefaultSettings->setText(text);
-  ss.str("");
-  ss.clear();
+  // LidarView Specific Manager
+  new lqLidarViewManager(this);
 
-  ss << "This will reset all " << SOFTWARE_NAME << " settings by default";
-  text = QString(ss.str().c_str());
-  this->Internals->Ui.actionResetDefaultSettings->setIconText(text);
-  ss.str("");
-  ss.clear();
+  // Create pythonshell
+  pqPythonShell* shell = new pqPythonShell(this);
+  shell->setObjectName("pythonShell");
+  shell->setFontSize(8);
+  lqLidarViewManager::instance()->setPythonShell(shell);
+  if (leaksView)
+  {
+    leaksView->setShell(shell);
+  }
+  // ParaView Init END
 
-  ss << "About " << SOFTWARE_NAME;
-  text = QString(ss.str().c_str());
-  this->Internals->Ui.actionAbout_LidarView->setText(text);
-  ss.str("");
-  ss.clear();
+  // Persistent Settings Restore // WIP TO rework is this verbatim PV ?
+  // Better instantiated before any widget instantiation / outputWidget connection
+  lqLidarViewManager::instance()->persistentSettingsRestore();
+
+  // Setup ParaView  Base GUI
+  this->setupPVGUI();
+
+  // Setup LidarView Base GUI
+  this->setupLVGUI();
+
+  // LidarView custom GUI
+  this->setupGUICustom();
+
+  // LidarView Branding
+  this->setBranding();
+
+  // Create Main Render View
+  lqLidarViewManager::instance()->createMainRenderView();
+
+  // Schedule Python Init late otherwise startup is slow, WIP to investigate (related to window creation timing)
+  lqLidarViewManager::instance()->schedulePythonStartup();
+
+  // Save Original State if first time or invalid and discarded
+  lqLidarViewManager::instance()->persistentSettingsSaveOriginal();
+
+  // Force Show App
+  this->show();
+  this->raise();
+  this->activateWindow();
 }
 
 //-----------------------------------------------------------------------------
@@ -428,9 +187,303 @@ vvMainWindow::~vvMainWindow()
 }
 
 //-----------------------------------------------------------------------------
+void vvMainWindow::setupPVGUI()
+{
+  // Common Parts of the ParaViewMainWindow.cxx
+  // Easily updatable and referenceable
+  // Common elements to all LidarView-based Apps
+
+  // PARAVIEW_USE_MATERIALEDITOR // Not used
+
+  // show output widget if we received an error message.
+  this->connect(this->Internals->outputWidget, SIGNAL(messageDisplayed(const QString&, int)),
+    SLOT(handleMessage(const QString&, int)));
+
+  // Setup default GUI layout.
+  this->setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
+
+  // Set up the dock window corners to give the vertical docks more room.
+  this->setCorner(Qt::TopLeftCorner    , Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::BottomLeftCorner , Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::TopRightCorner   , Qt::RightDockWidgetArea);
+  this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+  // CUSTOMIZED tabifyDockWidget() / hide() section
+  // Easier to understand what is being used
+
+  // Memory Inspector Dock
+  this->tabifyDockWidget(this->Internals->informationDock      , this->Internals->memoryInspectorDock);
+  this->Internals->memoryInspectorDock->hide();
+
+  // View Animation Dock
+  this->tabifyDockWidget(this->Internals->informationDock      , this->Internals->viewAnimationDock);
+  this->Internals->viewAnimationDock->hide();
+
+  // Hide Various Other Docks
+  this->Internals->colorMapEditorDock->hide();
+  this->Internals->pipelineBrowserDock->hide();
+  this->Internals->propertiesDock->hide();
+  this->Internals->viewPropertiesDock->hide();
+  this->Internals->displayPropertiesDock->hide();
+  this->Internals->informationDock->hide();
+
+  // CUSTOMIZED PropertiesPanelMode
+  this->Internals->propertiesPanel       ->setPanelMode(pqPropertiesPanel::SOURCE_PROPERTIES);
+  this->Internals->viewPropertiesPanel   ->setPanelMode(pqPropertiesPanel::VIEW_PROPERTIES);
+  this->Internals->displayPropertiesPanel->setPanelMode(pqPropertiesPanel::DISPLAY_PROPERTIES);
+
+  // TODO update UI when font size changes.
+
+  // TODO Enable help from the properties panel.
+
+  /// hook delete to pqDeleteReaction.
+  QAction* tempDeleteAction = new QAction(this);
+  pqDeleteReaction* handler = new pqDeleteReaction(tempDeleteAction);
+  handler->connect(this->Internals->propertiesPanel, SIGNAL(deleteRequested(pqProxy*)),
+    SLOT(deleteSource(pqProxy*)));
+
+  // setup color editor
+  /// Provide access to the color-editor panel for the application.
+  pqApplicationCore::instance()->registerManager(
+    "COLOR_EDITOR_PANEL", this->Internals->colorMapEditorDock);
+
+  // Provide access to the find data panel for the application.
+  //pqApplicationCore::instance()->registerManager("FIND_DATA_PANEL", this->Internals->findDataDock); // Unused
+
+  // Populate application menus with actions.
+  //pqParaViewMenuBuilders::buildFileMenu(*this->Internals->menu_File); // Advanced Menu
+  //pqParaViewMenuBuilders::buildEditMenu(*this->Internals->menu_Edit, this->Internals->propertiesPanel); // Advanced Menu
+
+  // Populate sources menu.
+  pqParaViewMenuBuilders::buildSourcesMenu(*this->Internals->menuSources, this);
+
+  // Populate filters menu.
+  pqParaViewMenuBuilders::buildFiltersMenu(*this->Internals->menuFilters, this);
+
+  // Populate extractors menu.
+  //pqParaViewMenuBuilders::buildExtractorsMenu(*this->Internals->menuExtractors, this); // Unused
+
+  // Populate Tools menu.
+  //pqParaViewMenuBuilders::buildToolsMenu(*this->Internals->menuTools); // Advanced Menu
+
+  // Populate Catalyst menu.
+  //pqParaViewMenuBuilders::buildCatalystMenu(*this->Internals->menu_Catalyst); // Unused
+
+  // setup the context menu for the pipeline browser.
+  pqParaViewMenuBuilders::buildPipelineBrowserContextMenu(*this->Internals->pipelineBrowser->contextMenu());
+
+  // CUSTOMIZED Toolbars
+  //pqParaViewMenuBuilders::buildToolbars(*this);
+  this->pqbuildToolbars();
+
+  // Setup the View menu. This must be setup after all toolbars and dockwidgets
+  // have been created.
+  pqParaViewMenuBuilders::buildViewMenu(*this->Internals->menuViews, *this);
+
+  // Setup the menu to show macros.
+  //pqParaViewMenuBuilders::buildMacrosMenu(*this->Internals->menu_Macros); // Advanced Menu
+
+  // Setup the help menu.
+  //pqParaViewMenuBuilders::buildHelpMenu(*this->Internals->menu_Help); // Custom
+
+  // CUSTOMIZED Paraview behaviors
+  pqParaViewBehaviors::enableApplyBehavior();
+  pqParaViewBehaviors::enableAutoLoadPluginXMLBehavior();
+  pqParaViewBehaviors::enableCommandLineOptionsBehavior();
+  pqParaViewBehaviors::enableCrashRecoveryBehavior();
+  pqParaViewBehaviors::enableDataTimeStepBehavior();
+  pqParaViewBehaviors::enableLiveSourceBehavior();
+  pqParaViewBehaviors::enableObjectPickingBehavior();
+  pqParaViewBehaviors::enableQuickLaunchShortcuts();
+  pqParaViewBehaviors::enableSpreadSheetVisibilityBehavior();
+  pqParaViewBehaviors::enableStandardPropertyWidgets();
+  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
+  pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
+
+  pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
+  new pqParaViewBehaviors(this, this); // MUST be created before renderView
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::pqbuildToolbars()
+{
+  // Rework of pqParaViewMenuBuilders::buildToolbars
+  // Removed pqMainControlsToolbar, pqVCRToolbar, pqAnimationTimeToolbar,
+  //         pqCustomViewpointsToolbar, pqColorToolbar, pqRepresentationToolbar
+  QToolBar* cameraToolbar = new pqCameraToolbar(this)
+    << pqSetName("cameraToolbar");
+  this->addToolBar(Qt::TopToolBarArea, cameraToolbar);
+
+  QToolBar* axesToolbar = new pqAxesToolbar(this)
+    << pqSetName("axesToolbar");
+  this->addToolBar(Qt::TopToolBarArea, axesToolbar);
+
+  // Give the macros menu to the pqPythonMacroSupervisor
+  pqPythonManager* manager =
+    qobject_cast<pqPythonManager*>(pqApplicationCore::instance()->manager("PYTHON_MANAGER"));
+  if (manager)
+  {
+    QToolBar* macrosToolbar = new QToolBar("Macros Toolbars", this)
+      << pqSetName("MacrosToolbar");
+    manager->addWidgetForRunMacros(macrosToolbar);
+    this->addToolBar(Qt::TopToolBarArea, macrosToolbar);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::setupLVGUI()
+{
+  // Add generally common elements to all LidarView-based apps
+  // Not necessarilly verbatim Paraview
+  // Feel Free to modify this in your LidarView-based app if you really do not like the look
+
+  // Set the central widget
+  pqTabbedMultiViewWidget* mv = new pqTabbedMultiViewWidget;
+  mv->setTabVisibility(false);
+  this->setCentralWidget(mv);
+
+  // Output Window Dock
+  this->Internals->outputWidgetDock->setWidget(this->Internals->outputWidget);
+    this->tabifyDockWidget(this->Internals->informationDock      , this->Internals->outputWidgetDock);
+  connect(this->Internals->actionShowErrorDialog, SIGNAL(triggered()), this->Internals->outputWidgetDock, SLOT(show()));
+  this->Internals->outputWidgetDock->hide();
+
+  // Python Shell Dock
+  this->Internals->pythonShellDock->setWidget(lqLidarViewManager::instance()->getPythonShell());
+  this->tabifyDockWidget(this->Internals->informationDock      , this->Internals->pythonShellDock);
+  connect(this->Internals->actionPython_Console , SIGNAL(triggered()), this->Internals->pythonShellDock , SLOT(show()));
+  this->Internals->pythonShellDock->hide();
+
+  // Sensor List Dock //wipwip not a core LV element, could also be added in the .ui in internals,  like python shell
+  QDockWidget* sensorListDock = new QDockWidget("Sensor List", this);
+  sensorListDock->setObjectName("sensorListDock");
+  sensorListDock->hide();
+  sensorListDock->setWidget(lqSensorListWidget::instance());
+  this->addDockWidget(Qt::RightDockWidgetArea, sensorListDock);
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::setupGUICustom()
+{
+  // LidarView Specific UI elements
+
+  // WIP TODO actionResetDefaultSettings needs rework
+  connect(this->Internals->actionResetDefaultSettings, SIGNAL(triggered()),
+    lqLidarViewManager::instance(), SLOT(onResetDefaultSettings()));
+
+  // Add Professional Support menu action
+  new pqDesktopServicesReaction(QUrl("https://www.kitware.com/what-we-offer"),
+    (this->Internals->actionHelpSupport ));
+  // How to SLAM menu action
+  new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md"),
+    (this->Internals->actionHelpSlam ));
+
+  // Enable help from the properties panel.
+  QObject::connect(this->Internals->propertiesPanel,
+    SIGNAL(helpRequested(const QString&, const QString&)),
+    this, SLOT(showHelpForProxy(const QString&, const QString&)));
+
+  // LidarView-specific Toolbars
+  QToolBar* vcrToolbar = new lqPlayerControlsToolbar(this)
+    << pqSetName("Player Control");
+  this->addToolBar(Qt::TopToolBarArea, vcrToolbar);
+
+  pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+  pgm->addInterface(new lqViewFrameActions);
+
+  // Create RenderView dependant reactions
+  new lqCameraParallelProjectionReaction(this->Internals->actionToggleProjection);
+  //new pqRenderViewSelectionReaction(this->Internals->actionSelect_Visible_Points, nullptr, // WIP 
+  //    pqRenderViewSelectionReaction::SELECT_SURFACE_POINTS);
+  new pqRenderViewSelectionReaction(this->Internals->actionSelect_Points, nullptr,
+      pqRenderViewSelectionReaction::SELECT_FRUSTUM_POINTS);
+
+  // LV Reactions
+  new lqDockableSpreadSheetReaction(this->Internals->actionSpreadsheet, this);
+
+  //WIP SETTINGS GRID
+  pqSettings* const settings = pqApplicationCore::instance()->settings();
+  const QVariant& gridVisible = settings->value("LidarPlugin/MeasurementGrid/Visibility", true);
+  this->Internals->actionMeasurement_Grid->setChecked(gridVisible.toBool());
+  connect(this->Internals->actionMeasurement_Grid, SIGNAL(toggled(bool)), lqLidarViewManager::instance(),
+    SLOT(onMeasurementGrid(bool)));
+
+  new lqOpenSensorReaction(this->Internals->actionOpen_Sensor_Stream);
+  new lqOpenPcapReaction(this->Internals->actionOpenPcap);
+
+  new lqUpdateCalibrationReaction(this->Internals->actionChoose_Calibration_File); // Requires lqSensorListWidget init
+  // Following is required if intend to use the lqSensorListWidget
+  lqSensorListWidget::instance()->setCalibrationFunction(&lqUpdateCalibrationReaction::UpdateExistingSource);
+
+  new lqSaveLidarStateReaction(this->Internals->actionSaveLidarState);
+  new lqLoadLidarStateReaction(this->Internals->actionLoadLidarState);
+
+  new lqOpenRecentFilesReaction(this->Internals->menuRecent_Files, this->Internals->actionClear_Menu);
+
+  new lqSaveLidarFrameReaction(this->Internals->actionSavePCD, "PCDWriter"       , "pcd", false, false, true, true);
+  new lqSaveLidarFrameReaction(this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
+  new lqSaveLidarFrameReaction(this->Internals->actionSavePLY, "PPLYWriter"      , "ply", false, false, true, true);
+  new lqSaveLASReaction(this->Internals->actionSaveLAS, false, false, true, true);
+
+  // Add save/load lidar state action
+  new lqEnableAdvancedArraysReaction(this->Internals->actionEnableAdvancedArrays);
+
+
+  // Advanced Menu
+  // build Paraview file menu
+  QMenu *paraviewFileMenu = this->Internals->menuAdvance->addMenu("File (Paraview)");
+  pqParaViewMenuBuilders::buildFileMenu(*paraviewFileMenu);
+  paraviewFileMenu->setTitle("File (Paraview)"); // for some reason the menu builder rename the QMenu...
+
+  // build Paraview edit menu
+  QMenu *paraviewEditMenu = this->Internals->menuAdvance->addMenu("Edit (Paraview)");
+  pqParaViewMenuBuilders::buildEditMenu(*paraviewEditMenu);
+  paraviewEditMenu->setTitle("Edit (Paraview)"); // for some reason the menu builder rename the QMenu...
+
+  // build Paraview macro menu
+  QMenu *paraviewMacroMenu = this->Internals->menuAdvance->addMenu("Macro (Paraview)");
+  pqParaViewMenuBuilders::buildMacrosMenu(*paraviewMacroMenu);
+
+  // build Paraview tools menu
+  // MUST BE ISNTANTIATED LAST for qtTesting + requires pqTabbedMultiViewWidget
+  QMenu *paraviewToolsMenu = this->Internals->menuAdvance->addMenu("Tools (Paraview)");
+  pqParaViewMenuBuilders::buildToolsMenu(*paraviewToolsMenu);
+  // DO NOT ADD ANYTHING BELOW
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::setBranding()
+{
+  // For good measure
+  #ifndef SOFTWARE_NAME
+    #error "SOFTWARE_NAME not defined"
+  #endif
+  static_assert( SOFTWARE_NAME, "SOFTWARE_NAME is not defined" );
+
+  std::stringstream ss;
+  ss << "Reset " << SOFTWARE_NAME << " settings";
+  QString text = QString(ss.str().c_str());
+  this->Internals->actionResetDefaultSettings->setText(text);
+  ss.str("");
+  ss.clear();
+
+  ss << "This will reset all " << SOFTWARE_NAME << " settings by default";
+  text = QString(ss.str().c_str());
+  this->Internals->actionResetDefaultSettings->setIconText(text);
+  ss.str("");
+  ss.clear();
+
+  ss << "About " << SOFTWARE_NAME;
+  text = QString(ss.str().c_str());
+  this->Internals->actionAbout_LidarView->setText(text);
+  ss.str("");
+  ss.clear();
+}
+
+//-----------------------------------------------------------------------------
 void vvMainWindow::dragEnterEvent(QDragEnterEvent* evt)
 {
-  evt->acceptProposedAction();
+  pqApplicationCore::instance()->getMainWindowEventManager()->dragEnterEvent(evt);
 }
 
 //-----------------------------------------------------------------------------
@@ -474,18 +527,36 @@ void vvMainWindow::dropEvent(QDropEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
+void vvMainWindow::showEvent(QShowEvent* evt)
+{
+  // TODO PV uses it to show Welcome Message once
+  // could also be used for the "first startup" stuff
+  static_cast<void>(evt);
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::closeEvent(QCloseEvent* evt)
+{
+  pqApplicationCore::instance()->getMainWindowEventManager()->closeEvent(evt);
+}
+
+//-----------------------------------------------------------------------------
 void vvMainWindow::showHelpForProxy(const QString& groupname, const
   QString& proxyname)
 {
   pqHelpReaction::showProxyHelp(groupname, proxyname);
 }
 
+//-----------------------------------------------------------------------------
 void vvMainWindow::handleMessage(const QString &, int type)
 {
-  QDockWidget* dock = this->Internals->Ui.outputWidgetDock;
+  QDockWidget* dock = this->Internals->outputWidgetDock;
   if (!dock)
+  {
+    std::cout << "Error: NO DOCK for handleMessage()" << std::endl;
     return;
-    
+  }
+
   if (!dock->isVisible() && (type == QtCriticalMsg || type == QtFatalMsg || type == QtWarningMsg))
   {
     // if dock is not visible, we always pop it up as a floating dialog. This

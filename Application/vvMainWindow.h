@@ -25,22 +25,35 @@ class vvMainWindow : public QMainWindow
 
 public:
   vvMainWindow();
-  virtual ~vvMainWindow();
+  virtual ~vvMainWindow() override;
 
 protected:
   void dragEnterEvent(QDragEnterEvent* evt) override;
   void dropEvent(QDropEvent* evt) override;
+  void showEvent(QShowEvent* evt) override;
+  void closeEvent(QCloseEvent* evt) override;
 
-protected slots:
+protected Q_SLOTS:
   void showHelpForProxy(const QString& proxyname, const QString& groupname);
-  void handleMessage(const QString &, int type);
+  void handleMessage(const QString&, int);
+  //void showWelcomeDialog();
+  //void updateFontSize();
 
 private:
   Q_DISABLE_COPY(vvMainWindow);
 
   class pqInternals;
   pqInternals* Internals;
-  friend class pqInternals;
+
+  // Following Methods should be the same accross LidarView-based Apps
+  // Exact elements shared accross apps has not been decided yet,
+  // coherence has been improved, but code-duplication remains for more freedom.
+  void setupPVGUI();      // Common Parts of the ParaViewMainWindow.cxx
+  void pqbuildToolbars(); // Reworked pqParaViewMenuBuilders::buildToolbars helper
+  void setupLVGUI();      // Add generally common elements to all LidarView-based apps
+
+  void setupGUICustom();  // LidarView Specific UI elements
+  void setBranding();     // LidarView Specific Branding
 };
 
 #endif

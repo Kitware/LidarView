@@ -167,7 +167,7 @@
    <addaction name="actionChoose_Calibration_File"/>
    <addaction name="actionCropReturns"/>
    <addaction name="separator"/>
-   <addaction name="actionSelect_All_Points"/>
+   <addaction name="actionSelect_Points"/>
    <addaction name="actionSpreadsheet"/>
    <addaction name="actionPython_Console"/>
    <addaction name="actionShowErrorDialog"/>
@@ -195,7 +195,6 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionToggleProjection"/>
-   <addaction name="actionMeasure"/>
    <addaction name="actionPlaneFit"/>
    <addaction name="separator"/>
   </widget>
@@ -342,15 +341,6 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="sensorListDock">
-   <property name="windowTitle">
-    <string>Sensors List</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="lqSensorListWidget" name="sensorListPanel"/>
-  </widget>
   <action name="actionE_xit">
    <property name="text">
     <string>E&amp;xit</string>
@@ -364,7 +354,7 @@
   </action>
   <action name="actionOpenPcap">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -380,19 +370,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSelect_Visible_Points">
-   <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/pqSurfaceSelectionPoint24.png</normaloff>:/vvResources/Icons/pqSurfaceSelectionPoint24.png</iconset>
-   </property>
-   <property name="text">
-    <string>Select Visible Points</string>
-   </property>
-   <property name="toolTip">
-    <string>Select Visible Points (s)</string>
-   </property>
-  </action>
-  <action name="actionSelect_All_Points">
+  <action name="actionSelect_Points">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -401,10 +379,10 @@
      <normaloff>:/vvResources/Icons/pqFrustumSelectionPoint24.png</normaloff>:/vvResources/Icons/pqFrustumSelectionPoint24.png</iconset>
    </property>
    <property name="text">
-    <string>Select All Points</string>
+    <string>Select Points</string>
    </property>
    <property name="toolTip">
-    <string>Select All Points</string>
+    <string>Select Points</string>
    </property>
   </action>
   <action name="actionSpreadsheet">
@@ -427,7 +405,7 @@
   </action>
   <action name="actionOpen_Sensor_Stream">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/lidar.png</normaloff>:/LidarViewPlugin/lidar.png</iconset>
    </property>
    <property name="text">
@@ -454,7 +432,7 @@
   </action>
   <action name="actionChoose_Calibration_File">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/calibrate.png</normaloff>:/LidarViewPlugin/calibrate.png</iconset>
    </property>
    <property name="text">
@@ -517,7 +495,7 @@
   </action>
   <action name="actionSaveCSV">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/csv.png</normaloff>:/LidarViewPlugin/csv.png</iconset>
    </property>
    <property name="text">
@@ -526,7 +504,7 @@
   </action>
   <action name="actionExport_To_KiwiViewer">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/kiwi_200.png</normaloff>:/LidarViewPlugin/kiwi_200.png</iconset>
    </property>
    <property name="text">
@@ -543,7 +521,7 @@
   </action>
   <action name="actionSavePCAP">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -661,21 +639,6 @@
     <string>Toggle between projective and orthogonal view</string>
    </property>
   </action>
-  <action name="actionMeasure">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/vvResources/Icons/Measurements.png</normaloff>:/vvResources/Icons/Measurements.png</iconset>
-   </property>
-   <property name="text">
-    <string>Measure</string>
-   </property>
-   <property name="toolTip">
-    <string>Measure the distance (in meters) between two screen points.&lt;br/&gt;To draw a ruler line, click this button, then hold down the &lt;b&gt;Ctrl key&lt;/b&gt; and the &lt;b&gt;left button&lt;/b&gt; of your mouse. &lt;br/&gt;&lt;u&gt;This feature is only available in orthogonal projection.&lt;/u&gt;</string>
-   </property>
-  </action>
   <action name="actionPlaneFit">
    <property name="icon">
     <iconset resource="vvResources.qrc">
@@ -729,7 +692,7 @@
   </action>
   <action name="actionSaveLAS">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/las.png</normaloff>:/LidarViewPlugin/las.png</iconset>
    </property>
    <property name="text">
@@ -741,7 +704,7 @@
   </action>
   <action name="actionCropReturns">
    <property name="icon">
-    <iconset resource="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc">
+    <iconset resource="vvResources.qrc">
      <normaloff>:/LidarViewPlugin/crop.png</normaloff>:/LidarViewPlugin/crop.png</iconset>
    </property>
    <property name="text">
@@ -871,15 +834,8 @@
    <extends>QWidget</extends>
    <header>pqOutputWidget.h</header>
   </customwidget>
-  <customwidget>
-   <class>lqSensorListWidget</class>
-   <extends>QWidget</extends>
-   <header>lqSensorListWidget.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources>
-  <include location="../Plugins/VelodyneUIPlugin/Ui/images/resources.qrc"/>
   <include location="vvResources.qrc"/>
   <include location="../LVCore/ApplicationComponents/lqResources.qrc"/>
 </resources>
