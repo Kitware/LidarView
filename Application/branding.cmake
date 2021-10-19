@@ -2,7 +2,7 @@
 
 # Software Name / Vendor
 set(SOFTWARE_NAME   "LidarView")
-set(SOFTWARE_VENDOR "Kitware, Inc.")
+set(SOFTWARE_VENDOR "Kitware")
 
 # Software LOGO / ICON # Must be absolute to be used by packaging
 set(SOFTWARE_ICON_PATH "${CMAKE_CURRENT_LIST_DIR}/SoftwareInformation/logo.ico")
