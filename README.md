@@ -4,8 +4,10 @@
 
 LidarView performs real-time reception, recording, visualization and processing of 3D LiDAR data.
 
-LidarView's open source codebase developed by Kitware is used to display live LiDAR data from
+LidarView's open source codebase developed by Kitware is used by many different applications to display live LiDAR data from
 Velodyne, Ouster, Opsys, Lumotive, RoboSense, Hesai, LeiShen LS Lidar, and more.
+
+This open-source declination only supports VeloDyne's open-source interpreters: VLP-16, VLP-32, HDL-32, HDL64, Alpha Prime.
 
 Many of these LiDAR sensors sweep an array of lasers (often 8 to 128) 360&deg;
 with a vertical field of view of tens of degrees at a 5-20Hz spinning frequency,
