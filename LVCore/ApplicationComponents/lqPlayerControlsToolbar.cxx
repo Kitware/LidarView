@@ -123,7 +123,8 @@ private:
 }
 
 //-----------------------------------------------------------------------------
-lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
+lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
+                                                 bool advancedOptionsForRecording)
   : QToolBar(parentObject)
 {
   this->UI = new pqInternals();
@@ -220,7 +221,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject)
   //------------------------//
   // Add the Recording Reaction
   //------------------------//
-  new lqStreamRecordReaction(this->UI->actionRecord);
+  new lqStreamRecordReaction(this->UI->actionRecord, true, advancedOptionsForRecording);
 
   //------------------------//
   // Add shortcut to tootip

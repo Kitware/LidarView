@@ -48,7 +48,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsToolbar : public QToolBar
   Q_PROPERTY(double timeValue READ timeValue WRITE setTimeValue NOTIFY timeValueChanged)
   Q_PROPERTY(int timeStepCount READ timeStepCount WRITE setTimeStepCount)
 public:
-  lqPlayerControlsToolbar(QWidget* parentObject=0);
+  lqPlayerControlsToolbar(QWidget* parentObject=0, bool advancedOptionsForRecording=false);
   ~lqPlayerControlsToolbar();
 
 public slots:
