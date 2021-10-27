@@ -321,14 +321,23 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
   }
 
   vtkPoints* const points = data->GetPoints();
-  vtkDataArray* const intensityData = data->GetPointData()->GetArray("intensity");
-  vtkDataArray* const laserIdData = data->GetPointData()->GetArray("laser_id");
+  vtkDataArray* intensityData = data->GetPointData()->GetArray("intensity");
+  vtkDataArray* laserIdData = data->GetPointData()->GetArray("laser_id");
   vtkDataArray* timestampData = data->GetPointData()->GetArray("adjustedtime");
   double timeToSec = 1e-6;
   if(timestampData == nullptr)
   {
     timestampData = data->GetPointData()->GetArray("Raw_Timestamp");
     timeToSec = 1e-9;
+  }
+  if(intensityData == nullptr)
+  {
+    intensityData = data->GetPointData()->GetArray("Signal Photons");
+  }
+
+  if(laserIdData == nullptr)
+  {
+    laserIdData = data->GetPointData()->GetArray("Channel");
   }
 
   vtkDataArray* const colorData = data->GetPointData()->GetArray("camera_color");
