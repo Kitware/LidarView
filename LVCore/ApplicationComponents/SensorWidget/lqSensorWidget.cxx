@@ -207,7 +207,6 @@ void lqSensorWidget::deleteSource(pqProxy *src)
   if (src)
   {
     pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
-    //Wip check if src is source right ?
     for (pqPipelineSource* consumer: static_cast<pqPipelineSource*>(src)->getAllConsumers())
       builder->destroy(consumer);
 

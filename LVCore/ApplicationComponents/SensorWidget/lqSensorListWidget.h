@@ -61,17 +61,32 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
      */
     pqPipelineSource* getActiveSourceToDisplay();
 
-  protected slots:
+    /**
+     * @brief hasLidarSource
+     *        Return true if any LidarSource has been instantiated.
+     */
+    bool hasLidarSource();
+    /**
+     * @brief isInLiveSensorMode
+     *        Return true if any live sensor exist, that is our definition for live mode.
+     */
+    bool isInLiveSensorMode();
+
+  protected Q_SLOTS:
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
     void onSelected(lqSensorWidget * widget);
+
+  Q_SIGNALS:
+    void lidarStreamModeChanged(bool); // Emitted when LidarStream are now present / absent.
 
   private:
     Q_DISABLE_COPY(lqSensorListWidget)
 
     Ui::lqSensorListWidget *ui;
-    std::vector<lqSensorWidget*> sensorWidgets;
     static lqSensorListWidget* Instance;
+
+    std::vector<lqSensorWidget*> sensorWidgets;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
 
     int colorWidget[3];

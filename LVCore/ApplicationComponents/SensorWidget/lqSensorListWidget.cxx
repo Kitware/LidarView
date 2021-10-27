@@ -1,4 +1,8 @@
 #include "lqSensorListWidget.h"
+
+#include <algorithm>
+
+#include "lqHelper.h"
 #include "lqSensorStreamWidget.h"
 #include "lqSensorReaderWidget.h"
 
@@ -24,8 +28,6 @@
 #include <pqServerManagerModelItem.h>
 #include <pqComponentsModule.h>
 #include <pqView.h>
-
-#include "lqHelper.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -119,9 +121,10 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent) :
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
   this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
-
-  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
     this->onSourceAdded(src);
+  }
 
   // Save background color which will represent the not-selected widget
   // Create the darker selected-widget color
@@ -175,7 +178,9 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
   if (IsLidarProxy(src->getProxy()))
   {
     // add a lqSensorReaderWidget to layout
-    lqSensorWidget* sensorWidget = IsLidarReaderProxy(src->getProxy())
+    bool alreadyStream = isInLiveSensorMode();
+    bool isReader = IsLidarReaderProxy(src->getProxy());
+    lqSensorWidget* sensorWidget = isReader
                                     ? static_cast<lqSensorWidget *>(new lqSensorReaderWidget(this))
                                     : static_cast<lqSensorWidget *>(new lqSensorStreamWidget(this));
     sensorWidget->SetLidarSource(src);
@@ -184,6 +189,12 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
     this->ui->caption->setText(sensorWidget->GetExplanationOnUI());
     this->connect(sensorWidget, SIGNAL(selected(lqSensorWidget*)), SLOT(onSelected(lqSensorWidget*)));
+    
+    // Emit lidarStreamModeChanged Signal
+    if (!alreadyStream && !isReader)
+    {
+      emit lidarStreamModeChanged(true);
+    }
   }
 }
 
@@ -191,15 +202,26 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
 {
   if (IsLidarProxy(src->getProxy()))
-  {
-    for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
+  {    
+    // Remove Source associated Widget
+    const auto it = std::remove_if(this->sensorWidgets.begin(), this->sensorWidgets.end(),
+      [&](const lqSensorWidget* widget)
+        {
+          return widget->IsWidgetLidarSource(src);
+        }
+    );
+    if (it == this->sensorWidgets.end())
     {
-      lqSensorWidget* widget = this->sensorWidgets[index];
-      if (widget->IsWidgetLidarSource(src))
-      {
-        this->sensorWidgets.erase(this->sensorWidgets.begin()+ index);
-        widget->onClose();
-      }
+      vtkGenericWarningMacro("LidarSource removed but unaccounted for in lqSensorListWidget");
+      return;
+    }
+    this->sensorWidgets.erase(it);
+    (*it)->onClose();
+    
+    // Emit lidarStreamModeChanged Signal
+    if(IsLidarStreamProxy(src->getProxy()) && !isInLiveSensorMode())
+    {
+      emit lidarStreamModeChanged(false);
     }
   }
 
@@ -326,4 +348,24 @@ pqPipelineSource* lqSensorListWidget::getActiveSourceToDisplay()
     }
   }
   return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+bool lqSensorListWidget::hasLidarSource()
+{
+  return !this->sensorWidgets.empty();
+}
+
+//-----------------------------------------------------------------------------
+bool lqSensorListWidget::isInLiveSensorMode()
+{
+  // TODO could cache this variable for less looping
+  const auto result = std::find_if(this->sensorWidgets.begin(), this->sensorWidgets.end(),
+    [&](const lqSensorWidget* widget)
+      {
+        return qobject_cast<const lqSensorStreamWidget*>(widget) != nullptr;
+      }
+  );
+
+  return result != this->sensorWidgets.end();
 }
