@@ -21,7 +21,7 @@ message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by def
 
 # MSVC MT is not enforced # Wip to investigate
 if(WIN32 AND MSVC)
-	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
 #Old MSVC did not recognize "inline" but only "__inline"
