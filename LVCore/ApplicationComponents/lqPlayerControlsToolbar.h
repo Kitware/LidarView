@@ -37,53 +37,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqapplicationcomponents_export.h"
 
 class lqPlayerControlsController;
-class pqAnimationScene;
-class vtkSMProxy;
 
 /// This class is a mixed of pqVCRToolbar and pqTimAnimationWidget
-///
+/// Rely on lqSensorListWidget to disable usage in 'Stream Mode'
+/// WIP doxygen comment style
 class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsToolbar : public QToolBar
 {
   Q_OBJECT
-  Q_PROPERTY(double timeValue READ timeValue WRITE setTimeValue NOTIFY timeValueChanged)
-  Q_PROPERTY(int timeStepCount READ timeStepCount WRITE setTimeStepCount)
+
 public:
   lqPlayerControlsToolbar(QWidget* parentObject=0, bool advancedOptionsForRecording=false);
   ~lqPlayerControlsToolbar();
 
-public slots:
-  /// Get/set the current time value.
-  void setTimeValue(double time);
-  double timeValue() const;
+protected Q_SLOTS:
+  // UI Updates
+  void setTimeRanges(double, double); // VCR Controller default, updates time ranges
+  void onPlaying(bool);               // VCR Controller default
+  
+  void setFrameRanges(int, int); // updates frames ranges
+  void onSpeedChanged(double speed); // Update UI on speed change
+  void onToggled(bool enable); // Toggle Enable/Disable
+  void onSetLiveMode(bool liveModeEnabled); // Convenience slot for inverted Toggling on livemode signal
+  
+  // UI Input signals
+  void onComboSpeedSelected(int index); // Speed ComboBox changed by user
+  
+  void onTimestepChanged(); // Timestep has changed
+  
+Q_SIGNALS:
+  void speedChange(double); // Requests controller to change speed
 
-  /// Get/set the number of timesteps.
-  void setTimeStepCount(int count);
-  int timeStepCount() const;
-
-protected slots:
-  void onPlaying(bool);
-  void onSpeedChanged();
-  void onPlayModeChanged();
-  void setAnimationScene(pqAnimationScene*);
-  void PressSlider();
-  void ReleaseSlider();
-  void setTimeStep(int);
-  void onSetLiveMode(bool liveModeEnabled);
-
-signals:
-  void speedChange(double);
-  void dummySignal();
-  void timeValueChanged();
+protected:
+  lqPlayerControlsController* Controller;
 
 private:
   Q_DISABLE_COPY(lqPlayerControlsToolbar)
 
-  void constructor();
-  vtkSMProxy* timeKeeper() const;
   class pqInternals;
   pqInternals* UI;
 
-  lqPlayerControlsController* Controller;
 };
 
 #endif // LQPLAYERCONTROLSTOOLBAR_H

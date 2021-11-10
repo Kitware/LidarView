@@ -44,83 +44,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QList>
 #include <QPair>
 #include <QString>
+#include <QToolTip>
 
 #include "pqActiveObjects.h"
+#include "pqAnimationManager.h"
 #include "pqPVApplicationCore.h"
 #include "pqUndoStack.h"
-#include "pqAnimationManager.h"
-#include <pqAnimationTimeWidget.h>
+#include "pqTimeKeeper.h"
 
 #include "lqPlayerControlsController.h"
-#include "pqAnimationScene.h"
-#include "vtkAnimationScene.h"
-#include <vtkSMProxy.h>
-#include <vtkSMProperty.h>
-#include <vtkSMPropertyHelper.h>
-#include <vtkSMTimeKeeperProxy.h>
-#include <pqPropertyLinks.h>
-
 #include "lqStreamRecordReaction.h"
+#include "lqSensorListWidget.h"
 
-namespace  {
-void addShortCutToToolTip(QAction* action)
-{
-  if (!action->shortcut().isEmpty())
-  {
-    QString text = action->toolTip() + " <b>(" + action->shortcut().toString() + ")<b>";
-    action->setToolTip(text);
-  }
-}
-}
+#include "vtkSMTimeKeeperProxy.h"
+
+const char* customText = "Custom";
 
 class lqPlayerControlsToolbar::pqInternals : public Ui::lqPlayerControlsToolbar
 {
 public:
-  pqPropertyLinks Links;
-  QList<QPair<double, QString> > speedFactor;
+  pqInternals():
+    speedComboBox(nullptr),
+    frameSlider(nullptr),
+    timeSpinBox(nullptr),
+    frameQSpinBox(nullptr),
+    frameLabel(nullptr)
+  {
+
+  }
+
   QComboBox* speedComboBox;
   QSlider* frameSlider;
   QDoubleSpinBox* timeSpinBox;
   QSpinBox* frameQSpinBox;
   QLabel* frameLabel;
-  bool isPlaying;
-  bool ContinuePlaying;
+
 };
-
-namespace
-{
-  /// Used to link the number of elements in a sm-property to the qt widget.
-  class lqPlayerControlsToolbarLinks : public pqPropertyLinksConnection
-  {
-  typedef pqPropertyLinksConnection Superclass;
-public:
-  lqPlayerControlsToolbarLinks(
-    QObject* qobject, const char* qproperty, const char* qsignal,
-    vtkSMProxy* smproxy, vtkSMProperty* smproperty, int smindex,
-    bool use_unchecked_modified_event,
-    QObject* parentObject=0)
-    : Superclass(qobject, qproperty, qsignal,
-      smproxy, smproperty, smindex,
-      use_unchecked_modified_event, parentObject)
-    {
-    }
-  virtual ~lqPlayerControlsToolbarLinks()
-    {
-    }
-
-protected:
-  virtual QVariant currentServerManagerValue(bool use_unchecked) const override
-    {
-    Q_ASSERT(use_unchecked == false);
-    Q_UNUSED(use_unchecked);
-    unsigned int count = vtkSMPropertyHelper(this->propertySM()).GetNumberOfElements();
-    return QVariant(static_cast<int>(count));
-    }
-
-private:
-  Q_DISABLE_COPY(lqPlayerControlsToolbarLinks);
-  };
-}
 
 //-----------------------------------------------------------------------------
 lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
@@ -128,351 +87,238 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   : QToolBar(parentObject)
 {
   this->UI = new pqInternals();
-  Ui::lqPlayerControlsToolbar &ui = *this->UI;
+  Ui::lqPlayerControlsToolbar& ui = *this->UI;
   ui.setupUi(this);
 
-  lqPlayerControlsController* controller = new lqPlayerControlsController(this);
-  this->Controller = controller;
+  // ParaView VCR Controller code
+  this->Controller = new lqPlayerControlsController(this);
 
-  this->connect(pqPVApplicationCore::instance()->animationManager(),
-    SIGNAL(activeSceneChanged(pqAnimationScene*)),
-    this, SLOT(setAnimationScene(pqAnimationScene*)));
+  QObject::connect(ui.actionVCRPlay         , SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
+  QObject::connect(ui.actionVCRFirstFrame   , SIGNAL(triggered()), this->Controller, SLOT(onFirstFrame()));
+  QObject::connect(ui.actionVCRPreviousFrame, SIGNAL(triggered()), this->Controller, SLOT(onPreviousFrame()));
+  QObject::connect(ui.actionVCRNextFrame    , SIGNAL(triggered()), this->Controller, SLOT(onNextFrame()));
+  QObject::connect(ui.actionVCRLastFrame    , SIGNAL(triggered()), this->Controller, SLOT(onLastFrame()));
+  QObject::connect(ui.actionVCRLoop         , SIGNAL(toggled(bool)), this->Controller, SLOT(onLoop(bool)));
 
-  this->connect(pqPVApplicationCore::instance()->animationManager(),
-    SIGNAL(activeSceneChanged(pqAnimationScene*)),
-    SLOT(setAnimationScene(pqAnimationScene*)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRPlay      , SLOT(setEnabled(bool)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRFirstFrame, SLOT(setEnabled(bool)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRPreviousFrame, SLOT(setEnabled(bool)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRNextFrame, SLOT(setEnabled(bool)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRLastFrame, SLOT(setEnabled(bool)));
+  QObject::connect(this->Controller, SIGNAL(enabled(bool)), ui.actionVCRLoop     , SLOT(setEnabled(bool)));
 
-  this->connect(controller, SIGNAL(setLiveMode(bool)), SLOT(onSetLiveMode(bool)));
+  QObject::connect(this->Controller, SIGNAL(timeRanges(double, double)), this, SLOT(setTimeRanges(double, double)));
+  QObject::connect(this->Controller, SIGNAL(frameRanges(int, int))     , this, SLOT(setFrameRanges(int, int)));
+  QObject::connect(this->Controller, SIGNAL(loop(bool)), ui.actionVCRLoop, SLOT(setChecked(bool)));
+  QObject::connect(this->Controller, SIGNAL(playing(bool)), this, SLOT(onPlaying(bool)));
 
-  //------------------------//
-  // Add the speed control
-  //------------------------//
-  // create the speed factor that will be display to the user
-  // we need to keep an order to display so we can't use hash table or set
-  // however the developper is reponsable for for the uniqueness of each element
-  this->UI->speedFactor.append(qMakePair(0.,   QString("All frames")));
-  this->UI->speedFactor.append(qMakePair(0.1,  QString("x 0.1")));
-  this->UI->speedFactor.append(qMakePair(0.25, QString("x 0.25")));
-  this->UI->speedFactor.append(qMakePair(0.5,  QString("x 0.5")));
-  this->UI->speedFactor.append(qMakePair(1.,   QString("x 1"))) ;
-  this->UI->speedFactor.append(qMakePair(2.,   QString("x 2")));
-  this->UI->speedFactor.append(qMakePair(3.,   QString("x 3")));
-  this->UI->speedFactor.append(qMakePair(5.,   QString("x 5")));
-  this->UI->speedFactor.append(qMakePair(10.,  QString("x 10")));
-  this->UI->speedFactor.append(qMakePair(20.,  QString("x 20")));
-  this->UI->speedFactor.append(qMakePair(100., QString("x 100")));
+  //CUSTOM
+  QObject::connect(this->Controller, SIGNAL(speedChange(double)), this, SLOT(onSpeedChanged(double)));
+  QObject::connect(this->Controller, SIGNAL(timestepChanged()), this, SLOT(onTimestepChanged()));
 
-  // add the widget to the toolbar
+  // Widget Speed ComboBox
   this->insertWidget(this->UI->actionRecord, new QLabel("Speed:", this));
   this->UI->speedComboBox = new QComboBox(this);
-  for (int i = 0; i < this->UI->speedFactor.size(); ++i)
-  {
-    this->UI->speedComboBox->addItem(this->UI->speedFactor[i].second);
-    if (this->UI->speedFactor[i].first == 1)
-    {
-      this->UI->speedComboBox->setCurrentIndex(i);
-    }
-  }
+  this->UI->speedComboBox->addItem("All frames",0.  );
+  this->UI->speedComboBox->addItem("x 0.1"     ,0.1 );
+  this->UI->speedComboBox->addItem("x 0.25"    ,0.25);
+  this->UI->speedComboBox->addItem("x 0.5"     ,0.5 );
+  this->UI->speedComboBox->addItem("x 1"       ,1.  );
+  this->UI->speedComboBox->addItem("x 2"       ,2.  );
+  this->UI->speedComboBox->addItem("x 3"       ,3.  );
+  this->UI->speedComboBox->addItem("x 5"       ,5.  );
+  this->UI->speedComboBox->addItem("x 10"      ,10. );
+  this->UI->speedComboBox->addItem("x 20"      ,20. );
+  this->UI->speedComboBox->addItem("x 100"     ,100.);
+  this->UI->speedComboBox->addItem(customText  ,1.  );
   this->insertWidget(this->UI->actionRecord, this->UI->speedComboBox);
+  QObject::connect(this->UI->speedComboBox, SIGNAL(activated(int)),
+    this, SLOT(onComboSpeedSelected(int)));
+  QObject::connect(this, SIGNAL(speedChange(double)), //This is the UI Update
+    this->Controller, SLOT(onSpeedChange(double)));
 
-  // create all connection
-  QObject::connect(this->UI->speedComboBox, SIGNAL(currentIndexChanged(int)),
-    this, SLOT(onSpeedChanged()));
-  QObject::connect(this, SIGNAL(speedChange(double)),
-    controller, SLOT(onSpeedChange(double)));
-
-  // add a separator to visualy group the element together
-  this->addSeparator();
-
-  //------------------------//
-  // Add the Slider
-  //------------------------//
+  // Widget Seek Slider
   this->UI->frameSlider = new QSlider(Qt::Horizontal, this);
-  this->insertWidget(this->UI->actionRecord, this->UI->frameSlider);
-
-  // create connection
-  this->connect(this->UI->frameSlider, SIGNAL(sliderPressed()),
-    this, SLOT(PressSlider()));
-  this->connect(this->UI->frameSlider, SIGNAL(sliderReleased()),
-    this, SLOT(ReleaseSlider()));
+  this->insertWidget(this->UI->actionRecord, this->UI->frameSlider);    
   this->connect(this->UI->frameSlider, SIGNAL(valueChanged(int)),
-    this, SLOT(setTimeStep(int)));
+    this->Controller, SLOT(onSeekFrame(int)));
+  QObject::connect(this->UI->frameSlider, &QSlider::valueChanged, // Show Frame Number, sliderMoved
+    [&](int value) {
+      QToolTip::showText(QCursor::pos(), QString("%1").arg(value), nullptr);
+    });
+  this->UI->frameSlider->setTracking(true);  // Make sure internal Value / Position are sync
+  this->UI->frameSlider->setTickInterval(1); // Tapping the slider increments by one
+  
 
-  //------------------------//
-  // Add the Time DoubleSpinBox
-  //------------------------//
+  // Widget Time
   this->insertWidget(this->UI->actionRecord, new QLabel("Time", this));
   this->UI->timeSpinBox = new QDoubleSpinBox(this);
   this->insertWidget(this->UI->actionRecord, this->UI->timeSpinBox);
-
-    // create connection
   this->connect(this->UI->timeSpinBox, SIGNAL(valueChanged(double)),
-    this, SLOT(setTimeValue(double)));
-
-  //------------------------//
-  // Add the Frame SpinBox
-  //------------------------//
+    this->Controller, SLOT(onSeekTime(double)));
+    
+  // Widget Frame
   this->insertWidget(this->UI->actionRecord, new QLabel("Frame", this));
   this->UI->frameQSpinBox = new QSpinBox(this);
   this->insertWidget(this->UI->actionRecord, this->UI->frameQSpinBox);
+  this->connect(this->UI->frameQSpinBox, SIGNAL(valueChanged(int)),
+    this->Controller, SLOT(onSeekFrame(int)));
+
+  // Widget Frame Label
   this->UI->frameLabel = new QLabel();
   this->insertWidget(this->UI->actionRecord, this->UI->frameLabel);
 
-  //------------------------//
   // Add the Recording Reaction
-  //------------------------//
   new lqStreamRecordReaction(this->UI->actionRecord, true, advancedOptionsForRecording);
 
-  //------------------------//
-  // Add shortcut to tootip
-  //------------------------//
-  for (auto* action: this->findChildren<QAction*>())
-  {
-    addShortCutToToolTip(action);
-  }
+  // Toggle Toolbar based on lqSensorListWidget
+  this->connect(lqSensorListWidget::instance(), SIGNAL(lidarStreamModeChanged(bool)), SLOT(onSetLiveMode(bool)));
 
-  // create connection
-  this->connect(this->UI->frameQSpinBox, SIGNAL(valueChanged(int)),
-    this, SLOT(setTimeStep(int)));
+  // Safe Init Widgets Values
+  this->setTimeRanges(0,0);
+  this->setFrameRanges(0,0);
+  emit speedChange(1.0);
+  
+  // Init Controller
+  QObject::connect(pqPVApplicationCore::instance()->animationManager(),
+    SIGNAL(activeSceneChanged(pqAnimationScene*)), this->Controller,
+    SLOT(setAnimationScene(pqAnimationScene*)));
+  this->Controller->setAnimationScene(
+    pqPVApplicationCore::instance()->animationManager()->getActiveScene());
 
-  // Ideally pqVCRController needs to be deprecated in lieu of a more
-  // action-reaction friendly implementation. But for now, I am simply reusing
-  // the old code.
-  QObject::connect(ui.actionPlay, SIGNAL(triggered()),
-    controller, SLOT(onPlay()));
-  QObject::connect(ui.actionFirstFrame, SIGNAL(triggered()),
-    controller, SLOT(onFirstFrame()));
-  QObject::connect(ui.actionPreviousFrame, SIGNAL(triggered()),
-    controller, SLOT(onPreviousFrame()));
-  QObject::connect(ui.actionNextFrame, SIGNAL(triggered()),
-   controller, SLOT(onNextFrame()));
-  QObject::connect(ui.actionLastFrame, SIGNAL(triggered()),
-    controller, SLOT(onLastFrame()));
-  QObject::connect(ui.actionLoop, SIGNAL(toggled(bool)),
-    controller, SLOT(onLoop(bool)));
-
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionPlay, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionFirstFrame, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionPreviousFrame, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionNextFrame, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionLastFrame, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(enabled(bool)),
-    ui.actionLoop, SLOT(setEnabled(bool)));
-  QObject::connect(controller, SIGNAL(loop(bool)),
-    ui.actionLoop, SLOT(setChecked(bool)));
-  QObject::connect(controller, SIGNAL(playing(bool)),
-    this, SLOT(onPlaying(bool)));
 }
 
 //-----------------------------------------------------------------------------
 lqPlayerControlsToolbar::~lqPlayerControlsToolbar()
 {
   delete this->UI;
-  delete this->Controller;
-  this->UI = 0;
+  this->UI = nullptr;
 }
 
+//-----------------------------------------------------------------------------
+void lqPlayerControlsToolbar::setTimeRanges(double start, double end)
+{
+  // start/end literally = QPair<double, double> range = this->Scene->getClockTimeRange();
+  // Action First / Last Frames
+  this->UI->actionVCRFirstFrame->setToolTip(QString("First Time (%1)").arg(start, 0, 'g'));
+  this->UI->actionVCRLastFrame-> setToolTip(QString("Last  Time (%1)").arg(end, 0, 'g'));
+  
+  // Time Spinbox
+  this->UI->timeSpinBox->setMinimum(start);
+  this->UI->timeSpinBox->setMaximum(end);
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsToolbar::setFrameRanges(int min, int max)
+{
+  // min/max literally = scene->getTimeSteps();
+
+  // Slider
+  this->UI->frameSlider->setMinimum(min);
+  this->UI->frameSlider->setMaximum(max);
+  this->UI->frameSlider->setSliderPosition(min); //wipwip necessarry ?
+  this->UI->frameSlider->setToolTip(QString("Frames %1/%2/%3").arg(min).arg(min).arg(max)); //wipwip factorize with sliderPosition() ?
+  
+  // Frame Spinbox
+  this->UI->frameQSpinBox->setMinimum(min);
+  this->UI->frameQSpinBox->setMaximum(max);
+}
 //-----------------------------------------------------------------------------
 void lqPlayerControlsToolbar::onPlaying(bool playing)
 {
-  this->UI->isPlaying = playing;
-  QAction* action = this->UI->actionPlay;
-  if(playing)
-    {
-    disconnect(action, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
-    connect(action, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
-    action->setIcon(QIcon(":/lqResources/Icons/media-playback-pause.png"));
-    action->setToolTip("Pause");
-    }
+  //PV code, set custom Play/Pause icons
+  if (playing)
+  {
+    disconnect(this->UI->actionVCRPlay, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
+    connect(this->UI->actionVCRPlay, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
+    this->UI->actionVCRPlay->setIcon(QIcon(":/lqResources/Icons/media-playback-pause.png"));
+    this->UI->actionVCRPlay->setText("Pa&use");
+  }
   else
-    {
-    connect(action, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
-    disconnect(action, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
-    action->setIcon(QIcon(":/lqResources/Icons/media-playback-start.png"));
-    action->setToolTip("Play");
-    }
-  addShortCutToToolTip(action);
+  {
+    connect(this->UI->actionVCRPlay, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
+    disconnect(this->UI->actionVCRPlay, SIGNAL(triggered()), this->Controller, SLOT(onPause()));
+    this->UI->actionVCRPlay->setIcon(QIcon(":/lqResources/Icons/media-playback-start.png"));
+    this->UI->actionVCRPlay->setText("&Play");
+  }
 
+  // Original PV Comments
   // this becomes a behavior.
-  // this->Implementation->Core->setSelectiveEn abledState(!playing);
+  // this->Implementation->Core->setSelectiveEnabledState(!playing);
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::onSpeedChanged()
+void lqPlayerControlsToolbar::onSpeedChanged(double speed)
 {
-  for (int i = 0; i < this->UI->speedFactor.size(); ++i)
-  {
-    if (this->UI->speedFactor[i].second == this->UI->speedComboBox->currentText())
-    {
-      emit speedChange(this->UI->speedFactor[i].first);
-      return;
-    }
-  }
-}
 
-//-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::onPlayModeChanged()
-{
-  // Get new animation play mode and current combo box index
-  int playMode = vtkSMPropertyHelper(this->Controller->getAnimationScene()->getProxy(), "PlayMode").GetAsInt();
-  int idx = this->UI->speedComboBox->currentIndex();
-
-  // If we are in 'Snap To Timesteps' mode (no enum defined yet),
-  // set combo box to 'All frames'
-  if (playMode == 2)
+  // Try to select existing configuration
+  int searchIndex = this->UI->speedComboBox->findData(speed);
+  if(searchIndex != -1)
   {
-    this->UI->speedComboBox->setCurrentIndex(0);
+    this->UI->speedComboBox->setCurrentIndex(searchIndex);
+    return;
   }
 
-  // If we are in 'Sequence' mode, disable combo box display
-  else if (playMode == vtkAnimationScene::PLAYMODE_SEQUENCE)
-  {
-    this->UI->speedComboBox->setCurrentIndex(-1);
-  }
+  // Set Custom Item
+  searchIndex = this->UI->speedComboBox->findText(customText); //Faith in its existenz
+  this->UI->speedComboBox->setItemData    (searchIndex,speed);
+  this->UI->speedComboBox->setCurrentIndex(searchIndex);
 
-  // If we are now in 'Real Time' mode and were displaying neither 'All frames'
-  // nor a real time 'xS' speed, set combo box to 'x1'
-  else if (playMode == vtkAnimationScene::PLAYMODE_REALTIME && (idx == -1 || idx == 0))
-  {
-    // Find and set x1 item
-    for (int i = 0; i < this->UI->speedFactor.size(); ++i)
-    {
-      if (this->UI->speedFactor[i].first == 1.)
-        this->UI->speedComboBox->setCurrentIndex(i);
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::setAnimationScene(pqAnimationScene* scene)
+void lqPlayerControlsToolbar::onComboSpeedSelected(int index)
 {
-  this->UI->Links.clear();
-  this->Controller->setAnimationScene(scene);
-
-  QObject::connect(scene, SIGNAL(playModeChanged()), this, SLOT(onPlayModeChanged()));
-
-  this->UI->Links.addPropertyLink<lqPlayerControlsToolbarLinks>(
-    this, "timeStepCount", SIGNAL(dummySignal()),
-    this->timeKeeper(), this->timeKeeper()->GetProperty("TimestepValues"));
-  this->UI->Links.addPropertyLink(
-    this, "timeValue", SIGNAL(timeValueChanged()),
-    scene->getProxy(), scene->getProxy()->GetProperty("AnimationTime"));
-
-  // Update animation mode according to current UI state
-  this->onSpeedChanged();
+  // Request Controller Speed change
+  emit speedChange(this->UI->speedComboBox->itemData(index).value<double>());
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::setTimeValue(double value)
+void lqPlayerControlsToolbar::onToggled(bool enable)
 {
-  this->UI->timeSpinBox->blockSignals(true);
-  this->UI->timeSpinBox->setValue(value);
-  this->UI->timeSpinBox->blockSignals(false);
+  this->UI->actionVCRFirstFrame->setEnabled(enable);
+  this->UI->actionVCRPreviousFrame->setEnabled(enable);
+  this->UI->actionVCRPlay->setEnabled(enable);
+  this->UI->actionVCRNextFrame->setEnabled(enable);
+  this->UI->actionVCRLastFrame->setEnabled(enable);
+  this->UI->actionVCRLoop->setEnabled(enable);
 
-  // Get the lowest frame index whose timestamp is bigger than 'value'
-  int index = vtkSMTimeKeeperProxy::GetLowerBoundTimeStepIndex(this->timeKeeper(), value);
-  if (index > 0)
-  {
-    // Select the closest frame from input 'value' timestamp
-    double previousTime = this->Controller->getAnimationScene()->getTimeSteps()[index - 1];
-    double nextTime     = this->Controller->getAnimationScene()->getTimeSteps()[index];
-    index = std::abs(previousTime - value) < std::abs(nextTime - value) ? index - 1 : index;
-  }
-
-  this->UI->frameQSpinBox->blockSignals(true);
-  this->UI->frameQSpinBox->setValue(index);
-  this->UI->frameQSpinBox->blockSignals(false);
-
-  this->UI->frameSlider->blockSignals(true);
-  this->UI->frameSlider->setValue(index);
-  this->UI->frameSlider->blockSignals(false);
-
-  emit timeValueChanged();
-}
-
-//-----------------------------------------------------------------------------
-double lqPlayerControlsToolbar::timeValue() const
-{
-  return this->UI->timeSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::setTimeStepCount(int value)
-{
-  this->setTimeValue(0);
-  this->UI->frameQSpinBox->setMaximum(value > 0? value -1 : 0);
-  this->UI->frameSlider->setMaximum(value > 0? value -1 : 0);
-  this->UI->frameLabel->setText(QString("of %1").arg(value));
-  this->UI->actionFirstFrame->setToolTip(
-    QString("First Frame (%1)").arg(0));
-  addShortCutToToolTip(this->UI->actionFirstFrame);
-  this->UI->actionLastFrame->setToolTip(
-    QString("Last Frame (%1)").arg(value));
-  addShortCutToToolTip(this->UI->actionLastFrame);
-
-  double time = vtkSMTimeKeeperProxy::GetLowerBoundTimeStep(this->timeKeeper(), std::numeric_limits<double>::max());
-  this->UI->timeSpinBox->setMaximum(time);
-}
-
-//-----------------------------------------------------------------------------
-int lqPlayerControlsToolbar::timeStepCount() const
-{
-  return this->UI->frameQSpinBox->maximum();
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::PressSlider()
-{
-  if (this->UI->isPlaying)
-  {
-    this->UI->ContinuePlaying = true;
-    this->Controller->getAnimationScene()->pause();
-  }
-  else
-  {
-    this->UI->ContinuePlaying = false;
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::ReleaseSlider()
-{
-  if (this->UI->ContinuePlaying)
-  {
-    this->Controller->getAnimationScene()->play();
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::setTimeStep(int value)
-{
-  double time = this->Controller->getAnimationScene()->getTimeSteps()[value];
-  this->Controller->getAnimationScene()->setAnimationTime(time);
-}
-
-//-----------------------------------------------------------------------------
-vtkSMProxy* lqPlayerControlsToolbar::timeKeeper() const
-{
-  return vtkSMPropertyHelper(this->Controller->getAnimationScene()->getProxy(), "TimeKeeper").GetAsProxy();
+  this->UI->speedComboBox->setEnabled(enable);
+  this->UI->frameSlider->setEnabled(enable);
+  this->UI->timeSpinBox->setEnabled(enable);
+  this->UI->frameQSpinBox->setEnabled(enable);
+  this->UI->frameLabel->setEnabled(enable);
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
 {
-  bool enableFullUI = !liveModeEnabled;
-  this->UI->actionFirstFrame->setEnabled(enableFullUI);
-  this->UI->actionPreviousFrame->setEnabled(enableFullUI);
-  this->UI->actionNextFrame->setEnabled(enableFullUI);
-  this->UI->actionLastFrame->setEnabled(enableFullUI);
-  this->UI->actionLoop->setEnabled(enableFullUI);
-  this->UI->speedComboBox->setEnabled(enableFullUI);
-  this->UI->frameSlider->setEnabled(enableFullUI);
-  this->UI->timeSpinBox->setEnabled(enableFullUI);
-  this->UI->frameQSpinBox->setEnabled(enableFullUI);
-  this->UI->frameLabel->setEnabled(enableFullUI);
+  this->onToggled(!liveModeEnabled);
 }
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsToolbar::onTimestepChanged()
+{
+  // Force All Widgets to update to current Time / Frame Value
+  pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper(); 
+  double time = tk->getTime();
+  int value   = tk->getTimeStepValueIndex(time);
+  
+  // Slider Position, no better method to sync pos / internal value
+  this->UI->frameSlider->blockSignals(true);
+  this->UI->frameSlider->setSliderPosition(value);
+  this->UI->frameSlider->blockSignals(false);
+
+  // Time SpinBox
+  this->UI->timeSpinBox->blockSignals(true);
+  this->UI->timeSpinBox->setValue(time);
+  this->UI->timeSpinBox->blockSignals(false);
+  
+  // Frame SpinBox
+  this->UI->frameQSpinBox->blockSignals(true);
+  this->UI->frameQSpinBox->setValue(value);
+  this->UI->frameQSpinBox->blockSignals(false);
+    
+  // TODO could add more tootips
+}
+

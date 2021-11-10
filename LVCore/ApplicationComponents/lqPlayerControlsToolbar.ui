@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
+    <width>600</width>
     <height>39</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>VCR Controls</string>
@@ -19,7 +25,7 @@
   <property name="PV_MUST_BE_MASTER" stdset="0">
    <bool>true</bool>
   </property>
-  <action name="actionPlay">
+  <action name="actionVCRPlay">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -34,7 +40,7 @@
     <string>Space</string>
    </property>
   </action>
-  <action name="actionPreviousFrame">
+  <action name="actionVCRPreviousFrame">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -52,7 +58,7 @@
     <bool>true</bool>
    </property>
   </action>
-  <action name="actionFirstFrame">
+  <action name="actionVCRFirstFrame">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -67,7 +73,7 @@
     <string>Ctrl+Left</string>
    </property>
   </action>
-  <action name="actionNextFrame">
+  <action name="actionVCRNextFrame">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -82,7 +88,7 @@
     <string>Right</string>
    </property>
   </action>
-  <action name="actionLastFrame">
+  <action name="actionVCRLastFrame">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -97,7 +103,7 @@
     <string>Ctrl+Right</string>
    </property>
   </action>
-  <action name="actionLoop">
+  <action name="actionVCRLoop">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -133,12 +139,12 @@
     <string>R</string>
    </property>
   </action>
-  <addaction name="actionFirstFrame"/>
-  <addaction name="actionPreviousFrame"/>
-  <addaction name="actionPlay"/>
-  <addaction name="actionNextFrame"/>
-  <addaction name="actionLastFrame"/>
-  <addaction name="actionLoop"/>
+  <addaction name="actionVCRFirstFrame"/>
+  <addaction name="actionVCRPreviousFrame"/>
+  <addaction name="actionVCRPlay"/>
+  <addaction name="actionVCRNextFrame"/>
+  <addaction name="actionVCRLastFrame"/>
+  <addaction name="actionVCRLoop"/>
   <addaction name="actionRecord"/>
  </widget>
  <resources>

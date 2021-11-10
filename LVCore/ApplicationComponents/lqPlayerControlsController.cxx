@@ -1,15 +1,15 @@
 /*=========================================================================
 
-   Program: ParaView
-   Module:    pqVCRController.cxx
+   Program: LidarView
+   Module:  lqPlayerControlsController.h
 
-   Copyright (c) 2005-2008 Sandia Corporation, Kitware Inc.
+   Copyright (c) Kitware Inc.
    All rights reserved.
 
-   ParaView is a free software; you can redistribute it and/or modify it
-   under the terms of the ParaView license version 1.2.
+   LidarView is a free software; you can redistribute it and/or modify it
+   under the terms of the LidarView license.
 
-   See License_v1.2.txt for the full ParaView license.
+   See LICENSE for the full LidarView license.
    A copy of this license can be obtained by contacting
    Kitware Inc.
    28 Corporate Drive
@@ -28,32 +28,24 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-=========================================================================*/
+========================================================================*/
 #include "lqPlayerControlsController.h"
 
-// ParaView Server Manager includes.
-#include "vtkSMIntRangeDomain.h"
-#include "vtkSMIntVectorProperty.h"
-#include "vtkSMProxy.h"
-#include "vtkSMTrace.h"
-#include "vtkPVXMLElement.h"
-
-// Qt includes.
-#include <QPointer>
-#include <QtDebug>
 #include <QApplication>
+#include <QtDebug>
+#include <QPointer>
 
-// ParaView includes.
-#include "pqAnimationScene.h"
-#include "pqApplicationCore.h"
-#include "pqEventDispatcher.h"
-#include "pqPipelineSource.h"
-#include "pqSMAdaptor.h"
-#include "pqUndoStack.h"
-#include "pqLiveSourceBehavior.h"
-#include "pqServerManagerModel.h"
-#include "vtkAnimationScene.h"
+#include <pqAnimationScene.h>
+#include <pqSMAdaptor.h>
 
+#include <vtkSMProxy.h>
+#include <vtkSMProperty.h>
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMIntVectorProperty.h>
+
+#include <pqLiveSourceBehavior.h>
+
+// Scene Property Helpers
 namespace {
 void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int value)
 {
@@ -62,312 +54,180 @@ void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int val
   scene->getProxy()->UpdateProperty(property);
 }
 
-int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
-{
-  return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
-}
-}
-
-//-----------------------------------------------------------------------------
-lqPlayerControlsController::lqPlayerControlsController(QObject* _parent/*=null*/)
-  : QObject(_parent),
-    speed(1),
-    duration(0)
-{
-  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
-  this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
+//int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
+//{
+//  return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
+//}
 }
 
-//-----------------------------------------------------------------------------
-lqPlayerControlsController::~lqPlayerControlsController()
+// Debugging helper
+void debugScene(pqAnimationScene* scene)
 {
+  if (scene){
+    QPair<double, double> range = scene->getClockTimeRange();
+    std::cout << "Range: "<< range.first << " to "<< range.second << std::endl;
+    std::cout << "Time : "<< scene->getAnimationTime() << std::endl;
+    auto timesteps = scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
+    double min = *std::min_element(timesteps.begin(), timesteps.end());
+    double max = *std::max_element(timesteps.begin(), timesteps.end());
+    std::cout << "Timesteps : "<< "0-"<< timesteps.size() << ", mM: "<< min << " to " << max << std::endl;
+  }else{
+    std::cout << "Scene is NULL "<< std::endl;
+  }
 }
 
+
 //-----------------------------------------------------------------------------
-pqAnimationScene *lqPlayerControlsController::getAnimationScene() {
-  return this->Scene.data();
+lqPlayerControlsController::lqPlayerControlsController(QObject* _parent)
+  : pqVCRController(_parent), speed(1.0)
+{
+
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 {
-  if (this->Scene == scene)
-    {
-    return;
-    }
-  if (this->Scene)
-    {
-    QObject::disconnect(this->Scene, 0, this, 0);
-    }
-  this->Scene = scene;
-  if (this->Scene)
-    {
-    QObject::connect(this->Scene, SIGNAL(tick(int)), this, SLOT(onTick()));
-    QObject::connect(this->Scene, SIGNAL(loopChanged()),
-      this, SLOT(onLoopPropertyChanged()));
-    QObject::connect(this->Scene, SIGNAL(clockTimeRangesChanged()),
-        this, SLOT(onTimeRangesChanged()));
-    QObject::connect(this->Scene, SIGNAL(beginPlay()),
-      this, SLOT(onBeginPlay()));
-    QObject::connect(this->Scene, SIGNAL(endPlay()),
-      this, SLOT(onEndPlay()));
-    bool loop_checked = pqSMAdaptor::getElementProperty(
-        scene->getProxy()->GetProperty("Loop")).toBool();
-    emit this->loop(loop_checked);
-    }
+  // This hardly happens if ever, aside from beginning of app
+  // Regular VCR controller slot
+  Superclass::setAnimationScene(scene);
+  // Connects the following signals
+    //QObject::connect(this->Scene, SIGNAL(tick(int))               , this, SLOT(onTick()));
+    //QObject::connect(this->Scene, SIGNAL(loopChanged())           , this, SLOT(onLoopPropertyChanged()));
+    //QObject::connect(this->Scene, SIGNAL(clockTimeRangesChanged()), this, SLOT(onTimeRangesChanged()));
+    //QObject::connect(this->Scene, SIGNAL(beginPlay())             , this, SLOT(onBeginPlay()));
+    //QObject::connect(this->Scene, SIGNAL(endPlay())               , this, SLOT(onEndPlay()));
 
-  this->onTimeRangesChanged();
-  emit this->enabled (this->Scene != NULL);
+  // Connect additional Signals:
+    QObject::connect(this->Scene, SIGNAL(timeStepsChanged())        , this, SLOT(onTimeStepsChanged()));
+    //frameCountChanged // Not necessary, timeStepsChanged() cover this case
+    //cues
+    //playModeChanged()
+    //animationTime (double time)
+    //timeLabelChanged()
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onTimeRangesChanged()
 {
+  if (!this->Scene)
+    return;
+
+  // Set Scene Speed before signaling the change
+  this->setSceneSpeed();
+
+  // Regular VCR controller onTimeRangesChanged
+  Superclass::onTimeRangesChanged();
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::onTimeStepsChanged()
+{
   if (this->Scene)
   {
-    QPair<double, double> range = this->Scene->getClockTimeRange();
-    emit this->timeRanges(range.first, range.second);
-    this->duration = range.second - range.first;
-    if (speed != 0)
-    {
-      SetProperty(this->Scene, "Duration", this->duration / this->speed);
-    }
+    auto timesteps = this->Scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
+    Q_EMIT this->frameRanges(0, timesteps.size());
   }
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onPlay()
-{
-  if (this->weAreLive())
-  {
-    emit this->playing(true);
-    pqLiveSourceBehavior::resume();
-  }
-  else
-  {
-    if (!this->Scene)
-    {
-      qDebug() << "No active scene. Cannot play.";
-      return;
-    }
-
-    BEGIN_UNDO_EXCLUDE();
-
-    SM_SCOPED_TRACE(CallMethod)
-      .arg(this->Scene->getProxy())
-      .arg("Play");
-
-    this->Scene->getProxy()->InvokeCommand("Play");
-
-    // NOTE: This is a blocking call, returns only after the
-    // the animation has stopped.
-    END_UNDO_EXCLUDE();
-
-    pqApplicationCore::instance()->render();
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onTick()
-{
-  // No need to explicitly update all views,
-  // the animation scene proxy does it.
-
-  // process the events so that the GUI remains responsive.
-  QApplication::processEvents();
-  emit this->timestepChanged();
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onBeginPlay()
-{
-  emit this->playing(true);
-  emit this->beginNonUndoableChanges();
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onEndPlay()
-{
-  if (!this->weAreLive())
-  {
-    emit this->playing(false);
-    emit this->endNonUndoableChanges();
-  }
-}
-
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onLoopPropertyChanged()
-{
-  vtkSMProxy* scene = this->Scene->getProxy();
-  bool loop_checked = pqSMAdaptor::getElementProperty(
-    scene->GetProperty("Loop")).toBool();
-  emit this->loop(loop_checked);
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onLoop(bool checked)
-{
-  vtkSMProxy* scene = this->Scene->getProxy();
-  pqSMAdaptor::setElementProperty(scene->GetProperty("Loop"),checked);
-  scene->UpdateProperty("Loop");
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPause()
 {
-  if (this->weAreLive())
+  // Prevent Noisy warnings
+  if (!this->Scene)
   {
-    emit this->playing(false);
-    pqLiveSourceBehavior::pause();
+    return;
   }
-  else
+  
+  // Regular VCR controller Pause
+  Superclass::onPause();
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::onPlay()
+{
+  // Prevent Noisy warnings
+  if (!this->Scene)
   {
-    if (!this->Scene)
-    {
-      qDebug() << "No active scene. Cannot play.";
-      return;
-    }
-    this->Scene->getProxy()->InvokeCommand("Stop");
+    return;
   }
+  
+  // Regular VCR controller Pause
+  Superclass::onPlay();
 }
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onFirstFrame()
-{
-  emit this->beginNonUndoableChanges();
-  this->Scene->getProxy()->InvokeCommand("GoToFirst");
-  SM_SCOPED_TRACE(CallMethod)
-    .arg(this->Scene->getProxy())
-    .arg("GoToFirst");
-  emit this->endNonUndoableChanges();
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onPreviousFrame()
-{
-  // Get current animation PlayMode, and disable its signals so that toolbar
-  // will not be updated to avoid blinking
-  int playMode = GetProperty(this->Scene, "PlayMode");
-  bool signalsWereBlocked = this->Scene->blockSignals(true);
-
-  emit this->beginNonUndoableChanges();
-  SetProperty(this->Scene, "PlayMode", 2);
-  this->Scene->getProxy()->InvokeCommand("GoToPrevious");
-  SM_SCOPED_TRACE(CallMethod)
-    .arg(this->Scene->getProxy())
-    .arg("GoToPrevious");
-  emit this->endNonUndoableChanges();
-
-  // Restore animation PlayMode and signals
-  SetProperty(this->Scene, "PlayMode", playMode);
-  this->Scene->blockSignals(signalsWereBlocked);
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onNextFrame()
-{
-  // Get current animation PlayMode, and disable its signals so that toolbar
-  // will not be updated to avoid blinking
-  int playMode = GetProperty(this->Scene, "PlayMode");
-  bool signalsWereBlocked = this->Scene->blockSignals(true);
-
-  emit this->beginNonUndoableChanges();
-  SetProperty(this->Scene, "PlayMode", 2);
-  this->Scene->getProxy()->InvokeCommand("GoToNext");
-  SM_SCOPED_TRACE(CallMethod)
-    .arg(this->Scene->getProxy())
-    .arg("GoToNext");
-  emit this->endNonUndoableChanges();
-
-  // Restore animation PlayMode and signals
-  SetProperty(this->Scene, "PlayMode", playMode);
-  this->Scene->blockSignals(signalsWereBlocked);
-}
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onLastFrame()
-{
-  emit this->beginNonUndoableChanges();
-  this->Scene->getProxy()->InvokeCommand("GoToLast");
-  SM_SCOPED_TRACE(CallMethod)
-    .arg(this->Scene->getProxy())
-    .arg("GoToLast");
-  emit this->endNonUndoableChanges();
-}
-
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSpeedChange(double speed)
 {
+  // Update speed value
   this->speed = speed;
 
   // Update animation mode depending on speed
-  // If speed is valid, set animation PlayMode to REALTIME
-  if (speed != 0)
+  this->setSceneSpeed();
+  
+  // Pause for user safety
+  this->onPause();
+
+  // Signal Speed has changed
+  emit speedChange(this->speed);
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::onSeekFrame(int index)
+{
+  if(!this->Scene)
+    return;
+
+  const auto& timesteps = this->Scene->getTimeSteps();
+  if(index >=timesteps.size())
+    return;
+
+  // Set Scene Time
+  this->setSceneTime(timesteps[index]) ;
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::onSeekTime(double time)
+{
+  if(!this->Scene)
+    return;
+
+  if (time < 0)
+    return;
+
+  // Set Scene Time
+  this->setSceneTime(time) ;
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::setSceneTime(double time)
+{
+  // This is safer, simpler for users and we have been unable to make it work without it too
+  this->onPause();
+  this->Scene->setAnimationTime(time);
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::setSceneSpeed(){
+  if(!this->Scene)
+    return;
+
+  if (this->speed != 0)
   {
-    SetProperty(this->Scene, "Duration", this->duration / this->speed);
-    SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
+    // REALTIME
+    QPair<double, double> range = this->Scene->getClockTimeRange();
+    SetProperty(this->Scene, "Duration", (range.second - range.first) / this->speed);
+    this->setPlayMode(vtkAnimationScene::PLAYMODE_REALTIME);
   }
-  // If speed is null, set animation PlayMode to SNAP TO TIMESTEPS to play all frames
   else
   {
-    // There is no enum for mode 2 'Snap To Timesteps'...
-    SetProperty(this->Scene, "PlayMode", 2);
+    // SNAP TO TIMESTEPS
+    this->setPlayMode(vtkAnimationScene::PlayModes(2)); // No enum exists for mode 2 'Snap To Timesteps'.
   }
 
-  this->onPause();
-}
-
-
-namespace
-{
-  bool sourceIsLive(pqPipelineSource* src)
-  {
-    return (src != nullptr
-            && src->getProxy() != nullptr
-            && src->getProxy()->GetHints() != nullptr
-            && src->getProxy()->GetHints()->FindNestedElementByName("LiveSource"));
-  }
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onSourceAdded(pqPipelineSource* src)
-{
-  if (!sourceIsLive(src))
-  {
+void lqPlayerControlsController::setPlayMode(vtkAnimationScene::PlayModes mode){
+  if(!this->Scene)
     return;
-  }
-  this->liveSourceCount++;
-  if (this->liveSourceCount == 1)
-  {
-    emit setLiveMode(true);
-    if (pqLiveSourceBehavior::isPaused()) {
-      // this is needed to allow the user to open a new stream wh
-      pqLiveSourceBehavior::resume();
-    }
-    emit this->playing(true); // play right after source added, without user action
-  }
+  SetProperty(this->Scene, "PlayMode", mode);
 }
-
-//-----------------------------------------------------------------------------
-void lqPlayerControlsController::onSourceRemoved(pqPipelineSource *src)
-{
-  if (!sourceIsLive(src))
-  {
-    return;
-  }
-  this->liveSourceCount -= 1;
-  if (this->liveSourceCount == 0)
-  {
-    emit setLiveMode(false);
-    emit this->playing(false); // nothing left to play
-  }
-  QApplication::processEvents();
-}
-
-bool lqPlayerControlsController::weAreLive()
-{
-  return this->liveSourceCount > 0;
-}
-

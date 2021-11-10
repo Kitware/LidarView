@@ -1,15 +1,15 @@
 /*=========================================================================
 
-   Program: ParaView
-   Module:    pqVCRController.h
+   Program: LidarView
+   Module:  lqPlayerControlsController.h
 
-   Copyright (c) 2005-2008 Sandia Corporation, Kitware Inc.
+   Copyright (c) Kitware Inc.
    All rights reserved.
 
-   ParaView is a free software; you can redistribute it and/or modify it
-   under the terms of the ParaView license version 1.2.
+   LidarView is a free software; you can redistribute it and/or modify it
+   under the terms of the LidarView license.
 
-   See License_v1.2.txt for the full ParaView license.
+   See LICENSE for the full LidarView license.
    A copy of this license can be obtained by contacting
    Kitware Inc.
    28 Corporate Drive
@@ -28,98 +28,65 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-=========================================================================*/
+========================================================================*/
 #ifndef LQPLAYERCONTROLSCONTROLLER_H
 #define LQPLAYERCONTROLSCONTROLLER_H
 
 
 #include "pqComponentsModule.h"
-#include <QPointer>
+
 #include <QObject>
+#include <QPointer>
+
+#include <vtkAnimationScene.h>
+
+#include <pqVCRController.h>
 
 #include "lqapplicationcomponents_export.h"
 
-class pqPipelineSource;
-class pqAnimationScene;
-
-// lqPlayerControlsController is the QObject that encapsulates the
-// VCR control functionality.
-// It provides a slot to set the scene that this object
-// is using for animation. Typically, one would connect this
-// slot to a pqAnimationManager like object which keeps track
-// of the active animation scene.
-class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsController : public QObject
+/*
+ * lqPlayerControlsController is an upgrade of pqVCRController
+ *  - RT Speed / Snap-To-Timesteps Management
+ *  - Adds a Layer to pqAnimationManager with LiveSources
+ *  - Helper pqAnimationScene's 'onTimeStepsChanged' sister connection to 'onTimeRangesChanged'
+ *  - Seek Frame / Time features
+ */
+class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsController : public pqVCRController
 {
   Q_OBJECT
+  typedef pqVCRController Superclass;
+
 public:
   lqPlayerControlsController(QObject* parent = 0);
-  virtual ~lqPlayerControlsController();
-
-  pqAnimationScene* getAnimationScene();
-
-signals:
-  void timestepChanged();
-
-  // emitted with playing(true) when play begins and
-  // playing(false) when play ends.
-  void playing(bool);
-
-  // Fired when the enable state of the VCR control changes.
-  // fired each time setAnimationScene() is called. If
-  // called when a valid scene enabled(true) is fired,
-  // else enabled(false).
-  void enabled(bool);
-
-  // Emitted to update the check state
-  // of the loop.
-  void loop(bool);
-
-  void timeRanges(double, double);
-
-  /// emitted when the animation begins playing.
-  /// For now, playing of animation is non-undoable.
-  void beginNonUndoableChanges();
-
-  /// emitted when the animation ends playing.
-  void endNonUndoableChanges();
-
-  void setLiveMode(bool liveModeEnabled);
 
 public slots:
-  // Set the animation scene. If null, the VCR control is disabled
-  // (emits enabled(false)).
-  void setAnimationScene(pqAnimationScene*);
+  // Controls
+  virtual void setAnimationScene(pqAnimationScene*) Q_DECL_OVERRIDE;
+  virtual void onTimeRangesChanged() Q_DECL_OVERRIDE;
+  void onTimeStepsChanged(); // Received alongside 'onTimeRangesChanged'
+  virtual void onPause() Q_DECL_OVERRIDE;
+  virtual void onPlay()  Q_DECL_OVERRIDE;
 
-  // Called when timeranges change.
-  void onTimeRangesChanged();
-
-  // Connect these signals to appropriate VCR buttons.
-  void onFirstFrame();
-  void onPreviousFrame();
-  void onNextFrame();
-  void onLastFrame();
-  void onPlay();
-  void onPause();
-  void onLoop(bool checked);
   void onSpeedChange(double speed);
 
-protected slots:
-  void onTick();
-  void onLoopPropertyChanged();
-  void onBeginPlay();
-  void onEndPlay();
-  void onSourceAdded(pqPipelineSource* src);
-  void onSourceRemoved(pqPipelineSource* src);
+  void onSeekFrame(int index);
+  void onSeekTime (double time);
+
+Q_SIGNALS:
+  void speedChange(double);   // Signal speed has changed
+  void frameRanges(int, int); // Tirggered alongside VCR original 'TimeRanges'
+
+protected:
+  double speed; // Store animation Speed
+
+  // Helpers
+  void setSceneTime(double time);
+  void setSceneSpeed();
+  void setPlayMode(vtkAnimationScene::PlayModes mode);
 
 private:
-  lqPlayerControlsController(const lqPlayerControlsController&); // Not implemented.
-  void operator=(const lqPlayerControlsController&); // Not implemented.
+  Q_DISABLE_COPY(lqPlayerControlsController)
 
-  QPointer<pqAnimationScene> Scene;
-  double speed;
-  double duration;
-  int liveSourceCount = 0;
-  bool weAreLive(); // at least one source is live (sensor data received in real time from network)
 };
 
 #endif // LQPLAYERCONTROLSCONTROLLER_H
