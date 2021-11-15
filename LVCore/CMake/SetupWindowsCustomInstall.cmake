@@ -16,7 +16,7 @@
 
 # Ship Qt5
 foreach (qt5_opengl_lib IN ITEMS opengl32sw libEGL libGLESv2 libEGLd
-  Qt5Core Qt5Gui Qt5Widgets Qt5Help Qt5Network Qt5Svg)
+  Qt5Core Qt5Gui Qt5Widgets Qt5Help Qt5Network Qt5Svg Qt5PrintSupport Qt5Sql)
 install(FILES "${Qt5_DIR}/../../../bin/${qt5_opengl_lib}.dll"
         DESTINATION "bin"
         )
@@ -24,18 +24,16 @@ endforeach ()
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/platforms"
         DESTINATION "bin"
         )
-
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/styles"
         DESTINATION "bin"
         )
-#may not be needed
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/iconengines"
         DESTINATION "bin"
         )
 install(DIRECTORY "${Qt5_DIR}/../../../plugins/imageformats"
         DESTINATION "bin"
         )
-
+        
 # Ship Python #WIP May not be necessary
 get_filename_component(python_lib_location ${Python3_LIBRARY} PATH)
 install(FILES "${python_lib_location}/../python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}.dll" 
