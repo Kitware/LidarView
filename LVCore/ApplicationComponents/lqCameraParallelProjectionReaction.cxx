@@ -2,56 +2,72 @@
 
 #include <QtDebug>
 
+#include <pqActiveObjects.h>
 #include <pqRenderView.h>
 #include <pqSMAdaptor.h>
 #include <vtkCommand.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSMProxyProperty.h>
 
+#include "lqapplicationcomponents_export.h"
 
-lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *parent,  pqRenderView* v)
+lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *parent)
   : pqReaction(parent)
 {
-  Q_ASSERT(view);
-
-  this->view = v;
   this->parentAction()->setToolTip("Toggle between projective and orthogonal view");
-  // update the button state is coherent with the camera projection mode
-  updateUI();
 
-  // The Ui needs to be updated, each time the ParalllelProjection property is modified
-  this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  this->connection->Connect(
-    this->view->getProxy()->GetProperty("CameraParallelProjection"), vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
+  // Connect Views
+  QObject::connect(
+      &pqActiveObjects::instance(), SIGNAL(viewChanged(pqView*)),
+      this, SLOT(onViewChanged(pqView*))
+  );
+
+  // Update for current View if any
+  this->onViewChanged(pqActiveObjects::instance().activeView());
 }
 
+//-----------------------------------------------------------------------------
+void lqCameraParallelProjectionReaction::onViewChanged(pqView* view)
+{
+  pqRenderView* rview = qobject_cast<pqRenderView*>(view);
+  // Disable if not a render view
+  this->parentAction()->setEnabled(static_cast<bool>(rview));
+
+  // Update UI if it is a render view
+  if (rview)
+  {
+    this->updateUI(rview);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void lqCameraParallelProjectionReaction::onTriggered()
 {
-  if (!view)
+  pqRenderView* rview = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
+  // No Active View
+  if (!rview)
   {
-    qCritical() << "No View for lqCameraParallelProjectionReaction:";
     return;
   }
 
   // switch mode
-  vtkSMProperty* property = this->view->getProxy()->GetProperty("CameraParallelProjection");
+  vtkSMProperty* property = rview->getProxy()->GetProperty("CameraParallelProjection");
   bool mode = !pqSMAdaptor::getElementProperty(property).toBool();
   pqSMAdaptor::setElementProperty(property, mode);
-  this->view->getProxy()->UpdateVTKObjects();
+  rview->getProxy()->UpdateVTKObjects();
+  rview->render();
   // no need to call updateUi here as the function will be trigger anyways thanks to the connection.
 }
 
-void lqCameraParallelProjectionReaction::updateUI()
+//-----------------------------------------------------------------------------
+void lqCameraParallelProjectionReaction::updateUI(pqRenderView* view)
 {
-  if (!view)
-  {
-    qCritical() << "No View for lqCameraParallelProjectionReaction:";
-    return;
-  }
-  vtkSMProperty* property = this->view->getProxy()->GetProperty("CameraParallelProjection");
+  // Not a RenderView
+  if (!view) { return; }
+
+  vtkSMProperty* property = view->getProxy()->GetProperty("CameraParallelProjection");
   bool mode = pqSMAdaptor::getElementProperty(property).toBool();
   this->parentAction()->setChecked(mode);
   QIcon icon = mode ? QIcon(":/lqResources/Icons/lqViewOrtho.png") : QIcon(":/lqResources/Icons/lqViewPerspective.png");
   this->parentAction()->setIcon(icon);
-  this->view->render();
 }

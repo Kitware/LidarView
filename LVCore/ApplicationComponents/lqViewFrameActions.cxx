@@ -34,7 +34,7 @@ void lqViewFrameActions::frameConnected(pqViewFrame* frame, pqView* view)
 
     QAction* cameraProjection = frame->addTitleBarAction(QIcon(":/lqResources/Icons/lqViewPerspective.png"), "Tooltip overwrite by reaction");
     cameraProjection->setObjectName("cameraProjection");
-    new lqCameraParallelProjectionReaction(cameraProjection, render_view);
+    new lqCameraParallelProjectionReaction(cameraProjection);
   }
 }
 

@@ -6,8 +6,8 @@
 
 #include "lqapplicationcomponents_export.h"
 
+class pqView;
 class pqRenderView;
-class vtkEventQtSlotConnect;
 
 /**
 * @ingroup Reactions
@@ -19,9 +19,14 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqCameraParallelProjectionReaction : public
   typedef pqReaction Superclass;
 
 public:
-  lqCameraParallelProjectionReaction(QAction* parent, pqRenderView* view);
+  lqCameraParallelProjectionReaction(QAction* parent);
 
 protected slots:
+
+  /**
+  * Called when activeView changed.
+  */
+  void onViewChanged(pqView* view);
 
   /**
   * Called when the action is triggered.
@@ -31,12 +36,10 @@ protected slots:
   /**
    * Update the button state according to the camera state.
    */
-  void updateUI();
+  void updateUI(pqRenderView* rview);
 
 private:
   Q_DISABLE_COPY(lqCameraParallelProjectionReaction)
-  pqRenderView* view;
-  vtkSmartPointer<vtkEventQtSlotConnect> connection;
 };
 
 #endif // LQCAMERAPARALLELPROJECTIONREACTION_H
