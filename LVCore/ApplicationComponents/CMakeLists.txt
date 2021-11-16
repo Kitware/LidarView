@@ -17,6 +17,9 @@ add_library(lqApplicationComponents
   ctk/ctkValueProxy.cpp
   ctk/ctkValueProxy.h
   ctk/ctkWidgetsExport.h
+  lqLidarCoreManager.cxx
+  lqLidarCoreManager.h
+  lqPythonQtDecorators.h
   lqCameraParallelProjectionReaction.cxx
   lqCameraParallelProjectionReaction.h
   lqColorToolbar.cxx
@@ -88,7 +91,7 @@ target_sources(lqApplicationComponents PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/lqHelper.cxx
   )
 target_link_libraries(lqApplicationComponents PUBLIC
-  Qt5::Core #wip may be needed elsewhere
+  Qt5::Core
   Qt5::Widgets
   Qt5::UiTools
   Qt5::Gui
@@ -116,6 +119,7 @@ target_link_libraries(lqApplicationComponents PUBLIC
   ParaView::RemotingViewsPython
   
   LidarCore # Only way to get the headers at compile time
+  PythonQt::PythonQt # Required to Wrap additional functions
   )
 target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)
 target_compile_definitions(lqApplicationComponents PRIVATE CTKCore_EXPORTS CTKWidgets_EXPORTS)
