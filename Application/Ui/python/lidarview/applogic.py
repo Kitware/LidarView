@@ -101,7 +101,7 @@ def hasArrayName(sourceProxy, arrayName):
 # Used by pqLidarViewManager
 def openData(filename):
 
-    close()
+    onClose()
 
     reader = smp.OpenDataFile(filename, guiName='Data')
 
@@ -526,7 +526,7 @@ def restoreNativeFileDialogsAction():
     settings = getPVSettings()
     app.actions['actionNative_File_Dialogs'].setChecked(int(settings.value('LidarPlugin/NativeFileDialogs', 1)))
 
-
+# Action related Logic
 def onNativeFileDialogsAction():
     settings = getPVSettings()
     settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
@@ -763,7 +763,7 @@ def exportToDirectory(outDir, timesteps):
     return filenames
 
 
-def close():
+def onClose():
     # Save grid properties for this session
     app.gridProperties.Normal = app.grid.Normal
     app.gridProperties.Origin = app.grid.Origin
@@ -1136,7 +1136,7 @@ def setupActions():
 
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
 
-    app.actions['actionClose'].connect('triggered()', close)
+    app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
