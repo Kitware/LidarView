@@ -6,10 +6,12 @@
 
 #include "lqapplicationcomponents_export.h"
 
-class pqRenderView;
 class QMouseEvent;
-class vtkEventQtSlotConnect;
+class pqRenderView;
+class pqView;
+class vtkObject;
 class vtkSMProxy;
+class vtkEventQtSlotConnect;
 
 /**
  * @ingroup Reactions
@@ -28,31 +30,54 @@ public:
     BETWEEN_2D_POINTS,
     BETWEEN_3D_POINTS,
   };
-  lqRulerReaction(QAction* parent, pqRenderView* view, lqRulerReaction::Mode mode);
+  lqRulerReaction(QAction* parent, lqRulerReaction::Mode mode);
 
 protected slots:
-  void updateUI();
 
   /**
-  * Called when the action is triggered.
+  * Called when activeView changed.
+  */
+  void onViewChanged(pqView* view);
+
+  /**
+  * Called when activeView changed.
+  */
+  void onViewRemoved(pqView* view);
+
+  /**
+  * Called when the action is triggered / when projection changes
   */
   void onTriggered() override;
 
-  /**
-   * Update the ruler widget coordinate based on the mouse event.
-   */
-  void onMouseEvent(QMouseEvent* event);
 private:
-  Mode mode;
+
+  // Mouse Click Callback
+  static void mousePressCallback(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
+
+  // Internal Helpers
+  void setView(pqRenderView* rview); // Set the new Rview
+  void createDWR();                  // Create new distanceWidgetRepresentation
+  void destroyState();               // Clear Saved View and dwr
+  void displayRuler(bool value);     // Change dwr visibility
+
+  void updateUI();  // Update UI according to state
+
+  bool isEnabled(); // Is action checked
+
   QList<QVariant> get3DPoint(QPoint);
-  void displayRuler(bool value);
 
   Q_DISABLE_COPY(lqRulerReaction)
-  pqRenderView* view;
-  bool mousePressed = true;
 
-  vtkSMProxy* distanceWidgetRepresentation;
-  vtkSmartPointer<vtkEventQtSlotConnect> connection;
+  // Creation state
+  const Mode mode;
+  vtkSmartPointer<vtkEventQtSlotConnect> connection; // Used to listen for projection state changes
+
+  // Tracked State
+  pqRenderView* view; // Current active View
+  vtkSMProxy* dwr;    // Current active View's distanceWidgetRepresentation
+  bool started = false; // Set to true when ruler has been clicked once
+
 };
 
 #endif // LQRULERREACTION_H
