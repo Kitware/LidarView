@@ -143,6 +143,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   // To get the pqPipelineSource modified with the new property, you have to connect to the signal
   // "dataUpdated" of the pqServerManagerModel
   pqPipelineSource* lidarSource = builder->createSource("sources", "LidarReader", server);
+  lidarSource->setModifiedState(pqProxy::UNMODIFIED);
   vtkSMPropertyHelper(lidarSource->getProxy(), "FileName").Set(fileName.toStdString().c_str());
   lidarSource->getProxy()->UpdateProperty("FileName");
   QString lidarName = lidarSource->getSMName();
@@ -167,6 +168,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   inputs.push_back(lidarSource->getOutputPort(0));
   namedInputs["Input"] = inputs;
   pqPipelineSource* trailingFrameFilter = builder->createFilter("filters", "TrailingFrame", namedInputs, server);
+  trailingFrameFilter->setModifiedState(pqProxy::UNMODIFIED);
   QString trailingFrameName = trailingFrameFilter->getSMName();
 
   // Set the trailing frame associated to the sensor Widget

@@ -185,6 +185,7 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource* & lidarSou
       {
         // If the Lidar Source is a stream, we created a Position Orientation Stream
         posOrSource = builder->createSource("sources", "PositionOrientationStream", server);
+        posOrSource->setModifiedState(pqProxy::UNMODIFIED);
         posOrProxy = posOrSource->getProxy();
         posOrSource->getProxy()->InvokeCommand("Start");
       }
@@ -193,6 +194,7 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource* & lidarSou
         // If the Lidar Source is a Lidar Reader we created a Position Orientation Reader
         // And we set the filename to interpret to the same as the Lidar one.
         posOrSource = builder->createSource("sources", "PositionOrientationReader", server);
+        posOrSource->setModifiedState(pqProxy::UNMODIFIED);
         vtkSMProperty * lidarFileNameProperty = lidarProxy->GetProperty("FileName");
         std::string pcapFileName = vtkSMPropertyHelper(lidarFileNameProperty).GetAsString();
         vtkSMPropertyHelper(posOrSource->getProxy(), "FileName").Set(pcapFileName.c_str());
