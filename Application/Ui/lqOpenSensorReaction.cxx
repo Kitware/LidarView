@@ -17,7 +17,7 @@
 
 #include "lqHelper.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "pqLidarViewManager.h"
+#include "lqLidarViewManager.h"
 #include "vvCalibrationDialog.h"
 #include "lqSensorListWidget.h"
 
@@ -41,7 +41,7 @@ void lqOpenSensorReaction::onTriggered()
 
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
-  vvCalibrationDialog dialog(pqLidarViewManager::instance()->getMainWindow());
+  vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow());
   DisplayDialogOnActiveWindow(dialog);
   if (!dialog.exec())
   {
@@ -69,6 +69,7 @@ void lqOpenSensorReaction::onTriggered()
   // To get the pqPipelineSource modified with the new property, you have to connect to the signal
   // "dataUpdated" of the pqServerManagerModel
   pqPipelineSource* lidarSource = builder->createSource("sources", "LidarStream", server);
+  lidarSource->setModifiedState(pqProxy::UNMODIFIED);
   QString lidarName = lidarSource->getSMName();
   controller->Show(lidarSource->getSourceProxy(), 0, view->getViewProxy());
 
@@ -91,5 +92,5 @@ void lqOpenSensorReaction::onTriggered()
   lidarSource->getProxy()->InvokeCommand("Start");
 
   //Update applogic to be able to use function only define in applogic.
-  pqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
+  lqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
 }

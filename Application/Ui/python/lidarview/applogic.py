@@ -16,7 +16,6 @@ import os
 import csv
 import datetime
 import math
-import sys
 import paraview.simple as smp
 from paraview import servermanager
 from paraview import vtk
@@ -35,37 +34,14 @@ from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
-import LidarPlugin.LidarCore
+import LidarPlugin.LidarCore  # NOQA
 
 import lidarview.planefit as planefit
-
-_repCache = {}
-
-SAMPLE_PROCESSING_MODE = False
-
-def vtkGetFileNameFromPluginName(pluginName):
-  import os
-  if os.name == "nt":
-    return pluginName + ".dll";
-  elif sys.platform == "darwin":
-    return "lib" + pluginName + ".dylib";
-  else:
-    return "lib" + pluginName + ".so";
-
-def cachedGetRepresentation(src, view):
-    try:
-        return _repCache[(src, view)]
-    except KeyError:
-        rep = smp.GetRepresentation(src, view)
-        _repCache[(src, view)] = rep
-        return rep
 
 class AppLogic(object):
 
     def __init__(self):
         self.createStatusBarWidgets()
-
-        self.mousePressed = False
 
         mainView = smp.GetActiveView()
         self.mainView = mainView
@@ -80,11 +56,6 @@ class AppLogic(object):
 
         self.gridProperties = None
 
-        #Not plugins anymore, kept for future reference
-        #smp.LoadPlugin(vtkGetFileNameFromPluginName('PointCloudPlugin'))
-        #smp.LoadPlugin(vtkGetFileNameFromPluginName('EyeDomeLightingView'))
-
-
     def createStatusBarWidgets(self):
 
         self.logoLabel = QtGui.QLabel()
@@ -95,7 +66,6 @@ class AppLogic(object):
         self.statusLabel = QtGui.QLabel()
         self.sensorInformationLabel = QtGui.QLabel()
         self.positionPacketInfoLabel = QtGui.QLabel()
-
 
 class GridProperties:
 
@@ -108,8 +78,7 @@ class GridProperties:
         self.Color = [0, 0, 0]
         self.Persist = False
 
-
-
+# Array Helper
 def hasArrayName(sourceProxy, arrayName):
     '''
     Returns True if the data has non-zero points and has a point data
@@ -129,10 +98,10 @@ def hasArrayName(sourceProxy, arrayName):
             return True
     return False
 
-
+# Used by lqLidarViewManager
 def openData(filename):
 
-    close()
+    onClose()
 
     reader = smp.OpenDataFile(filename, guiName='Data')
 
@@ -155,7 +124,7 @@ def openData(filename):
     app.actions['actionCropReturns'].setEnabled(False)
     app.actions['actionShowRPM'].enabled = True
 
-
+# Action Related Logic
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
@@ -259,17 +228,6 @@ def setDefaultLookupTables(sourceProxy):
                  +1.0, 1.0, 0.9, 0.4],
       Annotations=['-1', 'low', '0', 'dual', '1', 'high'])
 
-    # LUT for 'laser_id'. This LUT is extracted from the XML calibration file
-    # which doesn't exist in live stream mode
-    if False and getReader() is not None:
-        rgbRaw = [0] * 256
-        sourceProxy.GetClientSideObject().GetXMLColorTable(rgbRaw)
-
-        smp.GetLookupTableForArray(
-          'laser_id', 1,
-          ScalarRangeInitialized=1.0,
-          ColorSpace='RGB',
-          RGBPoints=rgbRaw)
 
 def getTimeStamp():
     format = '%Y-%m-%d-%H-%M-%S'
@@ -280,9 +238,6 @@ def getReaderFileName():
     filename = getReader().FileName
     return filename[0] if isinstance(filename, servermanager.FileNameProperty) else filename
 
-
-def setDefaultSaveName(defaultSaveName):
-  app.DefaultSaveName = defaultSaveName
 
 def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
 
@@ -304,20 +259,15 @@ def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
             suffix = '%s (Frame %04d)' % (suffix, int(app.scene.AnimationTime))
         return '%s%s.%s' % (basename, suffix, extension)
 
+# Used by Ui/lqOpenPcapReaction Ui/lqOpenSensorReaction
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     sensor = smp.FindSource(lidarProxyName)
-
-    if not app.grid :
-        app.grid = createGrid()
 
     sensor.UpdatePipeline()
 
     if gpsProxyName:
         app.position = smp.FindSource(gpsProxyName)
-
-    if SAMPLE_PROCESSING_MODE:
-        processor = smp.ProcessingSample(sensor)
 
     smp.GetActiveView().ViewTime = 0.0
 
@@ -332,14 +282,6 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     onCropReturns(False) # Dont show the dialog just restore settings
 
-#   rep = smp.Show(sensor)
-#    rep.InterpolateScalarsBeforeMapping = 0
-#    if app.sensor.GetClientSideObject().GetNumberOfChannels() == 128:
-#        rep.Representation = 'Point Cloud'
-#        rep.ColorArrayName = 'intensity'
-
-    if SAMPLE_PROCESSING_MODE:
-        smp.Show(processor)
     smp.Render()
 
     showSourceInSpreadSheet(sensor)
@@ -348,24 +290,18 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     #Auto adjustment of the grid size with the distance resolution
     app.DistanceResolutionM = sensor.Interpreter.GetClientSideObject().GetDistanceResolutionM()
-    app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
+    
     setDefaultLookupTables(sensor)
     updateUIwithNewLidar()
 
-
+# Used by Ui/lqOpenPcapReaction
 def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
 
     reader = smp.FindSource(lidarName)
 
     if not reader :
       return
-
-    # We create a grid only if there is not a previous one
-    # This avoid creating a grid for every open sensor
-    # In long term this should be moved to the reaction
-    if not app.grid :
-        app.grid = createGrid()
 
     reader.UpdatePipelineInformation()
     app.reader = reader
@@ -385,14 +321,8 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
     app.positionPacketInfoLabel.setText('') # will be updated later if possible
     onCropReturns(False) # Dont show the dialog just restore settings
 
-    if SAMPLE_PROCESSING_MODE:
-        processor = smp.ProcessingSample(reader)
-
-
     smp.GetActiveView().ViewTime = 0.0
 
-    if SAMPLE_PROCESSING_MODE:
-        smp.Show(processor)
     app.scene.UpdateAnimationUsingDataTimeSteps()
 
     posreader = smp.FindSource(posOrName)
@@ -427,13 +357,11 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
 
     #Auto adjustment of the grid size with the distance resolution
     app.DistanceResolutionM = reader.Interpreter.GetClientSideObject().GetDistanceResolutionM()
-    app.actions['actionMeasurement_Grid'].setChecked(True)
     showMeasurementGrid()
 
     setDefaultLookupTables(current_trailingFrame)
     app.trailingFrame.append(current_trailingFrame)
     updateUIwithNewLidar()
-
 
 def hideMeasurementGrid():
     rep = smp.GetDisplayProperties(app.grid)
@@ -445,100 +373,6 @@ def showMeasurementGrid():
     rep = smp.GetDisplayProperties(app.grid)
     rep.Visibility = 1
     smp.Render()
-
-
-# Start Functions related to ruler
-
-
-def createRuler():
-    pxm = servermanager.ProxyManager()
-    distancerep = pxm.NewProxy('representations', 'DistanceWidgetRepresentation')
-    distancerepeasy = servermanager._getPyProxy(distancerep)
-    smp.GetActiveView().Representations.append(distancerepeasy)
-    distancerepeasy.Visibility = False
-    smp.Render()
-
-    return distancerepeasy
-
-
-def hideRuler():
-    app.ruler.Visibility = False
-    smp.Render()
-
-
-def showRuler():
-    app.ruler.Visibility = True
-    smp.Render()
-
-def getPointFromCoordinate(coord, midPlaneDistance = 0.5):
-    assert len(coord) == 2
-
-    windowHeight = smp.GetActiveView().ViewSize[1]
-
-    displayPoint = [coord[0], windowHeight - coord[1], midPlaneDistance]
-    renderer = smp.GetActiveView().GetRenderer()
-    renderer.SetDisplayPoint(displayPoint)
-    renderer.DisplayToWorld()
-    world1 = renderer.GetWorldPoint()
-
-    return world1[:3]
-
-def toggleRulerContext():
-
-    measurmentState = app.actions['actionMeasure'].isChecked()
-
-    mW = getMainWindow()
-    vtkW = mW.findChild('pqQVTKWidget')
-
-    if measurmentState == True:
-        vtkW.connect('mouseEvent(QMouseEvent*)', setRulerCoordinates)
-
-    elif measurmentState == False:
-        vtkW.disconnect('mouseEvent(QMouseEvent*)', setRulerCoordinates)
-
-        app.mousePressed = False
-        hideRuler()
-
-
-def setRulerCoordinates(mouseEvent):
-
-    pqView = smp.GetActiveView()
-    rW = pqView.GetRenderWindow()
-    windowInteractor = rW.GetInteractor()
-    currentMouseState = mouseEvent.buttons()
-    currentKeyboardState = mouseEvent.modifiers()
-
-    if currentMouseState == 1:  #Left button pressed
-
-        if app.mousePressed == False: #For the first time
-
-            if currentKeyboardState == 67108864: #Control key pressed
-
-                app.mousePressed = True
-                app.ruler.Point1WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-
-                windowInteractor.Disable()
-
-        elif app.mousePressed == True: #Not for the first time
-
-            app.ruler.Point2WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-            showRuler()
-            smp.Render()
-
-    elif currentMouseState == 0: #Left button released
-
-        windowInteractor.Enable()
-
-        if  app.mousePressed == True: #For the first time
-
-            app.mousePressed = False
-            app.ruler.Point2WorldPosition = getPointFromCoordinate([mouseEvent.x(),mouseEvent.y()])
-            showRuler()
-            smp.Render()
-
-
-# End Functions related to ruler
-
 
 def rotateCSVFile(filename):
 
@@ -594,11 +428,11 @@ def saveLASFrames(filename, first, last, transform = 0):
     if getPosition() is not None:
         position = getPosition().GetClientSideObject().GetOutput()
 
-        PythonQt.paraview.pqLidarViewManager.saveFramesToLAS(
+        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
             reader, position, first, last, filename, transform)
 
     else:
-        PythonQt.paraview.pqLidarViewManager.saveFramesToLAS(
+        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
             reader, None, first, last, filename, transform)
 
 
@@ -692,7 +526,7 @@ def restoreNativeFileDialogsAction():
     settings = getPVSettings()
     app.actions['actionNative_File_Dialogs'].setChecked(int(settings.value('LidarPlugin/NativeFileDialogs', 1)))
 
-
+# Action related Logic
 def onNativeFileDialogsAction():
     settings = getPVSettings()
     settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
@@ -853,7 +687,7 @@ def onSavePCAP():
     if not fileName:
         return
 
-    PythonQt.paraview.pqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
+    PythonQt.paraview.lqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
 
 
 def onSaveScreenshot():
@@ -929,15 +763,7 @@ def exportToDirectory(outDir, timesteps):
     return filenames
 
 
-def getVersionString():
-  return " ".join(getMainWindow().windowTitle.split(" ")[1:])
-
-
-def onAbout():
-    aboutDialog.showDialog(getMainWindow())
-
-
-def close():
+def onClose():
     # Save grid properties for this session
     app.gridProperties.Normal = app.grid.Normal
     app.gridProperties.Origin = app.grid.Origin
@@ -947,13 +773,11 @@ def close():
     app.gridProperties.Color = app.grid.Color
 
     smp.GetAnimationScene().Stop()
-    hideRuler()
     unloadData()
     app.scene.AnimationTime = 0
     app.reader = None
     app.sensor = None
     app.trailingFrame = []
-    smp.Delete(app.grid)
 
     smp.HideUnusedScalarBars()
 
@@ -963,6 +787,7 @@ def close():
     disableSaveActions()
 
 
+# Generic Helpers
 def _setSaveActionsEnabled(enabled):
     for action in ('SavePCAP', 'Export_To_KiwiViewer',
                    'Close', 'CropReturns'):
@@ -981,40 +806,7 @@ def disableSaveActions():
     app.actions['actionSavePositionCSV'].setEnabled(False)
 
 
-def startStream():
-
-    sensor = getSensor()
-    if sensor:
-        sensor.Start()
-
-
-def stopStream():
-    sensor = getSensor()
-    if sensor:
-        sensor.Stop()
-
-
-def getPointCloudData(attribute=None):
-
-    if attribute is not None:
-        data = getPointCloudData()
-        if data:
-            if attribute == 'points':
-                return data.GetPoints().GetData()
-            else:
-                return data.GetPointData().GetArray(attribute)
-    else:
-        source = getSensor() or getReader()
-        if source:
-            return source.GetClientSideObject().GetOutput()
-
-
-def getNumberOfTimesteps():
-    return getTimeKeeper().getNumberOfTimeStepValues()
-
-
 def unloadData():
-    _repCache.clear()
 
     for k, src in smp.GetSources().items():
         if src != app.grid and src != smp.FindSource("RPM"):
@@ -1089,16 +881,6 @@ def onCropReturns(show = True):
             smp.Render()
 
 
-def resetCameraToBirdsEyeView(view=None):
-
-    view = view or smp.GetActiveView()
-    view.CameraFocalPoint = [0, 0, 0]
-    view.CameraViewUp = [0, 1, 0]
-    view.CameraPosition = [0, 0, 40]
-    view.CenterOfRotation = [0, 0, 0]
-    smp.Render(view)
-
-
 def resetCameraToForwardView(view=None):
 
     view = view or smp.GetActiveView()
@@ -1148,14 +930,10 @@ def showSourceInSpreadSheet(source):
     smp.Hide(source, spreadSheetView)
     smp.Show(source, spreadSheetView)
 
-
-def createGrid(view=None):
-
-    view = view or smp.GetActiveView()
-    grid = smp.GridSource(guiName='Measurement Grid')
-
+def createGrid():
+    app.grid = smp.GridSource(guiName='Measurement Grid')
     if app.gridProperties.Persist == False:
-        grid.GridNbTicks = (int(math.ceil(50000 * app.DistanceResolutionM/ grid.Scale )))
+        app.grid.GridNbTicks = (int(math.ceil(50000 * app.DistanceResolutionM/ app.grid.Scale )))
     else:
         # Restore grid properties
         grid.Normal = app.gridProperties.Normal
@@ -1165,14 +943,16 @@ def createGrid(view=None):
         grid.LineWidth = app.gridProperties.LineWidth
         grid.Color = app.gridProperties.Color
 
-    rep = smp.Show(grid, view)
-    rep.LineWidth = grid.LineWidth
-    rep.DiffuseColor = grid.Color
+    rep = smp.Show(app.grid)
+    rep.LineWidth = app.grid.LineWidth
+    rep.DiffuseColor = app.grid.Color
     rep.Pickable = 0
     rep.Visibility = 0
     smp.SetActiveSource(None)
-    return grid
 
+    app.grid.UpdatePipeline()
+    smp.Show(app.grid)
+    return app.grid
 
 def hideGrid():
     smp.GetDisplayProperties(app.grid).Hide()
@@ -1180,7 +960,6 @@ def hideGrid():
 
 def showGrid():
     smp.GetDisplayProperties(app.grid).Show()
-
 
 def getAnimationScene():
     '''This function is a workaround because paraview.simple.GetAnimationScene()
@@ -1195,7 +974,6 @@ def start():
     global app
     app = AppLogic()
     app.scene = getAnimationScene()
-    app.gridProperties = GridProperties()
 
     view = smp.GetActiveView()
     view.Background = [0.0, 0.0, 0.0]
@@ -1203,20 +981,20 @@ def start():
     view.UseGradientBackground = True
     smp._DisableFirstRenderCameraReset()
     smp.GetActiveView().LODThreshold = 1e100
-    app.DistanceResolutionM = 0.002
-    app.grid = createGrid()
-    app.ruler = createRuler()
 
     resetCameraToForwardView()
 
     setupActions()
     disableSaveActions()
-    app.actions['actionMeasure'].setEnabled(view.CameraParallelProjection)
     setupStatusBar()
     hideColorByComponent()
     restoreNativeFileDialogsAction()
     createRPMBehaviour()
-
+    
+    # Create Grid #WIP not perfect requires loaded plugin
+    app.DistanceResolutionM = 0.002
+    app.gridProperties = GridProperties() # Reset Grid Properties
+    createGrid()
 
 def findQObjectByName(widgets, name):
     for w in widgets:
@@ -1240,21 +1018,10 @@ def getTimeKeeper():
     return getPVApplicationCore().getActiveServer().getTimeKeeper()
 
 
-def quit():
-    PythonQt.QtGui.QApplication.instance().quit()
-exit = quit
-
-
-def addShortcuts(keySequenceStr, function):
-    shortcut = PythonQt.QtGui.QShortcut(PythonQt.QtGui.QKeySequence(keySequenceStr), getMainWindow())
-    shortcut.connect("activated()", function)
-
-
 def onTrailingFramesChanged(numFrames):
     for tr in app.trailingFrame :
         tr.NumberOfTrailingFrames = numFrames
         smp.Render()
-
 
 def setupStatusBar():
     # by using a QScrollArea inside the statusBar it should be possible
@@ -1267,19 +1034,17 @@ def setupStatusBar():
     statusBar.addWidget(app.sensorInformationLabel)
     statusBar.addWidget(app.positionPacketInfoLabel)
 
-
 def onGridProperties():
+    if not app.grid:
+      createGrid()
     if gridAdjustmentDialog.showDialog(getMainWindow(), app.grid, app.gridProperties):
-        rep = smp.Show(app.grid, None)
-        rep.LineWidth = app.grid.LineWidth
+        rep = smp.Show(app.grid)
+        rep.LineWidth    = app.grid.LineWidth
         rep.DiffuseColor = app.grid.Color
-        app.actions['actionMeasurement_Grid'].setChecked(True)
         smp.Render()
-
 
 def hideColorByComponent():
     getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChildren('QComboBox')[1].hide()
-
 
 def adjustScalarBarRangeLabelFormat():
     if not app.actions['actionScalarBarVisibility'].isChecked():
@@ -1291,21 +1056,6 @@ def adjustScalarBarRangeLabelFormat():
         sb.RangeLabelFormat = '%g'
         smp.Render()
 
-def toggleProjectionType():
-
-    view = smp.GetActiveView()
-
-    view.CameraParallelProjection = not view.CameraParallelProjection
-    if app.actions['actionMeasure'].isChecked():
-        app.actions['actionMeasure'].trigger()
-        app.actions['actionMeasure'].toggle()
-
-    app.actions['actionMeasure'].setEnabled(view.CameraParallelProjection)
-    if not view.CameraParallelProjection:
-        app.actions['actionMeasure'].setChecked(False)
-
-    smp.Render()
-
 def toggleRPM():
     rpm = smp.FindSource("RPM")
     if rpm:
@@ -1314,11 +1064,6 @@ def toggleRPM():
         else:
             smp.Hide(rpm)
         smp.Render()
-
-
-def toggleCrashAnalysis():
-    app.EnableCrashAnalysis = app.actions['actionEnableCrashAnalysis'].isChecked()
-
 
 def transformMode():
     reader = getReader()
@@ -1391,7 +1136,7 @@ def setupActions():
 
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
 
-    app.actions['actionClose'].connect('triggered()', close)
+    app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
@@ -1399,17 +1144,14 @@ def setupActions():
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
-    app.actions['actionAbout_LidarView'].connect('triggered()', onAbout)
-
-    app.actions['actionToggleProjection'].connect('triggered()', toggleProjectionType)
-    app.actions['actionMeasure'].connect('triggered()', toggleRulerContext)
+    app.actions['actionAbout_LidarView'].connect('triggered()', lambda : aboutDialog.showDialog(getMainWindow()) )
+    
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
 
     # Restore action states from settings
     settings = getPVSettings()
-
 
     advanceMode = int(settings.value("LidarPlugin/AdvanceFeature/Enable", 0))
     if not advanceMode:
@@ -1441,15 +1183,8 @@ def setupActions():
 
     # Set default toolbar visibility
     geolocationToolBar.visible = False
-    app.geolocationToolBar = geolocationToolBar
 
-    # Setup and add the playback speed control toolbar
-    timeToolBar = mW.findChild('QToolBar','Player Control')
-
-    spinBoxLabel = QtGui.QLabel('TF:')
-    spinBoxLabel.toolTip = "Number of trailing frames"
-    timeToolBar.addWidget(spinBoxLabel)
-
+    # Trailing Frame Spinbox
     spinBox = QtGui.QSpinBox()
     spinBox.toolTip = "Number of trailing frames"
     spinBox.setMinimum(0)
@@ -1457,17 +1192,9 @@ def setupActions():
     spinBox.connect('valueChanged(int)', onTrailingFramesChanged)
     app.trailingFramesSpinBox = spinBox
 
-    app.actions['actionTrailingFramesSelector'] = timeToolBar.addWidget(spinBox)
-    app.actions['actionTrailingFramesSelector'].setVisible(True)
-
     displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
     displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
     app.actions['actionScalarBarVisibility'].connect('triggered()',adjustScalarBarRangeLabelFormat)
-
-    app.MainToolbar = getMainWindow().findChild('QToolBar','toolBar')
-    app.ColorToolbar = getMainWindow().findChild('QToolBar','colorToolBar')
-    app.PlaybackToolbar = timeToolBar
-    app.GeolocationToolbar = getMainWindow().findChild('QToolBar','geolocationToolbar')
 
 
 def createRPMBehaviour():

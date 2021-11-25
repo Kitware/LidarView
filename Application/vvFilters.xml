@@ -1,7 +1,7 @@
 <!-- list of filters copy pasted from paraview -->
+<!-- Removed some show_in_toolbar="1" properties -->
 <ParaViewFilters>
-  <Category name="Common" menu_label="&amp;Common" preserve_order="1"
-    show_in_toolbar="1">
+  <Category name="Common" menu_label="&amp;Common" preserve_order="1">
     <Proxy group="filters" name="Calculator" icon=":/pqWidgets/Icons/pqCalculator.svg"/>
     <Proxy group="filters" name="Contour" icon=":/pqWidgets/Icons/pqIsosurface.svg"/>
     <Proxy group="filters" name="Clip" icon=":/pqWidgets/Icons/pqClip.svg"/>
@@ -21,18 +21,18 @@
             icon=":/pqWidgets/Icons/pqExtractSelection.svg" />
     <Proxy group="filters" name="ExtractSelectionOverTime"
             icon=":/pqWidgets/Icons/pqPlotCellOverTime24.png" />
-    <Proxy group="filters" name="ExtractHistogram" 
+    <Proxy group="filters" name="ExtractHistogram"
             icon=":/pqWidgets/Icons/pqHistogram24.png"/>
     <Proxy group="filters" name="IntegrateAttributes" />
     <Proxy group="filters" name="ExtractFieldDataOverTime" />
-    <Proxy group="filters" name="ProbeLine" 
+    <Proxy group="filters" name="ProbeLine"
             icon=":/pqWidgets/Icons/pqPlotLineOverTime24.png" />
-    <Proxy group="filters" name="ProbePoint" 
+    <Proxy group="filters" name="ProbePoint"
             icon=":/pqWidgets/Icons/pqProbeLocation.svg" />
     <Proxy group="filters" name="PlotAttributes" />
     <Proxy group="filters" name="PlotOnSortedLines" />
     <Proxy group="filters" name="PlotOnIntersectionCurves" />
-    <Proxy group="filters" name="ProgrammableFilter" 
+    <Proxy group="filters" name="ProgrammableFilter"
             icon=":/pqWidgets/Icons/pqProgrammableFilter.svg"/>
   </Category>
 
@@ -44,15 +44,15 @@
     <Proxy group="filters" name="PCAStatistics"/>
   </Category>
 
-  <Category name="Temporal" menu_label="&amp;Temporal">    
-    <Proxy group="filters" name="ParticleTracer" />    
+  <Category name="Temporal" menu_label="&amp;Temporal">
+    <Proxy group="filters" name="ParticleTracer" />
     <Proxy group="filters" name="ParticlePathLines" />
-    <Proxy group="filters" name="TemporalCache" />    
-    <Proxy group="filters" name="TemporalInterpolator" />    
-    <Proxy group="filters" name="TemporalSnapToTimeStep" />    
-    <Proxy group="filters" name="TemporalShiftScale" />    
+    <Proxy group="filters" name="TemporalCache" />
+    <Proxy group="filters" name="TemporalInterpolator" />
+    <Proxy group="filters" name="TemporalSnapToTimeStep" />
+    <Proxy group="filters" name="TemporalShiftScale" />
     <Proxy group="filters" name="TemporalStatistics" />
-    <Proxy group="filters" name="TimeToTextConvertor" />    
+    <Proxy group="filters" name="TimeToTextConvertor" />
   </Category>
 
   <Proxy group="filters" name="Append" />
@@ -140,7 +140,7 @@
   <Proxy group="filters" name="SurfaceVectors" />
   <Proxy group="filters" name="TemporalCache" />
   <Proxy group="filters" name="TemporalInterpolator" />
-  <Proxy group="filters" name="TemporalSnapToTimeStep" />  
+  <Proxy group="filters" name="TemporalSnapToTimeStep" />
   <Proxy group="filters" name="TemporalShiftScale" />
   <Proxy group="filters" name="TemporalStatistics" />
   <Proxy group="filters" name="TessellatorFilter" />
