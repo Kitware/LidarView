@@ -510,28 +510,16 @@ def getSaveFileName(title, extension, defaultFileName=None):
     defaultDir = settings.value('LidarPlugin/OpenData/DefaultDir', QtCore.QDir.homePath())
     defaultFileName = defaultDir if not defaultFileName else os.path.join(defaultDir, defaultFileName)
 
-    nativeDialog = 0 if app.actions['actionNative_File_Dialogs'].isChecked() else QtGui.QFileDialog.DontUseNativeDialog
-
     filters = '%s (*.%s)' % (extension, extension)
     selectedFilter = '%s (*.%s)' % (extension, extension)
     fileName = QtGui.QFileDialog.getSaveFileName(getMainWindow(), title,
-                        defaultFileName, filters, selectedFilter, nativeDialog)
+                        defaultFileName, filters, selectedFilter)
 
     if fileName:
         settings.setValue('LidarPlugin/OpenData/DefaultDir', QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
         return fileName
 
-
-def restoreNativeFileDialogsAction():
-    settings = getPVSettings()
-    app.actions['actionNative_File_Dialogs'].setChecked(int(settings.value('LidarPlugin/NativeFileDialogs', 1)))
-
 # Action related Logic
-def onNativeFileDialogsAction():
-    settings = getPVSettings()
-    settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
-
-
 def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=False, frameTransformVisibility=False):
     class FrameOptions(object):
         pass
@@ -988,7 +976,6 @@ def start():
     disableSaveActions()
     setupStatusBar()
     hideColorByComponent()
-    restoreNativeFileDialogsAction()
     createRPMBehaviour()
     
     # Create Grid #WIP not perfect requires loaded plugin
@@ -1143,7 +1130,6 @@ def setupActions():
     app.actions['actionExport_To_KiwiViewer'].connect('triggered()', onKiwiViewerExport)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
-    app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
     app.actions['actionAbout_LidarView'].connect('triggered()', lambda : aboutDialog.showDialog(getMainWindow()) )
     
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
