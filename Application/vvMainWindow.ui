@@ -31,7 +31,7 @@
      <x>0</x>
      <y>0</y>
      <width>1070</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -80,25 +80,16 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <widget class="QMenu" name="menuDebugging">
-     <property name="title">
-      <string>Debugging</string>
-     </property>
-    </widget>
     <addaction name="actionSpreadsheet"/>
+    <addaction name="actionPython_Console"/>
+    <addaction name="actionShowErrorDialog"/>
+    <addaction name="separator"/>
     <addaction name="actionMeasurement_Grid"/>
     <addaction name="actionShowRPM"/>
     <addaction name="actionGrid_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionChoose_Calibration_File"/>
     <addaction name="actionCropReturns"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="actionPython_Console"/>
-    <addaction name="actionShowErrorDialog"/>
-    <addaction name="separator"/>
-    <addaction name="menuDebugging"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -171,7 +162,7 @@
    <addaction name="actionPython_Console"/>
    <addaction name="actionShowErrorDialog"/>
    <addaction name="actionEnableAdvancedArrays"/>
-</widget>
+  </widget>
   <widget class="lqColorToolbar" name="colorToolBar">
    <property name="windowTitle">
     <string>Color Controls</string>
@@ -354,7 +345,7 @@
   </action>
   <action name="actionOpenPcap">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -405,7 +396,7 @@
   </action>
   <action name="actionOpen_Sensor_Stream">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/lidar.png</normaloff>:/LidarViewPlugin/lidar.png</iconset>
    </property>
    <property name="text">
@@ -432,7 +423,7 @@
   </action>
   <action name="actionChoose_Calibration_File">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/calibrate.png</normaloff>:/LidarViewPlugin/calibrate.png</iconset>
    </property>
    <property name="text">
@@ -490,12 +481,12 @@
   </action>
   <action name="actionSaveScreenshot">
    <property name="text">
-    <string>Save &amp;Screenshot...</string>
+    <string>Save Screenshot</string>
    </property>
   </action>
   <action name="actionSaveCSV">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/csv.png</normaloff>:/LidarViewPlugin/csv.png</iconset>
    </property>
    <property name="text">
@@ -504,7 +495,7 @@
   </action>
   <action name="actionExport_To_KiwiViewer">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/kiwi_200.png</normaloff>:/LidarViewPlugin/kiwi_200.png</iconset>
    </property>
    <property name="text">
@@ -521,7 +512,7 @@
   </action>
   <action name="actionSavePCAP">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -617,7 +608,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/vvResources/Icons/ViewOrtho.png</normaloff>
      <normalon>:/vvResources/Icons/ViewPerspective.png</normalon>:/vvResources/Icons/ViewOrtho.png</iconset>
    </property>
@@ -694,21 +685,9 @@
     <string>Geolocation in absolute coordinates</string>
    </property>
   </action>
-  <action name="actionSaveLAS">
-   <property name="icon">
-    <iconset resource="vvResources.qrc">
-     <normaloff>:/LidarViewPlugin/las.png</normaloff>:/LidarViewPlugin/las.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save &amp;LAS</string>
-   </property>
-   <property name="toolTip">
-    <string>Save to ASPRS LAS format</string>
-   </property>
-  </action>
   <action name="actionCropReturns">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/crop.png</normaloff>:/LidarViewPlugin/crop.png</iconset>
    </property>
    <property name="text">
@@ -842,7 +821,7 @@
  <resources>
   <include location="vvResources.qrc"/>
   <include location="../LVCore/ApplicationComponents/lqResources.qrc"/>
-</resources>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>
