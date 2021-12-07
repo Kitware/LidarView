@@ -33,7 +33,9 @@ variables:
   SB_ADDITIONAL_PARAMS:
     value: ''
     description: Define additional params to SB CMake configure, WARNING POWERSHELL ONLY SUPPORTS A SINGLE PARAM
-  SB_CI_BUILD_SLAM: True
+  SB_CI_BUILD_SLAM:
+    value: 'True'
+    description: Select wether to build SLAM or not
 
 stages:
   - superbuild
@@ -62,7 +64,7 @@ default:
     - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
     - git status
-    - echo "SB_CI_BUILD_SLAM: $SB_CI_BUILD_SLAM"
+    - echo "SB_CI_BUILD_SLAM= $SB_CI_BUILD_SLAM"
   retry:
     max: 2
     when: runner_system_failure
