@@ -9,6 +9,7 @@
 class QMouseEvent;
 class pqRenderView;
 class pqView;
+class vtkCallbackCommand;
 class vtkObject;
 class vtkSMProxy;
 class vtkEventQtSlotConnect;
@@ -76,6 +77,7 @@ private:
   // Tracked State
   pqRenderView* view; // Current active View
   vtkSMProxy* dwr;    // Current active View's distanceWidgetRepresentation
+  vtkSmartPointer<vtkCallbackCommand> mouseCC; // Mouse Callback command
   bool started = false; // Set to true when ruler has been clicked once
 
 };

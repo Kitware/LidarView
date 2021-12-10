@@ -197,11 +197,11 @@ void lqRulerReaction::setView(pqRenderView* rview)
   this->view = rview;
 
   // Set Mouse callback
-  vtkNew<vtkCallbackCommand> cbk; // Mouse press callback
-  cbk->SetClientData(this);
-  cbk->SetCallback(lqRulerReaction::mousePressCallback);
+  mouseCC = vtkCallbackCommand::New(); // Mouse press callback
+  mouseCC->SetClientData(this);
+  mouseCC->SetCallback(lqRulerReaction::mousePressCallback);
   vtkSMViewProxy::SafeDownCast(this->view->getProxy())->GetRenderWindow()->GetInteractor()->AddObserver(
-    vtkCommand::LeftButtonPressEvent, cbk
+    vtkCommand::LeftButtonPressEvent, mouseCC
   );
 
 }
@@ -227,6 +227,14 @@ void lqRulerReaction::destroyState()
     this->view->getProxy()->UpdateVTKObjects();
     this->view->render();
     this->view = nullptr;
+  }
+
+  // Reset Callback Command
+  if(mouseCC)
+  {
+    mouseCC->SetClientData(nullptr);
+    mouseCC->SetCallback(nullptr);
+    mouseCC->Delete();
   }
 
   // Reset 'started' state
