@@ -77,25 +77,6 @@ lqRulerReaction::lqRulerReaction(QAction *parent, lqRulerReaction::Mode m)
   : pqReaction(parent), mode(m), view(nullptr), dwr(nullptr)
 {
 
-  // Set Tooltip
-  QString toolTipText;
-  if (this->mode == Mode::BETWEEN_2D_POINTS)
-  {
-    toolTipText = "Measure the distance (in meters) between two screen points.      \
-                  <br/>To draw a ruler line, click this button, then hold down      \
-                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.     \
-                  <br/><u>This feature is only available in orthogonal projection.</u>";
-  }
-  else
-  {
-    toolTipText = "Measure the distance (in meters) between two 3D points.          \
-                  <br/>To draw a ruler line, click this button, then hold down      \
-                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.";
-  }
-  this->parentAction()->setToolTip(toolTipText);
-  this->parentAction()->setCheckable(true);
-  this->parentAction()->setChecked(false);
-
   // Connect View changes
   QObject::connect(
       &pqActiveObjects::instance(), SIGNAL(viewChanged(pqView*)),
@@ -119,9 +100,33 @@ lqRulerReaction::lqRulerReaction(QAction *parent, lqRulerReaction::Mode m)
     this->connection->Connect(
       this->view->getProxy()->GetProperty("CameraParallelProjection"), vtkCommand::ModifiedEvent, this, SLOT(onTriggered()));
   }
+  this->onTriggered(); // Update
+
+  // Set Tooltip
+  QString toolTipText;
+  if (this->mode == Mode::BETWEEN_2D_POINTS)
+  {
+    toolTipText = "Measure the distance (in meters) between two screen points.      \
+                  <br/>To draw a ruler line, click this button, then hold down      \
+                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.     \
+                  <br/><u>This feature is only available in orthogonal projection.</u>";
+  }
+  else
+  {
+    toolTipText = "Measure the distance (in meters) between two 3D points.          \
+                  <br/>To draw a ruler line, click this button, then hold down      \
+                  the <b>Ctrl key</b> and the <b>left button</b> of your mouse.";
+  }
+  this->parentAction()->setToolTip(toolTipText);
+
+  // Set State
+  this->parentAction()->setCheckable(true);
+  this->parentAction()->setChecked(false);
 
   // Update UI for good measure
   this->updateUI();
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -135,23 +140,21 @@ void lqRulerReaction::onViewChanged(pqView* view)
     return;
   }
 
-  // Did not switch current renderView
-  if (this->view != nullptr && this->view == view)
+  // Did switch current renderView
+  if (this->view == nullptr || this->view != view)
   {
-    return;
+    // Destroy old stuff if any
+    this->destroyState();
+
+    // Save Active View
+    this->setView(rview);
+
+    // Create associated dwr
+    this->createDWR();
   }
 
-  // Destroy old stuff if any
-  this->destroyState();
-
-  // Save Active View
-  this->setView(rview);
-
-  // Create associated dwr
-  this->createDWR();
-
-  // Hide Ruler
-  this->displayRuler(false);
+  // Update Button / Ruler
+  this->onTriggered();
 
   // Update UI
   this->updateUI();
