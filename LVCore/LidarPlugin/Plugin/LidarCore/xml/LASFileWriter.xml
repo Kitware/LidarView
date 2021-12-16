@@ -46,7 +46,7 @@
           default_values="1"
 	  number_of_elements="1">
         <Documentation>
-		One frame every "stride" frame will be saved. Useful to generate faster, ligher LAS for testing. 
+		One frame every "stride" frame will be saved. Useful to generate faster, ligher LAS for testing.
         </Documentation>
       </IntVectorProperty>
 
@@ -118,6 +118,58 @@
 		Should the RGB color (if available) be written in the LAS file ? Resulting LAS will be bigger.
         </Documentation>
       </IntVectorProperty>
+
+      <IntVectorProperty
+          name="ClampToMinTime"
+          command="SetClampToMinTime"
+          default_values="0"
+	        number_of_elements="1"
+          panel_visibility="advanced">>
+        <BooleanDomain name="bool"/>
+        <Documentation>
+	        If enabled, points are clamped on a time basis with MinTime as the lower bound
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+          name="MinTime"
+          command="SetMinTime"
+          default_values="0"
+          number_of_elements="1"
+          panel_visibility="advanced">>
+        <Documentation>
+          Lower bound for time clamping (default is 0)
+        </Documentation>
+         <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ClampToMinTime" value="1" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+          name="ClampToMaxTime"
+          command="SetClampToMaxTime"
+          default_values="0"
+	        number_of_elements="1"
+          panel_visibility="advanced">>
+        <BooleanDomain name="bool"/>
+        <Documentation>
+	        If enabled, points are clamped on a time basis with MaxTime as the upper bound
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+          name="MaxTime"
+          command="SetMaxTime"
+          default_values="1e31"
+          number_of_elements="1"
+          panel_visibility="advanced">>
+        <Documentation>
+          Upper bound for time clamping (default is 1e31)
+        </Documentation>
+         <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ClampToMaxTime" value="1" />
+        </Hints>
+      </DoubleVectorProperty>
 
       <Hints>
         <Property name="Input"

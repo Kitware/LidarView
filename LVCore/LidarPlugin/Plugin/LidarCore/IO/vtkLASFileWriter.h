@@ -79,6 +79,18 @@ public:
   vtkSetVector3Macro(Offset, double);
   vtkGetVector3Macro(Offset, double);
 
+  void SetClampToMinTime(bool ClampToMinTime);
+  vtkGetMacro(ClampToMinTime, bool)
+
+  void SetClampToMaxTime(bool ClampToMaxTime);
+  vtkGetMacro(ClampToMaxTime, bool)
+
+  void SetMinTime(double MinTime);
+  vtkGetMacro(MinTime, double)
+
+  void SetMaxTime(double MaxTime);
+  vtkGetMacro(MaxTime, double)
+
   // This method is the "entry point" of the writing process.
   int Write();
 
@@ -91,6 +103,10 @@ public:
                   vtkInformationVector*) override; // from vtkAlgorithm
   // For debug purpose only:
   void Update() override; // from vtkAlgorithm
+
+  // Reset LasWriter time range (to use after updating MinTime, MaxTime,
+  // ClampToMinTime or ClampToMaxTime)
+  void ApplyTimeRangeChanges();
 
   enum
   {
@@ -132,6 +148,15 @@ private:
   // This Offset must be applied to the coordinates of the points inside the
   // vtkPolyData in order to find their correct position.
   double Offset[3]; // TODO: decide if should be named "Origin"
+  // activate/deactivate time clamping with a min and max time
+  bool ClampToMinTime = false;
+  bool ClampToMaxTime = false;
+  // Time boundaries for output clamping
+  // If ClampToMinTime is false, MinTime is overwritten by
+  // -std::numeric_limits<double>::infinity();
+  // Similar behaviour for ClampToMaxTime / MaxTime
+  double MinTime = -std::numeric_limits<double>::infinity();
+  double MaxTime = -std::numeric_limits<double>::infinity();
 
   std::chrono::steady_clock::time_point Start;
   std::chrono::steady_clock::time_point End;

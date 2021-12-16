@@ -35,6 +35,45 @@ vtkLASFileWriter::~vtkLASFileWriter()
   }
 }
 
+void vtkLASFileWriter::SetClampToMinTime(bool clampToMinTime)
+{
+  this->ClampToMinTime = clampToMinTime;
+  this->ApplyTimeRangeChanges();
+  this->Modified();
+}
+
+void vtkLASFileWriter::SetClampToMaxTime(bool clampToMaxTime)
+{
+  this->ClampToMaxTime = clampToMaxTime;
+  this->ApplyTimeRangeChanges();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkLASFileWriter::SetMinTime(double minTime)
+{
+  this->MinTime = minTime;
+  this->ApplyTimeRangeChanges();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkLASFileWriter::SetMaxTime(double maxTime)
+{
+  this->MaxTime = maxTime;
+  this->ApplyTimeRangeChanges();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkLASFileWriter::ApplyTimeRangeChanges()
+{
+  double minTime = this->ClampToMinTime ? this->MinTime : -std::numeric_limits<double>::infinity();
+  double maxTime = this->ClampToMaxTime ? this->MaxTime : +std::numeric_limits<double>::infinity();
+
+  this->LASWriter.SetTimeRange(minTime, maxTime);
+}
+
 //------------------------------------------------------------------------------
 int vtkLASFileWriter::Write()
 {
