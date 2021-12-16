@@ -65,24 +65,20 @@ public:
   // Return the singleton instance, Derived class should return the same and cast it.
   static lqLidarCoreManager* instance();
 
-  /// Persistent State handling
-  void persistentSettingsRestore();
-  void persistentSettingsSaveOriginal();
-
-  /// Python Shell related
+  // Python Shell related
   void schedulePythonStartup();
   void setPythonShell(pqPythonShell* pythonShell);
   pqPythonShell* getPythonShell();
   void runPython(const QString& statements);
 
-  /// Main render view Creation
+  // Main render view Creation
   void createMainRenderView();
 
-  /// Convenience methods
+  // Convenience methods
   static pqServer* getActiveServer();
   static QWidget*  getMainWindow();
 
-  /// WIP Those are common to all ParaView-based Apps, it may change in the future  
+  // WIP Those are common to all ParaView-based Apps, it may change in the future
   static void saveFramesToPCAP(
     vtkSMSourceProxy* proxy, int startFrame, int endFrame, const QString& filename);
 
@@ -96,7 +92,7 @@ public Q_SLOTS:
   void onEnableCrashAnalysis(bool crashAnalysisEnabled);
 
   void onResetDefaultSettings();
-  
+
   void onMeasurementGrid(bool gridVisible);
 
 private:

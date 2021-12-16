@@ -106,11 +106,11 @@ lqLidarCoreManager::lqLidarCoreManager(QObject* parent)
   lqLidarCoreManager::Instance = this;
 
   this->Internal = new pqInternal;
-  
+
   // Create lqSensorListWidget, a critical component of LidarView core.
   // App can choose wether or not to show it or not, and how to present it (e.g QWidgetDock)
   new lqSensorListWidget();
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -120,94 +120,8 @@ lqLidarCoreManager::~lqLidarCoreManager()
   {
     lqLidarCoreManager::Instance = nullptr;
   } // WIP Paraview has similar code but 'else' case should not happend at all
-  
+
   delete this->Internal;
-}
-
-//-----------------------------------------------------------------------------
-void lqLidarCoreManager::persistentSettingsRestore()
-{
-  // Check if the settings are well formed i.e. if an OriginalMainWindow
-  // state was previously saved. If not, we don't want to automatically
-  // restore the settings state nor save it on quitting LidarView.
-  // An OriginalMainWindow state will be force saved once the UI is completly
-  // set up.
-  pqSettings* const settings = pqApplicationCore::instance()->settings();
-  bool shouldClearSettings = false;
-  QStringList keys = settings->allKeys();
-
-  if (keys.size() == 0)
-  {
-    // There were no settings before, let's save the current state as
-    // OriginalMainWindow state
-    shouldClearSettings = true;
-  }
-  else
-  {
-    // Checks if the existing settings are well formed and if not, clear them.
-    // An original MainWindow state will be force saved later once the UI is
-    // entirely set up
-    for (int keyIndex = 0; keyIndex < keys.size(); ++keyIndex)
-    {
-      if (keys[keyIndex].contains("OriginalMainWindow"))
-      {
-        shouldClearSettings = true;
-        break;
-      }
-    }
-  }
-
-  if (shouldClearSettings)
-  {
-    pqParaViewBehaviors::enablePersistentMainWindowStateBehavior();
-  }
-  else
-  {
-    if (keys.size() > 0)
-    {
-      vtkGenericWarningMacro("Settings weren't set correctly. Clearing settings.");
-    }
-
-    // As pqPersistentMainWindowStateBehavior is not created right now,
-    // we can clear the settings as the current bad state won't be saved on
-    // closing LidarView
-    settings->clear();
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqLidarCoreManager::persistentSettingsSaveOriginal()
-{
-  pqSettings* const settings = pqApplicationCore::instance()->settings();
-
-  // Save the current main window state as its original state. This happens in
-  // two cases: The first time launching the application or when launching it
-  // with older/wrong settings which were cleared right before.
-  bool shouldSave = true;
-
-  QStringList keys = settings->allKeys();
-  for (int keyIndex = 0; keyIndex < keys.size(); ++keyIndex)
-  {
-    if (keys[keyIndex].contains("OriginalMainWindow"))
-    {
-      shouldSave = false;
-      break;
-    }
-  }
-
-  if (shouldSave)
-  {
-    std::cout << "First time launching the application, "
-                 "saving current state as original state..."
-              << std::endl;
-
-    QMainWindow* mainWindow = qobject_cast<QMainWindow*>(getMainWindow());
-
-    settings->saveState(*mainWindow, "OriginalMainWindow");
-
-    // Saving an OriginalMainWondow state means that  wasn't created beforehand.
-    new pqPersistentMainWindowStateBehavior(mainWindow);
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -480,27 +394,16 @@ void lqLidarCoreManager::onResetDefaultSettings()
   QMessageBox messageBox;
   messageBox.setIcon(QMessageBox::Warning);
   std::stringstream ss;
-  ss << "This action will reset " << SOFTWARE_NAME << " settings. "
-     << "Some settings will need " << SOFTWARE_NAME << " to restart to be completly reset. "
-     << "Every unsaved change will be lost. Are you sure you want to reset " << SOFTWARE_NAME << " settings?";
+  ss << "This action will reset all settings. "
+     << "This action requires " << SOFTWARE_NAME << " to restart to be completly reset. "
+     << "Every unsaved changes will be lost. Are you sure you want to reset " << SOFTWARE_NAME << " settings?";
   messageBox.setText(ss.str().c_str());
   messageBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
 
   if (messageBox.exec() == QMessageBox::Ok)
   {
-    pqApplicationCore* const app = pqApplicationCore::instance();
-    pqSettings* const settings = app->settings();
-    QMainWindow* const mainWindow = qobject_cast<QMainWindow*>(getMainWindow());
-
-    // Restore the original main window state before clearing settings, as clearing
-    // settings doesn't update the UI.
-    settings->restoreState("OriginalMainWindow", *mainWindow);
-
-    settings->clear();
-
-    // Resave the current main window state as the original main window state in
-    // the settings
-    settings->saveState(*mainWindow, "OriginalMainWindow");
+    // Clear Settings, sets the no restore flag "pqApplicationCore.DisableSettings"
+    pqApplicationCore::instance()->clearSettings();
 
     // Quit the current application instance and restart a new one.
     qApp->quit();
