@@ -327,7 +327,7 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
   double timeToSec = 1e-6;
   if(timestampData == nullptr)
   {
-    timestampData = data->GetPointData()->GetArray("Raw_Timestamp");
+    timestampData = data->GetPointData()->GetArray("Raw Timestamp");
     timeToSec = 1e-9;
   }
   if(intensityData == nullptr)
@@ -396,7 +396,7 @@ void LASFileWriter::UpdateMetaData(vtkPolyData* data)
   double timeToSec = 1e-6;
   if(timestampData == nullptr)
   {
-    timestampData = data->GetPointData()->GetArray("Raw_Timestamp");
+    timestampData = data->GetPointData()->GetArray("Raw Timestamp");
     timeToSec = 1e-9;
   }
 
