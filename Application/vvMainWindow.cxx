@@ -148,10 +148,6 @@ vvMainWindow::vvMainWindow()
   }
   // ParaView Init END
 
-  // Persistent Settings Restore // WIP TO rework is this verbatim PV ?
-  // Better instantiated before any widget instantiation / outputWidget connection
-  lqLidarViewManager::instance()->persistentSettingsRestore();
-
   // Setup ParaView  Base GUI
   this->setupPVGUI();
 
@@ -169,9 +165,6 @@ vvMainWindow::vvMainWindow()
 
   // Schedule Python Init late otherwise startup is slow, WIP to investigate (related to window creation timing)
   lqLidarViewManager::instance()->schedulePythonStartup();
-
-  // Save Original State if first time or invalid and discarded
-  lqLidarViewManager::instance()->persistentSettingsSaveOriginal();
 
   // Force Show App
   this->show();
