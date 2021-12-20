@@ -401,6 +401,12 @@ void vvMainWindow::setupGUICustom()
   connect(this->Internals->actionMeasurement_Grid, SIGNAL(toggled(bool)), lqLidarViewManager::instance(),
     SLOT(onMeasurementGrid(bool)));
 
+  // Ruler Menu
+  connect(
+    this->Internals->actionMeasure, SIGNAL(triggered()),
+    this, SLOT(toggleMVDecoration())
+  );
+
   new lqOpenSensorReaction(this->Internals->actionOpen_Sensor_Stream);
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
 
@@ -568,4 +574,12 @@ void vvMainWindow::handleMessage(const QString &, int type)
   {
     dock->raise();
   }
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::toggleMVDecoration()
+{
+  //pqTabbedMultiViewWidget::setDecorationsVisibility()
+  pqTabbedMultiViewWidget* mv =  qobject_cast<pqTabbedMultiViewWidget*>(this->centralWidget()) ;
+  mv->setDecorationsVisibility(!mv->decorationsVisibility());
 }
