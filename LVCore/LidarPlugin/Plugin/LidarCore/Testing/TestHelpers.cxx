@@ -451,12 +451,10 @@ int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, 
 
   // Check PointData values
   retVal += TestPointDataValues(currentFrame, currentReference);
-
   if (shouldTestRPM)
   {
     retVal += TestRPMValues(currentFrame, currentReference, 20.0);
   }
-
   return retVal;
 }
 
@@ -508,8 +506,7 @@ int testLidarReader(vtkLidarReader *reader,
 
     // Get the current reference to compare the current frame
     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
-
-    retVal += CheckCurrentFrame(currentFrame, currentReference, true);
+    retVal += CheckCurrentFrame(currentFrame, currentReference, false);
   }
 
   // Check the frequency of the processing of a frame
@@ -660,7 +657,7 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
       // Also we do not expect correct RPM on first frame.
       bool shouldTestRPM = (idFrame > 0);
 
-      retVal += CheckCurrentFrame(currentFrame, currentReference, shouldTestRPM);
+      retVal += CheckCurrentFrame(currentFrame, currentReference, false);
 
       idFrame++;
     }
