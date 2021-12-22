@@ -44,9 +44,10 @@ set(LV_PLUGIN_BUILD_SUBDIRECTORY "plugins")
 
 # Setup install LV Plugin subdir # Where it should be installed / packaged
 if (WIN32)
-  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins") #wip windows should be empty ???
+  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 elseif(APPLE)
-  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${SOFTWARE_NAME}.app/Contents/Plugins") # wip this is so wrong omg ...
+  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
+  #set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${SOFTWARE_NAME}.app/Contents/Plugins") # wip this is so wrong omg ...
 elseif(UNIX)
   set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 endif()
@@ -56,7 +57,6 @@ if (WIN32)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 elseif (APPLE)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "Applications/paraview.app/Contents/Plugins") #wip not tested
-  message(WARNING "I HAVE NO IDEA WHERE ON MACOSX PV plugin dir is, namely for PYTHONQTPLUGIN_DIR")
 elseif (UNIX)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 endif ()
