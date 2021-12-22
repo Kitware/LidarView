@@ -146,7 +146,14 @@ else()
   set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
 endif()
 
-#-------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# RPATH HANDLING
+#-----------------------------------------------------------------------------
+# ParaviewPLugin.cmake set CMAKE_INSTALL_RPATH RAPH to relpath between LIBRARY_DIR and plugin's LIBRARY_SUBDIR
+# This will not for the execs, not inside /lib/plugins`
+# We need to Set RPATHS ourselves here ParaViewClient.cmake Style
+
 # RPATH Legacy notes
 # This is not necessarry anymore thanks to the behavior of PV Client macros
 # Setting this globally will pollute Plugins, because of PVPlugin.cmake 'saved_rpath' mechanisms
@@ -154,18 +161,21 @@ endif()
 # will assume that it relies only on system-libs and the binary will wrongly link on undesried system libs (See Project/PythonQt)
 # SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# WIPWIP TODO APPLE make sure on apple its necessary or not
-#[[
+# Very Important for packaging to be able-to reverse associate Libraries at the end
 if (APPLE)
-  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
-  #wip not even sure it does anything I dont see a single @executable_path
-  #@rpath is more flexible #set CMAKE_MACOSX_RPATH
-  #CMAKE_INSTALL_NAME_DIR
+  # Set BLANK RPATHS, make sure no @rpath in -rpath remain in libs
+  #set(CMAKE_INSTALL_NAME_DIR "")
+  #set(CMAKE_MACOSX_RPATH TRUE)
+  #set(CMAKE_INSTALL_NAME_DIR "@executable_path/../../Libraries")
+  #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../../Libraries") #setting this will replace @rpath which is bad ??
+  #@rpath does not work, but it says it is  "more flexible
 
-  # ensure that we don't build forwarding executables on apple.
-  set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
+elseif(UNIX)
+  #WIP this is not necessarry
+  #Set Explicit /lib DIR RPATH to avoid diamond depencencies issues (e.g libz)
+  #list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
 endif()
-]]
+
 
 #-------------------------------------------------------------------------------
 # Modules

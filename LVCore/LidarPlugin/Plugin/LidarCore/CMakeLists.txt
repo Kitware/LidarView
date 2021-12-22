@@ -446,22 +446,6 @@ add_custom_command(
 ]]
 
 #-----------------------------------------------------------------------------
-# RPATH HANDLING
-#-----------------------------------------------------------------------------
-# ParaviewPLugin.cmake set CMAKE_INSTALL_RPATH RAPH to relpath between LIBRARY_DIR and plugin's LIBRARY_SUBDIR
-# This will not for the execs, not inside /lib/plugins`
-# We need to Set RPATHS ourselves here ParaViewClient.cmake Style
-#Wip check which rpath ahve been introduced up to here
-if(APPLE)
-  message(FATAL_ERROR "WIP CHECK MY RAPH HERE ==${}")
-  list(APPEND CMAKE_INSTALL_RPATH "@loader_path/???")
-elseif(UNIX)
-  #WIP this is not necessarry
-  #Set Explicit /lib DIR RPATH to avoid diamond depencencies issues (e.g libz)
-  #list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
-endif()
-
-#-----------------------------------------------------------------------------
 # Build PacketFileSender target which enable to playback a recorded pcap on the network
 #-----------------------------------------------------------------------------
 add_executable(PacketFileSender StandAloneTools/PacketFileSender.cxx)
