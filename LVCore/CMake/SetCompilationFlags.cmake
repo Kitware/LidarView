@@ -43,9 +43,12 @@ if (MSVC)
                       /wd4251  # 'type' : class 'type1' needs to have dll-interface to be used by clients of class 'type2'
                       /wd4503  # 'identifier' : decorated name length exceeded, name was truncated
   )
-else()
-  # Warning level all and extra
+elseif(APPLE)
+  add_compile_options(-Wall -Wextra)
+elseif(UNIX)
   add_compile_options(-Wall -Wextra -Wsuggest-override)
+else()
+  message(FATAL_ERROR "Platform not supported")
 endif()
 
 # Optimize Build in Release
