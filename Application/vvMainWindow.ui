@@ -195,6 +195,7 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionToggleProjection"/>
+   <addaction name="actionMeasure"/>
    <addaction name="actionPlaneFit"/>
    <addaction name="separator"/>
   </widget>
@@ -637,6 +638,21 @@
    </property>
    <property name="toolTip">
     <string>Toggle between projective and orthogonal view</string>
+   </property>
+  </action>
+  <action name="actionMeasure">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="vvResources.qrc">
+     <normaloff>:/vvResources/Icons/Measurements.png</normaloff>:/vvResources/Icons/Measurements.png</iconset>
+   </property>
+   <property name="text">
+    <string>Advanced Selection and Measurement options</string>
+   </property>
+   <property name="toolTip">
+    <string>Advanced Selection and Measurement options</string>
    </property>
   </action>
   <action name="actionPlaneFit">

@@ -39,6 +39,8 @@ protected Q_SLOTS:
   //void showWelcomeDialog();
   //void updateFontSize();
 
+  void toggleMVDecoration(); // Toggle Multiview decorations
+
 private:
   Q_DISABLE_COPY(vvMainWindow);
 

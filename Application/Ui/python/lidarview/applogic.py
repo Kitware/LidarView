@@ -1201,18 +1201,19 @@ def createRPMBehaviour():
     # create and customize a label to display the rpm
     rpm = smp.Text(guiName="RPM", Text="No RPM")
     representation = smp.GetRepresentation(rpm)
-    representation.FontSize = 8
+    representation.FontSize = 16
     representation.Color = [1,1,0]
     # create an python animation cue to update the rpm value in the label
     PythonAnimationCue1 = smp.PythonAnimationCue()
     PythonAnimationCue1.Script= """
 import paraview.simple as smp
+import lidarview.applogic as lv
 def start_cue(self):
     pass
 
 def tick(self):
     rpm = smp.FindSource("RPM")
-    lidar = smp.FindSource("Data")
+    lidar = lv.getLidar() #smp.FindSource("Data")
     if (lidar):
         value = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
         rpm.Text = str(value) + " RPM"
@@ -1225,6 +1226,7 @@ def end_cue(self):
     smp.GetAnimationScene().Cues.append(PythonAnimationCue1)
     # force to be consistant with the UI
     toggleRPM()
+    smp.SetActiveSource(None)
 
 
 def updateUIwithNewLidar():
