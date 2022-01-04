@@ -45,7 +45,17 @@ void lqUpdateCalibrationReaction::setTransform(vtkSMProxy * proxy,
   vtkSMSessionProxyManager* pxm = pqActiveObjects::instance().proxyManager();
 
   vtkSMProperty * interpreterProp = proxy->GetProperty("PacketInterpreter");
+  if(!interpreterProp)
+  {
+    qWarning("lqUpdateCalibrationReaction::setTransform: Null PacketInterpreter");
+    return;
+  }
   vtkSMProxy * interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
+  if(!interpreterProxy)
+  {
+    qWarning("lqUpdateCalibrationReaction::setTransform: Null PacketInterpreter Proxy");
+    return;
+  }
 
   // Create a transform proxy
   // For Transform2 : name "Position" = label "Translate
