@@ -25,10 +25,10 @@ variables:
   TRIGGER_MODULE_REMOTE_NAME:
     value: ''
     description: Define it if the SHA needs to be fetched from another remote
-  SB_BUILD_PREFIX: 
-    value: '' 
+  SB_BUILD_PREFIX:
+    value: ''
     description: |
-      Define it to have a custom SB directory for the pipeline and not rely on the generic one. 
+      Define it to have a custom SB directory for the pipeline and not rely on the generic one.
        Usefull, to check SB related changes on the CI without replacing/breaking the SB on master.
   SB_ADDITIONAL_PARAMS:
     value: ''
@@ -52,7 +52,7 @@ default:
     # so the next fetching and checkout will basically do nothing.
     # "$git checkout " is a glorified no-op (no operation), see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
     - cd $CI_PROJECT_DIR/$TRIGGER_MODULE_PATH
-    - git remote -v 
+    - git remote -v
     - >
       cmake "-DCI_DEPLOY_USER=$CI_DEPLOY_USER"
       "-DCI_DEPLOY_PASSWORD=$CI_DEPLOY_PASSWORD"
@@ -60,7 +60,7 @@ default:
       "-DTRIGGER_MODULE_REMOTE_NAME=$TRIGGER_MODULE_REMOTE_NAME"
       "-DTRIGGER_MODULE_REPOSITORY_PATH=$TRIGGER_MODULE_REPOSITORY_PATH"
       -P "$CI_PROJECT_DIR/LVCore/CI/CheckoutRemote.cmake"
-    - git remote -v 
+    - git remote -v
     - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
     - git status
@@ -139,7 +139,7 @@ workflow:
   extends: .default_rules
   script:
     - cd $lidarview_build_dir
-    - cmake --build . --target clean 
+    - cmake --build . --target clean
 
 .configure:
   stage: configure
@@ -210,6 +210,13 @@ workflow:
   tags: [unix]
   resource_group: linux_machine
 
+.linux18_runner_config:
+  variables:
+    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
+    sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
+  tags: [unix18]
+  resource_group: linux18_machine
+
 .osx_runner_config:
   variables:
     sb_cmake_option_CMAKE_OSX_ARCHITECTURES: -DCMAKE_OSX_ARCHITECTURES=x86_64
@@ -270,6 +277,11 @@ linux_superbuild:
     - .linux_runner_config
     - .superbuild
 
+linux18_superbuild:
+  extends:
+    - .linux18_runner_config
+    - .superbuild
+
 osx_superbuild:
   extends:
     - .osx_runner_config
@@ -288,6 +300,11 @@ linux_clean:
     - .linux_runner_config
     - .clean
 
+linux18_clean:
+  extends:
+    - .linux18_runner_config
+    - .clean
+
 osx_clean:
   extends:
     - .osx_runner_config
@@ -304,6 +321,11 @@ windows_clean:
 linux_configure:
   extends:
     - .linux_runner_config
+    - .configure
+
+linux18_configure:
+  extends:
+    - .linux18_runner_config
     - .configure
 
 osx_configure:
@@ -325,6 +347,12 @@ linux_build:
     - .build
   needs: [linux_configure]
 
+linux18_build:
+  extends:
+    - .linux18_runner_config
+    - .build
+  needs: [linux18_configure]
+
 osx_build:
   extends:
     - .osx_runner_config
@@ -344,6 +372,12 @@ linux_test:
     - .linux_runner_config
     - .test
   needs: [linux_build]
+
+linux18_test:
+  extends:
+    - .linux18_runner_config
+    - .test
+  needs: [linux18_build]
 
 osx_test:
   extends:
@@ -367,6 +401,14 @@ windows_test:
 linux_package:
   extends:
     - .linux_runner_config
+    - .package
+  after_script:
+    - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
+    - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
+
+linux18_package:
+  extends:
+    - .linux18_runner_config
     - .package
   after_script:
     - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
