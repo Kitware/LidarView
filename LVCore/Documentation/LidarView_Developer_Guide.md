@@ -106,10 +106,18 @@ The specific version of the following tools may or may not be available in your 
 
 #### Linux specific dependencies <a name="linux-dependencies"></a>
 
+
+**Graphics Drivers**
+ - Make sure graphics drivers are up-to date, ensuring essential graphics packages are installed
+ 
+    If you do not have a graphics card, `mesa` drivers will need to be installed.
+
 **Packages**
  - The packages from the following one-liner are needed to build on Ubuntu 18.04 and higher:
 
-    `sudo apt-get install build-essential pkg-config flex byacc libxext-dev libxt-dev libbz2-dev zlib1g-dev freeglut3-dev libffi-dev libnl-genl-3-dev libprotobuf-dev protobuf-compiler libopengl0 libxcb-glx0-dev libglx-dev libx11-xcb-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev`
+    `sudo apt-get install build-essential pkg-config flex byacc freeglut3-dev libbz2-dev libffi-dev libnl-genl-3-dev libopengl0 libprotobuf-dev libx11-xcb-dev libxcb-glx0-dev libxcb-xkb-dev libxext-dev libxkbcommon-dev libxkbcommon-x11-dev libxt-dev protobuf-compiler zlib1g-dev`
+ 
+ - Additionally For Ubuntu20: `sudo apt-get install libglx-dev`
 
 **[OPTIONAL] Qt5:**
 
