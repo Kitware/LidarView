@@ -33,9 +33,14 @@ variables:
   SB_ADDITIONAL_PARAMS:
     value: ''
     description: Define additional params to SB CMake configure, WARNING POWERSHELL ONLY SUPPORTS A SINGLE PARAM
-  SB_CI_BUILD_SLAM:
-    value: 'True'
-    description: Select wether to build SLAM or not
+  sb_cmake_option_ENABLE_ceres:
+    value: '-DENABLE_ceres=True'
+  sb_cmake_option_ENABLE_nanoflann:
+    value: '-DENABLE_nanoflann=True'
+  sb_cmake_option_ENABLE_pcl:
+    value: '-DENABLE_pcl=True'
+  sb_cmake_option_LIDARVIEW_BUILD_SLAM:
+    value: '-DLIDARVIEW_BUILD_SLAM=True'
 
 stages:
   - superbuild
@@ -124,10 +129,10 @@ workflow:
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
       $sb_cmake_option_CMAKE_OSX_SDK
-      -DENABLE_ceres=$SB_CI_BUILD_SLAM
-      -DENABLE_nanoflann=$SB_CI_BUILD_SLAM
-      -DENABLE_pcl=$SB_CI_BUILD_SLAM
-      -DLIDARVIEW_BUILD_SLAM=$SB_CI_BUILD_SLAM
+      $sb_cmake_option_ENABLE_ceres
+      $sb_cmake_option_ENABLE_nanoflann
+      $sb_cmake_option_ENABLE_pcl
+      $sb_cmake_option_LIDARVIEW_BUILD_SLAM
       $SB_ADDITIONAL_PARAMS
       -DBUILD_TESTING=ON
       -Dsuperbuild_download_location="../downloads"
