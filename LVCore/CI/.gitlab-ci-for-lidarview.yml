@@ -124,9 +124,9 @@ workflow:
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
       $sb_cmake_option_CMAKE_OSX_SDK
-      -DENABLE_ceres=True
-      -DENABLE_nanoflann=True
-      -DENABLE_pcl=True
+      -DENABLE_ceres=$SB_CI_BUILD_SLAM
+      -DENABLE_nanoflann=$SB_CI_BUILD_SLAM
+      -DENABLE_pcl=$SB_CI_BUILD_SLAM
       -DLIDARVIEW_BUILD_SLAM=$SB_CI_BUILD_SLAM
       $SB_ADDITIONAL_PARAMS
       -DBUILD_TESTING=ON
