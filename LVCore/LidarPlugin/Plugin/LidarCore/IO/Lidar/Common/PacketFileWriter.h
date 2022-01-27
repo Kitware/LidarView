@@ -17,7 +17,6 @@
 
 #include <string>
 #include <queue>
-#include <boost/thread/thread.hpp>
 #include <boost/asio.hpp>
 
 #include "vtkPacketFileWriter.h"
@@ -40,8 +39,8 @@ public:
 
 private:
   vtkPacketFileWriter PacketWriter;
-  boost::shared_ptr<boost::thread> Thread;
-  boost::shared_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
+  std::unique_ptr<std::thread> Thread;
+  std::shared_ptr<SynchronizedQueue<NetworkPacket*>> Packets;
 };
 
 

@@ -23,7 +23,6 @@
 #include "PacketFileWriter.h"
 #include "PacketReceiver.h"
 
-std::unique_ptr<PacketFileWriter> vtkStream::WriterThread = nullptr;
 
 namespace {
 bool GetCrashAnalysingFileName(std::string& appDir)
@@ -51,7 +50,7 @@ bool GetCrashAnalysingFileName(std::string& appDir)
   // Checking if the application directory exists in the home directory and create it otherwise
   if (!vtksys::SystemTools::FileIsDirectory(appDir))
   {
-    bool success = vtksys::SystemTools::MakeDirectory(appDir.c_str());	
+    bool success = vtksys::SystemTools::MakeDirectory(appDir.c_str());
     if(!success){
       std::cout << "Failed to create directory for crash analysis" << std::endl;
       return false;
@@ -185,7 +184,7 @@ void vtkStream::Start()
     std::string appDir;
     bool success = GetCrashAnalysingFileName(appDir);
     if(!success){
-      vtkErrorMacro("Unable to get Crash Analysis file");  
+      vtkErrorMacro("Unable to get Crash Analysis file");
     }
     this->ReceiverThread->EnableCrashAnalysing(appDir, 5000);
   }
@@ -215,27 +214,31 @@ void vtkStream::Stop()
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::StartRecording(const std::string &filename)
+void vtkStream::StartRecording(const std::string &filename, std::shared_ptr<PacketFileWriter> writer)
 {
-  vtkStream::StopRecording();
-  vtkStream::WriterThread = std::make_unique<PacketFileWriter>();
-  vtkStream::WriterThread->Start(filename);
+  this->StopRecording();
+  if(writer){
+    this->WriterThread = writer;                               // Use Supplied thread
+  }else{
+    this->WriterThread = std::make_shared<PacketFileWriter>(); // Use your own Writer Thread
+  }
+  this->WriterThread->Start(filename);
 }
 
 //-----------------------------------------------------------------------------
 void vtkStream::StopRecording()
 {
-  if (vtkStream::WriterThread)
+  if (this->WriterThread)
   {
-    vtkStream::WriterThread->Stop();
-    vtkStream::WriterThread.reset();
+    this->WriterThread->Stop();
+    this->WriterThread.reset();
   }
 }
 
 //-----------------------------------------------------------------------------
 bool vtkStream::IsRecording()
 {
-  return vtkStream::WriterThread ? true : false;
+  return this->WriterThread ? true : false;
 }
 
 //-----------------------------------------------------------------------------

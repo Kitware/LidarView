@@ -11,6 +11,7 @@
 
 #include "lqStreamRecordDialog.h"
 #include "vtkLidarStream.h"
+#include "PacketFileWriter.h"
 
 namespace {
 bool isStream(pqPipelineSource* src)
@@ -38,7 +39,8 @@ bool isLastStream(pqPipelineSource* src)
 //-----------------------------------------------------------------------------
 lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool displayStopMessage, bool useAdvancedDialog)
   : Superclass(action),
-    Settings(pqApplicationCore::instance()->settings())
+    Settings(pqApplicationCore::instance()->settings()),
+    isRecording(false)
 {
   this->parentAction()->setEnabled(false);
   this->useAdvancedDialog = useAdvancedDialog;
@@ -59,7 +61,7 @@ lqStreamRecordReaction::lqStreamRecordReaction(QAction *action, bool displayStop
 //-----------------------------------------------------------------------------
 void lqStreamRecordReaction::onTriggered()
 {
-  if (vtkStream::IsRecording())
+  if(this->isRecording)
   {
     this->StopRecordingReaction();
   }
@@ -67,6 +69,7 @@ void lqStreamRecordReaction::onTriggered()
   {
     this->StartRecordingReaction();
   }
+  this->isRecording = !this->isRecording;
 }
 
 //-----------------------------------------------------------------------------
@@ -113,7 +116,19 @@ void lqStreamRecordReaction::StartRecordingReaction()
   }
   if (this->recordingFilename != "")
   {
-    vtkStream::StartRecording(this->recordingFilename.toStdString());
+    // Create common writer Thread
+    std::shared_ptr<PacketFileWriter> writer = std::make_shared<PacketFileWriter>();
+    // Tell vtkStreams to Start Recording
+    foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+    {
+      auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
+      if(!stream){continue;}
+      stream->StartRecording( // Multiple start is okay, it detects it
+        this->recordingFilename.toStdString(),
+        writer
+      );
+    }
+
     this->parentAction()->setChecked(true);
 
     // Save the path where the pcap is saved
@@ -125,7 +140,15 @@ void lqStreamRecordReaction::StartRecordingReaction()
 //-----------------------------------------------------------------------------
 void lqStreamRecordReaction::StopRecordingReaction()
 {
-  vtkStream::StopRecording();
+  // Tell vtkStreams to Stop Recording
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
+    if(!stream){continue;}
+    stream->StopRecording();
+  }
+
   this->parentAction()->setToolTip("Start Recording Stream Data");
   this->parentAction()->setChecked(false);
 
@@ -155,7 +178,7 @@ void lqStreamRecordReaction::onSourceRemoved(pqPipelineSource *src)
   if (this->parentAction()->isEnabled() && isLastStream(src))
   {
     this->parentAction()->setEnabled(false);
-    if (vtkStream::IsRecording())
+    if (this->isRecording)
     {
       this->StopRecordingReaction();
     }

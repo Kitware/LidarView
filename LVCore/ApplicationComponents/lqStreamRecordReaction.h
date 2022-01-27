@@ -57,6 +57,7 @@ private:
   // Stop stream recording + open pop up to warn user + change state for next trigger, (recording must have been previously started)
   void StopRecordingReaction();
   
+  bool isRecording;
 };
 
 #endif // LQSTREAMRECORDREACTION_H

@@ -41,9 +41,10 @@ public:
   virtual void Start();
   void Stop();
 
-  static void StartRecording(const std::string& filename);
-  static void StopRecording();
-  static bool IsRecording();
+  // must become properties WIP
+  void StartRecording(const std::string& filename, std::shared_ptr<PacketFileWriter> writer = nullptr);
+  void StopRecording();
+  bool IsRecording();
 
   vtkGetMacro(ListeningPort, int)
   void SetListeningPort(int);
@@ -151,8 +152,9 @@ private:
   std::unique_ptr<PacketReceiver> ReceiverThread;
   //! Thread that will consume the packets
   std::unique_ptr<PacketConsumer> ConsumerThread;
-  //! Thread that will write the packets if recording
-  static std::unique_ptr<PacketFileWriter> WriterThread;
+
+  //! Thread that will write the packets if recording, provided at the time of writing
+  std::shared_ptr<PacketFileWriter> WriterThread;
 
   //! Callback function used by the ReceiverThread once a new NetworkPacket is ready
   //! The given packet will be queue in the Consumer and Writer thread queue.

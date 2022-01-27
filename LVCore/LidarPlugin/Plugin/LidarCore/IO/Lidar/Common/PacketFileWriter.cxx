@@ -37,8 +37,10 @@ void PacketFileWriter::Start(const std::string &filename)
   }
 
   this->Packets.reset(new SynchronizedQueue<NetworkPacket*>);
-  this->Thread = boost::shared_ptr<boost::thread>(
-        new boost::thread(boost::bind(&PacketFileWriter::ThreadLoop, this)));
+  this->Thread = std::make_unique<std::thread>(
+    std::mem_fn(&PacketFileWriter::ThreadLoop),
+    this
+  );
 }
 
 //-----------------------------------------------------------------------------
