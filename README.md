@@ -43,6 +43,13 @@ As a [Paraview](https://www.paraview.org/) based application, LidarView can effo
 - Apply 3D transforms to pointclouds
 - Run SLAM to estimate the trajectory of the LiDAR in the scene and build a 3D map of the environment
 
+Many other features can be added using Plugins, some can be found on [this page](https://gitlab.kitware.com/LidarView/plugins). They enable for example to:
+- run Deep Learning models for object detection on your point cloud (see [this repo](https://gitlab.kitware.com/LidarView/plugins/lidarviewdeeplearningplugins))
+- read data from the PandaSet dataset (see [this repo](https://gitlab.kitware.com/LidarView/plugins/pandasetplugin))
+- more features to come
+
+Feel free to reach out at kitware@kitware.com for support or new features development.
+
 ![LidarView](Application/SoftwareInformation/LidarViewLayout.svg)
 
 # How to get
