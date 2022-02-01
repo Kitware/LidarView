@@ -40,9 +40,6 @@ class AppLogic(object):
     def __init__(self):
         self.createStatusBarWidgets()
 
-        self.transformMode = 0
-        self.relativeTransform = False
-
         self.reader = None
         self.trailingFrame = []
         self.position = None
@@ -1063,24 +1060,19 @@ def transformMode():
     reader = getReader()
     if not reader:
         return None
-
-    if reader.Interpreter.ApplyTransform:
-        if app.relativeTransform:
-            return 2 # relative
-        else:
-            return 1 # absolute
-    return 0 # raw
+    if hasattr(reader.Interpreter, 'ApplyTransform') and reader.Interpreter.ApplyTransform:
+      return 1 # absolute
+    else:
+      return 0 # raw
 
 def setTransformMode(mode):
     # 0 - raw
     # 1 - absolute
-    # 2 - relative
+    # 2 - relative # WIP what ?
     reader = getReader()
 
     if reader:
         reader.Interpreter.ApplyTransform = (mode > 0)
-    app.transformMode = mode
-    app.relativeTransform = (mode == 2)
 
 def geolocationChanged(setting):
     setTransformMode(setting)
