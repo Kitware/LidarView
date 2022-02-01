@@ -1232,10 +1232,5 @@ def end_cue(self):
 def updateUIwithNewLidar():
     lidar = getLidar()
     if lidar:
-        app.sensorInformationLabel.setText(lidar.GetClientSideObject().GetSensorInformation())
-    #Remove some array to display
-    ComboBox = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChildren('QComboBox')[0]
-    listOfArrayToRemove = ['RotationPerMinute', 'vtkBlockColors', 'vtkCompositeIndex']
-    for arrayName in listOfArrayToRemove:
-        n = ComboBox.findText(arrayName)
-        ComboBox.removeItem(n)
+        app.sensorInformationLabel.setText(lidar.GetClientSideObject().GetSensorInformation(True))
+        app.sensorInformationLabel.setToolTip(lidar.GetClientSideObject().GetSensorInformation())
