@@ -419,6 +419,7 @@ void vvMainWindow::setupGUICustom()
 
   new lqOpenRecentFilesReaction(this->Internals->menuRecent_Files, this->Internals->actionClear_Menu);
 
+  // Writer reactions (action, writerName, extension, displaySettings, useDirectory, keepNameFromPcapFile, fileNameWithFrameNumber )
   new lqSaveLidarFrameReaction(this->Internals->actionSavePCD, "PCDWriter"       , "pcd", false, false, true, true);
   new lqSaveLidarFrameReaction(this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
   new lqSaveLidarFrameReaction(this->Internals->actionSavePLY, "PPLYWriter"      , "ply", false, false, true, true);

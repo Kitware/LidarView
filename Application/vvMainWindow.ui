@@ -84,7 +84,6 @@
      <property name="title">
       <string>Debugging</string>
      </property>
-     <addaction name="actionNative_File_Dialogs"/>
     </widget>
     <addaction name="actionSpreadsheet"/>
     <addaction name="actionMeasurement_Grid"/>
@@ -611,17 +610,6 @@
   <action name="actionClear_Menu">
    <property name="text">
     <string>Clear Menu</string>
-   </property>
-  </action>
-  <action name="actionNative_File_Dialogs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Native File Dialogs</string>
    </property>
   </action>
   <action name="actionToggleProjection">

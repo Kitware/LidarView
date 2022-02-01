@@ -85,7 +85,7 @@ def showDialog(mainWindow, app):
     app.grid.LineWidth = w('GridLineWidth').value
     color = w('GridColorPicker').palette.color(QtGui.QPalette.Background)
     app.grid.Color = [color.redF(), color.greenF(), color.blueF()]
-    #app.gridPropertiesPersist = w('ShouldPropertiesPersist').checked #Useless
+
     pvsettings.setValue('LidarPlugin/grid/gridPropertiesPersist', "true" if w('ShouldPropertiesPersist').checked else "false" )
 
     return True

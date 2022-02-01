@@ -12,38 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys, os, csv, time, datetime, math
-import bisect
+import sys, os, csv, time, datetime, math, bisect
+
+import paraview
 import paraview.simple as smp
-from paraview import servermanager
 from paraview import vtk
 
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-from vtk import vtkXMLPolyDataWriter
 import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
-import lidarview.gridAdjustmentDialog as gridAdjustmentDialog
-import lidarview.aboutDialog as aboutDialog
+import lidarview.gridAdjustmentDialog
+import lidarview.aboutDialog
+import lidarview.planefit as planefit
 
-from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog
+from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog #WIP rename to LV / Velodyne Specific
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
-import LidarPlugin.LidarCore  # NOQA
-
-import lidarview.planefit as planefit
+import LidarPlugin.LidarCore # NOQA
 
 class AppLogic(object):
 
     def __init__(self):
-      # WIP this can be removed by providing SensorList singleton python wrappings
-      self.reader = None
-      self.sensor = None
-      self.trailingFrame = []
-      self.position = None
-
       # WIP This can be removed through Statusbar creation and python wrappings in VeloViewManager
       # Fields that Can be overriden to show some statuses
       self.filenameLabel           = QtGui.QLabel()
@@ -64,49 +56,25 @@ def hasArrayName(sourceProxy, arrayName):
         return False
 
     info = sourceProxy.GetDataInformation().DataInformation
-
     if info.GetNumberOfPoints() == 0:
         return False
 
-    info = info.GetAttributeInformation(0)
-    for i in range(info.GetNumberOfArrays()):
-        if info.GetArrayInformation(i).GetName() == arrayName:
-            return True
-    return False
-
-# Used by lqLidarViewManager
-def openData(filename):
-
-    onClose()
-
-    reader = smp.OpenDataFile(filename, guiName='Data')
-
-    if not reader:
-        return
-
-    rep = smp.Show(reader)
-    rep.InterpolateScalarsBeforeMapping = 0
-    setDefaultLookupTables(reader)
-
-    showSourceInSpreadSheet(reader)
-
-    smp.GetActiveView().ViewTime = 0.0
-
-    app.reader = reader
-    app.filenameLabel.setText('File: %s' % os.path.basename(filename))
-
-    enableSaveActions()
-    app.actions['actionSavePCAP'].setEnabled(False)
-    app.actions['actionCropReturns'].setEnabled(False)
-    app.actions['actionShowRPM'].enabled = True
+    # ~ info = info.GetAttributeInformation(0)
+    # ~ for i in range(info.GetNumberOfArrays()):
+        # ~ if info.GetArrayInformation(i).GetName() == arrayName:
+            # ~ return True
+    # ~ return False
+    array = sourceProxy.PointData.GetArray(arrayName)
+    if array:
+        return True
 
 # Action Related Logic
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
-
+# Helpers
 def findPresetByName(name):
-    presets = servermanager.vtkSMTransferFunctionPresets()
+    presets = paraview.servermanager.vtkSMTransferFunctionPresets()
 
     numberOfPresets = presets.GetNumberOfPresets()
 
@@ -116,7 +84,6 @@ def findPresetByName(name):
             return i
 
     return -1
-
 
 def createDSRColorsPreset():
 
@@ -152,7 +119,7 @@ def createDSRColorsPreset():
             intensityColor[i*4+3] = bcolor[i]
             i = i + 1
 
-        presets = servermanager.vtkSMTransferFunctionPresets()
+        presets = paraview.servermanager.vtkSMTransferFunctionPresets()
 
         intensityString = ',\n'.join(map(str, intensityColor))
 
@@ -162,9 +129,11 @@ def createDSRColorsPreset():
 
 
 def setDefaultLookupTables(sourceProxy):
+    if not sourceProxy:
+      return
     createDSRColorsPreset()
 
-    #presets = servermanager.vtkSMTransferFunctionPresets()
+    #presets = paraview.servermanager.vtkSMTransferFunctionPresets()
     #dsrIndex = findPresetByName("DSR Colors")
     #presetDSR = presets.GetPresetAsString(dsrIndex)
 
@@ -204,102 +173,95 @@ def setDefaultLookupTables(sourceProxy):
                  +1.0, 1.0, 0.9, 0.4],
       Annotations=['-1', 'low', '0', 'dual', '1', 'high'])
 
-
-def getTimeStamp():
-    format = '%Y-%m-%d-%H-%M-%S'
-    return datetime.datetime.now().strftime(format)
-
-
-def getReaderFileName():
-    filename = getReader().FileName
-    return filename[0] if isinstance(filename, servermanager.FileNameProperty) else filename
-
-
-def getDefaultSaveFileName(extension, suffix='', appendFrameNumber=False):
+def getDefaultSaveFileName(extension, suffix='', frameId=None, baseName="Frame"):
 
     sensor = getSensor()
     reader = getReader()
 
-    if sensor:
-        nchannels =  sensor.Interpreter.GetClientSideObject().GetNumberOfChannels()
-        base = 'HDL-'
-        if nchannels <= 16:
-            base = 'VLP-'
-        sensortype = base + str(nchannels)
+    # Use current datetime and Interpreter DefaultRecordFileName
+    if sensor and sensor.Interpreter:
+        sensor.Interpreter.UpdatePipelineInformation()
+        return '%s.%s' % (sensor.Interpreter.GetProperty("DefaultRecordFileName")[0], extension)
 
-        return '%s_Velodyne-%s-Data.%s' % (getTimeStamp(), sensortype, extension)
-
+    # Use PCAP Basename
     if reader:
-        basename =  os.path.splitext(os.path.basename(getReaderFileName()))[0]
-        if appendFrameNumber:
-            suffix = '%s (Frame %04d)' % (suffix, int(app.scene.AnimationTime))
+        filename = reader.FileName
+        filename = filename[0] if isinstance(filename, paraview.servermanager.FileNameProperty) else filename # WIP FIX ?
+        basename =  os.path.splitext(os.path.basename(filename))[0]
+        if frameId is not None:
+            suffix = '%s(%s%04d)' % (suffix, baseName, frameId)
         return '%s%s.%s' % (basename, suffix, extension)
 
-# Used by Ui/lqOpenPcapReaction Ui/lqOpenSensorReaction
+    else:
+      return "ERROR_NO_LIDAR"
+
+# Main API
+def UpdateApplogicCommon(lidar):
+  # WIP ACTUALLY THINK ABOUT always enabled ok, just apply settings on current lidar actually needed
+  # Overall on what buttons are on-off when there is data or not
+
+  onCropReturns(False) # Dont show the dialog just restore settings
+
+  # Reset Scene Time # WIP TIME CONTROLLER API ?
+  smp.GetActiveView().ViewTime = 0.0
+
+# Used by lqVeloViewManager
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
-    sensor = smp.FindSource(lidarProxyName)
+    sensor = smp.FindSource(lidarProxyName) #WIP use getSensor() and getPosOr()
+    if not sensor:
+      return
 
+    UpdateApplogicCommon(sensor)
+
+    sensor.UpdatePipelineInformation()
     sensor.UpdatePipeline()
 
-    if gpsProxyName:
-        app.position = smp.FindSource(gpsProxyName)
+    # TR Disabled in Sensor mode
+    app.trailingFramesSpinBox.enabled = True
 
-    smp.GetActiveView().ViewTime = 0.0
-
-    app.sensor = sensor
-
-    app.trailingFramesSpinBox.enabled = False
-    app.colorByInitialized = False
+    # Labels
     LidarPort = sensor.GetClientSideObject().GetListeningPort()
     app.filenameLabel.setText('Live sensor stream (Port:'+str(LidarPort)+')' )
     app.positionPacketInfoLabel.setText('')
-    enableSaveActions()
 
-    onCropReturns(False) # Dont show the dialog just restore settings
-
-    smp.Render()
-
-    showSourceInSpreadSheet(sensor)
-
-    app.actions['actionShowRPM'].enabled = True
-
-    #Auto adjustment of the grid size with the distance resolution
-    app.DistanceResolutionM = sensor.Interpreter.GetClientSideObject().GetDistanceResolutionM()
-    showMeasurementGrid()
+    enableSaveActions() # WIP UNSURE
 
     setDefaultLookupTables(sensor)
     updateUIwithNewLidar()
 
-# Used by Ui/lqOpenPcapReaction
-def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
+    rep = smp.Show(sensor)
+    showSourceInSpreadSheet(sensor)
+    smp.Render()
 
-    reader = smp.FindSource(lidarName)
+# Used by lqVeloViewManager
+def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy using _getPyProxy(vtkSMProxy)
 
+    reader = getReader()
     if not reader :
       return
 
+    UpdateApplogicCommon(reader)
+
     reader.UpdatePipelineInformation()
-    app.reader = reader
+    reader.UpdatePipeline()
+
+    # TR
     app.trailingFramesSpinBox.enabled = True
-    current_trailingFrame = smp.FindSource(trailingFrameName)
-    if not current_trailingFrame :
-        return
-    current_trailingFrame.NumberOfTrailingFrames=app.trailingFramesSpinBox.value
+    onTrailingFramesChanged(app.trailingFramesSpinBox.value)
 
     filename = reader.FileName
     displayableFilename = os.path.basename(filename)
     # shorten the name to display because the status bar gives a lower bound to main window width
-    shortDisplayableFilename = (displayableFilename[:20] + '...' + displayableFilename[-20:]) if len(displayableFilename) > 43 else displayableFilename
+    shortDisplayableFilename = (displayableFilename[:59] + '...' + displayableFilename[-58:]) if len(displayableFilename) > 120 else displayableFilename
     app.filenameLabel.setText('File: %s' % shortDisplayableFilename)
     app.filenameLabel.setToolTip('File: %s' % displayableFilename)
 
     app.positionPacketInfoLabel.setText('') # will be updated later if possible
-    onCropReturns(False) # Dont show the dialog just restore settings
 
-    smp.GetActiveView().ViewTime = 0.0
+    enableSaveActions()
 
-    app.scene.UpdateAnimationUsingDataTimeSteps()
+    getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
     posreader = smp.FindSource(posOrName)
 
@@ -320,35 +282,15 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
                                                          ScalarRangeInitialized=1.0)
             sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
             sb.Orientation = 'Horizontal'
-            app.position = posreader
 
 
     smp.SetActiveView(smp.GetActiveView())
 
-    showSourceInSpreadSheet(current_trailingFrame)
+    showSourceInSpreadSheet(getTrailingFrame())
 
-    enableSaveActions()
-
-    app.actions['actionShowRPM'].enabled = True
-
-    #Auto adjustment of the grid size with the distance resolution
-    app.DistanceResolutionM = reader.Interpreter.GetClientSideObject().GetDistanceResolutionM()
-    showMeasurementGrid()
-
-    setDefaultLookupTables(current_trailingFrame)
-    app.trailingFrame.append(current_trailingFrame)
+    setDefaultLookupTables(reader)
+    setDefaultLookupTables(getTrailingFrame())
     updateUIwithNewLidar()
-
-def hideMeasurementGrid():
-    rep = smp.GetDisplayProperties(app.grid)
-    rep.Visibility = 0
-    smp.Render()
-
-
-def showMeasurementGrid():
-    rep = smp.GetDisplayProperties(app.grid)
-    rep.Visibility = 1
-    smp.Render()
 
 def rotateCSVFile(filename):
 
@@ -421,13 +363,8 @@ def saveLASFrames(filename, first, last, transform = 0):
 #      UTM zone, cartesian coordinate system
 # - 3: Absolute Geoposition Lat/Lon: Lat / Lon coordinate system
 def saveLASCurrentFrame(filename, transform = 0):
-    t = app.scene.AnimationTime
+    t = getAnimationScene().AnimationTime
     saveLASFrames(filename, t, t, transform)
-
-
-def saveAllFrames(filename, saveFunction):
-    saveFunction(filename, getLidar.TimestepValues())
-
 
 def saveFrameRange(filename, frameStart, frameStop, saveFunction):
     timesteps = range(frameStart, frameStop+1)
@@ -446,9 +383,9 @@ def saveCSV(filename, timesteps):
     writer.FieldAssociation = 'Points'
     writer.Precision = 16
 
-    for t in timesteps:
-        app.scene.AnimationTime = t
-        writer.FileName = filenameTemplate % t
+    for i in timesteps:
+        getAnimationScene().AnimationTime = i #WIP ISSUE HERE ? See VV
+        writer.FileName = filenameTemplate % i
         writer.UpdatePipeline()
         rotateCSVFile(writer.FileName)
 
@@ -483,43 +420,31 @@ def saveLAS(filename, timesteps, transform = 0):
 def getSaveFileName(title, extension, defaultFileName=None):
 
     settings = getPVSettings()
-    defaultDir = settings.value('LidarPlugin/OpenData/DefaultDir', QtCore.QDir.homePath())
+    defaultDir = settings.value('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QDir.homePath())
     defaultFileName = defaultDir if not defaultFileName else os.path.join(defaultDir, defaultFileName)
-
-    nativeDialog = 0 if app.actions['actionNative_File_Dialogs'].isChecked() else QtGui.QFileDialog.DontUseNativeDialog
 
     filters = '%s (*.%s)' % (extension, extension)
     selectedFilter = '%s (*.%s)' % (extension, extension)
     fileName = QtGui.QFileDialog.getSaveFileName(getMainWindow(), title,
-                        defaultFileName, filters, selectedFilter, nativeDialog)
+                        defaultFileName, filters, selectedFilter, 0)
 
     if fileName:
-        settings.setValue('LidarPlugin/OpenData/DefaultDir', QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
+        settings.setValue('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
         return fileName
 
-
-def restoreNativeFileDialogsAction():
-    settings = getPVSettings()
-    app.actions['actionNative_File_Dialogs'].setChecked(int(settings.value('LidarPlugin/NativeFileDialogs', 1)))
-
 # Action related Logic
-def onNativeFileDialogsAction():
-    settings = getPVSettings()
-    settings.setValue('LidarPlugin/NativeFileDialogs', int(app.actions['actionNative_File_Dialogs'].isChecked()))
-
-
 def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=False, frameTransformVisibility=False):
     class FrameOptions(object):
         pass
 
     dialog = PythonQt.paraview.vvSelectFramesDialog(getMainWindow())
     dialog.frameMinimum = 0
-    if app.reader is None:
+    if getReader() is None:
         dialog.frameMaximum = 0
-    elif app.reader.GetClientSideObject().GetShowFirstAndLastFrame():
-        dialog.frameMaximum = app.reader.GetClientSideObject().GetNumberOfFrames() - 1
+    elif getReader().GetClientSideObject().GetShowFirstAndLastFrame():
+        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 1
     else:
-        dialog.frameMaximum = app.reader.GetClientSideObject().GetNumberOfFrames() - 3
+        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 3
     dialog.frameStrideVisibility = frameStrideVisibility
     dialog.framePackVisibility = framePackVisibility
     dialog.frameTransformVisibility = frameTransformVisibility
@@ -540,47 +465,6 @@ def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=F
 
     return frameOptions
 
-
-def onSaveCSV():
-
-    frameOptions = getFrameSelectionFromUser()
-    if frameOptions is None:
-        return
-
-
-    if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
-        fileName = getSaveFileName('Save CSV', 'csv', getDefaultSaveFileName('csv', appendFrameNumber=True))
-        if fileName:
-            oldTransform = transformMode()
-            setTransformMode(1 if frameOptions.transform else 0)
-
-            saveCSVCurrentFrame(fileName)
-
-            setTransformMode(oldTransform)
-
-    else:
-        # It is not possible to save several frames as CSV during stream
-        if getSensor():
-            QtGui.QMessageBox.information(getMainWindow(),
-                                        'Save several frames as CSV is not available during stream',
-                                        'Please use the "Record" tool, and open the resulting pcap offline to process it.')
-            return
-
-        fileName = getSaveFileName('Save CSV (to zip file)', 'zip', getDefaultSaveFileName('zip'))
-        if fileName:
-            oldTransform = transformMode()
-            setTransformMode(1 if frameOptions.transform else 0)
-
-            if frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
-                saveAllFrames(fileName, saveCSV)
-            else:
-                start = frameOptions.start
-                stop = frameOptions.stop
-                saveFrameRange(fileName, start, stop, saveCSV)
-
-            setTransformMode(oldTransform)
-
-
 def onSavePosition():
     fileName = getSaveFileName('Save CSV', 'csv', getDefaultSaveFileName('csv', '-position'))
     if fileName:
@@ -588,16 +472,23 @@ def onSavePosition():
 
 
 def onSaveLAS():
+    # It is not possible to save as LAS during stream as we need frame numbers
+    if getSensor():
+        QtGui.QMessageBox.information(getMainWindow(),
+                                      'Save As LAS not available during stream',
+                                      'Saving as LAS is not possible during lidar stream mode. '
+                                      'Please use the "Record" tool, and open the resulting pcap offline to process it.')
+        return
 
     frameOptions = getFrameSelectionFromUser(framePackVisibility=True, frameTransformVisibility=False)
     if frameOptions is None:
         return
 
     if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
-        frameOptions.start = frameOptions.stop = app.scene.AnimationTime
+        frameOptions.start = frameOptions.stop = getAnimationScene().AnimationTime
     elif frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
-        frameOptions.start = int(app.scene.StartTime)
-        frameOptions.stop = int(app.scene.EndTime)
+        frameOptions.start = int(getAnimationScene().StartTime)
+        frameOptions.stop = int(getAnimationScene().EndTime)
 
     if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
         fileName = getSaveFileName('Save LAS', 'las', getDefaultSaveFileName('las', appendFrameNumber=True))
@@ -620,11 +511,12 @@ def onSaveLAS():
                 saveLAS(filename, timesteps, frameOptions.transform)
 
             if frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
-                saveAllFrames(fileName, saveTransformedLAS)
+                start = 0
+                stop = len(getLidar().TimestepValues) - 1
             else:
                 start = frameOptions.start
-                stop = frameOptions.stop
-                saveFrameRange(fileName, start, stop, saveTransformedLAS)
+                stop  = frameOptions.stop
+            saveFrameRange(fileName, start, stop, saveTransformedLAS)
 
             setTransformMode(oldTransform)
 
@@ -645,72 +537,58 @@ def onSaveLAS():
 
 
 def onSavePCAP():
+    # It is not possible to save as PCAP during stream as we need frame numbers
+    if getSensor():
+        QtGui.QMessageBox.information(getMainWindow(),
+                                      'Save As PCAP not available during stream',
+                                      'Saving as PCAP is not possible during lidar stream mode. '
+                                      'Please use the "Record" tool, and open the resulting pcap offline to process it.')
+        return
 
     frameOptions = getFrameSelectionFromUser(frameTransformVisibility=False)
     if frameOptions is None:
         return
 
     if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
-        frameOptions.start = frameOptions.stop = bisect.bisect_left(
-          getAnimationScene().TimeKeeper.TimestepValues,
-          getAnimationScene().TimeKeeper.Time)
+        frameOptions.start = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
+        frameOptions.stop = frameOptions.start
+        defaultFileName = getDefaultSaveFileName('pcap', frameId=frameOptions.start)
     elif frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
         frameOptions.start = 0
-        frameOptions.stop = 0 if app.reader is None else app.reader.GetClientSideObject().GetNumberOfFrames() - 1
+        frameOptions.stop = 0 if getReader() is None else getReader().GetClientSideObject().GetNumberOfFrames() - 1
+        defaultFileName = getDefaultSaveFileName('pcap')
+    else:
+        defaultFileName = getDefaultSaveFileName('pcap', suffix=' (Frame %d to %d)' % (frameOptions.start, frameOptions.stop))
 
-    defaultFileName = getDefaultSaveFileName('pcap', suffix=' (Frame %d to %d)' % (frameOptions.start, frameOptions.stop))
     fileName = getSaveFileName('Save PCAP', 'pcap', defaultFileName)
     if not fileName:
         return
-
     PythonQt.paraview.lqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
 
+def getFrameFromAnimationTime(time):
+    if not getReader():
+        return -1
+
+    index = bisect.bisect_right(getAnimationScene().TimeKeeper.TimestepValues, time)
+    if index > 0:
+        previousTime = getAnimationScene().TimeKeeper.TimestepValues[index - 1]
+        nextTime     = getAnimationScene().TimeKeeper.TimestepValues[index]
+        index = index - 1 if (abs(previousTime - time) < abs(nextTime - time)) else index
+    return index
 
 def onSaveScreenshot():
+    nameCurrentFrame= "Frame"
+    numCurrentFrame = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
+    # If we did not find a frame number, we use the animation time
+    if numCurrentFrame == -1:
+        numCurrentFrame = getAnimationScene().AnimationTime
+        nameCurrentFrame = "Time"
 
-    fileName = getSaveFileName('Save Screenshot', 'png', getDefaultSaveFileName('png', appendFrameNumber=True))
+    fileName = getSaveFileName('Save Screenshot', 'png', getDefaultSaveFileName('png', frameId=numCurrentFrame, baseName=nameCurrentFrame))
     if fileName:
         if fileName[-4:] != ".png":
             fileName += ".png"
         saveScreenshot(fileName)
-
-
-def onKiwiViewerExport():
-
-    frameOptions = getFrameSelectionFromUser(frameStrideVisibility=True,
-                                             frameTransformVisibility=False)
-    if frameOptions is None:
-        return
-
-    defaultFileName = getDefaultSaveFileName('zip', suffix=' (KiwiViewer)')
-    fileName = getSaveFileName('Export To KiwiViewer', 'zip', defaultFileName)
-    if not fileName:
-        return
-
-    if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
-        timesteps = [app.scene.AnimationTime]
-    elif frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
-        timesteps = range(int(app.scene.StartTime), int(app.scene.EndTime) + 1, frameOptions.stride)
-    else:
-        timesteps = range(frameOptions.start, frameOptions.stop+1, frameOptions.stride)
-
-    saveToKiwiViewer(fileName, timesteps)
-
-
-def saveToKiwiViewer(filename, timesteps):
-
-    tempDir = kiwiviewerExporter.tempfile.mkdtemp()
-    outDir = os.path.join(tempDir, os.path.splitext(os.path.basename(filename))[0])
-
-    os.makedirs(outDir)
-
-    filenames = exportToDirectory(outDir, timesteps)
-
-    kiwiviewerExporter.writeJsonData(outDir, smp.GetActiveView(), smp.GetDisplayProperties(), filenames)
-
-    kiwiviewerExporter.zipDir(outDir, filename)
-    kiwiviewerExporter.shutil.rmtree(tempDir)
-
 
 def exportToDirectory(outDir, timesteps):
 
@@ -718,7 +596,7 @@ def exportToDirectory(outDir, timesteps):
 
     alg = smp.GetActiveSource().GetClientSideObject()
 
-    writer = vtkXMLPolyDataWriter()
+    writer = vtk.vtkXMLPolyDataWriter()
     writer.SetDataModeToAppended()
     writer.EncodeAppendedDataOff()
     writer.SetCompressorTypeToZLib()
@@ -728,7 +606,7 @@ def exportToDirectory(outDir, timesteps):
         filename = 'frame_%04d.vtp' % t
         filenames.append(filename)
 
-        app.scene.AnimationTime = t
+        getAnimationScene().AnimationTime = t
         polyData = vtk.vtkPolyData()
         polyData.ShallowCopy(alg.GetOutput())
 
@@ -740,25 +618,30 @@ def exportToDirectory(outDir, timesteps):
 
 
 def onClose():
+    # Pause
     smp.GetAnimationScene().Stop()
+    # Remove Lidar Related
     unloadData()
-    app.scene.AnimationTime = 0
-    app.reader = None
-    app.sensor = None
-    app.trailingFrame = []
-
+    getAnimationScene().AnimationTime = 0
+    # Remove widgets
     smp.HideUnusedScalarBars()
 
+    # Reset Camera
     resetCameraToForwardView()
+
+    # Reset Labels
     app.filenameLabel.setText('')
-    app.statusLabel.setText('')
+    app.sensorInformationLabel.setText('')
+    app.positionPacketInfoLabel.setText('')
+    getMainWindow().statusBar().showMessage('')
+
+    # Disable Actions
     disableSaveActions()
 
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
-    for action in ('SavePCAP', 'Export_To_KiwiViewer',
-                   'Close', 'CropReturns'):
+    for action in ('SavePCAP', 'Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
@@ -775,28 +658,34 @@ def disableSaveActions():
 
 
 def unloadData():
-
     for k, src in smp.GetSources().items():
         if src != app.grid and src != smp.FindSource("RPM"):
             smp.Delete(src)
 
-    app.reader = None
-    app.trailingFrame = []
-    app.position = None
-    app.sensor = None
-
     clearSpreadSheetView()
 
+def getReaderSource():
+  return PythonQt.paraview.lqSensorListWidget.getActiveLidarSource()
+
 def getReader():
-    return getattr(app, 'reader', None)
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getReader())
+
+#def getLidarNew():
+#  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getLidar())
 
 def getSensor():
-    return getattr(app, 'sensor', None)
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getSensor())
 
-def getLidar():
+def getTrailingFrame():
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getTrailingFrame())
+
+def getPosOrSource():
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getPosOrSource())
+
+def getLidar(): # WIP TODO
     return getReader() or getSensor()
 
-def getLidarPacketInterpreter():
+def getLidarPacketInterpreter(): # WIP Used in places where explicit lidar / current lidar is mixed
     lidar = getLidar()
     if lidar:
       return lidar.Interpreter
@@ -848,16 +737,14 @@ def onCropReturns(show = True):
         if show:
             smp.Render()
 
+def resetCameraLidar():
+  PythonQt.paraview.lqLidarCoreManager.resetCameraLidar()
 
-def resetCameraToForwardView(view=None):
+def resetCenterToLidarCenter():
+  PythonQt.paraview.lqLidarCoreManager.resetCenterToLidarCenter()
 
-    view = view or smp.GetActiveView()
-    view.CameraFocalPoint = [0,0,0]
-    view.CameraViewUp = [0, 0.27, 0.96]
-    view.CameraPosition = [0, -72, 18.0]
-    view.CenterOfRotation = [0, 0, 0]
-    smp.Render(view)
-
+def resetCameraToForwardView():
+  PythonQt.paraview.lqLidarCoreManager.resetCameraToForwardView()
 
 def saveScreenshot(filename):
     smp.WriteImage(filename)
@@ -879,7 +766,7 @@ def saveScreenshot(filename):
     composite.save(filename)
 
 
-def getSpreadSheetViewProxy():
+def getSpreadSheetViewProxy(): #WIP this is probably unreliable
     return smp.servermanager.ProxyManager().GetProxy("views", "main spreadsheet view")
 
 def clearSpreadSheetView():
@@ -889,53 +776,54 @@ def clearSpreadSheetView():
 
 
 def showSourceInSpreadSheet(source):
+  if not source:
+    return
+  spreadSheetView = getSpreadSheetViewProxy()
+  smp.Show(source, spreadSheetView)
 
-    spreadSheetView = getSpreadSheetViewProxy()
-    smp.Show(source, spreadSheetView)
-
-    # Work around a bug where the 'Showing' combobox doesn't update.
-    # Calling hide and show again will trigger the refresh.
-    smp.Hide(source, spreadSheetView)
-    smp.Show(source, spreadSheetView)
+  # Work around a bug where the 'Showing' combobox doesn't update.
+  # Calling hide and show again will trigger the refresh.
+  smp.Hide(source, spreadSheetView)
+  smp.Show(source, spreadSheetView)
 
 def createGrid():
     app.grid = smp.GridSource(guiName='Measurement Grid')
-    
+
     # Reset to default if not persistent asked
     if (getPVSettings().value('LidarPlugin/grid/gridPropertiesPersist') != "true"):
       # Default Settings # WIP NEED TO INIT OTHER PROPS ?
       app.grid.GridNbTicks = 10
     else:
-      # Restore grid properties
-      lineWidth = getPVSettings().value('LidarPlugin/grid/LineWidth')
-      if lineWidth :
-          app.grid.LineWidth = int(lineWidth)
+        # Restore grid properties
+        lineWidth = getPVSettings().value('LidarPlugin/grid/LineWidth')
+        if lineWidth :
+            app.grid.LineWidth = int(lineWidth)
 
-      gridNbTicks = getPVSettings().value('LidarPlugin/grid/GridNbTicks')
-      if gridNbTicks :
-          app.grid.GridNbTicks = int(gridNbTicks)
+        gridNbTicks = getPVSettings().value('LidarPlugin/grid/GridNbTicks')
+        if gridNbTicks :
+            app.grid.GridNbTicks = int(gridNbTicks)
 
-      if getPVSettings().value('LidarPlugin/grid/Normal'):
-          normal_x = getPVSettings().value('LidarPlugin/grid/Normal')[0]
-          normal_y = getPVSettings().value('LidarPlugin/grid/Normal')[1]
-          normal_z = getPVSettings().value('LidarPlugin/grid/Normal')[2]
-          app.grid.Normal = [float(normal_x), float(normal_y), float(normal_z)]
+        if getPVSettings().value('LidarPlugin/grid/Normal'):
+            normal_x = getPVSettings().value('LidarPlugin/grid/Normal')[0]
+            normal_y = getPVSettings().value('LidarPlugin/grid/Normal')[1]
+            normal_z = getPVSettings().value('LidarPlugin/grid/Normal')[2]
+            app.grid.Normal = [float(normal_x), float(normal_y), float(normal_z)]
 
-      if getPVSettings().value('LidarPlugin/grid/Origin'):
-          origin_x = getPVSettings().value('LidarPlugin/grid/Origin')[0]
-          origin_y = getPVSettings().value('LidarPlugin/grid/Origin')[1]
-          origin_z = getPVSettings().value('LidarPlugin/grid/Origin')[2]
-          app.grid.Origin = [float(origin_x), float(origin_y), float(origin_z)]
+        if getPVSettings().value('LidarPlugin/grid/Origin'):
+            origin_x = getPVSettings().value('LidarPlugin/grid/Origin')[0]
+            origin_y = getPVSettings().value('LidarPlugin/grid/Origin')[1]
+            origin_z = getPVSettings().value('LidarPlugin/grid/Origin')[2]
+            app.grid.Origin = [float(origin_x), float(origin_y), float(origin_z)]
 
-      scale = getPVSettings().value(getPVSettings().value('LidarPlugin/grid/Scale'))
-      if scale :
-          app.grid.Scale = float(scale)
+        scale = getPVSettings().value(getPVSettings().value('LidarPlugin/grid/Scale'))
+        if scale :
+            app.grid.Scale = float(scale)
 
-      if getPVSettings().value('LidarPlugin/grid/gridColor') :
-          r = getPVSettings().value('LidarPlugin/grid/gridColor')[0]
-          g = getPVSettings().value('LidarPlugin/grid/gridColor')[1]
-          b = getPVSettings().value('LidarPlugin/grid/gridColor')[2]
-          app.grid.Color = [float(r), float(g), float(b)]
+        if getPVSettings().value('LidarPlugin/grid/gridColor') :
+            r = getPVSettings().value('LidarPlugin/grid/gridColor')[0]
+            g = getPVSettings().value('LidarPlugin/grid/gridColor')[1]
+            b = getPVSettings().value('LidarPlugin/grid/gridColor')[2]
+            app.grid.Color = [float(r), float(g), float(b)]
 
     rep = smp.Show(app.grid)
     rep.LineWidth = app.grid.LineWidth
@@ -948,26 +836,18 @@ def createGrid():
     smp.Show(app.grid)
     return app.grid
 
-def hideGrid():
-    smp.GetDisplayProperties(app.grid).Hide()
-
-
-def showGrid():
-    smp.GetDisplayProperties(app.grid).Show()
-
 def getAnimationScene():
     '''This function is a workaround because paraview.simple.GetAnimationScene()
     has an issue where the returned proxy might not have its Cues property initialized'''
-    for proxy in servermanager.ProxyManager().GetProxiesInGroup("animation").values():
+    for proxy in paraview.servermanager.ProxyManager().GetProxiesInGroup("animation").values():
         if proxy.GetXMLName() == 'AnimationScene' and len(proxy.Cues):
             return proxy
 
-
+# Main function, Used by lqVeloViewManager
 def start():
 
     global app
     app = AppLogic()
-    app.scene = getAnimationScene()
 
     view = smp.GetActiveView()
     view.Background = [0.0, 0.0, 0.0]
@@ -980,14 +860,12 @@ def start():
 
     setupActions()
     disableSaveActions()
-    setupStatusBar()
     hideColorByComponent()
-    restoreNativeFileDialogsAction()
     createRPMBehaviour()
 
     # Create Grid #WIP not perfect requires loaded plugin
-    app.DistanceResolutionM = 0.002
     createGrid()
+
 
 def findQObjectByName(widgets, name):
     for w in widgets:
@@ -1011,30 +889,21 @@ def getTimeKeeper():
     return getPVApplicationCore().getActiveServer().getTimeKeeper()
 
 
-def onTrailingFramesChanged(numFrames):
-    for tr in app.trailingFrame :
-        tr.NumberOfTrailingFrames = numFrames
-        smp.Render()
-
-def setupStatusBar():
-    # by using a QScrollArea inside the statusBar it should be possible
-    # to reduce the minimum main window's width
-
-    statusBar = getMainWindow().statusBar()
-    statusBar.addPermanentWidget(app.logoLabel)
-    statusBar.addWidget(app.filenameLabel)
-    statusBar.addWidget(app.statusLabel)
-    statusBar.addWidget(app.sensorInformationLabel)
-    statusBar.addWidget(app.positionPacketInfoLabel)
+def onTrailingFramesChanged(number):
+  # WIP sensorListWidget must provide an API / assume responsibility for this
+  tr = getTrailingFrame()
+  if tr:
+    tr.NumberOfTrailingFrames = number
+    smp.Render()
 
 def onGridProperties():
     if not app.grid:
       createGrid()
-    if gridAdjustmentDialog.showDialog(getMainWindow(), app):
+    if lidarview.gridAdjustmentDialog.showDialog(getMainWindow(), app):
         rep = smp.Show(app.grid)
         rep.LineWidth    = app.grid.LineWidth
         rep.DiffuseColor = app.grid.Color
-        
+
         if(getPVSettings().value('LidarPlugin/grid/gridPropertiesPersist') == "true") :
             getPVSettings().setValue('LidarPlugin/grid/gridColor', app.grid.Color)
             getPVSettings().setValue('LidarPlugin/grid/LineWidth', app.grid.LineWidth)
@@ -1053,7 +922,7 @@ def adjustScalarBarRangeLabelFormat():
         return
 
     arrayName = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChild('QComboBox').currentText
-    if arrayName != '' and hasArrayName(app.reader, arrayName):
+    if arrayName != '' and hasArrayName(getReader(), arrayName):
         sb = smp.GetScalarBar(smp.GetLookupTableForArray(arrayName, []))
         sb.RangeLabelFormat = '%g'
         smp.Render()
@@ -1114,11 +983,12 @@ def switchVisibility(Proxy):
     ProxyRep.Visibility = not ProxyRep.Visibility
 
 def ShowPosition():
-    if app.position:
-        switchVisibility(app.position)
+    position = getPosOrSource()
+    if position:
+        switchVisibility(position)
         smp.Render()
 
-
+# Setup Actions
 def setupActions():
 
     mW = getMainWindow()
@@ -1130,21 +1000,15 @@ def setupActions():
         app.actions[a.objectName] = a
 
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
-
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
-
     app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
-    app.actions['actionExport_To_KiwiViewer'].connect('triggered()', onKiwiViewerExport)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
-    app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
-    app.actions['actionAbout_LidarView'].connect('triggered()', lambda : aboutDialog.showDialog(getMainWindow()) )
-
+    app.actions['actionAbout_LidarView'].connect('triggered()', lambda : lidarview.aboutDialog.showDialog(getMainWindow()) )
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
-
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
 
     # Restore action states from settings
@@ -1165,15 +1029,18 @@ def setupActions():
     # Creating the geolocation combobox
     geolocationComboBox = QtGui.QComboBox()
 
-    #Adding the different entries
+    # Add the different entries
+    # Currently, as Absolute and Relative Geolocation options are broken, disable them.
     geolocationComboBox.addItem('None (RAW Data)')
     geolocationComboBox.setItemData(0, "No mapping: Each frame is at the origin", 3)
 
     geolocationComboBox.addItem('Absolute Geolocation')
     geolocationComboBox.setItemData(1, "Use GPS geolocation to get each frame absolute location, the first frame is shown at origin", 3)
+    geolocationComboBox.model().item(1).setEnabled(False)
 
     geolocationComboBox.addItem('Relative Geolocation')
     geolocationComboBox.setItemData(2, "Use GPS geolocation to get each frame absolute location, the current frame is shown at origin", 3)
+    geolocationComboBox.model().item(2).setEnabled(False)
 
     geolocationComboBox.connect('currentIndexChanged(int)', geolocationChanged)
     geolocationToolBar.addWidget(geolocationComboBox)
@@ -1181,7 +1048,13 @@ def setupActions():
     # Set default toolbar visibility
     geolocationToolBar.visible = False
 
+    # Get playback speed control toolbar
+    timeToolBar = mW.findChild('QToolBar','Player Control')
+
     # Trailing Frame Spinbox
+    spinBoxLabel = QtGui.QLabel('TF:')
+    spinBoxLabel.toolTip = "Number of trailing frames"
+    timeToolBar.addWidget(spinBoxLabel)
     spinBox = QtGui.QSpinBox()
     spinBox.toolTip = "Number of trailing frames"
     spinBox.setMinimum(0)
@@ -1196,7 +1069,7 @@ def setupActions():
 
 def createRPMBehaviour():
     # create and customize a label to display the rpm
-    rpm = smp.Text(guiName="RPM", Text="No RPM")
+    rpm = smp.Text(guiName="RPM", Text="No RPM/Hz")
     representation = smp.GetRepresentation(rpm)
     representation.FontSize = 16
     representation.Color = [1,1,0]
@@ -1212,10 +1085,11 @@ def tick(self):
     rpm = smp.FindSource("RPM")
     lidar = lv.getLidar() #smp.FindSource("Data")
     if (lidar):
-        value = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
-        rpm.Text = str(value) + " RPM"
+        valfreq = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
+        valrpm  = int(lidar.Interpreter.GetClientSideObject().GetRpm())
+        rpm.Text = f"{str(valfreq)} Hz {str(valrpm)} RPM"
     else:
-        rpm.Text = "No RPM"
+        rpm.Text = "No Hz/RPM Info"
 
 def end_cue(self):
     pass
@@ -1225,9 +1099,10 @@ def end_cue(self):
     toggleRPM()
     smp.SetActiveSource(None)
 
-
+# Status Bar helper
 def updateUIwithNewLidar():
     lidar = getLidar()
     if lidar:
         app.sensorInformationLabel.setText(lidar.GetClientSideObject().GetSensorInformation(True))
         app.sensorInformationLabel.setToolTip(lidar.GetClientSideObject().GetSensorInformation())
+    smp.Render()
