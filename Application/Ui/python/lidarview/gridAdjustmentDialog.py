@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import print_function
-from PythonQt import QtCore, QtGui, QtUiTools
+from PythonQt import QtCore, QtGui, QtUiTools, paraview
 import math
 
-def showDialog(mainWindow, grid, gridProperties):
+def showDialog(mainWindow, app):
 
     loader = QtUiTools.QUiLoader()
     uifile = QtCore.QFile(':/LidarViewPlugin/vvGridAdjustmentDialog.ui')
@@ -26,41 +26,51 @@ def showDialog(mainWindow, grid, gridProperties):
     dialog = loader.load(uifile, mainWindow)
     uifile.close()
 
+    # Delete "?" Button that appears on windows os
+    # Rewrite the flags without QtCore.Qt.WindowContextHelpButtonHint
+    flags = QtCore.Qt.Dialog | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.WindowTitleHint | QtCore.Qt.WindowCloseButtonHint
+    dialog.setWindowFlags(flags)
+
+
     def w(name):
         for widget in dialog.children():
             if widget.objectName == name:
                 return widget
 
-    w('SensorUpX').setValue(grid.Normal[0])
-    w('SensorUpY').setValue(grid.Normal[1])
-    w('SensorUpZ').setValue(grid.Normal[2])
+    w('SensorUpX').setValue(app.grid.Normal[0])
+    w('SensorUpY').setValue(app.grid.Normal[1])
+    w('SensorUpZ').setValue(app.grid.Normal[2])
 
-    w('SensorOriginX').setValue(-grid.Origin[0])
-    w('SensorOriginY').setValue(-grid.Origin[1])
-    w('SensorOriginZ').setValue(-grid.Origin[2])
+    w('SensorOriginX').setValue(-app.grid.Origin[0])
+    w('SensorOriginY').setValue(-app.grid.Origin[1])
+    w('SensorOriginZ').setValue(-app.grid.Origin[2])
 
-    w('GridResolution').setValue(grid.Scale)
-    w('GridWidth').setValue(grid.Scale*grid.GridNbTicks)
-    w('GridLineWidth').setValue(grid.LineWidth)
+    w('GridResolution').setValue(app.grid.Scale)
+    w('GridWidth').setValue(app.grid.Scale*app.grid.GridNbTicks)
+    w('GridLineWidth').setValue(app.grid.LineWidth)
 
-    r = grid.Color[0] * 255
-    g = grid.Color[1] * 255
-    b = grid.Color[2] * 255
+    r = app.grid.Color[0] * 255
+    g = app.grid.Color[1] * 255
+    b = app.grid.Color[2] * 255
     w('GridColorPicker').setStyleSheet("background-color: rgb(" + str(r) + "," + str(g) + "," + str(b) +");")
 
-    w('ShouldPropertiesPersist').checked = gridProperties.Persist
+    pvsettings = paraview.pqPVApplicationCore.instance().settings()
+    w('ShouldPropertiesPersist').setChecked(pvsettings.value('LidarPlugin/grid/gridPropertiesPersist') == "true")
 
     def pickColor():
         colorPicker = QtGui.QColorDialog()
-        qColor = colorPicker.getColor()
+        colorPicker.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
-        if not qColor.isValid():
-            return False
+        if(colorPicker.exec()):
+            qColor = colorPicker.selectedColor()
 
-        r = qColor.red()
-        g = qColor.green()
-        b = qColor.blue()
-        w('GridColorPicker').setStyleSheet("background-color: rgb(" + str(r) + "," + str(g) + "," + str(b) +");")
+            if not qColor.isValid():
+                return False
+
+            r = qColor.red()
+            g = qColor.green()
+            b = qColor.blue()
+            w('GridColorPicker').setStyleSheet("background-color: rgb(" + str(r) + "," + str(g) + "," + str(b) +");")
 
     w('GridColorPicker').connect('clicked()', pickColor)
 
@@ -68,13 +78,14 @@ def showDialog(mainWindow, grid, gridProperties):
     if not accepted:
         return False
 
-    grid.Normal = [w('SensorUpX').value, w('SensorUpY').value, w('SensorUpZ').value]
-    grid.Origin = [-w('SensorOriginX').value, -w('SensorOriginY').value, -w('SensorOriginZ').value]
-    grid.Scale = w('GridResolution').value
-    grid.GridNbTicks = int(math.ceil(w('GridWidth').value / w('GridResolution').value))
-    grid.LineWidth = w('GridLineWidth').value
+    app.grid.Normal = [w('SensorUpX').value, w('SensorUpY').value, w('SensorUpZ').value]
+    app.grid.Origin = [-w('SensorOriginX').value, -w('SensorOriginY').value, -w('SensorOriginZ').value]
+    app.grid.Scale = w('GridResolution').value
+    app.grid.GridNbTicks = int(math.ceil(w('GridWidth').value / w('GridResolution').value))
+    app.grid.LineWidth = w('GridLineWidth').value
     color = w('GridColorPicker').palette.color(QtGui.QPalette.Background)
-    grid.Color = [color.redF(), color.greenF(), color.blueF()]
-    gridProperties.Persist = w('ShouldPropertiesPersist').checked
+    app.grid.Color = [color.redF(), color.greenF(), color.blueF()]
+    #app.gridPropertiesPersist = w('ShouldPropertiesPersist').checked #Useless
+    pvsettings.setValue('LidarPlugin/grid/gridPropertiesPersist', "true" if w('ShouldPropertiesPersist').checked else "false" )
 
     return True

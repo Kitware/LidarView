@@ -38,36 +38,21 @@ import lidarview.planefit as planefit
 class AppLogic(object):
 
     def __init__(self):
-        self.createStatusBarWidgets()
+      # WIP this can be removed by providing SensorList singleton python wrappings
+      self.reader = None
+      self.sensor = None
+      self.trailingFrame = []
+      self.position = None
 
-        self.reader = None
-        self.trailingFrame = []
-        self.position = None
-        self.sensor = None
-
-        self.gridProperties = None
-
-    def createStatusBarWidgets(self):
-
-        self.logoLabel = QtGui.QLabel()
-        self.logoLabel.setPixmap(QtGui.QPixmap(":/vvResources/SoftwareInformation/bottom_logo.png"))
-        self.logoLabel.setScaledContents(True)
-
-        self.filenameLabel = QtGui.QLabel()
-        self.statusLabel = QtGui.QLabel()
-        self.sensorInformationLabel = QtGui.QLabel()
-        self.positionPacketInfoLabel = QtGui.QLabel()
-
-class GridProperties:
-
-    def __init__(self):
-        self.Normal = [0, 0, 0]
-        self.Origin = [0, 0, 0]
-        self.Scale = 0
-        self.GridNbTicks = 0
-        self.LineWidth = 0
-        self.Color = [0, 0, 0]
-        self.Persist = False
+      # WIP This can be removed through Statusbar creation and python wrappings in VeloViewManager
+      # Fields that Can be overriden to show some statuses
+      self.filenameLabel           = QtGui.QLabel()
+      self.sensorInformationLabel  = QtGui.QLabel()
+      self.positionPacketInfoLabel = QtGui.QLabel()
+      statusBar = getMainWindow().statusBar()
+      statusBar.addWidget(self.filenameLabel)
+      statusBar.addWidget(self.sensorInformationLabel)
+      statusBar.addWidget(self.positionPacketInfoLabel)
 
 # Array Helper
 def hasArrayName(sourceProxy, arrayName):
@@ -755,14 +740,6 @@ def exportToDirectory(outDir, timesteps):
 
 
 def onClose():
-    # Save grid properties for this session
-    app.gridProperties.Normal = app.grid.Normal
-    app.gridProperties.Origin = app.grid.Origin
-    app.gridProperties.Scale = app.grid.Scale
-    app.gridProperties.GridNbTicks = app.grid.GridNbTicks
-    app.gridProperties.LineWidth = app.grid.LineWidth
-    app.gridProperties.Color = app.grid.Color
-
     smp.GetAnimationScene().Stop()
     unloadData()
     app.scene.AnimationTime = 0
@@ -923,16 +900,42 @@ def showSourceInSpreadSheet(source):
 
 def createGrid():
     app.grid = smp.GridSource(guiName='Measurement Grid')
-    if app.gridProperties.Persist == False:
-        app.grid.GridNbTicks = (int(math.ceil(50000 * app.DistanceResolutionM/ app.grid.Scale )))
+    
+    # Reset to default if not persistent asked
+    if (getPVSettings().value('LidarPlugin/grid/gridPropertiesPersist') != "true"):
+      # Default Settings # WIP NEED TO INIT OTHER PROPS ?
+      app.grid.GridNbTicks = 10
     else:
-        # Restore grid properties
-        grid.Normal = app.gridProperties.Normal
-        grid.Origin = app.gridProperties.Origin
-        grid.Scale = app.gridProperties.Scale
-        grid.GridNbTicks = app.gridProperties.GridNbTicks
-        grid.LineWidth = app.gridProperties.LineWidth
-        grid.Color = app.gridProperties.Color
+      # Restore grid properties
+      lineWidth = getPVSettings().value('LidarPlugin/grid/LineWidth')
+      if lineWidth :
+          app.grid.LineWidth = int(lineWidth)
+
+      gridNbTicks = getPVSettings().value('LidarPlugin/grid/GridNbTicks')
+      if gridNbTicks :
+          app.grid.GridNbTicks = int(gridNbTicks)
+
+      if getPVSettings().value('LidarPlugin/grid/Normal'):
+          normal_x = getPVSettings().value('LidarPlugin/grid/Normal')[0]
+          normal_y = getPVSettings().value('LidarPlugin/grid/Normal')[1]
+          normal_z = getPVSettings().value('LidarPlugin/grid/Normal')[2]
+          app.grid.Normal = [float(normal_x), float(normal_y), float(normal_z)]
+
+      if getPVSettings().value('LidarPlugin/grid/Origin'):
+          origin_x = getPVSettings().value('LidarPlugin/grid/Origin')[0]
+          origin_y = getPVSettings().value('LidarPlugin/grid/Origin')[1]
+          origin_z = getPVSettings().value('LidarPlugin/grid/Origin')[2]
+          app.grid.Origin = [float(origin_x), float(origin_y), float(origin_z)]
+
+      scale = getPVSettings().value(getPVSettings().value('LidarPlugin/grid/Scale'))
+      if scale :
+          app.grid.Scale = float(scale)
+
+      if getPVSettings().value('LidarPlugin/grid/gridColor') :
+          r = getPVSettings().value('LidarPlugin/grid/gridColor')[0]
+          g = getPVSettings().value('LidarPlugin/grid/gridColor')[1]
+          b = getPVSettings().value('LidarPlugin/grid/gridColor')[2]
+          app.grid.Color = [float(r), float(g), float(b)]
 
     rep = smp.Show(app.grid)
     rep.LineWidth = app.grid.LineWidth
@@ -984,7 +987,6 @@ def start():
 
     # Create Grid #WIP not perfect requires loaded plugin
     app.DistanceResolutionM = 0.002
-    app.gridProperties = GridProperties() # Reset Grid Properties
     createGrid()
 
 def findQObjectByName(widgets, name):
@@ -1028,10 +1030,19 @@ def setupStatusBar():
 def onGridProperties():
     if not app.grid:
       createGrid()
-    if gridAdjustmentDialog.showDialog(getMainWindow(), app.grid, app.gridProperties):
+    if gridAdjustmentDialog.showDialog(getMainWindow(), app):
         rep = smp.Show(app.grid)
         rep.LineWidth    = app.grid.LineWidth
         rep.DiffuseColor = app.grid.Color
+        
+        if(getPVSettings().value('LidarPlugin/grid/gridPropertiesPersist') == "true") :
+            getPVSettings().setValue('LidarPlugin/grid/gridColor', app.grid.Color)
+            getPVSettings().setValue('LidarPlugin/grid/LineWidth', app.grid.LineWidth)
+            getPVSettings().setValue('LidarPlugin/grid/GridNbTicks', app.grid.GridNbTicks)
+            getPVSettings().setValue('LidarPlugin/grid/Normal', app.grid.Normal)
+            getPVSettings().setValue('LidarPlugin/grid/Origin', app.grid.Origin)
+            getPVSettings().setValue('LidarPlugin/grid/Scale', app.grid.Scale)
+
         smp.Render()
 
 def hideColorByComponent():
