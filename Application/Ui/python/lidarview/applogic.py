@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import csv
-import datetime
-import math
+import sys, os, csv, time, datetime, math
+import bisect
 import paraview.simple as smp
 from paraview import servermanager
 from paraview import vtk
@@ -27,7 +25,6 @@ from vtk import vtkXMLPolyDataWriter
 import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 import lidarview.gridAdjustmentDialog as gridAdjustmentDialog
 import lidarview.aboutDialog as aboutDialog
-import bisect
 
 from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog
 
@@ -42,9 +39,6 @@ class AppLogic(object):
 
     def __init__(self):
         self.createStatusBarWidgets()
-
-        mainView = smp.GetActiveView()
-        self.mainView = mainView
 
         self.transformMode = 0
         self.relativeTransform = False
@@ -291,7 +285,7 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     #Auto adjustment of the grid size with the distance resolution
     app.DistanceResolutionM = sensor.Interpreter.GetClientSideObject().GetDistanceResolutionM()
     showMeasurementGrid()
-    
+
     setDefaultLookupTables(sensor)
     updateUIwithNewLidar()
 
@@ -347,7 +341,7 @@ def UpdateApplogicReader(lidarName, posOrName, trailingFrameName):
             app.position = posreader
 
 
-    smp.SetActiveView(app.mainView)
+    smp.SetActiveView(smp.GetActiveView())
 
     showSourceInSpreadSheet(current_trailingFrame)
 
@@ -990,7 +984,7 @@ def start():
     hideColorByComponent()
     restoreNativeFileDialogsAction()
     createRPMBehaviour()
-    
+
     # Create Grid #WIP not perfect requires loaded plugin
     app.DistanceResolutionM = 0.002
     app.gridProperties = GridProperties() # Reset Grid Properties
@@ -1090,7 +1084,7 @@ def setTransformMode(mode):
 
 def geolocationChanged(setting):
     setTransformMode(setting)
-    smp.Render(view=app.mainView)
+    smp.Render(view=smp.GetActiveView())
 
 def onToogleAdvancedGUI(updateSettings = True):
   """ Switch the GUI between advanced and classic mode"""
@@ -1145,7 +1139,7 @@ def setupActions():
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionNative_File_Dialogs'].connect('triggered()', onNativeFileDialogsAction)
     app.actions['actionAbout_LidarView'].connect('triggered()', lambda : aboutDialog.showDialog(getMainWindow()) )
-    
+
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
