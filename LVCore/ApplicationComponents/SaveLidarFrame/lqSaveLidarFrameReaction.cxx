@@ -154,7 +154,6 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy * lidar)
 //-----------------------------------------------------------------------------
 bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop)
 {
-
   if(!GetFolderAndBaseNameFromUser(lidar))
   {
     return false;
@@ -198,18 +197,16 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
   pqAnimationScene* scene = mgr->getActiveScene();
   double timestep_bakup = scene->getAnimationTime();
 
-
   if (start == -1 && stop == -1)
   {
     QString filename = this->FolderPath + "/" + GenerateFileName(this->BaseName, timestep_bakup);
     vtkSMPropertyHelper(writer, "FileName").Set(filename.toStdString().c_str());
     writer->UpdateVTKObjects();
-    writer->UpdatePipeline();
+    writer->UpdatePipeline(timestep_bakup);
   }
   else
   {
     auto* tsv = vtkSMDoubleVectorProperty::SafeDownCast(lidarProxy->GetProperty("TimestepValues"));
-
     QProgressDialog progress("Saving files...", "Abort", 0, stop-start);
     progress.setWindowModality(Qt::ApplicationModal);
     for (int i = start; i <= stop; ++i)
@@ -220,7 +217,7 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
 
       vtkSMPropertyHelper(writer, "FileName").Set(filename.toStdString().c_str());
       writer->UpdateVTKObjects();
-      writer->UpdatePipeline();
+      writer->UpdatePipeline(timestep);
 
       progress.setValue(i - start);
       if (progress.wasCanceled())
