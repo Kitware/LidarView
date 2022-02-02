@@ -7,15 +7,12 @@
 
 variables:
   GIT_STRATEGY: none                # Do not clone / fetch anything
-  #GIT_SUBMODULE_STRATEGY: recursive # If cloned/fetched submodule are recursively taken
-  GIT_LFS_SKIP_SMUDGE: 1 # do not download test data, see https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings
-  # user defined variable
-  rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
-  # - gitlab only evaluate variable at depth 1, so it's not possible to reuse
-  #   superbuild_build_dir to construct lidarview_build_dir
-  #   see https://gitlab.com/gitlab-org/gitlab-runner/issues/1280
-  superbuild_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME
-  lidarview_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
+  # WARNING: gitlab only evaluate variable at most depth 1, cannot build Absolute Paths based on others
+  LV_CI_SRC_DIR:   $CI_BUILDS_DIR/S     # LV Runners Work Directory for Sources
+  LV_CI_BUILD_DIR: $CI_BUILDS_DIR/SB  # LV Runners Work Directory for Builds
+  LV_PROJECT_SRC_PATH: $LV_CI_SRC_DIR/$CI_PROJECT_NAME
+  LV_PROJECT_BSB_PATH: $LV_CI_BUILD_DIR/$CI_PROJECT_NAME
+  LV_PROJECT_BLV_PATH: $LV_CI_BUILD_DIR/$CI_PROJECT_NAME/lidarview-superbuild/common-superbuild/lidarview/build/
   # Following variables should be set only if the script is triggered from a LidarView submodule
   # It enables to run the pipeline with the updated module
   TRIGGER_MODULE_PATH:
@@ -27,14 +24,13 @@ variables:
   TRIGGER_MODULE_REPOSITORY_PATH:
     value: ''
     description: Define it if the SHA needs to be fetched from another remote
-  SB_BUILD_PREFIX:
-    value: ''
-    description: |
-      Define it to have a custom SB directory for the pipeline and not rely on the generic one.
-       Usefull, to check SB related changes on the CI without replacing/breaking the SB on master.
   SB_ADDITIONAL_PARAMS:
     value: ''
     description: Define additional params to SB CMake configure, WARNING POWERSHELL ONLY SUPPORTS A SINGLE PARAM
+  sb_cmake_option_GENERATOR:      # Most of our Platforms use Ninja
+    value: '-GNinja'
+  sb_cmake_option_USE_SYSTEM_qt5: # Most of our Platforms use qt5 with offline Installers
+    value: '-DUSE_SYSTEM_qt5=True'
   sb_cmake_option_ENABLE_ceres:
     value: '-DENABLE_ceres=True'
   sb_cmake_option_ENABLE_nanoflann:
@@ -59,6 +55,13 @@ default:
     - echo "  TRIGGER_MODULE_PATH:$TRIGGER_MODULE_PATH"
     - echo "  TRIGGER_MODULE_REPOSITORY_PATH:$TRIGGER_MODULE_REPOSITORY_PATH"
     - echo "  TRIGGER_MODULE_SHA:$TRIGGER_MODULE_SHA"
+    - echo "Basic Paths"
+    - echo "  CI_BUILDS_DIR      :$CI_BUILDS_DIR      "
+    - echo "  LV_CI_SRC_DIR      :$LV_CI_SRC_DIR      "
+    - echo "  LV_CI_BUILD_DIR    :$LV_CI_BUILD_DIR    "
+    - echo "  LV_PROJECT_SRC_PATH:$LV_PROJECT_SRC_PATH"
+    - echo "  LV_PROJECT_BSB_PATH:$LV_PROJECT_BSB_PATH"
+    - echo "  LV_PROJECT_BLV_PATH:$LV_PROJECT_BLV_PATH"
   retry:
     max: 2
     when: runner_system_failure
@@ -98,17 +101,7 @@ workflow:
   timeout: 5h
   extends: .default_rules
   script:
-    - cd $CI_PROJECT_DIR
-    - cmake -E remove $GIT_CLONE_PATH/*
-    - cmake -E remove_directory $GIT_CLONE_PATH/.git
-    - cmake -E remove_directory $superbuild_build_dir
-    - cmake -E make_directory $superbuild_build_dir
-    - git clone CI_PROJECT_URL . # Clone in Place
-    - cd $CI_PROJECT_DIR/Plugins/VelodynePlugin
-    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git # See Group CI Variables
-    - cd $CI_PROJECT_DIR
-    - git submodule update --init --recursive
-    - cd $superbuild_build_dir
+    - pwd
     - ls
 
 .clean:
@@ -135,7 +128,6 @@ workflow:
 
 .test:
   variables:
-    GIT_LFS_SKIP_SMUDGE: 0 # download the test data
     DISPLAY: ":0" # Enable UI Capabilities, may not interfere too much on win32
   stage: test
   extends: .default_rules
@@ -182,14 +174,12 @@ workflow:
 
 .linux_runner_config:
   variables:
-    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
     sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
   tags: [unix]
   resource_group: linux_machine
 
 .linux18_runner_config:
   variables:
-    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
     sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
   tags: [unix18]
   resource_group: linux18_machine
@@ -199,7 +189,6 @@ workflow:
     sb_cmake_option_CMAKE_OSX_ARCHITECTURES: -DCMAKE_OSX_ARCHITECTURES=x86_64
     sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.10
     sb_cmake_option_CMAKE_OSX_SDK: -DCMAKE_OSX_SDK=macosx10.12
-    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
     sb_cmake_option_QT5_DIR: -DQt5_DIR=/Users/gitlab-runner/Qt5.12.9/5.12.9/clang_64/lib/cmake/Qt5
   tags: [osx]
   resource_group: osx_machine
@@ -230,19 +219,9 @@ workflow:
             Set-Item Env:$varName $varValue
         }
       }
-    - Invoke-CmdScript "${vcvarsall_script_location}/vcvarsall.bat" $architecture
+    - Invoke-CmdScript "${vcvarsall_script_location}/vcvarsall.bat" x86_amd64
   variables:
-    # on windows due to the max command length, superbuild and project directory names should be short
-    # this is why PROJECT_ID is used instead of PROJECT_NAME
-    # Gitlab doesn't handle well all path notation on windows and force the clone path to start with C:\\
-    GIT_CLONE_PATH: C:\\S/$CI_PROJECT_ID
-    superbuild_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID
-    lidarview_build_dir: C:/SB/$SB_BUILD_PREFIX/$CI_PROJECT_ID/$rel_path_to_lidarview_build_dir
     vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build'
-    architecture: x86_amd64
-    sb_cmake_option_GENERATOR: -GNinja
-    sb_cmake_option_USE_SYSTEM_qt5: -DUSE_SYSTEM_qt5=True
-    sb_cmake_option_QT5_DIR: -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5"
   tags: [windows]
   resource_group: windows_machine
 
