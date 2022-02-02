@@ -8,6 +8,8 @@
 variables:
   GIT_STRATEGY: none                # Do not clone / fetch anything
   # WARNING: gitlab only evaluate variable at most depth 1, cannot build Absolute Paths based on others
+  # On windows add builds_dir = "C:" to config.toml
+  # Useless $CI_PROJECT_DIR is created, but we cannot change it ...
   LV_CI_SRC_DIR:   $CI_BUILDS_DIR/S     # LV Runners Work Directory for Sources
   LV_CI_BUILD_DIR: $CI_BUILDS_DIR/SB  # LV Runners Work Directory for Builds
   LV_PROJECT_SRC_PATH: $LV_CI_SRC_DIR/$CI_PROJECT_NAME
@@ -100,10 +102,23 @@ workflow:
   stage: superbuild
   timeout: 5h
   extends: .default_rules
+  variables:
+    GIT_LFS_SKIP_SMUDGE: 1
   script:
-    - pwd
+    - cmake -E remove_directory $LV_PROJECT_SRC_PATH
+    - cmake -E remove_directory $LV_PROJECT_BSB_PATH
+    - cmake -E make_directory   $LV_PROJECT_SRC_PATH
+    - cmake -E make_directory   $LV_PROJECT_BSB_PATH
+    - cd $LV_PROJECT_SRC_PATH
     - ls
-
+    - cmake -E remove_directory $CI_PROJECT_DIR # Created by default by Gitlab, remove after cd
+    - git clone $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
+    - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround
+    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git # See Group CI Variables
+    - cd $LV_PROJECT_SRC_PATH
+    - git submodule update --init --recursive
+    - cd $LV_PROJECT_BSB_PATH
+    
 .clean:
   stage: clean
   extends: .default_rules
