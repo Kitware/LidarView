@@ -64,6 +64,7 @@ default:
     - echo "  LV_PROJECT_SRC_PATH:$LV_PROJECT_SRC_PATH"
     - echo "  LV_PROJECT_BSB_PATH:$LV_PROJECT_BSB_PATH"
     - echo "  LV_PROJECT_BLV_PATH:$LV_PROJECT_BLV_PATH"
+    - echo "==============================="
   retry:
     max: 2
     when: runner_system_failure
@@ -140,34 +141,41 @@ workflow:
   stage: clean
   extends: .default_rules
   script:
-    - cd $lidarview_build_dir
+    - cd $LV_PROJECT_BLV_PATH
     - cmake --build . --target clean
 
 .configure:
   stage: configure
   extends: .default_rules
   script:
-    - cd $lidarview_build_dir
+    - cd $LV_PROJECT_SRC_PATH/$TRIGGER_MODULE_PATH   # WIP Go to Trigger Module PATH, checkout SHA factorize on configure/build/test ?
+    - git fetch --all
+    - git checkout $TRIGGER_MODULE_SHA
+    - cd $LV_PROJECT_BLV_PATH
     # create a compilation database for the analize stage (clang-tidy)
-    #- cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
+    - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
 
 .build:
   stage: build
   extends: .default_rules
   script:
-    - cd $lidarview_build_dir
-    #- cmake --build . --target install --parallel 8
+    - cd $LV_PROJECT_BLV_PATH
+    - cmake --build . --target install --parallel 8
 
 .test:
   variables:
     DISPLAY: ":0" # Enable UI Capabilities, may not interfere too much on win32
+    GIT_LFS_SKIP_SMUDGE: 0
   stage: test
   extends: .default_rules
   script:
-    - cd $lidarview_build_dir
+    - cd $LV_PROJECT_SRC_PATH
+    - git lfs pull  # Make sure every
+    - git submodule foreach --recursive "git lfs pull" 
+    - cd $LV_PROJECT_BLV_PATH
+    - ctest --timeout 120 --repeat until-pass:3
     # in some occasion, the machine on which the runner run can be under heavily load
     # this may caused some failure (ex: Stream tests), so rerun the failing test
-    #- ctest --timeout 120 --repeat until-pass:3
 
 .package:
   stage: package
@@ -178,12 +186,10 @@ workflow:
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
     - git describe
-    - cd $lidarview_build_dir
+    - cd $LV_PROJECT_BLV_PATH
     - cmake -DBUILD_TESTING=False .
     - cd $superbuild_build_dir
     - cmake --build . --parallel 8
-    # rely on paraview superbuild packaging system
-    # the packaging is launched via a test
     - ctest
   artifacts:
     name: $CI_JOB_NAME
@@ -254,6 +260,7 @@ workflow:
     - Invoke-CmdScript "${vcvarsall_script_location}/vcvarsall.bat" x86_amd64
   variables:
     vcvarsall_script_location: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build'
+    sb_cmake_option_QT5_DIR: -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5"
   tags: [windows]
   resource_group: windows_machine
 
