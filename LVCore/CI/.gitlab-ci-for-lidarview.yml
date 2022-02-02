@@ -11,10 +11,10 @@ variables:
   # On windows add builds_dir = "C:" to config.toml
   # Useless $CI_PROJECT_DIR is created, but we cannot change it ...
   LV_CI_SRC_DIR:   $CI_BUILDS_DIR/S     # LV Runners Work Directory for Sources
-  LV_CI_BUILD_DIR: $CI_BUILDS_DIR/SB  # LV Runners Work Directory for Builds
-  LV_PROJECT_SRC_PATH: $LV_CI_SRC_DIR/$CI_PROJECT_NAME
-  LV_PROJECT_BSB_PATH: $LV_CI_BUILD_DIR/$CI_PROJECT_NAME
-  LV_PROJECT_BLV_PATH: $LV_CI_BUILD_DIR/$CI_PROJECT_NAME/lidarview-superbuild/common-superbuild/lidarview/build/
+  LV_CI_BUILD_DIR: $CI_BUILDS_DIR/SB    # LV Runners Work Directory for Builds
+  LV_PROJECT_SRC_PATH: $CI_BUILDS_DIR/S/$CI_PROJECT_ID  # LV Project Sources
+  LV_PROJECT_BSB_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID # LV Project Build 
+  LV_PROJECT_BLV_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID/lidarview-superbuild/common-superbuild/lidarview/build/
   # Following variables should be set only if the script is triggered from a LidarView submodule
   # It enables to run the pipeline with the updated module
   TRIGGER_MODULE_PATH:
@@ -111,13 +111,30 @@ workflow:
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
     - cd $LV_PROJECT_SRC_PATH
     - ls
-    - cmake -E remove_directory $CI_PROJECT_DIR # Created by default by Gitlab, remove after cd
+    #- cmake -E remove_directory $CI_PROJECT_DIR # Created by default by Gitlab, remove after cd # WIP DOES NOT WORK
     - git clone $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
-    - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround
-    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git # See Group CI Variables
+    - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround, Uses a Project-scope Token, saved in Group-wide CI Variables
+    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git
     - cd $LV_PROJECT_SRC_PATH
     - git submodule update --init --recursive
     - cd $LV_PROJECT_BSB_PATH
+    - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
+      cmake -DCMAKE_BUILD_TYPE=Release
+      $sb_cmake_option_GENERATOR
+      $sb_cmake_option_USE_SYSTEM_qt5
+      $sb_cmake_option_QT5_DIR
+      $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
+      $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
+      $sb_cmake_option_CMAKE_OSX_SDK
+      $sb_cmake_option_ENABLE_ceres
+      $sb_cmake_option_ENABLE_nanoflann
+      $sb_cmake_option_ENABLE_pcl
+      $sb_cmake_option_LIDARVIEW_BUILD_SLAM
+      $SB_ADDITIONAL_PARAMS
+      -DBUILD_TESTING=ON
+      -Dsuperbuild_download_location="../downloads"
+      $LV_PROJECT_SRC_PATH/Superbuild
+    - cmake --build . --parallel 8
     
 .clean:
   stage: clean
