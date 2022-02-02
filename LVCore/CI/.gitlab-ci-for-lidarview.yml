@@ -99,8 +99,8 @@ workflow:
   extends: .default_rules
   script:
     - cd $CI_PROJECT_DIR
-    - cmake -E remove_directory $CI_PROJECT_DIR
-    - cmake -E make_directory $CI_PROJECT_DIR
+    - cmake -E remove $CI_PROJECT_DIR/*
+    - cmake -E remove_directory $CI_PROJECT_DIR/.git
     - cmake -E remove_directory $superbuild_build_dir
     - cmake -E make_directory $superbuild_build_dir
     - git clone CI_PROJECT_URL . # Clone in Place
