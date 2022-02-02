@@ -6,7 +6,8 @@
 # see https://gitlab.kitware.com/LidarView/lidarview-core/-/ci/lint
 
 variables:
-  GIT_SUBMODULE_STRATEGY: recursive # see https://docs.gitlab.com/ee/ci/git_submodules.html#using-git-submodules-in-your-ci-jobs
+  GIT_STRATEGY: none                # Do not clone / fetch anything
+  #GIT_SUBMODULE_STRATEGY: recursive # If cloned/fetched submodule are recursively taken
   GIT_LFS_SKIP_SMUDGE: 1 # do not download test data, see https://github.com/git-lfs/git-lfs/blob/master/docs/man/git-lfs-config.5.ronn#other-settings
   # user defined variable
   rel_path_to_lidarview_build_dir: lidarview-superbuild/common-superbuild/lidarview/build/
@@ -17,12 +18,13 @@ variables:
   lidarview_build_dir: $CI_BUILDS_DIR/SB/$SB_BUILD_PREFIX/$CI_PROJECT_NAME/$rel_path_to_lidarview_build_dir
   # Following variables should be set only if the script is triggered from a LidarView submodule
   # It enables to run the pipeline with the updated module
-  TRIGGER_MODULE_PATH: '' # path of the module that triggered the pipeline relative to LidarView
-  TRIGGER_MODULE_SHA: ''  # commit sha of the module that triggered the pipeline
-  TRIGGER_MODULE_REPOSITORY_PATH:
+  TRIGGER_MODULE_PATH:
     value: ''
-    description: Define it if the SHA needs to be fetched from another remote
-  TRIGGER_MODULE_REMOTE_NAME:
+    description: Path of the module that triggered the pipeline relative to LidarView
+  TRIGGER_MODULE_SHA:
+    value: ''
+    description: Commit SHA of the module that triggered the pipeline
+  TRIGGER_MODULE_REPOSITORY_PATH:
     value: ''
     description: Define it if the SHA needs to be fetched from another remote
   SB_BUILD_PREFIX:
@@ -50,47 +52,25 @@ stages:
   - test
   - package
 
-# default parameters for all jobs, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
+# Default parameters for all jobs, see https://docs.gitlab.com/ee/ci/yaml/#setting-default-parameters
 default:
-  before_script: &default_before_script_anchor
-    # TRIGGER_MODULE_PATH and TRIGGER_MODULE_SHA, should be empty if the CI is triggered from LidarView
-    # so the next fetching and checkout will basically do nothing.
-    # "$git checkout " is a glorified no-op (no operation), see https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-emgitcheckoutemltbranchgt
-    - cd $CI_PROJECT_DIR/$TRIGGER_MODULE_PATH
-    - git remote -v
-    - >
-      cmake "-DCI_DEPLOY_USER=$CI_DEPLOY_USER"
-      "-DCI_DEPLOY_PASSWORD=$CI_DEPLOY_PASSWORD"
-      "-DTRIGGER_MODULE_SHA=$TRIGGER_MODULE_SHA"
-      "-DTRIGGER_MODULE_REMOTE_NAME=$TRIGGER_MODULE_REMOTE_NAME"
-      "-DTRIGGER_MODULE_REPOSITORY_PATH=$TRIGGER_MODULE_REPOSITORY_PATH"
-      -P "$CI_PROJECT_DIR/LVCore/CI/CheckoutRemote.cmake"
-    - git remote -v
-    - git fetch --all
-    - git checkout $TRIGGER_MODULE_SHA
-    - git status
-    - echo "SB_CI_BUILD_SLAM= $SB_CI_BUILD_SLAM"
+  before_script: &default_before_script_anchor # Windows MSVC script mainly
+    - echo "===LidarView CI Script Start==="
+    - echo "  TRIGGER_MODULE_PATH:$TRIGGER_MODULE_PATH"
+    - echo "  TRIGGER_MODULE_REPOSITORY_PATH:$TRIGGER_MODULE_REPOSITORY_PATH"
+    - echo "  TRIGGER_MODULE_SHA:$TRIGGER_MODULE_SHA"
   retry:
     max: 2
     when: runner_system_failure
   interruptible: true
 
-# create a pipeline only in some cases : merge_request, tag, master branch
-# see https://docs.gitlab.com/ee/ci/yaml/#workflowrules
+# Create a pipeline only in some cases : merge_request, tag, master branch or manually triggered
 workflow:
   rules:
     - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_PIPELINE_SOURCE == "web"
-
-
-# job starting with a . are not run, see https://docs.gitlab.com/ee/ci/yaml/#hidden-keys-jobs
-# but they can be used as:
-# - anchor., which is yalm specific.
-#   see https://docs.gitlab.com/ee/ci/yaml/#anchors
-# - base job class (via the extends keyword), which is gitlab specific.
-#   See https://docs.gitlab.com/ee/ci/yaml/#extends
 
 .default_rules:
   rules:
@@ -118,26 +98,18 @@ workflow:
   timeout: 5h
   extends: .default_rules
   script:
+    - cd $CI_PROJECT_DIR
+    - cmake -E remove_directory $CI_PROJECT_DIR
+    - cmake -E make_directory $CI_PROJECT_DIR
     - cmake -E remove_directory $superbuild_build_dir
     - cmake -E make_directory $superbuild_build_dir
+    - git clone CI_PROJECT_URL . # Clone in Place
+    - cd $CI_PROJECT_DIR/Plugins/VelodynePlugin
+    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git # See Group CI Variables
+    - cd $CI_PROJECT_DIR
+    - git submodule update --init --recursive
     - cd $superbuild_build_dir
-    - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
-      cmake -DCMAKE_BUILD_TYPE=Release
-      $sb_cmake_option_GENERATOR
-      $sb_cmake_option_USE_SYSTEM_qt5
-      $sb_cmake_option_QT5_DIR
-      $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
-      $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
-      $sb_cmake_option_CMAKE_OSX_SDK
-      $sb_cmake_option_ENABLE_ceres
-      $sb_cmake_option_ENABLE_nanoflann
-      $sb_cmake_option_ENABLE_pcl
-      $sb_cmake_option_LIDARVIEW_BUILD_SLAM
-      $SB_ADDITIONAL_PARAMS
-      -DBUILD_TESTING=ON
-      -Dsuperbuild_download_location="../downloads"
-      $CI_PROJECT_DIR/Superbuild
-    - cmake --build . --parallel 8
+    - ls
 
 .clean:
   stage: clean
@@ -152,14 +124,14 @@ workflow:
   script:
     - cd $lidarview_build_dir
     # create a compilation database for the analize stage (clang-tidy)
-    - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
+    #- cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
 
 .build:
   stage: build
   extends: .default_rules
   script:
     - cd $lidarview_build_dir
-    - cmake --build . --target install --parallel 8
+    #- cmake --build . --target install --parallel 8
 
 .test:
   variables:
@@ -171,7 +143,7 @@ workflow:
     - cd $lidarview_build_dir
     # in some occasion, the machine on which the runner run can be under heavily load
     # this may caused some failure (ex: Stream tests), so rerun the failing test
-    - ctest --timeout 120 --repeat until-pass:3
+    #- ctest --timeout 120 --repeat until-pass:3
 
 .package:
   stage: package
