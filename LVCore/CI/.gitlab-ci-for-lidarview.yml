@@ -15,6 +15,7 @@ variables:
   LV_PROJECT_SRC_PATH: $CI_BUILDS_DIR/S/$CI_PROJECT_ID  # LV Project Sources
   LV_PROJECT_BSB_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID # LV Project Build 
   LV_PROJECT_BLV_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID/lidarview-superbuild/common-superbuild/lidarview/build/
+  LV_ARTIFACTS_DIR: $CI_PROJECT_DIR/artifacts
   # Following variables should be set only if the script is triggered from a LidarView submodule
   # It enables to run the pipeline with the updated module
   TRIGGER_MODULE_PATH:
@@ -57,6 +58,8 @@ default:
     - echo "  TRIGGER_MODULE_PATH:$TRIGGER_MODULE_PATH"
     - echo "  TRIGGER_MODULE_REPOSITORY_PATH:$TRIGGER_MODULE_REPOSITORY_PATH"
     - echo "  TRIGGER_MODULE_SHA:$TRIGGER_MODULE_SHA"
+    - echo "Default path DO NOT USE CI_PROJECT_DIR:$CI_PROJECT_DIR"
+    - echo "  LV_ARTIFACTS_DIR:$LV_ARTIFACTS_DIR" # This is mandatory to upload artifacts
     - echo "Basic Paths"
     - echo "  CI_BUILDS_DIR      :$CI_BUILDS_DIR      "
     - echo "  LV_CI_SRC_DIR      :$LV_CI_SRC_DIR      "
@@ -182,13 +185,15 @@ workflow:
   extends: .default_rules
   needs: []
   script:
-    - cd $CI_PROJECT_DIR
+    - cmake -E remove_directory $LV_ARTIFACTS_DIR # Remove Previous artifacts
+    - cmake -E make_directory $LV_ARTIFACTS_DIR # Remove Previous artifacts
+    - cd $LV_PROJECT_SRC_PATH
     - git fetch --tags # GIT_STRATEGY doesn't clone tags, see https://gitlab.com/gitlab-org/gitlab-runner/issues/11737
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
     - git describe
     - cd $LV_PROJECT_BLV_PATH
     - cmake -DBUILD_TESTING=False .
-    - cd $superbuild_build_dir
+    - cd $LV_PROJECT_BSB_PATH
     - cmake --build . --parallel 8
     - ctest
   artifacts:
@@ -390,7 +395,7 @@ windows_test:
 #  Package   #
 ##############
 # Need to know:
-# - Artefact path must be inside CI_PROJECT_DIR
+# - Artefact path must be relative to CI_PROJECT_DIR, see LV_ARTIFACTS_DIR
 #   see https://docs.gitlab.com/ee/ci/yaml/README.html#artifactspaths
 
 linux_package:
@@ -398,28 +403,28 @@ linux_package:
     - .linux_runner_config
     - .package
   after_script:
-    - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
-    - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.tar.gz $LV_ARTIFACTS_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.tar.xz $LV_ARTIFACTS_DIR
 
 linux18_package:
   extends:
     - .linux18_runner_config
     - .package
   after_script:
-    - mv $superbuild_build_dir/*.tar.gz $CI_PROJECT_DIR
-    - mv $superbuild_build_dir/*.tar.xz $CI_PROJECT_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.tar.gz $LV_ARTIFACTS_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.tar.xz $LV_ARTIFACTS_DIR
 
 osx_package:
   extends:
     - .osx_runner_config
     - .package
   after_script:
-    - mv -f $superbuild_build_dir/*.dmg $CI_PROJECT_DIR
+    - mv -f $LV_PROJECT_BSB_PATH/*.dmg $LV_ARTIFACTS_DIR
 
 windows_package:
   extends:
     - .windows_runner_config
     - .package
   after_script:
-    - mv $superbuild_build_dir/*.exe $CI_PROJECT_DIR
-    - mv $superbuild_build_dir/*.zip $CI_PROJECT_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.exe $LV_ARTIFACTS_DIR
+    - mv $LV_PROJECT_BSB_PATH/*.zip $LV_ARTIFACTS_DIR
