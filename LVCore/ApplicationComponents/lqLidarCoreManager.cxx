@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkLidarReader.h>
 #include <lqPythonQtDecorators.h>
 #include <lqSensorListWidget.h>
+#include <lqHelper.h>
+#include <vtkGridSource.h>
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
@@ -52,14 +54,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqSettings.h>
 #include <pqView.h>
 
+#include <vtkFieldData.h>
+#include <vtkPVConfig.h> //  needed for PARAVIEW_VERSION
+#include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxyManager.h>
 #include <vtkSMSessionProxyManager.h>
 #include <vtkSMSourceProxy.h>
 #include <vtkSMViewProxy.h>
-#include <vtkPVConfig.h> //  needed for PARAVIEW_VERSION
 
-#include <vtkFieldData.h>
 #include <vtkPointData.h>
 #include <vtkPythonInterpreter.h>
 #include <vtkTimerLog.h>
@@ -212,14 +215,21 @@ void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
   pqSettings* settings = pqApplicationCore::instance()->settings();
   settings->setValue("LidarPlugin/MeasurementGrid/Visibility", gridVisible);
 
-  if (gridVisible)
+  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
+
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    this->runPython("lv.showMeasurementGrid()\n");
+    if (IsProxy<vtkGridSource *>(src->getProxy()))
+    {
+      controller->SetVisibility(
+        vtkSMSourceProxy::SafeDownCast(src->getProxy()), 0,
+        pqActiveObjects::instance().activeView()->getViewProxy(),
+        gridVisible
+      );
+    }
   }
-  else
-  {
-    this->runPython("lv.hideMeasurementGrid()\n");
-  }
+  pqApplicationCore::instance()->render();
 }
 
 //-----------------------------------------------------------------------------
