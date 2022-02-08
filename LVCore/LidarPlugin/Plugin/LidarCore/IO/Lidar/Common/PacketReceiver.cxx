@@ -33,6 +33,7 @@ PacketReceiver::PacketReceiver(int port,
   : Port(port)
   , MulticastAddress(multicastAddress)
   , LocalListeningAddress(localListeningAddress)
+  , PacketCounter(0)
   , Socket(IOService)
   , ForwardedSocket(IOService)
   , ReceiverCallback(callback)
