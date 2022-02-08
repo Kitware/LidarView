@@ -125,7 +125,8 @@ void lqPlayerControlsController::onTimeStepsChanged()
   if (this->Scene)
   {
     auto timesteps = this->Scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
-    Q_EMIT this->frameRanges(0, timesteps.size());
+    int nframes = timesteps.size() ? timesteps.size()-1 : 0;
+    Q_EMIT this->frameRanges(0, nframes );
   }
 }
 

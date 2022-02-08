@@ -100,7 +100,7 @@ void lqSaveLidarFrameReaction::onTriggered()
   auto* tsv = vtkSMDoubleVectorProperty::SafeDownCast(lidar->getProxy()->GetProperty("TimestepValues"));
   if (tsv)
   {
-    nbFrame = tsv->GetNumberOfElements();
+    nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements()-1 : 0 ;
   }
 
   lqSelectLidarFrameDialog dialog(nbFrame);
