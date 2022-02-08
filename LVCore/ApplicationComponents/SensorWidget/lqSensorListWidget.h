@@ -8,6 +8,7 @@
 class lqSensorWidget;
 class pqPipelineSource;
 class pqServerManagerModelItem;
+class vtkSMProxy;
 
 namespace Ui {
   class lqSensorListWidget;
@@ -71,6 +72,13 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
      *        Return true if any live sensor exist, that is our definition for live mode.
      */
     bool isInLiveSensorMode();
+
+    // WIP Intended to replace Applogic getReader() / getSensor() / getLidar()
+    vtkSMProxy* getLidar ();
+    vtkSMProxy* getReader();
+    vtkSMProxy* getSensor();
+    vtkSMProxy* getTrailingFrame();
+    vtkSMProxy* getPosOrSource();
 
   protected Q_SLOTS:
     void onSourceAdded(pqPipelineSource* src);

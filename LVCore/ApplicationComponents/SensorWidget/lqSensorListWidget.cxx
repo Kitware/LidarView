@@ -5,6 +5,7 @@
 #include "lqHelper.h"
 #include "lqSensorStreamWidget.h"
 #include "lqSensorReaderWidget.h"
+#include "vtkTrailingFrame.h"
 
 // QT includes.
 #include <QApplication>
@@ -189,7 +190,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     sensorWidget->SetCalibrationFunction(this->CalibrationFunction);
     this->ui->caption->setText(sensorWidget->GetExplanationOnUI());
     this->connect(sensorWidget, SIGNAL(selected(lqSensorWidget*)), SLOT(onSelected(lqSensorWidget*)));
-    
+
     // Emit lidarStreamModeChanged Signal
     if (!alreadyStream && !isReader)
     {
@@ -202,7 +203,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
 {
   if (IsLidarProxy(src->getProxy()))
-  {    
+  {
     // Remove Source associated Widget
     const auto it = std::remove_if(this->sensorWidgets.begin(), this->sensorWidgets.end(),
       [&](const lqSensorWidget* widget)
@@ -217,7 +218,7 @@ void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)
     }
     this->sensorWidgets.erase(it);
     (*it)->onClose();
-    
+
     // Emit lidarStreamModeChanged Signal
     if(IsLidarStreamProxy(src->getProxy()) && !isInLiveSensorMode())
     {
@@ -368,4 +369,53 @@ bool lqSensorListWidget::isInLiveSensorMode()
   );
 
   return result != this->sensorWidgets.end();
+}
+
+//-----------------------------------------------------------------------------
+vtkSMProxy* lqSensorListWidget::getLidar()
+{
+  return this->getActiveLidarSource() ? this->getActiveLidarSource()->getProxy() : nullptr;
+}
+
+vtkSMProxy* lqSensorListWidget::getReader()
+{
+  auto proxy = this->getLidar();
+  return IsLidarReaderProxy(proxy) ? proxy : nullptr ;
+}
+
+vtkSMProxy* lqSensorListWidget::getSensor()
+{
+  auto proxy = this->getLidar();
+  return IsLidarStreamProxy(proxy) ? proxy : nullptr ;
+}
+
+vtkSMProxy* lqSensorListWidget::getTrailingFrame()
+{
+  // Find First TrailingFrame filter that is connected to ActiveLidarSource
+  auto lidar = this->getActiveLidarSource();
+  if (!lidar){ return nullptr; }
+
+  // WIP Rely on the fact that frame is first output // getOutputPort("frame")
+  Q_FOREACH(pqPipelineSource* src, lidar->getOutputPort(0)->getConsumers())
+  {
+    vtkSMProxy* proxy = src->getProxy();
+    if( IsProxy<vtkTrailingFrame *>(proxy) )
+    {
+      return proxy;
+    }
+  }
+
+  return nullptr;
+}
+
+vtkSMProxy* lqSensorListWidget::getPosOrSource()
+{
+  // Find First PosOr filter that is connected to ActiveLidarSource
+  auto lidar = this->getActiveLidarSource();
+  if (!lidar){ return nullptr; }
+
+  auto posor = this->getPosOrSourceAssociatedToLidarSource(lidar);
+  if (!posor){ return nullptr; }
+
+  return posor->getProxy();
 }

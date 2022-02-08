@@ -5,7 +5,7 @@
 
    Copyright (c) Kitware Inc.
    All rights reserved.
-  
+
    LidarView is a free software; you can redistribute it and/or modify it
    under the terms of the LidarView license.
 
@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QObject>
 
 #include "lqLidarCoreManager.h"
+#include "lqSensorListWidget.h"
 #include <pqActiveObjects.h>
 
 class lqPythonQtDecorators : public QObject
@@ -47,6 +48,7 @@ public:
     : QObject(parent)
   {
     this->registerClassForPythonQt(&lqLidarCoreManager::staticMetaObject);
+    this->registerClassForPythonQt(&lqSensorListWidget::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -55,6 +57,11 @@ public:
   }
 
 public slots:
+
+  lqLidarCoreManager* static_lqLidarCoreManager_instance()
+  {
+  return lqLidarCoreManager::instance();
+  }
 
   void static_lqLidarCoreManager_saveFramesToPCAP(
     vtkSMSourceProxy* arg0, int arg1, int arg2, const QString& arg3)
@@ -67,6 +74,38 @@ public slots:
   {
     lqLidarCoreManager::saveFramesToLAS(arg0, arg1, arg2, arg3, arg4, arg5);
   }
+
+  lqSensorListWidget* static_lqSensorListWidget_instance()
+  {
+  return lqSensorListWidget::instance();
+  }
+
+  pqPipelineSource* static_lqSensorListWidget_getActiveLidarSource()
+  {
+    return lqSensorListWidget::instance()->getActiveLidarSource();
+  }
+
+  vtkSMProxy* static_lqSensorListWidget_getLidar()
+  {
+    return lqSensorListWidget::instance()->getLidar();
+  }
+  vtkSMProxy* static_lqSensorListWidget_getReader()
+  {
+    return lqSensorListWidget::instance()->getReader();
+  }
+  vtkSMProxy* static_lqSensorListWidget_getSensor()
+  {
+    return lqSensorListWidget::instance()->getSensor();
+  }
+  vtkSMProxy* static_lqSensorListWidget_getTrailingFrame()
+  {
+    return lqSensorListWidget::instance()->getTrailingFrame();
+  }
+  vtkSMProxy* static_lqSensorListWidget_getPosOrSource()
+  {
+    return lqSensorListWidget::instance()->getPosOrSource();
+  }
+
 };
 
 #endif //lqPythonQtDecorators_h
