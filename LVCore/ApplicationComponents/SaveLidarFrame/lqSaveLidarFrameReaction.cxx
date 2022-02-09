@@ -44,6 +44,8 @@ lqSaveLidarFrameReaction::lqSaveLidarFrameReaction(QAction* action,
   pqServerManagerModel* smmodel = core->getServerManagerModel();
   this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
   this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
+  
+  this->onUpdateUI(nullptr);
 }
 
 //-----------------------------------------------------------------------------
