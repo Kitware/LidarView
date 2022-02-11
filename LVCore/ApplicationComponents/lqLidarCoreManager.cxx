@@ -233,6 +233,57 @@ void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
 }
 
 //-----------------------------------------------------------------------------
+void lqLidarCoreManager::onResetCameraLidar()
+{
+  pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
+  if(!view){return;}
+
+  // See pqRenderView::resetViewDirection
+  // Position at 30 degrees [0, -(squareRoot(3)/2)*dist, (1/2)*dist]
+  vtkSMProxy* proxy = view->getProxy();
+  constexpr double dist = 100;
+  double pos[3]         = { 0, -0.866025 * dist, (1.0/2.0) * dist };
+  double focal_point[3] = { 0,0,0 };
+  double view_up[3]     = { 0,0,1 };
+  vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
+  vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
+  vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
+  proxy->UpdateVTKObjects();
+  view->resetCamera();
+  view->render();
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCoreManager::onResetCameraToForwardView()
+{
+  pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
+  if(!view){return;}
+
+  vtkSMProxy* proxy = view->getProxy();
+  double pos[3]         = { 0, -72, 18.0 };
+  double focal_point[3] = { 0,0,0 };
+  double view_up[3]     = { 0, 0.27, 0.96 };
+  vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
+  vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
+  vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
+  proxy->UpdateVTKObjects();
+  view->setCenterOfRotation(0, 0, 0);
+
+  view->render();
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCoreManager::onResetCenterToLidarCenter()
+{
+  pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
+  if(!view){return;}
+
+  view->setCenterOfRotation(0, 0, 0);
+  view->resetCamera();
+  view->render();
+}
+
+//-----------------------------------------------------------------------------
 void lqLidarCoreManager::saveFramesToPCAP(
   vtkSMSourceProxy* proxy, int startFrame, int endFrame, const QString& filename)
 {

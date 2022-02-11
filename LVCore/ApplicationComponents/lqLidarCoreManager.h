@@ -95,6 +95,10 @@ public Q_SLOTS:
 
   void onMeasurementGrid(bool gridVisible);
 
+  void onResetCameraLidar();
+  void onResetCameraToForwardView();
+  void onResetCenterToLidarCenter();
+
 private:
   Q_DISABLE_COPY(lqLidarCoreManager);
   static QPointer<lqLidarCoreManager> Instance;
