@@ -42,14 +42,14 @@ def showDialog(mainWindow):
     dialog.windowTitle = "About " + appName + " ..."
     copyrightText = '''<h1>{0} {1} {2}</h1><br/>
                        Copyright (c) 2013-2017, Velodyne Lidar,
-                       Copyright (c) 2016-2020, Kitware<br />
-                       Provided by <a href="Your web site">Your nice company name </a>, coded by <a href="https://www.kitware.com/">Kitware</a>.<br />
+                       Copyright (c) 2016-2022, Kitware<br />
+                       Provided by <a href="https://www.lidarview.org">Your company name</a>, coded by <a href="https://www.kitware.com">Kitware</a>.<br />
                        <br />
                     '''.format(appName, appVersionTag, appBitTag)
     w('copyrightLabel').setText(copyrightText)
     
-    textBoxContent = '''<h4>Want more ? Ask Kitware !</h4>
-                        Kitware Inc. is a leading provider of open-source software systems for technical and scientific computing.
+    textBoxContent = '''<h4>Want more? Ask Kitware!</h4>
+                        Kitware is a leading provider of open-source software systems for technical and scientific computing.
                         We are the developers of LidarView, providing real-time interactive visualization of live captured 3D LiDAR
                         data from Lidar sensors. We create customized solutions providing detection and tracking of people,
                         street signs, lane markings, vehicles, industrial machinery, and building facades from within LidarView or using
