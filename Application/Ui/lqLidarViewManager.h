@@ -59,7 +59,6 @@ public:
   // LidarView specific
   void pythonStartup() override;
 
-  void openData(const QString& filename);
 };
 
 #endif // LQLIDARVIEWMANAGER_H
