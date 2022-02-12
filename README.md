@@ -1,4 +1,4 @@
-![LidarView](Application/SoftwareInformation/LidarView-splash.svg)
+![LidarView](Application/SoftwareInformation/About.png)
 
 # Introduction
 
