@@ -69,7 +69,6 @@ void lqStreamRecordReaction::onTriggered()
   {
     this->StartRecordingReaction();
   }
-  this->isRecording = !this->isRecording;
 }
 
 //-----------------------------------------------------------------------------
@@ -98,13 +97,15 @@ void lqStreamRecordReaction::StartRecordingReaction()
   if(useAdvancedDialog)
   {
     lqStreamRecordDialog dialog(nullptr, defaultFileName);
-    if (dialog.exec())
+    if ( dialog.exec() == QDialog::Rejected )
     {
-      this->parentAction()->setToolTip("Stop Recording Stream Data");
-      this->recordingFilename = dialog.recordingFile();
-      QFile::copy(QString::fromStdString(interpreter->GetCalibrationFileName()),
-                  dialog.calibrationFile());
+      // Cancel
+      return;
     }
+    // Get User input Filename
+    this->recordingFilename = dialog.recordingFile();
+    QFile::copy(QString::fromStdString(interpreter->GetCalibrationFileName()),
+                dialog.calibrationFile());
   }
   else
   {
@@ -114,27 +115,34 @@ void lqStreamRecordReaction::StartRecordingReaction()
     this->recordingFilename = QFileDialog::getSaveFileName(nullptr,
                     QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
   }
-  if (this->recordingFilename != "")
+  if (this->recordingFilename == "")
   {
-    // Create common writer Thread
-    std::shared_ptr<PacketFileWriter> writer = std::make_shared<PacketFileWriter>();
-    // Tell vtkStreams to Start Recording
-    foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
-    {
-      auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
-      if(!stream){continue;}
-      stream->StartRecording( // Multiple start is okay, it detects it
-        this->recordingFilename.toStdString(),
-        writer
-      );
-    }
-
-    this->parentAction()->setChecked(true);
-
-    // Save the path where the pcap is saved
-    QFileInfo fileInfo(this->recordingFilename);
-    this->Settings->setValue("LidarPlugin/RecordReaction/DefaultFolder", fileInfo.absolutePath());
+    std::cout << "Recording Filename is empty, aborting." << std::endl;
+    return;
   }
+
+  // Create common writer Thread
+  std::shared_ptr<PacketFileWriter> writer = std::make_shared<PacketFileWriter>();
+  // Tell vtkStreams to Start Recording
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
+    if(!stream){continue;}
+    stream->StartRecording( // Multiple start is okay, it detects it
+      this->recordingFilename.toStdString(),
+      writer
+    );
+  }
+
+  // Update state
+  this->isRecording = true;
+  this->parentAction()->setToolTip("Stop Recording Stream Data");
+  this->parentAction()->setChecked(true);
+
+  // Save the path where the pcap is saved
+  QFileInfo fileInfo(this->recordingFilename);
+  this->Settings->setValue("LidarPlugin/RecordReaction/DefaultFolder", fileInfo.absolutePath());
+
 }
 
 //-----------------------------------------------------------------------------
@@ -149,6 +157,8 @@ void lqStreamRecordReaction::StopRecordingReaction()
     stream->StopRecording();
   }
 
+  // Update State
+  this->isRecording = false;
   this->parentAction()->setToolTip("Start Recording Stream Data");
   this->parentAction()->setChecked(false);
 
