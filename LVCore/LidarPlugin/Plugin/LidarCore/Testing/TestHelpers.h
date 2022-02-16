@@ -95,16 +95,6 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
  */
 int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference);
 
-/**
- * @brief TestRPMValues Checks each value on each point data array on the actual
- * dataset
- * @param currentFrame Current frame
- * @param currentReference Reference for the current frame
- * @param tol tolerance in comparison, unit: RPM
- * @return 0 on success, 1 on failure
- */
-int TestRPMValues(vtkPolyData* currentFrame, vtkPolyData* currentReference, double tol=1.0);
-
 int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
                                double referenceNetworkTimeToLidarTime);
 
@@ -112,10 +102,9 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
  * @brief CheckCurrentFrameAgainst Compare 2 frames
  * @param currentFrame Frame to compare
  * @param currentReference Reference against compare the currentFrame
- * @param shouldTestRPM true if the RPM should be tested
  * @return nb of error
  */
-int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference, bool shouldTestRPM);
+int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference);
 
 /**
  * @brief testLidarReader compare the reader output to prerecorded frames

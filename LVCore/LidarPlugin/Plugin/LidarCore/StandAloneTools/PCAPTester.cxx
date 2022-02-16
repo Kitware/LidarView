@@ -121,7 +121,6 @@ int main(int argc, char* argv[])
     std::cout << "dualReturnString" << sep;
     std::cout << "FF1" << sep;
     std::cout << "DualR" << sep;
-    std::cout << "RPMs" << sep;
     std::cout << "PPSSynced" << sep;
     std::cout << "TSEstim" << sep;
     std::cout << "Lat" << sep;
@@ -167,18 +166,15 @@ int main(int argc, char* argv[])
   frameCount = reader->GetNumberOfFrames();
   if (frameCount != 0 && haveCalibration)
   {
-    std::vector<double> RPMs;
     std::vector<double> pointsPerFrames;
     vtkPolyData* currentFrame = nullptr;
     for (int i = 0; i < std::min(frameCount, 10); i++)
     {
       reader->Open();
       currentFrame = reader->GetFrame(i);
-      RPMs.push_back(currentFrame->GetFieldData()->GetArray("RotationPerMinute")->GetTuple1(0));
       pointsPerFrames.push_back(currentFrame->GetNumberOfPoints());
       reader->Close();
     }
-    RPM = ComputeMedian(RPMs);
     pointsPerFrame = ComputeMedian(pointsPerFrames);
 
   }
@@ -267,7 +263,6 @@ int main(int argc, char* argv[])
   std::cout << (!notPretty ? "Returns:" : "") << dualReturnString << sep;
   std::cout << (!notPretty ? "FF1:" : "") << int_to_hex(factoryField1) << sep;
   std::cout << (!notPretty ? "DualR:" : "") << (haveCalibration ? ((interp->GetHasDualReturn() ? "True" : "False")) : "?") << sep;
-  std::cout << (!notPretty ? "RPMs:" : "") << (haveCalibration ? to_string_with_precision(RPM, 1) : "?") << sep;
   std::cout << (!notPretty ? "PPSSynced:" : "") << (isPPSSynced ? "True" : "False") << sep;
   std::cout << (!notPretty ? "TSEstim:" : "") << (hasGPSTimeShiftEstimation ? "True" : "False") << sep;
   std::cout << (!notPretty ? "Lat:" : "") << (haveLatLon ? to_string_with_precision(lat, latLongPrecision) : "None") << sep;

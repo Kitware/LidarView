@@ -189,6 +189,7 @@ public:
   vtkGetMacro(DistanceResolutionM, double)
 
   vtkGetMacro(Frequency, double)
+  vtkGetMacro(Rpm, double)
 
   vtkGetMacro(IgnoreZeroDistances, bool)
   vtkSetMacro(IgnoreZeroDistances, bool)
@@ -264,10 +265,11 @@ protected:
   //! Laser distance resolution (quantum) which also correspond to the points precision
   double DistanceResolutionM = 0;
 
-  //! Frequency at which a new frame is obtain. It can be constant or variable
-  //! depending on the lidar. Note that it is note necessarily expressed in Hz, in case of
-  //! rotational lidar, this correspond to the RPM (Rotation Per Minute).
+  //! Frequency in Hz at which a new frame is obtained.
   double Frequency = 0;
+
+  //! Sensor Rotation Per Minute (Rotational Lidar only).
+  double Rpm = 0;
 
   //! Process/skip points with a zero value distance.
   //! These points correspond to a missing return or a too close return.
