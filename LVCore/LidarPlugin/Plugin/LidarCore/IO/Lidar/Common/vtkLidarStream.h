@@ -62,31 +62,6 @@ public:
   vtkLidarPacketInterpreter* GetLidarInterpreter();
   void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
 
-  // Old fonction of vtkLidarStream : deprecated
-  // Replace by non lidar/gps specific function because all stream are separated
-  // Still call in some client specific files
-  [[deprecated("Lidar and Gps input each have their network : use SetListeningPort instead")]]
-  void SetLidarPort(int port){vtkStream::SetListeningPort(port);}
-  [[deprecated("Lidar and Gps input each have their network : use GetListeningPort instead")]]
-  int GetLidarPort(){return vtkStream::GetListeningPort();}
-  [[deprecated("Lidar and Gps input each have their network : use SetListeningPort instead")]]
-  void SetGPSPort(int port){vtkStream::SetListeningPort(port);}
-  [[deprecated("Lidar and Gps input each have their network : use GetListeningPort instead")]]
-  int GetGPSPort(){return vtkStream::GetListeningPort();}
-  [[deprecated("Lidar and Gps input each have their network : use SetForwardedPort instead")]]
-  void SetForwardedLidarPort(int port){vtkStream::SetForwardedPort(port);}
-  [[deprecated("Lidar and Gps input each have their network : use GetForwardedPort instead")]]
-  int GetForwardedLidarPort(){return vtkStream::GetForwardedPort();}
-  [[deprecated("Lidar and Gps input each have their network : use SetForwardedPort instead")]]
-  void SetForwardedGPSPort(int port){vtkStream::SetForwardedPort(port);}
-  [[deprecated("Lidar and Gps input each have their network : use GetForwardedPort instead")]]
-  int GetForwardedGPSPort(){return vtkStream::GetForwardedPort();}
-  [[deprecated("Lidar and Gps input each have their network : do nothing anymore,  can be removed")]]
-  void EnableGPSListening(bool vtkNotUsed(enable)){/* Nothing to do anymore*/}
-  // Some of specific client file (applogic) accessed directly to some removed attribute
-  // For example in "openSensor" :
-  // sensor.LidarPort = LidarPort should be sensor.GetClientSideObject().SetLidarPort(LidarPort)
-
 protected:
   vtkLidarStream();
   ~vtkLidarStream() override;
