@@ -120,6 +120,8 @@ workflow:
     - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround, Uses a Project-scope Token, saved in Group-wide CI Variables
     - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git
     - cd $LV_PROJECT_SRC_PATH
+    - git fetch --all
+    - git submodule foreach --recursive "git fetch --all"
     - git submodule update --init --recursive
     - cd $LV_PROJECT_BSB_PATH
     - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
@@ -150,6 +152,8 @@ workflow:
 .configure:
   stage: configure
   extends: .default_rules
+  variables:
+    GIT_LFS_SKIP_SMUDGE: 1
   script:
     - cd $LV_PROJECT_SRC_PATH
     - git fetch --all
@@ -170,6 +174,8 @@ workflow:
 .build:
   stage: build
   extends: .default_rules
+  variables:
+    GIT_LFS_SKIP_SMUDGE: 1
   script:
     - cd $LV_PROJECT_BLV_PATH
     - cmake --build . --target install --parallel 8
@@ -208,11 +214,11 @@ workflow:
   artifacts:
     name: $CI_JOB_NAME
     paths:
-      - ./*.dmg
-      - ./*.zip
-      - ./*.exe
-      - ./*.tar.gz
-      - ./*.tar.xz
+      - $LV_ARTIFACTS_DIR/*.dmg
+      - $LV_ARTIFACTS_DIR/*.zip
+      - $LV_ARTIFACTS_DIR/*.exe
+      - $LV_ARTIFACTS_DIR/*.tar.gz
+      - $LV_ARTIFACTS_DIR/*.tar.xz
     expire_in: 1 week
 
 ########################
