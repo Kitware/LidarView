@@ -151,6 +151,8 @@ workflow:
   stage: configure
   extends: .default_rules
   script:
+    - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround, Uses a Project-scope Token, saved in Group-wide CI Variables
+    - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git
     - cd $LV_PROJECT_SRC_PATH
     - git fetch --all
     - git checkout $CI_COMMIT_SHA
