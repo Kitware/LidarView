@@ -151,9 +151,16 @@ workflow:
   stage: configure
   extends: .default_rules
   script:
+    - cd $LV_PROJECT_SRC_PATH
+    - git fetch --all
+    - git checkout $CI_COMMIT_SHA
+    - git submodule update --init --recursive
+    - git status
     - cd $LV_PROJECT_SRC_PATH/$TRIGGER_MODULE_PATH   # WIP Go to Trigger Module PATH, checkout SHA factorize on configure/build/test ?
     - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
+    - git submodule update --init --recursive
+    - git status
     - cd $LV_PROJECT_BLV_PATH
     # create a compilation database for the analize stage (clang-tidy)
     - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
