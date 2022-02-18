@@ -122,7 +122,10 @@ workflow:
     - cd $LV_PROJECT_SRC_PATH
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
+    - git checkout $CI_COMMIT_SHA
     - git submodule update --init --recursive
+    - git status
+    - git log --oneline -n1 --no-abbrev
     - cd $LV_PROJECT_BSB_PATH
     - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
       cmake -DCMAKE_BUILD_TYPE=Release
