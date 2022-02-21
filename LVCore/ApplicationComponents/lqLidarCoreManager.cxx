@@ -31,6 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ========================================================================*/
 #include "lqLidarCoreManager.h"
 
+// TODO This pqPythonShell Include is higher to prevent an unindentified macro conflict
+#include <pqPythonShell.h>
+
 #include "LASFileWriter.h"
 #include <vtkLidarReader.h>
 #include <lqPythonQtDecorators.h>
@@ -47,7 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqPersistentMainWindowStateBehavior.h>
 #include <pqPipelineSource.h>
 #include <pqPythonManager.h>
-#include <pqPythonShell.h>
 #include <pqRenderView.h>
 #include <pqServer.h>
 #include <pqServerManagerModel.h>
