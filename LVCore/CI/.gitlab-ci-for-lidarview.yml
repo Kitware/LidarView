@@ -109,24 +109,24 @@ workflow:
   variables:
     GIT_LFS_SKIP_SMUDGE: 1
   script:
+    #- cmake -E remove_directory $CI_PROJECT_DIR # Created by default by Gitlab, remove after cd # WIP DOES NOT WORK
     - cmake -E remove_directory $LV_PROJECT_SRC_PATH
     - cmake -E remove_directory $LV_PROJECT_BSB_PATH
     - cmake -E make_directory   $LV_PROJECT_SRC_PATH
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
-    - cd $LV_PROJECT_SRC_PATH
-    - ls
-    #- cmake -E remove_directory $CI_PROJECT_DIR # Created by default by Gitlab, remove after cd # WIP DOES NOT WORK
-    - git clone $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
+    - cd $LV_PROJECT_SRC_PATH # First Fetch Master
+    - git clone -j8 $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
+    - git submodule update --init --recursive # Must Init with master branch first before fetching
+    - git fetch --all
+    - git submodule foreach --recursive "git fetch --all"
     - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # VelodyneProvate WorkAround, Uses a Project-scope Token, saved in Group-wide CI Variables
     - git remote add private https://vp-token2:${CI_VELODYNEPRIVATE_TOKEN}@gitlab.kitware.com/LidarView/velodyneplugin-private.git
     - cd $LV_PROJECT_SRC_PATH
-    - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
     - git checkout $CI_COMMIT_SHA
-    - git submodule update --init --recursive
-    - git status
+    - git submodule update --recursive
     - git log --oneline -n1 --no-abbrev
-    - cd $LV_PROJECT_BSB_PATH
+    - cd $LV_PROJECT_BSB_PATH # Configure & Build
     - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
       cmake -DCMAKE_BUILD_TYPE=Release
       $sb_cmake_option_GENERATOR
