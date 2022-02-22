@@ -115,7 +115,7 @@ workflow:
     - cmake -E make_directory   $LV_PROJECT_SRC_PATH
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
-    - git clone -j8 $CI_PROJECT_URL --depth 1 . # Clone in Place, no submodules, no recursive, smudged
+    - git clone -j 8 $CI_PROJECT_URL --depth 1 . # Clone in Place, no submodules, no recursive, smudged
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
@@ -236,13 +236,6 @@ workflow:
 #   due to some incoherence with / and \\ in gitlab. So you need to garanty
 #   manually that GIT_CLONE_PATH is inside the build_dir specify in the
 #   runner configuration file (congif.toml)
-
-.linux_runner_config:
-  variables:
-    sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
-  tags: [unix]
-  resource_group: linux_machine
-
 .linux18_runner_config:
   variables:
     sb_cmake_option_QT5_DIR: -DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5
@@ -294,11 +287,6 @@ workflow:
 ##############
 # Superbuild #
 ##############
-linux_superbuild:
-  extends:
-    - .linux_runner_config
-    - .superbuild
-
 linux18_superbuild:
   extends:
     - .linux18_runner_config
@@ -317,11 +305,6 @@ windows_superbuild:
 ##############
 #    Clean   #
 ##############
-linux_clean:
-  extends:
-    - .linux_runner_config
-    - .clean
-
 linux18_clean:
   extends:
     - .linux18_runner_config
@@ -340,11 +323,6 @@ windows_clean:
 ##############
 #  Configure #
 ##############
-linux_configure:
-  extends:
-    - .linux_runner_config
-    - .configure
-
 linux18_configure:
   extends:
     - .linux18_runner_config
@@ -363,12 +341,6 @@ windows_configure:
 ##############
 #   Build    #
 ##############
-linux_build:
-  extends:
-    - .linux_runner_config
-    - .build
-  needs: [linux_configure]
-
 linux18_build:
   extends:
     - .linux18_runner_config
@@ -389,12 +361,6 @@ windows_build:
 ##############
 #    Test    #
 ##############
-linux_test:
-  extends:
-    - .linux_runner_config
-    - .test
-  needs: [linux_build]
-
 linux18_test:
   extends:
     - .linux18_runner_config
@@ -419,14 +385,6 @@ windows_test:
 # Need to know:
 # - Artefact path must be relative to CI_PROJECT_DIR, see LV_ARTIFACTS_DIR
 #   see https://docs.gitlab.com/ee/ci/yaml/README.html#artifactspaths
-
-linux_package:
-  extends:
-    - .linux_runner_config
-    - .package
-  after_script:
-    - mv $LV_PROJECT_BSB_PATH/*.tar.gz $LV_ARTIFACTS_DIR
-    - mv $LV_PROJECT_BSB_PATH/*.tar.xz $LV_ARTIFACTS_DIR
 
 linux18_package:
   extends:
