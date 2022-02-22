@@ -115,7 +115,7 @@ workflow:
     - cmake -E make_directory   $LV_PROJECT_SRC_PATH
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
-    - git clone -j 8 $CI_PROJECT_URL --depth 1 . # Clone in Place, no submodules, no recursive, smudged
+    - git clone -j 8 $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
