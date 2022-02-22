@@ -119,13 +119,14 @@ workflow:
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
+    - git checkout $CI_COMMIT_SHA
+    - git submodule update LVCore # Init LVCore to run workaround scripts first
     - > # VelodynePrivate WorkAround, Uses a Project-scope Token, saved in Group-wide CI Variables
       cmake "-DCI_VELODYNEPRIVATE_ENABLE=$CI_VELODYNEPRIVATE_ENABLE"
       "-DCI_VELODYNEPRIVATE_USER=$CI_VELODYNEPRIVATE_USER"
       "-DCI_VELODYNEPRIVATE_TOKEN=$CI_VELODYNEPRIVATE_TOKEN"
       -P "$LV_PROJECT_SRC_PATH/LVCore/CI/vv_remote.cmake"
     - git submodule foreach --recursive "git fetch --all"
-    - git checkout $CI_COMMIT_SHA
     - git submodule update --recursive
     - git log --oneline -n1 --no-abbrev
     - cd $LV_PROJECT_BSB_PATH # Configure & Build
