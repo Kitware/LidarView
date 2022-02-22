@@ -190,7 +190,6 @@ workflow:
   stage: test
   extends: .default_rules
   script:
-    - git config lfs.pruneoffsetdays 0 # Store less objects
     - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # Manually fetch both remotes Workaround
     - git lfs fetch private --prune
     - git lfs fetch origin --prune
