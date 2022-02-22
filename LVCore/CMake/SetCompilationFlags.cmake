@@ -24,6 +24,16 @@ if(WIN32 AND MSVC)
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+# MSVC WINNT Version
+if (WIN32 AND CMAKE_SYSTEM_VERSION)
+    set(LV_MSVC_VER ${CMAKE_SYSTEM_VERSION})
+    string(REPLACE "." "" LV_MSVC_VER ${LV_MSVC_VER})
+    string(REGEX REPLACE "([0-9])" "0\\1" LV_MSVC_VER ${LV_MSVC_VER})
+    set(LV_MSVC_VER 0x${LV_MSVC_VER})
+    message(STATUS "Using _WIN32_WINNT=${LV_MSVC_VER}")
+    add_definitions(-D_WIN32_WINNT=${LV_MSVC_VER})
+endif()
+
 #Old MSVC did not recognize "inline" but only "__inline"
 #Some Thirdparties still try to do the forbidden '#define inline __inline'
 if(WIN32 AND MSVC)
