@@ -16,8 +16,8 @@ SET(VV_PLUGIN_PATH "${CMAKE_CURRENT_LIST_DIR}/../../Plugins/VelodynePlugin")
 
 # Exec Git Command
 execute_process(
-  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} fetch private --prune
-  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} fetch origin --prune
+  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} lfs fetch private --prune
+  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} lfs fetch origin --prune
   RESULT_VARIABLE result
   OUTPUT_VARIABLE output
   ERROR_VARIABLE  error
