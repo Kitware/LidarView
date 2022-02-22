@@ -28,7 +28,7 @@ SET(VV_PLUGIN_PATH "${CMAKE_CURRENT_LIST_DIR}/../../Plugins/VelodynePlugin")
 # Exec Git Command
 execute_process(
   COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} remote add private ${VV_REMOTE_URL}
-  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} -vv
+  COMMAND ${GIT_EXECUTABLE} -C ${VV_PLUGIN_PATH} remote -vv
   RESULT_VARIABLE result
   OUTPUT_VARIABLE output
   ERROR_VARIABLE  error

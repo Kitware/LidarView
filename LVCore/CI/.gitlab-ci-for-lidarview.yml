@@ -193,7 +193,9 @@ workflow:
   stage: test
   extends: .default_rules
   script:
-    - cmake -P $LV_PROJECT_SRC_PATH/LVCore/CI/vv_lfs.cmake # VelodynePrivate Workaround
+    - > # VelodynePrivate Workaround
+      cmake "-DCI_VELODYNEPRIVATE_ENABLE=$CI_VELODYNEPRIVATE_ENABLE"
+      -P "$LV_PROJECT_SRC_PATH/LVCore/CI/vv_lfs.cmake"
     - cd $LV_PROJECT_SRC_PATH
     - git lfs fetch --prune # Heavy but at least LFS Remote are pulled
     - git submodule foreach --recursive "git lfs fetch --prune"
