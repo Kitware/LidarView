@@ -13,7 +13,7 @@ variables:
   LV_CI_SRC_DIR:   $CI_BUILDS_DIR/S     # LV Runners Work Directory for Sources
   LV_CI_BUILD_DIR: $CI_BUILDS_DIR/SB    # LV Runners Work Directory for Builds
   LV_PROJECT_SRC_PATH: $CI_BUILDS_DIR/S/$CI_PROJECT_ID  # LV Project Sources
-  LV_PROJECT_BSB_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID # LV Project Build 
+  LV_PROJECT_BSB_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID # LV Project Build
   LV_PROJECT_BLV_PATH: $CI_BUILDS_DIR/SB/$CI_PROJECT_ID/lidarview-superbuild/common-superbuild/lidarview/build/
   LV_ARTIFACTS_DIR: $CI_PROJECT_DIR/artifacts
   # Following variables should be set only if the script is triggered from a LidarView submodule
@@ -115,7 +115,7 @@ workflow:
     - cmake -E make_directory   $LV_PROJECT_SRC_PATH
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
-    - git clone -j8 $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged
+    - git clone -j8 $CI_PROJECT_URL --depth 1 . # Clone in Place, no submodules, no recursive, smudged
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
@@ -144,7 +144,7 @@ workflow:
       -Dsuperbuild_download_location="../downloads"
       $LV_PROJECT_SRC_PATH/Superbuild
     - cmake --build . --parallel 8
-    
+
 .clean:
   stage: clean
   extends: .default_rules
@@ -163,13 +163,13 @@ workflow:
     - git checkout $CI_COMMIT_SHA
     - git submodule foreach --recursive "git fetch --all"
     - git submodule update --init --recursive
-    - git status
+    - git log --oneline -n1 --no-abbrev
     - cd $LV_PROJECT_SRC_PATH/$TRIGGER_MODULE_PATH   # WIP Go to Trigger Module PATH, checkout SHA factorize on configure/build/test ?
     - git fetch --all
     - git checkout $TRIGGER_MODULE_SHA
     - git submodule foreach --recursive "git fetch --all"
     - git submodule update --init --recursive
-    - git status
+    - git log --oneline -n1 --no-abbrev
     - cd $LV_PROJECT_BLV_PATH
     # create a compilation database for the analize stage (clang-tidy)
     - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
@@ -190,11 +190,15 @@ workflow:
   stage: test
   extends: .default_rules
   script:
+    - git config lfs.pruneoffsetdays 0 # Store less objects
+    - cd $LV_PROJECT_SRC_PATH/Plugins/VelodynePlugin # Manually fetch both remotes Workaround
+    - git lfs fetch private --prune
+    - git lfs fetch origin --prune
     - cd $LV_PROJECT_SRC_PATH
-    - git lfs fetch --all # Heavy but at least all LFS Remote are pulled
-    - git submodule foreach --recursive "git lfs fetch --all" 
+    - git lfs fetch --prune # Heavy but at least LFS Remote are pulled
+    - git submodule foreach --recursive "git lfs fetch --prune"
     - git lfs pull
-    - git submodule foreach --recursive "git lfs pull" 
+    - git submodule foreach --recursive "git lfs pull"
     - cd $LV_PROJECT_BLV_PATH
     - ctest --timeout 120 --repeat until-pass:3
 
