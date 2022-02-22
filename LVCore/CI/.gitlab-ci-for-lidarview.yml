@@ -191,12 +191,12 @@ workflow:
   extends: .default_rules
   script:
     - cd $LV_PROJECT_SRC_PATH
-    - git lfs pull  # Make sure every
+    - git lfs fetch --all # Heavy but at least all LFS Remote are pulled
+    - git submodule foreach --recursive "git lfs fetch --all" 
+    - git lfs pull
     - git submodule foreach --recursive "git lfs pull" 
     - cd $LV_PROJECT_BLV_PATH
     - ctest --timeout 120 --repeat until-pass:3
-    # in some occasion, the machine on which the runner run can be under heavily load
-    # this may caused some failure (ex: Stream tests), so rerun the failing test
 
 .package:
   stage: package
