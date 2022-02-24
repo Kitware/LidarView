@@ -976,9 +976,10 @@ def start():
     app.scene = getAnimationScene()
 
     view = smp.GetActiveView()
-    view.Background = [0.0, 0.0, 0.0]
+    view.BackgroundColorMode = "Gradient"
+    view.UseColorPaletteForBackground = False
+    view.Background  = [0.0, 0.0, 0.0]
     view.Background2 = [0.0, 0.0, 0.2]
-    view.UseGradientBackground = True
     smp._DisableFirstRenderCameraReset()
     smp.GetActiveView().LODThreshold = 1e100
 
