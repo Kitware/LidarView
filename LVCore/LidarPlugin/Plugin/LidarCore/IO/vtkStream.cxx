@@ -23,45 +23,6 @@
 #include "PacketFileWriter.h"
 #include "PacketReceiver.h"
 
-
-namespace {
-bool GetCrashAnalysingFileName(std::string& appDir)
-{
-  // the home directory path is contained in the HOME environment variable on UNIX systems
-  if (getenv("HOME"))
-  {
-    appDir = getenv("HOME");
-    appDir += "/";
-    appDir += SOFTWARE_NAME;
-    appDir += "/";
-    appDir += "LastData";
-  }
-  else
-  {
-    // On Windows, it's a concatanation of 2 environment variables
-    appDir = getenv("HOMEDRIVE");
-    appDir += getenv("HOMEPATH");
-    appDir += "\\";
-    appDir += SOFTWARE_NAME;
-    appDir += "\\";
-    appDir += "LastData";
-  }
-
-  // Checking if the application directory exists in the home directory and create it otherwise
-  if (!vtksys::SystemTools::FileIsDirectory(appDir))
-  {
-    bool success = vtksys::SystemTools::MakeDirectory(appDir.c_str());
-    if(!success){
-      std::cout << "Failed to create directory for crash analysis" << std::endl;
-      return false;
-    }
-
-  }
-
-  return true;
-}
-}
-
 //-----------------------------------------------------------------------------
 vtkStream::vtkStream()
 {
@@ -181,9 +142,8 @@ void vtkStream::Start()
   }
   if (this->IsCrashAnalysing)
   {
-    std::string appDir;
-    bool success = GetCrashAnalysingFileName(appDir);
-    if(!success){
+    std::string appDir = vtksys::SystemTools::GetCurrentWorkingDirectory();
+    if( !appDir.empty() ){
       vtkErrorMacro("Unable to get Crash Analysis file");
     }
     this->ReceiverThread->EnableCrashAnalysing(appDir, 5000);
