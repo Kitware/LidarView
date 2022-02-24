@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkDataObject.h>
 #include <vtkNew.h>
 
+#include <vtkDataSetAttributes.h>
 #include <vtkSMSourceProxy.h>
 #include <vtkSMViewProxy.h>
 #include <vtkSMPVRepresentationProxy.h>
@@ -118,7 +119,7 @@ bool lqLiveSourceScalarColoringBehavior::TrySetScalarColoring(pqPipelineSource* 
               proxy->GetDataInformation(i)->GetPointDataInformation()->GetAttributeInformation(vtkDataSetAttributes::SCALARS))
           {
             auto* pdInfo = proxy->GetDataInformation(i)->GetPointDataInformation();
-            char* arrayName = pdInfo->GetAttributeInformation(vtkDataSetAttributes::SCALARS)->GetName();
+            const char* arrayName = pdInfo->GetAttributeInformation(vtkDataSetAttributes::SCALARS)->GetName();
             // check if ScalarColoring is already properly set
             if( !pvrp->GetUsingScalarColoring() )
             {
