@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -315,11 +316,11 @@ void vtkCustomPiecewiseFunction::GetTableDichotomic( double xStart, double xEnd,
       // order to make the curve sharper (closer to piecewise constant)
       if ( s < .5 )
       {
-        s = 0.5 * pow(s*2,1.0 + 10*sharpness);
+        s = 0.5 * std::pow(s*2,1.0 + 10*sharpness);
       }
       else if ( s > .5 )
       {
-        s = 1.0 - 0.5 * pow((1.0-s)*2,1+10*sharpness);
+        s = 1.0 - 0.5 * std::pow((1.0-s)*2,1+10*sharpness);
       }
 
       // Compute some coefficients we will need for the hermite curve
@@ -1014,11 +1015,11 @@ void vtkCustomPiecewiseFunction::GetTable( double xStart, double xEnd,
       // order to make the curve sharper (closer to piecewise constant)
       if ( s < .5 )
         {
-        s = 0.5 * pow(s*2,1.0 + 10*sharpness);
+        s = 0.5 * std::pow(s*2,1.0 + 10*sharpness);
         }
       else if ( s > .5 )
         {
-        s = 1.0 - 0.5 * pow((1.0-s)*2,1+10*sharpness);
+        s = 1.0 - 0.5 * std::pow((1.0-s)*2,1+10*sharpness);
         }
 
       // Compute some coefficients we will need for the hermite curve
