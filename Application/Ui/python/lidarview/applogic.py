@@ -193,7 +193,7 @@ def getDefaultSaveFileName(extension, suffix='', frameId=None, baseName="Frame")
         return '%s%s.%s' % (basename, suffix, extension)
 
     else:
-      return "ERROR_NO_LIDAR"
+      return "filename"
 
 # Main API
 def UpdateApplogicCommon(lidar):
@@ -1061,6 +1061,7 @@ def setupActions():
     spinBox.setMaximum(100)
     spinBox.connect('valueChanged(int)', onTrailingFramesChanged)
     app.trailingFramesSpinBox = spinBox
+    timeToolBar.addWidget(app.trailingFramesSpinBox)
 
     displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
     displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
