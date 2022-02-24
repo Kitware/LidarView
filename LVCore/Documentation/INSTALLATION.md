@@ -24,7 +24,7 @@ This document mirrors some information from the [LidarView Developer Guide](http
 
 Note that current LidarView-baseline software stack is typically based on the following embedded elements:
 
- - Paraview 5.9.0
+ - Paraview 5.10.0
  - VTK 9.0.2
  - Qt 5.12.9
  - Python 3.9.5
