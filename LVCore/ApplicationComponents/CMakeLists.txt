@@ -55,6 +55,8 @@ add_library(lqApplicationComponents
   LidarCameraToolbar/lqLidarCameraToolbar.ui
   lqEnableAdvancedArraysReaction.cxx
   lqEnableAdvancedArraysReaction.h
+  lqLidarStreamColorByInitBehavior.cxx
+  lqLidarStreamColorByInitBehavior.h
   SensorWidget/lqSensorListWidget.cxx
   SensorWidget/lqSensorListWidget.h
   SensorWidget/lqSensorWidget.cxx
