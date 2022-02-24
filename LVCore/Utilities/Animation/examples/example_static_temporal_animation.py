@@ -36,8 +36,8 @@ animation_nb_steps = 100      # number of timesteps to sample from start to stop
 render_view = smp.GetActiveViewOrCreate('RenderView')
 
 # set black background
-render_view.UseGradientBackground = 0
-render_view.UseTexturedBackground = 0
+render_view.BackgroundColorMode = "Gradient"
+render_view.UseColorPaletteForBackground = False
 render_view.Background = [0.0, 0.0, 0.0]
 
 # get color transfer function/color map for 'intensity'

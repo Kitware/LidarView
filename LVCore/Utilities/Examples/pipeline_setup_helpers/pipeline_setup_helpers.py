@@ -40,11 +40,11 @@ def setup_view(use_eye_dome_lighting=False,
         del render_view
         render_view = smp.GetActiveViewOrCreate('RenderViewWithEDL')
 
-    render_view.UseGradientBackground = use_gradient
-    render_view.Background = background
-
     if use_gradient:
-        render_view.Background2 = background2
+      render_view.BackgroundColorMode = "Gradient"
+      render_view.UseColorPaletteForBackground = False
+      render_view.Background  = background
+      render_view.Background2 = background2
 
     render_view.CameraParallelProjection = 0
     render_view.CameraViewAngle = 60

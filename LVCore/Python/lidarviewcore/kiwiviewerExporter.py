@@ -61,11 +61,11 @@ def getSceneMetaData(view):
     objects = []
 
     scene['background_color'] = list(view.Background)
-    if view.UseGradientBackground:
+    if view.BackgroundColorMode == "Gradient":
         # switch the ordering, paraview's Background2 means the top gradient color
         scene['background_color'] = list(view.Background2)
         scene['background_color2'] = list(view.Background)
-    if view.BackgroundTexture:
+    if view.BackgroundColorMode == "Texture":
         scene['background_image'] = exportTexture(view.BackgroundTexture, baseDir)
 
     scene['camera'] = cameraProperties(view)

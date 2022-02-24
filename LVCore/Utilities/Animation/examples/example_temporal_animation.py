@@ -54,7 +54,8 @@ smp._DisableFirstRenderCameraReset()
 
 # setup view parameters
 renderView = smp.GetActiveViewOrCreate('RenderView')
-renderView.UseGradientBackground = 1
+renderView.BackgroundColorMode = "Gradient"
+renderView.UseColorPaletteForBackground = False
 renderView.Background = [0.0, 0.0, 0.0]
 renderView.Background2 = [0.0, 0.0, 0.2]
 renderView.CameraParallelProjection = 0

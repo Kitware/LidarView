@@ -127,7 +127,7 @@ video_file = os.path.join(output_dir, 'video.mp4') if save_snapshots_and_video e
 
 # Get active view and set black background
 render_view = GetActiveViewOrCreate('RenderView')
-render_view.UseGradientBackground = 0
+render_view.BackgroundColorMode = "Single Color" # WIP Texture ?
 render_view.UseTexturedBackground = 0
 render_view.Background = [0.0, 0.0, 0.0]
 
