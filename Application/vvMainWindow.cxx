@@ -30,7 +30,7 @@
 
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
-#include "lqLidarStreamColorByInitBehavior.h"
+#include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqLoadLidarStateReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
@@ -434,7 +434,7 @@ void vvMainWindow::setupGUICustom()
   new lqEnableAdvancedArraysReaction(this->Internals->actionEnableAdvancedArrays);
 
   // Stream AutoColoring
-  new lqLidarStreamColorByInitBehavior();
+  new lqLiveSourceScalarColoringBehavior();
 
   // Advanced Menu
   // build Paraview file menu
