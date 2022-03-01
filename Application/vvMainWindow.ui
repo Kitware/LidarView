@@ -31,7 +31,7 @@
      <x>0</x>
      <y>0</y>
      <width>1070</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -164,10 +164,21 @@
    <addaction name="actionPython_Console"/>
    <addaction name="actionShowErrorDialog"/>
    <addaction name="actionEnableAdvancedArrays"/>
-</widget>
+  </widget>
   <widget class="lqColorToolbar" name="colorToolBar">
    <property name="windowTitle">
     <string>Color Controls</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="pqCustomViewpointsToolbar" name="Custom Viewpoints Toolbar">
+   <property name="windowTitle">
+    <string>Custom Viewpoints</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -184,7 +195,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionToggleProjection"/>
    <addaction name="actionMeasure"/>
@@ -347,7 +358,7 @@
   </action>
   <action name="actionOpenPcap">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -398,7 +409,7 @@
   </action>
   <action name="actionOpen_Sensor_Stream">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/lidar.png</normaloff>:/LidarViewPlugin/lidar.png</iconset>
    </property>
    <property name="text">
@@ -425,7 +436,7 @@
   </action>
   <action name="actionChoose_Calibration_File">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/calibrate.png</normaloff>:/LidarViewPlugin/calibrate.png</iconset>
    </property>
    <property name="text">
@@ -488,7 +499,7 @@
   </action>
   <action name="actionSaveCSV">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/csv.png</normaloff>:/LidarViewPlugin/csv.png</iconset>
    </property>
    <property name="text">
@@ -502,7 +513,7 @@
   </action>
   <action name="actionSavePCAP">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</normaloff>:/LidarViewPlugin/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -598,7 +609,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/vvResources/Icons/ViewOrtho.png</normaloff>
      <normalon>:/vvResources/Icons/ViewPerspective.png</normalon>:/vvResources/Icons/ViewOrtho.png</iconset>
    </property>
@@ -677,7 +688,7 @@
   </action>
   <action name="actionSaveLAS">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/las.png</normaloff>:/LidarViewPlugin/las.png</iconset>
    </property>
    <property name="text">
@@ -689,7 +700,7 @@
   </action>
   <action name="actionCropReturns">
    <property name="icon">
-    <iconset resource="vvResources.qrc">
+    <iconset>
      <normaloff>:/LidarViewPlugin/crop.png</normaloff>:/LidarViewPlugin/crop.png</iconset>
    </property>
    <property name="text">
@@ -774,6 +785,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>pqCustomViewpointsToolbar</class>
+   <extends>QToolBar</extends>
+   <header>pqCustomViewpointsToolbar.h</header>
+  </customwidget>
+  <customwidget>
    <class>lqColorToolbar</class>
    <extends>QToolBar</extends>
    <header>lqColorToolbar.h</header>
@@ -823,7 +839,7 @@
  <resources>
   <include location="vvResources.qrc"/>
   <include location="../LVCore/ApplicationComponents/lqResources.qrc"/>
-</resources>
+ </resources>
  <connections>
   <connection>
    <sender>actionE_xit</sender>

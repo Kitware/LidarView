@@ -304,6 +304,7 @@ void vvMainWindow::pqbuildToolbars()
   // Rework of pqParaViewMenuBuilders::buildToolbars
   // Removed pqMainControlsToolbar, pqVCRToolbar, pqAnimationTimeToolbar,
   //         pqCustomViewpointsToolbar, pqColorToolbar, pqRepresentationToolbar
+
   QToolBar* cameraToolbar = new pqCameraToolbar(this)
     << pqSetName("cameraToolbar");
   this->addToolBar(Qt::TopToolBarArea, cameraToolbar);
@@ -377,7 +378,10 @@ void vvMainWindow::setupGUICustom()
     SIGNAL(helpRequested(const QString&, const QString&)),
     this, SLOT(showHelpForProxy(const QString&, const QString&)));
 
-  // LidarView-specific Toolbars
+  // Break ToolBar Lines
+  this->addToolBarBreak();
+
+  // LidarView-Base Toolbars
   QToolBar* vcrToolbar = new lqPlayerControlsToolbar(this)
     << pqSetName("Player Control");
   this->addToolBar(Qt::TopToolBarArea, vcrToolbar);
