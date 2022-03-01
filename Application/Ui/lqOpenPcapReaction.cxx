@@ -169,14 +169,13 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   namedInputs["Input"] = inputs;
   pqPipelineSource* trailingFrameFilter = builder->createFilter("filters", "TrailingFrame", namedInputs, server);
   trailingFrameFilter->setModifiedState(pqProxy::UNMODIFIED);
-  QString trailingFrameName = trailingFrameFilter->getSMName();
 
   // Set the trailing frame associated to the sensor Widget
   lqSensorListWidget * listSensor = lqSensorListWidget::instance();
   listSensor->setSourceToDisplayToLidarSourceWidget(lidarSource, trailingFrameFilter);
 
   //Update applogic to be able to use function only define in applogic.
-  lqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicReader('%1', '%2', '%3')\n").arg(lidarName, posOrName, trailingFrameName));
+  lqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicReader('%1', '%2')\n").arg(lidarName, posOrName));
 
   // Show the trailing frame
   controller->Show(trailingFrameFilter->getSourceProxy(), 0, view->getViewProxy());

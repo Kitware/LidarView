@@ -1,3 +1,6 @@
+variables:
+  CI_VELODYNEPRIVATE_ENABLE:
+    value: 'ON'
 include:
   - project: 'LidarView/lidarview-core'
     file: 'CI/.gitlab-ci-for-lidarview.yml'

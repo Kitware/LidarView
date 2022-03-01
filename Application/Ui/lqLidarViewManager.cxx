@@ -56,18 +56,3 @@ void lqLidarViewManager::pythonStartup()
 
   Superclass::pythonStartup();
 }
-
-
-//-----------------------------------------------------------------------------
-void lqLidarViewManager::openData(const QString& filename)
-{
-  if (QFileInfo(filename).suffix() == "pcap")
-  {
-    lqOpenPcapReaction::createSourceFromFile(filename);
-  }
-  else
-  {
-    this->runPython(QString("lv.openData('%1')\n").arg(filename));
-  }
-}
-

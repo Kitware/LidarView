@@ -70,8 +70,8 @@ See associated download links in the [Release](https://gitlab.kitware.com/LidarV
 
 Most of the LidarView common codebase lies within:
 
- * [LVCore](LVCore) repository.
- * [LidarView-superbuild](Superbuild/lidarview-superbuild) repository.
+ * [LVCore](https://gitlab.kitware.com/LidarView/lidarview-core) repository.
+ * [LidarView-superbuild](https://gitlab.kitware.com/LidarView/lidarview-superbuild) repository.
 
 Detailed Instructions to build and package LidarView are available under [`LVCore/Documentation/LidarView_Developer_Guide.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/LidarView_Developer_Guide.md).
 

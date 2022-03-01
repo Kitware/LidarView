@@ -30,6 +30,7 @@
 
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
+#include "lqLidarStreamColorByInitBehavior.h"
 #include "lqLoadLidarStateReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
@@ -303,6 +304,7 @@ void vvMainWindow::pqbuildToolbars()
   // Rework of pqParaViewMenuBuilders::buildToolbars
   // Removed pqMainControlsToolbar, pqVCRToolbar, pqAnimationTimeToolbar,
   //         pqCustomViewpointsToolbar, pqColorToolbar, pqRepresentationToolbar
+
   QToolBar* cameraToolbar = new pqCameraToolbar(this)
     << pqSetName("cameraToolbar");
   this->addToolBar(Qt::TopToolBarArea, cameraToolbar);
@@ -376,7 +378,10 @@ void vvMainWindow::setupGUICustom()
     SIGNAL(helpRequested(const QString&, const QString&)),
     this, SLOT(showHelpForProxy(const QString&, const QString&)));
 
-  // LidarView-specific Toolbars
+  // Break ToolBar Lines
+  this->addToolBarBreak();
+
+  // LidarView-Base Toolbars
   QToolBar* vcrToolbar = new lqPlayerControlsToolbar(this)
     << pqSetName("Player Control");
   this->addToolBar(Qt::TopToolBarArea, vcrToolbar);
@@ -419,6 +424,7 @@ void vvMainWindow::setupGUICustom()
 
   new lqOpenRecentFilesReaction(this->Internals->menuRecent_Files, this->Internals->actionClear_Menu);
 
+  // Writer reactions (action, writerName, extension, displaySettings, useDirectory, keepNameFromPcapFile, fileNameWithFrameNumber )
   new lqSaveLidarFrameReaction(this->Internals->actionSavePCD, "PCDWriter"       , "pcd", false, false, true, true);
   new lqSaveLidarFrameReaction(this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
   new lqSaveLidarFrameReaction(this->Internals->actionSavePLY, "PPLYWriter"      , "ply", false, false, true, true);
@@ -427,6 +433,8 @@ void vvMainWindow::setupGUICustom()
   // Add save/load lidar state action
   new lqEnableAdvancedArraysReaction(this->Internals->actionEnableAdvancedArrays);
 
+  // Stream AutoColoring
+  new lqLidarStreamColorByInitBehavior();
 
   // Advanced Menu
   // build Paraview file menu
