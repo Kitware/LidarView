@@ -53,17 +53,17 @@ protected Q_SLOTS:
   // UI Updates
   void setTimeRanges(double, double); // VCR Controller default, updates time ranges
   void onPlaying(bool);               // VCR Controller default
-  
+
   void setFrameRanges(int, int); // updates frames ranges
   void onSpeedChanged(double speed); // Update UI on speed change
   void onToggled(bool enable); // Toggle Enable/Disable
   void onSetLiveMode(bool liveModeEnabled); // Convenience slot for inverted Toggling on livemode signal
-  
+
   // UI Input signals
   void onComboSpeedSelected(int index); // Speed ComboBox changed by user
-  
+
   void onTimestepChanged(); // Timestep has changed
-  
+
 Q_SIGNALS:
   void speedChange(double); // Requests controller to change speed
 

@@ -119,7 +119,6 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   // Widget Speed ComboBox
   this->insertWidget(this->UI->actionRecord, new QLabel("Speed:", this));
   this->UI->speedComboBox = new QComboBox(this);
-  this->UI->speedComboBox->addItem("All frames",0.  );
   this->UI->speedComboBox->addItem("x 0.1"     ,0.1 );
   this->UI->speedComboBox->addItem("x 0.25"    ,0.25);
   this->UI->speedComboBox->addItem("x 0.5"     ,0.5 );
@@ -139,7 +138,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
 
   // Widget Seek Slider
   this->UI->frameSlider = new QSlider(Qt::Horizontal, this);
-  this->insertWidget(this->UI->actionRecord, this->UI->frameSlider);    
+  this->insertWidget(this->UI->actionRecord, this->UI->frameSlider);
   this->connect(this->UI->frameSlider, SIGNAL(valueChanged(int)),
     this->Controller, SLOT(onSeekFrame(int)));
   QObject::connect(this->UI->frameSlider, &QSlider::valueChanged, // Show Frame Number, sliderMoved
@@ -148,7 +147,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
     });
   this->UI->frameSlider->setTracking(true);  // Make sure internal Value / Position are sync
   this->UI->frameSlider->setTickInterval(1); // Tapping the slider increments by one
-  
+
 
   // Widget Time
   this->insertWidget(this->UI->actionRecord, new QLabel("Time", this));
@@ -156,7 +155,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   this->insertWidget(this->UI->actionRecord, this->UI->timeSpinBox);
   this->connect(this->UI->timeSpinBox, SIGNAL(valueChanged(double)),
     this->Controller, SLOT(onSeekTime(double)));
-    
+
   // Widget Frame
   this->insertWidget(this->UI->actionRecord, new QLabel("Frame", this));
   this->UI->frameQSpinBox = new QSpinBox(this);
@@ -178,7 +177,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   this->setTimeRanges(0,0);
   this->setFrameRanges(0,0);
   emit speedChange(1.0);
-  
+
   // Init Controller
   QObject::connect(pqPVApplicationCore::instance()->animationManager(),
     SIGNAL(activeSceneChanged(pqAnimationScene*)), this->Controller,
@@ -202,7 +201,7 @@ void lqPlayerControlsToolbar::setTimeRanges(double start, double end)
   // Action First / Last Frames
   this->UI->actionVCRFirstFrame->setToolTip(QString("First Time (%1)").arg(start, 0, 'g'));
   this->UI->actionVCRLastFrame-> setToolTip(QString("Last  Time (%1)").arg(end, 0, 'g'));
-  
+
   // Time Spinbox
   this->UI->timeSpinBox->setMinimum(start);
   this->UI->timeSpinBox->setMaximum(end);
@@ -218,7 +217,7 @@ void lqPlayerControlsToolbar::setFrameRanges(int min, int max)
   this->UI->frameSlider->setMaximum(max);
   this->UI->frameSlider->setSliderPosition(min); //wipwip necessarry ?
   this->UI->frameSlider->setToolTip(QString("Frames %1/%2/%3").arg(min).arg(min).arg(max)); //wipwip factorize with sliderPosition() ?
-  
+
   // Frame Spinbox
   this->UI->frameQSpinBox->setMinimum(min);
   this->UI->frameQSpinBox->setMaximum(max);
@@ -300,10 +299,10 @@ void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
 void lqPlayerControlsToolbar::onTimestepChanged()
 {
   // Force All Widgets to update to current Time / Frame Value
-  pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper(); 
+  pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
   double time = tk->getTime();
   int value   = tk->getTimeStepValueIndex(time);
-  
+
   // Slider Position, no better method to sync pos / internal value
   this->UI->frameSlider->blockSignals(true);
   this->UI->frameSlider->setSliderPosition(value);
@@ -313,12 +312,12 @@ void lqPlayerControlsToolbar::onTimestepChanged()
   this->UI->timeSpinBox->blockSignals(true);
   this->UI->timeSpinBox->setValue(time);
   this->UI->timeSpinBox->blockSignals(false);
-  
+
   // Frame SpinBox
   this->UI->frameQSpinBox->blockSignals(true);
   this->UI->frameQSpinBox->setValue(value);
   this->UI->frameQSpinBox->blockSignals(false);
-    
+
   // TODO could add more tootips
 }
 

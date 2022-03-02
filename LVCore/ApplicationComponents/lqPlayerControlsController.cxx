@@ -138,7 +138,7 @@ void lqPlayerControlsController::onPause()
   {
     return;
   }
-  
+
   // Regular VCR controller Pause
   Superclass::onPause();
 }
@@ -151,7 +151,7 @@ void lqPlayerControlsController::onPlay()
   {
     return;
   }
-  
+
   // Regular VCR controller Pause
   Superclass::onPlay();
 }
@@ -163,7 +163,7 @@ void lqPlayerControlsController::onSpeedChange(double speed)
 
   // Update animation mode depending on speed
   this->setSceneSpeed();
-  
+
   // Pause for user safety
   this->onPause();
 
@@ -211,19 +211,15 @@ void lqPlayerControlsController::setSceneSpeed(){
   if(!this->Scene)
     return;
 
-  if (this->speed != 0)
-  {
-    // REALTIME
-    QPair<double, double> range = this->Scene->getClockTimeRange();
-    SetProperty(this->Scene, "Duration", (range.second - range.first) / this->speed);
-    this->setPlayMode(vtkAnimationScene::PLAYMODE_REALTIME);
-  }
-  else
-  {
-    // SNAP TO TIMESTEPS
-    this->setPlayMode(vtkAnimationScene::PlayModes(2)); // No enum exists for mode 2 'Snap To Timesteps'.
+  // Speed null check
+  if(!this->speed){
+      this->speed = 1.0;
   }
 
+  // Set Speed
+  QPair<double, double> range = this->Scene->getClockTimeRange();
+  SetProperty(this->Scene, "Duration", (range.second - range.first) / this->speed);
+  this->setPlayMode(vtkAnimationScene::PLAYMODE_REALTIME);
 }
 
 //-----------------------------------------------------------------------------
