@@ -715,7 +715,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show RPM</string>
+    <string>Show FrameRate</string>
    </property>
    <property name="toolTip">
     <string>Display the rotations per minute</string>
