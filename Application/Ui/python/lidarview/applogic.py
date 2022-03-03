@@ -1070,7 +1070,7 @@ def setupActions():
 
 def createRPMBehaviour():
     # create and customize a label to display the rpm
-    rpm = smp.Text(guiName="RPM", Text="No RPM/Hz")
+    rpm = smp.Text(guiName="RPM", Text="No RPM/FPS")
     representation = smp.GetRepresentation(rpm)
     representation.FontSize = 16
     representation.Color = [1,1,0]
@@ -1084,13 +1084,16 @@ def start_cue(self):
 
 def tick(self):
     rpm = smp.FindSource("RPM")
-    lidar = lv.getLidar() #smp.FindSource("Data")
+    lidar = lv.getLidar()
     if (lidar):
-        valfreq = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
-        valrpm  = int(lidar.Interpreter.GetClientSideObject().GetRpm())
-        rpm.Text = f"{str(valfreq)} Hz {str(valrpm)} RPM"
-    else:
-        rpm.Text = "No Hz/RPM Info"
+      valrpm  = int(lidar.Interpreter.GetClientSideObject().GetRpm())
+      valfps = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
+      if  (valrpm):
+        rpm.Text = f"{str(valrpm)} RPM"
+      elif(valfps):
+        rpm.Text = f"{str(valfps)} FPS"
+      else:
+        rpm.Text = "No RPM/FPS Info"
 
 def end_cue(self):
     pass
