@@ -97,9 +97,7 @@ target_link_libraries(lqApplicationComponents PUBLIC
   Qt5::Widgets
   Qt5::UiTools
   Qt5::Gui
-  Qt5::Help
   Qt5::Network
-  Qt5::Sql
   Qt5::Svg
   ParaView::pqCore
   ParaView::pqWidgets
