@@ -70,6 +70,7 @@ public:
   void setPythonShell(pqPythonShell* pythonShell);
   pqPythonShell* getPythonShell();
   void runPython(const QString& statements);
+  void forceShowShell();
 
   // Main render view Creation
   void createMainRenderView();

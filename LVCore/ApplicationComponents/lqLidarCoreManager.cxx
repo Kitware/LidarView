@@ -159,6 +159,16 @@ void lqLidarCoreManager::runPython(const QString& statements)
 }
 
 //-----------------------------------------------------------------------------
+void lqLidarCoreManager::forceShowShell(){
+  if(this->pythonShell)
+  {
+    this->pythonShell->show();
+    this->pythonShell->raise();
+    this->pythonShell->activateWindow();
+  }
+}
+
+//-----------------------------------------------------------------------------
 void lqLidarCoreManager::createMainRenderView()
 {
   vtkSMSessionProxyManager* pxm = vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager();
