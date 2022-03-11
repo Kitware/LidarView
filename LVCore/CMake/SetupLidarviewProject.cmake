@@ -165,9 +165,9 @@ endif()
 if (APPLE)
   # Set BLANK RPATHS, make sure no @rpath in -rpath remain in libs
   #set(CMAKE_INSTALL_NAME_DIR "")
-  #set(CMAKE_MACOSX_RPATH TRUE)
-  #set(CMAKE_INSTALL_NAME_DIR "@executable_path/../../Libraries")
-  #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../../Libraries") #setting this will replace @rpath which is bad ??
+  set(CMAKE_MACOSX_RPATH TRUE)
+  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
+  #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../Libraries") #setting this will replace @rpath which is bad ??
   #@rpath does not work, but it says it is  "more flexible
 
 elseif(UNIX)

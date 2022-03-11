@@ -31,7 +31,7 @@ set(LV_INSTALL_RUNTIME_DIR bin)
 if (WIN32)
   set(LV_INSTALL_LIBRARY_DIR bin)
 elseif(APPLE)
-  set(LV_INSTALL_LIBRARY_DIR ${SOFTWARE_NAME}.app/Contents/Libraries)
+  set(LV_INSTALL_LIBRARY_DIR Applications/${SOFTWARE_NAME}.app/Contents/Libraries)
 elseif(UNIX)
   set(LV_INSTALL_LIBRARY_DIR lib)
 else()
@@ -56,7 +56,7 @@ endif()
 if (WIN32)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 elseif (APPLE)
-  set(LV_INSTALL_PV_PLUGIN_SUBDIR "Applications/paraview.app/Contents/Plugins") #wip not tested
+  set(LV_INSTALL_PV_PLUGIN_SUBDIR "lib/paraview-5.9/plugins") # This one is specific
 elseif (UNIX)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 endif ()
@@ -66,7 +66,7 @@ set(LV_INSTALL_INCLUDE_DIR "include") #wipwip ideally with version suffix like p
 
 # Setup install Ressources path
 if(APPLE)
-  set(LV_INSTALL_RESOURCE_DIR "${SOFTWARE_NAME}.app/Contents/Resources")
+  set(LV_INSTALL_RESOURCE_DIR "Applications/${SOFTWARE_NAME}.app/Contents/Resources")
 else()
   set(LV_INSTALL_RESOURCE_DIR "share")
 endif()
