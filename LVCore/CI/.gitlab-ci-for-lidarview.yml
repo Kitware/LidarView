@@ -27,6 +27,9 @@ variables:
   TRIGGER_MODULE_REPOSITORY_PATH:
     value: ''
     description: Define it if the SHA needs to be fetched from another remote
+  SB_CI_AUTH:
+    value: ''
+    description: Optional auth param for private repositories e.g "gitlab-ci-token:[masked]@"
   SB_ADDITIONAL_PARAMS:
     value: ''
     description: Define additional params to SB CMake configure, WARNING POWERSHELL ONLY SUPPORTS A SINGLE PARAM
@@ -114,7 +117,7 @@ workflow:
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
     - echo "CI SB OPTIONS= $sb_cmake_option_USE_SYSTEM_qt5 $sb_cmake_option_ENABLE_ceres $sb_cmake_option_ENABLE_nanoflann $sb_cmake_option_ENABLE_pcl $sb_cmake_option_LIDARVIEW_BUILD_SLAM"
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
-    - git clone -j 8 --branch $CI_COMMIT_BRANCH $CI_PROJECT_URL . # Clone in Place, no submodules, no recursive, smudged, DOES NOT WORK WITH SHA
+    - git clone -j 8 --branch $CI_COMMIT_BRANCH https://$SB_CI_AUTH$CI_SERVER_HOST/$CI_PROJECT_PATH.git . # Clone in Place, no submodules, no recursive, smudged
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
