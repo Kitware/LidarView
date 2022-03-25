@@ -334,6 +334,7 @@ osx_configure:
   extends:
     - .osx_runner_config
     - .configure
+  when: manual
 
 windows_configure:
   extends:
