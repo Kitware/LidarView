@@ -132,6 +132,8 @@ workflow:
     - cd $LV_PROJECT_BSB_PATH # Configure & Build
     - > # must use | instead of > for multiline string here as some variable may be empty, otherwise gitlab doesn't manage to parse it correclty
       cmake -DCMAKE_BUILD_TYPE=Release
+      $sb_cmake_option_CC
+      $sb_cmake_option_CXX
       $sb_cmake_option_GENERATOR
       $sb_cmake_option_USE_SYSTEM_qt5
       $sb_cmake_option_QT5_DIR
