@@ -248,9 +248,6 @@ workflow:
 
 .osx_runner_config:
   variables:
-    sb_cmake_option_CMAKE_OSX_ARCHITECTURES: -DCMAKE_OSX_ARCHITECTURES=x86_64
-    #sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET: -DCMAKE_OSX_DEPLOYMENT_TARGET=12.2
-    #sb_cmake_option_CMAKE_OSX_SDK: -DCMAKE_OSX_SDK=macosx12.3
     sb_cmake_option_QT5_DIR: -DQt5_DIR=/Users/kitware/Qt5.12.9/5.12.9/clang_64/lib/cmake/Qt5
   tags: [osx]
   resource_group: osx_machine
