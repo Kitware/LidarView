@@ -6,7 +6,7 @@ endif()
 if (WIN32)
   get_filename_component(TEST_BINARY_DIR "${CMAKE_INSTALL_PREFIX}/bin" ABSOLUTE) #wip not tested
 else()
-  set(TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/lib/plugins/LidarPlugin")
+  set(TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/${LV_PLUGIN_INSTALL_SUBDIRECTORY}/LidarPlugin")
 endif()
 
 set(data_dir ${CMAKE_CURRENT_SOURCE_DIR}/Data)
