@@ -18,7 +18,12 @@ string(APPEND lidarview_conf_content "../${LV_INSTALL_LIBRARY_DIR}/paraview-${pa
 # Add LV Plugins
 foreach(lidarview_plugins_xml IN LISTS lidarview_plugins_xmls)
   get_filename_component(xml_name ${lidarview_plugins_xml} NAME)
-  string(APPEND lidarview_conf_content "../${LV_PLUGIN_INSTALL_SUBDIRECTORY}/${xml_name}\n") #WIPWIP
+  if(APPLE)
+    # Unable to find a better alternative for now
+    string(APPEND lidarview_conf_content "../Plugins/${xml_name}\n")
+  else()
+    string(APPEND lidarview_conf_content "../${LV_PLUGIN_INSTALL_SUBDIRECTORY}/${xml_name}\n")
+  endif()
 endforeach()
 
 # Install Configuration file

@@ -47,7 +47,6 @@ if (WIN32)
   set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 elseif(APPLE)
   set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
-  #set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${SOFTWARE_NAME}.app/Contents/Plugins") # wip this is so wrong omg ...
 elseif(UNIX)
   set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 endif()
