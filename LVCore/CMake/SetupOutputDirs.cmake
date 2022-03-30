@@ -43,13 +43,7 @@ endif()
 set(LV_PLUGIN_BUILD_SUBDIRECTORY "plugins")
 
 # Setup install LV Plugin subdir # Where it should be installed / packaged
-if (WIN32)
-  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
-elseif(APPLE)
-  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
-elseif(UNIX)
-  set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
-endif()
+set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 
 # Setup install PV Plugin subdir
 if (WIN32)
