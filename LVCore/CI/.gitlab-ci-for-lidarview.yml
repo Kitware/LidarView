@@ -115,7 +115,7 @@ workflow:
     - echo "CI SB OPTIONS= $sb_cmake_option_USE_SYSTEM_qt5 $sb_cmake_option_ENABLE_ceres $sb_cmake_option_ENABLE_nanoflann $sb_cmake_option_ENABLE_pcl $sb_cmake_option_LIDARVIEW_BUILD_SLAM"
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
     - echo "Using SB_CI_AUTH=$SB_CI_AUTH" # Optional auth for private repositories e.g "gitlab-ci-token:[masked]@"
-    - git clone -j 8 --branch $CI_COMMIT_BRANCH https://$SB_CI_AUTH$CI_SERVER_HOST/$CI_PROJECT_PATH.git . # Clone in Place, no submodules, no recursive, smudged
+    - git clone -j 8 https://$SB_CI_AUTH$CI_SERVER_HOST/$CI_PROJECT_PATH.git . # Clone in Place, no submodules, no recursive, smudged
     - git submodule update --init --recursive # Must Init with master branch first before fetching
     - git fetch --all
     - git submodule foreach --recursive "git fetch --all"
