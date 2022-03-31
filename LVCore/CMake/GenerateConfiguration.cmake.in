@@ -14,7 +14,12 @@ file(GLOB lidarview_plugins_xmls
 # Generate Configuration file
 set(lidarview_conf_content)
 # Add PV Plugins
-string(APPEND lidarview_conf_content "../${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins/paraview.plugins.xml\n")
+if(APPLE)
+  # Unable to find a better alternative for now
+  string(APPEND lidarview_conf_content "../Plugins/paraview.plugins.xml\n")
+else()
+  string(APPEND lidarview_conf_content "../${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins/paraview.plugins.xml\n")
+endif()
 # Add LV Plugins
 foreach(lidarview_plugins_xml IN LISTS lidarview_plugins_xmls)
   get_filename_component(xml_name ${lidarview_plugins_xml} NAME)
