@@ -221,7 +221,7 @@ workflow:
     - cmake -DBUILD_TESTING=False .
     - cd $LV_PROJECT_BSB_PATH
     - cmake --build . --parallel 8
-    - ctest
+    - ctest . -VV
   artifacts:
     name: $CI_JOB_NAME
     paths:
