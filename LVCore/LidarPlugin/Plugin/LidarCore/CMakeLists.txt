@@ -61,8 +61,10 @@ endif()
 
 find_library(liblas_LIBRARY ${LASNAME} DOC "liblas library")
 find_path(liblas_INCLUDE_DIR liblas/version.hpp DOC "liblas include directory")
-list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${liblas_INCLUDE_DIR})
-list(APPEND LIDARPLUGIN_DEPS              ${liblas_LIBRARY})
+add_library(liblas INTERFACE)
+target_link_libraries     (liblas INTERFACE ${liblas_LIBRARY})
+target_include_directories(liblas INTERFACE ${liblas_INCLUDE_DIR})
+list(APPEND LIDARPLUGIN_DEPS              liblas)
 #--------------------------------------
 # Eigen dependency
 #--------------------------------------
