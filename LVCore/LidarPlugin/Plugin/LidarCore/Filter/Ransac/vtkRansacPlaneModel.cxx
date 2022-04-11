@@ -18,7 +18,9 @@
 
 #include "vtkConversions.h"
 
+#include <algorithm>
 #include <iostream>
+#include <random>
 
 #include <vtkPointData.h>
 #include <vtkInformationVector.h>
@@ -152,7 +154,9 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
   {
     randomIndex[k] = k;
   }
-  std::random_shuffle(randomIndex.begin(), randomIndex.end());
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(randomIndex.begin(), randomIndex.end(), g);
 
   // information variable about ransac iterations
   bool shouldStopRansac = false;
@@ -177,7 +181,7 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
     // to random shuffle again
     if ((iterationPointer + 2) >= randomIndex.size())
     {
-      std::random_shuffle(randomIndex.begin(), randomIndex.end());
+      std::shuffle(randomIndex.begin(), randomIndex.end(),g);
       iterationPointer = 0;
     }
 
