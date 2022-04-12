@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "pqActiveObjects.h"
 #include "pqAnimationManager.h"
+#include "pqLiveSourceBehavior.h"
 #include "pqPVApplicationCore.h"
 #include "pqUndoStack.h"
 #include "pqTimeKeeper.h"
@@ -277,7 +278,7 @@ void lqPlayerControlsToolbar::onToggled(bool enable)
 {
   this->UI->actionVCRFirstFrame->setEnabled(enable);
   this->UI->actionVCRPreviousFrame->setEnabled(enable);
-  this->UI->actionVCRPlay->setEnabled(enable);
+  this->UI->actionVCRPlay->setEnabled(true);
   this->UI->actionVCRNextFrame->setEnabled(enable);
   this->UI->actionVCRLastFrame->setEnabled(enable);
   this->UI->actionVCRLoop->setEnabled(enable);
@@ -287,12 +288,23 @@ void lqPlayerControlsToolbar::onToggled(bool enable)
   this->UI->timeSpinBox->setEnabled(enable);
   this->UI->frameQSpinBox->setEnabled(enable);
   this->UI->frameLabel->setEnabled(enable);
+  
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
 {
   this->onToggled(!liveModeEnabled);
+  
+  // WIP MOVE THIS TO CONTROLLER
+  if(liveModeEnabled){
+    // Make LiveSource are running
+    pqLiveSourceBehavior::resume();
+  }else{
+    // Sync button with state, It is paused when opening a new reader
+    this->onPlaying(false);
+  }
+  
 }
 
 //-----------------------------------------------------------------------------

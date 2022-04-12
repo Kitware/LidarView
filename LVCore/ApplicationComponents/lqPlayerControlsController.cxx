@@ -35,15 +35,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QtDebug>
 #include <QPointer>
 
+#include <lqSensorListWidget.h>
+
 #include <pqAnimationScene.h>
+#include <pqLiveSourceBehavior.h>
 #include <pqSMAdaptor.h>
 
 #include <vtkSMProxy.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMIntVectorProperty.h>
-
-#include <pqLiveSourceBehavior.h>
 
 // Scene Property Helpers
 namespace {
@@ -98,12 +99,14 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
     //QObject::connect(this->Scene, SIGNAL(endPlay())               , this, SLOT(onEndPlay()));
 
   // Connect additional Signals:
+  if(scene){
     QObject::connect(this->Scene, SIGNAL(timeStepsChanged())        , this, SLOT(onTimeStepsChanged()));
     //frameCountChanged // Not necessary, timeStepsChanged() cover this case
     //cues
     //playModeChanged()
     //animationTime (double time)
     //timeLabelChanged()
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -133,27 +136,51 @@ void lqPlayerControlsController::onTimeStepsChanged()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPause()
 {
-  // Prevent Noisy warnings
-  if (!this->Scene)
-  {
-    return;
+  if(!lqSensorListWidget::instance()->isInLiveSensorMode()){
+    // Prevent Noisy warnings
+    if (!this->Scene)
+    {
+      return;
+    }
+    // Regular VCR controller Play
+    Superclass::onPause();
+  }else{
+    // Do not Notify Animation scene in LivestreamMode
+    // Call pqLiveSourceBehavior
+    bool paused = pqLiveSourceBehavior::isPaused();
+    if(paused){
+      pqLiveSourceBehavior::resume();
+    }else{
+      pqLiveSourceBehavior::pause();
+    }
+    // Manually notify toolbar
+    Q_EMIT this->playing(!paused);
   }
-
-  // Regular VCR controller Pause
-  Superclass::onPause();
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPlay()
 {
-  // Prevent Noisy warnings
-  if (!this->Scene)
-  {
-    return;
+  if(!lqSensorListWidget::instance()->isInLiveSensorMode()){
+    // Prevent Noisy warnings
+    if (!this->Scene)
+    {
+      return;
+    }
+    // Regular VCR controller Play
+    Superclass::onPlay();
+  }else{
+    // Do not Notify Animation scene in LivestreamMode
+    // Call pqLiveSourceBehavior
+    bool paused = pqLiveSourceBehavior::isPaused();
+    if(paused){
+      pqLiveSourceBehavior::resume();
+    }else{
+      pqLiveSourceBehavior::pause();
+    }
+    // Manually notify toolbar
+    Q_EMIT this->playing(!paused);
   }
-
-  // Regular VCR controller Pause
-  Superclass::onPlay();
 }
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSpeedChange(double speed)
