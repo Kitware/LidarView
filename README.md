@@ -8,6 +8,7 @@ LidarView's open source codebase developed by Kitware is used by many different 
 Velodyne, Ouster, Opsys, Lumotive, RoboSense, Hesai, LeiShen LS Lidar, and more.
 
 This open-source declination only supports VeloDyne's open-source interpreters: VLP-16, VLP-32, HDL-32, HDL64, Alpha Prime.
+An Experimental branch with Hesai sensor support also exists.
 
 Many of these LiDAR sensors sweep an array of lasers (often 8 to 128) 360&deg;
 with a vertical field of view of tens of degrees at a 5-20Hz spinning frequency,
@@ -35,18 +36,13 @@ As a [Paraview](https://www.paraview.org/) based application, LidarView can effo
 - Spreadsheet inspector for LiDAR attributes (timestamp, azimuth, laser id, etc)
 - Record to `.pcap` from sensor
 - Export to CSV, PLY, PCD, LAS or VTK formats
-- Record and export GPS and IMU data
-- Visualize GPS data paths
 - Grid and Ruler tools
 - Show or hide lasers subsets
 - Show multiple frames of data simultaneously and aggregate them
 - Apply 3D transforms to pointclouds
 - Run SLAM to estimate the trajectory of the LiDAR in the scene and build a 3D map of the environment
 
-Many other features can be added using Plugins, some can be found on [this page](https://gitlab.kitware.com/LidarView/plugins). They enable for example to:
-- run Deep Learning models for object detection on your point cloud (see [this repo](https://gitlab.kitware.com/LidarView/plugins/lidarviewdeeplearningplugins))
-- read data from the PandaSet dataset (see [this repo](https://gitlab.kitware.com/LidarView/plugins/pandasetplugin))
-- more features to come
+Many other features can be added using Plugins, some can be found on [this page](https://gitlab.kitware.com/LidarView/plugins).
 
 Feel free to reach out at kitware@kitware.com for support or new features development.
 
@@ -58,7 +54,7 @@ Lidarview is maintained on the following platforms:
 
 * Ubuntu 18, Ubuntu 20
 * Windows x64
-* MacOS 10.10
+* MacOS 12
 
 See detailed general installation instructions on the [`LVCore/Documentation/INSTALLATION.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/INSTALLATION.md) page.
 
