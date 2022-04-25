@@ -48,9 +48,9 @@ The specific version of the following tools may or may not be available in your 
 
     If you have concerns over backward compatibility or Licensing, prefer using MSVC 14 (2015), see [Additional Instructions](#msvc15-installer)
 
- - **Qt 5.15.2** You must build it on your own and supply its directory at configuration time 
+ - **Qt 5.12.9** You must get it through the offline installer (Building Qt5 from source is a lengthy process)
 
-    For more details, see [Additional Instructions](#qt-build).
+    For more details, see [Additional Instructions](#qt-installer).
 
  - **[only for packaging]** **NSIS version 3.04 or higher** Get it at <https://nsis.sourceforge.io/Download>
 
@@ -94,7 +94,7 @@ The specific version of the following tools may or may not be available in your 
 
     `cd <work-directory>\build`
 
-    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.15.2/5.15.2/msvc2015_64/lib/cmake/Qt5"`
+    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2015_64/lib/cmake/Qt5"`
 
     `cmake --build . -j`
 
@@ -115,7 +115,7 @@ The specific version of the following tools may or may not be available in your 
 **Packages**
  - The packages from the following one-liner are needed to build on Ubuntu 18.04 and higher:
 
-    `sudo apt-get install build-essential byacc flex freeglut3-dev libbz2-dev libffi-dev libfontconfig1-dev libfreetype6-dev libnl-genl-3-dev libopengl0 libprotobuf-dev libx11-dev libx11-xcb-dev libx11-xcb-dev libxcb-glx0-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-dev libxkbcommon-x11-dev libxkbcommon-x11-dev libxrender-dev libxt-dev pkg-config protobuf-compiler zlib1g-dev`
+    `sudo apt-get install build-essential pkg-config flex byacc freeglut3-dev libbz2-dev libffi-dev libnl-genl-3-dev libopengl0 libprotobuf-dev libx11-xcb-dev libxcb-glx0-dev libxcb-xkb-dev libxext-dev libxkbcommon-dev libxkbcommon-x11-dev libxt-dev protobuf-compiler zlib1g-dev`
  
  - Additionally For Ubuntu20: `sudo apt-get install libglx-dev`
 
@@ -123,15 +123,15 @@ The specific version of the following tools may or may not be available in your 
 
   Qt5 is built automatically by the Superbuild, however to speed up the build process, you can opt to use built-binaries with the following options:
 
- - If you system's package manager offers Qt5 with version 5.15.2 or higher (e.g Ubuntu20.04) use:
+ - If you system's package manager offers Qt5 with version 5.12.9 or higher (e.g Ubuntu20.04) use:
 
     `qt5-default qtmultimedia5-dev qtbase5-private-dev libqt5x11extras5-dev libqt5svg5-dev qttools5-dev`
 
     Add this parameter to CMake configuration options: `-DUSE_SYSTEM_qt5=ON`
 
- - Building it on your own:
+ - Using an offline installers:
 
-    For more details, see: [Additional Instructions](#qt-build)
+    For more details, see: [Additional Instructions](#qt-installer)
 
 #### Linux Guidelines <a name="linux-guidelines"></a>
 
@@ -242,11 +242,13 @@ Detailed Instructions to run LidarView-based app Tests: [LidarView Testing Guide
 
 ## Additional instructions <a name="additional-instructions"></a>
 
- - **Build Qt5.15.2 From Source** <a name="qt-build"></a>
+ - **Get QT5.12.9 From Installer** <a name="qt-installer"></a>
 
-    Qt5.15.2 - [Source Package](https://download.qt.io/official_releases/qt/5.15/5.15.2/single/)
+    Qt5.12.9 - [Offline Installer](https://download.qt.io/official_releases/qt/5.12/5.12.9/)
 
-    Check our [Build Script](https://gitlab.kitware.com/LidarView/lidarview-superbuild/utils)
+    Run the installer offline to alleviate the need to register
+
+    * Note that only the `Desktop 64-bit` component is needed
 
     * Installation location:
 
@@ -261,9 +263,9 @@ Detailed Instructions to run LidarView-based app Tests: [LidarView Testing Guide
 
       **Always forward slashes, UNIX style, on all platforms**
 
-      e.g If installed in `/opt`: `-DQt5_DIR=/opt/Qt5.15.2/5.15.2/gcc_64/lib/cmake/Qt5`
+      e.g If installed in `/opt`: `-DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5`
 
-      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/Qt5.15.2/5.15.2/msvc2015_64/lib/cmake/Qt5`
+      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/Qt5.12.9/5.12.9/msvc2015_64/lib/cmake/Qt5`
 
 
  - **Microsoft Visual Studio 14 (2015) Express** <a name="msvc15-installer"></a>
