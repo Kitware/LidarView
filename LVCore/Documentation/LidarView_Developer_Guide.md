@@ -115,8 +115,8 @@ The specific version of the following tools may or may not be available in your 
 **Packages**
  - The packages from the following one-liner are needed to build on Ubuntu 18.04 and higher:
 
-    `sudo apt-get install build-essential pkg-config flex byacc freeglut3-dev libbz2-dev libffi-dev libnl-genl-3-dev libopengl0 libprotobuf-dev libx11-xcb-dev libxcb-glx0-dev libxcb-xkb-dev libxext-dev libxkbcommon-dev libxkbcommon-x11-dev libxt-dev protobuf-compiler zlib1g-dev`
- 
+    `sudo apt-get install build-essential byacc flex freeglut3-dev libbz2-dev libffi-dev libfontconfig1-dev libfreetype6-dev libnl-genl-3-dev libopengl0 libprotobuf-dev libx11-dev libx11-xcb-dev libx11-xcb-dev libxcb-glx0-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-dev libxkbcommon-x11-dev libxkbcommon-x11-dev libxrender-dev libxt-dev pkg-config protobuf-compiler zlib1g-dev`
+
  - Additionally For Ubuntu20: `sudo apt-get install libglx-dev`
 
 **[OPTIONAL] Qt5:**
