@@ -61,21 +61,6 @@ target_include_directories(${SOFTWARE_NAME} PUBLIC
 
 # We directly link against the plugin and import them statically.
 target_link_libraries(${SOFTWARE_NAME} PUBLIC
-  Qt5::Core
-  Qt5::Widgets
-  Qt5::UiTools
-  Qt5::Gui
-  Qt5::Help
-  Qt5::Network
-  Qt5::Sql
-  Qt5::Svg
-  ParaView::pqCore
-  ParaView::pqWidgets
-  ParaView::pqComponents
-  ParaView::pqApplicationComponents
-  ParaView::pqPython
-  ParaView::pvpythonmodules
-  ParaView::PythonInitializer
   PythonQtPlugin # The plugin is needed to be loaded statically
   lqApplicationComponents #actually LVCore/ApplicationComponents
   ApplicationUi
