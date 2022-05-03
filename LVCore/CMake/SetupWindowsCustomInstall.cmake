@@ -16,7 +16,7 @@
 
 # Ship Qt5
 foreach (qt5_opengl_lib IN ITEMS opengl32sw libEGL libGLESv2 libEGLd
-  Qt5Core Qt5Gui Qt5Widgets Qt5Network Qt5Svg)
+  Qt5Core Qt5Gui Qt5Svg Qt5UiTools Qt5Widgets)
 install(FILES "${Qt5_DIR}/../../../bin/${qt5_opengl_lib}.dll"
         DESTINATION "bin"
         )
