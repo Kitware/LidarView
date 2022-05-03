@@ -96,6 +96,7 @@ target_link_libraries(lqApplicationComponents PUBLIC
   Qt5::Core
   Qt5::Gui
   Qt5::Help
+  Qt5::PrintSupport
   Qt5::Svg
   Qt5::UiTools
   Qt5::Widgets
