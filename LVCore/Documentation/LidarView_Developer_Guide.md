@@ -44,9 +44,7 @@ The specific version of the following tools may or may not be available in your 
 
 #### Windows specific dependencies <a name="windows-dependencies"></a>
 
- - **Microsoft Visual Studio 14/17/19** Significant efforts are made to support both newer and older versions.
-
-    If you have concerns over backward compatibility or Licensing, prefer using MSVC 14 (2015), see [Additional Instructions](#msvc15-installer)
+ - **Microsoft Visual Studio 2019** Only the 2019 MSVC version is supported.
 
  - **Qt 5.12.9** You must get it through the offline installer (Building Qt5 from source is a lengthy process)
 
@@ -94,7 +92,7 @@ The specific version of the following tools may or may not be available in your 
 
     `cd <work-directory>\build`
 
-    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2015_64/lib/cmake/Qt5"`
+    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5"`
 
     `cmake --build . -j`
 
@@ -265,16 +263,8 @@ Detailed Instructions to run LidarView-based app Tests: [LidarView Testing Guide
 
       e.g If installed in `/opt`: `-DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5`
 
-      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/Qt5.12.9/5.12.9/msvc2015_64/lib/cmake/Qt5`
+      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5`
 
-
- - **Microsoft Visual Studio 14 (2015) Express** <a name="msvc15-installer"></a>
-
-    Get it at <http://go.microsoft.com/fwlink/?LinkId=615464>
-
-    You may need to use the `/layout` option to generate an offline installer : <https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2015/install/create-an-offline-installation-of-visual-studio?view=vs-2015>
-
-    Alternatively, link to an ISO image: <https://go.microsoft.com/fwlink/?LinkId=615448>
 
 ## Troubleshooting / FAQ <a name="faq-instructions"></a>
 
