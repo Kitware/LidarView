@@ -65,3 +65,9 @@ target_link_libraries(${SOFTWARE_NAME} PUBLIC
   lqApplicationComponents #actually LVCore/ApplicationComponents
   ApplicationUi
   )
+
+# Bundle Icon on Apple
+if(APPLE)
+  get_target_property(MACOSX_BUNDLE_ICON_FILE ${SOFTWARE_NAME} MACOSX_BUNDLE_ICON_FILE)
+  install(FILES ${MACOSX_BUNDLE_ICON_FILE} DESTINATION "${LV_INSTALL_RESOURCE_DIR}") # to install tree
+endif()
