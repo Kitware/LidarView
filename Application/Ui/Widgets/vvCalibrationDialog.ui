@@ -644,7 +644,7 @@
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="InterpreterBox">
      <property name="title">
-      <string>GroupBox</string>
+      <string>Interpreter Selection</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
