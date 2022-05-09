@@ -43,7 +43,7 @@ public:
     const char* filenames[nFile] = {
       "HDL-32.xml", "VLP-16.xml", "VLP-32c.xml", "Puck Hi-Res.xml",
       "Puck LITE.xml", "Alpha Prime.xml",
-      "angle_correction_PandarXT.csv", "correction_file_Pandar128.csv" // HESAI Calibration
+      "PandarXT.csv", "Pandar128.csv" // HESAI Calibration
     };
     std::vector<QString> calibrationBuiltIn(filenames, filenames + nFile);
     QString prefix;
