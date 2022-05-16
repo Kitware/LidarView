@@ -206,17 +206,13 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
   // number of tuples matches
   for (int idArray = 0; idArray < currentFrameNbPointDataArrays; ++idArray)
   {
-    vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(idArray);
     vtkAbstractArray* currentReferenceArray = currentReferencePointData->GetAbstractArray(idArray);
-
-    std::string currentFrameArrayName = currentFrameArray->GetName();
     std::string currentReferenceArrayName = currentReferenceArray->GetName();
+    vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(currentReferenceArrayName.c_str());
 
-    if (currentFrameArrayName != currentReferenceArrayName)
+    if (currentFrameArray == nullptr)
     {
-      std::cerr << "failed : Wrong array name for frame. Expected " << currentReferenceArrayName << ", got"
-                << currentFrameArrayName << std::endl;
-
+      std::cerr << "failed : Could not find an array named " << currentReferenceArrayName << std::endl;
       return 1;
     }
 
