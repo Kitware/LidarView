@@ -370,7 +370,7 @@ void vvMainWindow::setupGUICustom()
   new pqDesktopServicesReaction(QUrl("https://www.kitware.com/what-we-offer"),
     (this->Internals->actionHelpSupport ));
   // How to SLAM menu action
-  new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md"),
+  new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/Plugin/doc/How_to_SLAM_with_LidarView.md"),
     (this->Internals->actionHelpSlam ));
 
   // Enable help from the properties panel.
