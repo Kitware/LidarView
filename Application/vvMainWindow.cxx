@@ -30,7 +30,7 @@
 
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
-#include "lqLidarStreamColorByInitBehavior.h"
+#include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqLoadLidarStateReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
@@ -370,7 +370,7 @@ void vvMainWindow::setupGUICustom()
   new pqDesktopServicesReaction(QUrl("https://www.kitware.com/what-we-offer"),
     (this->Internals->actionHelpSupport ));
   // How to SLAM menu action
-  new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/doc/How_to_SLAM_with_LidarView.md"),
+  new pqDesktopServicesReaction(QUrl("https://gitlab.kitware.com/keu-computervision/slam/-/blob/master/paraview_wrapping/Plugin/doc/How_to_SLAM_with_LidarView.md"),
     (this->Internals->actionHelpSlam ));
 
   // Enable help from the properties panel.
@@ -434,7 +434,7 @@ void vvMainWindow::setupGUICustom()
   new lqEnableAdvancedArraysReaction(this->Internals->actionEnableAdvancedArrays);
 
   // Stream AutoColoring
-  new lqLidarStreamColorByInitBehavior();
+  new lqLiveSourceScalarColoringBehavior();
 
   // Advanced Menu
   // build Paraview file menu

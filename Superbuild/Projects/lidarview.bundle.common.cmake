@@ -28,6 +28,7 @@ list(APPEND lidarview_modules_python
   temporal_animation_cue_helpers
   example_temporal_animation
   example_non_temporal_animation
+  numpy
   )
 
 # Set $lidarview_appname license file.

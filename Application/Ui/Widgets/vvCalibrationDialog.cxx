@@ -39,9 +39,12 @@ public:
   pqInternal()
     : Settings(pqApplicationCore::instance()->settings())
   {
-    const unsigned int nFile = 6; // WARNING update this accordingly.
-    const char* filenames[nFile] = { "HDL-32.xml", "VLP-16.xml", "VLP-32c.xml", "Puck Hi-Res.xml",
-      "Puck LITE.xml", "Alpha Prime.xml"};
+    const unsigned int nFile = 8; // WARNING update this accordingly.
+    const char* filenames[nFile] = {
+      "HDL-32.xml", "VLP-16.xml", "VLP-32c.xml", "Puck Hi-Res.xml",
+      "Puck LITE.xml", "Alpha Prime.xml",
+      "PandarXT.csv", "Pandar128.csv" // HESAI Calibration
+    };
     std::vector<QString> calibrationBuiltIn(filenames, filenames + nFile);
     QString prefix;
 #if defined(_WIN32)
@@ -699,6 +702,21 @@ QString vvCalibrationDialog::selectedCalibrationFile() const
 }
 
 //-----------------------------------------------------------------------------
+QString vvCalibrationDialog::selectedInterpreterName() const
+{
+  // Return first Checked RadioButton
+  Q_FOREACH(QRadioButton* button,  this->Internal->InterpreterBox->findChildren<QRadioButton*>())
+  {
+    if(button->isChecked()){
+      return button->objectName();
+    }
+  }
+  
+  // None Checked
+  return QString();
+}
+
+//-----------------------------------------------------------------------------
 bool vvCalibrationDialog::isCrashAnalysing() const
 {
   return this->Internal->CrashAnalysisCheckBox->isChecked();
@@ -940,7 +958,7 @@ void vvCalibrationDialog::addFile()
 
   pqFileDialog dial(
     pqActiveObjects::instance().activeServer(), pqCoreUtilities::mainWidget(),
-    tr("Choose Calibration File"), defaultDir, tr("xml (*.xml)")
+    tr("Choose Calibration File"), defaultDir
   );
   dial.setObjectName("LidarFileCalibDialog");
   dial.setFileMode(pqFileDialog::ExistingFile);
