@@ -399,7 +399,7 @@ vtkSMProxy* lqSensorListWidget::getTrailingFrame()
   Q_FOREACH(pqPipelineSource* src, lidar->getOutputPort(0)->getConsumers())
   {
     vtkSMProxy* proxy = src->getProxy();
-    if( IsProxy<vtkTrailingFrame *>(proxy) )
+    if( IsProxy<vtkTrailingFrame>(proxy) )
     {
       return proxy;
     }

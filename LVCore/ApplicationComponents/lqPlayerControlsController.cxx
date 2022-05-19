@@ -50,8 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace {
 void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int value)
 {
-  dynamic_cast<vtkSMIntVectorProperty*>
-      (scene->getProxy()->GetProperty(property))->SetElements1(value);
+  vtkSMIntVectorProperty::SafeDownCast(scene->getProxy()->GetProperty(property))->SetElements1(value);
   scene->getProxy()->UpdateProperty(property);
 }
 

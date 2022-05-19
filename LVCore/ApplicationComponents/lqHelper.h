@@ -191,7 +191,7 @@ bool IsProxy(vtkSMProxy * proxy)
 {
   if(proxy != nullptr)
   {
-    auto* tmp_objProxy= dynamic_cast<T> (proxy->GetClientSideObject());
+    auto* tmp_objProxy= T::SafeDownCast(proxy->GetClientSideObject());
     if (tmp_objProxy)
     {
       return true;
@@ -216,7 +216,7 @@ std::vector<vtkSMProxy*> GetProxies()
   }
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    if(IsProxy<T*>(src->getProxy()))
+    if(IsProxy<T>(src->getProxy()))
     {
       proxys.push_back(src->getProxy());
     }

@@ -81,7 +81,7 @@ void lqStreamRecordReaction::StartRecordingReaction()
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    auto* tmp = dynamic_cast<vtkLidarStream*> (src->getProxy()->GetClientSideObject());
+    auto* tmp = vtkLidarStream::SafeDownCast(src->getProxy()->GetClientSideObject());
     if (tmp)
     {
       lidar = tmp;
@@ -126,7 +126,7 @@ void lqStreamRecordReaction::StartRecordingReaction()
   // Tell vtkStreams to Start Recording
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
+    auto* stream = vtkStream::SafeDownCast(src->getProxy()->GetClientSideObject());
     if(!stream){continue;}
     stream->StartRecording( // Multiple start is okay, it detects it
       this->recordingFilename.toStdString(),
@@ -152,7 +152,7 @@ void lqStreamRecordReaction::StopRecordingReaction()
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    auto* stream = dynamic_cast<vtkStream*> (src->getProxy()->GetClientSideObject());
+    auto* stream = vtkStream::SafeDownCast(src->getProxy()->GetClientSideObject());
     if(!stream){continue;}
     stream->StopRecording();
   }

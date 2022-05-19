@@ -62,25 +62,25 @@ bool IsPositionOrientationProxy(vtkSMProxy * proxy)
 //-----------------------------------------------------------------------------
 bool IsLidarReaderProxy(vtkSMProxy * proxy)
 {
-  return IsProxy<vtkLidarReader *>(proxy);
+  return IsProxy<vtkLidarReader>(proxy);
 }
 
 //-----------------------------------------------------------------------------
 bool IsLidarStreamProxy(vtkSMProxy * proxy)
 {
-  return IsProxy<vtkLidarStream *>(proxy);
+  return IsProxy<vtkLidarStream>(proxy);
 }
 
 //-----------------------------------------------------------------------------
 bool IsPositionOrientationReaderProxy(vtkSMProxy * proxy)
 {
-  return IsProxy<vtkPositionOrientationPacketReader *>(proxy);
+  return IsProxy<vtkPositionOrientationPacketReader>(proxy);
 }
 
 //-----------------------------------------------------------------------------
 bool IsPositionOrientationStreamProxy(vtkSMProxy * proxy)
 {
-  return IsProxy<vtkPositionOrientationStream *>(proxy);
+  return IsProxy<vtkPositionOrientationStream>(proxy);
 }
 
 //-----------------------------------------------------------------------------

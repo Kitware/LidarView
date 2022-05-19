@@ -232,7 +232,7 @@ void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    if (IsProxy<vtkGridSource *>(src->getProxy()))
+    if (IsProxy<vtkGridSource>(src->getProxy()))
     {
       controller->SetVisibility(
         vtkSMSourceProxy::SafeDownCast(src->getProxy()), 0,
