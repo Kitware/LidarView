@@ -166,6 +166,9 @@ void lqPlayerControlsController::onPlay()
     {
       return;
     }
+
+    this->setPlayMode(vtkAnimationScene::PLAYMODE_REALTIME);
+
     // Regular VCR controller Play
     Superclass::onPlay();
   }else{
@@ -245,6 +248,10 @@ void lqPlayerControlsController::setSceneSpeed(){
   // Set Speed
   QPair<double, double> range = this->Scene->getClockTimeRange();
   SetProperty(this->Scene, "Duration", (range.second - range.first) / this->speed);
+  // It's a bit useless to set the PlayMode here, as it is overriden each time
+  // a new source with timestamps is added.
+  // The override is performed in vtkSMAnimationSceneProxy::UpdateAnimationUsingDataTimeSteps
+  // where the PlayMode is set to SNAP_TO_TIMESTEPS. This function is called by pqApplyBehavior::applied
   this->setPlayMode(vtkAnimationScene::PLAYMODE_REALTIME);
 }
 
