@@ -59,8 +59,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSMTimeKeeperProxy.h"
 
-const char* customText = "Custom";
-
 class lqPlayerControlsToolbar::pqInternals : public Ui::lqPlayerControlsToolbar
 {
 public:
@@ -130,7 +128,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   this->UI->speedComboBox->addItem("x 10"      ,10. );
   this->UI->speedComboBox->addItem("x 20"      ,20. );
   this->UI->speedComboBox->addItem("x 100"     ,100.);
-  this->UI->speedComboBox->addItem(customText  ,1.  );
+  this->UI->speedComboBox->addItem("All Frame" ,0.  );
   this->insertWidget(this->UI->actionRecord, this->UI->speedComboBox);
   QObject::connect(this->UI->speedComboBox, SIGNAL(activated(int)),
     this, SLOT(onComboSpeedSelected(int)));
@@ -177,7 +175,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   // Safe Init Widgets Values
   this->setTimeRanges(0,0);
   this->setFrameRanges(0,0);
-  emit speedChange(1.0);
+  this->onSpeedChanged(1.0);
 
   // Init Controller
   QObject::connect(pqPVApplicationCore::instance()->animationManager(),
@@ -258,12 +256,6 @@ void lqPlayerControlsToolbar::onSpeedChanged(double speed)
     this->UI->speedComboBox->setCurrentIndex(searchIndex);
     return;
   }
-
-  // Set Custom Item
-  searchIndex = this->UI->speedComboBox->findText(customText); //Faith in its existenz
-  this->UI->speedComboBox->setItemData    (searchIndex,speed);
-  this->UI->speedComboBox->setCurrentIndex(searchIndex);
-
 }
 
 //-----------------------------------------------------------------------------

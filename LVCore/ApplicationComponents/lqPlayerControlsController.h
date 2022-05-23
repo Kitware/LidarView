@@ -82,7 +82,7 @@ protected:
   // Helpers
   void setSceneTime(double time);
   void setSceneSpeed();
-  void setPlayMode(vtkAnimationScene::PlayModes mode);
+  void setPlayMode(double speed);
 
 private:
   Q_DISABLE_COPY(lqPlayerControlsController)
