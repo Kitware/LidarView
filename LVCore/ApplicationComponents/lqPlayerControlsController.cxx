@@ -239,6 +239,22 @@ void lqPlayerControlsController::setSceneTime(double time)
 }
 
 //-----------------------------------------------------------------------------
+void lqPlayerControlsController::onNextFrame()
+{
+  // need to change the mode as in realtime next frame is actually t = t+1s
+  SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_SEQUENCE);
+  this->Scene->getProxy()->InvokeCommand("GoToNext");
+}
+
+//-----------------------------------------------------------------------------
+void lqPlayerControlsController::onPreviousFrame()
+{
+  // need to change the mode as in realtime previous frame is actually t = t-1s
+  SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_SEQUENCE);
+  this->Scene->getProxy()->InvokeCommand("GoToPrevious");
+}
+
+//-----------------------------------------------------------------------------
 void lqPlayerControlsController::setPlayMode(double speed){
   if(!this->Scene)
     return;

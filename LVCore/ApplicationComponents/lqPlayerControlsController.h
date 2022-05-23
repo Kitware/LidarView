@@ -72,6 +72,9 @@ public slots:
   void onSeekFrame(int index);
   void onSeekTime (double time);
 
+  void onPreviousFrame(); // cannot override as the method is not virtual, but not needed in our case
+  void onNextFrame(); // cannot override as the method is not virtual, but not needed in our case
+
 Q_SIGNALS:
   void speedChange(double);   // Signal speed has changed
   void frameRanges(int, int); // Tirggered alongside VCR original 'TimeRanges'
