@@ -46,6 +46,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMIntVectorProperty.h>
 
+// vtkAnimationScene doesn't have a enum for PLAYMODE_SNAP_TO_TIMESTEP despite this mode is implemented
+constexpr int PLAYMODE_SNAP_TO_TIMESTEP = 2;
+
 // Scene Property Helpers
 namespace {
 void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int value)
@@ -242,7 +245,7 @@ void lqPlayerControlsController::setSceneTime(double time)
 void lqPlayerControlsController::onNextFrame()
 {
   // need to change the mode as in realtime next frame is actually t = t+1s
-  SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_SEQUENCE);
+  SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
   this->Scene->getProxy()->InvokeCommand("GoToNext");
 }
 
@@ -250,7 +253,7 @@ void lqPlayerControlsController::onNextFrame()
 void lqPlayerControlsController::onPreviousFrame()
 {
   // need to change the mode as in realtime previous frame is actually t = t-1s
-  SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_SEQUENCE);
+  SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
   this->Scene->getProxy()->InvokeCommand("GoToPrevious");
 }
 
@@ -261,7 +264,8 @@ void lqPlayerControlsController::setPlayMode(double speed){
 
   if (speed <= 0)
   {
-    SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_SEQUENCE);
+    // There is no enum for
+    SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
   }
   else
   {
