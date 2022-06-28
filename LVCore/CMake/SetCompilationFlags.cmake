@@ -19,6 +19,13 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by default")
 
+# Force executable to be code position dependent
+# We do this because nautilus (the default file manager on gnome so on ubuntu) do not support
+# to launch position idenpendent executable see https://bugzilla.gnome.org/show_bug.cgi?id=737849
+# Setting CMAKE_POSITION_INDEPENDENT_CODE to OFF should do the work, but for some reason it doesn't
+# add the "-no-pie- flag to the linker, so we do it manually
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+
 # MSVC MT is not enforced # Wip to investigate
 if(WIN32 AND MSVC)
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
