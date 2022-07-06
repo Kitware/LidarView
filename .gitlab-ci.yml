@@ -4,7 +4,7 @@ variables:
   sb_cmake_option_ENABLE_nanoflann:
     value: '-DENABLE_nanoflann=False'
   sb_cmake_option_ENABLE_pcl:
-    value: '-DENABLE_pcl=False'
+    value: '-DENABLE_pcl=True'
   sb_cmake_option_LIDARVIEW_BUILD_SLAM:
     value: '-DLIDARVIEW_BUILD_SLAM=False'
   CI_VELODYNEPRIVATE_ENABLE:
