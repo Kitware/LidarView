@@ -96,7 +96,8 @@ QString lqSensorStreamWidget::GetExplanationOnUI()
 {
   QString caption = "This widget displays all sensors currently opened.\n\
 For each sensor, you can see its name, port, calibration file, ...\n\
-You can use the [calibrate] button to modify some options (translation, ...)\n\
+You can use the [Configure] button to adjust X/Y/Z, Roll/Pitch/Yaw, \n\
+lidar data port, and other sensor-specific parameters \n\
 You can use the [start]/[stop] button to manage the stream.";
   return caption;
 }

@@ -53,6 +53,7 @@ QString lqSensorReaderWidget::GetExplanationOnUI()
 {
   QString caption = "This widget displays all readers currently opened.\n\
 For each sensor, you can see its name, port, pcap and calibration file.\n\
-You can use the [calibrate] button to modify some options (translation, ...)";
+You can use the [Configure] button to adjust X/Y/Z, Roll/Pitch/Yaw, \n\
+lidar data port, and other sensor-specific parameters";
   return caption;
 }

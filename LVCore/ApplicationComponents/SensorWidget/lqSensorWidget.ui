@@ -362,7 +362,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Calibrate</string>
+           <string>Configure </string>
           </property>
           <property name="fixedHeight" stdset="0">
            <number>25</number>
