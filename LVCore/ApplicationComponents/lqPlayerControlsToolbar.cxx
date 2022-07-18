@@ -289,11 +289,13 @@ void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
   this->onToggled(!liveModeEnabled);
   
   // WIP MOVE THIS TO CONTROLLER
+
+  // Sync button with state, It is paused when opening a new reader, and shall be in play mode when opening a stream 
   if(liveModeEnabled){
     // Make LiveSource are running
     pqLiveSourceBehavior::resume();
+    this->onPlaying(true);
   }else{
-    // Sync button with state, It is paused when opening a new reader
     this->onPlaying(false);
   }
   
