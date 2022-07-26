@@ -125,7 +125,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   // Thanks to the lqSensorListWidget,
   // if a LidarStream is delete, it will automatically delete its PositionOrientationStream.
   // So we just have to delete all lidarStream.
-  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream *>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream>();
 
   if(!dialog.isEnableMultiSensors())
   {
@@ -133,7 +133,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
     // Thanks to the lqSensorListWidget,
     // if a LidarReader is delete, it will automatically delete its PositionOrientationReader.
     // So we just have to delete all lidarReader.
-    RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader *>();
+    RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
   }
 
   // Create the lidar Reader

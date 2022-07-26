@@ -50,8 +50,8 @@ void lqOpenSensorReaction::onTriggered()
 
   // We remove all lidarReader and PositionOrientationReader (and every filter depending on them) in the pipeline
   // TODO : As soon as LidarReader is available in multi sensor mode, we have to remove only the vtkLidarReader sources
-  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader *>();
-  RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader *>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader>();
 
   // If the user don't enable multi sensors, we have to clean the pipeline by removing all stream
   // In the lqSensorListWidget, every PositionOrientationStream is linked to a LidarStream
@@ -59,7 +59,7 @@ void lqOpenSensorReaction::onTriggered()
   // So we just have to delete all lidarStream.
   if(!dialog.isEnableMultiSensors())
   {
-    RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream *>();
+    RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream>();
   }
 
   // Create the lidarSensor
