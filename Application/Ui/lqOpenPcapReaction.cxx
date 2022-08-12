@@ -146,6 +146,17 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   lidarSource->setModifiedState(pqProxy::UNMODIFIED);
   vtkSMPropertyHelper(lidarSource->getProxy(), "FileName").Set(fileName.toStdString().c_str());
   lidarSource->getProxy()->UpdateProperty("FileName");
+
+  // For Hesai, enable advanced arrays by default
+  vtkSMProxy* interpProxy = vtkSMPropertyHelper(lidarSource->getProxy(), "PacketInterpreter").GetAsProxy();
+  vtkSmartPointer<vtkLidarPacketInterpreter> interp = vtkLidarPacketInterpreter::SafeDownCast(interpProxy->GetClientSideObject());
+  unsigned int found=interp->GetSensorInformation().find("Hesai");
+  if (found!=std::string::npos)
+  {
+    vtkSMPropertyHelper(interpProxy, "EnableAdvancedArrays").Set(1);
+    interpProxy->UpdateProperty("PacketInterpreter");
+    lidarSource->getProxy()->UpdateProperty("PacketInterpreter");
+  }
   QString lidarName = lidarSource->getSMName();
 
   pqPipelineSource * posOrSource = nullptr;
