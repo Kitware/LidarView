@@ -55,4 +55,7 @@ void lqLidarViewManager::pythonStartup()
   PythonQt::self()->addDecorators(new lqPythonQtLidarView(this));
 
   Superclass::pythonStartup();
+
+  // Alias vv
+  this->runPython(QString("import lidarview.applogic as lv\n"));
 }

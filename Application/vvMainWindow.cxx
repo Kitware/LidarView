@@ -11,19 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Copyright 2013 Velodyne Acoustics, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+
 
 #include "vvMainWindow.h"
 #include "ui_vvMainWindow.h"
@@ -494,6 +482,20 @@ void vvMainWindow::dragEnterEvent(QDragEnterEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
+void vvMainWindow::showEvent(QShowEvent* evt)
+{
+  // TODO PV uses it to show Welcome Message once
+  // could also be used for the "first startup" stuff
+  static_cast<void>(evt);
+}
+
+//-----------------------------------------------------------------------------
+void vvMainWindow::closeEvent(QCloseEvent* evt)
+{
+  pqApplicationCore::instance()->getMainWindowEventManager()->closeEvent(evt);
+}
+
+//-----------------------------------------------------------------------------
 void vvMainWindow::dropEvent(QDropEvent* evt)
 {
   QList<QUrl> urls = evt->mimeData()->urls();
@@ -533,19 +535,7 @@ void vvMainWindow::dropEvent(QDropEvent* evt)
   }
 }
 
-//-----------------------------------------------------------------------------
-void vvMainWindow::showEvent(QShowEvent* evt)
-{
-  // TODO PV uses it to show Welcome Message once
-  // could also be used for the "first startup" stuff
-  static_cast<void>(evt);
-}
 
-//-----------------------------------------------------------------------------
-void vvMainWindow::closeEvent(QCloseEvent* evt)
-{
-  pqApplicationCore::instance()->getMainWindowEventManager()->closeEvent(evt);
-}
 
 //-----------------------------------------------------------------------------
 void vvMainWindow::showHelpForProxy(const QString& groupname, const

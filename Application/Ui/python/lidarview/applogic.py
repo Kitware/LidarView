@@ -384,7 +384,7 @@ def saveCSV(filename, timesteps):
     writer.Precision = 16
 
     for i in timesteps:
-        getAnimationScene().AnimationTime = i #WIP ISSUE HERE ? See VV
+        getAnimationScene().AnimationTime = getLidar().TimestepValues[i]
         writer.FileName = filenameTemplate % i
         writer.UpdatePipeline()
         rotateCSVFile(writer.FileName)
