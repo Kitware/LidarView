@@ -10,6 +10,7 @@
 #include <pqPipelineSource.h>
 #include <pqServer.h>
 #include <pqServerManagerModel.h>
+#include <pqSettings.h>
 
 #include <vtkSMProxy.h>
 #include <vtkSMProperty.h>
@@ -63,11 +64,23 @@ void lqSaveLidarStateReaction::onTriggered()
 //-----------------------------------------------------------------------------
 void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy * lidarProxy)
 {
-  // Save Lidar Save information file
-  QString defaultFileName = QString("SaveLidarInformation.json");
+
+  // Save Lidar information file and save the folder in which it was saved to find it again later
+
+  QString defaultFileName = QString("/SaveLidarInformation.json");
+  pqSettings* settings = pqApplicationCore::instance()->settings();
+  QString defaultDir =
+    settings->value("LidarPlugin/OpenData/DefaultDirState", QDir::homePath()).toString();
+  defaultDir = defaultDir + defaultFileName;
   QString StateFile = QFileDialog::getSaveFileName(nullptr,
-                                 QString("File to save the first lidar information:"),
-                                 defaultFileName, QString("json (*.json)"));
+    QString("File to save the first lidar information:"), defaultDir, QString("json (*.json)"));
+
+    
+  if (!StateFile.isNull() && !StateFile.isEmpty())
+  {
+    QFileInfo fileInfo(StateFile);
+    settings->setValue("LidarPlugin/OpenData/DefaultDirState", fileInfo.absolutePath());
+  }
 
   if(StateFile.isEmpty())
   {

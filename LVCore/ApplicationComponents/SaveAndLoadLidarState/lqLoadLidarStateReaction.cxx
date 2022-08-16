@@ -7,6 +7,7 @@
 #include <QMessageBox>
 
 #include <pqApplicationCore.h>
+#include <pqSettings.h>
 
 #include <vtkSMBooleanDomain.h>
 #include <vtkSmartPointer.h>
@@ -58,6 +59,13 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
   if(LidarStateFile.isEmpty())
   {
     return;
+  }
+  // Set LidarState file directory to get back here whenever we load / save it
+  if (!LidarStateFile.isNull() && !LidarStateFile.isEmpty())
+  {
+    pqSettings* settings = pqApplicationCore::instance()->settings();
+    QFileInfo fileInfo(LidarStateFile);
+    settings->setValue("LidarPlugin/OpenData/DefaultDirState", fileInfo.absolutePath());
   }
 
   // Read and get information of the JSON file
