@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <PythonQt.h>
 #include <QObject>
 
+#include "lqLidarViewManager.h"
 #include "Widgets/vvCropReturnsDialog.h"
 #include "Widgets/vvSelectFramesDialog.h"
 
@@ -47,6 +48,8 @@ public:
   lqPythonQtLidarView(QObject* parent = 0)
     : QObject(parent)
   {
+    this->registerClassForPythonQt(&lqLidarViewManager::staticMetaObject);
+
     this->registerClassForPythonQt(&vvCropReturnsDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvSelectFramesDialog::staticMetaObject);
   }
@@ -56,8 +59,7 @@ public:
     PythonQt::self()->registerClass(metaobject, "paraview");
   }
 
-public slots:
-
+public Q_SLOTS:
   vvCropReturnsDialog* new_vvCropReturnsDialog(QWidget* arg0)
   {
     return new vvCropReturnsDialog(arg0);
