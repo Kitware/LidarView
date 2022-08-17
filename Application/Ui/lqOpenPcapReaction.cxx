@@ -7,6 +7,8 @@
 #include <vtkSMProxy.h>
 
 #include <pqActiveObjects.h>
+#include <pqAnimationManager.h>
+#include <pqAnimationScene.h>
 #include <pqPVApplicationCore.h>
 #include <pqObjectBuilder.h>
 #include <pqPipelineSource.h>
@@ -169,6 +171,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
 
   if (posOrSource)
   {
+    posOrSource->updatePipeline();
     posOrName = posOrSource->getSMName();
     controller->Show(posOrSource->getSourceProxy(), 0, view->getViewProxy());
   }
@@ -191,7 +194,17 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
   // Show the trailing frame
   controller->Show(trailingFrameFilter->getSourceProxy(), 0, view->getViewProxy());
   pqActiveObjects::instance().setActiveSource(trailingFrameFilter);
-
+  pqApplicationCore::instance()->render();
+  
+  // WIP Workaround Seek to first Frame To prevent displaying half frame from begining
+  pqAnimationScene* animScene = pqPVApplicationCore::instance()->animationManager()->getActiveScene();
+  if(animScene){
+    QList<double> timesteps = animScene->getTimeSteps();
+    if(!timesteps.empty()){
+      animScene->setAnimationTime(timesteps.first());
+    }
+  }
+  
   // Remove the handler so the user can interact with VeloView again (pushing any button)
   handler->RemoveObserver(tag);
   handler->LocalCleanupPendingProgress();
