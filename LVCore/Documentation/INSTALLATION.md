@@ -4,9 +4,10 @@
 2. [General Information](#general-information)
 3. [Runtime Dependencies](#runtime-dependencies)
     1. [Windows](#windows-instructions)
-    2. [Ubuntu20.04](#ubuntu20-instructions)
-    3. [Ubuntu18.04](#ubuntu18-instructions)
-    4. [SLAM](#slam-instructions)
+    2. [Ubuntu22.04](#ubuntu22-instructions)
+    3. [Ubuntu20.04](#ubuntu20-instructions)
+    4. [Ubuntu18.04](#ubuntu18-instructions)
+    5. [SLAM](#slam-instructions)
 4. [Troubleshooting / FAQ ](#faq-instructions)
 
 
@@ -43,6 +44,14 @@ The following sections details what dependencies to install prior to running a L
 **Runtime Dependencies:**
 
 * No dependencies required (Everything is shipped in the bundle)
+
+### Ubuntu 22.04 <a name="ubuntu22-instructions"></a>
+
+**Runtime Dependencies:**
+
+* Required packages: `sudo apt-get install libopengl0`
+* Temporary hack : run the following command in your Terminal before running the app 
+`export LD_LIBRARY_PATH='/path/to/lib/`
 
 ### Ubuntu 20.04 <a name="ubuntu20-instructions"></a>
 
