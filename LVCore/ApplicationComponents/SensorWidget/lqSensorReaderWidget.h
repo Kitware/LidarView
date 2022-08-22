@@ -9,6 +9,8 @@
 
 class pqPipelineSource;
 
+
+
 /**
  * @brief The lqSensorWidget enable to handle some function of a Lidar with buttons.
  *
@@ -25,6 +27,9 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorReaderWidget : public lqSensorWidge
   QString GetExplanationOnUI() override;
 
   public slots:
+  /*!
+   * @brief Function slot used to update the text of the UI depending on whether we are in reader or stream mode 
+   */
     void onUpdateUI() override;
 
 private:

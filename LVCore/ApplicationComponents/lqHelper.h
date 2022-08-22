@@ -140,6 +140,19 @@ std::vector<vtkSMProxy*> GetLidarsProxy();
  */
 vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propNameToFind);
 
+
+  /**
+ * @brief UpdateProxyProperty set the values to the property "propNameToFind" of the proxy
+ *        If the property is not found in the proxy, a message is displayed but nothing is done.
+ *        This function is useful, if the property type is unknown.
+ *        If it is known, you should directly use vtkSMPropertyHelper to set the property
+ * @param proxy proxy where to search the property
+ * @param propNameToFind name of the property
+ * @param values properties values to set
+ * @return 1 if the property has been well set, 0 otherwise
+ */
+int UpdateProxyProperty(vtkSMProxy* proxy, const std::string& propNameToFind, const std::vector<std::string>& values);
+
 /**
  * @brief GetGroupName Get the name of the first group where appear a proxy
  * @param existingProxy a proxy of the pipeline, use to get the ProxyDefinitionManager

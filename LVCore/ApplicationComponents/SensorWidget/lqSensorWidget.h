@@ -4,6 +4,8 @@
 #include "lqapplicationcomponents_export.h"
 
 #include <QWidget>
+#include <QSlider>
+#include <QDoubleSpinBox>
 #include <functional>
 
 class pqPipelineSource;
@@ -22,6 +24,19 @@ namespace Ui {
 class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
 {
   Q_OBJECT
+
+  // method to identify the normal of the plane containing the turn
+  enum TRANSFORMVALUE_INDEX
+  {
+    POS_X = 0,
+    POS_Y = 1,
+    POS_Z = 2,
+    ROT_ROLL = 3,
+    ROT_PITCH = 4,
+    ROT_YAW = 5,
+    TRANSFORM_SIZE = 6
+  };
+
 
   public:
     explicit lqSensorWidget(QWidget *parent = 0);
@@ -46,6 +61,12 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
 
     virtual QString GetExplanationOnUI() = 0;
 
+    /*!
+    * @brief Function used to get the transfrom data from a proxy and update the internal data /
+    * spinbox and sliders of this class accordingly
+    */
+    void ReadValueFromProxy();
+
   public slots:
     virtual void onUpdateUI();
     void onCalibrate();
@@ -53,6 +74,36 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
     void onShowHide();
     void onSaveLidarState();
     void onLoadLidarState();
+
+  protected slots:
+    /*!
+     * @brief Function slot used to update the transform of the lidarsource based on the data
+     * entered in the UI
+     */
+    void onUpdateTransform();
+    /*!
+     * @brief Function slot used to react to an update of a spinbox of a value
+     * This will store the data entered in internal variables, update the associated slider
+     * accordingly and update the transform
+     */
+    void onValueSpinBoxUpdate(unsigned int idxValue);
+    /*!
+     * @brief Function slot used to react to an update of a slider of a value. This will update the
+     * internal variables for this and update the transform
+     */
+    void onSliderUpdate(unsigned int idxValue);
+    /*!
+     * @brief Function slot used to react of an update of the min / max spinboxes for translations
+     * or rotations This will saturate the values used in the transform and update spinboxes /
+     * sliders accordingly
+     */
+    void onMinMaxValueSpinBoxUpdate(unsigned int idxValue);
+    /*!
+     * @brief Function slot used to react on the toggling of the check box to enable or not the live
+     * transform This will hide / show the whole interface and read the data from the proxy to feed
+     * to the interface
+     */
+    void onEnableLiveTransformToggle();
 
 signals:
     void selected(lqSensorWidget*);
@@ -69,6 +120,27 @@ protected:
     bool IsClosing;
     Ui::lqSensorWidget* UI;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
+
+    
+    /*!
+     * @brief common function to update internal QT widgets to internal values
+     */
+    void UpdateSpinBoxAndSliderFromInternalValues(unsigned int idxValue);
+
+    // maximum value for the sliders scaling
+    double min_Transform[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE]; // in order : X,Y,Z,Roll,Pitch,Yaw
+
+    // minimum value for the slider / spinbox scaling
+    double max_Transform[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE]; // in order : X,Y,Z,Roll,Pitch,Yaw
+
+    // current value for each transform
+    double curr_Transform[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE]; // in order : X,Y,Z,Roll,Pitch,Yaw
+
+    // current value for each transform
+    QSlider* slider_Array[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE]; // in order : X,Y,Z,Roll,Pitch,Yaw
+
+    // current value for each transform
+    QDoubleSpinBox* spinbox_Array[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE]; // in order : X,Y,Z,Roll,Pitch,Yaw
 };
 
 #endif // LQSENSORWIDGET_H

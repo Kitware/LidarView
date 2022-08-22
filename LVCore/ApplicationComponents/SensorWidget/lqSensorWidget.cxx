@@ -1,4 +1,5 @@
 #include "lqSensorWidget.h"
+#include "lqHelper.h"
 #include "ui_lqSensorWidget.h"
 
 #include "lqLoadLidarStateReaction.h"
@@ -13,6 +14,7 @@
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
+#include <vtkSMSourceProxy.h>
 
 #include "vtkLidarStream.h"
 
@@ -44,6 +46,108 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   this->setFocusPolicy(Qt::StrongFocus);
 
   this->SourceToDisplay = nullptr;
+
+   
+  this->UI->enableLiveDataTransformCheckBox->setVisible(true);
+
+  // set up arrays to point on sliders and spinboxes corresponding to each transform param
+  this->slider_Array[TRANSFORMVALUE_INDEX::POS_X] = this->UI->TxSlider;
+  this->slider_Array[TRANSFORMVALUE_INDEX::POS_Y] = this->UI->TySlider;
+  this->slider_Array[TRANSFORMVALUE_INDEX::POS_Z] = this->UI->TzSlider;
+  this->slider_Array[TRANSFORMVALUE_INDEX::ROT_ROLL] = this->UI->RollSlider;
+  this->slider_Array[TRANSFORMVALUE_INDEX::ROT_PITCH] = this->UI->PitchSlider;
+  this->slider_Array[TRANSFORMVALUE_INDEX::ROT_YAW] = this->UI->YawSlider;
+
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::POS_X] = this->UI->TxSpinBox;
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::POS_Y] = this->UI->TySpinBox;
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::POS_Z] = this->UI->TzSpinBox;
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::ROT_ROLL] = this->UI->RollSpinBox;
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::ROT_PITCH] = this->UI->PitchSpinBox;
+  this->spinbox_Array[TRANSFORMVALUE_INDEX::ROT_YAW] = this->UI->YawSpinBox;
+
+  // Hide UI that shall not be shown if not in live transform mode
+  this->onEnableLiveTransformToggle();
+
+  // init internal values from UI defaults
+  for (unsigned int idxValue = 0; idxValue < TRANSFORMVALUE_INDEX::TRANSFORM_SIZE; idxValue++)
+  {
+    min_Transform[idxValue] = this->spinbox_Array[idxValue]->minimum();
+    max_Transform[idxValue] = this->spinbox_Array[idxValue]->maximum();
+    curr_Transform[idxValue] = this->spinbox_Array[idxValue]->value();
+  }
+
+  connect(this->UI->enableLiveDataTransformCheckBox, &QCheckBox::stateChanged, this,
+    [this] { lqSensorWidget::onEnableLiveTransformToggle(); });
+
+  // Connect Slider movement to transform updating function
+  connect(this->UI->TxSlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_X); });
+  connect(this->UI->TySlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
+  connect(this->UI->TzSlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
+  connect(this->UI->RollSlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
+  connect(this->UI->PitchSlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
+  connect(this->UI->YawSlider, &QSlider::sliderMoved, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
+
+  // connect Slider Release signal to make sur last value of the slider is recorded
+  connect(this->UI->TxSlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_X); });
+  connect(this->UI->TySlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
+  connect(this->UI->TzSlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
+  connect(this->UI->RollSlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
+  connect(this->UI->PitchSlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
+  connect(this->UI->YawSlider, &QSlider::sliderReleased, this,
+    [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
+
+  // connect value spinboxes to corresponding function
+  connect(this->UI->TxSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
+  connect(this->UI->TySpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
+  connect(this->UI->TzSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
+  connect(this->UI->RollSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
+  connect(this->UI->PitchSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
+  connect(this->UI->YawSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
+
+  // connect min max spin boxes to corresponding function
+  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
+  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
+  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
+  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
+  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
+  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
+
+  // connect min max spin boxes to corresponding function
+  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
+  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
+  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
+  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
+  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
+  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+    [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 }
 
 //-----------------------------------------------------------------------------
@@ -151,6 +255,9 @@ void lqSensorWidget::onCalibrate()
   {
     this->CalibrationFunction(this->LidarSource, this->PositionOrientationSource);
   }
+  // update internal transform based on updated proxy transform
+  ReadValueFromProxy();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -249,4 +356,259 @@ void lqSensorWidget::onUpdateUI()
 void lqSensorWidget::focusInEvent(QFocusEvent*)
 {
   emit selected(this);
+}
+
+void lqSensorWidget::onEnableLiveTransformToggle()
+{
+  // Get enable flag for the check box
+  bool isLiveTransformVisible = this->UI->enableLiveDataTransformCheckBox->isChecked();
+
+  // set / unset visibility of the tools to move the lidar data
+  this->UI->TranslationLabel->setVisible(isLiveTransformVisible);
+  this->UI->labelMinMaxTranslation->setVisible(isLiveTransformVisible);
+  this->UI->MinTranslationValueSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->MaxTranslationValueSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->TxSlider->setVisible(isLiveTransformVisible);
+  this->UI->TxSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->TySlider->setVisible(isLiveTransformVisible);
+  this->UI->TySpinBox->setVisible(isLiveTransformVisible);
+  this->UI->TzSlider->setVisible(isLiveTransformVisible);
+  this->UI->TzSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->RotationLabel->setVisible(isLiveTransformVisible);
+  this->UI->labelMinMaxRotation->setVisible(isLiveTransformVisible);
+  this->UI->MinRotationValueSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->MaxRotationValueSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->RollSlider->setVisible(isLiveTransformVisible);
+  this->UI->RollSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->PitchSlider->setVisible(isLiveTransformVisible);
+  this->UI->PitchSpinBox->setVisible(isLiveTransformVisible);
+  this->UI->YawSlider->setVisible(isLiveTransformVisible);
+  this->UI->YawSpinBox->setVisible(isLiveTransformVisible);
+
+  ReadValueFromProxy();
+}
+
+void lqSensorWidget::onSliderUpdate(unsigned int idxValue)
+{
+  // get value from slider
+  // update MinMax values
+  if (idxValue <= POS_Z)
+  {
+    min_Transform[idxValue] = this->UI->MinTranslationValueSpinBox->value();
+    max_Transform[idxValue] = this->UI->MaxTranslationValueSpinBox->value();
+  }
+  else
+  {
+    min_Transform[idxValue] = this->UI->MinRotationValueSpinBox->value();
+    max_Transform[idxValue] = this->UI->MaxRotationValueSpinBox->value();
+  }
+
+  // compute value represented by the slider position
+  double sliderRange = std::max(
+    static_cast<double>(slider_Array[idxValue]->maximum() - slider_Array[idxValue]->minimum()),
+    1.0);
+  double value =
+    (static_cast<double>((slider_Array[idxValue]->value() - slider_Array[idxValue]->minimum())) /
+      sliderRange) *
+      (max_Transform[idxValue] - min_Transform[idxValue]) +
+    min_Transform[idxValue];
+
+  // update internal value
+  curr_Transform[idxValue] = value;
+
+  // update corresponding spinbox
+  this->spinbox_Array[idxValue]->setValue(value);
+
+  // call update transform
+  onUpdateTransform();
+}
+
+void lqSensorWidget::onValueSpinBoxUpdate(unsigned int idxValue)
+{
+  // update internal value
+  curr_Transform[idxValue] = this->spinbox_Array[idxValue]->value();
+  // update slider position based on scaling
+  int sliderPosition = slider_Array[idxValue]->minimum() +
+    ((slider_Array[idxValue]->maximum() - slider_Array[idxValue]->minimum()) *
+      (curr_Transform[idxValue] - min_Transform[idxValue]) /
+      (max_Transform[idxValue] - min_Transform[idxValue]));
+  this->slider_Array[idxValue]->setValue(sliderPosition);
+
+  // call update transform
+  onUpdateTransform();
+}
+
+void lqSensorWidget::onMinMaxValueSpinBoxUpdate(unsigned int idxValue)
+{
+  // update MinMax values ( assumption is that first values are translation then rotation, in
+  // X,Y,Z,Roll,Pitch,Yaw order)
+  if (idxValue <= POS_Z)
+  {
+    min_Transform[idxValue] = this->UI->MinTranslationValueSpinBox->value();
+    max_Transform[idxValue] = this->UI->MaxTranslationValueSpinBox->value();
+  }
+  else
+  {
+    min_Transform[idxValue] = this->UI->MinRotationValueSpinBox->value();
+    max_Transform[idxValue] = this->UI->MaxRotationValueSpinBox->value();
+  }
+  // Saturate internal values
+  if (min_Transform[idxValue] > curr_Transform[idxValue])
+  {
+    curr_Transform[idxValue] = min_Transform[idxValue];
+  }
+  if (max_Transform[idxValue] < curr_Transform[idxValue])
+  {
+    curr_Transform[idxValue] = max_Transform[idxValue];
+  }
+
+  // update widgets
+  UpdateSpinBoxAndSliderFromInternalValues(idxValue);
+
+  // call update transform
+  onUpdateTransform();
+}
+
+void lqSensorWidget::UpdateSpinBoxAndSliderFromInternalValues(unsigned int idxValue)
+{
+  // update spinbox min and max
+  this->spinbox_Array[idxValue]->setMinimum(min_Transform[idxValue]);
+  this->spinbox_Array[idxValue]->setMaximum(max_Transform[idxValue]);
+
+  // update spinbox / slider position based on scaling
+  this->spinbox_Array[idxValue]->setValue(curr_Transform[idxValue]);
+
+  int sliderPosition = slider_Array[idxValue]->minimum() +
+    ((slider_Array[idxValue]->maximum() - slider_Array[idxValue]->minimum()) *
+      (curr_Transform[idxValue] - min_Transform[idxValue]) /
+      (max_Transform[idxValue] - min_Transform[idxValue]));
+  this->slider_Array[idxValue]->setValue(sliderPosition);
+}
+
+void lqSensorWidget::ReadValueFromProxy()
+{
+  // Get lidar proxy
+  if (this->LidarSource)
+  {
+    vtkSMProxy* lidarProxy = this->LidarSource->getProxy();
+
+    // names of the lidarreader proxy
+    std::string propertyNameTranslation = "Position";
+    std::string propertyNameRotation = "Rotation";
+    std::string TransformproxyName = "Transform2";
+
+    if (lidarProxy)
+    {
+      // Get transform proxy
+      vtkSMProxy* TransformProxy = SearchProxyByName(lidarProxy, TransformproxyName);
+      // Get translation property
+      vtkSMProperty* propTranslation =
+        GetPropertyFromProxy(TransformProxy, propertyNameTranslation);
+      std::vector<double> TranslationVector = vtkSMPropertyHelper(propTranslation).GetDoubleArray();
+
+      // Get Translation parameters
+      double Tx = TranslationVector[0];
+      double Ty = TranslationVector[1];
+      double Tz = TranslationVector[2];
+
+      // Get translation property
+      vtkSMProperty* propRotation = GetPropertyFromProxy(TransformProxy, propertyNameRotation);
+      std::vector<double> RotationVector = vtkSMPropertyHelper(propRotation).GetDoubleArray();
+      // Get Rotation parameters
+      double Roll = RotationVector[0];
+      double Pitch = RotationVector[1];
+      double Yaw = RotationVector[2];
+
+      // Concatenate them in a vector
+      double TransformParams[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE] = { Tx, Ty, Tz, Roll, Pitch,
+        Yaw };
+
+      // update internal values
+      // Get current min and max for rotation and translation
+      double minMinTranslation = this->UI->MinTranslationValueSpinBox->value();
+      double maxMaxTranslation = this->UI->MaxTranslationValueSpinBox->value();
+      double minMinRotation = this->UI->MinRotationValueSpinBox->value();
+      double maxMaxRotation = this->UI->MaxRotationValueSpinBox->value();
+
+      // Loop over parameters to update the current values with what is found  on the proxy
+      for (unsigned int idxValue = 0; idxValue < TRANSFORMVALUE_INDEX::TRANSFORM_SIZE; idxValue++)
+      {
+        // update current value
+        curr_Transform[idxValue] = TransformParams[idxValue];
+
+        // update min and max if necessary
+        min_Transform[idxValue] = std::min(min_Transform[idxValue], curr_Transform[idxValue]);
+        max_Transform[idxValue] = std::max(max_Transform[idxValue], curr_Transform[idxValue]);
+        this->spinbox_Array[idxValue]->setMinimum(min_Transform[idxValue]);
+        this->spinbox_Array[idxValue]->setMaximum(max_Transform[idxValue]);
+
+        // collect overall minimum and maximum to be able to update the min and max spinboxes
+        if (idxValue <= POS_Z)
+        {
+          minMinTranslation = std::min(minMinTranslation, min_Transform[idxValue]);
+          maxMaxTranslation = std::max(maxMaxTranslation, max_Transform[idxValue]);
+        }
+        else
+        {
+          minMinRotation = std::min(minMinRotation, min_Transform[idxValue]);
+          maxMaxRotation = std::max(maxMaxRotation, max_Transform[idxValue]);
+        }
+        // update spinbox and slider
+        UpdateSpinBoxAndSliderFromInternalValues(idxValue);
+
+      } // End for loop on transforms
+
+      // set min and max spinboxes with the minimum found
+      this->UI->MinTranslationValueSpinBox->setValue(minMinTranslation);
+      this->UI->MaxTranslationValueSpinBox->setValue(maxMaxTranslation);
+      this->UI->MinRotationValueSpinBox->setValue(minMinRotation);
+      this->UI->MaxRotationValueSpinBox->setValue(maxMaxRotation);
+
+    } // end if lidarProxy
+  }   // end if LidarSource
+}
+
+void lqSensorWidget::onUpdateTransform()
+{
+  vtkSMProxy* lidarProxy = this->LidarSource->getProxy();
+
+  // names of the lidarreader proxy
+  std::string propertyNameTranslation = "Position";
+  std::string propertyNameRotation = "Rotation";
+  std::string TransformproxyName = "Transform2";
+
+  if (lidarProxy)
+  {
+    // Recover translation from sliders
+    double Tx = curr_Transform[TRANSFORMVALUE_INDEX::POS_X];
+    double Ty = curr_Transform[TRANSFORMVALUE_INDEX::POS_Y];
+    double Tz = curr_Transform[TRANSFORMVALUE_INDEX::POS_Z];
+    std::vector<std::string> TranslationValues = { std::to_string(Tx), std::to_string(Ty),
+      std::to_string(Tz) };
+
+    // Recover Rotation from sliders
+    double Roll = curr_Transform[TRANSFORMVALUE_INDEX::ROT_ROLL];
+    double Pitch = curr_Transform[TRANSFORMVALUE_INDEX::ROT_PITCH];
+    double Yaw = curr_Transform[TRANSFORMVALUE_INDEX::ROT_YAW];
+    std::vector<std::string> RotationValues = { std::to_string(Roll), std::to_string(Pitch),
+      std::to_string(Yaw) };
+
+    // Get transform proxy
+    vtkSMProxy* TransformProxy = SearchProxyByName(lidarProxy, TransformproxyName);
+
+    // update proxy properties
+    vtkSMProperty* prop = GetPropertyFromProxy(TransformProxy, propertyNameTranslation);
+    UpdateProxyProperty(TransformProxy, propertyNameTranslation, TranslationValues);
+
+    prop = GetPropertyFromProxy(TransformProxy, propertyNameRotation);
+    UpdateProxyProperty(TransformProxy, propertyNameRotation, RotationValues);
+
+    lidarProxy->UpdateSelfAndAllInputs();
+    vtkSMSourceProxy* sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(lidarProxy);
+    if (sourcelidarProxy)
+    {
+      sourcelidarProxy->UpdatePipelineInformation();
+    }
+    pqApplicationCore::instance()->render();
+  }
 }

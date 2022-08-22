@@ -118,8 +118,8 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
           QMessageBox::information(nullptr, tr(""), tr(message.c_str()) );
         }
         else
-        {
-          lqLoadLidarStateReaction::UpdateProxyProperty(lidarProxy, propertyName, currentProp.values);
+        {        
+          UpdateProxyProperty(lidarProxy, propertyName, currentProp.values);
         }
       }
     }
@@ -170,74 +170,3 @@ void lqLoadLidarStateReaction::ParseJsonContent(Json::Value contents, std::strin
     }
   }
 }
-
-//-----------------------------------------------------------------------------
-int lqLoadLidarStateReaction::UpdateProxyProperty(vtkSMProxy * proxy, const std::string &propNameToFind,
-                        const std::vector<std::string> &values)
-{
-  // If there is no value to set, the request is skipped
-  if(values.empty())
-  {
-    std::string message = "Property " + propNameToFind + " couldn't be applied";
-    QMessageBox::information(nullptr, QObject::tr(""), QObject::tr(message.c_str()) );
-    return 0;
-  }
-
-  vtkSMProperty* prop = GetPropertyFromProxy(proxy, propNameToFind);
-
-  if(!prop)
-  {
-    return 0;
-  }
-
-  std::vector<double> propertyAsDoubleArray = vtkSMPropertyHelper(prop).GetDoubleArray();
-  if(propertyAsDoubleArray.size() > 1)
-  {
-    if(propertyAsDoubleArray.size() != values.size())
-    {
-      std::cout << "Values to applied and base property does not have the same size" << std::endl;
-    }
-    std::vector<double> d;
-    for(unsigned int j = 0; j < values.size(); j++)
-    {
-      d.push_back(std::stod(values[j]));
-    }
-    vtkSMPropertyHelper(prop).Set(d.data(), d.size());
-    proxy->UpdateProperty(propNameToFind.c_str());
-    return 1;
-  }
-  else
-  {
-    // If the property is a valid variant we display it to the user
-    vtkVariant propertyAsVariant = vtkSMPropertyHelper(prop).GetAsVariant(0);
-    if(propertyAsVariant.IsValid())
-    {
-      if(propertyAsVariant.IsInt())
-      {
-        vtkSMBooleanDomain * boolDomain = vtkSMBooleanDomain::SafeDownCast(prop->FindDomain("vtkSMBooleanDomain"));
-        if(boolDomain && (values[0].compare("false") == 0 || values[0].compare("true") == 0))
-        {
-          int value = (values[0].compare("false") == 0) ? 0 : 1;
-          vtkSMPropertyHelper(prop).Set(value);
-        }
-        else
-        {
-          vtkSMPropertyHelper(prop).Set(std::stoi(values[0]));
-        }
-      }
-      else if(propertyAsVariant.IsNumeric())
-      {
-        vtkSMPropertyHelper(prop).Set(std::stof(values[0]));
-
-      }
-      else if(propertyAsVariant.IsString())
-      {
-        vtkSMPropertyHelper(prop).Set(values[0].c_str());
-      }
-      proxy->UpdateProperty(propNameToFind.c_str());
-      return 1;
-    }
-  }
-  return 0;
-}
-

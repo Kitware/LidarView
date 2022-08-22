@@ -7,6 +7,9 @@
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 
+#include <iostream>
+#include <fstream>
+
 //-----------------------------------------------------------------------------
 lqSensorReaderWidget::lqSensorReaderWidget(QWidget *parent) :
   lqSensorWidget(parent)
@@ -14,7 +17,7 @@ lqSensorReaderWidget::lqSensorReaderWidget(QWidget *parent) :
   // In reading mode, we only read the packet received on the right lidarPort.
   // This is why we want to expose it in reader mode too
   this->UI->lidarPort->setVisible(true);
-}
+ }
 
 //-----------------------------------------------------------------------------
 void lqSensorReaderWidget::onUpdateUI()
