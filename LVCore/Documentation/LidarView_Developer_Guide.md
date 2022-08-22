@@ -131,6 +131,9 @@ The specific version of the following tools may or may not be available in your 
 
     For more details, see: [Additional Instructions](#qt-installer)
 
+ - Additionally For Ubuntu22: `qt5-default` is now only available for 20.04 and earlier. Use:
+    `sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtmultimedia5-dev qtbase5-private-dev libqt5x11extras5-dev libqt5svg5-dev qttools5-dev qtxmlpatterns5-dev-tools libqt5help5` 
+
 #### Linux Guidelines <a name="linux-guidelines"></a>
 
   - **The source directory must not be inside the LidarView source code directory**.
