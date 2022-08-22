@@ -16,7 +16,7 @@ lqLidarStateDialog::lqLidarStateDialog(QWidget *parent,
 
   QVBoxLayout* vbox = new QVBoxLayout;
 
-  this->CreateDialog(vbox);
+  this->CreateStateDialog(vbox);
 
   // Add a QPushbutton
   QPushButton * button = new QPushButton("OK");
@@ -26,7 +26,7 @@ lqLidarStateDialog::lqLidarStateDialog(QWidget *parent,
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarStateDialog::CreateDialog(QVBoxLayout *vbox)
+void lqLidarStateDialog::CreateStateDialog(QVBoxLayout* vbox)
 {
   // Display an information message if there is no property to display
   if(this->properties.empty())

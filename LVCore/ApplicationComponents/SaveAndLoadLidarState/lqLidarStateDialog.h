@@ -69,7 +69,7 @@ public:
 
   ~lqLidarStateDialog(){}
 
-  void CreateDialog(QVBoxLayout * vbox);
+  void CreateStateDialog(QVBoxLayout * vbox);
 
   std::vector<propertyInfo> properties;
 
