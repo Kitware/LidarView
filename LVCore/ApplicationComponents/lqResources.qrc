@@ -13,6 +13,8 @@
         <file>Icons/pqRotateCameraCW.png</file>
         <file>Icons/pqZoomToData.png</file>
         <file>Icons/pqZoomToSelection.png</file>
+        <file>Icons/pqSensorListDown.png</file>
+        <file>Icons/pqSensorListUp.png</file>
         <file>Icons/EnableAdvancedArrays.png</file>
         <file>Icons/DisableAdvancedArrays.png</file>
         <file>Icons/media-loop.png</file>

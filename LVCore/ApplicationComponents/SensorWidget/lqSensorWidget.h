@@ -104,9 +104,11 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorWidget : public QWidget
      * to the interface
      */
     void onEnableLiveTransformToggle();
-
+        
 signals:
     void selected(lqSensorWidget*);
+    void buttonDownClicked(lqSensorWidget*);
+    void buttonUpClicked(lqSensorWidget*);
 
 protected:
     Q_DISABLE_COPY(lqSensorWidget)
@@ -120,7 +122,14 @@ protected:
     bool IsClosing;
     Ui::lqSensorWidget* UI;
     std::function<void(pqPipelineSource* &, pqPipelineSource* &)> CalibrationFunction;
-
+    /*!
+     * @brief Function used to trigger the widget to go down in the sensor list
+     */
+    void onButtonDownClicked();
+    /*!
+     * @brief Function used to trigger the widget to go up in the sensor list
+     */
+    void onButtonUpClicked();
     
     /*!
      * @brief common function to update internal QT widgets to internal values

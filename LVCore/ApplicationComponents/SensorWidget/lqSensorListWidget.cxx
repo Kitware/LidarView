@@ -48,52 +48,52 @@ namespace Ui
 
     void setupUi(QWidget *parent)
     {
-        if (parent->objectName().isEmpty())
-            parent->setObjectName(QStringLiteral("lqSensorListWidget"));
+      if (parent->objectName().isEmpty())
+          parent->setObjectName(QStringLiteral("lqSensorListWidget"));
 
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(parent->sizePolicy().hasHeightForWidth());
-        parent->setSizePolicy(sizePolicy);
-        parent->setMinimumSize(QSize(330, 110));
-        parent->setMaximumSize(QSize(16777215, 16777215));
+      QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+      sizePolicy.setHorizontalStretch(0);
+      sizePolicy.setVerticalStretch(0);
+      sizePolicy.setHeightForWidth(parent->sizePolicy().hasHeightForWidth());
+      parent->setSizePolicy(sizePolicy);
+      parent->setMinimumSize(QSize(330, 110));
+      parent->setMaximumSize(QSize(16777215, 16777215));
 
-        panelLayout = new QVBoxLayout(parent);
-        panelLayout->setObjectName(QStringLiteral("panelLayout"));
+      panelLayout = new QVBoxLayout(parent);
+      panelLayout->setObjectName(QStringLiteral("panelLayout"));
 
-        scrollArea = new QScrollArea(parent);
-        scrollArea->setObjectName(QStringLiteral("scrollArea"));
-        scrollArea->setWidgetResizable(true);
-        scrollAreaWidgetContents = new QWidget();
-        scrollAreaWidgetContents->setObjectName(QStringLiteral("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 200, 110));
+      scrollArea = new QScrollArea(parent);
+      scrollArea->setObjectName(QStringLiteral("scrollArea"));
+      scrollArea->setWidgetResizable(true);
+      scrollAreaWidgetContents = new QWidget();
+      scrollAreaWidgetContents->setObjectName(QStringLiteral("scrollAreaWidgetContents"));
+      scrollAreaWidgetContents->setGeometry(QRect(0, 0, 200, 110));
 
-        verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        scrollAreaWidgetContents->setLayout(verticalLayout);
+      verticalLayout = new QVBoxLayout();
+      verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+      scrollAreaWidgetContents->setLayout(verticalLayout);
 
-        sensorListLayout = new QVBoxLayout();
-        sensorListLayout->setObjectName(QStringLiteral("sensorListLayout"));
-        verticalLayout->addLayout(sensorListLayout);
+      sensorListLayout = new QVBoxLayout();
+      sensorListLayout->setObjectName(QStringLiteral("sensorListLayout"));
+      verticalLayout->addLayout(sensorListLayout);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-        verticalLayout->addItem(verticalSpacer);
+      verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+      verticalLayout->addItem(verticalSpacer);
 
-        caption = new QLabel();
+      caption = new QLabel();
 
-        scrollArea->setWidget(scrollAreaWidgetContents);
-        panelLayout->addWidget(caption);
-        panelLayout->addWidget(scrollArea);
+      scrollArea->setWidget(scrollAreaWidgetContents);
+      panelLayout->addWidget(caption);
+      panelLayout->addWidget(scrollArea);
 
-        retranslateUi(parent);
+      retranslateUi(parent);
 
-        QMetaObject::connectSlotsByName(parent);
+      QMetaObject::connectSlotsByName(parent);
     } // setupUi
 
     void retranslateUi(QWidget *parent)
     {
-        parent->setWindowTitle(QApplication::translate("lqSensorListWidget", "Form", nullptr));
+      parent->setWindowTitle(QApplication::translate("lqSensorListWidget", "Form", nullptr));
     } // retranslateUi
   };
 } // namespace Ui
@@ -176,6 +176,7 @@ lqSensorWidget* lqSensorListWidget::findWidget(pqPipelineSource *src) const
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
 {
+
   if (IsLidarProxy(src->getProxy()))
   {
     // add a lqSensorReaderWidget to layout
@@ -191,6 +192,10 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     this->ui->caption->setText(sensorWidget->GetExplanationOnUI());
     this->connect(sensorWidget, SIGNAL(selected(lqSensorWidget*)), SLOT(onSelected(lqSensorWidget*)));
 
+    // connect up and down buttons to the function moving the widgets 
+    this->connect(sensorWidget, SIGNAL(buttonDownClicked(lqSensorWidget*)), SLOT(onSensorDownButtonClicked(lqSensorWidget*)));
+    this->connect(sensorWidget, SIGNAL(buttonUpClicked(lqSensorWidget*)), SLOT(onSensorUpButtonClicked(lqSensorWidget*)));
+
     // Emit lidarStreamModeChanged Signal
     if (!alreadyStream && !isReader)
     {
@@ -198,6 +203,68 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
     }
   }
 }
+
+void lqSensorListWidget::onSensorDownButtonClicked(lqSensorWidget* widget) 
+{
+  // Identify the widget in the list 
+  QString lidarName = widget->GetLidarSource()->getSMName();
+  
+  if (this->sensorWidgets.size() > 1)
+  {
+    for (lqSensorWidget* widgetSearch : this->sensorWidgets)
+    {
+      if (widgetSearch->GetLidarSource())
+      {
+        if (!QString::compare(widgetSearch->GetLidarSource()->getSMName(), lidarName,Qt::CaseInsensitive)) // get the widget with the same name as the used one 
+        {
+          // get index of the widget
+          unsigned int idxInList = this->ui->sensorListLayout->indexOf(widgetSearch);
+          if ((idxInList+1) < sensorWidgets.size())            // check this is not the last element
+          {
+            // remove the widget
+            this->ui->sensorListLayout->removeWidget(widgetSearch);
+            // insert it at idx +1
+            this->ui->sensorListLayout->insertWidget(idxInList +1 ,widgetSearch);
+            // if it can go down, swap it with the one below and get out of this loop
+            break;
+          }
+        } // end if same lidar name 
+      } // end if isLidarSource 
+    } // end for widget list 
+  } // end if multiple sensors
+}
+void lqSensorListWidget::onSensorUpButtonClicked(lqSensorWidget* widget) 
+{
+  // Identify the widget in the list
+  QString lidarName = widget->GetLidarSource()->getSMName();
+
+  // check we have multiple sensors 
+  if (this->sensorWidgets.size() > 1)
+  {
+    for (lqSensorWidget* widgetSearch : this->sensorWidgets)
+    {
+      if (widgetSearch->GetLidarSource())
+      {
+        if (!QString::compare(widgetSearch->GetLidarSource()->getSMName(), lidarName, Qt::CaseInsensitive)) // get the widget with the same name as the used one
+        {
+          // get index of the widget
+          unsigned int idxInList = this->ui->sensorListLayout->indexOf(widgetSearch);
+
+          if (idxInList > 0) // check this is not the first element
+          {
+            // remove the widget
+            this->ui->sensorListLayout->removeWidget(widgetSearch);
+            // insert it at idx -1
+            this->ui->sensorListLayout->insertWidget(idxInList - 1, widgetSearch);
+            // if it can go down, swap it with the one below and get out of this loop
+            break;
+          }
+        } // end if same lidar name
+      } // end if isLidarSource
+    } // end for widget list
+  } // end if multiple sensors
+}
+
 
 //-----------------------------------------------------------------------------
 void lqSensorListWidget::onSourceRemoved(pqPipelineSource *src)

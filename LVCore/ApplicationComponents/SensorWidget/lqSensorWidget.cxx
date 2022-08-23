@@ -76,8 +76,15 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
     curr_Transform[idxValue] = this->spinbox_Array[idxValue]->value();
   }
 
+  // connect checkbox to enabler of live transform mode
   connect(this->UI->enableLiveDataTransformCheckBox, &QCheckBox::stateChanged, this,
     [this] { lqSensorWidget::onEnableLiveTransformToggle(); });
+
+  // connect up and down buttons to emitter of this signal for the sensorlist class
+  connect(this->UI->buttonDown, &QPushButton::released, this,
+    [this] { lqSensorWidget::onButtonDownClicked(); });
+  connect(this->UI->buttonUp, &QPushButton::released, this,
+    [this] { lqSensorWidget::onButtonUpClicked(); });
 
   // Connect Slider movement to transform updating function
   connect(this->UI->TxSlider, &QSlider::sliderMoved, this,
@@ -358,6 +365,16 @@ void lqSensorWidget::focusInEvent(QFocusEvent*)
   emit selected(this);
 }
 
+void lqSensorWidget::onButtonDownClicked()
+{
+  emit buttonDownClicked(this);
+}
+
+void lqSensorWidget::onButtonUpClicked()
+{
+  emit buttonUpClicked(this);
+}
+
 void lqSensorWidget::onEnableLiveTransformToggle()
 {
   // Get enable flag for the check box
@@ -385,6 +402,15 @@ void lqSensorWidget::onEnableLiveTransformToggle()
   this->UI->YawSlider->setVisible(isLiveTransformVisible);
   this->UI->YawSpinBox->setVisible(isLiveTransformVisible);
 
+  // adjust window min size according to the toggle state
+  if (isLiveTransformVisible)
+  {
+    this->setMinimumHeight(225);
+  }
+  else
+  {
+    this->setMinimumHeight(190);
+  }
   ReadValueFromProxy();
 }
 

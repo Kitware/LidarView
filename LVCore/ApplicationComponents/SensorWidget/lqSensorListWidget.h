@@ -84,6 +84,8 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSensorListWidget : public QWidget
     void onSourceAdded(pqPipelineSource* src);
     void onSourceRemoved(pqPipelineSource* src);
     void onSelected(lqSensorWidget * widget);
+    void onSensorDownButtonClicked(lqSensorWidget* widget);
+    void onSensorUpButtonClicked(lqSensorWidget* widget);
 
   Q_SIGNALS:
     void lidarStreamModeChanged(bool); // Emitted when LidarStream are now present / absent.

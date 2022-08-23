@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>330</width>
-    <height>225</height>
+    <height>190</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -143,6 +143,64 @@
          </spacer>
         </item>
         <item>
+         <widget class="QPushButton" name="buttonDown">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Move the sensor down in the sensor list</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/lqResources/Icons/pqSensorListDown.png</normaloff>:/lqResources/Icons/pqSensorListDown.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="buttonUp">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Move the sensor up in the sensor list</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/lqResources/Icons/pqSensorListUp.png</normaloff>:/lqResources/Icons/pqSensorListUp.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="close">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -152,8 +210,8 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>16</width>
-            <height>16</height>
+            <width>25</width>
+            <height>25</height>
            </size>
           </property>
           <property name="font">
@@ -168,8 +226,17 @@
           <property name="cursor">
            <cursorShape>ArrowCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string>Remove this lidar source</string>
+          </property>
           <property name="text">
-           <string>x</string>
+           <string>X</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
           </property>
           <property name="default">
            <bool>false</bool>
