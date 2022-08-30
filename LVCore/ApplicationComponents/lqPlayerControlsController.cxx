@@ -153,7 +153,7 @@ void lqPlayerControlsController::onPause()
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
-    Q_EMIT this->playing(!paused);
+    Q_EMIT this->playing(paused);
   }
 }
 
@@ -182,7 +182,7 @@ void lqPlayerControlsController::onPlay()
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
-    Q_EMIT this->playing(!paused);
+    Q_EMIT this->playing(paused);
   }
 }
 //-----------------------------------------------------------------------------
