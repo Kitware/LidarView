@@ -78,8 +78,8 @@ test "$#" = 0 || die "$usage"
 
 # Find a default tool.
 tools='
+  clang-format-8
   clang-format
-  clang-format-3.8
 '
 if test "x$clang_format" = "x"; then
     for tool in $tools; do
@@ -105,14 +105,13 @@ case "$mode" in
     tracked)  git_ls='git ls-files' ;;
     *) die "invalid mode: $mode" ;;
 esac
-echo `$git_ls | git check-attr --stdin format.clang-format|  sed -n '/: format\.clang-format: set$/ {s/:[^:]*:[^:]*$//p}'`
+
 # List files as selected above.
 $git_ls |
 
   # Select sources with our attribute.
   git check-attr --stdin format.clang-format |
-  sed -n '/: format\.clang-format: set$/ {s/:[^:]*:[^:]*$//p}'  |
+    sed -n '/: format\.clang-format: \(set\|8\)$/ {s/:[^:]*:[^:]*$//p}'  |
 
   # Update sources in-place.
   xargs -d '\n' "$clang_format" -i
-
