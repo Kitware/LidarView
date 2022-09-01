@@ -264,20 +264,25 @@ void RemoveAllProxyTypeFromPipelineBrowser()
   {
     return;
   }
-  QSet<pqPipelineSource*> sources;
-  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+
+  // We reverse the pipeline to delete the last created first in the case of multi sensors
+  QList<pqPipelineSource *> pipeline = smmodel->findItems<pqPipelineSource*>();
+  std::reverse(std::begin(pipeline), std::end(pipeline));
+  foreach (pqPipelineSource* src, pipeline)
   {
-    if(IsProxy<T>(src->getProxy()))
+    QSet<pqPipelineSource*> sources;
+    if (IsProxy<T>(src->getProxy()))
     {
       GetAllLinkedSources(src, sources);
       sources.insert(src);
     }
+
+    QSet<pqProxy*> sourcesProxy;
+    foreach (pqPipelineSource* src, sources) {
+      sourcesProxy.insert(static_cast<pqProxy*>(src));
+    }
+    pqDeleteReaction::deleteSources(sourcesProxy);
   }
-  QSet<pqProxy*> sources_proxy;
-  foreach(pqPipelineSource* src, sources){
-    sources_proxy.insert(static_cast<pqProxy*>(src));
-  }
-  pqDeleteReaction::deleteSources(sources_proxy);
 }
 
 
