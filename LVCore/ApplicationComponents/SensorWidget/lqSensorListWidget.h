@@ -59,6 +59,14 @@ public:
   pqPipelineSource* getActiveLidarSource();
 
   /**
+   * @brief getLidarSource
+   *        Get the Lidar Source associated with the specified index.
+   *        If the index is out of bound, nullptr is returned.
+   * @return The LidarSource associated with the index
+   */
+  pqPipelineSource* getLidarSource(int index);
+
+  /**
    * @brief getActiveSourceToDisplay
    *        Get the Source To Display associated to the selected pqPipelineSource
    *        If the selected pqPipelineSource is not associated to a sensorWidget, nullptr is
@@ -80,11 +88,11 @@ public:
   bool isInLiveSensorMode();
 
   // WIP Intended to replace Applogic getReader() / getSensor() / getLidar()
-  vtkSMProxy* getLidar();
-  vtkSMProxy* getReader();
-  vtkSMProxy* getSensor();
-  vtkSMProxy* getTrailingFrame();
-  vtkSMProxy* getPosOrSource();
+  vtkSMProxy* getLidar(int index = -1);
+  vtkSMProxy* getReader(int index = -1);
+  vtkSMProxy* getSensor(int index = -1);
+  vtkSMProxy* getTrailingFrame(int index = -1);
+  vtkSMProxy* getPosOrSource(int index = -1);
 
 protected Q_SLOTS:
   void onSourceAdded(pqPipelineSource* src);

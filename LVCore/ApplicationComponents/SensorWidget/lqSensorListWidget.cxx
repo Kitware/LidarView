@@ -417,6 +417,17 @@ pqPipelineSource* lqSensorListWidget::getActiveLidarSource()
 }
 
 //-----------------------------------------------------------------------------
+pqPipelineSource* lqSensorListWidget::getLidarSource(int index)
+{
+  if (index < 0 || index >= this->sensorWidgets.size())
+  {
+    return nullptr;
+  }
+  lqSensorWidget* sw = this->sensorWidgets[index];
+  return sw->GetLidarSource();
+}
+
+//-----------------------------------------------------------------------------
 pqPipelineSource* lqSensorListWidget::getActiveSourceToDisplay()
 {
   pqPipelineSource* activeSource = pqActiveObjects::instance().activeSource();
@@ -452,27 +463,36 @@ bool lqSensorListWidget::isInLiveSensorMode()
 }
 
 //-----------------------------------------------------------------------------
-vtkSMProxy* lqSensorListWidget::getLidar()
+vtkSMProxy* lqSensorListWidget::getLidar(int idx)
 {
-  return this->getActiveLidarSource() ? this->getActiveLidarSource()->getProxy() : nullptr;
+  pqPipelineSource* source = nullptr;
+  if (idx == -1)
+  {
+    source = this->getActiveLidarSource();
+  }
+  else
+  {
+    source = this->getLidarSource(idx);
+  }
+  return source ? source->getProxy() : nullptr;
 }
 
-vtkSMProxy* lqSensorListWidget::getReader()
+vtkSMProxy* lqSensorListWidget::getReader(int idx)
 {
-  auto proxy = this->getLidar();
+  auto proxy = this->getLidar(idx);
   return IsLidarReaderProxy(proxy) ? proxy : nullptr;
 }
 
-vtkSMProxy* lqSensorListWidget::getSensor()
+vtkSMProxy* lqSensorListWidget::getSensor(int idx)
 {
-  auto proxy = this->getLidar();
+  auto proxy = this->getLidar(idx);
   return IsLidarStreamProxy(proxy) ? proxy : nullptr;
 }
 
-vtkSMProxy* lqSensorListWidget::getTrailingFrame()
+vtkSMProxy* lqSensorListWidget::getTrailingFrame(int idx)
 {
   // Find First TrailingFrame filter that is connected to ActiveLidarSource
-  auto lidar = this->getActiveLidarSource();
+  auto lidar = idx == -1 ? this->getActiveLidarSource() : this->getLidarSource(idx);
   if (!lidar)
   {
     return nullptr;
@@ -491,10 +511,10 @@ vtkSMProxy* lqSensorListWidget::getTrailingFrame()
   return nullptr;
 }
 
-vtkSMProxy* lqSensorListWidget::getPosOrSource()
+vtkSMProxy* lqSensorListWidget::getPosOrSource(int idx)
 {
   // Find First PosOr filter that is connected to ActiveLidarSource
-  auto lidar = this->getActiveLidarSource();
+  auto lidar = idx == -1 ? this->getActiveLidarSource() : this->getLidarSource(idx);
   if (!lidar)
   {
     return nullptr;

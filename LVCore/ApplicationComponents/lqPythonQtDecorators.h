@@ -126,25 +126,25 @@ public slots:
     return lqSensorListWidget::instance()->getActiveLidarSource();
   }
 
-  vtkSMProxy* static_lqSensorListWidget_getLidar()
+  vtkSMProxy* static_lqSensorListWidget_getLidar(int index)
   {
-    return lqSensorListWidget::instance()->getLidar();
+    return lqSensorListWidget::instance()->getLidar(index);
   }
-  vtkSMProxy* static_lqSensorListWidget_getReader()
+  vtkSMProxy* static_lqSensorListWidget_getReader(int index)
   {
-    return lqSensorListWidget::instance()->getReader();
+    return lqSensorListWidget::instance()->getReader(index);
   }
-  vtkSMProxy* static_lqSensorListWidget_getSensor()
+  vtkSMProxy* static_lqSensorListWidget_getSensor(int index)
   {
-    return lqSensorListWidget::instance()->getSensor();
+    return lqSensorListWidget::instance()->getSensor(index);
   }
-  vtkSMProxy* static_lqSensorListWidget_getTrailingFrame()
+  vtkSMProxy* static_lqSensorListWidget_getTrailingFrame(int index)
   {
-    return lqSensorListWidget::instance()->getTrailingFrame();
+    return lqSensorListWidget::instance()->getTrailingFrame(index);
   }
-  vtkSMProxy* static_lqSensorListWidget_getPosOrSource()
+  vtkSMProxy* static_lqSensorListWidget_getPosOrSource(int index)
   {
-    return lqSensorListWidget::instance()->getPosOrSource();
+    return lqSensorListWidget::instance()->getPosOrSource(index);
   }
 };
 
