@@ -46,7 +46,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsToolbar : public QToolBar
   Q_OBJECT
 
 public:
-  lqPlayerControlsToolbar(QWidget* parentObject=0, bool advancedOptionsForRecording=false);
+  lqPlayerControlsToolbar(QWidget* parentObject = 0, bool advancedOptionsForRecording = false);
   ~lqPlayerControlsToolbar();
 
 protected Q_SLOTS:
@@ -54,10 +54,11 @@ protected Q_SLOTS:
   void setTimeRanges(double, double); // VCR Controller default, updates time ranges
   void onPlaying(bool);               // VCR Controller default
 
-  void setFrameRanges(int, int); // updates frames ranges
+  void setFrameRanges(int, int);     // updates frames ranges
   void onSpeedChanged(double speed); // Update UI on speed change
-  void onToggled(bool enable); // Toggle Enable/Disable
-  void onSetLiveMode(bool liveModeEnabled); // Convenience slot for inverted Toggling on livemode signal
+  void onToggled(bool enable);       // Toggle Enable/Disable
+  // Convenience slot for inverted Toggling on livemode signal
+  void onSetLiveMode(bool liveModeEnabled);
 
   // UI Input signals
   void onComboSpeedSelected(int index); // Speed ComboBox changed by user
@@ -75,7 +76,6 @@ private:
 
   class pqInternals;
   pqInternals* UI;
-
 };
 
 #endif // LQPLAYERCONTROLSTOOLBAR_H

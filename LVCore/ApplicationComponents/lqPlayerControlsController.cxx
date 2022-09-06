@@ -32,8 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqPlayerControlsController.h"
 
 #include <QApplication>
-#include <QtDebug>
 #include <QPointer>
+#include <QtDebug>
 
 #include <lqSensorListWidget.h>
 
@@ -41,50 +41,57 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqLiveSourceBehavior.h>
 #include <pqSMAdaptor.h>
 
-#include <vtkSMProxy.h>
+#include <vtkSMIntVectorProperty.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
-#include <vtkSMIntVectorProperty.h>
+#include <vtkSMProxy.h>
 
-// vtkAnimationScene doesn't have a enum for PLAYMODE_SNAP_TO_TIMESTEP despite this mode is implemented
+// vtkAnimationScene doesn't have a enum for PLAYMODE_SNAP_TO_TIMESTEP despite this mode is
+// implemented
 constexpr int PLAYMODE_SNAP_TO_TIMESTEP = 2;
 
 // Scene Property Helpers
-namespace {
+namespace
+{
 void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int value)
 {
-  vtkSMIntVectorProperty::SafeDownCast(scene->getProxy()->GetProperty(property))->SetElements1(value);
+  vtkSMIntVectorProperty::SafeDownCast(scene->getProxy()->GetProperty(property))
+    ->SetElements1(value);
   scene->getProxy()->UpdateProperty(property);
 }
 
-//int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
-//{
-//  return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
-//}
+// int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
+// {
+//   return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
+// }
 }
 
 // Debugging helper
 void debugScene(pqAnimationScene* scene)
 {
-  if (scene){
+  if (scene)
+  {
     QPair<double, double> range = scene->getClockTimeRange();
-    std::cout << "Range: "<< range.first << " to "<< range.second << std::endl;
-    std::cout << "Time : "<< scene->getAnimationTime() << std::endl;
-    auto timesteps = scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
+    std::cout << "Range: " << range.first << " to " << range.second << std::endl;
+    std::cout << "Time : " << scene->getAnimationTime() << std::endl;
+    auto timesteps =
+      scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
     double min = *std::min_element(timesteps.begin(), timesteps.end());
     double max = *std::max_element(timesteps.begin(), timesteps.end());
-    std::cout << "Timesteps : "<< "0-"<< timesteps.size() << ", mM: "<< min << " to " << max << std::endl;
-  }else{
-    std::cout << "Scene is NULL "<< std::endl;
+    std::cout << "Timesteps : "
+              << "0-" << timesteps.size() << ", mM: " << min << " to " << max << std::endl;
+  }
+  else
+  {
+    std::cout << "Scene is NULL " << std::endl;
   }
 }
 
-
 //-----------------------------------------------------------------------------
 lqPlayerControlsController::lqPlayerControlsController(QObject* _parent)
-  : pqVCRController(_parent), speed(1.0)
+  : pqVCRController(_parent)
+  , speed(1.0)
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -94,20 +101,22 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
   // Regular VCR controller slot
   Superclass::setAnimationScene(scene);
   // Connects the following signals
-    //QObject::connect(this->Scene, SIGNAL(tick(int))               , this, SLOT(onTick()));
-    //QObject::connect(this->Scene, SIGNAL(loopChanged())           , this, SLOT(onLoopPropertyChanged()));
-    //QObject::connect(this->Scene, SIGNAL(clockTimeRangesChanged()), this, SLOT(onTimeRangesChanged()));
-    //QObject::connect(this->Scene, SIGNAL(beginPlay())             , this, SLOT(onBeginPlay()));
-    //QObject::connect(this->Scene, SIGNAL(endPlay())               , this, SLOT(onEndPlay()));
+  // QObject::connect(this->Scene, SIGNAL(tick(int))               , this, SLOT(onTick()));
+  // QObject::connect(this->Scene, SIGNAL(loopChanged())           , this,
+  // SLOT(onLoopPropertyChanged())); QObject::connect(this->Scene, SIGNAL(clockTimeRangesChanged()),
+  // this, SLOT(onTimeRangesChanged())); QObject::connect(this->Scene, SIGNAL(beginPlay()) , this,
+  // SLOT(onBeginPlay())); QObject::connect(this->Scene, SIGNAL(endPlay())               , this,
+  // SLOT(onEndPlay()));
 
   // Connect additional Signals:
-  if(scene){
-    QObject::connect(this->Scene, SIGNAL(timeStepsChanged())        , this, SLOT(onTimeStepsChanged()));
-    //frameCountChanged // Not necessary, timeStepsChanged() cover this case
-    //cues
-    //playModeChanged()
-    //animationTime (double time)
-    //timeLabelChanged()
+  if (scene)
+  {
+    QObject::connect(this->Scene, SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
+    // frameCountChanged // Not necessary, timeStepsChanged() cover this case
+    // cues
+    // playModeChanged()
+    // animationTime (double time)
+    // timeLabelChanged()
   }
 }
 
@@ -126,16 +135,18 @@ void lqPlayerControlsController::onTimeStepsChanged()
 {
   if (this->Scene)
   {
-    auto timesteps = this->Scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
-    int nframes = timesteps.size() ? timesteps.size()-1 : 0;
-    Q_EMIT this->frameRanges(0, nframes );
+    // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
+    auto timesteps = this->Scene->getTimeSteps();
+    int nframes = timesteps.size() ? timesteps.size() - 1 : 0;
+    Q_EMIT this->frameRanges(0, nframes);
   }
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPause()
 {
-  if(!lqSensorListWidget::instance()->isInLiveSensorMode()){
+  if (!lqSensorListWidget::instance()->isInLiveSensorMode())
+  {
     // Prevent Noisy warnings
     if (!this->Scene)
     {
@@ -143,13 +154,18 @@ void lqPlayerControlsController::onPause()
     }
     // Regular VCR controller Play
     Superclass::onPause();
-  }else{
+  }
+  else
+  {
     // Do not Notify Animation scene in LivestreamMode
     // Call pqLiveSourceBehavior
     bool paused = pqLiveSourceBehavior::isPaused();
-    if(paused){
+    if (paused)
+    {
       pqLiveSourceBehavior::resume();
-    }else{
+    }
+    else
+    {
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
@@ -160,7 +176,8 @@ void lqPlayerControlsController::onPause()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPlay()
 {
-  if(!lqSensorListWidget::instance()->isInLiveSensorMode()){
+  if (!lqSensorListWidget::instance()->isInLiveSensorMode())
+  {
     // Prevent Noisy warnings
     if (!this->Scene)
     {
@@ -172,13 +189,18 @@ void lqPlayerControlsController::onPlay()
 
     // Regular VCR controller Play
     Superclass::onPlay();
-  }else{
+  }
+  else
+  {
     // Do not Notify Animation scene in LivestreamMode
     // Call pqLiveSourceBehavior
     bool paused = pqLiveSourceBehavior::isPaused();
-    if(paused){
+    if (paused)
+    {
       pqLiveSourceBehavior::resume();
-    }else{
+    }
+    else
+    {
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
@@ -188,7 +210,7 @@ void lqPlayerControlsController::onPlay()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSpeedChange(double speed)
 {
-  if(!this->Scene)
+  if (!this->Scene)
     return;
   // Update speed value
   this->speed = speed;
@@ -196,7 +218,8 @@ void lqPlayerControlsController::onSpeedChange(double speed)
   // It's a bit useless to set the PlayMode here, as it is overriden each time
   // a new source with timestamps is added.
   // The override is performed in vtkSMAnimationSceneProxy::UpdateAnimationUsingDataTimeSteps
-  // where the PlayMode is set to SNAP_TO_TIMESTEPS. This function is called by pqApplyBehavior::applied
+  // where the PlayMode is set to SNAP_TO_TIMESTEPS. This function is called by
+  // pqApplyBehavior::applied
   this->setPlayMode(this->speed);
 
   // Pause for user safety
@@ -209,28 +232,28 @@ void lqPlayerControlsController::onSpeedChange(double speed)
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSeekFrame(int index)
 {
-  if(!this->Scene)
+  if (!this->Scene)
     return;
 
   const auto& timesteps = this->Scene->getTimeSteps();
-  if(index >=timesteps.size())
+  if (index >= timesteps.size())
     return;
 
   // Set Scene Time
-  this->setSceneTime(timesteps[index]) ;
+  this->setSceneTime(timesteps[index]);
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSeekTime(double time)
 {
-  if(!this->Scene)
+  if (!this->Scene)
     return;
 
   if (time < 0)
     return;
 
   // Set Scene Time
-  this->setSceneTime(time) ;
+  this->setSceneTime(time);
 }
 
 //-----------------------------------------------------------------------------
@@ -258,8 +281,9 @@ void lqPlayerControlsController::onPreviousFrame()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::setPlayMode(double speed){
-  if(!this->Scene)
+void lqPlayerControlsController::setPlayMode(double speed)
+{
+  if (!this->Scene)
     return;
 
   if (speed <= 0)

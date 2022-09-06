@@ -61,35 +61,44 @@ public slots:
   // lqLidarCoreManager
   lqLidarCoreManager* static_lqLidarCoreManager_instance()
   {
-  return lqLidarCoreManager::instance();
+    return lqLidarCoreManager::instance();
   }
 
-  void static_lqLidarCoreManager_saveFramesToPCAP(
-    vtkSMSourceProxy* arg0, int arg1, int arg2, const QString& arg3)
+  void static_lqLidarCoreManager_saveFramesToPCAP(vtkSMSourceProxy* arg0,
+    int arg1,
+    int arg2,
+    const QString& arg3)
   {
     lqLidarCoreManager::saveFramesToPCAP(arg0, arg1, arg2, arg3);
   }
-  void static_lqLidarCoreManager_saveFramesToLAS(vtkLidarReader* arg0, vtkPolyData* arg1,
-    int arg2, int arg3, const QString& arg4, int arg5)
+  void static_lqLidarCoreManager_saveFramesToLAS(vtkLidarReader* arg0,
+    vtkPolyData* arg1,
+    int arg2,
+    int arg3,
+    const QString& arg4,
+    int arg5)
   {
     lqLidarCoreManager::saveFramesToLAS(arg0, arg1, arg2, arg3, arg4, arg5);
   }
 
   // WIP we can absolutely forward the paraview.simple.view into a pqRenderView* here, see LAS below
-  void static_lqLidarCoreManager_resetCameraLidar() {
+  void static_lqLidarCoreManager_resetCameraLidar()
+  {
     lqLidarCoreManager::instance()->onResetCameraLidar();
   }
-  void static_lqLidarCoreManager_resetCenterToLidarCenter() {
+  void static_lqLidarCoreManager_resetCenterToLidarCenter()
+  {
     lqLidarCoreManager::instance()->onResetCenterToLidarCenter();
   }
-  void static_lqLidarCoreManager_resetCameraToForwardView() {
+  void static_lqLidarCoreManager_resetCameraToForwardView()
+  {
     lqLidarCoreManager::instance()->onResetCameraToForwardView();
   }
 
   // lqSensorListWidget
   lqSensorListWidget* static_lqSensorListWidget_instance()
   {
-  return lqSensorListWidget::instance();
+    return lqSensorListWidget::instance();
   }
 
   pqPipelineSource* static_lqSensorListWidget_getActiveLidarSource()
@@ -117,7 +126,6 @@ public slots:
   {
     return lqSensorListWidget::instance()->getPosOrSource();
   }
-
 };
 
-#endif //lqPythonQtDecorators_h
+#endif // lqPythonQtDecorators_h

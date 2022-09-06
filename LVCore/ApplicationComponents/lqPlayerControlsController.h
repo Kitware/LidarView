@@ -32,7 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LQPLAYERCONTROLSCONTROLLER_H
 #define LQPLAYERCONTROLSCONTROLLER_H
 
-
 #include "pqComponentsModule.h"
 
 #include <QObject>
@@ -65,15 +64,16 @@ public slots:
   virtual void onTimeRangesChanged() Q_DECL_OVERRIDE;
   void onTimeStepsChanged(); // Received alongside 'onTimeRangesChanged'
   virtual void onPause() Q_DECL_OVERRIDE;
-  virtual void onPlay()  Q_DECL_OVERRIDE;
+  virtual void onPlay() Q_DECL_OVERRIDE;
 
   void onSpeedChange(double speed);
 
   void onSeekFrame(int index);
-  void onSeekTime (double time);
+  void onSeekTime(double time);
 
-  void onPreviousFrame(); // cannot override as the method is not virtual, but not needed in our case
-  void onNextFrame(); // cannot override as the method is not virtual, but not needed in our case
+  // cannot override as theses methods are not virtual, but not needed in our case
+  void onPreviousFrame();
+  void onNextFrame();
 
 Q_SIGNALS:
   void speedChange(double);   // Signal speed has changed
@@ -89,7 +89,6 @@ protected:
 
 private:
   Q_DISABLE_COPY(lqPlayerControlsController)
-
 };
 
 #endif // LQPLAYERCONTROLSCONTROLLER_H
