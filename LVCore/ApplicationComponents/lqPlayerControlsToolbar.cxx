@@ -347,3 +347,9 @@ void lqPlayerControlsToolbar::onTimestepChanged()
 
   // TODO could add more tootips
 }
+
+//-----------------------------------------------------------------------------
+lqPlayerControlsController* lqPlayerControlsToolbar::getController() const
+{
+  return this->Controller;
+}

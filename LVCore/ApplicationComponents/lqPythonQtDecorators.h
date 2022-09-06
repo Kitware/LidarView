@@ -36,6 +36,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QObject>
 
 #include "lqLidarCoreManager.h"
+#include "lqPlayerControlsController.h"
+#include "lqPlayerControlsToolbar.h"
 #include "lqSensorListWidget.h"
 #include <pqActiveObjects.h>
 
@@ -49,6 +51,7 @@ public:
   {
     this->registerClassForPythonQt(&lqLidarCoreManager::staticMetaObject);
     this->registerClassForPythonQt(&lqSensorListWidget::staticMetaObject);
+    this->registerClassForPythonQt(&lqPlayerControlsToolbar::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -94,6 +97,14 @@ public slots:
   {
     lqLidarCoreManager::instance()->onResetCameraToForwardView();
   }
+
+  // lqPlayerControlsToolbar
+  lqPlayerControlsToolbar* new_lqPlayerControlsToolbar(QWidget* mainWindow)
+  {
+    return new lqPlayerControlsToolbar(mainWindow);
+  }
+  void onPause(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPause(); }
+  void onPlay(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPlay(); }
 
   // lqSensorListWidget
   lqSensorListWidget* static_lqSensorListWidget_instance()

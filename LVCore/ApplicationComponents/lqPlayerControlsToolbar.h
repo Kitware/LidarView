@@ -49,6 +49,9 @@ public:
   lqPlayerControlsToolbar(QWidget* parentObject = 0, bool advancedOptionsForRecording = false);
   ~lqPlayerControlsToolbar();
 
+  // For Python binding
+  lqPlayerControlsController* getController() const;
+
 protected Q_SLOTS:
   // UI Updates
   void setTimeRanges(double, double); // VCR Controller default, updates time ranges
