@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqPlayerControlsController.h"
 #include "lqPlayerControlsToolbar.h"
 #include "lqSensorListWidget.h"
+#include "lqStreamRecordReaction.h"
 #include <pqActiveObjects.h>
 
 class lqPythonQtDecorators : public QObject
@@ -105,6 +106,14 @@ public slots:
   }
   void onPause(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPause(); }
   void onPlay(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPlay(); }
+  void startRecording(lqPlayerControlsToolbar* toolbar, QString filename)
+  {
+    toolbar->getRecordController()->startRecording(filename);
+  }
+  void stopRecording(lqPlayerControlsToolbar* toolbar)
+  {
+    toolbar->getRecordController()->stopRecording(false);
+  }
 
   // lqSensorListWidget
   lqSensorListWidget* static_lqSensorListWidget_instance()

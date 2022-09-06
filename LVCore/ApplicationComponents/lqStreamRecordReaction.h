@@ -29,6 +29,14 @@ public slots:
    */
   void onTriggered() override;
 
+  // Actions when triggered :
+  // Open pop up to choose file path where to save stream + start stream recording with vtkstream +
+  // change state for next trigger
+  void startRecording(QString filename = "");
+  // Stop stream recording + open pop up to warn user + change state for next trigger,
+  // (recording must have been previously started)
+  void stopRecording(bool displayMessage = false);
+
   /**
    * Monitor the added/deleted source to enable/disable the QAction
    */
@@ -52,14 +60,6 @@ private:
   QString recordingFilename;
 
   pqSettings* const Settings;
-
-  // Actions when triggered :
-  // Open pop up to choose file path where to save stream + start stream recording with vtkstream +
-  // change state for next trigger
-  void StartRecordingReaction();
-  // Stop stream recording + open pop up to warn user + change state for next trigger,
-  // (recording must have been previously started)
-  void StopRecordingReaction();
 
   bool isRecording;
 };

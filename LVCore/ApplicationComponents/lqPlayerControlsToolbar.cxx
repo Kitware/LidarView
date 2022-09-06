@@ -182,7 +182,8 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   this->insertWidget(this->UI->actionRecord, this->UI->frameLabel);
 
   // Add the Recording Reaction
-  new lqStreamRecordReaction(this->UI->actionRecord, true, advancedOptionsForRecording);
+  this->RecordController =
+    new lqStreamRecordReaction(this->UI->actionRecord, true, advancedOptionsForRecording);
 
   // Toggle Toolbar based on lqSensorListWidget
   this->connect(lqSensorListWidget::instance(),
@@ -352,4 +353,10 @@ void lqPlayerControlsToolbar::onTimestepChanged()
 lqPlayerControlsController* lqPlayerControlsToolbar::getController() const
 {
   return this->Controller;
+}
+
+//-----------------------------------------------------------------------------
+lqStreamRecordReaction* lqPlayerControlsToolbar::getRecordController() const
+{
+  return this->RecordController;
 }

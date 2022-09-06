@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqapplicationcomponents_export.h"
 
 class lqPlayerControlsController;
+class lqStreamRecordReaction;
 
 /// This class is a mixed of pqVCRToolbar and pqTimAnimationWidget
 /// Rely on lqSensorListWidget to disable usage in 'Stream Mode'
@@ -51,6 +52,7 @@ public:
 
   // For Python binding
   lqPlayerControlsController* getController() const;
+  lqStreamRecordReaction* getRecordController() const;
 
 protected Q_SLOTS:
   // UI Updates
@@ -73,6 +75,7 @@ Q_SIGNALS:
 
 protected:
   lqPlayerControlsController* Controller;
+  lqStreamRecordReaction* RecordController;
 
 private:
   Q_DISABLE_COPY(lqPlayerControlsToolbar)

@@ -68,16 +68,16 @@ void lqStreamRecordReaction::onTriggered()
 {
   if (this->isRecording)
   {
-    this->StopRecordingReaction();
+    this->stopRecording(this->displayStopMessage);
   }
   else
   {
-    this->StartRecordingReaction();
+    this->startRecording();
   }
 }
 
 //-----------------------------------------------------------------------------
-void lqStreamRecordReaction::StartRecordingReaction()
+void lqStreamRecordReaction::startRecording(QString filename)
 {
   // Get the first lidar, as for now this function doesn't handle multiple lidar.
   // When this code need to be upgrade for multiple lidar so that either
@@ -100,28 +100,36 @@ void lqStreamRecordReaction::StartRecordingReaction()
 
   QString defaultFileName =
     QString::fromStdString(interpreter->GetDefaultRecordFileName() + ".pcap");
-  if (useAdvancedDialog)
+  if (!filename.isEmpty())
   {
-    lqStreamRecordDialog dialog(nullptr, defaultFileName);
-    if (dialog.exec() == QDialog::Rejected)
-    {
-      // Cancel
-      return;
-    }
-    // Get User input Filename
-    this->recordingFilename = dialog.recordingFile();
-    QFile::copy(
-      QString::fromStdString(interpreter->GetCalibrationFileName()), dialog.calibrationFile());
+    this->recordingFilename = filename;
   }
   else
   {
-    QString PreviousPath =
-      QString(this->Settings->value("LidarPlugin/RecordReaction/DefaultFolder").toString());
-    defaultFileName = PreviousPath + "/" + defaultFileName;
+    if (useAdvancedDialog)
+    {
+      lqStreamRecordDialog dialog(nullptr, defaultFileName);
+      if (dialog.exec() == QDialog::Rejected)
+      {
+        // Cancel
+        return;
+      }
+      // Get User input Filename
+      this->recordingFilename = dialog.recordingFile();
+      QFile::copy(
+        QString::fromStdString(interpreter->GetCalibrationFileName()), dialog.calibrationFile());
+    }
+    else
+    {
+      QString PreviousPath =
+        QString(this->Settings->value("LidarPlugin/RecordReaction/DefaultFolder").toString());
+      defaultFileName = PreviousPath + "/" + defaultFileName;
 
-    this->recordingFilename = QFileDialog::getSaveFileName(
-      nullptr, QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
+      this->recordingFilename = QFileDialog::getSaveFileName(
+        nullptr, QString("Record File:"), defaultFileName, QString("PCAP (*.pcap)"));
+    }
   }
+
   if (this->recordingFilename == "")
   {
     std::cout << "Recording Filename is empty, aborting." << std::endl;
@@ -153,7 +161,7 @@ void lqStreamRecordReaction::StartRecordingReaction()
 }
 
 //-----------------------------------------------------------------------------
-void lqStreamRecordReaction::StopRecordingReaction()
+void lqStreamRecordReaction::stopRecording(bool displayMessage)
 {
   // Tell vtkStreams to Stop Recording
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
@@ -172,7 +180,7 @@ void lqStreamRecordReaction::StopRecordingReaction()
   this->parentAction()->setToolTip("Start Recording Stream Data");
   this->parentAction()->setChecked(false);
 
-  if (this->displayStopMessage)
+  if (displayMessage)
   {
     // Display a feedback message to the user when the recording is stopped
     QMessageBox stopRecordMsg;
@@ -200,7 +208,7 @@ void lqStreamRecordReaction::onSourceRemoved(pqPipelineSource* src)
     this->parentAction()->setEnabled(false);
     if (this->isRecording)
     {
-      this->StopRecordingReaction();
+      this->stopRecording(this->displayStopMessage);
     }
   }
 }
