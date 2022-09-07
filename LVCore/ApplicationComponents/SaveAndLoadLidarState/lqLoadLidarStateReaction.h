@@ -5,6 +5,7 @@
 
 #include "pqReaction.h"
 
+#include "lqChooseLidarDialog.h"
 #include "lqLidarStateDialog.h"
 
 #include "lqapplicationcomponents_export.h"
@@ -25,6 +26,10 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqLoadLidarStateReaction : public pqReactio
 public:
   lqLoadLidarStateReaction(QAction* action);
 
+  /**
+   * @brief Load from a json file the lidar properties state and apply them
+   * @param lidarProxy proxy to write the properties into
+   */
   static void LoadLidarState(vtkSMProxy* lidarCurrentProxy);
 
 public slots:

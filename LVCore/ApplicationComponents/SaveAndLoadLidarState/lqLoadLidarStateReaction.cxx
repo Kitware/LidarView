@@ -31,22 +31,42 @@ lqLoadLidarStateReaction::lqLoadLidarStateReaction(QAction* action)
 //-----------------------------------------------------------------------------
 void lqLoadLidarStateReaction::onTriggered()
 {
-  // Get the first lidar source
-  std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  if (smmodel == nullptr)
+  {
+    return;
+  }
 
-  if (lidarProxys.empty())
+  // The first lidar source by default
+  int index = 0;
+  QStringList lidarNames;
+  std::vector<vtkSMProxy*> lidarProxys;
+  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  {
+    if (IsLidarProxy(src->getProxy()))
+    {
+      lidarProxys.push_back(src->getProxy());
+      lidarNames << src->getSMName();
+    }
+  }
+
+  if (lidarProxys.size() > 1)
+  {
+    lqChooseLidarDialog dialog(nullptr, lidarNames);
+    if (!dialog.exec())
+    {
+      return;
+    }
+    index = dialog.getSelectedLidarIndex();
+  }
+
+  if (lidarProxys.size() < 1 || lidarProxys[index] == nullptr)
   {
     QMessageBox::warning(nullptr, tr(""), tr("No lidar source found in the pipeline"));
     return;
   }
 
-  if (lidarProxys.size() > 1)
-  {
-    QMessageBox::warning(
-      nullptr, tr(""), tr("Multiple lidars sources found, only the first one will be updated"));
-  }
-
-  lqLoadLidarStateReaction::LoadLidarState(lidarProxys[0]);
+  lqLoadLidarStateReaction::LoadLidarState(lidarProxys[index]);
 }
 
 //-----------------------------------------------------------------------------

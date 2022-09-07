@@ -42,6 +42,9 @@ add_library(lqApplicationComponents
   lqRulerReaction.cxx
   lqLiveSourceScalarColoringBehavior.cxx
   lqLiveSourceScalarColoringBehavior.h
+  SaveAndLoadLidarState/lqChooseLidarDialog.cxx
+  SaveAndLoadLidarState/lqChooseLidarDialog.h
+  SaveAndLoadLidarState/lqChooseLidarDialog.ui
   SaveAndLoadLidarState/lqSaveLidarStateReaction.cxx
   SaveAndLoadLidarState/lqSaveLidarStateReaction.h
   SaveAndLoadLidarState/lqLoadLidarStateReaction.cxx

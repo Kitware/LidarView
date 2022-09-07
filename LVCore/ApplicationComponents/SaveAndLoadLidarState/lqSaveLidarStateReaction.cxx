@@ -29,45 +29,51 @@ lqSaveLidarStateReaction::lqSaveLidarStateReaction(QAction* action)
 //-----------------------------------------------------------------------------
 void lqSaveLidarStateReaction::onTriggered()
 {
-  // Get the first lidar source
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   if (smmodel == nullptr)
   {
     return;
   }
-  vtkSMProxy* lidarProxy = nullptr;
+
+  // The first lidar source by default
+  int index = 0;
+  QStringList lidarNames;
+  std::vector<vtkSMProxy*> lidarProxys;
   foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
     if (IsLidarProxy(src->getProxy()))
     {
-      if (lidarProxy == nullptr)
-      {
-        lidarProxy = src->getProxy();
-      }
-      else
-      {
-        QMessageBox::warning(
-          nullptr, tr(""), tr("Multiple lidars sources found, only the first one will be saved"));
-      }
+      lidarProxys.push_back(src->getProxy());
+      lidarNames << src->getSMName();
     }
   }
 
-  if (lidarProxy == nullptr)
+  if (lidarProxys.size() > 1)
+  {
+    lqChooseLidarDialog dialog(nullptr, lidarNames);
+    if (!dialog.exec())
+    {
+      return;
+    }
+    index = dialog.getSelectedLidarIndex();
+  }
+
+  if (lidarProxys.size() < 1 || lidarProxys[index] == nullptr)
   {
     QMessageBox::warning(nullptr, tr(""), tr("No lidar source found in the pipeline"));
     return;
   }
 
-  lqSaveLidarStateReaction::SaveLidarState(lidarProxy);
+  lqSaveLidarStateReaction::SaveLidarState(lidarProxys[index], lidarNames[index]);
 }
 
 //-----------------------------------------------------------------------------
-void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy* lidarProxy)
+void lqSaveLidarStateReaction::SaveLidarState(vtkSMProxy* lidarProxy, const QString& lidarName)
 {
 
   // Save Lidar information file and save the folder in which it was saved to find it again later
 
-  QString defaultFileName = QString("/SaveLidarInformation.json");
+  QString defaultFileName = QString("/" + lidarName + "Information.json");
   pqSettings* settings = pqApplicationCore::instance()->settings();
   QString defaultDir =
     settings->value("LidarPlugin/OpenData/DefaultDirState", QDir::homePath()).toString();

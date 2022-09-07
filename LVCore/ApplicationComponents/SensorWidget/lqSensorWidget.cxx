@@ -375,7 +375,8 @@ void lqSensorWidget::onSaveLidarState()
 {
   if (this->LidarSource)
   {
-    lqSaveLidarStateReaction::SaveLidarState(this->LidarSource->getProxy());
+    lqSaveLidarStateReaction::SaveLidarState(
+      this->LidarSource->getProxy(), this->LidarSource->getSMName());
   }
 }
 

@@ -8,6 +8,7 @@
 #include <vtkSMProperty.h>
 #include <vtk_jsoncpp.h>
 
+#include "lqChooseLidarDialog.h"
 #include "lqLidarStateDialog.h"
 
 #include "lqapplicationcomponents_export.h"
@@ -25,7 +26,12 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSaveLidarStateReaction : public pqReactio
 public:
   lqSaveLidarStateReaction(QAction* action);
 
-  static void SaveLidarState(vtkSMProxy* lidarProxy);
+  /**
+   * @brief Save to a json file the current lidar properties state
+   * @param lidarProxy proxy to extract the properties
+   * @param lidarName lidar name that will be used in default filename
+   */
+  static void SaveLidarState(vtkSMProxy* lidarProxy, const QString& lidarName);
 
 public slots:
   /**
