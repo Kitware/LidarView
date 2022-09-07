@@ -106,6 +106,22 @@ public slots:
   }
   void onPause(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPause(); }
   void onPlay(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPlay(); }
+  void onSeekFrame(lqPlayerControlsToolbar* toolbar, int index)
+  {
+    toolbar->getController()->onSeekFrame(index);
+  }
+  void onSeekTime(lqPlayerControlsToolbar* toolbar, double time)
+  {
+    toolbar->getController()->onSeekTime(time);
+  }
+  void onNextFrame(lqPlayerControlsToolbar* toolbar) 
+  { 
+    toolbar->getController()->onNextFrame(); 
+  }
+  void onPreviousFrame(lqPlayerControlsToolbar* toolbar)
+  {
+    toolbar->getController()->onPreviousFrame();
+  }
   void startRecording(lqPlayerControlsToolbar* toolbar, QString filename)
   {
     toolbar->getRecordController()->startRecording(filename);
