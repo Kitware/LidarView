@@ -10,20 +10,20 @@
 #include <pqSettings.h>
 
 #include <vtkSMBooleanDomain.h>
-#include <vtkSmartPointer.h>
-#include <vtkSMProxy.h>
 #include <vtkSMProperty.h>
-#include <vtkSMPropertyIterator.h>
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMPropertyIterator.h>
+#include <vtkSMProxy.h>
 #include <vtkSMSourceProxy.h>
+#include <vtkSmartPointer.h>
 
 #include <cstring>
-#include <vector>
-#include <iostream>
 #include <exception>
+#include <iostream>
+#include <vector>
 
 //-----------------------------------------------------------------------------
-lqLoadLidarStateReaction::lqLoadLidarStateReaction(QAction *action)
+lqLoadLidarStateReaction::lqLoadLidarStateReaction(QAction* action)
   : Superclass(action)
 {
 }
@@ -34,29 +34,31 @@ void lqLoadLidarStateReaction::onTriggered()
   // Get the first lidar source
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
 
-  if(lidarProxys.empty())
+  if (lidarProxys.empty())
   {
-    QMessageBox::warning(nullptr, tr(""), tr("No lidar source found in the pipeline") );
+    QMessageBox::warning(nullptr, tr(""), tr("No lidar source found in the pipeline"));
     return;
   }
 
-  if(lidarProxys.size() > 1)
+  if (lidarProxys.size() > 1)
   {
-    QMessageBox::warning(nullptr, tr(""), tr("Multiple lidars sources found, only the first one will be updated") );
+    QMessageBox::warning(
+      nullptr, tr(""), tr("Multiple lidars sources found, only the first one will be updated"));
   }
 
   lqLoadLidarStateReaction::LoadLidarState(lidarProxys[0]);
 }
 
 //-----------------------------------------------------------------------------
-void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
+void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy* lidarCurrentProxy)
 {
   // Get the Lidar state file
   QString LidarStateFile = QFileDialog::getOpenFileName(nullptr,
-                                 QString("Choose the lidar state file to load on the first lidar"),
-                                 "", QString("json (*.json)"));
+    QString("Choose the lidar state file to load on the first lidar"),
+    "",
+    QString("json (*.json)"));
 
-  if(LidarStateFile.isEmpty())
+  if (LidarStateFile.isEmpty())
   {
     return;
   }
@@ -75,9 +77,9 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
   {
     file >> contents;
   }
-  catch(...)
+  catch (...)
   {
-    QMessageBox::warning(nullptr, tr(""), tr("Json file not valid") );
+    QMessageBox::warning(nullptr, tr(""), tr("Json file not valid"));
     return;
   }
 
@@ -85,20 +87,20 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
   std::vector<propertyInfo> propertyInfo;
   try
   {
-    ParseJsonContent(contents, "",propertyInfo);
+    ParseJsonContent(contents, "", propertyInfo);
   }
-  catch(...)
+  catch (...)
   {
-    QMessageBox::warning(nullptr, tr(""), tr("Error when parsing json information") );
+    QMessageBox::warning(nullptr, tr(""), tr("Error when parsing json information"));
     return;
   }
 
   lqLidarStateDialog dialog(nullptr, propertyInfo, "Please select the parameters to load");
-  if(dialog.exec())
+  if (dialog.exec())
   {
-    for(const auto & currentProp : dialog.properties)
+    for (const auto& currentProp : dialog.properties)
     {
-      if(currentProp.checkbox->isChecked())
+      if (currentProp.checkbox->isChecked())
       {
         std::string proxyName = currentProp.proxyName;
         std::string propertyName = currentProp.propertyName;
@@ -114,19 +116,20 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
 
         if (lidarProxy == nullptr)
         {
-          std::string message = "No matching proxy found. Property " + propertyName + " of the proxy " + proxyName + " not applied";
-          QMessageBox::information(nullptr, tr(""), tr(message.c_str()) );
+          std::string message = "No matching proxy found. Property " + propertyName +
+            " of the proxy " + proxyName + " not applied";
+          QMessageBox::information(nullptr, tr(""), tr(message.c_str()));
         }
         else
-        {        
+        {
           UpdateProxyProperty(lidarProxy, propertyName, currentProp.values);
         }
       }
     }
-    //Update the proxy
+    // Update the proxy
     lidarCurrentProxy->UpdateSelfAndAllInputs();
-    vtkSMSourceProxy * sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(lidarCurrentProxy);
-    if(sourcelidarProxy)
+    vtkSMSourceProxy* sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(lidarCurrentProxy);
+    if (sourcelidarProxy)
     {
       sourcelidarProxy->UpdatePipelineInformation();
     }
@@ -135,15 +138,16 @@ void lqLoadLidarStateReaction::LoadLidarState(vtkSMProxy * lidarCurrentProxy)
 }
 
 //-----------------------------------------------------------------------------
-void lqLoadLidarStateReaction::ParseJsonContent(Json::Value contents, std::string ObjectName,
-                                            std::vector<propertyInfo>& propertiesInfo)
+void lqLoadLidarStateReaction::ParseJsonContent(Json::Value contents,
+  std::string ObjectName,
+  std::vector<propertyInfo>& propertiesInfo)
 {
-  for(auto it = contents.begin(); it != contents.end(); it++)
+  for (auto it = contents.begin(); it != contents.end(); it++)
   {
     std::string currentKey = it.key().asString();
 
     // If the content is an object, it is write as a title
-    if(contents[currentKey].isObject())
+    if (contents[currentKey].isObject())
     {
       propertyInfo prop = propertyInfo(currentKey, currentKey);
       propertiesInfo.push_back(prop);
@@ -152,9 +156,9 @@ void lqLoadLidarStateReaction::ParseJsonContent(Json::Value contents, std::strin
     else
     {
       std::vector<std::string> values;
-      if(contents[currentKey].isArray())
+      if (contents[currentKey].isArray())
       {
-        for(unsigned int j = 0; j < contents[currentKey].size(); j++)
+        for (unsigned int j = 0; j < contents[currentKey].size(); j++)
         {
           values.push_back(contents[currentKey][j].asString());
         }
