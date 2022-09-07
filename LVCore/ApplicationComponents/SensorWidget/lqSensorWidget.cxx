@@ -6,9 +6,9 @@
 #include "lqSaveLidarStateReaction.h"
 
 #include <pqApplicationCore.h>
+#include <pqObjectBuilder.h>
 #include <pqPipelineSource.h>
 #include <pqProxy.h>
-#include <pqObjectBuilder.h>
 #include <pqSMAdaptor.h>
 
 #include <vtkSMProperty.h>
@@ -21,12 +21,12 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-lqSensorWidget::lqSensorWidget(QWidget *parent) :
-  QWidget(parent),
-  LidarSource(nullptr),
-  PositionOrientationSource(nullptr),
-  IsClosing(false),
-  UI(new Ui::lqSensorWidget)
+lqSensorWidget::lqSensorWidget(QWidget* parent)
+  : QWidget(parent)
+  , LidarSource(nullptr)
+  , PositionOrientationSource(nullptr)
+  , IsClosing(false)
+  , UI(new Ui::lqSensorWidget)
 {
   this->UI->setupUi(this);
 
@@ -47,7 +47,6 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
 
   this->SourceToDisplay = nullptr;
 
-   
   this->UI->enableLiveDataTransformCheckBox->setVisible(true);
 
   // set up arrays to point on sliders and spinboxes corresponding to each transform param
@@ -77,88 +76,155 @@ lqSensorWidget::lqSensorWidget(QWidget *parent) :
   }
 
   // connect checkbox to enabler of live transform mode
-  connect(this->UI->enableLiveDataTransformCheckBox, &QCheckBox::stateChanged, this,
+  connect(this->UI->enableLiveDataTransformCheckBox,
+    &QCheckBox::stateChanged,
+    this,
     [this] { lqSensorWidget::onEnableLiveTransformToggle(); });
 
   // connect up and down buttons to emitter of this signal for the sensorlist class
-  connect(this->UI->buttonDown, &QPushButton::released, this,
+  connect(this->UI->buttonDown,
+    &QPushButton::released,
+    this,
     [this] { lqSensorWidget::onButtonDownClicked(); });
-  connect(this->UI->buttonUp, &QPushButton::released, this,
+  connect(this->UI->buttonUp,
+    &QPushButton::released,
+    this,
     [this] { lqSensorWidget::onButtonUpClicked(); });
 
   // Connect Slider movement to transform updating function
-  connect(this->UI->TxSlider, &QSlider::sliderMoved, this,
+  connect(this->UI->TxSlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_X); });
-  connect(this->UI->TySlider, &QSlider::sliderMoved, this,
+  connect(this->UI->TySlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
-  connect(this->UI->TzSlider, &QSlider::sliderMoved, this,
+  connect(this->UI->TzSlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
-  connect(this->UI->RollSlider, &QSlider::sliderMoved, this,
+  connect(this->UI->RollSlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
-  connect(this->UI->PitchSlider, &QSlider::sliderMoved, this,
+  connect(this->UI->PitchSlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
-  connect(this->UI->YawSlider, &QSlider::sliderMoved, this,
+  connect(this->UI->YawSlider,
+    &QSlider::sliderMoved,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 
   // connect Slider Release signal to make sur last value of the slider is recorded
-  connect(this->UI->TxSlider, &QSlider::sliderReleased, this,
+  connect(this->UI->TxSlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_X); });
-  connect(this->UI->TySlider, &QSlider::sliderReleased, this,
+  connect(this->UI->TySlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
-  connect(this->UI->TzSlider, &QSlider::sliderReleased, this,
+  connect(this->UI->TzSlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
-  connect(this->UI->RollSlider, &QSlider::sliderReleased, this,
+  connect(this->UI->RollSlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
-  connect(this->UI->PitchSlider, &QSlider::sliderReleased, this,
+  connect(this->UI->PitchSlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
-  connect(this->UI->YawSlider, &QSlider::sliderReleased, this,
+  connect(this->UI->YawSlider,
+    &QSlider::sliderReleased,
+    this,
     [this] { lqSensorWidget::onSliderUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 
   // connect value spinboxes to corresponding function
-  connect(this->UI->TxSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->TxSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
-  connect(this->UI->TySpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->TySpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
-  connect(this->UI->TzSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->TzSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
-  connect(this->UI->RollSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->RollSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
-  connect(this->UI->PitchSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->PitchSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
-  connect(this->UI->YawSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->YawSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 
   // connect min max spin boxes to corresponding function
-  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
-  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
-  connect(this->UI->MinTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
-  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
-  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
-  connect(this->UI->MinRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MinRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 
   // connect min max spin boxes to corresponding function
-  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_X); });
-  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Y); });
-  connect(this->UI->MaxTranslationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxTranslationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::POS_Z); });
-  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_ROLL); });
-  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_PITCH); });
-  connect(this->UI->MaxRotationValueSpinBox, &QDoubleSpinBox::editingFinished, this,
+  connect(this->UI->MaxRotationValueSpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
     [this] { lqSensorWidget::onMinMaxValueSpinBoxUpdate(TRANSFORMVALUE_INDEX::ROT_YAW); });
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::SetCalibrationFunction(std::function<void(pqPipelineSource* &, pqPipelineSource* &)> function)
+void lqSensorWidget::SetCalibrationFunction(
+  std::function<void(pqPipelineSource*&, pqPipelineSource*&)> function)
 {
   this->CalibrationFunction = function;
 }
@@ -215,7 +281,7 @@ void lqSensorWidget::SetPositionOrientationSource(pqPipelineSource* src)
   // That's why we allow setting a null position orientation source
   this->PositionOrientationSource = src;
 
-  if(src)
+  if (src)
   {
     // Connect the source to update the UI if the name or the port change
     QObject::connect(src, SIGNAL(nameChanged(pqServerManagerModelItem*)), this, SLOT(onUpdateUI()));
@@ -230,41 +296,39 @@ pqPipelineSource* lqSensorWidget::GetPositionOrientationSource() const
 }
 
 //-----------------------------------------------------------------------------
-bool lqSensorWidget::IsWidgetLidarSource(pqPipelineSource *src) const
+bool lqSensorWidget::IsWidgetLidarSource(pqPipelineSource* src) const
 {
   return this->LidarSource == src;
 }
 
 //-----------------------------------------------------------------------------
-bool lqSensorWidget::IsWidgetPositionOrientationSource(pqPipelineSource *src) const
+bool lqSensorWidget::IsWidgetPositionOrientationSource(pqPipelineSource* src) const
 {
   return this->PositionOrientationSource == src;
 }
 
 //-----------------------------------------------------------------------------
-bool lqSensorWidget::IsWidgetSourceToDisplay(pqPipelineSource *src) const
+bool lqSensorWidget::IsWidgetSourceToDisplay(pqPipelineSource* src) const
 {
   return this->SourceToDisplay == src;
 }
 
 //-----------------------------------------------------------------------------
-bool lqSensorWidget::IsAttachedToWidget(pqPipelineSource * src) const
+bool lqSensorWidget::IsAttachedToWidget(pqPipelineSource* src) const
 {
-  return this->IsWidgetLidarSource(src) ||
-         this->IsWidgetPositionOrientationSource(src) ||
-         this->IsWidgetSourceToDisplay(src);
+  return this->IsWidgetLidarSource(src) || this->IsWidgetPositionOrientationSource(src) ||
+    this->IsWidgetSourceToDisplay(src);
 }
 
 //-----------------------------------------------------------------------------
 void lqSensorWidget::onCalibrate()
 {
-  if(this->CalibrationFunction)
+  if (this->CalibrationFunction)
   {
     this->CalibrationFunction(this->LidarSource, this->PositionOrientationSource);
   }
   // update internal transform based on updated proxy transform
   ReadValueFromProxy();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -316,19 +380,18 @@ void lqSensorWidget::onSaveLidarState()
 }
 
 //-----------------------------------------------------------------------------
-void lqSensorWidget::deleteSource(pqProxy *src)
+void lqSensorWidget::deleteSource(pqProxy* src)
 {
   if (src)
   {
     pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
-    for (pqPipelineSource* consumer: static_cast<pqPipelineSource*>(src)->getAllConsumers())
+    for (pqPipelineSource* consumer : static_cast<pqPipelineSource*>(src)->getAllConsumers())
       builder->destroy(consumer);
 
     builder->destroy(src);
   }
 
   src = nullptr;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -337,9 +400,10 @@ void lqSensorWidget::onUpdateUI()
   assert(this->LidarSource);
 
   // Update UI with lidar information
-  vtkSMProxy * lidarProxy = this->LidarSource->getProxy();
-  vtkSMProperty * lidarPropCalibName = lidarProxy->GetProperty("CalibrationFileName");
-  QString lidarCalibName = QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
+  vtkSMProxy* lidarProxy = this->LidarSource->getProxy();
+  vtkSMProperty* lidarPropCalibName = lidarProxy->GetProperty("CalibrationFileName");
+  QString lidarCalibName =
+    QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
 
   QString lidarName = this->LidarSource->getSMName();
   QString calibrationFileName = "Calibration Filename: " + lidarCalibName;
@@ -347,7 +411,7 @@ void lqSensorWidget::onUpdateUI()
   this->UI->CalibrationFile->setText(calibrationFileName);
 
   // Update UI with Position Orientation information
-  if(this->PositionOrientationSource)
+  if (this->PositionOrientationSource)
   {
     this->UI->posOrName->setVisible(true);
     QString posOrName = this->PositionOrientationSource->getSMName();
@@ -546,8 +610,9 @@ void lqSensorWidget::ReadValueFromProxy()
       double Yaw = RotationVector[2];
 
       // Concatenate them in a vector
-      double TransformParams[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE] = { Tx, Ty, Tz, Roll, Pitch,
-        Yaw };
+      double TransformParams[TRANSFORMVALUE_INDEX::TRANSFORM_SIZE] = {
+        Tx, Ty, Tz, Roll, Pitch, Yaw
+      };
 
       // update internal values
       // Get current min and max for rotation and translation
@@ -609,15 +674,17 @@ void lqSensorWidget::onUpdateTransform()
     double Tx = curr_Transform[TRANSFORMVALUE_INDEX::POS_X];
     double Ty = curr_Transform[TRANSFORMVALUE_INDEX::POS_Y];
     double Tz = curr_Transform[TRANSFORMVALUE_INDEX::POS_Z];
-    std::vector<std::string> TranslationValues = { std::to_string(Tx), std::to_string(Ty),
-      std::to_string(Tz) };
+    std::vector<std::string> TranslationValues = {
+      std::to_string(Tx), std::to_string(Ty), std::to_string(Tz)
+    };
 
     // Recover Rotation from sliders
     double Roll = curr_Transform[TRANSFORMVALUE_INDEX::ROT_ROLL];
     double Pitch = curr_Transform[TRANSFORMVALUE_INDEX::ROT_PITCH];
     double Yaw = curr_Transform[TRANSFORMVALUE_INDEX::ROT_YAW];
-    std::vector<std::string> RotationValues = { std::to_string(Roll), std::to_string(Pitch),
-      std::to_string(Yaw) };
+    std::vector<std::string> RotationValues = {
+      std::to_string(Roll), std::to_string(Pitch), std::to_string(Yaw)
+    };
 
     // Get transform proxy
     vtkSMProxy* TransformProxy = SearchProxyByName(lidarProxy, TransformproxyName);
