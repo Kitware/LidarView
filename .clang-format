@@ -1,5 +1,5 @@
 ---
-# This configuration requires clang-format 3.8 or higher.
+# This configuration requires clang-format 8.0 or higher.
 BasedOnStyle: Mozilla
 AlignAfterOpenBracket: DontAlign
 AlignOperands: false
@@ -7,6 +7,16 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 BreakBeforeBraces: Allman
 ColumnLimit: 100
-Standard: Cpp03
-BinPackArguments: true
-BinPackParameters: true
+SpaceAfterTemplateKeyword: true
+Standard: Cpp11
+StatementMacros:
+- vtkAbstractTypeMacro
+- vtkTypeMacro
+- vtkGetObjectMacro
+- vtkSetObjectMacro
+- vtkCustomSetMacro
+- vtkBaseTypeMacro
+- vtkAbstractTemplateTypeMacro
+- vtkAbstractTypeMacroWithNewInstanceType
+- vtkStandardNewMacro
+...
