@@ -20,8 +20,8 @@
 #include <pqApplicationCore.h>
 #include <pqSettings.h>
 
-#include <QPushButton>
 #include <QDialog>
+#include <QPushButton>
 #include <QStyle>
 
 #include "ctkDoubleRangeSlider.h"
@@ -32,7 +32,7 @@
 class vvCropReturnsDialog::pqInternal : public Ui::vvCropReturnsDialog
 {
 public:
-  pqInternal(QDialog *external)
+  pqInternal(QDialog* external)
     : Settings(pqApplicationCore::instance()->settings())
   {
     this->External = external;
@@ -66,11 +66,11 @@ public:
   void onZSliderChanged(double vmin, double vmax);
   void updateRangeValues(bool isSliderMode);
 
-  QDialog *External;
+  QDialog* External;
 
-  QPushButton *CancelButton;
-  QPushButton *ApplyButton;
-  QPushButton *ApplyAndSaveButton;
+  QPushButton* CancelButton;
+  QPushButton* ApplyButton;
+  QPushButton* ApplyAndSaveButton;
 
   ctkDoubleRangeSlider XDoubleRangeSlider;
   ctkDoubleRangeSlider YDoubleRangeSlider;
@@ -96,8 +96,10 @@ void vvCropReturnsDialog::pqInternal::saveSettings()
   this->Settings->setValue(
     "LidarPlugin/CropReturnsDialog/CropOutside", this->CropOutsideCheckBox->isChecked());
 
-  this->Settings->setValue("LidarPlugin/CropReturnsDialog/cartesianRadioButton", this->cartesianRadioButton->isChecked());
-  this->Settings->setValue("LidarPlugin/CropReturnsDialog/sphericalRadioButton", this->sphericalRadioButton->isChecked());
+  this->Settings->setValue(
+    "LidarPlugin/CropReturnsDialog/cartesianRadioButton", this->cartesianRadioButton->isChecked());
+  this->Settings->setValue(
+    "LidarPlugin/CropReturnsDialog/sphericalRadioButton", this->sphericalRadioButton->isChecked());
 
   this->Settings->setValue("LidarPlugin/CropReturnsDialog/FirstCornerX", xRange[0]);
   this->Settings->setValue("LidarPlugin/CropReturnsDialog/FirstCornerY", yRange[0]);
@@ -111,11 +113,9 @@ void vvCropReturnsDialog::pqInternal::saveSettings()
 void vvCropReturnsDialog::pqInternal::restoreSettings()
 {
   this->sphericalRadioButton->setChecked(
-    this->Settings->value("LidarPlugin/CropReturnsDialog/sphericalRadioButton", true)
-      .toBool());
+    this->Settings->value("LidarPlugin/CropReturnsDialog/sphericalRadioButton", true).toBool());
   this->cartesianRadioButton->setChecked(
-    this->Settings->value("LidarPlugin/CropReturnsDialog/cartesianRadioButton", false)
-      .toBool());
+    this->Settings->value("LidarPlugin/CropReturnsDialog/cartesianRadioButton", false).toBool());
 
   if (this->cartesianRadioButton->isChecked())
   {
@@ -130,34 +130,26 @@ void vvCropReturnsDialog::pqInternal::restoreSettings()
   this->CropGroupBox->setChecked(
     this->Settings->value("LidarPlugin/CropReturnsDialog/EnableCropping", false).toBool());
 
-  this->CropOutsideCheckBox->setChecked(this->Settings
-                                            ->value("LidarPlugin/CropReturnsDialog/CropOutside",
-                                                    true)
-                                            .toBool());
+  this->CropOutsideCheckBox->setChecked(
+    this->Settings->value("LidarPlugin/CropReturnsDialog/CropOutside", true).toBool());
 
   this->X1SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/FirstCornerX", this->X1SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/FirstCornerX", this->X1SpinBox->value())
       .toDouble());
   this->Y1SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/FirstCornerY", this->Y1SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/FirstCornerY", this->Y1SpinBox->value())
       .toDouble());
   this->Z1SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/FirstCornerZ", this->Z1SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/FirstCornerZ", this->Z1SpinBox->value())
       .toDouble());
   this->X2SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/SecondCornerX", this->X2SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/SecondCornerX", this->X2SpinBox->value())
       .toDouble());
   this->Y2SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/SecondCornerY", this->Y2SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/SecondCornerY", this->Y2SpinBox->value())
       .toDouble());
   this->Z2SpinBox->setValue(
-    this->Settings
-      ->value("LidarPlugin/CropReturnsDialog/SecondCornerZ", this->Z2SpinBox->value())
+    this->Settings->value("LidarPlugin/CropReturnsDialog/SecondCornerZ", this->Z2SpinBox->value())
       .toDouble());
 
   xRange[0] = this->X1SpinBox->value();
@@ -201,11 +193,17 @@ vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
     this->Internal->Z1SpinBox, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxChanged(double)));
   connect(
     this->Internal->Z2SpinBox, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxChanged(double)));
-  connect(&this->Internal->XDoubleRangeSlider, SIGNAL(positionsChanged(double, double)), this,
+  connect(&this->Internal->XDoubleRangeSlider,
+    SIGNAL(positionsChanged(double, double)),
+    this,
     SLOT(onXSliderChanged(double, double)));
-  connect(&this->Internal->YDoubleRangeSlider, SIGNAL(positionsChanged(double, double)), this,
+  connect(&this->Internal->YDoubleRangeSlider,
+    SIGNAL(positionsChanged(double, double)),
+    this,
     SLOT(onYSliderChanged(double, double)));
-  connect(&this->Internal->ZDoubleRangeSlider, SIGNAL(positionsChanged(double, double)), this,
+  connect(&this->Internal->ZDoubleRangeSlider,
+    SIGNAL(positionsChanged(double, double)),
+    this,
     SLOT(onZSliderChanged(double, double)));
   connect(this->Internal->sliderModeCheckBox, SIGNAL(clicked()), this, SLOT(onSliderBoxToggled()));
   connect(
@@ -222,9 +220,7 @@ vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
 }
 
 //-----------------------------------------------------------------------------
-vvCropReturnsDialog::~vvCropReturnsDialog()
-{
-}
+vvCropReturnsDialog::~vvCropReturnsDialog() {}
 
 //-----------------------------------------------------------------------------
 bool vvCropReturnsDialog::croppingEnabled() const
@@ -262,7 +258,8 @@ QVector3D vvCropReturnsDialog::firstCorner() const
   }
   else
   {
-    return QVector3D(qMin(cropRegion[0], cropRegion[1]), qMin(cropRegion[2], cropRegion[3]),
+    return QVector3D(qMin(cropRegion[0], cropRegion[1]),
+      qMin(cropRegion[2], cropRegion[3]),
       qMin(cropRegion[4], cropRegion[5]));
   }
 }
@@ -279,7 +276,8 @@ QVector3D vvCropReturnsDialog::secondCorner() const
   }
   else
   {
-    return QVector3D(qMax(cropRegion[0], cropRegion[1]), qMax(cropRegion[2], cropRegion[3]),
+    return QVector3D(qMax(cropRegion[0], cropRegion[1]),
+      qMax(cropRegion[2], cropRegion[3]),
       qMax(cropRegion[4], cropRegion[5]));
   }
 }
@@ -347,7 +345,7 @@ void vvCropReturnsDialog::pqInternal::SetSphericalSettings()
   // (r,theta,phi)
   double minR = 0, maxR = 300;
   double minTheta = -360, maxTheta = 360; // Rotational Angle
-  double minPhi = -90, maxPhi = 90;    // Vertical Angle
+  double minPhi = -90, maxPhi = 90;       // Vertical Angle
   // theta is between [minTheta,maxTheta] - Rotational Angle
   this->X1SpinBox->setMinimum(minTheta);
   this->X2SpinBox->setMinimum(minTheta);

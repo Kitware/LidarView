@@ -2,33 +2,32 @@
 
 //#include <vtkSMSessionProxyManager.h>
 #include <vtkNew.h>
-#include <vtkSMSourceProxy.h>
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
+#include <vtkSMSourceProxy.h>
 
 #include <pqActiveObjects.h>
 #include <pqDeleteReaction.h>
-#include <pqPVApplicationCore.h>
 #include <pqObjectBuilder.h>
+#include <pqPVApplicationCore.h>
 #include <pqPipelineSource.h>
 #include <pqServerManagerModel.h>
 #include <pqView.h>
 
 #include "lqHelper.h"
-#include "lqUpdateCalibrationReaction.h"
 #include "lqLidarViewManager.h"
-#include "vvCalibrationDialog.h"
 #include "lqSensorListWidget.h"
+#include "lqUpdateCalibrationReaction.h"
+#include "vvCalibrationDialog.h"
 
 #include <QString>
 #include <string>
 
 //-----------------------------------------------------------------------------
-lqOpenSensorReaction::lqOpenSensorReaction(QAction *action) :
-  Superclass(action)
+lqOpenSensorReaction::lqOpenSensorReaction(QAction* action)
+  : Superclass(action)
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -48,8 +47,10 @@ void lqOpenSensorReaction::onTriggered()
     return;
   }
 
-  // We remove all lidarReader and PositionOrientationReader (and every filter depending on them) in the pipeline
-  // TODO : As soon as LidarReader is available in multi sensor mode, we have to remove only the vtkLidarReader sources
+  // We remove all lidarReader and PositionOrientationReader (and every filter depending on them) in
+  // the pipeline
+  // TODO : As soon as LidarReader is available in multi sensor mode, we have to remove only the
+  // vtkLidarReader sources
   RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
   RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader>();
 
@@ -57,7 +58,7 @@ void lqOpenSensorReaction::onTriggered()
   // In the lqSensorListWidget, every PositionOrientationStream is linked to a LidarStream
   // If a LidarStream is delete, it will automatically delete its PositionOrientationStream.
   // So we just have to delete all lidarStream.
-  if(!dialog.isEnableMultiSensors())
+  if (!dialog.isEnableMultiSensors())
   {
     RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream>();
   }
@@ -73,12 +74,13 @@ void lqOpenSensorReaction::onTriggered()
   QString lidarName = lidarSource->getSMName();
   controller->Show(lidarSource->getSourceProxy(), 0, view->getViewProxy());
 
-  pqPipelineSource * posOrSource = nullptr;
+  pqPipelineSource* posOrSource = nullptr;
   QString posOrName = "";
 
   // Update lidarSource and posOrSource
-  // If the GPs interpretation is asked, the posOrsource will be created in the lqUpdateCalibrationReaction
-  // because it has to manage it if the user enable interpreting GPS packet after the first instantiation
+  // If the GPs interpretation is asked, the posOrsource will be created in the
+  // lqUpdateCalibrationReaction because it has to manage it if the user enable interpreting GPS
+  // packet after the first instantiation
   lqUpdateCalibrationReaction::UpdateCalibration(lidarSource, posOrSource, dialog);
 
   if (posOrSource)
@@ -91,6 +93,7 @@ void lqOpenSensorReaction::onTriggered()
   // "Start" of the lidar Source have to be called
   lidarSource->getProxy()->InvokeCommand("Start");
 
-  //Update applogic to be able to use function only define in applogic.
-  lqLidarViewManager::instance()->runPython(QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
+  // Update applogic to be able to use function only define in applogic.
+  lqLidarViewManager::instance()->runPython(
+    QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
 }

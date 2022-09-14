@@ -31,8 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ========================================================================*/
 #include "lqLidarViewManager.h"
 
-#include "lqPythonQtLidarView.h"
 #include "lqOpenPcapReaction.h"
+#include "lqPythonQtLidarView.h"
 
 #include <QFileInfo>
 
@@ -40,14 +40,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 lqLidarViewManager::lqLidarViewManager(QObject* parent /*=nullptr*/)
   : Superclass(parent)
 {
-
 }
 
 //-----------------------------------------------------------------------------
-lqLidarViewManager::~lqLidarViewManager()
-{
-
-}
+lqLidarViewManager::~lqLidarViewManager() {}
 //-----------------------------------------------------------------------------
 void lqLidarViewManager::pythonStartup()
 {

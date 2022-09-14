@@ -5,7 +5,7 @@
 
    Copyright (c) Kitware Inc.
    All rights reserved.
-  
+
    LidarView is a free software; you can redistribute it and/or modify it
    under the terms of the LidarView license.
 
@@ -35,11 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <PythonQt.h>
 #include <QObject>
 
-#include "lqLidarViewManager.h"
 #include "Widgets/vvCropReturnsDialog.h"
 #include "Widgets/vvSelectFramesDialog.h"
+#include "lqLidarViewManager.h"
 
-//WIP Could thinks about subclassing and rework how manager add it
+// WIP Could thinks about subclassing and rework how manager add it
 class lqPythonQtLidarView : public QObject
 {
   Q_OBJECT
@@ -71,4 +71,4 @@ public Q_SLOTS:
   }
 };
 
-#endif //lqPythonQtLidarView_h
+#endif // lqPythonQtLidarView_h
