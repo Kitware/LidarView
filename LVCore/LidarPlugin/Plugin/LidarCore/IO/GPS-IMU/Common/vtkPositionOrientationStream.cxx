@@ -53,6 +53,8 @@ vtkPositionOrientationStream::vtkPositionOrientationStream()
   this->SetNumberOfOutputPorts(2);
   this->AllPositionsOrientation = vtkSmartPointer<vtkPolyData>::New();
   this->AllRawInformation = vtkSmartPointer<vtkTable>::New();
+  this->LastNumberPositionOrientationInformation = 0;
+  this->LastNumberRawInformation = 0;
 }
 
 //-----------------------------------------------------------------------------
