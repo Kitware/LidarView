@@ -62,9 +62,9 @@ private:
   vtkPositionOrientationPacketInterpreter(const vtkPositionOrientationPacketInterpreter&) = delete;
   void operator=(const vtkPositionOrientationPacketInterpreter&) = delete;
 
-  int SizeRawInformationLastAsk;
+  int SizeRawInformationLastAsk = 0;
 
-  int SizePositionOrientationInformationLastAsk;
+  int SizePositionOrientationInformationLastAsk = 0;
 };
 
 #endif // VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
