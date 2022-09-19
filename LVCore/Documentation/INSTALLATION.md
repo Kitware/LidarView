@@ -57,13 +57,13 @@ The following sections details what dependencies to install prior to running a L
 
 **Runtime Dependencies:**
 
-* Required packages: `sudo apt-get install libopengl0`
+* Required packages: `sudo apt-get install libopengl0 libibverbs-dev`
 
 ### Ubuntu 18.04 <a name="ubuntu18-instructions"></a>
 
 **Runtime Dependencies:**
 
-* Required packages: `sudo apt-get install libopengl0`
+* Required packages: `sudo apt-get install libopengl0 libibverbs-dev`
 
 ### SLAM <a name="slam-instructions"></a>
 
