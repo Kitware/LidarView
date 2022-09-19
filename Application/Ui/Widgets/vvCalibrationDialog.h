@@ -17,6 +17,8 @@
 #include <QDialog>
 #include <QMatrix4x4>
 
+#include "vvCalibrationStructs.h"
+
 class vtkSMProxy;
 class vvCalibrationDialog : public QDialog
 {
@@ -36,32 +38,13 @@ public:
   Q_INVOKABLE QMatrix4x4 sensorTransform() const;
   Q_INVOKABLE QMatrix4x4 gpsTransform() const;
 
-  Q_INVOKABLE double gpsYaw() const;
-  Q_INVOKABLE double gpsRoll() const;
-  Q_INVOKABLE double gpsPitch() const;
+  Q_INVOKABLE vvCalibration::TransformConfig getLidarConfig() const;
+  Q_INVOKABLE vvCalibration::NetworkConfig getLidarNetworkConfig() const;
+  Q_INVOKABLE vvCalibration::TransformConfig getGPSConfig() const;
+  Q_INVOKABLE vvCalibration::NetworkConfig getGPSNetworkConfig() const;
 
-  Q_INVOKABLE double gpsX() const;
-  Q_INVOKABLE double gpsY() const;
-  Q_INVOKABLE double gpsZ() const;
-  Q_INVOKABLE double gpsTimeOffset() const;
-
-  Q_INVOKABLE double lidarYaw() const;
-  Q_INVOKABLE double lidarRoll() const;
-  Q_INVOKABLE double lidarPitch() const;
-  Q_INVOKABLE double lidarX() const;
-  Q_INVOKABLE double lidarY() const;
-  Q_INVOKABLE double lidarZ() const;
-  Q_INVOKABLE double lidarTimeOffset() const;
-
-  Q_INVOKABLE int lidarPort() const;
-  Q_INVOKABLE int gpsPort() const;
-  Q_INVOKABLE int lidarForwardingPort() const;
-  Q_INVOKABLE int gpsForwardingPort() const;
-  Q_INVOKABLE bool isForwarding() const;
-  Q_INVOKABLE bool isCrashAnalysing() const;
   Q_INVOKABLE bool isEnableMultiSensors() const;
   Q_INVOKABLE bool isEnableInterpretGPSPackets() const;
-  Q_INVOKABLE QString ipAddressForwarding() const;
 
   Q_INVOKABLE bool isShowFirstAndLastFrame() const;
 

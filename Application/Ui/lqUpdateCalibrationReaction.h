@@ -3,6 +3,7 @@
 
 #include "applicationui_export.h"
 
+#include "Widgets/vvCalibrationStructs.h"
 #include "pqReaction.h"
 
 #include "vtkSmartPointer.h"
@@ -23,20 +24,10 @@ class APPLICATIONUI_EXPORT lqUpdateCalibrationReaction : public pqReaction
 public:
   lqUpdateCalibrationReaction(QAction* action);
 
-  static void setTransform(vtkSMProxy* proxy,
-    double x,
-    double y,
-    double z,
-    double roll,
-    double pitch,
-    double yaw);
+  static void setTransform(vtkSMProxy* proxy, vvCalibration::TransformConfig config);
 
   static void setNetworkCalibration(vtkSMProxy* proxy,
-    double listenningPort,
-    double forwardingPort,
-    bool isForwarding,
-    QString ipAddressForwarding,
-    bool isCrashAnalysing,
+    vvCalibration::NetworkConfig config,
     bool multiSensors);
 
   static void setReaderCalibration(vtkSMProxy* proxy,

@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 add_library(ApplicationUi
   Widgets/vvCalibrationDialog.cxx
   Widgets/vvCalibrationDialog.h
+  Widgets/vvCalibrationStructs.h
   Widgets/vvCalibrationDialog.ui
   Widgets/vvCropReturnsDialog.cxx
   Widgets/vvCropReturnsDialog.h

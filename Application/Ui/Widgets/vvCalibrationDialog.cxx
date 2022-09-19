@@ -800,12 +800,6 @@ QString vvCalibrationDialog::selectedInterpreterName() const
 }
 
 //-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isCrashAnalysing() const
-{
-  return this->Internal->CrashAnalysisCheckBox->isChecked();
-}
-
-//-----------------------------------------------------------------------------
 bool vvCalibrationDialog::isEnableMultiSensors() const
 {
   return this->Internal->EnableMultiSensors->isChecked();
@@ -896,122 +890,51 @@ QMatrix4x4 vvCalibrationDialog::gpsTransform() const
 }
 
 //-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsYaw() const
+vvCalibration::TransformConfig vvCalibrationDialog::getLidarConfig() const
 {
-  return this->Internal->GpsYawSpinBox->value();
+  vvCalibration::TransformConfig config = { this->Internal->LidarYawSpinBox->value(),
+    this->Internal->LidarRollSpinBox->value(),
+    this->Internal->LidarPitchSpinBox->value(),
+    this->Internal->LidarXSpinBox->value(),
+    this->Internal->LidarYSpinBox->value(),
+    this->Internal->LidarZSpinBox->value(),
+    this->Internal->lidarTimeOffsetSpinBox->value() };
+  return config;
 }
 
 //-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsRoll() const
+vvCalibration::NetworkConfig vvCalibrationDialog::getLidarNetworkConfig() const
 {
-  return this->Internal->GpsRollSpinBox->value();
+  vvCalibration::NetworkConfig config = { this->Internal->LidarPortSpinBox->value(),
+    this->Internal->LidarForwardingPortSpinBox->value(),
+    this->Internal->EnableForwardingCheckBox->isChecked(),
+    this->Internal->ipAddresslineEdit->text(),
+    this->Internal->CrashAnalysisCheckBox->isChecked() };
+  return config;
 }
 
 //-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsPitch() const
+vvCalibration::TransformConfig vvCalibrationDialog::getGPSConfig() const
 {
-  return this->Internal->GpsPitchSpinBox->value();
+  vvCalibration::TransformConfig config = { this->Internal->GpsYawSpinBox->value(),
+    this->Internal->GpsRollSpinBox->value(),
+    this->Internal->GpsPitchSpinBox->value(),
+    this->Internal->GpsXSpinBox->value(),
+    this->Internal->GpsYSpinBox->value(),
+    this->Internal->GpsZSpinBox->value(),
+    this->Internal->gpsTimeOffsetSpinBox->value() };
+  return config;
 }
 
 //-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsX() const
+vvCalibration::NetworkConfig vvCalibrationDialog::getGPSNetworkConfig() const
 {
-  return this->Internal->GpsXSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsY() const
-{
-  return this->Internal->GpsYSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsZ() const
-{
-  return this->Internal->GpsZSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::gpsTimeOffset() const
-{
-  return this->Internal->gpsTimeOffsetSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarYaw() const
-{
-  return this->Internal->LidarYawSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarRoll() const
-{
-  return this->Internal->LidarRollSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarPitch() const
-{
-  return this->Internal->LidarPitchSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarX() const
-{
-  return this->Internal->LidarXSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarY() const
-{
-  return this->Internal->LidarYSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarZ() const
-{
-  return this->Internal->LidarZSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-double vvCalibrationDialog::lidarTimeOffset() const
-{
-  return this->Internal->lidarTimeOffsetSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-int vvCalibrationDialog::lidarPort() const
-{
-  return this->Internal->LidarPortSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-int vvCalibrationDialog::gpsPort() const
-{
-  return this->Internal->GPSPortSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-int vvCalibrationDialog::lidarForwardingPort() const
-{
-  return this->Internal->LidarForwardingPortSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-int vvCalibrationDialog::gpsForwardingPort() const
-{
-  return this->Internal->GPSForwardingPortSpinBox->value();
-}
-
-//-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isForwarding() const
-{
-  return this->Internal->EnableForwardingCheckBox->isChecked();
-}
-
-QString vvCalibrationDialog::ipAddressForwarding() const
-{
-  return this->Internal->ipAddresslineEdit->text();
+  vvCalibration::NetworkConfig config = { this->Internal->GPSPortSpinBox->value(),
+    this->Internal->GPSForwardingPortSpinBox->value(),
+    this->Internal->EnableForwardingCheckBox->isChecked(),
+    this->Internal->ipAddresslineEdit->text(),
+    this->Internal->CrashAnalysisCheckBox->isChecked() };
+  return config;
 }
 
 //-----------------------------------------------------------------------------

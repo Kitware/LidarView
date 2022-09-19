@@ -41,12 +41,7 @@ lqUpdateCalibrationReaction::lqUpdateCalibrationReaction(QAction* action)
 
 //-----------------------------------------------------------------------------
 void lqUpdateCalibrationReaction::setTransform(vtkSMProxy* proxy,
-  double x,
-  double y,
-  double z,
-  double roll,
-  double pitch,
-  double yaw)
+  vvCalibration::TransformConfig config)
 {
   vtkSMSessionProxyManager* pxm = pqActiveObjects::instance().proxyManager();
 
@@ -70,13 +65,13 @@ void lqUpdateCalibrationReaction::setTransform(vtkSMProxy* proxy,
   vtkSmartPointer<vtkSMProxy> transformProxy =
     vtkSmartPointer<vtkSMProxy>::Take(pxm->NewProxy("extended_sources", "Transform2"));
   std::vector<double> translate;
-  translate.push_back(x);
-  translate.push_back(y);
-  translate.push_back(z);
+  translate.push_back(config.x);
+  translate.push_back(config.y);
+  translate.push_back(config.z);
   std::vector<double> rotate;
-  rotate.push_back(roll);
-  rotate.push_back(pitch);
-  rotate.push_back(yaw);
+  rotate.push_back(config.roll);
+  rotate.push_back(config.pitch);
+  rotate.push_back(config.yaw);
   vtkSMPropertyHelper(transformProxy, "Position").Set(translate.data(), translate.size());
   vtkSMPropertyHelper(transformProxy, "Rotation").Set(rotate.data(), rotate.size());
   vtkSMProperty* TransformProp = interpreterProxy->GetProperty("Sensor Transform");
@@ -86,35 +81,31 @@ void lqUpdateCalibrationReaction::setTransform(vtkSMProxy* proxy,
 
 //-----------------------------------------------------------------------------
 void lqUpdateCalibrationReaction::setNetworkCalibration(vtkSMProxy* proxy,
-  double listenningPort,
-  double forwardingPort,
-  bool isForwarding,
-  QString ipAddressForwarding,
-  bool isCrashAnalysing,
+  vvCalibration::NetworkConfig config,
   bool multiSensors)
 {
   if (IsStreamProxy(proxy))
   {
-    vtkSMPropertyHelper(proxy, "ListeningPort").Set(listenningPort);
-    vtkSMPropertyHelper(proxy, "IsCrashAnalysing").Set(isCrashAnalysing);
+    vtkSMPropertyHelper(proxy, "ListeningPort").Set(config.listenningPort);
+    vtkSMPropertyHelper(proxy, "IsCrashAnalysing").Set(config.isCrashAnalysing);
 
-    if (isForwarding)
+    if (config.isForwarding)
     {
-      vtkSMPropertyHelper(proxy, "IsForwarding").Set(forwardingPort);
-      vtkSMPropertyHelper(proxy, "IsForwarding").Set(isForwarding);
+      vtkSMPropertyHelper(proxy, "ForwardedPort").Set(config.forwardingPort);
+      vtkSMPropertyHelper(proxy, "IsForwarding").Set(config.isForwarding);
       vtkSMPropertyHelper(proxy, "ForwardedIpAddress")
-        .Set(ipAddressForwarding.toStdString().c_str());
+        .Set(config.ipAddressForwarding.toStdString().c_str());
     }
   }
   // We only select the reading port if the multisensor is enable
   // To avoid displaying nothing with one pcap in case the port is wrong
   else if (IsLidarReaderProxy(proxy) && multiSensors)
   {
-    vtkSMPropertyHelper(proxy, "LidarPort").Set(listenningPort);
+    vtkSMPropertyHelper(proxy, "LidarPort").Set(config.listenningPort);
   }
   else if (IsPositionOrientationReaderProxy(proxy) && multiSensors)
   {
-    vtkSMPropertyHelper(proxy, "PositionOrientationPort").Set(listenningPort);
+    vtkSMPropertyHelper(proxy, "PositionOrientationPort").Set(config.listenningPort);
   }
   proxy->UpdateVTKObjects();
 }
@@ -214,22 +205,11 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
     dialog.isShowFirstAndLastFrame());
 
   // Set the transform of the lidar Sensor
-  lqUpdateCalibrationReaction::setTransform(lidarProxy,
-    dialog.lidarX(),
-    dialog.lidarY(),
-    dialog.lidarZ(),
-    dialog.lidarRoll(),
-    dialog.lidarPitch(),
-    dialog.lidarYaw());
+  lqUpdateCalibrationReaction::setTransform(lidarProxy, dialog.getLidarConfig());
 
   // Set the Network Part
-  lqUpdateCalibrationReaction::setNetworkCalibration(lidarProxy,
-    dialog.lidarPort(),
-    dialog.lidarForwardingPort(),
-    dialog.isForwarding(),
-    dialog.ipAddressForwarding(),
-    dialog.isCrashAnalysing(),
-    dialog.isEnableMultiSensors());
+  lqUpdateCalibrationReaction::setNetworkCalibration(
+    lidarProxy, dialog.getLidarNetworkConfig(), dialog.isEnableMultiSensors());
 
   lidarProxy->UpdateSelfAndAllInputs();
   lidarSource->updatePipeline();
@@ -274,21 +254,10 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
     }
 
     // Set the Network Part
-    lqUpdateCalibrationReaction::setNetworkCalibration(posOrProxy,
-      dialog.gpsPort(),
-      dialog.gpsForwardingPort(),
-      dialog.isForwarding(),
-      dialog.ipAddressForwarding(),
-      dialog.isCrashAnalysing(),
-      dialog.isEnableMultiSensors());
+    lqUpdateCalibrationReaction::setNetworkCalibration(
+      posOrProxy, dialog.getGPSNetworkConfig(), dialog.isEnableMultiSensors());
     // Set the transform of the gps Sensor
-    lqUpdateCalibrationReaction::setTransform(posOrProxy,
-      dialog.gpsX(),
-      dialog.gpsY(),
-      dialog.gpsZ(),
-      dialog.gpsRoll(),
-      dialog.gpsPitch(),
-      dialog.gpsYaw());
+    lqUpdateCalibrationReaction::setTransform(posOrProxy, dialog.getGPSConfig());
 
     posOrProxy->UpdateSelfAndAllInputs();
     posOrSource->updatePipeline();
