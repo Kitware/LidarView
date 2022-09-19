@@ -7,9 +7,9 @@
 
 #include <vtkObject.h>
 /**
-* @ingroup Reactions
-* Reaction to open a pcap
-*/
+ * @ingroup Reactions
+ * Reaction to open a pcap
+ */
 class APPLICATIONUI_EXPORT lqOpenPcapReaction : public pqReaction
 {
   Q_OBJECT
@@ -26,7 +26,6 @@ protected:
   static void onProgressEvent(vtkObject* caller, unsigned long, void*);
 
 private:
-
   class vtkObserver;
   Q_DISABLE_COPY(lqOpenPcapReaction)
 };

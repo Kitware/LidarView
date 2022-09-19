@@ -20,8 +20,6 @@
 
 #include <QMessageBox>
 
-
-
 //-----------------------------------------------------------------------------
 class vvSelectFramesDialog::pqInternal : public Ui::vvSelectFramesDialog
 {
@@ -47,7 +45,8 @@ void vvSelectFramesDialog::accept()
 {
   if (this->Internal->FrameStop->value() < this->Internal->FrameStart->value())
   {
-    QMessageBox::critical(this, "Invalid frame range",
+    QMessageBox::critical(this,
+      "Invalid frame range",
       "The requested frame range is not valid. "
       "The start frame must be less than or equal to the stop frame.");
     return;
@@ -177,31 +176,35 @@ int vvSelectFramesDialog::frameTransform() const
 //-----------------------------------------------------------------------------
 int vvSelectFramesDialog::frameMaximun() const
 {
-  return std::max( this->Internal->FrameStart->maximum(), this->Internal->FrameStop->maximum());
+  return std::max(this->Internal->FrameStart->maximum(), this->Internal->FrameStop->maximum());
 }
 
 //-----------------------------------------------------------------------------
 int vvSelectFramesDialog::frameMinimun() const
 {
-  return std::max( this->Internal->FrameStart->minimum(), this->Internal->FrameStop->minimum());;
+  return std::max(this->Internal->FrameStart->minimum(), this->Internal->FrameStop->minimum());
+  ;
 }
 
 //-----------------------------------------------------------------------------
 bool vvSelectFramesDialog::frameStrideVisibility() const
 {
-  return  this->Internal->FrameStrideContainer->isVisible();;
+  return this->Internal->FrameStrideContainer->isVisible();
+  ;
 }
 
 //-----------------------------------------------------------------------------
 bool vvSelectFramesDialog::framePackVisibility() const
 {
-  return this->Internal->FramePackContainer->isVisible();;
+  return this->Internal->FramePackContainer->isVisible();
+  ;
 }
 
 //-----------------------------------------------------------------------------
 bool vvSelectFramesDialog::frameTransformVisibility() const
 {
-  return  this->Internal->FrameTransformContainer->isVisible();;
+  return this->Internal->FrameTransformContainer->isVisible();
+  ;
 }
 
 //-----------------------------------------------------------------------------
@@ -281,15 +284,12 @@ void vvSelectFramesDialog::saveState()
 void vvSelectFramesDialog::restoreState()
 {
   pqSettings* settings = pqApplicationCore::instance()->settings();
-  this->restoreGeometry(
-    settings->value("LidarPlugin/SelectFramesDialog/Geometry").toByteArray());
-  this->setFrameMode(
-    settings->value("LidarPlugin/SelectFramesDialog/Mode", CURRENT_FRAME).toInt());
+  this->restoreGeometry(settings->value("LidarPlugin/SelectFramesDialog/Geometry").toByteArray());
+  this->setFrameMode(settings->value("LidarPlugin/SelectFramesDialog/Mode", CURRENT_FRAME).toInt());
   this->setFrameStart(settings->value("LidarPlugin/SelectFramesDialog/Start", 0).toInt());
   this->setFrameStop(settings->value("LidarPlugin/SelectFramesDialog/Stop", 10).toInt());
   this->setFrameStride(settings->value("LidarPlugin/SelectFramesDialog/Stride", 1).toInt());
-  this->setFramePack(
-    settings->value("LidarPlugin/SelectFramesDialog/Pack", SINGLE_FILE).toInt());
+  this->setFramePack(settings->value("LidarPlugin/SelectFramesDialog/Pack", SINGLE_FILE).toInt());
   this->setFrameTransform(
     settings->value("LidarPlugin/SelectFramesDialog/Transform", SENSOR).toInt());
 }

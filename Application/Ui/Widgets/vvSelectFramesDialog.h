@@ -29,7 +29,8 @@ class vvSelectFramesDialog : public QDialog
   Q_PROPERTY(int frameTransform READ frameTransform WRITE setFrameTransform)
   Q_PROPERTY(bool frameStrideVisibility READ frameStrideVisibility WRITE setFrameStrideVisibility)
   Q_PROPERTY(bool framePackVisibility READ framePackVisibility WRITE setFramePackVisibility)
-  Q_PROPERTY(bool frameTransformVisibility READ frameTransformVisibility WRITE setFrameTransformVisibility)
+  Q_PROPERTY(
+    bool frameTransformVisibility READ frameTransformVisibility WRITE setFrameTransformVisibility)
   Q_ENUMS(FrameMode FramePack FrameTransform)
 
 public:

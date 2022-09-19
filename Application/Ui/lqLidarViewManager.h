@@ -43,7 +43,6 @@ class APPLICATIONUI_EXPORT lqLidarViewManager : public lqLidarCoreManager
   typedef lqLidarCoreManager Superclass;
 
 public:
-
   lqLidarViewManager(QObject* parent = nullptr);
   ~lqLidarViewManager() override;
 
@@ -58,7 +57,6 @@ public:
 
   // LidarView specific
   void pythonStartup() override;
-
 };
 
 #endif // LQLIDARVIEWMANAGER_H

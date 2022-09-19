@@ -36,8 +36,8 @@ protected:
 protected Q_SLOTS:
   void showHelpForProxy(const QString& proxyname, const QString& groupname);
   void handleMessage(const QString&, int);
-  //void showWelcomeDialog();
-  //void updateFontSize();
+  // void showWelcomeDialog();
+  // void updateFontSize();
 
   void toggleMVDecoration(); // Toggle Multiview decorations
 
@@ -54,8 +54,8 @@ private:
   void pqbuildToolbars(); // Reworked pqParaViewMenuBuilders::buildToolbars helper
   void setupLVGUI();      // Add generally common elements to all LidarView-based apps
 
-  void setupGUICustom();  // LidarView Specific UI elements
-  void setBranding();     // LidarView Specific Branding
+  void setupGUICustom(); // LidarView Specific UI elements
+  void setBranding();    // LidarView Specific Branding
 };
 
 #endif

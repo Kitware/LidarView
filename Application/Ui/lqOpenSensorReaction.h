@@ -6,9 +6,9 @@
 #include "pqReaction.h"
 
 /**
-* @ingroup Reactions
-* Reaction to open a sensor stream
-*/
+ * @ingroup Reactions
+ * Reaction to open a sensor stream
+ */
 class APPLICATIONUI_EXPORT lqOpenSensorReaction : public pqReaction
 {
   Q_OBJECT

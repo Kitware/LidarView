@@ -34,7 +34,7 @@ protected slots:
 private:
   Q_DISABLE_COPY(lqOpenRecentFilesReaction)
 
-  std::deque<QAction *> recentFilesActions;
+  std::deque<QAction*> recentFilesActions;
 
   unsigned int sizeOfTheQueue = 5;
 
@@ -44,7 +44,8 @@ private:
 
   /**
    * @brief createNewRecentFile
-   *        Create a new entry (action) in the "Recent File Menu" for pcapName (if it's not already in it)
+   *        Create a new entry (action) in the "Recent File Menu" for pcapName (if it's not already
+   * in it)
    * @param pcapName file name to add
    */
   void createNewRecentFile(QString pcapName);

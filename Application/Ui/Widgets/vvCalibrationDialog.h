@@ -24,7 +24,7 @@ class vvCalibrationDialog : public QDialog
 
 public:
   vvCalibrationDialog(QWidget* p = 0);
-  vvCalibrationDialog(vtkSMProxy * lidarProxy, vtkSMProxy * GPSProxy, QWidget* p = 0);
+  vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p = 0);
 
   virtual ~vvCalibrationDialog();
 
