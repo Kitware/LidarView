@@ -308,14 +308,14 @@ def rotateCSVFile(filename):
 def savePositionCSV(filename):
     w = smp.CreateWriter(filename, getPosition())
     w.Precision = 16
-    w.FieldAssociation = 'Points'
+    w.FieldAssociation = 'Point Data'
     w.UpdatePipeline()
     smp.Delete(w)
 
 def saveCSVCurrentFrame(filename):
     w = smp.CreateWriter(filename, getLidar())
     w.Precision = 16
-    w.FieldAssociation = 'Points'
+    w.FieldAssociation = 'Point Data'
     w.UpdatePipeline()
     smp.Delete(w)
     rotateCSVFile(filename)
@@ -326,7 +326,7 @@ def saveCSVCurrentFrameSelection(filename):
     extractSelection = smp.ExtractSelection(Input = source, Selection = selection.Selection)
     w = smp.CreateWriter(filename, extractSelection)
     w.Precision = 16
-    w.FieldAssociation = 'Points'
+    w.FieldAssociation = 'Point Data'
     w.UpdatePipeline()
     smp.Delete(w)
     rotateCSVFile(filename)
@@ -380,7 +380,7 @@ def saveCSV(filename, timesteps):
     os.makedirs(outDir)
 
     writer = smp.CreateWriter('tmp.csv', getLidar())
-    writer.FieldAssociation = 'Points'
+    writer.FieldAssociation = 'Point Data'
     writer.Precision = 16
 
     for i in timesteps:
