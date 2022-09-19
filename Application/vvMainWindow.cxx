@@ -310,6 +310,7 @@ void vvMainWindow::pqbuildToolbars()
   if (manager)
   {
     QToolBar* macrosToolbar = new QToolBar("Macros Toolbars", this) << pqSetName("MacrosToolbar");
+    macrosToolbar->setVisible(false);
     manager->addWidgetForRunMacros(macrosToolbar);
     this->addToolBar(Qt::TopToolBarArea, macrosToolbar);
   }
