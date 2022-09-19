@@ -30,18 +30,26 @@ public:
 
   virtual ~vvCalibrationDialog();
 
-  Q_INVOKABLE QString selectedCalibrationFile() const;
   Q_INVOKABLE QString selectedInterpreterName() const;
-
-  Q_INVOKABLE QStringList calibrationFiles() const;
+  Q_INVOKABLE QString selectedCalibrationFile() const;
+  Q_INVOKABLE void setCalibrationFile(QString& filename) const;
+  Q_INVOKABLE QStringList getAllCalibrationFiles() const;
+  Q_INVOKABLE QStringList getCustomCalibrationFiles() const;
 
   Q_INVOKABLE QMatrix4x4 sensorTransform() const;
   Q_INVOKABLE QMatrix4x4 gpsTransform() const;
 
   Q_INVOKABLE vvCalibration::TransformConfig getLidarConfig() const;
+  Q_INVOKABLE void setLidarConfig(vvCalibration::TransformConfig& conf);
+
   Q_INVOKABLE vvCalibration::NetworkConfig getLidarNetworkConfig() const;
+  Q_INVOKABLE void setLidarNetworkConfig(vvCalibration::NetworkConfig& conf);
+
   Q_INVOKABLE vvCalibration::TransformConfig getGPSConfig() const;
+  Q_INVOKABLE void setGPSConfig(vvCalibration::TransformConfig& conf);
+
   Q_INVOKABLE vvCalibration::NetworkConfig getGPSNetworkConfig() const;
+  Q_INVOKABLE void setGPSNetworkConfig(vvCalibration::NetworkConfig& conf);
 
   Q_INVOKABLE bool isEnableMultiSensors() const;
   Q_INVOKABLE bool isEnableInterpretGPSPackets() const;

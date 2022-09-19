@@ -33,19 +33,23 @@ lqOpenSensorReaction::lqOpenSensorReaction(QAction* action)
 //-----------------------------------------------------------------------------
 void lqOpenSensorReaction::onTriggered()
 {
-  pqServer* server = pqActiveObjects::instance().activeServer();
-  pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
-  pqView* view = pqActiveObjects::instance().activeView();
-  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
-
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
   vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), true);
   DisplayDialogOnActiveWindow(dialog);
-  if (!dialog.exec())
+  if (dialog.exec())
   {
-    return;
+    lqOpenSensorReaction::createSensorStream(dialog);
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqOpenSensorReaction::createSensorStream(const vvCalibrationDialog& dialog)
+{
+  pqServer* server = pqActiveObjects::instance().activeServer();
+  pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
+  pqView* view = pqActiveObjects::instance().activeView();
+  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
 
   // We remove all lidarReader and PositionOrientationReader (and every filter depending on them) in
   // the pipeline

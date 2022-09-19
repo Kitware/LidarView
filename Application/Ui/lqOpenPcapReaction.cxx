@@ -90,19 +90,23 @@ void lqOpenPcapReaction::onTriggered()
 //-----------------------------------------------------------------------------
 void lqOpenPcapReaction::createSourceFromFile(QString fileName)
 {
-  pqServer* server = pqActiveObjects::instance().activeServer();
-  pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
-  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
-  pqView* view = pqActiveObjects::instance().activeView();
-
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
   vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), false);
   // DisplayDialogOnActiveWindow(dialog);
-  if (!dialog.exec())
+  if (dialog.exec())
   {
-    return;
+    lqOpenPcapReaction::createSourceFromFile(fileName, dialog);
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqOpenPcapReaction::createSourceFromFile(QString fileName, const vvCalibrationDialog& dialog)
+{
+  pqServer* server = pqActiveObjects::instance().activeServer();
+  pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
+  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
+  pqView* view = pqActiveObjects::instance().activeView();
 
   // Create a progress bar so the user see that LidarView is running
   QProgressDialog progress("Reading pcap", "", 0, 0, lqLidarViewManager::getMainWindow());
