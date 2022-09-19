@@ -667,23 +667,23 @@ def unloadData():
 def getReaderSource():
   return PythonQt.paraview.lqSensorListWidget.getActiveLidarSource()
 
-def getReader():
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getReader())
+def getReader(index = -1):
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getReader(index))
 
 #def getLidarNew():
 #  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getLidar())
 
-def getSensor():
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getSensor())
+def getSensor(index = -1):
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getSensor(index))
 
-def getTrailingFrame():
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getTrailingFrame())
+def getTrailingFrame(index = -1):
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getTrailingFrame(index))
 
-def getPosOrSource():
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getPosOrSource())
+def getPosOrSource(index = -1):
+  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getPosOrSource(index))
 
-def getLidar(): # WIP TODO
-    return getReader() or getSensor()
+def getLidar(index = -1): # WIP TODO
+    return getReader(index) or getSensor(index)
 
 def getLidarPacketInterpreter(): # WIP Used in places where explicit lidar / current lidar is mixed
     lidar = getLidar()
