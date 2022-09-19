@@ -638,6 +638,11 @@ def onClose():
     # Disable Actions
     disableSaveActions()
 
+# Get the player controller, it can be used to call lqPlayerControlsController functions
+# Such as onPlay(), onPause() ... 
+# Note: For the reader mode onPlay() will block the python shell
+def getPlayerController():
+    return PythonQt.paraview.lqPlayerControlsToolbar(getMainWindow())
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
