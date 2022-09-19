@@ -82,6 +82,7 @@ public:
   void saveIsCrashAnalysing();
   void saveEnableMultiSensors();
   void saveEnableInterpretGPSPackets();
+  void saveShowFirstAndLastFrame();
 
   void restoreSensorTransform();
   void restoreGpsTransform();
@@ -95,6 +96,7 @@ public:
   void restoreCrashAnalysing();
   void restoreEnableMultiSensors();
   void restoreEnableInterpretGPSPackets();
+  void restoreShowFirstAndLastFrame();
 
   pqSettings* const Settings;
   QStringList BuiltInCalibrationFiles;
@@ -274,6 +276,17 @@ void vvCalibrationDialog::pqInternal::saveEnableInterpretGPSPackets()
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::saveShowFirstAndLastFrame()
+{
+  // Only save the state if the show first and last frame option is enabled
+  if (this->ShowFirstAndLastFrame->isEnabled())
+  {
+    this->Settings->setValue("LidarPlugin/CalibrationFileDialog/ShowFirstAndLastFrame",
+      this->ShowFirstAndLastFrame->isChecked());
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vvCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
 {
   // Only restore the state if the Interpreter GPS Packet is enabled
@@ -418,6 +431,20 @@ void vvCalibrationDialog::pqInternal::restoreForwardIpAddress()
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::restoreShowFirstAndLastFrame()
+{
+  // Only restore the state if the show first and last frame option is enabled
+  if (this->ShowFirstAndLastFrame->isEnabled())
+  {
+    this->ShowFirstAndLastFrame->setChecked(
+      this->Settings
+        ->value("LidarPlugin/CalibrationFileDialog/ShowFirstAndLastFrame",
+          this->ShowFirstAndLastFrame->isChecked())
+        .toBool());
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vvCalibrationDialog::clearAdvancedSettings()
 {
   this->setDefaultConfiguration();
@@ -444,7 +471,7 @@ QListWidgetItem* createEntry(QString path, bool useBaseName)
 }
 
 //-----------------------------------------------------------------------------
-vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
+vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
   : QDialog(p)
   , Internal(new pqInternal)
 {
@@ -462,6 +489,8 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
   this->Internal->EnableInterpretGPSPackets->setVisible(true);
   this->Internal->EnableInterpretGPSPackets->setEnabled(true);
   this->Internal->EnableInterpretGPSPackets->setChecked(false);
+
+  this->Internal->ShowFirstAndLastFrame->setEnabled(!isStreamSensor);
 
   liveCalibrationItem->setText("HDL64 Live Corrections");
   liveCalibrationItem->setToolTip("Get Corrections from the data stream");
@@ -531,6 +560,11 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
 
   connect(this->Internal->AdvancedConfiguration,
     SIGNAL(toggled(bool)),
+    this->Internal->ReaderGroup,
+    SLOT(setVisible(bool)));
+
+  connect(this->Internal->AdvancedConfiguration,
+    SIGNAL(toggled(bool)),
     this->Internal->NetworkGroup,
     SLOT(setVisible(bool)));
   connect(this->Internal->AdvancedConfiguration,
@@ -549,6 +583,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
     SIGNAL(toggled(bool)),
     this->Internal->ipAddresslineEdit,
     SLOT(setEnabled(bool)));
+
   connect(this->Internal->ClearSettingsPushButton,
     SIGNAL(clicked()),
     this,
@@ -567,6 +602,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p)
   this->Internal->restoreEnableMultiSensors();
   this->Internal->restoreEnableInterpretGPSPackets();
   this->Internal->restoreEnableForwarding();
+  this->Internal->restoreShowFirstAndLastFrame();
   this->Internal->restoreAdvancedConfiguration();
 
   const QVariant& geometry =
@@ -629,6 +665,8 @@ vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
   // We can not change the "Enable Multi Sensor" option
   // if we update the calibration of an existing proxy
   this->Internal->EnableMultiSensors->setEnabled(false);
+
+  this->Internal->ShowFirstAndLastFrame->setEnabled(IsLidarReaderProxy(lidarProxy));
 
   std::vector<double> translate;
   std::vector<double> rotate;
@@ -693,6 +731,7 @@ void vvCalibrationDialog::setDefaultConfiguration()
   // Set the visibility
   this->Internal->LidarPositionOrientationGroup->setVisible(false);
   this->Internal->GPSPositionOrientationGroup->setVisible(false);
+  this->Internal->ReaderGroup->setVisible(false);
   this->Internal->NetworkGroup->setVisible(false);
   this->Internal->NetworkForwardingGroup->setVisible(false);
 
@@ -770,6 +809,12 @@ bool vvCalibrationDialog::isCrashAnalysing() const
 bool vvCalibrationDialog::isEnableMultiSensors() const
 {
   return this->Internal->EnableMultiSensors->isChecked();
+}
+
+//-----------------------------------------------------------------------------
+bool vvCalibrationDialog::isShowFirstAndLastFrame() const
+{
+  return this->Internal->ShowFirstAndLastFrame->isChecked();
 }
 
 //-----------------------------------------------------------------------------
@@ -985,6 +1030,7 @@ void vvCalibrationDialog::accept()
   this->Internal->saveIsCrashAnalysing();
   this->Internal->saveEnableMultiSensors();
   this->Internal->saveEnableInterpretGPSPackets();
+  this->Internal->saveShowFirstAndLastFrame();
 
   QDialog::accept();
 }

@@ -120,15 +120,21 @@ void lqUpdateCalibrationReaction::setNetworkCalibration(vtkSMProxy* proxy,
 }
 
 //-----------------------------------------------------------------------------
-void lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(vtkSMProxy* proxy,
+void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
   QString interpreterName,
-  QString calibrationFile)
+  QString calibrationFile,
+  bool isShowFirstAndLastFrame)
 {
   if (IsLidarProxy(proxy))
   {
     // Set the calibration file
     vtkSMPropertyHelper(proxy, "CalibrationFileName").Set(calibrationFile.toStdString().c_str());
 
+    if (IsLidarReaderProxy(proxy))
+    {
+      // Set the show firsy and last frame advanced option
+      vtkSMPropertyHelper(proxy, "ShowFirstAndLastFrame").Set(isShowFirstAndLastFrame);
+    }
     // The default interpreter is the first one in the chronological order.
     // We need it to be the Meta one or the Special Velarray if the calibration file says so.
     vtkSMProperty* interpreterProp = proxy->GetProperty("PacketInterpreter");
@@ -202,8 +208,10 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
   }
 
   // Set the calibration File and the lidar interpreter
-  lqUpdateCalibrationReaction::setCalibrationFileAndDefaultInterpreter(
-    lidarProxy, dialog.selectedInterpreterName(), dialog.selectedCalibrationFile());
+  lqUpdateCalibrationReaction::setReaderCalibration(lidarProxy,
+    dialog.selectedInterpreterName(),
+    dialog.selectedCalibrationFile(),
+    dialog.isShowFirstAndLastFrame());
 
   // Set the transform of the lidar Sensor
   lqUpdateCalibrationReaction::setTransform(lidarProxy,

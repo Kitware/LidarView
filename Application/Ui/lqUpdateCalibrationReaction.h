@@ -39,9 +39,10 @@ public:
     bool isCrashAnalysing,
     bool multiSensors);
 
-  static void setCalibrationFileAndDefaultInterpreter(vtkSMProxy* proxy,
+  static void setReaderCalibration(vtkSMProxy* proxy,
     QString interpreterName,
-    QString calibrationFile);
+    QString calibrationFile,
+    bool isShowFirstAndLastFrame);
 
   static void UpdateCalibration(pqPipelineSource*& lidarSource,
     pqPipelineSource*& posOrSource,

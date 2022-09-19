@@ -23,7 +23,7 @@ class vvCalibrationDialog : public QDialog
   Q_OBJECT
 
 public:
-  vvCalibrationDialog(QWidget* p = 0);
+  vvCalibrationDialog(QWidget* p = 0, bool isStreamSensor = false);
   vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p = 0);
 
   virtual ~vvCalibrationDialog();
@@ -62,6 +62,8 @@ public:
   Q_INVOKABLE bool isEnableMultiSensors() const;
   Q_INVOKABLE bool isEnableInterpretGPSPackets() const;
   Q_INVOKABLE QString ipAddressForwarding() const;
+
+  Q_INVOKABLE bool isShowFirstAndLastFrame() const;
 
 protected:
   void setDefaultConfiguration();
