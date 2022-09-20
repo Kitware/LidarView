@@ -31,7 +31,7 @@ public:
     bool multiSensors);
 
   static void setReaderCalibration(vtkSMProxy* proxy,
-    QString interpreterName,
+    vvCalibration::Plugin interpreter,
     QString calibrationFile,
     bool isShowFirstAndLastFrame);
 
