@@ -131,9 +131,9 @@ void vvCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& 
   }
 
   QStringList files;
-  for (int i = buildInFileCount; i < this->ListWidget->count(); ++i)
+  for (int i = buildInFileCount; i < this->CalibrationFileListWidget->count(); ++i)
   {
-    files << this->ListWidget->item(i)->data(Qt::UserRole).toString();
+    files << this->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
   }
 
   QString path = "LidarPlugin/CalibrationFileDialog/Files" + QString::number((int)interpreter);
@@ -144,7 +144,7 @@ void vvCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& 
 void vvCalibrationDialog::pqInternal::saveSelectedRow(const vvCalibration::Plugin& interpreter)
 {
   QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
-  this->Settings->setValue(path, this->ListWidget->currentRow());
+  this->Settings->setValue(path, this->CalibrationFileListWidget->currentRow());
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void vvCalibrationDialog::pqInternal::restoreSelectedRow(const vvCalibration::Pl
 {
   QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
   int row = this->Settings->value(path).toInt();
-  this->ListWidget->setCurrentRow(row);
+  this->CalibrationFileListWidget->setCurrentRow(row);
 }
 
 //-----------------------------------------------------------------------------
@@ -545,7 +545,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
     SIGNAL(currentTextChanged(const QString&)),
     this,
     SLOT(onCurrentTextChanged(const QString&)));
-  connect(this->Internal->ListWidget,
+  connect(this->Internal->CalibrationFileListWidget,
     SIGNAL(currentRowChanged(int)),
     this,
     SLOT(onCurrentRowChanged(int)));
@@ -666,14 +666,15 @@ vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
   // If the calibration is "" that means that the calibration is live
   if (lidarCalibrationFile.isEmpty())
   {
-    this->Internal->ListWidget->setCurrentRow(0);
+    this->Internal->CalibrationFileListWidget->setCurrentRow(0);
   }
-  for (int i = 1; i < this->Internal->ListWidget->count(); ++i)
+  for (int i = 1; i < this->Internal->CalibrationFileListWidget->count(); ++i)
   {
-    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    QString currentFileName =
+      this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
     if (lidarCalibrationFile.compare(currentFileName, Qt::CaseInsensitive) == 0)
     {
-      this->Internal->ListWidget->setCurrentRow(i);
+      this->Internal->CalibrationFileListWidget->setCurrentRow(i);
     }
   }
 
@@ -827,8 +828,8 @@ vvCalibration::Plugin vvCalibrationDialog::selectedInterpreter() const
 //-----------------------------------------------------------------------------
 QString vvCalibrationDialog::selectedCalibrationFile() const
 {
-  const int row = this->Internal->ListWidget->currentRow();
-  return this->Internal->ListWidget->item(row)->data(Qt::UserRole).toString();
+  const int row = this->Internal->CalibrationFileListWidget->currentRow();
+  return this->Internal->CalibrationFileListWidget->item(row)->data(Qt::UserRole).toString();
 }
 
 //-----------------------------------------------------------------------------
@@ -843,21 +844,22 @@ void vvCalibrationDialog::setCalibrationFile(QString& filename) const
   }
   else
   {
-    this->Internal->ListWidget->addItem(createEntry(filename, false));
-    idx = this->Internal->ListWidget->count() - 1;
-    this->Internal->ListWidget->setCurrentRow(idx);
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(filename, false));
+    idx = this->Internal->CalibrationFileListWidget->count() - 1;
+    this->Internal->CalibrationFileListWidget->setCurrentRow(idx);
     this->Internal->saveFileList(this->selectedInterpreter());
   }
-  this->Internal->ListWidget->setCurrentRow(idx);
+  this->Internal->CalibrationFileListWidget->setCurrentRow(idx);
 }
 
 //-----------------------------------------------------------------------------
 QStringList vvCalibrationDialog::getAllCalibrationFiles() const
 {
   QStringList calibrationFiles;
-  for (int i = 0; i < this->Internal->ListWidget->count(); ++i)
+  for (int i = 0; i < this->Internal->CalibrationFileListWidget->count(); ++i)
   {
-    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    QString currentFileName =
+      this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
     calibrationFiles << currentFileName;
   }
   return calibrationFiles;
@@ -1089,7 +1091,7 @@ void vvCalibrationDialog::onCurrentRowChanged(int row)
 void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
 {
   const vvCalibration::Plugin interpreter = this->Internal->AvailableInterpreters[text];
-  this->Internal->ListWidget->clear();
+  this->Internal->CalibrationFileListWidget->clear();
 
   if (interpreter == vvCalibration::Plugin::VELODYNE)
   {
@@ -1098,16 +1100,16 @@ void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
     liveCalibrationItem->setToolTip("Get Corrections from the data stream");
     liveCalibrationItem->setData(Qt::UserRole, "");
 
-    this->Internal->ListWidget->addItem(liveCalibrationItem);
+    this->Internal->CalibrationFileListWidget->addItem(liveCalibrationItem);
   }
 
   foreach (QString fullname, this->Internal->BuiltInCalibrationFiles[interpreter])
   {
-    this->Internal->ListWidget->addItem(createEntry(fullname, true));
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, true));
   }
   foreach (QString fullname, this->getCustomCalibrationFiles())
   {
-    this->Internal->ListWidget->addItem(createEntry(fullname, false));
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, false));
   }
   this->Internal->restoreSelectedRow(interpreter);
 }
@@ -1130,8 +1132,9 @@ void vvCalibrationDialog::addFile()
   }
 
   QString fileName = dial.getSelectedFiles().at(0);
-  this->Internal->ListWidget->addItem(createEntry(fileName, false));
-  this->Internal->ListWidget->setCurrentRow(this->Internal->ListWidget->count() - 1);
+  this->Internal->CalibrationFileListWidget->addItem(createEntry(fileName, false));
+  this->Internal->CalibrationFileListWidget->setCurrentRow(
+    this->Internal->CalibrationFileListWidget->count() - 1);
   this->Internal->saveFileList(this->selectedInterpreter());
 
   this->Internal->Settings->setValue(
@@ -1141,10 +1144,10 @@ void vvCalibrationDialog::addFile()
 //-----------------------------------------------------------------------------
 void vvCalibrationDialog::removeSelectedFile()
 {
-  const int row = this->Internal->ListWidget->currentRow();
+  const int row = this->Internal->CalibrationFileListWidget->currentRow();
   if (row >= this->Internal->BuiltInCalibrationFiles.size())
   {
-    delete this->Internal->ListWidget->takeItem(row);
+    delete this->Internal->CalibrationFileListWidget->takeItem(row);
     this->Internal->saveFileList(this->selectedInterpreter());
   }
 }
