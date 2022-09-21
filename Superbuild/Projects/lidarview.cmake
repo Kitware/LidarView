@@ -21,6 +21,8 @@ superbuild_add_project(lidarview
     -DENABLE_g2o=${ENABLE_g2o}
     #$lidarview_appname features options
     -DLIDARVIEW_BUILD_SLAM=${LIDARVIEW_BUILD_SLAM}
+    -DLIDARVIEW_BUILD_VELODYNE=${INTERPRETER_ENABLE_Velodyne}
+    -DLIDARVIEW_BUILD_HESAI=${INTERPRETER_ENABLE_Hesai}
     #$lidarview_appname additional configuration
 )
 

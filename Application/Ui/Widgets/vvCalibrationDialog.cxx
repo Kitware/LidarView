@@ -39,8 +39,12 @@ public:
   pqInternal()
     : Settings(pqApplicationCore::instance()->settings())
   {
+#if LIDARVIEW_BUILD_VELODYNE
     this->AvailableInterpreters.insert("Velodyne", vvCalibration::Plugin::VELODYNE);
+#endif
+#if LIDARVIEW_BUILD_HESAI
     this->AvailableInterpreters.insert("Hesai", vvCalibration::Plugin::HESAI);
+#endif
 
     // Velodyne Calibration
     const std::vector<QString> velodyneCalibFiles = { "HDL-32.xml",
