@@ -302,6 +302,9 @@ void lqUpdateCalibrationReaction::UpdateExistingSource(pqPipelineSource*& lidarS
 
   UpdateCalibration(lidarSource, posOrSource, dialog);
 
+  // Update render based on new calibration 
+  pqApplicationCore::instance()->render();
+
   // Update UI
   pqView* view = pqActiveObjects::instance().activeView();
   vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
