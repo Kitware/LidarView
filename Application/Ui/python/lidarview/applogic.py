@@ -36,7 +36,7 @@ import LidarPlugin.LidarCore # NOQA
 class AppLogic(object):
 
     def __init__(self):
-      # WIP This can be removed through Statusbar creation and python wrappings in VeloViewManager
+      # WIP This can be removed through Statusbar creation and python wrappings in lqLidarViewManager
       # Fields that Can be overriden to show some statuses
       self.filenameLabel           = QtGui.QLabel()
       self.sensorInformationLabel  = QtGui.QLabel()
@@ -205,7 +205,7 @@ def UpdateApplogicCommon(lidar):
   # Reset Scene Time # WIP TIME CONTROLLER API ?
   smp.GetActiveView().ViewTime = 0.0
 
-# Used by lqVeloViewManager
+# Used by lqLidarViewManager
 def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     sensor = smp.FindSource(lidarProxyName) #WIP use getSensor() and getPosOr()
@@ -234,7 +234,7 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     showSourceInSpreadSheet(sensor)
     smp.Render()
 
-# Used by lqVeloViewManager
+# Used by lqLidarViewManager
 def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy using _getPyProxy(vtkSMProxy)
 
     reader = getReader()
@@ -843,7 +843,7 @@ def getAnimationScene():
         if proxy.GetXMLName() == 'AnimationScene' and len(proxy.Cues):
             return proxy
 
-# Main function, Used by lqVeloViewManager
+# Main function, Used by lqLidarViewManager
 def start():
 
     global app
