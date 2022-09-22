@@ -31,6 +31,7 @@ add_library(ApplicationUi
   lqUpdateCalibrationReaction.cxx
   lqUpdateCalibrationReaction.h
   lqPythonQtLidarView.h # LV Specific PythonQt Decorators
+  lqPythonQtCalibration.h # LV Specific PythonQt Decorators
   )
 target_link_libraries(ApplicationUi PUBLIC
   ParaView::pqCore

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqLidarViewManager.h"
 
 #include "lqOpenPcapReaction.h"
+#include "lqPythonQtCalibration.h"
 #include "lqPythonQtLidarView.h"
 
 #include <QFileInfo>
@@ -49,6 +50,7 @@ void lqLidarViewManager::pythonStartup()
 {
   // Register LidarView specific decorators first
   PythonQt::self()->addDecorators(new lqPythonQtLidarView(this));
+  PythonQt::self()->addDecorators(new lqPythonQtCalibration(this));
 
   Superclass::pythonStartup();
 

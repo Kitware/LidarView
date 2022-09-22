@@ -26,7 +26,8 @@ import lidarview.gridAdjustmentDialog
 import lidarview.aboutDialog
 import lidarview.planefit as planefit
 
-from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog #WIP rename to LV / Velodyne Specific
+from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog, vvCalibrationDialog #WIP rename to LV / Velodyne Specific
+from PythonQt.paraview import NetworkConfig, TransformConfig
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
@@ -291,6 +292,22 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     setDefaultLookupTables(reader)
     setDefaultLookupTables(getTrailingFrame())
     updateUIwithNewLidar()
+
+# Get the calibration config 
+# The calibration file can be changed with setCalibrationFile()
+# the available configuration files can be get with getAllCalibrationFiles()
+def getCalibrationConfig():
+    return vvCalibrationDialog(getMainWindow())
+
+# Create a .pcap reader to read the data contained in the file located at filename.
+# It takes a calibration file from getCalibrationConfig()
+def openPcap(filename, config):
+    PythonQt.paraview.lqOpenPcapReaction.createSourceFromFile(filename, config)
+
+# Create a sensor stream.
+# It takes a calibration file from getCalibrationConfig()
+def openSensorStream(config):
+    PythonQt.paraview.lqOpenSensorReaction.createSensorStream(config)
 
 def rotateCSVFile(filename):
 
@@ -638,6 +655,11 @@ def onClose():
     # Disable Actions
     disableSaveActions()
 
+# Get the player controller, it can be used to call lqPlayerControlsController functions
+# Such as onPlay(), onPause() ... 
+# Note: For the reader mode onPlay() will block the python shell
+def getPlayerController():
+    return PythonQt.paraview.lqPlayerControlsToolbar(getMainWindow())
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):

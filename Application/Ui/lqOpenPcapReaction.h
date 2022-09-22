@@ -4,6 +4,7 @@
 #include "applicationui_export.h"
 
 #include "pqReaction.h"
+#include "vvCalibrationDialog.h"
 
 #include <vtkObject.h>
 /**
@@ -18,6 +19,7 @@ class APPLICATIONUI_EXPORT lqOpenPcapReaction : public pqReaction
 public:
   lqOpenPcapReaction(QAction* action);
   static void createSourceFromFile(QString fileName);
+  static void createSourceFromFile(QString fileName, const vvCalibrationDialog& dialog);
 
 protected:
   /// Called when the action is triggered.

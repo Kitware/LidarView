@@ -503,7 +503,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
     this->Internal->ListWidget->addItem(createEntry(fullname, true));
   }
 
-  foreach (QString fullname, this->calibrationFiles())
+  foreach (QString fullname, this->getCustomCalibrationFiles())
   {
     this->Internal->ListWidget->addItem(createEntry(fullname, false));
   }
@@ -771,7 +771,39 @@ void vvCalibrationDialog::setDefaultConfiguration()
 }
 
 //-----------------------------------------------------------------------------
-QStringList vvCalibrationDialog::calibrationFiles() const
+void vvCalibrationDialog::setCalibrationFile(QString& filename) const
+{
+  QStringList existingFiles = this->getAllCalibrationFiles();
+  unsigned int idx = 0;
+  auto it = std::find(existingFiles.begin(), existingFiles.end(), filename);
+  if (it != existingFiles.end())
+  {
+    idx = it - existingFiles.begin();
+  }
+  else
+  {
+    this->Internal->ListWidget->addItem(createEntry(filename, false));
+    idx = this->Internal->ListWidget->count() - 1;
+    this->Internal->ListWidget->setCurrentRow(idx);
+    this->Internal->saveFileList();
+  }
+  this->Internal->ListWidget->setCurrentRow(idx);
+}
+
+//-----------------------------------------------------------------------------
+QStringList vvCalibrationDialog::getAllCalibrationFiles() const
+{
+  QStringList calibrationFiles;
+  for (int i = 0; i < this->Internal->ListWidget->count(); ++i)
+  {
+    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    calibrationFiles << currentFileName;
+  }
+  return calibrationFiles;
+}
+
+//-----------------------------------------------------------------------------
+QStringList vvCalibrationDialog::getCustomCalibrationFiles() const
 {
   return this->Internal->Settings->value("LidarPlugin/CalibrationFileDialog/Files").toStringList();
 }
@@ -903,6 +935,18 @@ vvCalibration::TransformConfig vvCalibrationDialog::getLidarConfig() const
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::setLidarConfig(vvCalibration::TransformConfig& conf)
+{
+  this->Internal->LidarYawSpinBox->setValue(conf.yaw);
+  this->Internal->LidarRollSpinBox->setValue(conf.roll);
+  this->Internal->LidarPitchSpinBox->setValue(conf.pitch);
+  this->Internal->LidarXSpinBox->setValue(conf.x);
+  this->Internal->LidarYSpinBox->setValue(conf.y);
+  this->Internal->LidarZSpinBox->setValue(conf.z);
+  this->Internal->lidarTimeOffsetSpinBox->setValue(conf.timeOffset);
+}
+
+//-----------------------------------------------------------------------------
 vvCalibration::NetworkConfig vvCalibrationDialog::getLidarNetworkConfig() const
 {
   vvCalibration::NetworkConfig config = { this->Internal->LidarPortSpinBox->value(),
@@ -911,6 +955,16 @@ vvCalibration::NetworkConfig vvCalibrationDialog::getLidarNetworkConfig() const
     this->Internal->ipAddresslineEdit->text(),
     this->Internal->CrashAnalysisCheckBox->isChecked() };
   return config;
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::setLidarNetworkConfig(vvCalibration::NetworkConfig& conf)
+{
+  this->Internal->LidarPortSpinBox->setValue(conf.listenningPort);
+  this->Internal->LidarForwardingPortSpinBox->setValue(conf.forwardingPort);
+  this->Internal->EnableForwardingCheckBox->setChecked(conf.isForwarding);
+  this->Internal->ipAddresslineEdit->setText(conf.ipAddressForwarding);
+  this->Internal->CrashAnalysisCheckBox->setChecked(conf.isCrashAnalysing);
 }
 
 //-----------------------------------------------------------------------------
@@ -927,6 +981,18 @@ vvCalibration::TransformConfig vvCalibrationDialog::getGPSConfig() const
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::setGPSConfig(vvCalibration::TransformConfig& conf)
+{
+  this->Internal->GpsYawSpinBox->setValue(conf.yaw);
+  this->Internal->GpsRollSpinBox->setValue(conf.roll);
+  this->Internal->GpsPitchSpinBox->setValue(conf.pitch);
+  this->Internal->GpsXSpinBox->setValue(conf.x);
+  this->Internal->GpsYSpinBox->setValue(conf.y);
+  this->Internal->GpsZSpinBox->setValue(conf.z);
+  this->Internal->gpsTimeOffsetSpinBox->setValue(conf.timeOffset);
+}
+
+//-----------------------------------------------------------------------------
 vvCalibration::NetworkConfig vvCalibrationDialog::getGPSNetworkConfig() const
 {
   vvCalibration::NetworkConfig config = { this->Internal->GPSPortSpinBox->value(),
@@ -935,6 +1001,16 @@ vvCalibration::NetworkConfig vvCalibrationDialog::getGPSNetworkConfig() const
     this->Internal->ipAddresslineEdit->text(),
     this->Internal->CrashAnalysisCheckBox->isChecked() };
   return config;
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::setGPSNetworkConfig(vvCalibration::NetworkConfig& conf)
+{
+  this->Internal->GPSPortSpinBox->setValue(conf.listenningPort);
+  this->Internal->GPSForwardingPortSpinBox->setValue(conf.forwardingPort);
+  this->Internal->EnableForwardingCheckBox->setChecked(conf.isForwarding);
+  this->Internal->ipAddresslineEdit->setText(conf.ipAddressForwarding);
+  this->Internal->CrashAnalysisCheckBox->setChecked(conf.isCrashAnalysing);
 }
 
 //-----------------------------------------------------------------------------

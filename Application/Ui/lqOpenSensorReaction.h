@@ -4,6 +4,7 @@
 #include "applicationui_export.h"
 
 #include "pqReaction.h"
+#include "vvCalibrationDialog.h"
 
 /**
  * @ingroup Reactions
@@ -16,6 +17,7 @@ class APPLICATIONUI_EXPORT lqOpenSensorReaction : public pqReaction
 
 public:
   lqOpenSensorReaction(QAction* action);
+  static void createSensorStream(const vvCalibrationDialog& dialog);
 
 protected:
   /// Called when the action is triggered.

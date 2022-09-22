@@ -35,9 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <PythonQt.h>
 #include <QObject>
 
+#include "Widgets/vvCalibrationDialog.h"
 #include "Widgets/vvCropReturnsDialog.h"
 #include "Widgets/vvSelectFramesDialog.h"
 #include "lqLidarViewManager.h"
+#include "lqOpenPcapReaction.h"
+#include "lqOpenSensorReaction.h"
 
 // WIP Could thinks about subclassing and rework how manager add it
 class lqPythonQtLidarView : public QObject
@@ -52,6 +55,9 @@ public:
 
     this->registerClassForPythonQt(&vvCropReturnsDialog::staticMetaObject);
     this->registerClassForPythonQt(&vvSelectFramesDialog::staticMetaObject);
+    this->registerClassForPythonQt(&vvCalibrationDialog::staticMetaObject);
+    this->registerClassForPythonQt(&lqOpenPcapReaction::staticMetaObject);
+    this->registerClassForPythonQt(&lqOpenSensorReaction::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -68,6 +74,22 @@ public Q_SLOTS:
   vvSelectFramesDialog* new_vvSelectFramesDialog(QWidget* arg0)
   {
     return new vvSelectFramesDialog(arg0);
+  }
+
+  // vvCalibrationDialog
+  vvCalibrationDialog* new_vvCalibrationDialog(QWidget* arg0)
+  {
+    return new vvCalibrationDialog(arg0);
+  }
+
+  void static_lqOpenPcapReaction_createSourceFromFile(QString filename, vvCalibrationDialog* inst)
+  {
+    lqOpenPcapReaction::createSourceFromFile(filename, *inst);
+  }
+
+  void static_lqOpenPcapReaction_createSensorStream(vvCalibrationDialog* inst)
+  {
+    lqOpenSensorReaction::createSensorStream(*inst);
   }
 };
 
