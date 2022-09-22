@@ -104,7 +104,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
     return;
   }
 
-  // Create a progress bar so the user see that VeloView is running
+  // Create a progress bar so the user see that LidarView is running
   QProgressDialog progress("Reading pcap", "", 0, 0, lqLidarViewManager::getMainWindow());
   progress.setCancelButton(nullptr);
   progress.setModal(true);
@@ -213,7 +213,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
     }
   }
 
-  // Remove the handler so the user can interact with VeloView again (pushing any button)
+  // Remove the handler so the user can interact with LidarView again (pushing any button)
   handler->RemoveObserver(tag);
   handler->LocalCleanupPendingProgress();
   handler->SetProgressInterval(interval);
