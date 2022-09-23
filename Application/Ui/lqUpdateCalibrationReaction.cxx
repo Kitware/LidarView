@@ -166,12 +166,6 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
       // Set Meta Interpreter as Default
       defaultProxy =
         proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneMetaPacketInterpreter");
-      // Use SpecialVelarray if name implies it
-      if ((calibrationFile.contains("velarray", Qt::CaseInsensitive)))
-      {
-        defaultProxy = proxyListDomain->FindProxy(
-          "LidarPacketInterpreter", "VelodyneSpecialVelarrayPacketInterpreter");
-      }
     }
     else
     {
@@ -302,7 +296,7 @@ void lqUpdateCalibrationReaction::UpdateExistingSource(pqPipelineSource*& lidarS
 
   UpdateCalibration(lidarSource, posOrSource, dialog);
 
-  // Update render based on new calibration 
+  // Update render based on new calibration
   pqApplicationCore::instance()->render();
 
   // Update UI
