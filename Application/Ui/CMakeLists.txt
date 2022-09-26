@@ -62,6 +62,12 @@ target_include_directories(ApplicationUi PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 
+target_compile_definitions(ApplicationUi
+  PRIVATE
+  "LIDARVIEW_BUILD_VELODYNE=$<BOOL:${LIDARVIEW_BUILD_VELODYNE}>"
+  "LIDARVIEW_BUILD_HESAI=$<BOOL:${LIDARVIEW_BUILD_HESAI}>"
+)
+
 include(GenerateExportHeader)
 generate_export_header(ApplicationUi)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/applicationui_export.h DESTINATION ${LV_INSTALL_LIBRARY_DIR})

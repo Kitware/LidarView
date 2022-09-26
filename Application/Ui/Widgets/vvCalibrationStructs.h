@@ -20,6 +20,13 @@
 
 namespace vvCalibration
 {
+enum class Plugin
+{
+  UNKNOWN,
+  VELODYNE,
+  HESAI
+};
+
 struct TransformConfig
 {
   double yaw = 0.0;

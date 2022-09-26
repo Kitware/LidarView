@@ -112,7 +112,7 @@ void lqUpdateCalibrationReaction::setNetworkCalibration(vtkSMProxy* proxy,
 
 //-----------------------------------------------------------------------------
 void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
-  QString interpreterName,
+  vvCalibration::Plugin interpreter,
   QString calibrationFile,
   bool isShowFirstAndLastFrame)
 {
@@ -149,7 +149,7 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
     // WIP Dawn of the Heterogeneous Sensors Features
     // probably should detect Plugin loading state
     vtkSMProxy* defaultProxy = nullptr;
-    if (interpreterName == "interpreterRadio_hesai")
+    if (interpreter == vvCalibration::Plugin::HESAI)
     {
       // Set General Packet Interpreter based on SDK as default
       defaultProxy =
@@ -161,17 +161,11 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
           proxyListDomain->FindProxy("LidarPacketInterpreter", "HesaiPacketInterpreter");
       }
     }
-    else if (interpreterName == "interpreterRadio_velodyne")
+    else if (interpreter == vvCalibration::Plugin::VELODYNE)
     {
       // Set Meta Interpreter as Default
       defaultProxy =
         proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneMetaPacketInterpreter");
-      // Use SpecialVelarray if name implies it
-      if ((calibrationFile.contains("velarray", Qt::CaseInsensitive)))
-      {
-        defaultProxy = proxyListDomain->FindProxy(
-          "LidarPacketInterpreter", "VelodyneSpecialVelarrayPacketInterpreter");
-      }
     }
     else
     {
@@ -200,7 +194,7 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
 
   // Set the calibration File and the lidar interpreter
   lqUpdateCalibrationReaction::setReaderCalibration(lidarProxy,
-    dialog.selectedInterpreterName(),
+    dialog.selectedInterpreter(),
     dialog.selectedCalibrationFile(),
     dialog.isShowFirstAndLastFrame());
 
@@ -302,7 +296,7 @@ void lqUpdateCalibrationReaction::UpdateExistingSource(pqPipelineSource*& lidarS
 
   UpdateCalibration(lidarSource, posOrSource, dialog);
 
-  // Update render based on new calibration 
+  // Update render based on new calibration
   pqApplicationCore::instance()->render();
 
   // Update UI

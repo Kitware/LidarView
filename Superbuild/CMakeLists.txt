@@ -9,6 +9,14 @@ project(LidarViewSuperBuild)
 # the CMakeLists.txt inside "lidarview-superbuild"
 #-----------------------------------------------------------------------------
 
+option(INTERPRETER_ENABLE_Velodyne "Enable Velodyne interpreter " ON)
+option(INTERPRETER_ENABLE_Hesai "Enable Hesai interpreter (requires pcl)" OFF)
+if(INTERPRETER_ENABLE_Hesai)
+  if(NOT ENABLE_pcl)
+    message(FATAL_ERROR "Hesai interpreter requires pcl")
+  endif()
+endif()
+
 list(APPEND superbuild_project_roots
   "${CMAKE_CURRENT_SOURCE_DIR}/Projects")
 

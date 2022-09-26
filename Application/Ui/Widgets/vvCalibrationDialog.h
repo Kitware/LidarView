@@ -30,7 +30,7 @@ public:
 
   virtual ~vvCalibrationDialog();
 
-  Q_INVOKABLE QString selectedInterpreterName() const;
+  Q_INVOKABLE vvCalibration::Plugin selectedInterpreter() const;
   Q_INVOKABLE QString selectedCalibrationFile() const;
   Q_INVOKABLE void setCalibrationFile(QString& filename) const;
   Q_INVOKABLE QStringList getAllCalibrationFiles() const;
@@ -66,6 +66,7 @@ protected slots:
   void addFile();
   void removeSelectedFile();
   void onCurrentRowChanged(int row);
+  void onCurrentTextChanged(const QString&);
   void clearAdvancedSettings();
 
 private:

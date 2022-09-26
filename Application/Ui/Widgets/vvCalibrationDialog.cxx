@@ -39,18 +39,24 @@ public:
   pqInternal()
     : Settings(pqApplicationCore::instance()->settings())
   {
-    const unsigned int nFile = 8; // WARNING update this accordingly.
-    const char* filenames[nFile] = {
-      "HDL-32.xml",
+#if LIDARVIEW_BUILD_VELODYNE
+    this->AvailableInterpreters.insert("Velodyne", vvCalibration::Plugin::VELODYNE);
+#endif
+#if LIDARVIEW_BUILD_HESAI
+    this->AvailableInterpreters.insert("Hesai", vvCalibration::Plugin::HESAI);
+#endif
+
+    // Velodyne Calibration
+    const std::vector<QString> velodyneCalibFiles = { "HDL-32.xml",
       "VLP-16.xml",
       "VLP-32c.xml",
       "Puck Hi-Res.xml",
       "Puck LITE.xml",
-      "Alpha Prime.xml",
-      "PandarXT.csv",
-      "Pandar128.csv" // HESAI Calibration
-    };
-    std::vector<QString> calibrationBuiltIn(filenames, filenames + nFile);
+      "Alpha Prime.xml" };
+
+    // Hesai Calibration
+    const std::vector<QString> hesaiCalibFiles = { "PandarXT.csv", "Pandar128.csv" };
+
     QString prefix;
 #if defined(_WIN32)
     prefix = QCoreApplication::applicationDirPath() + "/../share/";
@@ -59,16 +65,23 @@ public:
 #else
     prefix = QCoreApplication::applicationDirPath() + "/../share/";
 #endif
-    for (size_t k = 0; k < calibrationBuiltIn.size(); ++k)
+    for (size_t k = 0; k < velodyneCalibFiles.size(); ++k)
     {
-      calibrationBuiltIn[k] = prefix + calibrationBuiltIn[k];
-      this->BuiltInCalibrationFiles << calibrationBuiltIn[k];
+      this->BuiltInCalibrationFiles[vvCalibration::Plugin::VELODYNE]
+        << prefix + velodyneCalibFiles[k];
+    }
+    for (size_t k = 0; k < hesaiCalibFiles.size(); ++k)
+    {
+      this->BuiltInCalibrationFiles[vvCalibration::Plugin::HESAI] << prefix + hesaiCalibFiles[k];
     }
   }
 
-  void saveFileList();
-  void saveSelectedRow();
-  void restoreSelectedRow();
+  void saveInterpreter();
+  void saveFileList(const vvCalibration::Plugin& interpreter);
+  void saveSelectedRow(const vvCalibration::Plugin& interpreter);
+
+  void restoreInterpreter();
+  void restoreSelectedRow(const vvCalibration::Plugin& interpreter);
 
   void saveSensorTransform();
   void saveGpsTransform();
@@ -99,33 +112,69 @@ public:
   void restoreShowFirstAndLastFrame();
 
   pqSettings* const Settings;
-  QStringList BuiltInCalibrationFiles;
+  QMap<QString, vvCalibration::Plugin> AvailableInterpreters;
+  QMap<vvCalibration::Plugin, QStringList> BuiltInCalibrationFiles;
 };
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveFileList()
-{
-  QStringList files;
-  for (int i = this->BuiltInCalibrationFiles.size(); i < this->ListWidget->count(); ++i)
-  {
-    files << this->ListWidget->item(i)->data(Qt::UserRole).toString();
-  }
-
-  this->Settings->setValue("LidarPlugin/CalibrationFileDialog/Files", files);
-}
-
-//-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveSelectedRow()
+void vvCalibrationDialog::pqInternal::saveInterpreter()
 {
   this->Settings->setValue(
-    "LidarPlugin/CalibrationFileDialog/CurrentRow", this->ListWidget->currentRow());
+    "LidarPlugin/CalibrationFileDialog/Interpreter", this->InterpreterSelectionBox->currentText());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreSelectedRow()
+void vvCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& interpreter)
 {
-  int row = this->Settings->value("LidarPlugin/CalibrationFileDialog/CurrentRow").toInt();
-  this->ListWidget->setCurrentRow(row);
+  int buildInFileCount = this->BuiltInCalibrationFiles[interpreter].size();
+
+  // Ignore 1 more file for Velodyne because of the HDL-64 live correction
+  if (interpreter == vvCalibration::Plugin::VELODYNE)
+  {
+    buildInFileCount++;
+  }
+
+  QStringList files;
+  for (int i = buildInFileCount; i < this->CalibrationFileListWidget->count(); ++i)
+  {
+    files << this->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
+  }
+
+  QString path = "LidarPlugin/CalibrationFileDialog/Files" + QString::number((int)interpreter);
+  this->Settings->setValue(path, files);
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::saveSelectedRow(const vvCalibration::Plugin& interpreter)
+{
+  QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
+  this->Settings->setValue(path, this->CalibrationFileListWidget->currentRow());
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::restoreInterpreter()
+{
+  QString interpreter =
+    this->Settings->value("LidarPlugin/CalibrationFileDialog/Interpreter").toString();
+  QString defaultInterpreter = "Velodyne";
+  if (!interpreter.isEmpty())
+  {
+    this->InterpreterSelectionBox->setCurrentText(interpreter);
+  }
+  else if (this->AvailableInterpreters.find(defaultInterpreter) !=
+    this->AvailableInterpreters.end())
+  {
+    // Set default interpreter to Velodyne
+    this->InterpreterSelectionBox->setCurrentText(defaultInterpreter);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::restoreSelectedRow(const vvCalibration::Plugin& interpreter)
+{
+  QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
+  int row = this->Settings->value(path).toInt();
+  this->CalibrationFileListWidget->setCurrentRow(row);
 }
 
 //-----------------------------------------------------------------------------
@@ -477,7 +526,6 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
 {
   this->Internal->setupUi(this);
   this->setDefaultConfiguration();
-  QListWidgetItem* liveCalibrationItem = new QListWidgetItem();
 
   // Without settings about the Crash Analysis option on the
   // user's computer, we want the software to not save the log
@@ -492,23 +540,16 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
 
   this->Internal->ShowFirstAndLastFrame->setEnabled(!isStreamSensor);
 
-  liveCalibrationItem->setText("HDL64 Live Corrections");
-  liveCalibrationItem->setToolTip("Get Corrections from the data stream");
-  liveCalibrationItem->setData(Qt::UserRole, "");
-
-  this->Internal->ListWidget->addItem(liveCalibrationItem);
-
-  foreach (QString fullname, this->Internal->BuiltInCalibrationFiles)
+  foreach (QString interpreterName, this->Internal->AvailableInterpreters.keys())
   {
-    this->Internal->ListWidget->addItem(createEntry(fullname, true));
+    this->Internal->InterpreterSelectionBox->addItem(interpreterName);
   }
 
-  foreach (QString fullname, this->getCustomCalibrationFiles())
-  {
-    this->Internal->ListWidget->addItem(createEntry(fullname, false));
-  }
-
-  connect(this->Internal->ListWidget,
+  connect(this->Internal->InterpreterSelectionBox,
+    SIGNAL(currentTextChanged(const QString&)),
+    this,
+    SLOT(onCurrentTextChanged(const QString&)));
+  connect(this->Internal->CalibrationFileListWidget,
     SIGNAL(currentRowChanged(int)),
     this,
     SLOT(onCurrentRowChanged(int)));
@@ -589,7 +630,10 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
     this,
     SLOT(clearAdvancedSettings()));
 
-  this->Internal->restoreSelectedRow();
+  this->Internal->restoreInterpreter();
+  this->onCurrentTextChanged(this->Internal->InterpreterSelectionBox->currentText());
+
+  this->Internal->restoreSelectedRow(this->selectedInterpreter());
   this->Internal->restoreSensorTransform();
   this->Internal->restoreGpsTransform();
   this->Internal->restoreLidarPort();
@@ -626,14 +670,15 @@ vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
   // If the calibration is "" that means that the calibration is live
   if (lidarCalibrationFile.isEmpty())
   {
-    this->Internal->ListWidget->setCurrentRow(0);
+    this->Internal->CalibrationFileListWidget->setCurrentRow(0);
   }
-  for (int i = 1; i < this->Internal->ListWidget->count(); ++i)
+  for (int i = 1; i < this->Internal->CalibrationFileListWidget->count(); ++i)
   {
-    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    QString currentFileName =
+      this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
     if (lidarCalibrationFile.compare(currentFileName, Qt::CaseInsensitive) == 0)
     {
-      this->Internal->ListWidget->setCurrentRow(i);
+      this->Internal->CalibrationFileListWidget->setCurrentRow(i);
     }
   }
 
@@ -771,6 +816,27 @@ void vvCalibrationDialog::setDefaultConfiguration()
 }
 
 //-----------------------------------------------------------------------------
+vvCalibration::Plugin vvCalibrationDialog::selectedInterpreter() const
+{
+  QString currentInterpreter = this->Internal->InterpreterSelectionBox->currentText();
+  QMap<QString, vvCalibration::Plugin>::const_iterator it =
+    this->Internal->AvailableInterpreters.find(currentInterpreter);
+
+  if (it != this->Internal->AvailableInterpreters.end())
+  {
+    return it.value();
+  }
+  return vvCalibration::Plugin::UNKNOWN;
+}
+
+//-----------------------------------------------------------------------------
+QString vvCalibrationDialog::selectedCalibrationFile() const
+{
+  const int row = this->Internal->CalibrationFileListWidget->currentRow();
+  return this->Internal->CalibrationFileListWidget->item(row)->data(Qt::UserRole).toString();
+}
+
+//-----------------------------------------------------------------------------
 void vvCalibrationDialog::setCalibrationFile(QString& filename) const
 {
   QStringList existingFiles = this->getAllCalibrationFiles();
@@ -782,21 +848,22 @@ void vvCalibrationDialog::setCalibrationFile(QString& filename) const
   }
   else
   {
-    this->Internal->ListWidget->addItem(createEntry(filename, false));
-    idx = this->Internal->ListWidget->count() - 1;
-    this->Internal->ListWidget->setCurrentRow(idx);
-    this->Internal->saveFileList();
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(filename, false));
+    idx = this->Internal->CalibrationFileListWidget->count() - 1;
+    this->Internal->CalibrationFileListWidget->setCurrentRow(idx);
+    this->Internal->saveFileList(this->selectedInterpreter());
   }
-  this->Internal->ListWidget->setCurrentRow(idx);
+  this->Internal->CalibrationFileListWidget->setCurrentRow(idx);
 }
 
 //-----------------------------------------------------------------------------
 QStringList vvCalibrationDialog::getAllCalibrationFiles() const
 {
   QStringList calibrationFiles;
-  for (int i = 0; i < this->Internal->ListWidget->count(); ++i)
+  for (int i = 0; i < this->Internal->CalibrationFileListWidget->count(); ++i)
   {
-    QString currentFileName = this->Internal->ListWidget->item(i)->data(Qt::UserRole).toString();
+    QString currentFileName =
+      this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
     calibrationFiles << currentFileName;
   }
   return calibrationFiles;
@@ -805,30 +872,9 @@ QStringList vvCalibrationDialog::getAllCalibrationFiles() const
 //-----------------------------------------------------------------------------
 QStringList vvCalibrationDialog::getCustomCalibrationFiles() const
 {
-  return this->Internal->Settings->value("LidarPlugin/CalibrationFileDialog/Files").toStringList();
-}
-
-//-----------------------------------------------------------------------------
-QString vvCalibrationDialog::selectedCalibrationFile() const
-{
-  const int row = this->Internal->ListWidget->currentRow();
-  return this->Internal->ListWidget->item(row)->data(Qt::UserRole).toString();
-}
-
-//-----------------------------------------------------------------------------
-QString vvCalibrationDialog::selectedInterpreterName() const
-{
-  // Return first Checked RadioButton
-  Q_FOREACH (QRadioButton* button, this->Internal->InterpreterBox->findChildren<QRadioButton*>())
-  {
-    if (button->isChecked())
-    {
-      return button->objectName();
-    }
-  }
-
-  // None Checked
-  return QString();
+  QString interpreter = QString::number((int)this->selectedInterpreter());
+  QString path = "LidarPlugin/CalibrationFileDialog/Files" + interpreter;
+  return this->Internal->Settings->value(path).toStringList();
 }
 
 //-----------------------------------------------------------------------------
@@ -1016,7 +1062,7 @@ void vvCalibrationDialog::setGPSNetworkConfig(vvCalibration::NetworkConfig& conf
 //-----------------------------------------------------------------------------
 void vvCalibrationDialog::accept()
 {
-  this->Internal->saveSelectedRow();
+  this->Internal->saveInterpreter();
   this->Internal->saveSensorTransform();
   this->Internal->saveGpsTransform();
   this->Internal->saveLidarPort();
@@ -1037,7 +1083,39 @@ void vvCalibrationDialog::accept()
 //-----------------------------------------------------------------------------
 void vvCalibrationDialog::onCurrentRowChanged(int row)
 {
-  this->Internal->RemoveButton->setEnabled(row >= this->Internal->BuiltInCalibrationFiles.size());
+  const vvCalibration::Plugin interpreter = this->selectedInterpreter();
+  const int builtInCalibFileSize = this->Internal->BuiltInCalibrationFiles[interpreter].size();
+  this->Internal->RemoveButton->setEnabled(row > builtInCalibFileSize);
+  // Don't save row when changing interpreter
+  if (row != -1)
+    this->Internal->saveSelectedRow(interpreter);
+}
+
+//-----------------------------------------------------------------------------
+void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
+{
+  const vvCalibration::Plugin interpreter = this->Internal->AvailableInterpreters[text];
+  this->Internal->CalibrationFileListWidget->clear();
+
+  if (interpreter == vvCalibration::Plugin::VELODYNE)
+  {
+    QListWidgetItem* liveCalibrationItem = new QListWidgetItem();
+    liveCalibrationItem->setText("HDL64 Live Corrections");
+    liveCalibrationItem->setToolTip("Get Corrections from the data stream");
+    liveCalibrationItem->setData(Qt::UserRole, "");
+
+    this->Internal->CalibrationFileListWidget->addItem(liveCalibrationItem);
+  }
+
+  foreach (QString fullname, this->Internal->BuiltInCalibrationFiles[interpreter])
+  {
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, true));
+  }
+  foreach (QString fullname, this->getCustomCalibrationFiles())
+  {
+    this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, false));
+  }
+  this->Internal->restoreSelectedRow(interpreter);
 }
 
 //-----------------------------------------------------------------------------
@@ -1058,9 +1136,10 @@ void vvCalibrationDialog::addFile()
   }
 
   QString fileName = dial.getSelectedFiles().at(0);
-  this->Internal->ListWidget->addItem(createEntry(fileName, false));
-  this->Internal->ListWidget->setCurrentRow(this->Internal->ListWidget->count() - 1);
-  this->Internal->saveFileList();
+  this->Internal->CalibrationFileListWidget->addItem(createEntry(fileName, false));
+  this->Internal->CalibrationFileListWidget->setCurrentRow(
+    this->Internal->CalibrationFileListWidget->count() - 1);
+  this->Internal->saveFileList(this->selectedInterpreter());
 
   this->Internal->Settings->setValue(
     "LidarPlugin/OpenData/DefaultDir", QFileInfo(fileName).absoluteDir().absolutePath());
@@ -1069,10 +1148,10 @@ void vvCalibrationDialog::addFile()
 //-----------------------------------------------------------------------------
 void vvCalibrationDialog::removeSelectedFile()
 {
-  const int row = this->Internal->ListWidget->currentRow();
+  const int row = this->Internal->CalibrationFileListWidget->currentRow();
   if (row >= this->Internal->BuiltInCalibrationFiles.size())
   {
-    delete this->Internal->ListWidget->takeItem(row);
-    this->Internal->saveFileList();
+    delete this->Internal->CalibrationFileListWidget->takeItem(row);
+    this->Internal->saveFileList(this->selectedInterpreter());
   }
 }

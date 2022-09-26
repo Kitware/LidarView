@@ -7,8 +7,8 @@ LidarView performs real-time reception, recording, visualization and processing 
 LidarView's open source codebase developed by Kitware is used by many different applications to display live LiDAR data from
 Velodyne, Ouster, Opsys, Lumotive, RoboSense, Hesai, LeiShen LS Lidar, and more.
 
-This open-source declination only supports VeloDyne's open-source interpreters: VLP-16, VLP-32, HDL-32, HDL64, Alpha Prime.
-An Experimental branch with Hesai sensor support also exists.
+This open-source declination only supports Velodyne's open-source interpreters: VLP-16, VLP-32, HDL-32, HDL-64, Alpha Prime.
+An Experimental Hesai sensor support also exists.
 
 Many of these LiDAR sensors sweep an array of lasers (often 8 to 128) 360&deg;
 with a vertical field of view of tens of degrees at a 5-20Hz spinning frequency,
@@ -72,6 +72,12 @@ Most of the LidarView common codebase lies within:
 Detailed Instructions to build and package LidarView are available under [`LVCore/Documentation/LidarView_Developer_Guide.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/LidarView_Developer_Guide.md).
 
 # How to use
+
+## Interpreters selection
+
+Only Velodyne interpreters are enabled by default, you can choose which interpreter plugin to enable in LidarView with cmake options following this format:  `INTERPRETER_ENABLE_InterpreterPluginName`.
+
+For example: `-DINTERPRETER_ENABLE_Hesai=True` will build Hesai.
 
 ## Sensor streaming
 
