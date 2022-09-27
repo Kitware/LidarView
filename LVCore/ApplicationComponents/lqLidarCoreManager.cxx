@@ -490,6 +490,21 @@ void lqLidarCoreManager::onEnableCrashAnalysis(bool crashAnalysisEnabled)
 }
 
 //-----------------------------------------------------------------------------
+void lqLidarCoreManager::onCloseAllData()
+{
+  // Remove lidars
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader>();
+
+  // Reset Camera
+  this->onResetCameraToForwardView();
+
+  // WIP Disable actions
+  this->runPython("lv.disableSaveActions()\n");
+}
+
+//-----------------------------------------------------------------------------
 void lqLidarCoreManager::onResetDefaultSettings()
 {
   QMessageBox messageBox;

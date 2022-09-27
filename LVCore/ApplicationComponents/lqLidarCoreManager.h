@@ -98,6 +98,7 @@ public Q_SLOTS:
 
   void onEnableCrashAnalysis(bool crashAnalysisEnabled);
 
+  void onCloseAllData();
   void onResetDefaultSettings();
 
   void onMeasurementGrid(bool gridVisible);
