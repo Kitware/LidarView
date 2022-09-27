@@ -231,6 +231,11 @@ void vvMainWindow::setupPVGUI()
   pqApplicationCore::instance()->registerManager(
     "COLOR_EDITOR_PANEL", this->Internals->colorMapEditorDock);
 
+  // Set the central widget
+  pqTabbedMultiViewWidget* mv = new pqTabbedMultiViewWidget;
+  mv->setTabVisibility(false);
+  this->setCentralWidget(mv);
+
   // Provide access to the find data panel for the application.
   // pqApplicationCore::instance()->registerManager("FIND_DATA_PANEL",
   // this->Internals->findDataDock); // Unused
@@ -322,11 +327,6 @@ void vvMainWindow::setupLVGUI()
   // Add generally common elements to all LidarView-based apps
   // Not necessarilly verbatim Paraview
   // Feel Free to modify this in your LidarView-based app if you really do not like the look
-
-  // Set the central widget
-  pqTabbedMultiViewWidget* mv = new pqTabbedMultiViewWidget;
-  mv->setTabVisibility(false);
-  this->setCentralWidget(mv);
 
   // Output Window Dock
   this->Internals->outputWidgetDock->setWidget(this->Internals->outputWidget);
