@@ -35,11 +35,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqPythonShell.h>
 
 #include "LASFileWriter.h"
-#include <vtkLidarReader.h>
+#include <lqHelper.h>
 #include <lqPythonQtDecorators.h>
 #include <lqSensorListWidget.h>
-#include <lqHelper.h>
 #include <vtkGridSource.h>
+#include <vtkLidarReader.h>
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
@@ -69,7 +69,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkPythonInterpreter.h>
 #include <vtkTimerLog.h>
 
-
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -84,9 +83,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Use LV_PYTHON_VERSION supplied at build time
 #ifndef LV_PYTHON_VERSION
-  #error "LV_PYTHON_VERSION not defined"
+#error "LV_PYTHON_VERSION not defined"
 #endif
-static_assert( LV_PYTHON_VERSION, "LV_PYTHON_VERSION is not defined" ); // For good measure
+static_assert(LV_PYTHON_VERSION, "LV_PYTHON_VERSION is not defined"); // For good measure
 
 //-----------------------------------------------------------------------------
 class lqLidarCoreManager::pqInternal
@@ -115,7 +114,6 @@ lqLidarCoreManager::lqLidarCoreManager(QObject* parent)
   // Create lqSensorListWidget, a critical component of LidarView core.
   // App can choose wether or not to show it or not, and how to present it (e.g QWidgetDock)
   new lqSensorListWidget();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -150,17 +148,20 @@ pqPythonShell* lqLidarCoreManager::getPythonShell()
 //-----------------------------------------------------------------------------
 void lqLidarCoreManager::runPython(const QString& statements)
 {
-  if(this->pythonShell)
+  if (this->pythonShell)
   {
     this->pythonShell->executeScript(statements);
-  }else{
-    qCritical() <<"LidarView python shell has not been set, cannot run:\n" << statements ;
+  }
+  else
+  {
+    qCritical() << "LidarView python shell has not been set, cannot run:\n" << statements;
   }
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::forceShowShell(){
-  if(this->pythonShell)
+void lqLidarCoreManager::forceShowShell()
+{
+  if (this->pythonShell)
   {
     this->pythonShell->show();
     this->pythonShell->raise();
@@ -171,14 +172,16 @@ void lqLidarCoreManager::forceShowShell(){
 //-----------------------------------------------------------------------------
 void lqLidarCoreManager::createMainRenderView()
 {
-  vtkSMSessionProxyManager* pxm = vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager();
+  vtkSMSessionProxyManager* pxm =
+    vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager();
   vtkSMProxy* renderviewsettings = pxm->GetProxy("RenderViewSettings");
   assert(renderviewsettings);
-  vtkSMPropertyHelper(renderviewsettings, "ResolveCoincidentTopology").Set(0); //WIP Is This necessary
+  vtkSMPropertyHelper(renderviewsettings, "ResolveCoincidentTopology")
+    .Set(0); // WIP Is This necessary
 
-  pqRenderView* view = qobject_cast<pqRenderView*>(
-    pqApplicationCore::instance()->getObjectBuilder()->createView(pqRenderView::renderViewType(), pqActiveObjects::instance().activeServer())
-  );
+  pqRenderView* view =
+    qobject_cast<pqRenderView*>(pqApplicationCore::instance()->getObjectBuilder()->createView(
+      pqRenderView::renderViewType(), pqActiveObjects::instance().activeServer()));
   assert(view);
   pqActiveObjects::instance().setActiveView(view);
   pqApplicationCore::instance()->getObjectBuilder()->addToLayout(view);
@@ -186,7 +189,7 @@ void lqLidarCoreManager::createMainRenderView()
   double bgcolor[3] = { 0, 0, 0 };
   vtkSMPropertyHelper(view->getProxy(), "Background").Set(bgcolor, 3);
   vtkSMPropertyHelper(view->getProxy(), "CenterAxesVisibility").Set(0);
-  //vtkSMPropertyHelper(view->getProxy(),"MultiSamples").Set(4); //WIP set to 0 1, 4 ?
+  // vtkSMPropertyHelper(view->getProxy(),"MultiSamples").Set(4); //WIP set to 0 1, 4 ?
   view->getProxy()->UpdateVTKObjects();
 }
 
@@ -196,10 +199,14 @@ void lqLidarCoreManager::pythonStartup()
   // Python module Paths
   QStringList pythonDirs;
   pythonDirs << QCoreApplication::applicationDirPath()
-             << QCoreApplication::applicationDirPath() + "/../Libraries" // use lidarpluginpython module from packaging MacOS
-             << QCoreApplication::applicationDirPath() + "/../Python/" // use lidarview module from install MacOS
-             << QCoreApplication::applicationDirPath() + "/../lib/pythonLV_PYTHON_VERSION/site-packages/" // use lidarview module from install Linux
-             << QCoreApplication::applicationDirPath() + "/Lib/site-packages/"; // use lidarview module from install Windows
+             << QCoreApplication::applicationDirPath() +
+      "/../Libraries" // use lidarpluginpython module from packaging MacOS
+             << QCoreApplication::applicationDirPath() +
+      "/../Python/" // use lidarview module from install MacOS
+             << QCoreApplication::applicationDirPath() +
+      "/../lib/pythonLV_PYTHON_VERSION/site-packages/" // use lidarview module from install Linux
+             << QCoreApplication::applicationDirPath() +
+      "/Lib/site-packages/"; // use lidarview module from install Windows
   foreach (const QString& dirname, pythonDirs)
   {
     if (QDir(dirname).exists())
@@ -212,13 +219,11 @@ void lqLidarCoreManager::pythonStartup()
   PythonQt::self()->addDecorators(new lqPythonQtDecorators(this));
 
   // Start applogic
-  this->runPython(QString(
-      "import PythonQt\n"
-      "QtGui = PythonQt.QtGui\n"
-      "QtCore = PythonQt.QtCore\n"
-      "import lidarview.applogic as lv\n"
-      "lv.start()\n"));
-
+  this->runPython(QString("import PythonQt\n"
+                          "QtGui = PythonQt.QtGui\n"
+                          "QtCore = PythonQt.QtCore\n"
+                          "import lidarview.applogic as lv\n"
+                          "lv.start()\n"));
 }
 
 //-----------------------------------------------------------------------------
@@ -234,11 +239,10 @@ void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
   {
     if (IsProxy<vtkGridSource>(src->getProxy()))
     {
-      controller->SetVisibility(
-        vtkSMSourceProxy::SafeDownCast(src->getProxy()), 0,
+      controller->SetVisibility(vtkSMSourceProxy::SafeDownCast(src->getProxy()),
+        0,
         pqActiveObjects::instance().activeView()->getViewProxy(),
-        gridVisible
-      );
+        gridVisible);
     }
   }
   pqApplicationCore::instance()->render();
@@ -248,15 +252,18 @@ void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
 void lqLidarCoreManager::onResetCameraLidar()
 {
   pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
-  if(!view){return;}
+  if (!view)
+  {
+    return;
+  }
 
   // See pqRenderView::resetViewDirection
   // Position at 30 degrees [0, -(squareRoot(3)/2)*dist, (1/2)*dist]
   vtkSMProxy* proxy = view->getProxy();
   constexpr double dist = 100;
-  double pos[3]         = { 0, -0.866025 * dist, (1.0/2.0) * dist };
-  double focal_point[3] = { 0,0,0 };
-  double view_up[3]     = { 0,0,1 };
+  double pos[3] = { 0, -0.866025 * dist, (1.0 / 2.0) * dist };
+  double focal_point[3] = { 0, 0, 0 };
+  double view_up[3] = { 0, 0, 1 };
   vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
   vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
   vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
@@ -269,12 +276,15 @@ void lqLidarCoreManager::onResetCameraLidar()
 void lqLidarCoreManager::onResetCameraToForwardView()
 {
   pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
-  if(!view){return;}
+  if (!view)
+  {
+    return;
+  }
 
   vtkSMProxy* proxy = view->getProxy();
-  double pos[3]         = { 0, -72, 18.0 };
-  double focal_point[3] = { 0,0,0 };
-  double view_up[3]     = { 0, 0.27, 0.96 };
+  double pos[3] = { 0, -72, 18.0 };
+  double focal_point[3] = { 0, 0, 0 };
+  double view_up[3] = { 0, 0.27, 0.96 };
   vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
   vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
   vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
@@ -288,10 +298,13 @@ void lqLidarCoreManager::onResetCameraToForwardView()
 void lqLidarCoreManager::onResetCenterToLidarCenter()
 {
   pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
-  if(!view){return;}
+  if (!view)
+  {
+    return;
+  }
 
   // Set Axis Center to 0 0 0
-  double center[3] = {0.0,0.0,0.0};
+  double center[3] = { 0.0, 0.0, 0.0 };
   view->setCenterOfRotation(center);
   view->render();
 
@@ -301,8 +314,10 @@ void lqLidarCoreManager::onResetCenterToLidarCenter()
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::saveFramesToPCAP(
-  vtkSMSourceProxy* proxy, int startFrame, int endFrame, const QString& filename)
+void lqLidarCoreManager::saveFramesToPCAP(vtkSMSourceProxy* proxy,
+  int startFrame,
+  int endFrame,
+  const QString& filename)
 {
   if (!proxy)
   {
@@ -321,8 +336,12 @@ void lqLidarCoreManager::saveFramesToPCAP(
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::saveFramesToLAS(vtkLidarReader* reader, vtkPolyData* position,
-  int startFrame, int endFrame, const QString& filename, int positionMode)
+void lqLidarCoreManager::saveFramesToLAS(vtkLidarReader* reader,
+  vtkPolyData* position,
+  int startFrame,
+  int endFrame,
+  const QString& filename,
+  int positionMode)
 {
   if (!reader || (positionMode > 0 && !position))
   {
@@ -372,14 +391,15 @@ void lqLidarCoreManager::saveFramesToLAS(vtkLidarReader* reader, vtkPolyData* po
           // coordinates (srs) of UTM zoneData
           utmZone = static_cast<int>(zoneData->GetComponent(0, 0));
 
-          // should in some cases use 32700? 32600 is for northern UTM zone, 32700 for southern UTM zone
+          // should in some cases use 32700? 32600 is for northern UTM zone, 32700 for southern UTM
+          // zone
           gcs = 32600 + utmZone;
 
           out = gcs;
           if (positionMode == 3) // Absolute lat/lon
           {
-            in = gcs; // ...or 32700?
-            out = 4326; // lat/lon (espg id code for lat-long-alt coordinates)
+            in = gcs;     // ...or 32700?
+            out = 4326;   // lat/lon (espg id code for lat-long-alt coordinates)
             neTol = 1e-8; // about 1mm;
             isLatLon = true;
           }
@@ -399,8 +419,11 @@ void lqLidarCoreManager::saveFramesToLAS(vtkLidarReader* reader, vtkPolyData* po
   writer.SetGeoConversionUTM(utmZone, isLatLon);
   writer.SetOrigin(easting, northing, height);
 
-  QProgressDialog progress("Exporting LAS...", "Abort Export", startFrame,
-    startFrame + (endFrame - startFrame) * 2, getMainWindow());
+  QProgressDialog progress("Exporting LAS...",
+    "Abort Export",
+    startFrame,
+    startFrame + (endFrame - startFrame) * 2,
+    getMainWindow());
   progress.setWindowModality(Qt::WindowModal);
 
   reader->Open();
@@ -474,7 +497,8 @@ void lqLidarCoreManager::onResetDefaultSettings()
   std::stringstream ss;
   ss << "This action will reset all settings. "
      << "This action requires " << SOFTWARE_NAME << " to restart to be completly reset. "
-     << "Every unsaved changes will be lost. Are you sure you want to reset " << SOFTWARE_NAME << " settings?";
+     << "Every unsaved changes will be lost. Are you sure you want to reset " << SOFTWARE_NAME
+     << " settings?";
   messageBox.setText(ss.str().c_str());
   messageBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
 

@@ -77,14 +77,20 @@ public:
 
   // Convenience methods
   static pqServer* getActiveServer();
-  static QWidget*  getMainWindow();
+  static QWidget* getMainWindow();
 
   // WIP Those are common to all ParaView-based Apps, it may change in the future
-  static void saveFramesToPCAP(
-    vtkSMSourceProxy* proxy, int startFrame, int endFrame, const QString& filename);
+  static void saveFramesToPCAP(vtkSMSourceProxy* proxy,
+    int startFrame,
+    int endFrame,
+    const QString& filename);
 
-  static void saveFramesToLAS(vtkLidarReader* reader, vtkPolyData* position, int startFrame,
-    int endFrame, const QString& filename, int positionMode);
+  static void saveFramesToLAS(vtkLidarReader* reader,
+    vtkPolyData* position,
+    int startFrame,
+    int endFrame,
+    const QString& filename,
+    int positionMode);
 
 public Q_SLOTS:
   // Perform delayed python shell startup
