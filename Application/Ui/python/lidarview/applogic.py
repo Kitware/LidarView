@@ -300,13 +300,21 @@ def getCalibrationConfig():
     return vvCalibrationDialog(getMainWindow())
 
 # Create a .pcap reader to read the data contained in the file located at filename.
-# It takes a calibration file from getCalibrationConfig()
-def openPcap(filename, config):
+def openPcap(filename, calibrationFile):
+    config = getCalibrationConfig()
+    config.setCalibrationFile(calibrationFile)
+    openPcapWithConfig(filename, config)
+
+def openPcapWithConfig(filename, config):
     PythonQt.paraview.lqOpenPcapReaction.createSourceFromFile(filename, config)
 
-# Create a sensor stream.
-# It takes a calibration file from getCalibrationConfig()
-def openSensorStream(config):
+# Create a sensor stream with default config
+def openSensorStream():
+    config = getCalibrationConfig()
+    openSensorStreamWithConfig(config)
+
+# Takes a calibration file from getCalibrationConfig()
+def openSensorStreamWithConfig(config):
     PythonQt.paraview.lqOpenSensorReaction.createSensorStream(config)
 
 def rotateCSVFile(filename):
@@ -660,6 +668,22 @@ def onClose():
 # Note: For the reader mode onPlay() will block the python shell
 def getPlayerController():
     return PythonQt.paraview.lqPlayerControlsToolbar(getMainWindow())
+
+def recordFile(filename):
+    controller = getPlayerController()
+    controller.startRecording(filename)
+
+def stopRecording():
+    controller = getPlayerController()
+    controller.stopRecording()
+
+def onPlay():
+    controller = getPlayerController()
+    controller.onPlay()
+
+def onPause():
+    controller = getPlayerController()
+    controller.onPlay()
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
