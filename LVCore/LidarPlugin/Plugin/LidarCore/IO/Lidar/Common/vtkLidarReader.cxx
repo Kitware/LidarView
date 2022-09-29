@@ -2,12 +2,12 @@
 
 #include <sstream>
 
-#include "Common/Network/vtkPacketFileWriter.h"
 #include "Common/Network/vtkPacketFileReader.h"
+#include "Common/Network/vtkPacketFileWriter.h"
 #include "Common/statistics.h"
 
-#include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtkInformationVector.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtksys/SystemTools.hxx>
 
@@ -21,14 +21,14 @@ vtkLidarReader::vtkLidarReader()
 //-----------------------------------------------------------------------------
 int vtkLidarReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == 0 )
+  if (port == 0)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
-  if ( port == 1 )
+  if (port == 1)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
   return 0;
@@ -107,13 +107,14 @@ int vtkLidarReader::ReadFrameInformation()
       // this 2 frames will have the same timestep. So to avoid that we
       // artificatially move the first timeStep back by one.
       this->FrameCatalog.push_back(this->Interpreter->GetParserMetaData());
-      this->FrameCatalog.back().FilePosition = lastFilePosition; // Ensure that the first index point on a real fileposition
+      this->FrameCatalog.back().FilePosition =
+        lastFilePosition; // Ensure that the first index point on a real fileposition
       firstIteration = false;
     }
 
     // Get information about the current packet
-    this->Interpreter->PreProcessPacketWrapped(data, dataLength, lastFilePosition,
-                                        lastPacketNetworkTime, &this->FrameCatalog);
+    this->Interpreter->PreProcessPacketWrapped(
+      data, dataLength, lastFilePosition, lastPacketNetworkTime, &this->FrameCatalog);
 
     this->Reader->GetFilePosition(&lastFilePosition);
   }
@@ -126,12 +127,13 @@ int vtkLidarReader::ReadFrameInformation()
   this->NetworkTimeToDataTime = 0.0; // default value if no frames seen
   if (this->FrameCatalog.size() > 0)
   {
-      std::vector<double> diffs(this->FrameCatalog.size());
-      for (size_t i = 0; i < this->FrameCatalog.size(); i++)
-      {
-          diffs[i] = this->FrameCatalog[i].FirstPacketDataTime - this->FrameCatalog[i].FirstPacketNetworkTime;
-      }
-      this->NetworkTimeToDataTime = ComputeMedian(diffs);
+    std::vector<double> diffs(this->FrameCatalog.size());
+    for (size_t i = 0; i < this->FrameCatalog.size(); i++)
+    {
+      diffs[i] =
+        this->FrameCatalog[i].FirstPacketDataTime - this->FrameCatalog[i].FirstPacketNetworkTime;
+    }
+    this->NetworkTimeToDataTime = ComputeMedian(diffs);
   }
 
   if (this->FrameCatalog.size() == 1)
@@ -143,7 +145,7 @@ int vtkLidarReader::ReadFrameInformation()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetTimestepInformation(vtkInformation *info)
+void vtkLidarReader::SetTimestepInformation(vtkInformation* info)
 {
   if (this->FrameCatalog.size() == 1)
   {
@@ -154,7 +156,7 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation *info)
   double timeOffset = this->GetInterpreter()->GetTimeOffset();
   for (size_t i = 0; i < numberOfTimesteps; ++i)
   {
-    if(UsePacketTimeForDisplayTime)
+    if (UsePacketTimeForDisplayTime)
     {
       timesteps[i] = this->FrameCatalog[i].FirstPacketDataTime;
     }
@@ -175,11 +177,11 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation *info)
       firstTimestepPointer++;
       lastTimestepPointer--;
       numberOfTimesteps -= 2;
-
     }
     double timeRange[2] = { *firstTimestepPointer, *lastTimestepPointer };
     // In order to avoid to display
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), firstTimestepPointer, numberOfTimesteps);
+    info->Set(
+      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), firstTimestepPointer, numberOfTimesteps);
     info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
   else
@@ -193,7 +195,7 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation *info)
 vtkStandardNewMacro(vtkLidarReader)
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetFileName(const std::string &filename)
+void vtkLidarReader::SetFileName(const std::string& filename)
 {
   if (filename == this->FileName)
   {
@@ -227,7 +229,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
   double timeSinceStart = 0;
 
   // Update the interpreter meta data according to the requested frame
-  FrameInformation currInfo= this->FrameCatalog[frameNumber];
+  FrameInformation currInfo = this->FrameCatalog[frameNumber];
   this->Interpreter->SetParserMetaData(this->FrameCatalog[frameNumber]);
   this->Reader->SetFilePosition(&currInfo.FilePosition);
 
@@ -270,10 +272,9 @@ int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 {
   // iterating over all timesteps until finding the first one with a greater time value
   auto idx = std::lower_bound(this->FrameCatalog.begin(),
-                              this->FrameCatalog.end(),
-                              packetTime,
-                              [](FrameInformation& fp, double d)
-                                { return fp.FirstPacketNetworkTime < d; });
+    this->FrameCatalog.end(),
+    packetTime,
+    [](FrameInformation& fp, double d) { return fp.FirstPacketNetworkTime < d; });
 
   if (idx == this->FrameCatalog.end())
   {
@@ -290,10 +291,9 @@ int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 {
   // iterating over all timesteps until finding the first one with a greater time value
   auto idx = std::lower_bound(this->FrameCatalog.begin(),
-                              this->FrameCatalog.end(),
-                              dataTime,
-                              [](FrameInformation& fp, double d)
-                                { return fp.FirstPacketDataTime < d; });
+    this->FrameCatalog.end(),
+    dataTime,
+    [](FrameInformation& fp, double d) { return fp.FirstPacketDataTime < d; });
 
   if (idx == this->FrameCatalog.end())
   {
@@ -319,7 +319,7 @@ void vtkLidarReader::Open(bool reassemble)
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str(), reassemble))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                                                 << this->Reader->GetLastError());
+                  << this->Reader->GetLastError());
     this->Close();
   }
 }
@@ -332,7 +332,7 @@ void vtkLidarReader::Close()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &filename)
+void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& filename)
 {
   if (!this->Reader)
   {
@@ -340,7 +340,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     return;
   }
 
-  if (this->GetInterpreter()->GetFramingMethod()!= INTERPRETER_FRAMING)
+  if (this->GetInterpreter()->GetFramingMethod() != INTERPRETER_FRAMING)
   {
     // not implemented yet, because not critical for the client
     vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.");
@@ -353,7 +353,6 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     vtkErrorMacro("Failed to open packet file for writing: " << filename);
     return;
   }
-
 
   // Ensure that frame indexes match between what is effectively shown
   // and what is present inside the PCAP
@@ -401,9 +400,9 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
   // data
   FrameInformation storedMetaData = this->Interpreter->GetParserMetaData();
 
-  while (this->Reader->NextPacket(
-           data, dataLength, timeSinceStart, &header, &dataHeaderLength)
-         && currentFrame <= endFrame + 1) // see explanation above for "+ 1"
+  // see explanation above for "+ 1"
+  while (this->Reader->NextPacket(data, dataLength, timeSinceStart, &header, &dataHeaderLength) &&
+    currentFrame <= endFrame + 1)
   {
     // writing all packets, even those that do not contain lidar frames,
     // such as IMU data or GPS data
@@ -412,8 +411,8 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string &
     {
       // we need to count frames and some are split in multiple packets
       // we give timeSinceStart in case Framing Method is not the interpreter one
-      bool isNewFrame = this->Interpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(),
-                                                                timeSinceStart);
+      bool isNewFrame =
+        this->Interpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(), timeSinceStart);
 
       currentFrame += static_cast<int>(isNewFrame);
       this->UpdateProgress(0.0);
@@ -436,9 +435,9 @@ void vtkLidarReader::SetLidarPort(int _arg)
 }
 
 //-----------------------------------------------------------------------------
-int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
-                                vtkInformationVector **vtkNotUsed(inputVector),
-                                vtkInformationVector *outputVector)
+int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   vtkPolyData* output = vtkPolyData::GetData(outputVector);
   vtkTable* calibration = vtkTable::GetData(outputVector, 1);
@@ -464,7 +463,8 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   calibration->ShallowCopy(this->Interpreter->GetCalibrationTable());
-  if (this->FrameCatalog.size() <= 1) // This mean that the reader did not manage to parser the pcap file
+  // This mean that the reader did not manage to parser the pcap file
+  if (this->FrameCatalog.size() <= 1)
   {
     return 1;
   }
@@ -476,7 +476,7 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   int frameRequested = 0;
-  if(this->UsePacketTimeForDisplayTime)
+  if (this->UsePacketTimeForDisplayTime)
   {
     frameRequested = GetFrameIndexForDataTime(timestep);
   }
@@ -492,9 +492,9 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
     if (step > 1)
     {
       std::stringstream text;
-      text << "WARNING : At frame " << std::right << std::setw(6) << frameRequested
-           << " Drop " << std::right << std::setw(2) << step-1 << " frame(s)\n";
-      vtkWarningMacro( << text.str() );
+      text << "WARNING : At frame " << std::right << std::setw(6) << frameRequested << " Drop "
+           << std::right << std::setw(2) << step - 1 << " frame(s)\n";
+      vtkWarningMacro(<< text.str());
     }
   }
   this->LastFrameProcessed = frameRequested;
@@ -508,9 +508,9 @@ int vtkLidarReader::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-int vtkLidarReader::RequestInformation(vtkInformation *vtkNotUsed(request),
-                                       vtkInformationVector **vtkNotUsed(inputVector),
-                                       vtkInformationVector* outputVector)
+int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   if (!this->Interpreter)
   {
@@ -534,15 +534,14 @@ int vtkLidarReader::RequestInformation(vtkInformation *vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetCalibrationFileName(const std::string &filename)
+void vtkLidarReader::SetCalibrationFileName(const std::string& filename)
 {
   if (filename == this->CalibrationFileName)
   {
     return;
   }
 
-  if (!vtksys::SystemTools::FileExists(filename) ||
-    vtksys::SystemTools::FileIsDirectory(filename))
+  if (!vtksys::SystemTools::FileExists(filename) || vtksys::SystemTools::FileIsDirectory(filename))
   {
     std::ostringstream errorMessage("Invalid sensor configuration file ");
     errorMessage << filename << ": ";

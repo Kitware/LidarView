@@ -29,18 +29,18 @@ class LIDARCORE_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarReader* New();
-  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm);
 
   int GetNumberOfFrames() { return this->FrameCatalog.size(); }
 
   /**
    * @copydoc FileName
    */
-  vtkGetMacro(FileName, std::string)
+  vtkGetMacro(FileName, std::string);
   virtual void SetFileName(const std::string& filename);
 
-  vtkGetMacro(DetectFrameDropping, bool)
-  vtkSetMacro(DetectFrameDropping, bool)
+  vtkGetMacro(DetectFrameDropping, bool);
+  vtkSetMacro(DetectFrameDropping, bool);
 
   vtkMTimeType GetMTime() override;
 
@@ -56,8 +56,9 @@ public:
   virtual void SetCalibrationFileName(const std::string& filename);
 
   /**
-   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually only calls Modified,
-   * however for some obscure reason, doing the same from python does not have the same effect
+   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually
+   * only calls Modified, however for some obscure reason, doing the same from python does not have
+   * the same effect
    * @todo set how to remove this methode as it is a workaround
    */
   void SetDummyProperty(int);
@@ -65,13 +66,13 @@ public:
   /**
    * @copydoc vtkLidarPacketInterpreter
    */
-  vtkGetObjectMacro(Interpreter, vtkLidarPacketInterpreter)
-  vtkSetObjectMacro(Interpreter, vtkLidarPacketInterpreter)
+  vtkGetObjectMacro(Interpreter, vtkLidarPacketInterpreter);
+  vtkSetObjectMacro(Interpreter, vtkLidarPacketInterpreter);
 
   /**
    * @copydoc NetworkTimeToDataTime
    */
-  vtkGetMacro(NetworkTimeToDataTime, double)
+  vtkGetMacro(NetworkTimeToDataTime, double);
 
   /**
    * @brief GetFrame returns the requested frame
@@ -122,18 +123,19 @@ public:
 
   /**
    * @brief SaveFrame save the packet corresponding to the desired frames in a pcap file.
-   * Because we are saving network packet, part of previous and/or next frames could be included in generated the pcap
+   * Because we are saving network packet, part of previous and/or next frames could be included in
+   * generated the pcap
    * @param startFrame first frame to record
    * @param endFrame last frame to record, this frame is included
    * @param filename where to save the generate pcap file
    */
   virtual void SaveFrame(int startFrame, int endFrame, const std::string& filename);
 
-  vtkGetMacro(ShowFirstAndLastFrame, bool)
-  vtkSetMacro(ShowFirstAndLastFrame, bool)
+  vtkGetMacro(ShowFirstAndLastFrame, bool);
+  vtkSetMacro(ShowFirstAndLastFrame, bool);
 
-  vtkGetMacro(UsePacketTimeForDisplayTime, bool)
-  vtkSetMacro(UsePacketTimeForDisplayTime, bool)
+  vtkGetMacro(UsePacketTimeForDisplayTime, bool);
+  vtkSetMacro(UsePacketTimeForDisplayTime, bool);
 
   int GetLidarPort() { return this->LidarPort; }
   void SetLidarPort(int _arg);
@@ -143,8 +145,8 @@ protected:
   ~vtkLidarReader() = default;
 
   int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -195,7 +197,7 @@ private:
    * @brief SetTimestepInformation Set the timestep available
    * @param info
    */
-  void SetTimestepInformation(vtkInformation *info);
+  void SetTimestepInformation(vtkInformation* info);
 
   vtkLidarReader(const vtkLidarReader&) = delete;
   void operator=(const vtkLidarReader&) = delete;
