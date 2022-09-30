@@ -89,6 +89,19 @@
       </Documentation>
     </IntVectorProperty>
 
+    <IntVectorProperty
+        name="UseRelativeStartTime"
+        command="SetUseRelativeStartTime"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="never">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        This option interprets the pcap file considering its first time stamp to be zero.
+        It can be used for instance when opening multiple sensors to have them starting at the same time.
+      </Documentation>
+    </IntVectorProperty>
+
     <!-- Please notice that this Property is duplicate so that:
          it can be place in a user friendly location in the generate GUI -->
     <ProxyProperty

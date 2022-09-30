@@ -154,15 +154,29 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation* info)
   size_t numberOfTimesteps = this->FrameCatalog.size();
   std::vector<double> timesteps(numberOfTimesteps);
   double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  // Add a default offset when using UseRelativeStartTime to let the first frame to 0
+  if (this->UseRelativeStartTime && timeOffset == 0.)
+  {
+    timeOffset = 1.;
+  }
   for (size_t i = 0; i < numberOfTimesteps; ++i)
   {
-    if (UsePacketTimeForDisplayTime)
+    if (this->UsePacketTimeForDisplayTime)
     {
       timesteps[i] = this->FrameCatalog[i].FirstPacketDataTime;
     }
     else
     {
-      timesteps[i] = this->FrameCatalog[i].FirstPacketNetworkTime + timeOffset;
+      timesteps[i] = this->FrameCatalog[i].FirstPacketNetworkTime;
+    }
+    if (this->UseRelativeStartTime && i == 1)
+    {
+      timeOffset = timeOffset - timesteps[1];
+    }
+    // Skip first frame for firstAndLastFrame option
+    if (i >= 1)
+    {
+      timesteps[i] += timeOffset;
     }
   }
   if (this->FrameCatalog.size())
@@ -270,10 +284,19 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrameForDataTime(double dataTime
 //-----------------------------------------------------------------------------
 int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 {
+  double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  if (this->UseRelativeStartTime && this->FrameCatalog.size() >= 1)
+  {
+    if (timeOffset == 0.)
+    {
+      timeOffset = 1.;
+    }
+    timeOffset = timeOffset - this->FrameCatalog[1].FirstPacketNetworkTime;
+  }
   // iterating over all timesteps until finding the first one with a greater time value
   auto idx = std::lower_bound(this->FrameCatalog.begin(),
     this->FrameCatalog.end(),
-    packetTime,
+    packetTime - timeOffset,
     [](FrameInformation& fp, double d) { return fp.FirstPacketNetworkTime < d; });
 
   if (idx == this->FrameCatalog.end())
@@ -289,10 +312,19 @@ int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 //-----------------------------------------------------------------------------
 int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 {
+  double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  if (this->UseRelativeStartTime && this->FrameCatalog.size() >= 1)
+  {
+    if (timeOffset == 0.)
+    {
+      timeOffset = 1.;
+    }
+    timeOffset = timeOffset - this->FrameCatalog[1].FirstPacketDataTime;
+  }
   // iterating over all timesteps until finding the first one with a greater time value
   auto idx = std::lower_bound(this->FrameCatalog.begin(),
     this->FrameCatalog.end(),
-    dataTime,
+    dataTime - timeOffset,
     [](FrameInformation& fp, double d) { return fp.FirstPacketDataTime < d; });
 
   if (idx == this->FrameCatalog.end())

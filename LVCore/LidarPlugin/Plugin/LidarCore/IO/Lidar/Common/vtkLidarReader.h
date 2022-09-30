@@ -134,6 +134,9 @@ public:
   vtkGetMacro(ShowFirstAndLastFrame, bool);
   vtkSetMacro(ShowFirstAndLastFrame, bool);
 
+  vtkGetMacro(UseRelativeStartTime, bool);
+  vtkSetMacro(UseRelativeStartTime, bool);
+
   vtkGetMacro(UsePacketTimeForDisplayTime, bool);
   vtkSetMacro(UsePacketTimeForDisplayTime, bool);
 
@@ -175,6 +178,9 @@ protected:
 
   //! Show/Hide the first and last frame that most of the time are partial frames
   bool ShowFirstAndLastFrame = false;
+
+  //! If activated, set first frame timestamp to 0. It can be used to synchronize multiple pcap
+  bool UseRelativeStartTime = false;
 
   //! libpcap wrapped reader which enable to get the raw pcap packet from the pcap file
   vtkPacketFileReader* Reader = nullptr;
