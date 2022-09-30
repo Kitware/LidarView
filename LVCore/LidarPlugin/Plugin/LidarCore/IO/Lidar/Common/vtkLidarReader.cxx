@@ -301,7 +301,7 @@ int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 
   if (idx == this->FrameCatalog.end())
   {
-    vtkErrorMacro("Cannot meet timestep request: " << packetTime);
+    // vtkErrorMacro("Cannot meet timestep request: " << packetTime);
     return 0;
   }
 
@@ -329,7 +329,7 @@ int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 
   if (idx == this->FrameCatalog.end())
   {
-    vtkErrorMacro("Cannot meet timestep request: " << dataTime);
+    // vtkErrorMacro("Cannot meet timestep request: " << dataTime);
     return 0;
   }
 
