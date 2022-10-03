@@ -114,7 +114,9 @@ void lqUpdateCalibrationReaction::setNetworkCalibration(vtkSMProxy* proxy,
 void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
   vvCalibration::Plugin interpreter,
   QString calibrationFile,
-  bool isShowFirstAndLastFrame)
+  bool isShowFirstAndLastFrame,
+  bool isUseRelativeStartTime,
+  double timeOffset)
 {
   if (IsLidarProxy(proxy))
   {
@@ -125,6 +127,7 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
     {
       // Set the show firsy and last frame advanced option
       vtkSMPropertyHelper(proxy, "ShowFirstAndLastFrame").Set(isShowFirstAndLastFrame);
+      vtkSMPropertyHelper(proxy, "UseRelativeStartTime").Set(isUseRelativeStartTime);
     }
     // The default interpreter is the first one in the chronological order.
     // We need it to be the Meta one or the Special Velarray if the calibration file says so.
@@ -173,6 +176,8 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
       return;
     }
 
+    vtkSMPropertyHelper(defaultProxy, "Time Offset").Set(timeOffset);
+
     // Set the found proxy in the proxy list domain to the lidar property
     // This allows to update the "drop down" menu in the interpreter ui property
     vtkSMPropertyHelper(interpreterProp).Set(defaultProxy);
@@ -196,7 +201,9 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
   lqUpdateCalibrationReaction::setReaderCalibration(lidarProxy,
     dialog.selectedInterpreter(),
     dialog.selectedCalibrationFile(),
-    dialog.isShowFirstAndLastFrame());
+    dialog.isShowFirstAndLastFrame(),
+    dialog.isUseRelativeStartTime(), 
+    dialog.getLidarConfig().timeOffset);
 
   // Set the transform of the lidar Sensor
   lqUpdateCalibrationReaction::setTransform(lidarProxy, dialog.getLidarConfig());
