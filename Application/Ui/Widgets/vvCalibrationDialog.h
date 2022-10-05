@@ -55,6 +55,7 @@ public:
   Q_INVOKABLE bool isEnableInterpretGPSPackets() const;
 
   Q_INVOKABLE bool isShowFirstAndLastFrame() const;
+  Q_INVOKABLE bool isUseRelativeStartTime() const;
 
 protected:
   void setDefaultConfiguration();

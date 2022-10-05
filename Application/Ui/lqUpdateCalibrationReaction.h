@@ -33,7 +33,9 @@ public:
   static void setReaderCalibration(vtkSMProxy* proxy,
     vvCalibration::Plugin interpreter,
     QString calibrationFile,
-    bool isShowFirstAndLastFrame);
+    bool isShowFirstAndLastFrame,
+    bool isUseRelativeStartTime,
+    double timeOffset);
 
   static void UpdateCalibration(pqPipelineSource*& lidarSource,
     pqPipelineSource*& posOrSource,

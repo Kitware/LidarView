@@ -96,6 +96,7 @@ public:
   void saveEnableMultiSensors();
   void saveEnableInterpretGPSPackets();
   void saveShowFirstAndLastFrame();
+  void saveUseRelativeStartTime();
 
   void restoreSensorTransform();
   void restoreGpsTransform();
@@ -110,6 +111,7 @@ public:
   void restoreEnableMultiSensors();
   void restoreEnableInterpretGPSPackets();
   void restoreShowFirstAndLastFrame();
+  void restoreUseRelativeStartTime();
 
   pqSettings* const Settings;
   QMap<QString, vvCalibration::Plugin> AvailableInterpreters;
@@ -336,6 +338,17 @@ void vvCalibrationDialog::pqInternal::saveShowFirstAndLastFrame()
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::saveUseRelativeStartTime()
+{
+  // Only save the state if the use relative start time option is enabled
+  if (this->UseRelativeStartTime->isEnabled())
+  {
+    this->Settings->setValue("LidarPlugin/CalibrationFileDialog/UseRelativeStartTime",
+      this->UseRelativeStartTime->isChecked());
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vvCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
 {
   // Only restore the state if the Interpreter GPS Packet is enabled
@@ -494,6 +507,20 @@ void vvCalibrationDialog::pqInternal::restoreShowFirstAndLastFrame()
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::pqInternal::restoreUseRelativeStartTime()
+{
+  // Only restore the state if the use relative start time option is enabled
+  if (this->UseRelativeStartTime->isEnabled())
+  {
+    this->UseRelativeStartTime->setChecked(
+      this->Settings
+        ->value("LidarPlugin/CalibrationFileDialog/UseRelativeStartTime",
+          this->UseRelativeStartTime->isChecked())
+        .toBool());
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vvCalibrationDialog::clearAdvancedSettings()
 {
   this->setDefaultConfiguration();
@@ -539,6 +566,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
   this->Internal->EnableInterpretGPSPackets->setChecked(false);
 
   this->Internal->ShowFirstAndLastFrame->setEnabled(!isStreamSensor);
+  this->Internal->UseRelativeStartTime->setEnabled(!isStreamSensor);
 
   foreach (QString interpreterName, this->Internal->AvailableInterpreters.keys())
   {
@@ -647,6 +675,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
   this->Internal->restoreEnableInterpretGPSPackets();
   this->Internal->restoreEnableForwarding();
   this->Internal->restoreShowFirstAndLastFrame();
+  this->Internal->restoreUseRelativeStartTime();
   this->Internal->restoreAdvancedConfiguration();
 
   const QVariant& geometry =
@@ -712,6 +741,7 @@ vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
   this->Internal->EnableMultiSensors->setEnabled(false);
 
   this->Internal->ShowFirstAndLastFrame->setEnabled(IsLidarReaderProxy(lidarProxy));
+  this->Internal->UseRelativeStartTime->setEnabled(IsLidarReaderProxy(lidarProxy));
 
   std::vector<double> translate;
   std::vector<double> rotate;
@@ -887,6 +917,12 @@ bool vvCalibrationDialog::isEnableMultiSensors() const
 bool vvCalibrationDialog::isShowFirstAndLastFrame() const
 {
   return this->Internal->ShowFirstAndLastFrame->isChecked();
+}
+
+//-----------------------------------------------------------------------------
+bool vvCalibrationDialog::isUseRelativeStartTime() const
+{
+  return this->Internal->UseRelativeStartTime->isChecked();
 }
 
 //-----------------------------------------------------------------------------
@@ -1076,6 +1112,7 @@ void vvCalibrationDialog::accept()
   this->Internal->saveEnableMultiSensors();
   this->Internal->saveEnableInterpretGPSPackets();
   this->Internal->saveShowFirstAndLastFrame();
+  this->Internal->saveUseRelativeStartTime();
 
   QDialog::accept();
 }
