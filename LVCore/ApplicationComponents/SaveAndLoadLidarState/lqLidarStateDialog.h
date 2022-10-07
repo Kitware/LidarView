@@ -71,10 +71,16 @@ public:
 
   ~lqLidarStateDialog() {}
 
-  void CreateStateDialog(QVBoxLayout* vbox);
-
   std::vector<propertyInfo> properties;
 
+private slots:
+  void UpdateAllCheckStates();
+  void AllCheckboxStateUpdate(int checkState);
+
+private:
+  void CreateStateDialog(QVBoxLayout* vbox);
+
+  QCheckBox* allCheckbox;
   QString instructions;
 };
 #endif // LQLIDARSTATEDIALOG_H

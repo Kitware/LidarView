@@ -14,6 +14,9 @@ lqLidarStateDialog::lqLidarStateDialog(QWidget* parent,
   this->properties = propertiesVector;
   this->instructions = QString(instruction.c_str());
 
+  this->allCheckbox = new QCheckBox(QString("Select all"));
+  connect(this->allCheckbox, SIGNAL(stateChanged(int)), this, SLOT(AllCheckboxStateUpdate(int)));
+
   QVBoxLayout* vbox = new QVBoxLayout;
 
   this->CreateStateDialog(vbox);
@@ -39,9 +42,12 @@ void lqLidarStateDialog::CreateStateDialog(QVBoxLayout* vbox)
   // Display a message to give a tip to the user :
   if (!this->instructions.isEmpty())
   {
+    QHBoxLayout* hboxLayout = new QHBoxLayout();
     QLabel* label = new QLabel(this->instructions);
     label->setStyleSheet("font: italic;font-size: 12px ; color: grey");
-    vbox->addWidget(label, 0, Qt::AlignLeft);
+    hboxLayout->addWidget(label, 0, Qt::AlignLeft);
+    hboxLayout->addWidget(this->allCheckbox, 0, Qt::AlignRight);
+    vbox->addLayout(hboxLayout);
   }
 
   for (unsigned int i = 0; i < this->properties.size(); i++)
@@ -66,6 +72,51 @@ void lqLidarStateDialog::CreateStateDialog(QVBoxLayout* vbox)
       hboxLayout->addWidget(currentProperty.checkbox, 0, Qt::AlignLeft);
       hboxLayout->addWidget(label, 0, Qt::AlignLeft);
       vbox->addLayout(hboxLayout);
+
+      QObject::connect(
+        currentProperty.checkbox, SIGNAL(toggled(bool)), this, SLOT(UpdateAllCheckStates()));
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarStateDialog::UpdateAllCheckStates()
+{
+  size_t checked = 0;
+  for (auto& cb : this->properties)
+  {
+    checked += (cb.checkbox->isChecked() ? 1 : 0);
+  }
+
+  QSignalBlocker sblocker(this->allCheckbox);
+  if (checked == this->properties.size())
+  {
+    allCheckbox->setCheckState(Qt::Checked);
+    allCheckbox->setTristate(false);
+  }
+  else if (checked == 0)
+  {
+    allCheckbox->setCheckState(Qt::Unchecked);
+    allCheckbox->setTristate(false);
+  }
+  else
+  {
+    allCheckbox->setCheckState(Qt::PartiallyChecked);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarStateDialog::AllCheckboxStateUpdate(int checkState)
+{
+  for (auto& cb : this->properties)
+  {
+    if (!cb.isProxy())
+    {
+      QCheckBox* currentCheckbox = cb.checkbox;
+      QSignalBlocker sblocker(currentCheckbox);
+      currentCheckbox->setChecked(checkState == Qt::Checked);
+    }
+  }
+
+  this->allCheckbox->setTristate(false);
 }
