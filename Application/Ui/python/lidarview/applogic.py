@@ -300,9 +300,10 @@ def getCalibrationConfig():
     return vvCalibrationDialog(getMainWindow())
 
 # Create a .pcap reader to read the data contained in the file located at filename.
-def openPcap(filename, calibrationFile):
+def openPcap(filename, calibrationFile, interpreter="Velodyne"):
     config = getCalibrationConfig()
     config.setCalibrationFile(calibrationFile)
+    config.setInterpreter(interpreter)
     openPcapWithConfig(filename, config)
 
 def openPcapWithConfig(filename, config):
