@@ -346,9 +346,8 @@ def saveCSVCurrentFrame(filename):
     rotateCSVFile(filename)
 
 def saveCSVCurrentFrameSelection(filename):
-    source = getReader()
-    selection = source.GetSelectionOutput(0)
-    extractSelection = smp.ExtractSelection(Input = source, Selection = selection.Selection)
+    source = smp.GetActiveSource()
+    extractSelection = smp.ExtractSelection(Input = source)
     w = smp.CreateWriter(filename, extractSelection)
     w.Precision = 16
     w.FieldAssociation = 'Point Data'
