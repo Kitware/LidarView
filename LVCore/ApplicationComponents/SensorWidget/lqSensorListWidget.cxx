@@ -281,17 +281,17 @@ void lqSensorListWidget::onSourceRemoved(pqPipelineSource* src)
 {
   if (IsLidarProxy(src->getProxy()))
   {
-    // Remove Source associated Widget
-    const auto it = std::remove_if(this->sensorWidgets.begin(),
-      this->sensorWidgets.end(),
-      [&](const lqSensorWidget* widget) { return widget->IsWidgetLidarSource(src); });
-    if (it == this->sensorWidgets.end())
+    // Remove and close each Source associated Widget from the sensor list
+    for (unsigned int index = 0; index < this->sensorWidgets.size(); index++)
     {
-      vtkGenericWarningMacro("LidarSource removed but unaccounted for in lqSensorListWidget");
-      return;
+      lqSensorWidget* widget = this->sensorWidgets[index];
+      // Check this is the source to be removed
+      if (widget->IsWidgetLidarSource(src))
+      {
+        this->sensorWidgets.erase(this->sensorWidgets.begin() + index);
+        widget->onClose();
+      }
     }
-    this->sensorWidgets.erase(it);
-    (*it)->onClose();
 
     // Emit lidarStreamModeChanged Signal
     if (IsLidarStreamProxy(src->getProxy()) && !isInLiveSensorMode())
