@@ -31,6 +31,7 @@ public:
   virtual ~vvCalibrationDialog();
 
   Q_INVOKABLE vvCalibration::Plugin selectedInterpreter() const;
+  Q_INVOKABLE void setInterpreter(QString& interpreter);
   Q_INVOKABLE QString selectedCalibrationFile() const;
   Q_INVOKABLE void setCalibrationFile(QString& filename) const;
   Q_INVOKABLE QStringList getAllCalibrationFiles() const;

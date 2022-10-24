@@ -860,6 +860,18 @@ vvCalibration::Plugin vvCalibrationDialog::selectedInterpreter() const
 }
 
 //-----------------------------------------------------------------------------
+void vvCalibrationDialog::setInterpreter(QString& interpreter)
+{
+  QMap<QString, vvCalibration::Plugin>::const_iterator it =
+    this->Internal->AvailableInterpreters.find(interpreter);
+  if (it == this->Internal->AvailableInterpreters.end())
+  {
+    qCritical() << "Unknown Interpreter Type";
+  }
+  this->Internal->InterpreterSelectionBox->setCurrentText(interpreter);
+}
+
+//-----------------------------------------------------------------------------
 QString vvCalibrationDialog::selectedCalibrationFile() const
 {
   const int row = this->Internal->CalibrationFileListWidget->currentRow();
