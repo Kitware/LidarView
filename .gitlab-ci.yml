@@ -1,16 +1,14 @@
 variables:
   sb_cmake_option_ENABLE_ceres:
-    value: '-DENABLE_ceres=False'
+    value: '-DENABLE_ceres=True'
   sb_cmake_option_ENABLE_nanoflann:
-    value: '-DENABLE_nanoflann=False'
+    value: '-DENABLE_nanoflann=True'
   sb_cmake_option_ENABLE_pcl:
     value: '-DENABLE_pcl=True'
   sb_cmake_option_INTERPRETER_ENABLE_Hesai:
     value: '-DINTERPRETER_ENABLE_Hesai=True'
   sb_cmake_option_LIDARVIEW_BUILD_SLAM:
-    value: '-DLIDARVIEW_BUILD_SLAM=False'
-  CI_VELODYNEPRIVATE_ENABLE:
-    value: 'ON'
+    value: '-DLIDARVIEW_BUILD_SLAM=True'
 include:
   - project: 'LidarView/lidarview-core'
     file: 'CI/.gitlab-ci-for-lidarview.yml'
