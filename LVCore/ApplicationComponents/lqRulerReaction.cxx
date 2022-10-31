@@ -316,7 +316,8 @@ QList<QVariant> lqRulerReaction::get3DPoint(QPoint coord)
     // int the Mode::BETWEEN_3D_POINTS, we will lock for an existing 3D points that project to the mouse coordinate
     // For more information look at the vtkSMRenderViewProxy::ConvertDisplayToPointOnSurface function
     int display3DPoint[2] = {coord.x(), coord.y()};
-    if (!viewProxy->ConvertDisplayToPointOnSurface(display3DPoint, position, true))
+    double normal[3] = {0, 0, 0};
+    if (!viewProxy->ConvertDisplayToPointOnSurface(display3DPoint, position, normal, true))
     {
       return QList<QVariant>();
     }

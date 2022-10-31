@@ -57,7 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqView.h>
 
 #include <vtkFieldData.h>
-#include <vtkPVConfig.h> //  needed for PARAVIEW_VERSION
+#include <vtkPVVersion.h> //  needed for PARAVIEW_VERSION
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxyManager.h>

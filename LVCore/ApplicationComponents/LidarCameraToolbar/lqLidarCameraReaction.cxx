@@ -55,6 +55,10 @@ void lqLidarCameraReaction::onTriggered()
     case pqCameraReaction::Mode::ROTATE_CAMERA_CCW:
       this->rotateCamera(90.0);
       break;
+
+    case pqCameraReaction::Mode::APPLY_ISOMETRIC_VIEW:
+      this->applyIsometricView();
+      break;
   }
 }
 
