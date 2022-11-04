@@ -55,40 +55,27 @@ int EPSGToSignedUTM(int EPSG)
 }
 
 //-----------------------------------------------------------------------------
-projPJ ProjFromEPSG(int epsg)
+PJ* ProjFromEPSG(int epsg)
 {
   std::ostringstream ss;
   ss << "+init=epsg:" << epsg << " ";
-  return pj_init_plus(ss.str().c_str());
+  return proj_create(0, ss.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
-Eigen::Vector3d ConvertGcs(Eigen::Vector3d p, projPJ inProj, projPJ outProj)
+Eigen::Vector3d ConvertGcs(Eigen::Vector3d p, PJ* inProj, PJ* outProj)
 {
-  if (pj_is_latlong(inProj))
+  PJ* transformPJ = proj_create_crs_to_crs_from_pj(0, inProj, outProj, nullptr, nullptr);
+
+  PJ_COORD coord = proj_coord(p[0], p[1], p[2], 0);
+  PJ_COORD result = proj_trans(transformPJ, PJ_FWD, coord);
+
+  if (proj_errno(transformPJ) != 0)
   {
-    p[0] *= DEG_TO_RAD;
-    p[1] *= DEG_TO_RAD;
+    vtkGenericWarningMacro("Error : CRS conversion failed with error: " << proj_errno(transformPJ));
   }
 
-  double* const data = p.data();
-  // std::cout << "position in : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl;
-  int last_errno = pj_transform(inProj, outProj, 1, 1, data + 0, data + 1, data + 2);
-  // std::cout << "position out : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl <<
-  // std::endl;
-
-  if (last_errno != 0)
-  {
-    vtkGenericWarningMacro("Error : CRS conversion failed with error: " << last_errno);
-  }
-
-  if (pj_is_latlong(outProj))
-  {
-    p[0] *= RAD_TO_DEG;
-    p[1] *= RAD_TO_DEG;
-  }
-
-  return p;
+  return Eigen::Vector3d(result.enu.n, result.enu.e, result.enu.u);;
 }
 }
 
@@ -152,13 +139,13 @@ void LASFileWriter::Close()
 
   if (this->InProj != nullptr)
   {
-    pj_free(this->InProj);
+    proj_destroy(this->InProj);
     this->InProj = nullptr;
   }
 
   if (this->OutProj != nullptr)
   {
-    pj_free(this->OutProj);
+    proj_destroy(this->OutProj);
     this->OutProj = nullptr;
   }
 }
@@ -230,8 +217,8 @@ void LASFileWriter::SetOrigin(double easting, double northing, double height)
 //-----------------------------------------------------------------------------
 void LASFileWriter::SetGeoConversionEPSG(int inEPSG, int outEPSG)
 {
-  pj_free(this->InProj);
-  pj_free(this->OutProj);
+  proj_destroy(this->InProj);
+  proj_destroy(this->OutProj);
 
   this->InProj = ProjFromEPSG(inEPSG);
   this->OutProj = ProjFromEPSG(outEPSG);
@@ -255,7 +242,7 @@ void LASFileWriter::SetGeoConversionUTM(int inOutSignedUTMZone, bool useLatLonFo
   utmparamsIn << "+datum=WGS84 ";
   utmparamsIn << "+units=m ";
   utmparamsIn << "+no_defs ";
-  this->InProj = pj_init_plus(utmparamsIn.str().c_str());
+  this->InProj = proj_create(0, utmparamsIn.str().c_str());
   std::cout << "init In : " << utmparamsIn.str() << std::endl;
 
   if (useLatLonForOut)
@@ -265,7 +252,7 @@ void LASFileWriter::SetGeoConversionUTM(int inOutSignedUTMZone, bool useLatLonFo
     utmparamsOut << "+ellps=WGS84 ";
     utmparamsOut << "+datum=WGS84 ";
     utmparamsOut << "+no_defs ";
-    this->OutProj = pj_init_plus(utmparamsOut.str().c_str());
+    this->OutProj = proj_create(0, utmparamsOut.str().c_str());
     std::cout << "init Out : " << utmparamsOut.str() << std::endl;
     // 4326 is EPSG ID code for lat-long-alt coordinates
     this->OutGcsEPSG = 4326;
@@ -285,7 +272,7 @@ void LASFileWriter::SetGeoConversionUTM(int inOutSignedUTMZone, bool useLatLonFo
     utmparamsOut << "+ellps=WGS84 ";
     utmparamsOut << "+datum=WGS84 ";
     utmparamsOut << "+no_defs ";
-    this->OutProj = pj_init_plus(utmparamsOut.str().c_str());
+    this->OutProj = proj_create(0, utmparamsOut.str().c_str());
     this->OutGcsEPSG = SignedUTMToEPSG(inOutSignedUTMZone);
   }
 
@@ -293,11 +280,11 @@ void LASFileWriter::SetGeoConversionUTM(int inOutSignedUTMZone, bool useLatLonFo
   std::cout << "OutProj created : " << this->OutProj << std::endl;
   if (this->InProj)
   {
-    std::cout << "inProj datum_type : [" << this->InProj->datum_type << "]" << std::endl;
+    std::cout << "inProj datum_type : [" << proj_get_type(this->InProj) << "]" << std::endl;
   }
   if (this->OutProj)
   {
-    std::cout << "outProj datum_type : [" << this->OutProj->datum_type << "]" << std::endl;
+    std::cout << "outProj datum_type : [" << proj_get_type(this->OutProj) << "]" << std::endl;
   }
 }
 

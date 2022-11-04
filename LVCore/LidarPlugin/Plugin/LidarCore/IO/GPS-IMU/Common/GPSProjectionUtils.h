@@ -46,7 +46,7 @@ private:
   void Init(double initial_lat, double initial_lon);
 
   bool ShouldWarnOnWeirdGPSData = true;
-  projPJ pj_utm = nullptr;
+  PJ* pj_utm = nullptr;
 
   std::string UTMString;
 };

@@ -45,7 +45,7 @@ UTMProjector::~UTMProjector()
 {
   if (this->IsInitialized())
   {
-    pj_free(this->pj_utm);
+    proj_destroy(this->pj_utm);
   }
 }
 
@@ -57,23 +57,20 @@ void UTMProjector::Project(double lat, double lon, double& easting, double& nort
     this->Init(lat, lon);
   }
 
-  projUV lp;
-  lp.u = DEG_TO_RAD * lon;
-  lp.v = DEG_TO_RAD * lat;
+  PJ_COORD coords = proj_coord(lat, lon, 0, 0);
 
-  projUV xy;
-  xy = pj_fwd(lp, pj_utm);
-  if (pj_utm->ctx->last_errno != 0 && this->ShouldWarnOnWeirdGPSData)
+  PJ_COORD result = proj_trans(this->pj_utm, PJ_FWD, coords);
+  if (proj_errno(this->pj_utm) != 0 && this->ShouldWarnOnWeirdGPSData)
   {
     vtkGenericWarningMacro("Error : WGS84 projection failed, this will create a GPS error. "
                            "Please check the latitude and longitude inputs");
   }
 
-  // I checked the correspondence between xy.u/v and  easting, northing
+  // I checked the correspondence between result.enu.e/n and easting, northing
   // against a reliable converter for point: lat=4.613473, longitude=41.080385
   // (easting increases when you go east, northing increases when you go north)
-  easting = xy.u;
-  northing = xy.v;
+  easting = result.enu.e;
+  northing = result.enu.n;
 }
 
 //------------------------------------------------------------------------------
@@ -85,7 +82,7 @@ bool UTMProjector::IsInitialized()
 //------------------------------------------------------------------------------
 void UTMProjector::Init(double initial_lat, double initial_lon)
 {
-  assert(!pj_utm);
+  assert(!this->pj_utm);
   const int unsignedZone = LatLongToZone(initial_lat, initial_lon);
   if (initial_lat < 0)
   {
@@ -111,5 +108,5 @@ void UTMProjector::Init(double initial_lat, double initial_lon)
   utmparams << "+ellps=WGS84 ";
   utmparams << "+units=m ";
   utmparams << "+no_defs ";
-  pj_utm = pj_init_plus(utmparams.str().c_str());
+  this->pj_utm = proj_create_crs_to_crs(0, "EPSG:4326", utmparams.str().c_str(), nullptr);
 }
