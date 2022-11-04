@@ -110,7 +110,7 @@ private:
 
   liblas::Header header;
 
-  projPJ InProj; // used to intepret the polyDatas points
+  projPJ InProj;  // used to intepret the polyDatas points
   projPJ OutProj; // used to project the points into coordinates used inside LAS
   int OutGcsEPSG; // used to tell in the LAS header which projection is used
   // Obviously, OutGcsEPSG should be coherent with OutProj

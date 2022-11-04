@@ -1,11 +1,10 @@
 #include "GPSProjectionUtils.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 #include <vtkObject.h>
 #include <vtkSetGet.h>
-
 
 //------------------------------------------------------------------------------
 int LatLongToZone(double lat, double lon)
@@ -51,7 +50,7 @@ UTMProjector::~UTMProjector()
 }
 
 //------------------------------------------------------------------------------
-void UTMProjector::Project(double lat, double lon, double &easting, double &northing)
+void UTMProjector::Project(double lat, double lon, double& easting, double& northing)
 {
   if (!this->IsInitialized())
   {
@@ -90,7 +89,7 @@ void UTMProjector::Init(double initial_lat, double initial_lon)
   const int unsignedZone = LatLongToZone(initial_lat, initial_lon);
   if (initial_lat < 0)
   {
-    this->SignedUTMZone = - unsignedZone;
+    this->SignedUTMZone = -unsignedZone;
   }
   else
   {

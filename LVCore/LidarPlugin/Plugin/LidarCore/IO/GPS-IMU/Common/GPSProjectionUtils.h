@@ -25,12 +25,13 @@
 
 int LIDARCORE_EXPORT LatLongToZone(double lat, double lon);
 
-
 class LIDARCORE_EXPORT UTMProjector
 {
-  public:
+public:
   UTMProjector(bool shouldWarnOnWeirdGPSData = false)
-    : ShouldWarnOnWeirdGPSData(shouldWarnOnWeirdGPSData) {}
+    : ShouldWarnOnWeirdGPSData(shouldWarnOnWeirdGPSData)
+  {
+  }
 
   ~UTMProjector();
 
@@ -39,7 +40,7 @@ class LIDARCORE_EXPORT UTMProjector
   // SignedUTMZone: > 0 means northern hemisphere, < 0 southern
   int SignedUTMZone = 0;
 
-  private:
+private:
   bool IsInitialized();
 
   void Init(double initial_lat, double initial_lon);

@@ -34,7 +34,7 @@ int SignedUTMToEPSG(int signedUTM)
   }
   else
   {
-    return 32700 + (- signedUTM);
+    return 32700 + (-signedUTM);
   }
 }
 
@@ -46,7 +46,7 @@ int EPSGToSignedUTM(int EPSG)
   }
   else if (EPSG >= 32701 && EPSG <= 32760)
   {
-    return - (EPSG - 32700);
+    return -(EPSG - 32700);
   }
   else
   {
@@ -72,9 +72,10 @@ Eigen::Vector3d ConvertGcs(Eigen::Vector3d p, projPJ inProj, projPJ outProj)
   }
 
   double* const data = p.data();
-  //std::cout << "position in : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl;
+  // std::cout << "position in : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl;
   int last_errno = pj_transform(inProj, outProj, 1, 1, data + 0, data + 1, data + 2);
-  //std::cout << "position out : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl << std::endl;
+  // std::cout << "position out : [" << p[0] << ";" << p[1] << ";" << p[2] << "]" << std::endl <<
+  // std::endl;
 
   if (last_errno != 0)
   {
@@ -211,11 +212,11 @@ void LASFileWriter::SetOrigin(double easting, double northing, double height)
       srs.SetFromUserInput(ss.str());
       this->header.SetSRS(srs);
     }
-    catch (std::logic_error &e)
+    catch (std::logic_error& e)
     {
       std::cerr << "failed to set SRS (logic_error): " << e.what() << std::endl;
     }
-    catch (std::runtime_error &e)
+    catch (std::runtime_error& e)
     {
       std::cerr << "failed to set SRS (runtime_error): " << e.what() << std::endl;
     }
@@ -325,17 +326,17 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
   vtkDataArray* laserIdData = data->GetPointData()->GetArray("laser_id");
   vtkDataArray* timestampData = data->GetPointData()->GetArray("adjustedtime");
   double timeToSec = 1e-6;
-  if(timestampData == nullptr)
+  if (timestampData == nullptr)
   {
     timestampData = data->GetPointData()->GetArray("Raw Timestamp");
     timeToSec = 1e-9;
   }
-  if(intensityData == nullptr)
+  if (intensityData == nullptr)
   {
     intensityData = data->GetPointData()->GetArray("Signal Photons");
   }
 
-  if(laserIdData == nullptr)
+  if (laserIdData == nullptr)
   {
     laserIdData = data->GetPointData()->GetArray("Channel");
   }
@@ -345,7 +346,8 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
   const vtkIdType numPoints = points->GetNumberOfPoints();
   for (vtkIdType n = 0; n < numPoints; ++n)
   {
-    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
+    const double time =
+      timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
     // This test implements the time-clamping feature
     if (time >= this->MinTime && time <= this->MaxTime)
     {
@@ -360,17 +362,17 @@ void LASFileWriter::WriteFrame(vtkPolyData* data)
 
       liblas::Point p(&this->Writer->GetHeader());
       p.SetCoordinates(pos[0], pos[1], pos[2]);
-      p.SetIntensity(static_cast<uint16_t>(intensityData == nullptr ? 0.0 : intensityData->GetComponent(n, 0)));
+      p.SetIntensity(
+        static_cast<uint16_t>(intensityData == nullptr ? 0.0 : intensityData->GetComponent(n, 0)));
       p.SetReturnNumber(1);
       p.SetNumberOfReturns(1);
-      p.SetUserData(static_cast<uint8_t>(laserIdData == nullptr ? 0.0 : laserIdData->GetComponent(n, 0)));
+      p.SetUserData(
+        static_cast<uint8_t>(laserIdData == nullptr ? 0.0 : laserIdData->GetComponent(n, 0)));
       if (this->WriteColor && colorData != nullptr)
       {
-        liblas::Color color = liblas::Color(
-              static_cast<uint32_t>(colorData->GetComponent(n, 0)),
-              static_cast<uint32_t>(colorData->GetComponent(n, 1)),
-              static_cast<uint32_t>(colorData->GetComponent(n, 2))
-              );
+        liblas::Color color = liblas::Color(static_cast<uint32_t>(colorData->GetComponent(n, 0)),
+          static_cast<uint32_t>(colorData->GetComponent(n, 1)),
+          static_cast<uint32_t>(colorData->GetComponent(n, 2)));
         p.SetColor(color);
       }
       p.SetTime(time);
@@ -394,7 +396,7 @@ void LASFileWriter::UpdateMetaData(vtkPolyData* data)
   vtkPoints* const points = data->GetPoints();
   vtkDataArray* timestampData = data->GetPointData()->GetArray("timestamp");
   double timeToSec = 1e-6;
-  if(timestampData == nullptr)
+  if (timestampData == nullptr)
   {
     timestampData = data->GetPointData()->GetArray("Raw Timestamp");
     timeToSec = 1e-9;
@@ -403,7 +405,8 @@ void LASFileWriter::UpdateMetaData(vtkPolyData* data)
   const vtkIdType numPoints = points->GetNumberOfPoints();
   for (vtkIdType n = 0; n < numPoints; ++n)
   {
-    const double time = timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
+    const double time =
+      timestampData == nullptr ? 0.0 : timestampData->GetComponent(n, 0) * timeToSec;
     if (time >= this->MinTime && time <= this->MaxTime)
     {
       Eigen::Vector3d pos;
