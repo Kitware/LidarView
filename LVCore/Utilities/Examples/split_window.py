@@ -1,16 +1,9 @@
 """
-Load a pcap and display it through different view and cameras 
+Split the view in multiple rend windows and change display Properties for each  
 """
 
 from paraview.simple import *
 import lidarview.applogic as lv
-
-################################################################################
-pcap_file = "/home/user/data/CarLoop_VLP16.pcap"
-calibration_file = "/path/to/lidarview/build/.../install/share/VLP-16.xml"
-################################################################################
-
-# lv.openPcap(pcap_file, calibration_file)
 
 # Get sources
 reader = lv.getReader()
@@ -40,6 +33,7 @@ layout1.AssignView(6, renderView4)
 
 
 # Show data in the 2 renderview
+
 display1 = Show(reader[0], renderView1)
 ColorBy(display1, ('POINTS', 'azimuth'))
 display2 = Show(reader[0], renderView2)
