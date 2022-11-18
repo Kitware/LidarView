@@ -121,7 +121,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   QObject::connect(
     this->Controller, SIGNAL(frameRanges(int, int)), this, SLOT(setFrameRanges(int, int)));
   QObject::connect(this->Controller, SIGNAL(loop(bool)), ui.actionVCRLoop, SLOT(setChecked(bool)));
-  QObject::connect(this->Controller, SIGNAL(playing(bool)), this, SLOT(onPlaying(bool)));
+  QObject::connect(this->Controller, SIGNAL(playing(bool, bool)), this, SLOT(onPlaying(bool, bool)));
 
   // CUSTOM
   QObject::connect(
@@ -242,7 +242,7 @@ void lqPlayerControlsToolbar::setFrameRanges(int min, int max)
   this->UI->frameQSpinBox->setMaximum(max);
 }
 //-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::onPlaying(bool playing)
+void lqPlayerControlsToolbar::onPlaying(bool playing, bool reversed)
 {
   // PV code, set custom Play/Pause icons
   if (playing)
@@ -315,11 +315,11 @@ void lqPlayerControlsToolbar::onSetLiveMode(bool liveModeEnabled)
   {
     // Make LiveSource are running
     pqLiveSourceBehavior::resume();
-    this->onPlaying(true);
+    this->onPlaying(true, false);
   }
   else
   {
-    this->onPlaying(false);
+    this->onPlaying(false, false);
   }
 }
 

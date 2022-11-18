@@ -57,7 +57,7 @@ public:
 protected Q_SLOTS:
   // UI Updates
   void setTimeRanges(double, double); // VCR Controller default, updates time ranges
-  void onPlaying(bool);               // VCR Controller default
+  void onPlaying(bool, bool);         // VCR Controller default
 
   void setFrameRanges(int, int);     // updates frames ranges
   void onSpeedChanged(double speed); // Update UI on speed change
