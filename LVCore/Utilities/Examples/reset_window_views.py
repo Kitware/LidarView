@@ -25,8 +25,9 @@ renderView = CreateView('RenderView')
 layout.AssignView(0, renderView)
 
 # Show measurement grid and reader
-display = Show(reader[0], renderView)
-ColorBy(display, ('POINTS', 'intensity'))
+if reader:
+    display = Show(reader[0], renderView)
+    ColorBy(display, ('POINTS', 'intensity'))
 Show(measurementGrid, renderView)
 
 # Reset Camera

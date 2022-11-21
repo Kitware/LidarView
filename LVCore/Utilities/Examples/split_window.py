@@ -34,14 +34,15 @@ layout1.AssignView(6, renderView4)
 
 # Show data in the 2 renderview
 
-display1 = Show(reader[0], renderView1)
-ColorBy(display1, ('POINTS', 'azimuth'))
-display2 = Show(reader[0], renderView2)
-ColorBy(display2, ('POINTS', 'intensity'))
-display3 = Show(reader[0], renderView3)
-ColorBy(display3, ('POINTS', 'azimuth'))
-display4 = Show(reader[0], renderView4)
-ColorBy(display4, ('POINTS', 'intensity'))
+if reader:
+    display1 = Show(reader[0], renderView1)
+    ColorBy(display1, ('POINTS', 'azimuth'))
+    display2 = Show(reader[0], renderView2)
+    ColorBy(display2, ('POINTS', 'intensity'))
+    display3 = Show(reader[0], renderView3)
+    ColorBy(display3, ('POINTS', 'azimuth'))
+    display4 = Show(reader[0], renderView4)
+    ColorBy(display4, ('POINTS', 'intensity'))
 
 # Show measurement grid
 Show(measurementGrid, renderView1)
