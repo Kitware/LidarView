@@ -17,8 +17,15 @@ namespace
 {
 bool isStream(pqPipelineSource* src)
 {
-  return (src != nullptr && src->getProxy() != nullptr &&
-    src->getProxy()->GetClientSideObject()->IsA("vtkLidarStream"));
+  if (src != nullptr && src->getProxy() != nullptr)
+  {
+    vtkObjectBase* objectBased = src->getProxy()->GetClientSideObject();
+    if (objectBased != nullptr)
+    {
+      return objectBased->IsA("vtkLidarStream");
+    }
+  }
+  return false;
 }
 
 bool isLastStream(pqPipelineSource* src)
