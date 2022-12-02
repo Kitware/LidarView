@@ -238,6 +238,7 @@ void lqRulerReaction::destroyState()
     mouseCC->SetClientData(nullptr);
     mouseCC->SetCallback(nullptr);
     mouseCC->Delete();
+    mouseCC = nullptr;
   }
 
   // Reset 'started' state
