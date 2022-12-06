@@ -10,7 +10,7 @@ reader = lv.getReader()
 measurementGrid = FindSource('Measurement Grid')
 
 # Get views
-views = GetRenderViews()
+views = GetViews()
 layout = GetLayout()
 
 # Deletes all views
