@@ -46,7 +46,7 @@ The specific version of the following tools may or may not be available in your 
 
  - **Microsoft Visual Studio 2019** Only the 2019 MSVC version is supported.
 
- - **Qt 5.12.9** You must get it through the offline installer (Building Qt5 from source is a lengthy process)
+ - **Qt 5.15.7** You must get it through the offline installer (Building Qt5 from source is a lengthy process)
 
     For more details, see [Additional Instructions](#qt-installer).
 
@@ -92,7 +92,7 @@ The specific version of the following tools may or may not be available in your 
 
     `cd <work-directory>\build`
 
-    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5"`
+    `cmake <work-directory>\src\Superbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_qt5=True -DQt5_DIR="C:/Qt/5.15.7/msvc2019_64/lib/cmake/Qt5"`
 
     `cmake --build . -j`
 
@@ -121,7 +121,7 @@ The specific version of the following tools may or may not be available in your 
 
   Qt5 is built automatically by the Superbuild, however to speed up the build process, you can opt to use built-binaries with the following options:
 
- - If you system's package manager offers Qt5 with version 5.12.9 or higher (e.g Ubuntu20.04) use:
+ - If you system's package manager offers Qt5 with version 5.15.7 or higher (e.g Ubuntu20.04) use:
 
     `qt5-default qtmultimedia5-dev qtbase5-private-dev libqt5x11extras5-dev libqt5svg5-dev libqt5xmlpatterns5 qttools5-dev qtxmlpatterns5-dev-tools`
 
@@ -246,9 +246,9 @@ Detailed Instructions to run LidarView-based app Tests: [LidarView Testing Guide
 
 ## Additional instructions <a name="additional-instructions"></a>
 
- - **Get QT5.12.9 From Installer** <a name="qt-installer"></a>
+ - **Get QT5.15.7 From Installer** <a name="qt-installer"></a>
 
-    Qt5.12.9 - [Offline Installer](https://download.qt.io/official_releases/qt/5.12/5.12.9/)
+    Qt5.15.7 - [Offline Installer](https://www.qt.io/download-open-source#contributing)
 
     Run the installer offline to alleviate the need to register
 
@@ -267,9 +267,9 @@ Detailed Instructions to run LidarView-based app Tests: [LidarView Testing Guide
 
       **Always forward slashes, UNIX style, on all platforms**
 
-      e.g If installed in `/opt`: `-DQt5_DIR=/opt/Qt5.12.9/5.12.9/gcc_64/lib/cmake/Qt5`
+      e.g If installed in `/opt`: `-DQt5_DIR=/opt/Qt5.15.7/5.15.7/gcc_64/lib/cmake/Qt5`
 
-      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5`
+      e.g If installed in `C:\` : `-DQt5_DIR=C:/Qt/5.15.7/msvc2019_64/lib/cmake/Qt5`
 
 
 ## Troubleshooting / FAQ <a name="faq-instructions"></a>
