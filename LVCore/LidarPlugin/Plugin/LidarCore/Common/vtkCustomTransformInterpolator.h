@@ -56,7 +56,7 @@ class vtkTransform;
 class vtkMatrix4x4;
 class vtkProp3D;
 class vtkCustomTupleInterpolator;
-class vtkCustomQuaternionInterpolator;
+class vtkQuaternionInterpolator;
 class vtkTransformList;
 struct vtkQTransform;
 
@@ -166,8 +166,8 @@ public:
   // of the transformation matrix. Note that you can modify the behavior of
   // the interpolator (linear vs spline interpolation; change spline basis)
   // by manipulating the interpolator instances.
-  virtual void SetRotationInterpolator(vtkCustomQuaternionInterpolator*);
-  vtkGetObjectMacro(RotationInterpolator, vtkCustomQuaternionInterpolator);
+  virtual void SetRotationInterpolator(vtkQuaternionInterpolator*);
+  vtkGetObjectMacro(RotationInterpolator, vtkQuaternionInterpolator);
 
   // Description:
   // Override GetMTime() because we depend on the interpolators which may be
@@ -185,7 +185,7 @@ protected:
   // Interpolators
   vtkCustomTupleInterpolator* PositionInterpolator;
   vtkCustomTupleInterpolator* ScaleInterpolator;
-  vtkCustomQuaternionInterpolator* RotationInterpolator;
+  vtkQuaternionInterpolator* RotationInterpolator;
 
   // Initialize the interpolating splines
   int Initialized;

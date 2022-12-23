@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
 #include "vtkQuaternion.h"
-#include "vtkPatch/vtkCustomQuaternionInterpolator.h"
+#include "vtkQuaternionInterpolator.h"
 #include "vtkTransform.h"
 #include "vtkPatch/vtkCustomTupleInterpolator.h"
 #include <list>
@@ -124,7 +124,7 @@ vtkCustomTransformInterpolator::vtkCustomTransformInterpolator()
   // Spline interpolation
   this->PositionInterpolator = vtkCustomTupleInterpolator::New();
   this->ScaleInterpolator = vtkCustomTupleInterpolator::New();
-  this->RotationInterpolator = vtkCustomQuaternionInterpolator::New();
+  this->RotationInterpolator = vtkQuaternionInterpolator::New();
 
   // Quaternion interpolation
   this->TransformList = new vtkTransformList;
@@ -357,7 +357,7 @@ void vtkCustomTransformInterpolator::SetScaleInterpolator(vtkCustomTupleInterpol
 }
 
 //----------------------------------------------------------------------------
-void vtkCustomTransformInterpolator::SetRotationInterpolator(vtkCustomQuaternionInterpolator* ri)
+void vtkCustomTransformInterpolator::SetRotationInterpolator(vtkQuaternionInterpolator* ri)
 {
   if (this->RotationInterpolator != ri)
   {
@@ -395,7 +395,7 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
     }
     if (!this->RotationInterpolator)
     {
-      this->RotationInterpolator = vtkCustomQuaternionInterpolator::New();
+      this->RotationInterpolator = vtkQuaternionInterpolator::New();
     }
 
     if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR
