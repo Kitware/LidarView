@@ -898,7 +898,8 @@ def start():
     view = smp.GetActiveView()
     view.Background = [0.0, 0.0, 0.0]
     view.Background2 = [0.0, 0.0, 0.2]
-    view.UseGradientBackground = True
+    view.BackgroundColorMode = "Gradient"
+    view.UseColorPaletteForBackground = False
     smp._DisableFirstRenderCameraReset()
     smp.GetActiveView().LODThreshold = 1e100
 
