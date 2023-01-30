@@ -48,7 +48,7 @@ include(Git)
 include(CTest)
 
 # Find Python
-message("Using Python ${superbuild_python_version}")
+message(STATUS "Using Python ${superbuild_python_version}")
 find_package(Python3 ${superbuild_python_version} EXACT QUIET REQUIRED COMPONENTS Interpreter Development)
 if(NOT ${superbuild_python_version} EQUAL "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
   message(FATAL_ERROR "Superbuild and found Python Version mismatch")
@@ -99,11 +99,7 @@ if(NOT Qt5_DIR)
 endif()
 list(APPEND CMAKE_INSTALL_RPATH "${Qt5_DIR}/../../")
 
-# Find PythonQt from Paraview's PythonQtPlugin Directory
-# We also need to set this variable for PythonQtPlugin to build itself
-# wip bad af, needs more checking
-set(PYTHONQTPLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/../pvsb/superbuild/paraview/src/Plugins/PythonQtPlugin")
-list(INSERT CMAKE_MODULE_PATH 0  "${PYTHONQTPLUGIN_DIR}/cmake")
+list(INSERT CMAKE_MODULE_PATH 0  "${CMAKE_CURRENT_SOURCE_DIR}/LVCore/CMake/")
 find_package(PythonQt REQUIRED)
 if(NOT PythonQt_FOUND OR NOT TARGET PythonQt::PythonQt)
   message(FATAL_ERROR "PythonQt::PythonQt not FOUND")

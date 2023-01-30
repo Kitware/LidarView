@@ -1,5 +1,3 @@
-add_subdirectory("PythonQtPlugin/")
-
 add_subdirectory("LidarPlugin/")
 
 add_subdirectory("ApplicationComponents/")
