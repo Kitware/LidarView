@@ -76,11 +76,6 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqPlayerControlsToolbar.h"
 #include "lqViewFrameActions.h"
 
-// Declare static plugin to load.
-#define PARAVIEW_BUILDING_PLUGIN
-#include "vtkPVPlugin.h"
-PV_PLUGIN_IMPORT_INIT(PythonQtPlugin); // WIP could be Dynamically loaded
-
 //-----------------------------------------------------------------------------
 class vvMainWindow::pqInternals : public Ui::vvMainWindow
 {
@@ -118,9 +113,6 @@ vvMainWindow::vvMainWindow()
   // this->Internals->outputWidgetDock->hide(); // This is default ParaView, we give the App choice
   // first this->Internals->pythonShellDock->hide();  // Kept for reference
   // this->Internals->materialEditorDock->hide();
-
-  // Load Plugins
-  PV_PLUGIN_IMPORT(PythonQtPlugin);
 
   // LidarView Specific Manager
   new lqLidarViewManager(this);

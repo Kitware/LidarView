@@ -42,7 +42,7 @@ paraview_client_add(
   BUNDLE_ICON      "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
   APPLICATION_ICON "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/logo.ico"
   
-  REQUIRED_PLUGINS LidarPlugin VelodynePlugin
+  REQUIRED_PLUGINS LidarPlugin VelodynePlugin PythonQtPlugin
 
   MAIN_WINDOW_CLASS vvMainWindow
   MAIN_WINDOW_INCLUDE vvMainWindow.h
@@ -61,7 +61,6 @@ target_include_directories(${SOFTWARE_NAME} PUBLIC
 
 # We directly link against the plugin and import them statically.
 target_link_libraries(${SOFTWARE_NAME} PUBLIC
-  PythonQtPlugin # The plugin is needed to be loaded statically
   lqApplicationComponents #actually LVCore/ApplicationComponents
   ApplicationUi
   )
