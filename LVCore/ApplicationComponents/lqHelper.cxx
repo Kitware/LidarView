@@ -10,6 +10,7 @@
 #include <QRect>
 #include <QString>
 #include <QObject>
+#include <QGuiApplication>
 
 #include <vtkSMSessionProxyManager.h>
 #include <vtkSMBooleanDomain.h>
@@ -365,7 +366,7 @@ bool GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
 void DisplayDialogOnActiveWindow(QDialog & dialog)
 {
   // If there is multiple screen, we need to ensure that the dialog pop up on the active screen
-  if (QApplication::desktop()->numScreens() > 1)
+  if (QGuiApplication::screens().size() > 1)
   {
     QRect oldGeometry = dialog.geometry();
     if (QApplication::activeWindow() != nullptr)

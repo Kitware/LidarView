@@ -59,6 +59,14 @@ void lqLidarCameraReaction::onTriggered()
     case pqCameraReaction::Mode::APPLY_ISOMETRIC_VIEW:
       this->applyIsometricView();
       break;
+
+    case pqCameraReaction::Mode::ZOOM_CLOSEST_TO_DATA:
+      this->zoomToData(true);
+      break;
+
+    case pqCameraReaction::Mode::RESET_CAMERA_CLOSEST:
+      this->resetCamera(true);
+      break;
   }
 }
 

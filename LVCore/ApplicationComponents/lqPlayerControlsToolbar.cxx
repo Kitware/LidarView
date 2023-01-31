@@ -242,7 +242,7 @@ void lqPlayerControlsToolbar::setFrameRanges(int min, int max)
   this->UI->frameQSpinBox->setMaximum(max);
 }
 //-----------------------------------------------------------------------------
-void lqPlayerControlsToolbar::onPlaying(bool playing, bool reversed)
+void lqPlayerControlsToolbar::onPlaying(bool playing, bool)
 {
   // PV code, set custom Play/Pause icons
   if (playing)

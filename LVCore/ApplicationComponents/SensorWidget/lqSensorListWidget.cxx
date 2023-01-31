@@ -419,7 +419,7 @@ pqPipelineSource* lqSensorListWidget::getActiveLidarSource()
 //-----------------------------------------------------------------------------
 pqPipelineSource* lqSensorListWidget::getLidarSource(int index)
 {
-  if (index < 0 || index >= this->sensorWidgets.size())
+  if (index < 0 || index >= static_cast<int>(this->sensorWidgets.size()))
   {
     return nullptr;
   }

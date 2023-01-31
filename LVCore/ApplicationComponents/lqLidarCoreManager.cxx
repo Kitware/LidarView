@@ -524,6 +524,10 @@ void lqLidarCoreManager::onResetDefaultSettings()
 
     // Quit the current application instance and restart a new one.
     qApp->quit();
-    QProcess::startDetached(qApp->arguments()[0]);
+
+    QStringList appArguments = qApp->arguments();
+    QString appName = appArguments.at(0);
+    appArguments.pop_front();
+    QProcess::startDetached(appName, appArguments);
   }
 }

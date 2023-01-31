@@ -691,10 +691,7 @@ void lqSensorWidget::onUpdateTransform()
     vtkSMProxy* TransformProxy = SearchProxyByName(lidarProxy, TransformproxyName);
 
     // update proxy properties
-    vtkSMProperty* prop = GetPropertyFromProxy(TransformProxy, propertyNameTranslation);
     UpdateProxyProperty(TransformProxy, propertyNameTranslation, TranslationValues);
-
-    prop = GetPropertyFromProxy(TransformProxy, propertyNameRotation);
     UpdateProxyProperty(TransformProxy, propertyNameRotation, RotationValues);
 
     lidarProxy->UpdateSelfAndAllInputs();

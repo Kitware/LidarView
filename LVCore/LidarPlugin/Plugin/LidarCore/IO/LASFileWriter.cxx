@@ -38,22 +38,6 @@ int SignedUTMToEPSG(int signedUTM)
   }
 }
 
-int EPSGToSignedUTM(int EPSG)
-{
-  if (EPSG >= 32601 && EPSG <= 32660)
-  {
-    return EPSG - 32600;
-  }
-  else if (EPSG >= 32701 && EPSG <= 32760)
-  {
-    return -(EPSG - 32700);
-  }
-  else
-  {
-    return 0; // not an UTM zone
-  }
-}
-
 //-----------------------------------------------------------------------------
 PJ* ProjFromEPSG(int epsg)
 {
