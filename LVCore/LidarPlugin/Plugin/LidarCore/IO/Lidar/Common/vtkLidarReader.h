@@ -29,7 +29,7 @@ class LIDARCORE_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarReader* New();
-  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm)
 
   int GetNumberOfFrames() { return this->FrameCatalog.size(); }
 

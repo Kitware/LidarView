@@ -51,7 +51,7 @@ class vtkCustomPiecewiseFunction;
 class vtkCustomTupleInterpolator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCustomTupleInterpolator, vtkObject);
+  vtkTypeMacro(vtkCustomTupleInterpolator, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:

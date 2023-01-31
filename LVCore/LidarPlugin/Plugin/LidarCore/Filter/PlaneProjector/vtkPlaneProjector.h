@@ -41,7 +41,7 @@
 class LIDARCORE_EXPORT vtkPlaneProjector : public vtkPolyDataAlgorithm
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   static vtkPlaneProjector *New();
   vtkTypeMacro(vtkPlaneProjector, vtkPolyDataAlgorithm)
 

@@ -9,7 +9,7 @@
 class LQAPPLICATIONCOMPONENTS_EXPORT lqViewFrameActions : public pqStandardViewFrameActionsImplementation
 {
   Q_OBJECT
-  Q_INTERFACES(pqViewFrameActionsInterface);
+  Q_INTERFACES(pqViewFrameActionsInterface)
 
 public:
   lqViewFrameActions(QObject* parent = nullptr);

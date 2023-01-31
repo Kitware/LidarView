@@ -26,7 +26,7 @@ class vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarKITTIDataSetWriter* New();
-  vtkTypeMacro(vtkLidarKITTIDataSetWriter, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLidarKITTIDataSetWriter, vtkPolyDataAlgorithm)
   // void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetMacro(FolderName, const std::string&)

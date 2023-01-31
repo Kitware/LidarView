@@ -43,7 +43,7 @@ class vtkCustomPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkCustomPiecewiseFunction *New();
-  vtkTypeMacro(vtkCustomPiecewiseFunction,vtkDataObject);
+  vtkTypeMacro(vtkCustomPiecewiseFunction,vtkDataObject)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void DeepCopy( vtkDataObject *f ) override;

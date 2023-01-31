@@ -34,7 +34,7 @@ class LIDARCORE_EXPORT vtkArduPilotDataFlashLogReader : public vtkPolyDataAlgori
 {
 public:
   static vtkArduPilotDataFlashLogReader *New();
-  vtkTypeMacro(vtkArduPilotDataFlashLogReader, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkArduPilotDataFlashLogReader, vtkPolyDataAlgorithm)
 
   vtkGetStringMacro(FileName)
   vtkSetStringMacro(FileName)

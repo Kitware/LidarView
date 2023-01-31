@@ -108,7 +108,7 @@ public Q_SLOTS:
   void onResetCenterToLidarCenter();
 
 private:
-  Q_DISABLE_COPY(lqLidarCoreManager);
+  Q_DISABLE_COPY(lqLidarCoreManager)
   static QPointer<lqLidarCoreManager> Instance;
 
   class pqInternal;
