@@ -42,7 +42,7 @@ protected Q_SLOTS:
   void toggleMVDecoration(); // Toggle Multiview decorations
 
 private:
-  Q_DISABLE_COPY(vvMainWindow);
+  Q_DISABLE_COPY(vvMainWindow)
 
   class pqInternals;
   pqInternals* Internals;
