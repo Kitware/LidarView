@@ -58,12 +58,16 @@ if(WIN32)
   set(LASNAME liblas)
 endif()
 
-find_library(liblas_LIBRARY ${LASNAME} DOC "liblas library")
-find_path(liblas_INCLUDE_DIR liblas/version.hpp DOC "liblas include directory")
-add_library(liblas INTERFACE)
-target_link_libraries     (liblas INTERFACE ${liblas_LIBRARY})
-target_include_directories(liblas INTERFACE ${liblas_INCLUDE_DIR})
-list(APPEND LIDARPLUGIN_DEPS              liblas)
+find_library(liblas_LIBRARY ${LASNAME} DOC "las library")
+find_path(liblas_INCLUDE_DIR liblas/version.hpp DOC "las include directory")
+if(WIN32)
+  add_library(las INTERFACE)
+  target_link_libraries     (las INTERFACE ${liblas_LIBRARY})
+  target_include_directories(las INTERFACE ${liblas_INCLUDE_DIR})
+endif()
+list(APPEND LIDARPLUGIN_DEPS_INCLUDE_DIRS ${liblas_INCLUDE_DIR})
+list(APPEND LIDARPLUGIN_DEPS              ${liblas_LIBRARY})
+
 #--------------------------------------
 # Eigen dependency
 #--------------------------------------

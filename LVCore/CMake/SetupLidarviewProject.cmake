@@ -102,7 +102,7 @@ list(APPEND CMAKE_INSTALL_RPATH "${Qt5_DIR}/../../")
 # Find PythonQt from Paraview's PythonQtPlugin Directory
 # We also need to set this variable for PythonQtPlugin to build itself
 # wip bad af, needs more checking
-set(PYTHONQTPLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/../lidarview-superbuild/common-superbuild/paraview/src/Plugins/PythonQtPlugin")
+set(PYTHONQTPLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/../pvsb/superbuild/paraview/src/Plugins/PythonQtPlugin")
 list(INSERT CMAKE_MODULE_PATH 0  "${PYTHONQTPLUGIN_DIR}/cmake")
 find_package(PythonQt REQUIRED)
 if(NOT PythonQt_FOUND OR NOT TARGET PythonQt::PythonQt)
