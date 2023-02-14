@@ -1,6 +1,3 @@
-[submodule "Superbuild/lidarview-superbuild"]
-	path = Superbuild/lidarview-superbuild
-	url = https://gitlab.kitware.com/LidarView/lidarview-superbuild.git
 [submodule "LVCore"]
 	path = LVCore
 	url = https://gitlab.kitware.com/LidarView/lidarview-core.git
@@ -11,3 +8,6 @@
 [submodule "Plugins/HesaiPlugin"]
 	path = Plugins/HesaiPlugin
 	url = ../HesaiPlugin
+[submodule "LVSuperbuild"]
+	path = LVSuperbuild
+	url = https://gitlab.kitware.com/LidarView/lidarview-superbuild.git
