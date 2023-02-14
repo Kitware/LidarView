@@ -49,7 +49,7 @@ set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
 if (WIN32)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 elseif (APPLE)
-  set(LV_INSTALL_PV_PLUGIN_SUBDIR "lib/paraview-5.9/plugins") # This one is specific
+  set(LV_INSTALL_PV_PLUGIN_SUBDIR "lib/paraview-${paraview_version}/plugins") # This one is specific
 elseif (UNIX)
   set(LV_INSTALL_PV_PLUGIN_SUBDIR "${LV_INSTALL_LIBRARY_DIR}/paraview-${paraview_version}/plugins")
 endif ()
