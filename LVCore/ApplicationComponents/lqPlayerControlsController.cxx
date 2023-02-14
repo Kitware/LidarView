@@ -111,7 +111,7 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
   // Connect additional Signals:
   if (scene)
   {
-    QObject::connect(this->Scene, SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
+    QObject::connect(this->getAnimationScene(), SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
     // frameCountChanged // Not necessary, timeStepsChanged() cover this case
     // cues
     // playModeChanged()
@@ -123,7 +123,7 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onTimeRangesChanged()
 {
-  if (!this->Scene)
+  if (!this->getAnimationScene())
     return;
 
   // Regular VCR controller onTimeRangesChanged
@@ -133,10 +133,10 @@ void lqPlayerControlsController::onTimeRangesChanged()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onTimeStepsChanged()
 {
-  if (this->Scene)
+  if (this->getAnimationScene())
   {
     // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
-    auto timesteps = this->Scene->getTimeSteps();
+    auto timesteps = this->getAnimationScene()->getTimeSteps();
     int nframes = timesteps.size() ? timesteps.size() - 1 : 0;
     Q_EMIT this->frameRanges(0, nframes);
   }
@@ -148,7 +148,7 @@ void lqPlayerControlsController::onPause()
   if (!lqSensorListWidget::instance()->isInLiveSensorMode())
   {
     // Prevent Noisy warnings
-    if (!this->Scene)
+    if (!this->getAnimationScene())
     {
       return;
     }
@@ -179,7 +179,7 @@ void lqPlayerControlsController::onPlay()
   if (!lqSensorListWidget::instance()->isInLiveSensorMode())
   {
     // Prevent Noisy warnings
-    if (!this->Scene)
+    if (!this->getAnimationScene())
     {
       return;
     }
@@ -210,7 +210,7 @@ void lqPlayerControlsController::onPlay()
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSpeedChange(double speed)
 {
-  if (!this->Scene)
+  if (!this->getAnimationScene())
     return;
   // Update speed value
   this->speed = speed;
@@ -232,10 +232,10 @@ void lqPlayerControlsController::onSpeedChange(double speed)
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSeekFrame(int index)
 {
-  if (!this->Scene)
+  if (!this->getAnimationScene())
     return;
 
-  const auto& timesteps = this->Scene->getTimeSteps();
+  const auto& timesteps = this->getAnimationScene()->getTimeSteps();
   if (index >= timesteps.size())
     return;
 
@@ -246,7 +246,7 @@ void lqPlayerControlsController::onSeekFrame(int index)
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onSeekTime(double time)
 {
-  if (!this->Scene)
+  if (!this->getAnimationScene())
     return;
 
   if (time < 0)
@@ -261,40 +261,40 @@ void lqPlayerControlsController::setSceneTime(double time)
 {
   // This is safer, simpler for users and we have been unable to make it work without it too
   this->onPause();
-  this->Scene->setAnimationTime(time);
+  this->getAnimationScene()->setAnimationTime(time);
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onNextFrame()
 {
   // need to change the mode as in realtime next frame is actually t = t+1s
-  SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
-  this->Scene->getProxy()->InvokeCommand("GoToNext");
+  SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+  this->getAnimationScene()->getProxy()->InvokeCommand("GoToNext");
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::onPreviousFrame()
 {
   // need to change the mode as in realtime previous frame is actually t = t-1s
-  SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
-  this->Scene->getProxy()->InvokeCommand("GoToPrevious");
+  SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+  this->getAnimationScene()->getProxy()->InvokeCommand("GoToPrevious");
 }
 
 //-----------------------------------------------------------------------------
 void lqPlayerControlsController::setPlayMode(double speed)
 {
-  if (!this->Scene)
+  if (!this->getAnimationScene())
     return;
 
   if (speed <= 0)
   {
     // There is no enum for
-    SetProperty(this->Scene, "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+    SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
   }
   else
   {
-    QPair<double, double> range = this->Scene->getClockTimeRange();
-    SetProperty(this->Scene, "Duration", (range.second - range.first) / this->speed);
-    SetProperty(this->Scene, "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
+    QPair<double, double> range = this->getAnimationScene()->getClockTimeRange();
+    SetProperty(this->getAnimationScene(), "Duration", (range.second - range.first) / this->speed);
+    SetProperty(this->getAnimationScene(), "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
   }
 }
