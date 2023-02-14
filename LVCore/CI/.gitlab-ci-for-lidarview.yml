@@ -151,7 +151,7 @@ workflow:
       -DBUILD_TESTING=ON
       -Dsuperbuild_download_location="../downloads"
       -Dlidarview_SOURCE_SELECTION="source"
-      -Dlidarview_SOURCE_DIR=$LV_PROJECT_SRC_PATH
+      -Dlidarview_SOURCE_DIR="$LV_PROJECT_SRC_PATH"
       $LV_PROJECT_SRC_PATH/LVSuperbuild
     - cmake --build . --parallel 8
 
