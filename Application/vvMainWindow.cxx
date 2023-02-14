@@ -159,6 +159,8 @@ vvMainWindow::vvMainWindow()
   this->show();
   this->raise();
   this->activateWindow();
+
+  new pqParaViewBehaviors(this, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -291,9 +293,7 @@ void vvMainWindow::setupPVGUI()
   pqParaViewBehaviors::enableStandardPropertyWidgets();
   pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
-
   pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
-  new pqParaViewBehaviors(this, this); // MUST be created before renderView
 }
 
 //-----------------------------------------------------------------------------
