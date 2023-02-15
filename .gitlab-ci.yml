@@ -6,7 +6,7 @@ variables:
   sb_cmake_option_ENABLE_pcl:
     value: '-DENABLE_pcl=True'
   sb_cmake_option_ENABLE_INTERPRETER_HESAI:
-    value: '-DINTERPRETER_ENABLE_INTERPRETER_HESAI=True'
+    value: '-DENABLE_INTERPRETER_HESAI=True'
   sb_cmake_option_LIDARVIEW_ENABLE_SLAM:
     value: '-DLIDARVIEW_ENABLE_SLAM=True'
 include:
