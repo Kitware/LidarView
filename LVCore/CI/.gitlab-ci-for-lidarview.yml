@@ -34,14 +34,8 @@ variables:
     value: '-GNinja'
   sb_cmake_option_USE_SYSTEM_qt5: # Most of our Platforms use qt5 with offline Installers
     value: '-DUSE_SYSTEM_qt5=True'
-  sb_cmake_option_ENABLE_ceres:
-    value: '-DENABLE_ceres=False'
-  sb_cmake_option_ENABLE_nanoflann:
-    value: '-DENABLE_nanoflann=False'
-  sb_cmake_option_ENABLE_pcl:
-    value: '-DENABLE_pcl=False'
-  sb_cmake_option_LIDARVIEW_ENABLE_SLAM:
-    value: '-DLIDARVIEW_ENABLE_SLAM=False'
+  sb_cmake_option_ENABLE_slam:
+    value: '-DENABLE_slam=False'
   sb_cmake_option_ENABLE_INTERPRETER_HESAI:
     value: ''                     # Keep it empty as only LidarView use it
 
@@ -114,7 +108,7 @@ workflow:
     - cmake -E remove_directory $LV_PROJECT_BSB_PATH
     - cmake -E make_directory   $LV_PROJECT_SRC_PATH
     - cmake -E make_directory   $LV_PROJECT_BSB_PATH
-    - echo "CI SB OPTIONS= $sb_cmake_option_USE_SYSTEM_qt5 $sb_cmake_option_ENABLE_ceres $sb_cmake_option_ENABLE_nanoflann $sb_cmake_option_ENABLE_pcl $sb_cmake_option_LIDARVIEW_ENABLE_SLAM $sb_cmake_option_ENABLE_INTERPRETER_HESAI"
+    - echo "CI SB OPTIONS= $sb_cmake_option_USE_SYSTEM_qt5 $sb_cmake_option_ENABLE_slam $sb_cmake_option_ENABLE_INTERPRETER_HESAI"
     - cd $LV_PROJECT_SRC_PATH # First Fetch Master
     - echo "Using SB_CI_AUTH=$SB_CI_AUTH" # Optional auth for private repositories e.g "gitlab-ci-token:[masked]@"
     - git clone -j 8 https://$SB_CI_AUTH$CI_SERVER_HOST/$CI_PROJECT_PATH.git . # Clone in Place, no submodules, no recursive, smudged
@@ -142,10 +136,7 @@ workflow:
       $sb_cmake_option_CMAKE_OSX_ARCHITECTURES
       $sb_cmake_option_CMAKE_OSX_DEPLOYMENT_TARGET
       $sb_cmake_option_CMAKE_OSX_SDK
-      $sb_cmake_option_ENABLE_ceres
-      $sb_cmake_option_ENABLE_nanoflann
-      $sb_cmake_option_ENABLE_pcl
-      $sb_cmake_option_LIDARVIEW_ENABLE_SLAM
+      $sb_cmake_option_ENABLE_slam
       $sb_cmake_option_ENABLE_INTERPRETER_HESAI
       $SB_ADDITIONAL_PARAMS
       -DBUILD_TESTING=ON
