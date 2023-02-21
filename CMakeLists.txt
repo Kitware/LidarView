@@ -27,6 +27,10 @@ set(lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
 add_subdirectory(LVCore)
 
+# Documentation
+add_subdirectory(doc)
+
+# Application
 add_subdirectory(Application)
 
 add_subdirectory(Wrapping/Python)
