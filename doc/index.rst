@@ -1,16 +1,24 @@
-.. LidarView documentation master file, created by
-   sphinx-quickstart on Mon Feb  6 11:10:58 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to LidarView's documentation!
 =====================================
 
+This guide is split into two volumes:
+
+-  **User's Guide**
+
+-  **Tutorial**
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: LidarView User's Guide
 
+   UsersGuide.rst
 
+.. toctree::
+   :maxdepth: 2
+   :caption: LidarView Tutorials
+
+   Tutorial.rst
 
 Indices and tables
 ==================
