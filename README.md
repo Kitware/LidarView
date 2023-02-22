@@ -52,7 +52,7 @@ Feel free to reach out at kitware@kitware.com for support or new features develo
 
 Lidarview is maintained on the following platforms:
 
-* Ubuntu 18, Ubuntu 20
+* Ubuntu 18, Ubuntu 20, Ubuntu 22
 * Windows x64
 * MacOS 12
 
@@ -64,20 +64,14 @@ See associated download links in the [Release](https://gitlab.kitware.com/LidarV
 
 ## Build from source
 
+Detailed Instructions to build and package LidarView are available under [LidarView-superbuild README](https://gitlab.kitware.com/LidarView/lidarview-superbuild/-/blob/master/README.md).
+
 Most of the LidarView common codebase lies within:
 
  * [LVCore](https://gitlab.kitware.com/LidarView/lidarview-core) repository.
  * [LidarView-superbuild](https://gitlab.kitware.com/LidarView/lidarview-superbuild) repository.
 
-Detailed Instructions to build and package LidarView are available under [`LVCore/Documentation/LidarView_Developer_Guide.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/LidarView_Developer_Guide.md).
-
 # How to use
-
-## Interpreters selection
-
-Only Velodyne interpreters are enabled by default, you can choose which interpreter plugin to enable in LidarView with cmake options following this format:  `INTERPRETER_ENABLE_InterpreterPluginName`.
-
-For example: `-DINTERPRETER_ENABLE_Hesai=True` will build Hesai.
 
 ## Sensor streaming
 
