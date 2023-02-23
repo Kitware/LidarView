@@ -47,8 +47,8 @@
 #ifndef __vtkCustomTransformInterpolator_h
 #define __vtkCustomTransformInterpolator_h
 
-#include <vtkObject.h>
 #include <vector>
+#include <vtkObject.h>
 
 #include "LidarCoreModule.h"
 
@@ -74,9 +74,7 @@ public:
   // Return the number of transforms in the list of transforms.
   int GetNumberOfTransforms();
 
-  void GetSample(int n,
-		  vtkTransform *xform,
-		  double& xformTime);
+  void GetSample(int n, vtkTransform* xform, double& xformTime);
 
   // Description:
   // Obtain some information about the interpolation range. The numbers
@@ -114,7 +112,7 @@ public:
 
   // Description:
   // Return the transform list
-  std::vector<std::vector<double> > GetTransformList();
+  std::vector<std::vector<double>> GetTransformList();
 
   // BTX
   // Description:
@@ -142,8 +140,11 @@ public:
   void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
   void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
   void SetInterpolationTypeToManual() { this->SetInterpolationType(INTERPOLATION_TYPE_MANUAL); }
-  void SetInterpolationTypeToNearest(){ this->SetInterpolationType(INTERPOLATION_TYPE_NEAREST); }
-  void SetInterpolationTypeToNearestLowBounded(){ this->SetInterpolationType(INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED); }
+  void SetInterpolationTypeToNearest() { this->SetInterpolationType(INTERPOLATION_TYPE_NEAREST); }
+  void SetInterpolationTypeToNearestLowBounded()
+  {
+    this->SetInterpolationType(INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED);
+  }
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the position portion
@@ -180,7 +181,7 @@ protected:
 
   // Control the interpolation type
   int InterpolationType;
-  void InterpolateTransformNearest(double t, vtkTransform *xform);
+  void InterpolateTransformNearest(double t, vtkTransform* xform);
 
   // Interpolators
   vtkCustomTupleInterpolator* PositionInterpolator;
@@ -198,7 +199,7 @@ protected:
 
 private:
   vtkCustomTransformInterpolator(const vtkCustomTransformInterpolator&); // Not implemented.
-  void operator=(const vtkCustomTransformInterpolator&);                   // Not implemented.
+  void operator=(const vtkCustomTransformInterpolator&);                 // Not implemented.
 };
 
 #endif

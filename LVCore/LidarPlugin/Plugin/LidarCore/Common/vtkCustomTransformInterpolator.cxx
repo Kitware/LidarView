@@ -16,16 +16,16 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkPatch/vtkCustomTupleInterpolator.h"
 #include "vtkProp3D.h"
 #include "vtkQuaternion.h"
 #include "vtkQuaternionInterpolator.h"
 #include "vtkTransform.h"
-#include "vtkPatch/vtkCustomTupleInterpolator.h"
-#include <list>
-#include <vector>
-#include <set>
 #include <algorithm>
 #include <iterator>
+#include <list>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkCustomTransformInterpolator);
 
@@ -73,11 +73,10 @@ struct vtkQTransform
 class vtkQTransformComparator
 {
 public:
-  bool operator () ( const vtkQTransform& transform1,
-                     const vtkQTransform& transform2 )
-    {
-      return transform1.Time < transform2.Time;
-    }
+  bool operator()(const vtkQTransform& transform1, const vtkQTransform& transform2)
+  {
+    return transform1.Time < transform2.Time;
+  }
 };
 
 // The list is arranged in increasing order in T
@@ -87,13 +86,15 @@ class vtkTransformList : public std::list<vtkQTransform>
 typedef vtkTransformList::iterator TransformListIterator;
 
 //----------------------------------------------------------------------------
-std::vector<std::vector<double> > vtkCustomTransformInterpolator::GetTransformList()
+std::vector<std::vector<double>> vtkCustomTransformInterpolator::GetTransformList()
 {
   this->InitializeInterpolation();
 
-  std::vector<std::vector<double> > transforms;
+  std::vector<std::vector<double>> transforms;
   // Okay, insert in sorted order
-  for (TransformListIterator iter = this->TransformList->begin(); iter != this->TransformList->end(); ++iter)
+  for (TransformListIterator iter = this->TransformList->begin();
+       iter != this->TransformList->end();
+       ++iter)
   {
     std::vector<double> currentTransform(7, 0);
     // time
@@ -182,9 +183,7 @@ int vtkCustomTransformInterpolator::GetNumberOfTransforms()
 }
 
 //----------------------------------------------------------------------------
-void vtkCustomTransformInterpolator::GetSample(int n,
-                                              vtkTransform *xform,
-                                              double& xformTime)
+void vtkCustomTransformInterpolator::GetSample(int n, vtkTransform* xform, double& xformTime)
 {
   if (this->TransformList->empty())
   {
@@ -202,8 +201,8 @@ void vtkCustomTransformInterpolator::GetSample(int n,
   xform->Identity();
   xform->Translate(this->TransformVector[n].P);
   double Q[4];
-  Q[0] = vtkMath::DegreesFromRadians(this->TransformVector[n].Q.GetRotationAngleAndAxis(Q+1));
-  xform->RotateWXYZ(Q[0],Q+1);
+  Q[0] = vtkMath::DegreesFromRadians(this->TransformVector[n].Q.GetRotationAngleAndAxis(Q + 1));
+  xform->RotateWXYZ(Q[0], Q + 1);
   xform->Scale(this->TransformVector[n].S);
 
   xformTime = this->TransformVector[n].Time;
@@ -398,9 +397,9 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
       this->RotationInterpolator = vtkQuaternionInterpolator::New();
     }
 
-    if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR
-             || this->InterpolationType == INTERPOLATION_TYPE_NEAREST
-             || this->InterpolationType == INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED)
+    if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR ||
+      this->InterpolationType == INTERPOLATION_TYPE_NEAREST ||
+      this->InterpolationType == INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED)
     {
       this->PositionInterpolator->SetInterpolationTypeToLinear();
       this->ScaleInterpolator->SetInterpolationTypeToLinear();
@@ -408,7 +407,8 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
       this->TransformVector.clear();
       this->TransformVector.resize(0);
       std::list<vtkQTransform>::iterator transform;
-      for (transform = this->TransformList->begin(); transform != this->TransformList->end(); ++transform)
+      for (transform = this->TransformList->begin(); transform != this->TransformList->end();
+           ++transform)
       {
         this->TransformVector.push_back(*transform);
       }
@@ -434,9 +434,9 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
     // Okay, now we can load the interpolators with data
     // Initialize the data pointers
     int nb = this->TransformList->size();
-    double *time = new double[nb];
-    double **Position = new double*[3];
-    double **Scale = new double*[3];
+    double* time = new double[nb];
+    double** Position = new double*[3];
+    double** Scale = new double*[3];
     for (int k = 0; k < 3; ++k)
     {
       Position[k] = new double[nb];
@@ -446,7 +446,7 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
     // Fill the data pointers
     TransformListIterator iter = this->TransformList->begin();
     int count = 0;
-    for ( ; iter != this->TransformList->end(); ++iter)
+    for (; iter != this->TransformList->end(); ++iter)
     {
       /*this->PositionInterpolator->AddTuple(iter->Time,iter->P);
       this->ScaleInterpolator->AddTuple(iter->Time,iter->S);*/
@@ -457,7 +457,7 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
       Scale[1][count] = iter->S[1];
       Scale[2][count] = iter->S[2];
       time[count] = iter->Time;
-      this->RotationInterpolator->AddQuaternion(iter->Time,iter->Q);
+      this->RotationInterpolator->AddQuaternion(iter->Time, iter->Q);
       count++;
     }
 
@@ -467,12 +467,12 @@ void vtkCustomTransformInterpolator::InitializeInterpolation()
 
     for (int k = 0; k < 3; ++k)
     {
-      delete [] Position[k];
-      delete [] Scale[k];
+      delete[] Position[k];
+      delete[] Scale[k];
     }
 
-    delete [] Position;
-    delete [] Scale;
+    delete[] Position;
+    delete[] Scale;
 
     this->Initialized = 1;
     this->InitializeTime.Modified();
@@ -487,8 +487,8 @@ void vtkCustomTransformInterpolator::InterpolateTransform(double t, vtkTransform
     return;
   }
 
-  if (this->InterpolationType == INTERPOLATION_TYPE_NEAREST
-      || this->InterpolationType == INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED)
+  if (this->InterpolationType == INTERPOLATION_TYPE_NEAREST ||
+    this->InterpolationType == INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED)
   {
     this->InterpolateTransformNearest(t, xform);
     return;
@@ -522,8 +522,7 @@ void vtkCustomTransformInterpolator::InterpolateTransform(double t, vtkTransform
 }
 
 //----------------------------------------------------------------------------
-void vtkCustomTransformInterpolator::InterpolateTransformNearest(double t,
-                                                    vtkTransform *xform)
+void vtkCustomTransformInterpolator::InterpolateTransformNearest(double t, vtkTransform* xform)
 {
   if (this->TransformList->empty())
   {
@@ -547,7 +546,8 @@ void vtkCustomTransformInterpolator::InterpolateTransformNearest(double t,
   vtkQTransform transform;
   transform.Time = t;
   std::vector<vtkQTransform>::iterator lowerBound;
-  lowerBound = std::lower_bound(this->TransformVector.begin(), this->TransformVector.end(), transform, comparatorTimeTransform);
+  lowerBound = std::lower_bound(
+    this->TransformVector.begin(), this->TransformVector.end(), transform, comparatorTimeTransform);
 
   if (this->InterpolationType == INTERPOLATION_TYPE_NEAREST_LOW_BOUNDED)
   {
@@ -568,7 +568,7 @@ void vtkCustomTransformInterpolator::InterpolateTransformNearest(double t,
     // lowerBound->Time - t should be positive
     // but adding std::abs makes the code more robust.
     if (lowerBound != this->TransformVector.begin() &&
-        t - (lowerBound - 1)->Time <= std::abs(lowerBound->Time - t))
+      t - (lowerBound - 1)->Time <= std::abs(lowerBound->Time - t))
     {
       lowerBound--;
     }
@@ -578,8 +578,8 @@ void vtkCustomTransformInterpolator::InterpolateTransformNearest(double t,
   xform->Identity();
   xform->Translate(lowerBound->P);
   double Q[4];
-  Q[0] = vtkMath::DegreesFromRadians(lowerBound->Q.GetRotationAngleAndAxis(Q+1));
-  xform->RotateWXYZ(Q[0],Q+1);
+  Q[0] = vtkMath::DegreesFromRadians(lowerBound->Q.GetRotationAngleAndAxis(Q + 1));
+  xform->RotateWXYZ(Q[0], Q + 1);
   xform->Scale(lowerBound->S);
 }
 
