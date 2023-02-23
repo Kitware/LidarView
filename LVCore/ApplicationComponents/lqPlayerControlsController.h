@@ -71,9 +71,8 @@ public slots:
   void onSeekFrame(int index);
   void onSeekTime(double time);
 
-  // cannot override as theses methods are not virtual, but not needed in our case
-  void onPreviousFrame();
-  void onNextFrame();
+  void onPreviousFrame() Q_DECL_OVERRIDE;
+  void onNextFrame() Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
   void speedChange(double);   // Signal speed has changed

@@ -111,7 +111,8 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
   // Connect additional Signals:
   if (scene)
   {
-    QObject::connect(this->getAnimationScene(), SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
+    QObject::connect(
+      this->getAnimationScene(), SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
     // frameCountChanged // Not necessary, timeStepsChanged() cover this case
     // cues
     // playModeChanged()
@@ -169,7 +170,7 @@ void lqPlayerControlsController::onPause()
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
-    Q_EMIT this->playing(paused);
+    Q_EMIT this->playing(paused, false);
   }
 }
 
@@ -204,7 +205,7 @@ void lqPlayerControlsController::onPlay()
       pqLiveSourceBehavior::pause();
     }
     // Manually notify toolbar
-    Q_EMIT this->playing(paused);
+    Q_EMIT this->playing(paused, false);
   }
 }
 //-----------------------------------------------------------------------------
