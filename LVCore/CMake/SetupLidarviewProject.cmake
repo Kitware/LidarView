@@ -68,7 +68,7 @@ if(NOT ParaView_DIR)
   message(FATAL_ERROR "Building with external Paraview not yet implemented")
 endif()
 
-find_package(ParaView REQUIRED)
+find_package(ParaView 5.11 REQUIRED)
 message(STATUS "Paraview-${ParaView_VERSION}")
 # WIP should check if EQUAL ${paraview_version}, in the event of from-source builds
 
