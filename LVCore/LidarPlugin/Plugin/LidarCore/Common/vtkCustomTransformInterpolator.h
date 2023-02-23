@@ -55,7 +55,7 @@
 class vtkTransform;
 class vtkMatrix4x4;
 class vtkProp3D;
-class vtkCustomTupleInterpolator;
+class vtkTupleInterpolator;
 class vtkQuaternionInterpolator;
 class vtkTransformList;
 struct vtkQTransform;
@@ -151,16 +151,16 @@ public:
   // of the transformation matrix. Note that you can modify the behavior of
   // the interpolator (linear vs spline interpolation; change spline basis)
   // by manipulating the interpolator instances.
-  virtual void SetPositionInterpolator(vtkCustomTupleInterpolator*);
-  vtkGetObjectMacro(PositionInterpolator, vtkCustomTupleInterpolator);
+  virtual void SetPositionInterpolator(vtkTupleInterpolator*);
+  vtkGetObjectMacro(PositionInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the scale portion
   // of the transformation matrix. Note that you can modify the behavior of
   // the interpolator (linear vs spline interpolation; change spline basis)
   // by manipulating the interpolator instances.
-  virtual void SetScaleInterpolator(vtkCustomTupleInterpolator*);
-  vtkGetObjectMacro(ScaleInterpolator, vtkCustomTupleInterpolator);
+  virtual void SetScaleInterpolator(vtkTupleInterpolator*);
+  vtkGetObjectMacro(ScaleInterpolator, vtkTupleInterpolator);
 
   // Description:
   // Set/Get the tuple interpolator used to interpolate the orientation portion
@@ -184,8 +184,8 @@ protected:
   void InterpolateTransformNearest(double t, vtkTransform* xform);
 
   // Interpolators
-  vtkCustomTupleInterpolator* PositionInterpolator;
-  vtkCustomTupleInterpolator* ScaleInterpolator;
+  vtkTupleInterpolator* PositionInterpolator;
+  vtkTupleInterpolator* ScaleInterpolator;
   vtkQuaternionInterpolator* RotationInterpolator;
 
   // Initialize the interpolating splines

@@ -4,16 +4,6 @@ message(STATUS "Building LidarCore with C++${CMAKE_CXX_STANDARD} standard")
 include(CMakeDependentOption)
 
 #-----------------------------------------------------------------------------
-# VTK Temporary Patches
-#-----------------------------------------------------------------------------
-#See https://gitlab.kitware.com/LidarView/lidarview-core/-/issues/36
-message(AUTHOR_WARNING "Until the 'Speedup interpolator' merge request is integrated to VTK, we provide the patch")
-set(interpolator_pach_until_vtk_update
-  vtkPatch/vtkCustomPiecewiseFunction.cxx
-  vtkPatch/vtkCustomTupleInterpolator.cxx
-)
-
-#-----------------------------------------------------------------------------
 # Option to hide/show external warning library
 #-----------------------------------------------------------------------------
 set(SYSTEM_OPTION)
@@ -244,7 +234,6 @@ endif()
 # Should dissociate back into wrapped / non-wrapped lists
 # LidarPlugin sources 
 list(APPEND lidarplugin_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/${interpolator_pach_until_vtk_update}
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/NetworkPacket.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vtkPacketFileWriter.cxx
   ${CMAKE_CURRENT_SOURCE_DIR}/Common/Network/vvPacketSender.cxx
