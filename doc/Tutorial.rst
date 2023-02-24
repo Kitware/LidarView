@@ -7,3 +7,5 @@ and exercises on how to use |LidarView|.
 .. toctree::
    :numbered:
    :maxdepth: 2
+
+   BasicUsage

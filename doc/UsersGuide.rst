@@ -1,4 +1,4 @@
-ParaView User's Guide
+LidarView User's Guide
 =====================
 
 .. toctree::
