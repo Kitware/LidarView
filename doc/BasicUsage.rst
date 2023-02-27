@@ -40,3 +40,31 @@ Color Controls
 View Controls
     These controls allow the user to set the prespective that the point cloud is
     viewed from.
+
+Opening PCAP File
+=================
+
+There are two ways to get Lidar data into LidarView. You can connect to a sensor
+steam or open a recorded sensor stream saved to a PCAP file. To open a PCAP file
+into LidarView click on the Open Data File button |OpenPCAP| in the Basic
+Controls section of the toolbar, select the PCAP file you wish to open and click
+OK, and then select the appropriate sensor interpeter and click OK. You should
+now see the first frame of the saved sensor data displayed in the main render
+view.
+
+.. |OpenPCAP| image:: ../Application/Ui/Widgets/images/WiresharkDoc-128.png
+   :height: 20px
+
+Playback Sensor Stream
+======================
+
+Now that we have loaded a saved sensor stream we can play it back. Click on the
+|Play| button in the Playback Controls to have LidarView playback the sensor
+stream. The playback can be paused at any time by clicking on the |Pause|
+button which replaces the |Play| button while the stream is advancing.
+
+.. |Play| image:: ../LVCore/ApplicationComponents/Icons/media-playback-start.png
+   :height: 20px
+
+.. |Pause| image:: ../LVCore/ApplicationComponents/Icons/media-playback-pause.png
+   :height: 20px
