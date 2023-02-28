@@ -3,9 +3,9 @@
 
 #include <queue>
 
-#include "vtkPolyDataAlgorithm.h"
-#include <vtkNew.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkNew.h>
+#include <vtkPolyDataAlgorithm.h>
 
 #include "LidarCoreModule.h"
 
@@ -22,26 +22,24 @@ public:
 
   //! @{
   //! @copydoc NumberOfTrailingFrames
-  vtkGetMacro(NumberOfTrailingFrames, unsigned int)
+  vtkGetMacro(NumberOfTrailingFrames, unsigned int);
   void SetNumberOfTrailingFrames(const unsigned int value);
   //! @}
 
   //! @{
   //! @copydoc UseCache
-  vtkGetMacro(UseCache, bool)
-  vtkSetMacro(UseCache, bool)
+  vtkGetMacro(UseCache, bool);
+  vtkSetMacro(UseCache, bool);
   //! @}
 
 protected:
   vtkTrailingFrame() = default;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  int RequestUpdateExtent(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   //! Number of previous timestep to display
@@ -54,7 +52,7 @@ private:
   //! Index of time step corresponding to PipelineTime
   int PipelineIndex = 0;
   //! Time index range that should be in the cache, it's e right half-open interval : [Tstart, Tend[
-  int CacheTimeRange[2] = {-1, -1};
+  int CacheTimeRange[2] = { -1, -1 };
   //! Last Time index required from the filter to its input filter
   int LastTimeProcessedIndex = -1;
   //! Indicate if the next time to process is after or before the last processed
@@ -72,7 +70,7 @@ private:
   bool LastCallWasRequestUpdateExtentCall = false;
 
   vtkTrailingFrame(const vtkTrailingFrame&); // not implemented
-  void operator=(const vtkTrailingFrame&); // not implemented
+  void operator=(const vtkTrailingFrame&);   // not implemented
 };
 
 #endif // VTKTRAILINGFRAME_H

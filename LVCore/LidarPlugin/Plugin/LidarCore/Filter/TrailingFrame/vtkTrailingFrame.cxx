@@ -1,8 +1,8 @@
 #include "vtkTrailingFrame.h"
 
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTrailingFrame)
@@ -20,7 +20,7 @@ void vtkTrailingFrame::SetNumberOfTrailingFrames(const unsigned int value)
 }
 
 //----------------------------------------------------------------------------
-int vtkTrailingFrame::FillOutputPortInformation(int port, vtkInformation *info)
+int vtkTrailingFrame::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -33,16 +33,16 @@ int vtkTrailingFrame::FillOutputPortInformation(int port, vtkInformation *info)
 
 //----------------------------------------------------------------------------
 int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-                                      vtkInformationVector** inputVector,
-                                      vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   // get the available time steps from source
   // This is done every time the number of timesteps is changed in the UI
   int nb_time_steps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  if (this->TimeSteps.size() == 0 || this->TimeSteps.size() != (unsigned int) nb_time_steps)
+  if (this->TimeSteps.size() == 0 || this->TimeSteps.size() != (unsigned int)nb_time_steps)
   {
-    double *time_steps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double* time_steps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->TimeSteps.assign(time_steps, time_steps + nb_time_steps);
   }
 
@@ -61,10 +61,11 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   if (this->TimeSteps.size() == 0)
   {
     vtkGenericWarningMacro("no time steps are available.\n Either the reader was not able parse "
-		           << "the data or :"
-			   << "If you are in playback mode: no lidar data are present in the .pcap file"
-			   << "If you are in stream mode: no data have been received from network");
-    this->LastTimeProcessedIndex = (LastTimeProcessedIndex+1) % (this->NumberOfTrailingFrames+1);
+      << "the data or :"
+      << "If you are in playback mode: no lidar data are present in the .pcap file"
+      << "If you are in stream mode: no data have been received from network");
+    this->LastTimeProcessedIndex =
+      (LastTimeProcessedIndex + 1) % (this->NumberOfTrailingFrames + 1);
     return 1;
   }
 
@@ -84,18 +85,18 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     // get the index corresponding to the requested pipeline time
     // find the index of the first time step that is not less than pipeline time
     this->PipelineIndex = std::distance(this->TimeSteps.begin(),
-                                        std::lower_bound(this->TimeSteps.begin(),
-                                                         this->TimeSteps.end(),
-                                                         this->PipelineTime));
+      std::lower_bound(this->TimeSteps.begin(), this->TimeSteps.end(), this->PipelineTime));
     // check if the previous index is closer
     if (this->PipelineIndex > 0)
     {
-      if (this->TimeSteps[this->PipelineIndex] - this->PipelineTime > this->PipelineTime - this->TimeSteps[this->PipelineIndex - 1])
+      if (this->TimeSteps[this->PipelineIndex] - this->PipelineTime >
+        this->PipelineTime - this->TimeSteps[this->PipelineIndex - 1])
         this->PipelineIndex -= 1;
     }
     // save old TimeRange and update new one
-    int previousCacheTimeRange[2] = {this->CacheTimeRange[0], this->CacheTimeRange[1]};
-    this->CacheTimeRange[0] = std::max(this->PipelineIndex - static_cast<int>(this->NumberOfTrailingFrames), 0);
+    int previousCacheTimeRange[2] = { this->CacheTimeRange[0], this->CacheTimeRange[1] };
+    this->CacheTimeRange[0] =
+      std::max(this->PipelineIndex - static_cast<int>(this->NumberOfTrailingFrames), 0);
     this->CacheTimeRange[1] = this->PipelineIndex + 1;
 
     // handle case when changing NumberOfTrailingFrame
@@ -107,11 +108,13 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
       int previousNumberOfTrailingFrame = oldCache->GetNumberOfBlocks() - 1;
       this->Cache->Initialize();
       for (this->LastTimeProcessedIndex = this->CacheTimeRange[1] - 1;
-           this->LastTimeProcessedIndex > this->CacheTimeRange[1] - 1 - previousNumberOfTrailingFrame &&
+           this->LastTimeProcessedIndex >
+             this->CacheTimeRange[1] - 1 - previousNumberOfTrailingFrame &&
            this->LastTimeProcessedIndex > this->CacheTimeRange[0];
            this->LastTimeProcessedIndex--)
       {
-        unsigned int previousIndex = this->LastTimeProcessedIndex % (previousNumberOfTrailingFrame + 1);
+        unsigned int previousIndex =
+          this->LastTimeProcessedIndex % (previousNumberOfTrailingFrame + 1);
         unsigned int newIndex = this->LastTimeProcessedIndex % (this->NumberOfTrailingFrames + 1);
         this->Cache->SetBlock(newIndex, oldCache->GetBlock(previousIndex));
       }
@@ -121,7 +124,8 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     else if (this->CacheTimeRange[1] < previousCacheTimeRange[1])
     {
       this->Direction = -1;
-      this->LastTimeProcessedIndex = std::max(0, std::min(this->CacheTimeRange[1], previousCacheTimeRange[0]) - 1);
+      this->LastTimeProcessedIndex =
+        std::max(0, std::min(this->CacheTimeRange[1], previousCacheTimeRange[0]) - 1);
     }
     // handle case when jumping forward
     else if (this->CacheTimeRange[1] > previousCacheTimeRange[1])
@@ -138,18 +142,18 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-              this->TimeSteps[this->LastTimeProcessedIndex]);
+    this->TimeSteps[this->LastTimeProcessedIndex]);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkTrailingFrame::RequestData(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  vtkPolyData* input = vtkPolyData::GetData(inputVector[0],0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   // Workaround to handle that multiple RequestUpdateExtent can be call
@@ -166,8 +170,8 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     return 1;
   }
-  if ((this->LastTimeProcessedIndex == this->CacheTimeRange[0] && this->Direction == -1)
-      || (this->LastTimeProcessedIndex == this->CacheTimeRange[1]-1 && this->Direction == 1))
+  if ((this->LastTimeProcessedIndex == this->CacheTimeRange[0] && this->Direction == -1) ||
+    (this->LastTimeProcessedIndex == this->CacheTimeRange[1] - 1 && this->Direction == 1))
   {
     // Stop the pipeline loop
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
@@ -181,8 +185,7 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
 
     // reset some variable and pipeline time
     this->FirstFilterIteration = true;
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
-                this->PipelineTime);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->PipelineTime);
   }
   else
   {
@@ -193,9 +196,10 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
   // copy the input in the multiblock
   vtkNew<vtkPolyData> currentFrame;
   currentFrame->ShallowCopy(input);
-  if(this->NumberOfTrailingFrames)
+  if (this->NumberOfTrailingFrames)
   {
-    unsigned int index = static_cast<unsigned int>(this->LastTimeProcessedIndex) % (this->NumberOfTrailingFrames + 1);
+    unsigned int index =
+      static_cast<unsigned int>(this->LastTimeProcessedIndex) % (this->NumberOfTrailingFrames + 1);
     this->Cache->SetBlock(index, currentFrame.GetPointer());
   }
   // handle case when no trailing frame
