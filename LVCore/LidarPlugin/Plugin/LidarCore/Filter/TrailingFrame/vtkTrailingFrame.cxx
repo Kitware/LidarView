@@ -37,7 +37,14 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  // get the available time steps from source
+
+  // In stream mode we don't need the RequestUpdateExtent step
+  if (this->UseStreamMode)
+  {
+    return 1;
+  }
+
+  // Get the available time steps from source
   // This is done every time the number of timesteps is changed in the UI
   int nb_time_steps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (this->TimeSteps.size() == 0 || this->TimeSteps.size() != (unsigned int)nb_time_steps)
@@ -55,21 +62,22 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   this->LastCallWasRequestUpdateExtentCall = true;
 
   // If the TimeSteps size is still zero, it means
-  // that no time_steps has been filled by the reader /
-  // stream. Hence, either no lidar data was stored in the
-  // .pcap or received throught ethernet
+  // that no time_steps has been filled by the reader.
+  // Hence, no lidar data was stored in the .pcap.
+  // It could also means that the user is tring to use
+  // this filter in stream mode without the option.
   if (this->TimeSteps.size() == 0)
   {
-    vtkGenericWarningMacro("no time steps are available.\n Either the reader was not able parse "
-      << "the data or :"
-      << "If you are in playback mode: no lidar data are present in the .pcap file"
-      << "If you are in stream mode: no data have been received from network");
+    vtkGenericWarningMacro("No time steps are available, it could either mean:\n"
+      << "- If you are in playback mode: the reader was not able parse the data "
+      << "no lidar data are present in the .pcap file\n"
+      << "- If you are in stream mode: you need to activate the UseStreamMode option.");
     this->LastTimeProcessedIndex =
       (LastTimeProcessedIndex + 1) % (this->NumberOfTrailingFrames + 1);
     return 1;
   }
 
-  // first loop
+  // Trigger when all trailing frames has been setted
   if (this->FirstFilterIteration)
   {
     // Delete the cache so it cannot be used
@@ -135,7 +143,6 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     }
     this->FirstFilterIteration = false;
   }
-  // not first loop
   else
   {
     this->LastTimeProcessedIndex += this->Direction;
@@ -152,18 +159,74 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  if (this->UseStreamMode)
+  {
+    return this->ProcessStreamingMode(request, inputVector, outputVector);
+  }
+  else
+  {
+    return this->ProcessReadingMode(request, inputVector, outputVector);
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkTrailingFrame::ProcessStreamingMode(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
+
+  vtkNew<vtkPolyData> currentFrame;
+  currentFrame->ShallowCopy(input);
+
+  unsigned int StreamNumberOfTrailingFrames = this->NumberOfTrailingFrames + 1;
+
+  // Delete excess frames
+  if (this->CurrentTrailingFramesNumber > StreamNumberOfTrailingFrames)
+  {
+    this->Cache->SetNumberOfBlocks(StreamNumberOfTrailingFrames + 1);
+    this->CurrentTrailingFramesNumber = StreamNumberOfTrailingFrames;
+  }
+
+  this->Cache->SetBlock(this->CurrentTrailingFramesNumber, currentFrame.GetPointer());
+
+  // Re-order output blocks, to do a queue FIFO
+  if (this->CurrentTrailingFramesNumber == StreamNumberOfTrailingFrames)
+  {
+    for (unsigned int i = 0; i < this->CurrentTrailingFramesNumber; i++)
+    {
+      this->Cache->SetBlock(i, this->Cache->GetBlock(i + 1));
+    }
+  }
+
+  if (this->CurrentTrailingFramesNumber < StreamNumberOfTrailingFrames)
+  {
+    this->CurrentTrailingFramesNumber += 1;
+  }
+
+  output->ShallowCopy(this->Cache.GetPointer());
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
   vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   // Workaround to handle that multiple RequestUpdateExtent can be call
   // The filter made the assumption that each RequestUpdateExtent is follow by a RequestData
-  LastCallWasRequestUpdateExtentCall = false;
+  this->LastCallWasRequestUpdateExtentCall = false;
 
   // If the TimeSteps size is still zero, it means
-  // that no time_steps has been filled by the reader /
-  // stream. Hence, either no lidar data was stored in the
-  // .pcap or received throught ethernet
+  // that no time_steps has been filled by the reader.
+  // Hence, no lidar data was stored in the .pcap.
+  // It could also means that the user is tring to use
+  // this filter in stream mode without the option.
   if (this->TimeSteps.size() == 0)
   {
     // Stop the pipeline loop
@@ -196,7 +259,7 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
   // copy the input in the multiblock
   vtkNew<vtkPolyData> currentFrame;
   currentFrame->ShallowCopy(input);
-  if (this->NumberOfTrailingFrames)
+  if (this->NumberOfTrailingFrames != 0)
   {
     unsigned int index =
       static_cast<unsigned int>(this->LastTimeProcessedIndex) % (this->NumberOfTrailingFrames + 1);

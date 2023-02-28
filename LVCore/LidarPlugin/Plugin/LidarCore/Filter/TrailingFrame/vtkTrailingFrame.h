@@ -27,6 +27,12 @@ public:
   //! @}
 
   //! @{
+  //! @copydoc UseStreamMode
+  vtkGetMacro(UseStreamMode, bool);
+  vtkSetMacro(UseStreamMode, bool);
+  //! @}
+
+  //! @{
   //! @copydoc UseCache
   vtkGetMacro(UseCache, bool);
   vtkSetMacro(UseCache, bool);
@@ -46,6 +52,8 @@ private:
   unsigned int NumberOfTrailingFrames = 0;
   //! Should the internal cache be used for speed
   bool UseCache = true;
+  //! Use TrailingFrame filter in stream mode
+  bool UseStreamMode = false;
 
   //! Original pipeline time which must be restored after modifying the input filter time
   double PipelineTime = 0;
@@ -57,6 +65,8 @@ private:
   int LastTimeProcessedIndex = -1;
   //! Indicate if the next time to process is after or before the last processed
   int Direction = 1;
+  //! In stream keep track of current number of trailing frames
+  unsigned int CurrentTrailingFramesNumber = 0;
   //! Cache to save ouput previously produced by the filter
   vtkNew<vtkMultiBlockDataSet> Cache;
   //! List of available time steps from the source
@@ -68,6 +78,13 @@ private:
   // Workaround to handle that multiple RequestUpdateExtent can be call
   // The filter made the assumption that each RequestUpdateExtent is follow by a RequestData
   bool LastCallWasRequestUpdateExtentCall = false;
+
+  int ProcessReadingMode(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  int ProcessStreamingMode(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   vtkTrailingFrame(const vtkTrailingFrame&); // not implemented
   void operator=(const vtkTrailingFrame&);   // not implemented

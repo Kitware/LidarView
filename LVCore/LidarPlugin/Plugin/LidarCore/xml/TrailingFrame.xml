@@ -34,6 +34,18 @@
       </IntVectorProperty>
 
       <IntVectorProperty
+          name="UseStreamMode"
+          animateable="0"
+          command="SetUseStreamMode"
+          default_values="0"
+          number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Use the trailing frame filter stream data.  
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
           name="UseCache"
           animateable="0"
           command="SetUseCache"
@@ -43,7 +55,7 @@
         <BooleanDomain name="bool" />
         <Documentation>
           Use an internal cache for speed up. If a cache is used, some artefact may appear if
-          the input for previous timestep change
+          the input for previous timestep change. Does not have an impact in stream mode.
         </Documentation>
       </IntVectorProperty>
 
