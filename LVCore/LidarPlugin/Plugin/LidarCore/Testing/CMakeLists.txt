@@ -141,21 +141,3 @@ if (LIDARVIEW_BUILD_MIDHOG)
     ${TEST_BINARY_DIR}/TestMIDHOG
   )
 endif()
-
-# OldSlam, kept for future reference
-#if (ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)
-#  custom_add_executable(TestSlam TestSlam.cxx)
-#  add_test(TestSlam
-#    ${TEST_BINARY_DIR}/TestSlam
-#    ${data_dir}/Slam/VLP-16_slam_test_data.pcap
-#    ${data_dir}/Slam/RefSlam.vtp
-#    ${CMAKE_SOURCE_DIR}/share/VLP-16.xml
-#  )
-#
-#  custom_add_executable(TestTrajectoryReoptimization TestTrajectoryReoptimization.cxx)
-#  target_link_libraries(TestTrajectoryReoptimization LidarCore)
-#  add_test(TestTrajectoryReoptimization
-#    ${TEST_BINARY_DIR}/TestTrajectoryReoptimization
-#    ${data_dir}/trajectories/mm05_reoptimization
-#  )
-#endif(ENABLE_pcl AND ENABLE_ceres AND ENABLE_nanoflann)

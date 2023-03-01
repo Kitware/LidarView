@@ -224,13 +224,6 @@ if (LIDARVIEW_BUILD_PCLMISCS)
     )
 endif()
 
-# Old Slam sources
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/KalmanFilter.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel/MotionModel.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/TrajectoryReoptimization.cxx
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
-# ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization/MotionModel
-
 # Should dissociate back into wrapped / non-wrapped lists
 # LidarPlugin sources 
 list(APPEND lidarplugin_sources
@@ -321,7 +314,6 @@ list(APPEND plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrajectoryReoptimization
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid
   )
 
