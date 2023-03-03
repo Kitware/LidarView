@@ -1,5 +1,5 @@
 LidarView User's Guide
-=====================
+======================
 
 .. toctree::
    :numbered:

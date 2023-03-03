@@ -3,10 +3,10 @@
 Basic Usage
 ###########
 
-Let us get started using |LidarView|. In order to follow along, you will
-need your own installation of |LidarView|. If you do not already have |LidarView|,
+Let us get started using **LidarView**. In order to follow along, you will
+need your own installation of **LidarView**. If you do not already have **LidarView**,
 you can download a copy from https://gitlab.kitware.com/LidarView/lidarview/-/releases.
-|LidarView| launches like most other applications. On Windows, the
+**LidarView** launches like most other applications. On Windows, the
 launcher is located in the start menu. On Macintosh, open the
 application bundle that you installed. On Linux, execute ``LidarView`` from a
 command prompt (you will need to set your path to point to where you unpacked
@@ -17,9 +17,9 @@ User Interface
 
 .. figure:: ./images/UserInterface.png
 
-The |LidarView| GUI conforms to the platform on which it is running, but on
+The **LidarView** GUI conforms to the platform on which it is running, but on
 all platforms it behaves basically the same. The layout shown here is
-the default layout given when |LidarView| is first started. The GUI
+the default layout given when **LidarView** is first started. The GUI
 includes the following components in the toolbar at the top of the application.
 
 Basic Controls
