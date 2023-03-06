@@ -5,7 +5,7 @@ Basic Usage
 
 Let us get started using **LidarView**. In order to follow along, you will
 need your own installation of **LidarView**. If you do not already have **LidarView**,
-you can download a copy from https://gitlab.kitware.com/LidarView/lidarview/-/releases.
+you can download the current release of LidarView_.
 **LidarView** launches like most other applications. On Windows, the
 launcher is located in the start menu. On Macintosh, open the
 application bundle that you installed. On Linux, execute ``LidarView`` from a
@@ -64,7 +64,8 @@ into LidarView click on the Open PCAP File button |OpenPCAP| in the Open Data
 section of the toolbar, select the PCAP file you wish to open and click
 OK, and then select the appropriate sensor interpeter and click OK. You should
 now see the first frame of the saved sensor data displayed in the main render
-view.
+view. If you do not have access to a PCAP with sensor data you can download an
+example: CarLoop_VLP16_.
 
 .. |OpenPCAP| image:: ../Application/Ui/Widgets/images/WiresharkDoc-128.png
    :height: 20px
@@ -82,3 +83,6 @@ button which replaces the |Play| button while the stream is advancing.
 
 .. |Pause| image:: ../LVCore/ApplicationComponents/Icons/media-playback-pause.png
    :height: 20px
+
+.. _LidarView: https://gitlab.kitware.com/LidarView/lidarview/-/releases
+.. _CarLoop_VLP16: https://drive.google.com/file/d/1eARfsQWMcAa34GBHfDOs1JQ7nazQM3Jo/view?usp=share_link>
