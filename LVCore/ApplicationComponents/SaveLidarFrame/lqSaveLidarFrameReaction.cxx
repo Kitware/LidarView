@@ -236,12 +236,14 @@ QString lqSaveLidarFrameReaction::GenerateFileName(QString baseName, double time
   QString timeInfo = QString::number(timestep);
   if(this->FileNameWithFrameNumber)
   {
-    timeInfo = " (Frame " + QString::number(GetFrameIndexOfTimestamp(timestep)) + ")";
+    // format filename in a way that is readable again as a time sequence when re-opening the data 
+    timeInfo = "_" + QString::number(GetFrameIndexOfTimestamp(timestep));
   }
 
   QString sFilenameMainString = baseName + timeInfo;
 
   QString sFilenameWithoutExt = sFilenameMainString;
+  // Add suffix to the new file in case they already exist with the base name we would like to give it 
   if (QFileInfo(QFile(sFilenameWithoutExt + "." + this->Extension)).exists())
   {
     int nSuffix = 1;
