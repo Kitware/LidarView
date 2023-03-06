@@ -20,12 +20,26 @@ User Interface
 The **LidarView** GUI conforms to the platform on which it is running, but on
 all platforms it behaves basically the same. The layout shown here is
 the default layout given when **LidarView** is first started. The GUI
-includes the following components in the toolbar at the top of the application.
+includes a Menu Bar as well as a Tool Bar that give access to the various
+features of the application.
 
-Basic Controls
-    This part of toolbar includes buttons to manage opening and saving files and
-    to turn additional windows in the GUI such as the python console and the
-    spreadsheet view.
+Menu Bar
+    This gives access to File related options like opening PCAP files and
+    sensor streams, a Tools and View menu, and a general Help menu.
+
+.. figure:: ./images/MenuAndToolbar.png
+
+The Tool Bar can be broked up into several separate sections described below.
+
+Open Data Toolbar
+    This part of the toolbar includes buttons to manage opening PCAP files and
+    sensor streams, loading and saving **LidarView** state files, and importing
+    calibration files.
+
+Shortcuts Toolbar
+    This section of the toolbar gives quick access to the spreadsheet view and
+    the python and error consoles as wells as the ability to selects points from
+    the current active data.
 
 Playback Controls
     These controls allow the user to temporally navigate the Lidar data. The
@@ -46,8 +60,8 @@ Opening PCAP File
 
 There are two ways to get Lidar data into LidarView. You can connect to a sensor
 steam or open a recorded sensor stream saved to a PCAP file. To open a PCAP file
-into LidarView click on the Open Data File button |OpenPCAP| in the Basic
-Controls section of the toolbar, select the PCAP file you wish to open and click
+into LidarView click on the Open PCAP File button |OpenPCAP| in the Open Data
+section of the toolbar, select the PCAP file you wish to open and click
 OK, and then select the appropriate sensor interpeter and click OK. You should
 now see the first frame of the saved sensor data displayed in the main render
 view.
