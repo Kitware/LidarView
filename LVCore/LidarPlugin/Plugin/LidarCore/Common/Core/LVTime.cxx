@@ -1,4 +1,4 @@
-#include "Common/LVTime.h"
+#include "LVTime.h"
 
 double GetElapsedTime(const timeval& now)
 {

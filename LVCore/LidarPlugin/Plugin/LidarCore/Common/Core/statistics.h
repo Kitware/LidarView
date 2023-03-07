@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <numeric>
+#include <algorithm>
 
 
 // source: https://stackoverflow.com/questions/1719070

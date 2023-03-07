@@ -5,11 +5,12 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
-#include <vtkCustomTransformInterpolator.h>
 
 #include <Eigen/Geometry>
 
-#include "LidarCoreModule.h"
+#include "vtkCustomTransformInterpolator.h"
+
+#include "lvCommonCoreModule.h"
 
 /**
  * @brief The vtkTemporalTransforms class store some vtkTransform associated with time
@@ -24,7 +25,7 @@
  * It can be used to pass an vtkTransformInterpolator between 2 filter: a filter inherit from
  * vtkAlgorithm, and it can only take a vtkDataObject as input/output.
  */
-class LIDARCORE_EXPORT vtkTemporalTransforms : public vtkPolyData
+class LVCOMMONCORE_EXPORT vtkTemporalTransforms : public vtkPolyData
 {
 public:
   static vtkTemporalTransforms *New();

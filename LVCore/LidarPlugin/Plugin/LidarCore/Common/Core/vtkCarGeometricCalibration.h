@@ -26,12 +26,12 @@
 // alternated with relatively sharp turns (though not necessary Manatthan like).
 
 #include <vtkSmartPointer.h>
-#include <vtkCustomTransformInterpolator.h>
 #include <Eigen/SVD>
 
-#include "LidarCoreModule.h"
+#include "lvCommonCoreModule.h"
 #include "vtkTemporalTransforms.h"
-#include "Common/statistics.h"
+#include "statistics.h"
+#include "vtkCustomTransformInterpolator.h"
 
 /**
 * \brief This function identifies turns in the pose trajectory of a car-like
@@ -108,7 +108,7 @@ std::vector<std::vector<double>> ComputeTurns(
 * \param ransacValidationRatio between 0 and 1, should be taken as big as
 * possible but I had to lower it down to 0.15 for some real life datasets.
 **/
-void LIDARCORE_EXPORT ComputeCarCalibrationRotationScale(
+void LVCOMMONCORE_EXPORT ComputeCarCalibrationRotationScale(
         const vtkSmartPointer<vtkTemporalTransforms> reference,
         const vtkSmartPointer<vtkTemporalTransforms> aligned,
         double curveTreshold,
