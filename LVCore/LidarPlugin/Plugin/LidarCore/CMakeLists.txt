@@ -86,7 +86,7 @@ list(APPEND LIDARPLUGIN_DEPS              ${Boost_LIBRARIES})
 #--------------------------------------
 option(ENABLE_pcl "PCL will be required for filters using pcl (PCLRansacFilter, Slam, ...)" OFF)
 if (ENABLE_pcl)
-  find_package(PCL REQUIRED COMPONENTS common kdtree registration io)
+  find_package(PCL REQUIRED COMPONENTS common kdtree registration io sample_consensus)
   
   #WIP not clean #contains a NIP "-Dno-qhull"
   add_definitions(${PCL_DEFINITIONS})
@@ -143,19 +143,17 @@ set(plugin_include_dirs)
 # CalibrationFromPoses
 cmake_dependent_option(LIDARVIEW_BUILD_CALIBFROMPOSES "Build CalibrationFromPoses" ON "Ceres_FOUND" OFF)
 if(LIDARVIEW_BUILD_CALIBFROMPOSES)
-  list(APPEND lidarplugin_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses/vtkCalibrationFromPoses.cxx
+  list(APPEND lidarplugin_classes
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses/vtkCalibrationFromPoses
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper/vtkTemporalTransformsRemapper #wipwip
     ) 
   list(APPEND lidarplugin_xml
     xml/CalibrationFromPoses.xml
+    xml/TemporalTransformsRemapper.xml
     )
     
   list(APPEND plugin_include_dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/Filter/CalibrationFromPoses ) #wip this is wrongly placed
-
-  list(APPEND lidarplugin_classes
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper/vtkTemporalTransformsRemapper #wipwip
-    )
     
   list(APPEND lidarplugin_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/Common/Calib/Geometric/vtkGeometricCalibration.cxx
@@ -166,10 +164,10 @@ endif()
 # OpenCV extensions
 cmake_dependent_option(LIDARVIEW_BUILD_OPENCVEXTENSIONS "Build OpenCV extensions" ON "OpenCV_FOUND" OFF)
 if (LIDARVIEW_BUILD_OPENCVEXTENSIONS)
-  list(APPEND lidarplugin_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkPCAPImageReader.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkOpenCVVideoReader.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/OpenCVImageMapper/vtkOpenCVImageMapper.cxx
+  list(APPEND lidarplugin_classes
+    ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkPCAPImageReader
+    ${CMAKE_CURRENT_SOURCE_DIR}/IO/Camera/vtkOpenCVVideoReader
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/OpenCVImageMapper/vtkOpenCVImageMapper
     )
   list(APPEND lidarplugin_xml
     xml/PCAPImageReader.xml
@@ -183,9 +181,9 @@ endif()
 # CloudTools
 cmake_dependent_option(LIDARVIEW_BUILD_CLOUDTOOLS "Build CloudTools" ON "nanoflann_FOUND" OFF)
 if (LIDARVIEW_BUILD_CLOUDTOOLS)
-  list(APPEND lidarplugin_sources
-       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn.cxx
-       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering.cxx
+  list(APPEND lidarplugin_classes
+       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn/vtkSeparateCloudKnn
+       ${CMAKE_CURRENT_SOURCE_DIR}/Filter/DBSCANClustering/vtkDBSCANClustering
        )
   list(APPEND lidarplugin_xml
        xml/SeparateCloudKnn.xml
@@ -213,8 +211,8 @@ endif()
 # PCL Miscs
 cmake_dependent_option(LIDARVIEW_BUILD_PCLMISCS "Build PCL Miscs" ON "PCL_FOUND" OFF)
 if (LIDARVIEW_BUILD_PCLMISCS)
-  list(APPEND lidarplugin_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel.cxx )
+  list(APPEND lidarplugin_classes
+    ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel/vtkPCLRansacModel )
   list(APPEND lidarplugin_xml
     xml/PCLRansacModel.xml
     )
@@ -274,7 +272,6 @@ list(APPEND lidarplugin_xml
   xml/TemporalTransformsReader.xml
   xml/TemporalTransformsWriter.xml
   xml/TemporalTransformsApplier.xml
-  xml/TemporalTransformsRemapper.xml
   xml/LASFileWriter.xml
   xml/OpenCVVideoReader.xml
   )
@@ -312,6 +309,7 @@ list(APPEND plugin_include_dirs
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TrailingFrame
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/SeparateCloudKnn
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsApplier
+  ${CMAKE_CURRENT_SOURCE_DIR}/Filter/TemporalTransformsRemapper
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/ProcessingSample
   ${CMAKE_CURRENT_SOURCE_DIR}/Filter/PCLRansacModel
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid
@@ -325,7 +323,6 @@ list(APPEND plugin_include_dirs
 #  ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource.h
 #  )
 
-set(lidarplugin_classes)
 list(APPEND lidarplugin_classes
   ${CMAKE_CURRENT_SOURCE_DIR}/Source/Grid/vtkGridSource
   ${CMAKE_CURRENT_SOURCE_DIR}/IO/GPS-IMU/Applanix/vtkApplanixPositionReader
