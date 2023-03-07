@@ -18,7 +18,9 @@
 //=========================================================================
 
 // LOCAL
-#include "Common/vtkOpenCVConversions.h"
+#include "vtkOpenCVConversions.h"
+
+// OPENCV
 #include <opencv2/imgproc.hpp>
 
 // VTK

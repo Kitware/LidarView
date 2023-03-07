@@ -27,7 +27,7 @@
 // OPENCV
 #include <opencv2/core.hpp>
 
-#include "LidarCoreModule.h"
+#include "lvCommonOpenCVModule.h"
 
 /**
    * @brief CvImageToVtkImage converts a OpenCV BGR CV_8UC3 image to a vtkImageData
@@ -42,7 +42,7 @@
    * correct dimensions
    * @return true iff the conversion succeeds
    */
-bool LIDARCORE_EXPORT CvImageToVtkImage(const cv::Mat& inImg, vtkSmartPointer<vtkImageData> outImg);
+bool LVCOMMONOPENCV_EXPORT CvImageToVtkImage(const cv::Mat& inImg, vtkSmartPointer<vtkImageData> outImg);
 
 /**
    * @brief CvImageToVtkImage converts a OpenCV BGR CV_8UC3 image to a vtkImageData
@@ -52,7 +52,7 @@ bool LIDARCORE_EXPORT CvImageToVtkImage(const cv::Mat& inImg, vtkSmartPointer<vt
    * for error on the colorspace). This is the type of cv::Mat you get when
    * reading a JPEG/PNG image with colors.
    */
-vtkSmartPointer<vtkImageData> LIDARCORE_EXPORT CvImageToVtkImage(const cv::Mat& inImg);
+vtkSmartPointer<vtkImageData> LVCOMMONOPENCV_EXPORT CvImageToVtkImage(const cv::Mat& inImg);
 
 /**
    * @brief VtkImageToCVImage converts a 2D vtkImageData (depth == 1) with only
@@ -64,7 +64,7 @@ vtkSmartPointer<vtkImageData> LIDARCORE_EXPORT CvImageToVtkImage(const cv::Mat& 
    * This is needed because vtkImages have their origin in the bottom left corner
    * of the image, where as cv::Mat have their origin in the top left corner of the image.
    */
-cv::Mat LIDARCORE_EXPORT VtkImageToCvImage(vtkSmartPointer<vtkImageData> inImg,
+cv::Mat LVCOMMONOPENCV_EXPORT VtkImageToCvImage(vtkSmartPointer<vtkImageData> inImg,
                           bool flipHorizontally = true);
 
 #endif // VTK_OPENCV_CONVERSIONS_H

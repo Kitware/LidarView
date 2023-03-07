@@ -1,0 +1,9 @@
+NAME
+  LidarView::CommonOpenCV
+LIBRARY_NAME
+  lvCommonOpenCV
+CONDITION
+  LIDARVIEW_USE_OPENCV
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
