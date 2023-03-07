@@ -23,13 +23,13 @@
 // VTK
 #include <vtkPolyDataAlgorithm.h>
 
-#include "LidarCoreModule.h"
+#include "lvFiltersCalibrationModule.h"
 
 /**
  * @brief vtkLaplacianInfilling fill missing data in an image
  *        solving the Dirichlet problem.
  */
-class LIDARCORE_EXPORT vtkCalibrationFromPoses : public vtkPolyDataAlgorithm
+class LVFILTERSCALIBRATION_EXPORT vtkCalibrationFromPoses : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCalibrationFromPoses *New();
