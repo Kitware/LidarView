@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "LidarCoreModule.h"
+#include "lvIONetworkModule.h"
 
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
@@ -29,7 +29,7 @@ class vtkPacketFileReader;
  *        To send a pcap file multiples times, a new vvPacketSender should be created each time.
 */
 
-class LIDARCORE_EXPORT vvPacketSender
+class LVIONETWORK_EXPORT vvPacketSender
 {
 public:
   vvPacketSender(std::string pcapfile, std::string destinationio = "127.0.0.1",

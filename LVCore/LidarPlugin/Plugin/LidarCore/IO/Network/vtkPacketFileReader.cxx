@@ -1,4 +1,4 @@
-#include "Common/Network/vtkPacketFileReader.h"
+#include "vtkPacketFileReader.h"
 
 #include <iostream>
 #include <algorithm>

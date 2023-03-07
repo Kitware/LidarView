@@ -1,0 +1,14 @@
+NAME
+  LidarView::IONetwork
+LIBRARY_NAME
+  lvIONetwork
+CONDITION
+  LIDARVIEW_USE_PCAP
+DEPENDS
+  Boost::system
+  Boost::thread
+  LidarView::CommonCore
+  LidarView::IOCore
+  PCAP::pcap
+  VTK::CommonCore
+  VTK::CommonExecutionModel

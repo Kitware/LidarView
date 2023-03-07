@@ -15,7 +15,7 @@
 // limitations under the License.
 //=========================================================================
 
-#include "IO/vtkStream.h"
+#include "vtkStream.h"
 
 #include <vtksys/SystemTools.hxx>
 

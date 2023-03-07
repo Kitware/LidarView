@@ -32,14 +32,15 @@
 #ifndef __vtkPacketFileWriter_h
 #define __vtkPacketFileWriter_h
 
-#include "LidarCoreModule.h"
 #include "NetworkPacket.h"
 
 #include <pcap.h>
 #include <string>
 #include <vector>
 
-class LIDARCORE_EXPORT vtkPacketFileWriter
+#include "lvIONetworkModule.h"
+
+class LVIONETWORK_EXPORT vtkPacketFileWriter
 {
 public:
   vtkPacketFileWriter();

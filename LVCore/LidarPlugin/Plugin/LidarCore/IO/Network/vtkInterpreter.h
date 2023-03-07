@@ -18,11 +18,11 @@
 
 #include <vtkAlgorithm.h>
 
-#include "LidarCoreModule.h"
+#include "lvIONetworkModule.h"
 
 class vtkTransform;
 
-class LIDARCORE_EXPORT vtkInterpreter : public vtkAlgorithm
+class LVIONETWORK_EXPORT vtkInterpreter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkInterpreter, vtkAlgorithm)

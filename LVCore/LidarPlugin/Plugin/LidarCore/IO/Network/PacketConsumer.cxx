@@ -4,10 +4,11 @@
 #include <cassert>
 
 #include "NetworkPacket.h"
+#include "LVTime.h"
+
 #include "SynchronizedQueue.h"
-#include "IO/vtkInterpreter.h"
-#include "IO/vtkStream.h"
-#include "Common/LVTime.h"
+#include "vtkInterpreter.h"
+#include "vtkStream.h"
 
 //----------------------------------------------------------------------------
 PacketConsumer::PacketConsumer(vtkStream* stream)

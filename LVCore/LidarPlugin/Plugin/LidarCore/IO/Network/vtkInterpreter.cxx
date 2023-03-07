@@ -4,7 +4,7 @@
 #include <vtkTransform.h>
 #include <algorithm>
 
-#include "IO/vtkInterpreter.h"
+#include "vtkInterpreter.h"
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkInterpreter, SensorTransform, vtkTransform)

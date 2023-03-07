@@ -1,4 +1,5 @@
 #include "NetworkPacket.h"
+
 #include <cstring>
 #include <iostream>
 

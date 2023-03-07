@@ -32,10 +32,9 @@
 #ifndef __vtkPacketFileReader_h
 #define __vtkPacketFileReader_h
 
-#include "LidarCoreModule.h"
 //Compliance with vtk's fpos_t policy, needs to be included before any libc header
 #include <vtkSystemIncludes.h> 
-#include "Common/LVTime.h"
+#include "LVTime.h"
 
 #include <pcap.h>
 #include <string>
@@ -43,6 +42,8 @@
 #include <cstring>
 #include <vector>
 #include <unordered_map>
+
+#include "lvIONetworkModule.h"
 
 /*
  * Useful links to get started with IPv4 and IPv6 headers:
@@ -105,7 +106,7 @@ namespace IPHeaderFunctions
    * @param[out] fragmentInfo The collected fragment info.
    * @return     True if the information could be retrieved, false otherwise.
    */
-  LIDARCORE_EXPORT bool getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
+  LVIONETWORK_EXPORT bool getFragmentInfo(unsigned char const * data, FragmentInfo & fragmentInfo);
 
   //----------------------------------------------------------------------------
   /*!
@@ -114,13 +115,13 @@ namespace IPHeaderFunctions
    * @return    The number of bytes in the IP header, or 0 if this could not be
    *            determined.
    */
-  LIDARCORE_EXPORT unsigned int getIPHeaderLength(unsigned char const* data);
+  LVIONETWORK_EXPORT unsigned int getIPHeaderLength(unsigned char const* data);
   
   bool buildReassembledIPHeader(unsigned char* iphdrdata, const unsigned int ipHeaderLength, const unsigned int payloadSize);
 }
 
 //------------------------------------------------------------------------------
-class LIDARCORE_EXPORT vtkPacketFileReader
+class LVIONETWORK_EXPORT vtkPacketFileReader
 {
 public:
   vtkPacketFileReader()
