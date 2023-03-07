@@ -19,18 +19,19 @@
 #define VTKARDUPILOTDATAFLASHLOGREADER_H
 
 #include <vtkPolyDataAlgorithm.h>
-#include <vtkTemporalTransforms.h>
+
+#include "vtkTemporalTransforms.h"
 // official documentation: http://ardupilot.org/copter/docs/common-downloading-and-analyzing-data-logs-in-mission-planner.html
 // Log structure: https://github.com/ArduPilot/ardupilot/blob/master/libraries/DataFlash/LogStructure.h#L1166
 // GPS/RTK Data: http://ardupilot.org/copter/docs/common-gps-blending.html
 
-#include "LidarCoreModule.h"
+#include "lvIOGeolocationModule.h"
 
 /**
  * @brief Parse some DataFlash messages produced by ArduPilot.
  * Currently we only parse parts of the GPS message.
  */
-class LIDARCORE_EXPORT vtkArduPilotDataFlashLogReader : public vtkPolyDataAlgorithm
+class LVIOGEOLOCATION_EXPORT vtkArduPilotDataFlashLogReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkArduPilotDataFlashLogReader *New();

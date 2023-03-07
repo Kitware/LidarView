@@ -22,12 +22,12 @@
 #include <vtkPolyData.h>
 #include <vtkTable.h>
 
-#include "IO/vtkStream.h"
+#include "vtkStream.h"
 #include "vtkPositionOrientationPacketInterpreter.h"
 
-#include "LidarCoreModule.h"
+#include "lvIOGeolocationModule.h"
 
-class LIDARCORE_EXPORT vtkPositionOrientationStream : public vtkStream
+class LVIOGEOLOCATION_EXPORT vtkPositionOrientationStream : public vtkStream
 {
 public:
   static vtkPositionOrientationStream* New();

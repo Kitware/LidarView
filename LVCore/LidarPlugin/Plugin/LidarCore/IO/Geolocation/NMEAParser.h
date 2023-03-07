@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "LidarCoreModule.h"
+#include "lvIOGeolocationModule.h"
 
 struct NMEALocation;
 
@@ -14,7 +14,7 @@ struct NMEALocation;
  * If the sentence can be parsed, the result is stored inside a NMEALocation
  * structure.
  */
-class LIDARCORE_EXPORT NMEAParser
+class LVIOGEOLOCATION_EXPORT NMEAParser
 {
 public:
   std::vector<std::string> SplitWords(const std::string& sentence);
@@ -98,7 +98,7 @@ public:
  * - only {GPRMC, GPGLL} provide:
  */
 
-struct LIDARCORE_EXPORT NMEALocation {
+struct LVIOGEOLOCATION_EXPORT NMEALocation {
 public:
   enum FixType { UNDEFINED_FIX = 0,
                  NO_FIX,

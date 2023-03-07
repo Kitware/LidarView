@@ -18,16 +18,16 @@
 #define VTKPOSITIONORIENTATIONPACKETREADER_H
 
 #include <vtkPolyDataAlgorithm.h>
-#include <vtkPacketFileReader.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
 #include "vtkPositionOrientationPacketInterpreter.h"
+#include "vtkPacketFileReader.h"
 
-#include "LidarCoreModule.h"
+#include "lvIOGeolocationModule.h"
 
-class LIDARCORE_EXPORT vtkPositionOrientationPacketReader : public vtkPolyDataAlgorithm
+class LVIOGEOLOCATION_EXPORT vtkPositionOrientationPacketReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPositionOrientationPacketReader* New();

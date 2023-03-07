@@ -216,17 +216,4 @@
 </ProxyGroup>
 <!-- End LidarPacketInterpreter -->
 
-
-<!-- Begin PositionOrientationPacketInterpreter -->
-<ProxyGroup name="base_PositionOrientationPacketInterpreter_g">
-  <SourceProxy name="base_PositionOrientationPacketInterpreter"
-         class="vtkPositionOrientationPacketInterpreter"
-         label="vtkPositionOrientationPacketInterpreter"
-         base_proxygroup="base_PacketInterpreter_g"
-         base_proxyname="base_PacketInterpreter">
-
-  </SourceProxy>
-</ProxyGroup>
-<!-- End PositionOrientationPacketInterpreter -->
-
 </ServerManagerConfiguration>

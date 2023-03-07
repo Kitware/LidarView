@@ -34,12 +34,12 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-#include "LidarCoreModule.h"
+#include "lvIOGeolocationModule.h"
 
 class vtkTransform;
 class vtkCustomTransformInterpolator;
 
-class LIDARCORE_EXPORT vtkApplanixPositionReader : public vtkPolyDataAlgorithm
+class LVIOGEOLOCATION_EXPORT vtkApplanixPositionReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkApplanixPositionReader* New();

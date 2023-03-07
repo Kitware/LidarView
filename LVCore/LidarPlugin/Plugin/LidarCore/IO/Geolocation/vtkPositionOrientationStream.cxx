@@ -1,5 +1,5 @@
-#include "vtkHelper.h"
 #include "vtkPositionOrientationStream.h"
+#include "vtkHelper.h"
 
 #include <sstream>
 
