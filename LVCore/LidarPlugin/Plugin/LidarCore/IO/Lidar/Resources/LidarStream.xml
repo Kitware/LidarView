@@ -1,0 +1,71 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <SourceProxy name="LidarStream"
+      class="vtkLidarStream"
+      label="Lidar Stream"
+      base_proxygroup="baseStream"
+      base_proxyname="Stream">
+
+      <Documentation
+        short_help="Lidar Stream"
+        long_help="Lidar Stream">
+      </Documentation>
+
+      <OutputPort name="Frame"       index="0" id="port0" />
+      <OutputPort name="Calibration" index="1" id="port1" />
+
+      <IntVectorProperty
+        name="DummyProperty"
+        command="SetDummyProperty"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <Documentation>
+          A dummy property to get the filter to refresh
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="DetectFrameDropping"
+        animateable="0"
+        command="SetDetectFrameDropping"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Throw a warning to the user each time a frame is dropped
+        </Documentation>
+      </IntVectorProperty>
+
+      <!-- Please notice that this Property is duplicate so that:
+          it can be place in a user friendly location in the generate GUI -->
+      <StringVectorProperty
+        name="CalibrationFileName"
+        label="Calibration File"
+        animateable="0"
+        command="SetCalibrationFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          The sensor calibration file.
+        </Documentation>
+      </StringVectorProperty>
+
+      <!-- Please notice that this Property is duplicate so that:
+          it can be place in a user friendly location in the generate GUI -->
+      <ProxyProperty
+        name="PacketInterpreter"
+        command="SetLidarInterpreter"
+        label="Interpreter">
+        <ProxyListDomain name="proxy_list">
+          <Group name="LidarPacketInterpreter"/>
+        </ProxyListDomain>
+      </ProxyProperty>
+
+      <Hints>
+        <LiveSource />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

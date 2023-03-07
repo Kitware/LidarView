@@ -2,9 +2,9 @@
 
 #include <sstream>
 
-#include "Common/Network/vtkPacketFileReader.h"
-#include "Common/Network/vtkPacketFileWriter.h"
-#include "Common/statistics.h"
+#include "vtkPacketFileReader.h"
+#include "vtkPacketFileWriter.h"
+#include "statistics.h"
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>

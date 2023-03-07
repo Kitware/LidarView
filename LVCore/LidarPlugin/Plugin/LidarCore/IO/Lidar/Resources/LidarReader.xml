@@ -1,0 +1,155 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <SourceProxy name="LidarReader"
+      class="vtkLidarReader"
+      label="Lidar Reader"
+      base_proxygroup="sources">
+
+      <Documentation
+        short_help="Read Lidar data files."
+        long_help="Read Lidar data files.">
+        Read Lidar data files.
+      </Documentation>
+
+      <OutputPort name="Frame"       index="0" id="port0" />
+      <OutputPort name="Calibration" index="1" id="port1" />
+
+      <IntVectorProperty
+        name="DummyProperty"
+        command="SetDummyProperty"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <Documentation>
+          A dummy property to get the filter to refresh
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="DetectFrameDropping"
+        animateable="0"
+        command="SetDetectFrameDropping"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Throw a warning to the user each time a frame is dropped
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the reader.
+        </Documentation>
+      </StringVectorProperty>
+
+      <!-- Please notice that this Property is duplicate so that:
+          it can be place in a user friendly location in the generate GUI -->
+      <StringVectorProperty
+        name="CalibrationFileName"
+        label="Calibration File"
+        animateable="0"
+        command="SetCalibrationFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          The sensor calibration file.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty
+        name="LidarPort"
+        command="SetLidarPort"
+        override = "1"
+        default_values="-1"
+        number_of_elements="1">
+        <Documentation>
+          Specify which packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="ShowFirstAndLastFrame"
+        animateable="0"
+        command="SetShowFirstAndLastFrame"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          It is common that the first and last frame are incomplete (not a full rotation or not a full sweep),
+          thus it is more esthetically pleasing (and less unsettling) to hide them.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="UseRelativeStartTime"
+        command="SetUseRelativeStartTime"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="never">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          This option interprets the pcap file considering its first time stamp to be zero.
+          It can be used for instance when opening multiple sensors to have them starting at the same time.
+        </Documentation>
+      </IntVectorProperty>
+
+      <!-- Please notice that this Property is duplicate so that:
+          it can be place in a user friendly location in the generate GUI -->
+      <ProxyProperty
+        name="PacketInterpreter"
+        command="SetInterpreter"
+        label="Interpreter">
+        <ProxyListDomain name="proxy_list">
+          <Group name="LidarPacketInterpreter"/>
+        </ProxyListDomain>
+      </ProxyProperty>
+
+      <PropertyGroup label="Generic">
+        <Property name="FileName" />
+        <Property name="CalibrationFileName" />
+        <Property name="ShowFirstAndLastFrame" />
+        <Property name="PacketInterpreter" />
+      </PropertyGroup>
+
+      <DoubleVectorProperty
+        name="TimestepValues"
+        repeatable="1"
+        information_only="1">
+        <TimeStepsInformationHelper/>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="NetworkTimeToDataTime"
+        command="GetNetworkTimeToDataTime"
+        information_only="1">
+        <SimpleDoubleInformationHelper />
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="DisplayPacketTime"
+        animateable="0"
+        command="SetUsePacketTimeForDisplayTime"
+        default_values="0"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Set it to true to display the data time (from the lidar packet) in the pipeline
+        </Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <ReaderFactory extensions="pcap"
+          file_description="Lidar Data File"/>
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
