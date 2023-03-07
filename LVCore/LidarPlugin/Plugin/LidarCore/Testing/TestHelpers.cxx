@@ -27,7 +27,7 @@
 #include <vtkXMLPolyDataReader.h>
 #include <vtkTimerLog.h>
 
-#include <vvPacketSender.h>
+#include <PacketSender.h>
 
 #include <chrono>
 #include <sstream>
@@ -560,7 +560,7 @@ int testLidarStream(vtkLidarStream *stream,
   if (preSend)
   {
     stream->Start();
-    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+    PacketSender sender(pcapFileName, destinationIp, dataPort);
     bool isOk = sender.sendAllPackets();
     stream->Stop();
     if (stream->GetNeedsUpdate())
@@ -617,7 +617,7 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
       idFrame++;
     }
   };
-  vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+  PacketSender sender(pcapFileName, destinationIp, dataPort);
 
   // The packet are at 15% of the real speed. This is because our osx and windows buildboots
   // aren't good enought for handling 100%.
@@ -709,7 +709,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   {
     LidarStream1->Start();
     LidarStream2->Start();
-    vvPacketSender sender(pcapFileName, destinationIp, dataPort);
+    PacketSender sender(pcapFileName, destinationIp, dataPort);
     bool isOk = sender.sendAllPackets();
     LidarStream1->Stop();
     LidarStream2->Stop();

@@ -31,7 +31,7 @@
 // The default playback speed is based on the timestamps specified in the pcap file
 
 #include "Common/Network/vtkPacketFileReader.h"
-#include "vvPacketSender.h"
+#include "PacketSender.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   do
   {
     // Create a Packet Sender
-    vvPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
+    PacketSender sender(filename, destinationIp, lidarPort, GPSPort);
     sender.sendAllPackets(speed, display_frequency);
   } while (loop);
 

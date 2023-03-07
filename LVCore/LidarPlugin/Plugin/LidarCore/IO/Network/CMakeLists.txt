@@ -3,7 +3,8 @@ set(sources
   NetworkPacket.cxx
   PacketConsumer.cxx
   PacketFileWriter.cxx
-  PacketReceiver.cxx)
+  PacketReceiver.cxx
+  PacketSender.cxx)
 
 set(headers
   CrashAnalysing.h
@@ -11,14 +12,14 @@ set(headers
   PacketConsumer.h
   PacketFileWriter.h
   PacketReceiver.h
+  PacketSender.h
   SynchronizedQueue.h)
 
 set(classes
   vtkInterpreter
   vtkPacketFileReader
   vtkPacketFileWriter
-  vtkStream
-  vvPacketSender)
+  vtkStream)
 
 vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}

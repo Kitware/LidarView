@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "vvPacketSender.h"
+#include "PacketSender.h"
 #include "vtkPacketFileReader.h"
 
 #include <chrono>
 #include <thread>
 
 //-----------------------------------------------------------------------------
-vvPacketSender::vvPacketSender(
+PacketSender::PacketSender(
   std::string pcapfile, std::string destinationIp, int lidarPort, int positionPort)
   : LIDARSocket(0)
   , LIDAREndpoint(boost::asio::ip::address_v4::from_string(destinationIp), lidarPort)
@@ -50,14 +50,14 @@ vvPacketSender::vvPacketSender(
 }
 
 //-----------------------------------------------------------------------------
-vvPacketSender::~vvPacketSender()
+PacketSender::~PacketSender()
 {
   delete this->LIDARSocket;
   delete this->PositionSocket;
 }
 
 //-----------------------------------------------------------------------------
-bool vvPacketSender::sendAllPackets(double speed, int display_frequency, std::function<void()> callback)
+bool PacketSender::sendAllPackets(double speed, int display_frequency, std::function<void()> callback)
 {
   const int OUTPUT_WIDTH = 15; // width of the column (#packet, duration, ...) in the output stream
   const int microSecondsPerSecond = 1e6;
@@ -147,7 +147,7 @@ bool vvPacketSender::sendAllPackets(double speed, int display_frequency, std::fu
 }
 
 //-----------------------------------------------------------------------------
-double vvPacketSender::pumpPacket()
+double PacketSender::pumpPacket()
 {
   if (this->Done)
   {
@@ -182,13 +182,13 @@ double vvPacketSender::pumpPacket()
 }
 
 //-----------------------------------------------------------------------------
-size_t vvPacketSender::GetPacketCount() const
+size_t PacketSender::GetPacketCount() const
 {
   return this->PacketCount;
 }
 
 //-----------------------------------------------------------------------------
-bool vvPacketSender::IsDone() const
+bool PacketSender::IsDone() const
 {
   return this->Done;
 }
