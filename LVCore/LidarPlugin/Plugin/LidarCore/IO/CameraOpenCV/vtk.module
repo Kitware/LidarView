@@ -1,0 +1,16 @@
+NAME
+  LidarView::IOCameraOpenCV
+LIBRARY_NAME
+  lvIOCameraOpenCV
+CONDITION
+  LIDARVIEW_USE_PCAP AND LIDARVIEW_USE_OPENCV
+DEPENDS
+  LidarView::CommonCore
+  LidarView::IOCore
+  LidarView::IONetwork
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  LidarView::CommonOpenCV
+  VTK::IOImage              # For vtkPNGWriter

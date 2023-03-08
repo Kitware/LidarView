@@ -19,7 +19,7 @@
 
 // LOCAL
 #include "vtkOpenCVVideoReader.h"
-#include "Common/vtkOpenCVConversions.h"
+#include "vtkOpenCVConversions.h"
 
 // STD
 #include <iostream>
