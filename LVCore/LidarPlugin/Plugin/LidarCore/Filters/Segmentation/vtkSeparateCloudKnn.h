@@ -26,7 +26,7 @@
 // STD
 #include <map>
 
-#include "LidarCoreModule.h"
+#include "lvFiltersSegmentationModule.h"
 
 /**
   * @brief mostCommon returns most common element in a iterable object
@@ -57,7 +57,7 @@ T mostCommon(InputIt begin, InputIt end)
   * Example usage: Using aggregated points cloud on a time window in order to
   * smooth values over time
   */
-class LIDARCORE_EXPORT vtkSeparateCloudKnn : public vtkPolyDataAlgorithm
+class LVFILTERSSEGMENTATION_EXPORT vtkSeparateCloudKnn : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSeparateCloudKnn* New();

@@ -17,6 +17,7 @@
 // LOCAL
 #include "vtkSeparateCloudKnn.h"
 #include "vtkHelper.h"
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 // VTK
 #include <vtkDataArray.h>
@@ -27,9 +28,6 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
-#include "KDTreeVectorOfVectorsAdaptor.h"
-
-
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkSeparateCloudKnn)

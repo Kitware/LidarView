@@ -17,9 +17,8 @@
 
 //LOCAL
 #include "CategoriesConfig.h"
-#include "Common/BoundingBox.h"
+#include "BoundingBox.h"
 #include "SegmentedCloudTransformations.h"
-#include "vtkBoundingBox.h"
 #include "KDTreeVectorOfVectorsAdaptor.h"
 #include "vtkHelper.h"
 
@@ -31,6 +30,7 @@
 #include <vtkPolyData.h>
 #include <vtkPointData.h>
 #include <vtkDataArray.h>
+#include <vtkBoundingBox.h>
 
 
 // Helper functions

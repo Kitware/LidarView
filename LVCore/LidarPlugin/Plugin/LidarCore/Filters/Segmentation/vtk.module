@@ -1,0 +1,15 @@
+NAME
+  LidarView::FiltersSegmentation
+LIBRARY_NAME
+  lvFiltersSegmentation
+CONDITION
+  LIDARVIEW_USE_NANOFLANN
+DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  nanoflann::nanoflann
+  VTK::CommonCore
+  VTK::CommonDataModel
+PRIVATE_DEPENDS
+  LidarView::IOCore
+  YAML::yamlcpp

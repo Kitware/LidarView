@@ -16,10 +16,9 @@
 // limitations under the License.
 //=========================================================================
 #include "DBSCAN.h"
+#include "KDTreeVectorOfVectorsAdaptor.h"
 
 #include <nanoflann.hpp>
-#include <KDTreeVectorOfVectorsAdaptor.h>
-
 
 //-----------------------------------------------------------------------------
 template<class T>
