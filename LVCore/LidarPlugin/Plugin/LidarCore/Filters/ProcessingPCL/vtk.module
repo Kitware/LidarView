@@ -1,0 +1,15 @@
+NAME
+  LidarView::FiltersProcessingPCL
+LIBRARY_NAME
+  lvFiltersProcessingPCL
+CONDITION
+  LIDARVIEW_USE_PCL
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+PRIVATE_DEPENDS
+  pcl_common
+  pcl_sample_consensus
+  LidarView::CommonCore
+  LidarView::CommonPCL
+  VTK::CommonExecutionModel
