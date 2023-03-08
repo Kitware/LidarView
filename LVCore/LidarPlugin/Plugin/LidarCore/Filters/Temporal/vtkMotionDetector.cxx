@@ -28,13 +28,6 @@
 
 #include "vtkMotionDetector.h"
 
-#include <vtkDataSet.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkPolyData.h>
-#include <vtkXMLPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
-
 // VTK
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
@@ -60,6 +53,9 @@
 #include <vtkAppendFilter.h>
 #include <vtkAppendPolyData.h>
 #include <vtkQuaternion.h>
+#include <vtkDataSet.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
 
 // STD
 #include <iostream>
