@@ -17,9 +17,10 @@
 
 
 // LOCAL
-#include "Filter/vtkOpenCVImageMapper.h"
-#include "Common/vtkOpenCVConversions.h"
+#include "vtkOpenCVImageMapper.h"
+#include "vtkOpenCVConversions.h"
 #include "vtkPipelineTools.h"
+#include "vtkHelper.h"
 
 // VTK
 #include <vtkInformation.h>
@@ -32,7 +33,6 @@
 #include <vtkDoubleArray.h>
 #include <vtkCharArray.h>
 #include <vtkUnsignedCharArray.h>
-#include <vtkHelper.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
 // OPENCV

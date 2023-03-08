@@ -1,0 +1,17 @@
+NAME
+  LidarView::FiltersCameraOpenCV
+LIBRARY_NAME
+  lvFiltersCameraOpenCV
+CONDITION
+  LIDARVIEW_USE_OPENCV AND LIDARVIEW_USE_PCL
+DEPENDS
+  pcl_common
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  pcl_features
+  Boost::filesystem
+  LidarView::CommonOpenCV
+  LidarView::CommonPCL
