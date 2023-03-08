@@ -401,7 +401,7 @@ def saveCSV(filename, timesteps):
     tempDir = kiwiviewerExporter.tempfile.mkdtemp()
     basenameWithoutExtension = os.path.splitext(os.path.basename(filename))[0]
     outDir = os.path.join(tempDir, basenameWithoutExtension)
-    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + ' (Frame %04d).csv')
+    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + '_%04d.csv')
     os.makedirs(outDir)
 
     writer = smp.CreateWriter('tmp.csv', getLidar())
@@ -432,7 +432,7 @@ def saveLAS(filename, timesteps, transform = 0):
     tempDir = kiwiviewerExporter.tempfile.mkdtemp()
     basenameWithoutExtension = os.path.splitext(os.path.basename(filename))[0]
     outDir = os.path.join(tempDir, basenameWithoutExtension)
-    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + ' (Frame %04d).csv')
+    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + '_%04d.csv')
     os.makedirs(outDir)
 
     for t in sorted(timesteps):
