@@ -25,9 +25,9 @@
 // EIGEN
 #include <Eigen/Dense>
 
-#include "LidarCoreModule.h"
+#include "lvFiltersVisualizationModule.h"
 
-class LIDARCORE_EXPORT vtkBirdEyeViewSnap : public vtkPolyDataAlgorithm
+class LVFILTERSVISUALIZATION_EXPORT vtkBirdEyeViewSnap : public vtkPolyDataAlgorithm
 {
 public:
   static vtkBirdEyeViewSnap *New();

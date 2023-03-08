@@ -1,0 +1,13 @@
+NAME
+  LidarView::FiltersVisualization
+LIBRARY_NAME
+  lvFiltersVisualization
+DEPENDS
+  Eigen3::Eigen
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonTransforms
+  VTK::IOImage
+  VTK::RenderingCore
