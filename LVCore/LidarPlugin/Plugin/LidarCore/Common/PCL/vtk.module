@@ -1,0 +1,13 @@
+NAME
+  LidarView::CommonPCL
+LIBRARY_NAME
+  lvCommonPCL
+CONDITION
+  LIDARVIEW_USE_PCL
+DEPENDS
+  pcl_common
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  pcl_io
+  VTK::CommonDataModel
+  VTK::CommonSystem
