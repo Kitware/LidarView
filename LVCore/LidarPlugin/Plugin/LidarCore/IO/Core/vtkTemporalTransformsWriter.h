@@ -18,10 +18,10 @@
 // #include <vtkPolyDataAlgorithm.h>
 #include <vtkPolyDataWriter.h>
 
-#include "LidarCoreModule.h"
+#include "lvIOCoreModule.h"
 
 // Inspired by vtkObjWriter
-class LIDARCORE_EXPORT vtkTemporalTransformsWriter : public vtkPolyDataWriter
+class LVIOCORE_EXPORT vtkTemporalTransformsWriter : public vtkPolyDataWriter
 {
 public:
   static vtkTemporalTransformsWriter* New();

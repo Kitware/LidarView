@@ -8,7 +8,7 @@
 
 #include <vtkObject.h>
 
-#include "LidarCoreModule.h"
+#include "lvIOCoreModule.h"
 
 
 /**
@@ -34,7 +34,7 @@ categories:  # List of all the categories in a dataset
 
 
  */
-class LIDARCORE_EXPORT CategoriesConfig
+class LVIOCORE_EXPORT CategoriesConfig
 {
 public:
   CategoriesConfig() = default;

@@ -1,0 +1,19 @@
+NAME
+  LidarView::IOCore
+LIBRARY_NAME
+  lvIOCore
+DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOLegacy             # Should it be removed? vtkPolyDataWriter in vtkTemporalTransformsWriter
+  VTK::jsoncpp              # For FramesSeriesUtils
+  YAML::yamlcpp
+PRIVATE_DEPENDS
+  Boost::filesystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersSources       # For vtkBoundingBoxReader
+  VTK::IOInfovis            # vtkTemporalTransformsReader needs vtkDelimitedTextReader

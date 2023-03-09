@@ -1,11 +1,4 @@
-// LOCAL
-#include "vtkTemporalTransforms.h"
-#include "Common/vtkCustomTransformInterpolator.h"
-#include "CameraModel.h"
-#include "vtkEigenTools.h"
 #include "FramesSeriesUtils.h"
-#include "FileSystemUtils.h"
-
 
 // STD
 #include <iostream>
@@ -24,7 +17,11 @@
 #include <vtkPolyData.h>
 #include <vtkTransform.h>
 
-
+// LOCAL
+#include "vtkTemporalTransforms.h"
+#include "vtkCustomTransformInterpolator.h"
+#include "vtkEigenTools.h"
+#include "FileSystemUtils.h"
 
 // FileSeries ------------------------------------------------------------------
 void FileSeries::AddFile(std::string name, double time)

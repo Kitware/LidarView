@@ -50,10 +50,10 @@
 
 #include "vtkEigenTools.h"
 
-#include "LidarCoreModule.h"
+#include "lvIOCoreModule.h"
 
 
-class LIDARCORE_EXPORT FileSeries
+class LVIOCORE_EXPORT FileSeries
 {
   std::string filename = "";
   Json::Value files;
@@ -70,30 +70,30 @@ public:
 namespace FramesSeries
 {
   // Get number of frames in a series
-  size_t LIDARCORE_EXPORT GetNumberOfClouds(std::string cloudFrameSeries);
+  size_t LVIOCORE_EXPORT GetNumberOfClouds(std::string cloudFrameSeries);
 
   // Read file/time from series file value at given index
-  void LIDARCORE_EXPORT ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
+  void LVIOCORE_EXPORT ReadFromSeries(std::string fileSeries, size_t index, std::string& path, double& time);
 
   // Return name (without extension) + time for closest frame in series described in file
-  std::pair<std::string, double> LIDARCORE_EXPORT GetClosestItemInSeries(std::string filename,
+  std::pair<std::string, double> LVIOCORE_EXPORT GetClosestItemInSeries(std::string filename,
                                                         double time,
                                                         double maxTemporalDist);
 
   // Fill cloud from frame path
-  vtkSmartPointer<vtkPolyData> LIDARCORE_EXPORT ReadCloudFrame(std::string pathToVTP);
+  vtkSmartPointer<vtkPolyData> LVIOCORE_EXPORT ReadCloudFrame(std::string pathToVTP);
 
   // Write cloud frame to vtp
-  void LIDARCORE_EXPORT GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
-  int LIDARCORE_EXPORT WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
+  void LVIOCORE_EXPORT GetWritePathFromSeries(std::string fileSeries, size_t index, std::string& path,  std::string& dirname);
+  int LVIOCORE_EXPORT WriteCloudFrame(vtkSmartPointer<vtkPolyData> cloud, std::string pathToVTP);
 
 }
 
 // Cloud interpolation
-std::pair<Eigen::Matrix3d, Eigen::Vector3d> LIDARCORE_EXPORT GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
+std::pair<Eigen::Matrix3d, Eigen::Vector3d> LVIOCORE_EXPORT GetRTFromTime(vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                                           double time);
 
-vtkSmartPointer<vtkPolyData> LIDARCORE_EXPORT ReferenceFrameChange(vtkSmartPointer<vtkPolyData> cloud,
+vtkSmartPointer<vtkPolyData> LVIOCORE_EXPORT ReferenceFrameChange(vtkSmartPointer<vtkPolyData> cloud,
                                                     vtkSmartPointer<vtkCustomTransformInterpolator> interpolator,
                                                     double time);
 
