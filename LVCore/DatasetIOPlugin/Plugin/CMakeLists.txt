@@ -25,7 +25,10 @@ paraview_add_plugin(DatasetIOPlugin
   SOURCES ${server_manager_sources} ${server_sources}
 )
 
-target_link_libraries(DatasetIOPlugin PUBLIC LidarCore)
+target_link_libraries(DatasetIOPlugin PUBLIC
+  LidarView::IOLidar
+  VTK::FiltersGeneral
+  VTK::FiltersSources)
 target_include_directories(DatasetIOPlugin
   PUBLIC
   Kitti/
