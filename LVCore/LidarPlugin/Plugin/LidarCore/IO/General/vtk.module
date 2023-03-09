@@ -1,0 +1,19 @@
+NAME
+  LidarView::IOGeneral
+LIBRARY_NAME
+  lvIOGeneral
+CONDITION
+  LIDARVIEW_USE_LIBLAS
+DEPENDS
+  Boost::atomic             # Needed for LIBLAS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  LIBLAS::las
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::libproj              # For LASFileWriter
+  YAML::yamlcpp             # Needed for LIBLAS
+PRIVATE_DEPENDS
+  VTK::CommonTransforms
