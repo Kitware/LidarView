@@ -27,8 +27,8 @@
 
 #include <vtkSmartPointer.h>
 
-#include "Common/Network/vtkPacketFileReader.h"
-#include "Common/Network/vtkPacketFileWriter.h"
+#include "vtkPacketFileReader.h"
+#include "vtkPacketFileWriter.h"
 #include "NetworkPacket.h"
 
 #include <boost/program_options.hpp>
