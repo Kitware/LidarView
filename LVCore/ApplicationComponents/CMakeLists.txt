@@ -121,8 +121,16 @@ target_link_libraries(lqApplicationComponents PUBLIC
   ParaView::RemotingSettings
   ParaView::RemotingViews
   ParaView::RemotingViewsPython
+  VTK::CommonSystem
   
-  LidarCore # Only way to get the headers at compile time
+  LidarView::CommonCore
+  LidarView::Sources
+  LidarView::FiltersTemporal
+  LidarView::IOCore
+  LidarView::IOGeolocation
+  LidarView::IOGeneral
+  LidarView::IOLidar
+  LidarView::IONetwork
   PythonQt::PythonQt # Required to Wrap additional functions
   )
 target_compile_definitions(lqApplicationComponents PUBLIC Q_OS_SYMBIAN)

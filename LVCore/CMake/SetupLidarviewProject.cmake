@@ -61,49 +61,7 @@ file(STRINGS version.txt version_txt)
 extract_version_components("${version_txt}" "LV")
 determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
-# Paraview
-#must be included after Python and Determine version
-if(NOT ParaView_DIR)
-  message(WARNING "ParaView_DIR not found")
-  message(FATAL_ERROR "Building with external Paraview not yet implemented")
-endif()
-
-find_package(ParaView 5.11 REQUIRED)
-message(STATUS "Paraview-${ParaView_VERSION}")
-# WIP should check if EQUAL ${paraview_version}, in the event of from-source builds
-
-# VTK from Paraview
-if(NOT VTK_DIR)
-  message(WARNING "Is VTK provided by Paraview ?")
-endif()
-if(NOT VTK_FOUND )
-  message(FATAL_ERROR "VTK not found")
-endif()
-if(NOT VTK_VERSION )
-  message(FATAL_ERROR "VTK_VERSION not defined or empty, is VTK FOUND ?")
-endif()
-message(STATUS "VTK-${VTK_VERSION}")
-
-# Qt5
-if(NOT PARAVIEW_USE_QT)
-  message(FATAL_ERROR "PARAVIEW_BUILD_QT_GUI is OFF, Paraview must be built with Qt")
-endif()
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Help PrintSupport UiTools Svg Widgets)
-if(NOT Qt5_FOUND)
-    message(FATAL_ERROR "Qt5 not found")
-endif()
-message(STATUS "Qt: ${PARAVIEW_QT_VERSION}, actually ${Qt5Core_VERSION}")
-#Fix SYSTEM Qt5 RPATH handling at install, WIP could base off "USE_SYSTEM_qt5"
-if(NOT Qt5_DIR)
-  message(FATAL_ERROR "Qt5_DIR not set")
-endif()
-list(APPEND CMAKE_INSTALL_RPATH "${Qt5_DIR}/../../")
-
-list(INSERT CMAKE_MODULE_PATH 0  "${CMAKE_CURRENT_SOURCE_DIR}/LVCore/CMake/")
-find_package(PythonQt REQUIRED)
-if(NOT PythonQt_FOUND OR NOT TARGET PythonQt::PythonQt)
-  message(FATAL_ERROR "PythonQt::PythonQt not FOUND")
-endif()
+include(FindLidarViewDependencies)
 
 # Doc
 option(BUILD_DOC "Build documentation" OFF)
