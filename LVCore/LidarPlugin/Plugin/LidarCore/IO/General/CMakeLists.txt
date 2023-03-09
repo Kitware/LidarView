@@ -4,6 +4,7 @@ set(classes
   vtkPCDWriter)
 
 vtk_module_add_module(LidarView::IOGeneral
+  FORCE_STATIC
   CLASSES ${classes})
 
 paraview_add_server_manager_xmls(
