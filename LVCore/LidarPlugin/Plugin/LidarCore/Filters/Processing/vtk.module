@@ -4,12 +4,9 @@ LIBRARY_NAME
   lvFiltersProcessing
 DEPENDS
   Eigen3::Eigen
-  LidarView::CommonCore
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
-  Boost::filesystem
-  VTK::CommonMath
+  LidarView::CommonCore
   VTK::CommonTransforms
-  VTK::IOXML

@@ -15,7 +15,6 @@ set(headers
   statistics.h)
 
 set(classes
-  vtkCarGeometricCalibration
   vtkConversions
   vtkCustomTransformInterpolator
   vtkEigenTools

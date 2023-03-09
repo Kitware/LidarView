@@ -20,13 +20,13 @@
 // VTK
 #include <vtkImageAlgorithm.h>
 
-#include "lvFiltersProcessingModule.h"
+#include "lvFiltersCameraModule.h"
 
 /**
  * @brief vtkLaplacianInfilling fill missing data in an image
  *        solving the Dirichlet problem.
  */
-class LVFILTERSPROCESSING_EXPORT vtkLaplacianInfilling : public vtkImageAlgorithm
+class LVFILTERSCAMERA_EXPORT vtkLaplacianInfilling : public vtkImageAlgorithm
 {
 public:
   static vtkLaplacianInfilling *New();

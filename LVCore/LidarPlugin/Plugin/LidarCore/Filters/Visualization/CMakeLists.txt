@@ -1,5 +1,7 @@
 set(classes
-  vtkBirdEyeViewSnap)
+  vtkBirdEyeViewSnap
+  vtkLidarRawSignalImage
+  vtkPointCloudLinearProjector)
 
 vtk_module_add_module(LidarView::FiltersVisualization
   FORCE_STATIC
@@ -7,4 +9,6 @@ vtk_module_add_module(LidarView::FiltersVisualization
 
 paraview_add_server_manager_xmls(
   XMLS
-    Resources/BirdEyeViewSnap.xml)
+    Resources/BirdEyeViewSnap.xml
+    Resources/LidarRawSignalImage.xml
+    Resources/PointCloudLinearProjector.xml)

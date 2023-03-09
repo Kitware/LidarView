@@ -6,9 +6,8 @@ set(sources
 set(headers
   CategoriesConfig.h
   FileSystemUtils.h
-  FrameInformation.h
   # FramesSeriesUtils.h
-  InterpreterHelper.h)
+  )
 
 set(classes
   vtkBoundingBoxReader

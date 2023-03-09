@@ -8,6 +8,8 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  Boost::system
   VTK::CommonDataModel
   VTK::CommonTransforms
   VTK::IOImage
+  VTK::IOXML

@@ -8,7 +8,6 @@ DEPENDS
   Boost::system
   Boost::thread
   LidarView::CommonCore
-  LidarView::IOCore
   PCAP::pcap
   VTK::CommonCore
   VTK::CommonExecutionModel

@@ -8,6 +8,8 @@ set(sources
 
 set(headers
   CrashAnalysing.h
+  FrameInformation.h
+  InterpreterHelper.h
   NetworkPacket.h
   PacketConsumer.h
   PacketFileWriter.h

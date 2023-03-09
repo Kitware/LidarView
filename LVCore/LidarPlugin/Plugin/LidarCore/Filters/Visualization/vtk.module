@@ -8,6 +8,8 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  Boost::system
+  LidarView::CommonCore
   VTK::CommonTransforms
   VTK::IOImage
   VTK::RenderingCore
