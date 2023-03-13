@@ -8,6 +8,17 @@
         Extract Point Selection and convert it to a PolyData
       </Documentation>
 
+      <IntVectorProperty
+        name="InvertSelection"
+        command="SetInvertSelection"
+        number_of_elements="1"
+        default_values="0">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Invert the selection, equivalent to removing the selection
+        </Documentation>
+      </IntVectorProperty>
+
       <InputProperty command="SetInputConnection"
                      name="Input">
         <ProxyGroupDomain name="groups">

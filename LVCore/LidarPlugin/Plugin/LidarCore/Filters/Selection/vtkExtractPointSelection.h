@@ -43,6 +43,9 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
+  vtkGetMacro(InvertSelection, bool);
+  vtkSetMacro(InvertSelection, bool);
+
 protected:
   // constructor / destructor
   vtkExtractPointSelection();
@@ -51,6 +54,9 @@ protected:
   // Request data
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  // Invert the selection, equivalent to removing the selection
+  bool InvertSelection = false;
 
 private:
   // copy operators

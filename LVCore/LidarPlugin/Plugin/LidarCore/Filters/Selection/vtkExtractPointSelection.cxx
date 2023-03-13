@@ -24,6 +24,7 @@
 #include <vtkPVSingleOutputExtractSelection.h>
 #include <vtkPolyData.h>
 #include <vtkSelection.h>
+#include <vtkSelectionNode.h>
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkExtractPointSelection);
@@ -59,10 +60,21 @@ int vtkExtractPointSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  vtkSelection* selection = vtkSelection::GetData(inputVector[1]->GetInformationObject(0));
+
+  if (this->InvertSelection)
+  {
+    for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
+    {
+      vtkSelectionNode* node = selection->GetNode(i);
+      node->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
+    }
+  }
+
   // Extract selection
   vtkNew<vtkPVSingleOutputExtractSelection> extractSelection;
   extractSelection->SetInputData(0, vtkDataSet::GetData(inputVector[0]->GetInformationObject(0)));
-  extractSelection->SetInputData(1, vtkSelection::GetData(inputVector[1]->GetInformationObject(0)));
+  extractSelection->SetInputData(1, selection);
   extractSelection->Update();
 
   vtkDataSet* input = vtkDataSet::SafeDownCast(extractSelection->GetOutput(0));
