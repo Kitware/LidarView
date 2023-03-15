@@ -8,6 +8,7 @@ DEPENDS
   Eigen3::Eigen
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  Boost::system
   Ceres::ceres
   LidarView::CommonCeres
   LidarView::CommonCore
