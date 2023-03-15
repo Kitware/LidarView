@@ -13,3 +13,5 @@ PRIVATE_DEPENDS
   Boost::system
   VTK::RenderingCore      # For vtkCustomTransformInterpolator
   YAML::yamlcpp
+TEST_DEPENDS
+  LidarView::TestingCore

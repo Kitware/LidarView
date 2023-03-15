@@ -12,13 +12,14 @@ vtk_module_scan(
 #--------------------------------------
 # Create plugin
 #--------------------------------------
-paraview_add_plugin(LidarPlugin 
+paraview_add_plugin(LidarPlugin
   VERSION "2.0"
   MODULES ${lidarplugin_modules}
   MODULE_FILES ${lidarplugin_module_files}
   MODULE_ARGS
     LICENSE_DESTINATION "${LV_INSTALL_INCLUDE_DIR}" #wip Temporary fix
-    TEST_DIRECTORY_NAME "NONE" # Do not let vtk_module build the default 'Testing' subdir, it complexifies paths
+    TEST_DIRECTORY_NAME "None" # Deactivate testing - incompatible with LidarPlugin
+    TEST_INPUT_DATA_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data"
 )
 
 #-----------------------------------------------------------------------------

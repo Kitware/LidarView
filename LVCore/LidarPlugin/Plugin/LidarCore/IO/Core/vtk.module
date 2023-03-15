@@ -17,3 +17,5 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources       # For vtkBoundingBoxReader
   VTK::IOInfovis            # vtkTemporalTransformsReader needs vtkDelimitedTextReader
+TEST_DEPENDS
+  LidarView::TestingCore

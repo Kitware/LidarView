@@ -25,7 +25,7 @@
 #include <vtkMath.h>
 
 // LOCAL
-#include "Common/BoundingBox.h"
+#include "BoundingBox.h"
 #include "vtkEigenTools.h"
 
 //-----------------------------------------------------------------------------

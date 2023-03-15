@@ -15,3 +15,6 @@ PRIVATE_DEPENDS
   Boost::filesystem
   LidarView::CommonOpenCV
   LidarView::CommonPCL
+TEST_DEPENDS
+  LidarView::FiltersCalibration
+  VTK::IOXML
