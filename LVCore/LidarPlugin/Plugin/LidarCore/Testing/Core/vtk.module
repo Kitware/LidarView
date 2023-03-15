@@ -1,0 +1,13 @@
+NAME
+  LidarView::TestingCore
+LIBRARY_NAME
+  lvTestingCore
+PRIVATE_DEPENDS
+  LidarView::IOLidar
+  LidarView::IONetwork
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonSystem
+  VTK::IOXML
+EXCLUDE_WRAP

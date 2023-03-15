@@ -14,6 +14,8 @@
 
 #include "TestHelpers.h"
 
+#include "PacketSender.h"
+
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
 
@@ -26,8 +28,6 @@
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkTimerLog.h>
-
-#include <PacketSender.h>
 
 #include <chrono>
 #include <sstream>
