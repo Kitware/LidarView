@@ -12,7 +12,6 @@ OPTIONAL_DEPENDS
   LidarView::FiltersCamera
   LidarView::FiltersCameraOpenCV
   LidarView::FiltersProcessing
-  LidarView::FiltersProcessingPCL
   LidarView::FiltersSegmentation
   LidarView::FiltersTemporal
   LidarView::FiltersSelection
