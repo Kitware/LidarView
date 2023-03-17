@@ -70,6 +70,7 @@
   <Proxy group="filters" name="CleanUnstructuredGrid" />
   <Proxy group="filters" name="Clip" />
   <Proxy group="filters" name="Contour" />
+  <Proxy group="filters" name="ConvertToPointCloud" />
   <Proxy group="filters" name="CTHFragmentConnect"/>
   <Proxy group="filters" name="CTHFragmentIntersect"/>
   <Proxy group="filters" name="CTHPart" />
