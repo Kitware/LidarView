@@ -10,7 +10,6 @@ set(classes
   vtkTemporalTransformsRemapper)
 
 vtk_module_add_module(LidarView::FiltersCalibration
-  FORCE_STATIC
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers})

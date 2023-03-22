@@ -26,7 +26,6 @@ set(classes
 #   BoundingBox)
 
 vtk_module_add_module(LidarView::CommonCore
-  FORCE_STATIC
   SOURCES ${sources}
   CLASSES ${classes}
   # TEMPLATES ${templates}

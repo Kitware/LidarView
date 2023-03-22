@@ -15,7 +15,6 @@ set(classes
   vtkTemporalTransformsWriter)
 
 vtk_module_add_module(LidarView::IOCore
-  FORCE_STATIC
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers})

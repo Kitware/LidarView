@@ -14,7 +14,6 @@ set(classes
 #   DBSCAN)
 
 vtk_module_add_module(LidarView::FiltersSegmentation
-  FORCE_STATIC
   SOURCES ${sources}
   CLASSES ${classes}
   # TEMPLATES ${templates}

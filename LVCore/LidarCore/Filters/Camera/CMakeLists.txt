@@ -4,7 +4,6 @@ set(classes
   vtkLaplacianInfilling)
 
 vtk_module_add_module(LidarView::FiltersCamera
-  FORCE_STATIC
   CLASSES ${classes})
 
 paraview_add_server_manager_xmls(

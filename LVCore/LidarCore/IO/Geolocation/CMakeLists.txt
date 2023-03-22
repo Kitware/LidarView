@@ -15,7 +15,6 @@ set(classes
   vtkPositionOrientationStream)
 
 vtk_module_add_module(LidarView::IOGeolocation
-  FORCE_STATIC
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers})

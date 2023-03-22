@@ -6,7 +6,6 @@ set(classes
   vtkTrailingFrame)
 
 vtk_module_add_module(LidarView::FiltersTemporal
-  FORCE_STATIC
   CLASSES ${classes})
 
 paraview_add_server_manager_xmls(
