@@ -33,7 +33,9 @@ paraview_plugin_scan(
 # Scan and find vtk modules
 #--------------------------------------
 list(APPEND lidarview_source_directories
-  "${CMAKE_CURRENT_SOURCE_DIR}/LidarCore")
+  "${CMAKE_CURRENT_SOURCE_DIR}/LidarCore"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Qt"
+)
 
 vtk_module_find_modules(lidarplugin_module_files ${lidarview_source_directories})
 vtk_module_scan(
@@ -141,8 +143,6 @@ add_subdirectory(Python)
 # Build non-plugin/modules LidarView source code
 # (This should be progressively removed)
 #--------------------------------------
-add_subdirectory(ApplicationComponents)
-
 # Add subdirectory containing python script for animation
 add_subdirectory(Utilities/Animation)
 # Add sudbirectory containing python helper functions for pipeline scripting

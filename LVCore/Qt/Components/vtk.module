@@ -1,0 +1,7 @@
+NAME
+  LidarView::lqComponents
+LIBRARY_NAME
+  lqComponents
+DEPENDS
+  ParaView::pqCore
+EXCLUDE_WRAP
