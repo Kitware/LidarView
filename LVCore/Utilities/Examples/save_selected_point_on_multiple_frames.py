@@ -9,7 +9,7 @@ import paraview.simple as smp
 import lidarviewcore.kiwiviewerExporter as kiwiExporter
 
 ################################################################################
-default_filename = "/home/user/data/selected_frames.csv"
+default_filename = "C:\Demo\selected_frames.csv"
 default_timesteps = range(50, 100)
 ################################################################################
 
@@ -42,12 +42,16 @@ def saveCSVSelectionAndFrames(selection, filename = default_filename, timesteps 
     # Get player controller to be able to search for each frame
     controller = lv.getPlayerController()
 
+    #get the lidar source for timestamp
+    lidarSource = FindSource('LidarReader1')
+
     for i in timesteps:
         # Load each frame
         controller.onSeekFrame(i)
+        timestamp = lidarSource.TimestepValues[i]
         # Name the current frame with its number
         writer.FileName = name_template % i
-        writer.UpdatePipeline()
+        writer.UpdatePipeline(timestamp)
         # Format csv file
         lv.rotateCSVFile(writer.FileName)
 
@@ -66,4 +70,4 @@ def saveSelectPointsOnMultipleFramesExample():
     saveCSVSelectionAndFrames(selection)
 
 # Uncomment below to execute the script directly when loaded
-# saveSelectPointsOnMultipleFramesExample()
+#saveSelectPointsOnMultipleFramesExample() 
