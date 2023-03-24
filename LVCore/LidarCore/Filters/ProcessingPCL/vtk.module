@@ -7,9 +7,9 @@ CONDITION
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   pcl_common
   pcl_sample_consensus
   LidarView::CommonCore
   LidarView::CommonPCL
-  VTK::CommonExecutionModel

@@ -7,9 +7,9 @@ CONDITION
 DEPENDS
   Eigen3::Eigen
   LidarView::CommonCore
+  LidarView::IOCore
   nanoflann::nanoflann
   VTK::CommonCore
   VTK::CommonDataModel
 PRIVATE_DEPENDS
-  LidarView::IOCore
   YAML::yamlcpp
