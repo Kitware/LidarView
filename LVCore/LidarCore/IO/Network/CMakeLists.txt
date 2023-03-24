@@ -27,8 +27,3 @@ vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers})
-
-paraview_add_server_manager_xmls(
-  XMLS
-    Resources/Interpreter.xml
-    Resources/Stream.xml)

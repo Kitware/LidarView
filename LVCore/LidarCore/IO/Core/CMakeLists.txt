@@ -18,9 +18,3 @@ vtk_module_add_module(LidarView::IOCore
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers})
-
-paraview_add_server_manager_xmls(
-  XMLS
-    Resources/BoundingBoxReader.xml
-    Resources/TemporalTransformsReader.xml
-    Resources/TemporalTransformsWriter.xml)

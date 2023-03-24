@@ -1,0 +1,6 @@
+NAME
+  LidarCorePlugin
+DESCRIPTION
+  Readers, writer and filters from LidarCore (required for LidarView)
+REQUIRES_MODULES
+  LidarView::UtilitiesUsedModules

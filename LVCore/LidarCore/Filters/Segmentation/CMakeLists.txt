@@ -18,8 +18,3 @@ vtk_module_add_module(LidarView::FiltersSegmentation
   CLASSES ${classes}
   # TEMPLATES ${templates}
   HEADERS ${headers})
-
-paraview_add_server_manager_xmls(
-  XMLS
-    Resources/DBSCANClustering.xml
-    Resources/SeparateCloudKnn.xml)
