@@ -43,7 +43,7 @@ endif()
 set(LV_PLUGIN_BUILD_SUBDIRECTORY "plugins")
 
 # Setup install LV Plugin subdir # Where it should be installed / packaged
-set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/plugins")
+set(LV_PLUGIN_INSTALL_SUBDIRECTORY "${LV_INSTALL_LIBRARY_DIR}/lidarview/plugins")
 
 # Setup install PV Plugin subdir
 if (WIN32)
