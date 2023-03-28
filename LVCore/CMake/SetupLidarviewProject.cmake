@@ -39,9 +39,6 @@ add_definitions( -DPROJECT_NAME="${SOFTWARE_NAME}" )
 add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
 add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" )
 
-# Advertise Python version
-add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
-
 #-------------------------------------------------------------------------------
 # Dependencies
 include(Git)

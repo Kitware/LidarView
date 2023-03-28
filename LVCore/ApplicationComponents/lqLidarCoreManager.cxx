@@ -58,6 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vtkFieldData.h>
 #include <vtkPVVersion.h> //  needed for PARAVIEW_VERSION
+#include <vtkProcessModule.h>
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxyManager.h>
@@ -80,12 +81,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QTimer>
 
 #include <sstream>
-
-// Use LV_PYTHON_VERSION supplied at build time
-#ifndef LV_PYTHON_VERSION
-#error "LV_PYTHON_VERSION not defined"
-#endif
-static_assert(LV_PYTHON_VERSION, "LV_PYTHON_VERSION is not defined"); // For good measure
 
 //-----------------------------------------------------------------------------
 class lqLidarCoreManager::pqInternal
@@ -196,24 +191,9 @@ void lqLidarCoreManager::createMainRenderView()
 //-----------------------------------------------------------------------------
 void lqLidarCoreManager::pythonStartup()
 {
-  // Python module Paths
-  QStringList pythonDirs;
-  pythonDirs << QCoreApplication::applicationDirPath()
-             << QCoreApplication::applicationDirPath() +
-      "/../Libraries" // use lidarpluginpython module from packaging MacOS
-             << QCoreApplication::applicationDirPath() +
-      "/../Python/" // use lidarview module from install MacOS
-             << QCoreApplication::applicationDirPath() +
-      "/../lib/pythonLV_PYTHON_VERSION/site-packages/" // use lidarview module from install Linux
-             << QCoreApplication::applicationDirPath() +
-      "/Lib/site-packages/"; // use lidarview module from install Windows
-  foreach (const QString& dirname, pythonDirs)
-  {
-    if (QDir(dirname).exists())
-    {
-      vtkPythonInterpreter::PrependPythonPath(dirname.toUtf8().data());
-    }
-  }
+  vtkProcessModule* pm = vtkProcessModule::GetProcessModule();
+  // PrependPythonPath will complete automatically path to right python lib path depending os.
+  vtkPythonInterpreter::PrependPythonPath(pm->GetSelfDir().c_str(), "lidarview/__init__.py");
 
   // Python Decorators
   PythonQt::self()->addDecorators(new lqPythonQtDecorators(this));
