@@ -14,6 +14,13 @@ function(check_depedency_target name target_name)
 endfunction()
 
 #--------------------------------------
+# Python dependency - required
+#--------------------------------------
+find_package(Python3 3.9 QUIET REQUIRED COMPONENTS Interpreter)
+set(lidarview_python_version "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+message(STATUS "Using Python ${lidarview_python_version}")
+
+#--------------------------------------
 # ParaView dependency - required
 #--------------------------------------
 find_package(ParaView 5.11 REQUIRED)
@@ -49,9 +56,11 @@ print_version(Qt5)
 #--------------------------------------
 # PythonQt dependency - required
 #--------------------------------------
-find_package(PythonQt REQUIRED)
-check_depedency_target(PythonQt PythonQt::PythonQt)
-message(STATUS "Found PythonQt")
+if (LIDARVIEW_USE_PYTHONQT)
+  find_package(PythonQt REQUIRED)
+  check_depedency_target(PythonQt PythonQt::PythonQt)
+  message(STATUS "Found PythonQt")
+endif ()
 
 #--------------------------------------
 # PCAP dependency - required

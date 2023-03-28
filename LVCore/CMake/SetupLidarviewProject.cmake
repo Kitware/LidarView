@@ -47,13 +47,6 @@ add_definitions( -DLV_PYTHON_VERSION=${superbuild_python_version})
 include(Git)
 include(CTest)
 
-# Find Python
-message(STATUS "Using Python ${superbuild_python_version}")
-find_package(Python3 ${superbuild_python_version} EXACT QUIET REQUIRED COMPONENTS Interpreter Development)
-if(NOT ${superbuild_python_version} EQUAL "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
-  message(FATAL_ERROR "Superbuild and found Python Version mismatch")
-endif()
-
 # Version
 include(ParaViewDetermineVersion)
 # Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
