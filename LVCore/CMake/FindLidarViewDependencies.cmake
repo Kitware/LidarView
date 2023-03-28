@@ -1,8 +1,6 @@
 #--------------------------------------
 # Miscellaneous helper cmake macros
 #--------------------------------------
-include(LidarViewSupportMacros)
-
 function(print_version name)
   message(STATUS "Found ${name}: ${${name}_VERSION}")
 endfunction()
@@ -65,8 +63,6 @@ endif ()
 #--------------------------------------
 # PCAP dependency - required
 #--------------------------------------
-option(LIDARVIEW_USE_PCAP "PCAP is required for reading .pcap (from lidar)" ON)
-mark_as_advanced(LIDARVIEW_USE_PCAP)
 if (LIDARVIEW_USE_PCAP)
   find_library(PCAP_LIBRARY pcap DOC "pcap library")
   find_path(PCAP_INCLUDE_DIR pcap.h DOC "pcap include directory")
@@ -84,13 +80,11 @@ endif ()
 #--------------------------------------
 # Liblas dependency - required
 #--------------------------------------
-option(LIDARVIEW_USE_LIBLAS "Liblas is required for writing .las" ON)
-mark_as_advanced(LIDARVIEW_USE_LIBLAS)
 if (LIDARVIEW_USE_LIBLAS)
   set(las_name las)
-  if(WIN32)
+  if (WIN32)
     set(las_name liblas)
-  endif()
+  endif ()
 
   find_library(LIBLAS_LIBRARY ${las_name} DOC "las library")
   find_path(LIBLAS_INCLUDE_DIR liblas/version.hpp DOC "las include directory")
@@ -128,8 +122,6 @@ find_package(Boost REQUIRED COMPONENTS atomic filesystem program_options system 
 #--------------------------------------
 # PCL dependency - optional
 #--------------------------------------
-lidarview_deprecated_setting(pcl_default LIDARVIEW_USE_PCL ENABLE_pcl OFF)
-option(LIDARVIEW_USE_PCL "PCL is required for some filters (e.g SLAM, PCLRansacFilter)" "${pcl_default}")
 if (LIDARVIEW_USE_PCL)
   find_package(PCL REQUIRED COMPONENTS common kdtree features registration io sample_consensus)
   # WIP not clean contains a NIP "-Dno-qhull"
@@ -140,8 +132,6 @@ endif ()
 #--------------------------------------
 # Ceres dependency - optional
 #--------------------------------------
-lidarview_deprecated_setting(ceres_default LIDARVIEW_USE_CERES ENABLE_ceres OFF)
-option(LIDARVIEW_USE_CERES "Ceres is required for filters using non-linear least square optimization (e.g SLAM, autocalibration)" "${ceres_default}")
 if (LIDARVIEW_USE_CERES)
   find_package(Ceres REQUIRED)
 endif ()
@@ -149,8 +139,6 @@ endif ()
 #--------------------------------------
 # nanoflann dependency - optional
 #--------------------------------------
-lidarview_deprecated_setting(nanoflann_default LIDARVIEW_USE_NANOFLANN ENABLE_nanoflann OFF)
-option(LIDARVIEW_USE_NANOFLANN "Nanoflann will be required for filters using some optimized kdtree (e.g SLAM, DBSCAN)" "${nanoflann_default}")
 if (LIDARVIEW_USE_NANOFLANN)
   find_package(nanoflann REQUIRED)
   print_version(nanoflann)
@@ -159,8 +147,6 @@ endif ()
 #--------------------------------------
 # Opencv dependency - optional
 #--------------------------------------
-lidarview_deprecated_setting(opencv_default LIDARVIEW_USE_OPENCV ENABLE_opencv OFF)
-option(LIDARVIEW_USE_OPENCV "OpenCV is required for handling lidar-camera multisensor systems" "${opencv_default}")
 if (LIDARVIEW_USE_OPENCV)
   find_package(OpenCV REQUIRED)
   print_version(OpenCV)
