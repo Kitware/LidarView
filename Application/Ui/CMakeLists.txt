@@ -64,8 +64,8 @@ target_include_directories(ApplicationUi PUBLIC
 
 target_compile_definitions(ApplicationUi
   PRIVATE
-  "LIDARVIEW_BUILD_VELODYNE=$<BOOL:${LIDARVIEW_BUILD_VELODYNE}>"
-  "LIDARVIEW_BUILD_HESAI=$<BOOL:${LIDARVIEW_BUILD_HESAI}>"
+  "LIDARVIEW_BUILD_VELODYNE=$<BOOL:${PARAVIEW_PLUGIN_ENABLE_VelodynePlugin}>"
+  "LIDARVIEW_BUILD_HESAI=$<BOOL:${PARAVIEW_PLUGIN_ENABLE_HesaiPlugin}>"
 )
 
 include(GenerateExportHeader)
