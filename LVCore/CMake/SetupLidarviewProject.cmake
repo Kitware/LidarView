@@ -14,30 +14,35 @@
 
 #CMake
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
-cmake_policy(SET CMP0057 NEW) #if() supports IN_LIST #ParaviewPlugin.cmake
 
 #Sanitize checks
 if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
   message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
 endif()
-if(NOT superbuild_python_version)
-  message(FATAL_ERROR "superbuild_python_version not set")
-endif()
-if(NOT paraview_version)
-  message(FATAL_ERROR "paraview_version not set")
-endif()
+string(TOUPPER ${SOFTWARE_NAME} software_name_upper)
 
 include(CheckBuildType)
 
+include(GNUInstallDirs)
+if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+endif ()
+if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+endif ()
+if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+endif ()
+
 #-------------------------------------------------------------------------------
 # Set Variables
-option(BUILD_SHARED_LIBS "Build shared libs" ON) #Should be a Set instead of an Option
+set(BUILD_SHARED_LIBS "${${software_name_upper}_BUILD_SHARED_LIBS}")
 include(SetCompilationFlags)
 
 # Branding
-add_definitions( -DPROJECT_NAME="${SOFTWARE_NAME}" )
-add_definitions( -DSOFTWARE_NAME="${SOFTWARE_NAME}" )
-add_definitions( -DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}" )
+add_definitions(-DPROJECT_NAME="${SOFTWARE_NAME}")
+add_definitions(-DSOFTWARE_NAME="${SOFTWARE_NAME}")
+add_definitions(-DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}")
 
 #-------------------------------------------------------------------------------
 # Dependencies
@@ -53,11 +58,9 @@ determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
 
 include(FindLidarViewDependencies)
 
-# Doc
-option(BUILD_DOC "Build documentation" OFF)
-if(BUILD_DOC)
+if (${software_name_upper}_BUILD_DEVELOPER_DOCUMENTATION)
   include(SetupDoxygenDocumentation)
-endif()
+endif ()
 
 #-------------------------------------------------------------------------------
 # Set Relative Path Variables
@@ -97,17 +100,9 @@ elseif(UNIX)
   #list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
 endif()
 
-
-#-------------------------------------------------------------------------------
-# Modules
-add_subdirectory(LVCore)
-
 # Fixup-Install
 # On windows, we install all needed tools manually in install dir
 if (WIN32)
   # Ship Qt5, Python3
   include(SetupWindowsCustomInstall)
 endif ()
-
-
-

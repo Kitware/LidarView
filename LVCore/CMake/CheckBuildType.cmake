@@ -14,23 +14,25 @@
 # limitations under the License.
 #===============================================================================
 
-#Sanitize checks
-if(NOT SOFTWARE_NAME )
+# Sanitize checks
+if (NOT SOFTWARE_NAME)
   message(FATAL_ERROR "SOFTWARE_NAME branding not set")
 endif()
 
 # Disallow in-source build
-if ("${CMAKE_SOURCE_DIR}"  STREQUAL "${CMAKE_BINARY_DIR}")
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
   message(FATAL_ERROR
-    "${SOFTWARE_NAME} requires an out of source Build. "
-    "Please create a separate binary directory and run CMake there.")
-endif()
+    "${SOFTWARE_NAME} requires an out-of-source build. Please create a separate "
+    "binary directory and run CMake command there giving "
+    "in parameter the ${SOFTWARE_NAME} source directory.")
+endif ()
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
   # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
-    "MinSizeRel" "RelWithDebInfo")
+  set_property(CACHE CMAKE_BUILD_TYPE
+    PROPERTY
+      STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()

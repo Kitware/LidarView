@@ -135,10 +135,6 @@ add_subdirectory(Python)
 #--------------------------------------
 add_subdirectory(ApplicationComponents)
 
-add_subdirectory(LidarPlugin/)
-
-add_subdirectory(DatasetIOPlugin/)
-
 add_subdirectory(LidarSlamPlugin/)
 
 # Add subdirectory containing python script for animation
