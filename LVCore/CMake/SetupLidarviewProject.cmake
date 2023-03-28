@@ -76,30 +76,7 @@ include(SetupOutputDirs)
 #-------------------------------------------------------------------------------
 # Set Absolute Variables
 
-# Set default OUTPUT_DIRECTORY, like PV prefer those instead of platform-specifics ones
-# This is the most common for third-parties be GNUInstallDirs compliant,
-# so a 'fixup-install-dir' step is required anyway
-# Remember the common-cb/CMakeLists.txt sets CMAKE_INSTALL_PREFIX for install for every projects
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-if(UNIX OR APPLE)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-else()
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-endif()
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-
-# Setup Python module DIR
-if(NOT Python3_VERSION_MAJOR OR NOT Python3_VERSION_MINOR)
-  message(FATAL_ERROR "Python3_VERSION_ variables not set")
-endif()
-if(WIN32)
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/Lib/site-packages")
-elseif(APPLE)
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/../Python") #wip use only Python ? or ${CMAKE_BINARY_DIR}  ${CMAKE_INSTALL_PREFIX} ?
-else()
-  set(LV_INSTALL_PYTHON_MODULES_DIR "${LV_INSTALL_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages")
-endif()
-
+vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
 
 #-----------------------------------------------------------------------------
 # RPATH HANDLING

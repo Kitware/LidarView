@@ -1,35 +1,57 @@
-if(NOT LV_INSTALL_PYTHON_MODULES_DIR)
-  message(FATAL_ERROR "LV_INSTALL_PYTHON_MODULES_DIR not set")
-endif()
+#[==[.md
+## Install python module
 
-include(CMakeParseArguments)
+Inspired from paraview `Wrapping/Python/CMakeLists.txt`
 
-function(python_module_install)
-  cmake_parse_arguments(python_module_install "" "NAME;PATH" "FILES" ${ARGN})
+  * `NAME`: (Required) Target name.
+  * `FILES`: (Required) Python files to be installed.
+#]==]
+function (python_module_install)
+  cmake_parse_arguments(_python_module_install
+    ""
+    "NAME"
+    "FILES"
+    ${ARGN})
 
-  if(NOT python_module_install_NAME)
-    message(FATAL_ERROR "python_module_install requires NAME argument")
-  endif()
+  if (_python_module_install_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for _python_module_install: "
+      "${_python_module_install_UNPARSED_ARGUMENTS}")
+  endif ()
+  if (NOT DEFINED _python_module_install_NAME OR NOT DEFINED _python_module_install_FILES)
+    message(FATAL_ERROR "`NAME` and `FILES` arguments are required.")
+  endif ()
 
-  if(NOT python_module_install_PATH)
-    # Assume the Path is the directly python_module_install_NAME
-    set(python_module_install_PATH ${python_module_install_NAME})
-  endif()
+  set(_python_copied_modules)
+  foreach (_python_file IN LISTS _python_module_install_FILES)
+    set(_output_python_file
+      "${CMAKE_BINARY_DIR}/${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/${_python_file}")
+    if (_python_file MATCHES "\\.in$")
+      string(REPLACE ".in" "" _output_python_file "${_output_python_file}")
+      configure_file(
+        "${_python_file}"
+        "${_output_python_file}"
+        @ONLY)
+    else ()
+      add_custom_command(
+        OUTPUT  "${_output_python_file}"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_python_file}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "${CMAKE_CURRENT_SOURCE_DIR}/${_python_file}"
+                "${_output_python_file}"
+        COMMENT "Copying ${CMAKE_CURRENT_SOURCE_DIR}/${_python_file} to ${_output_python_file} binary directory")
+    endif ()
 
-  if(python_module_install_FILES)
-    message(DEPRECATION "python_module_install FILES is deprecated, you must bundle into a python module and supply its NAME")
-    message(FATAL_ERROR "Stopping...")
-  endif()
+    install(
+      FILES       "${_output_python_file}"
+      DESTINATION "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/"
+      COMPONENT   "python")
+    list(APPEND _python_copied_modules
+      "${_output_python_file}")
+  endforeach ()
 
-  # Compilation directory
-  set(module_install_dir "${CMAKE_INSTALL_PREFIX}/${LV_INSTALL_PYTHON_MODULES_DIR}/${python_module_install_NAME}")
+  add_custom_target(lidarview_python_install_${_python_module_install_NAME} ALL
+    DEPENDS
+      ${_python_copied_modules})
+endfunction ()
 
-  # Compile Module in-place
-  add_custom_target("Python-${python_module_install_NAME}" ALL
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${module_install_dir}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${python_module_install_PATH} ${module_install_dir}
-    COMMAND ${Python3_EXECUTABLE} -c "import compileall;compileall.compile_dir('${module_install_dir}')"
-    COMMENT "Python-${python_module_install_NAME}"
-    VERBATIM
-  )
-endfunction()
