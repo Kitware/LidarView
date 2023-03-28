@@ -1,8 +1,3 @@
-# Sanitize checks
-if(NOT LV_INSTALL_LIBRARY_DIR )
-  message(FATAL_ERROR "LV_INSTALL_LIBRARY_DIR not set")
-endif()
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -74,8 +69,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/applicationui_export.h DESTINATION ${L
 
 # Install Library needed
 install(TARGETS ApplicationUi
-        RUNTIME DESTINATION ${LV_INSTALL_RUNTIME_DIR}
-        LIBRARY DESTINATION ${LV_INSTALL_LIBRARY_DIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 #-----------------------------------------------------------------------------
