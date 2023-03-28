@@ -9,6 +9,8 @@
 
 #include <string>
 
+#include "vtkKittiIOModule.h" // for export macro
+
 /*
  * @brief vtkLidarKITTIDataSetWriter writes point clouds in KITTI Format
  * The kitti format is:
@@ -22,7 +24,7 @@
  * @warning In the kitti setup, x is pointing forward, and z upwards, make sure
  * your data is oriented the same way before using this writer
  **/
-class vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
+class VTKKITTIIO_EXPORT vtkLidarKITTIDataSetWriter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarKITTIDataSetWriter* New();

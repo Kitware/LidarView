@@ -6,6 +6,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 
+#include "vtkKittiIOModule.h" // for export macro
+
 #ifndef _WIN32
 #define notImpementedBody \
 std::cerr << typeid(this).name() << "::" << __func__ << " is not implemented" << std::endl;
@@ -18,7 +20,7 @@ std::cerr << typeid(this).name() << "::" << __FUNCTION__ << " is not implemented
  * @brief The vtkLidarKITTIDataSetReader class
  * @warning Only a small subset of method are implemented
  */
-class vtkLidarKITTIDataSetReader : public vtkLidarReader
+class VTKKITTIIO_EXPORT vtkLidarKITTIDataSetReader : public vtkLidarReader
 {
 public:
   static vtkLidarKITTIDataSetReader* New();

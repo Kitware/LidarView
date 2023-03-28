@@ -5,6 +5,7 @@
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
+#include "vtkKittiIOModule.h" // for export macro
 
 /**
  * @brief vtkKITTIObjectLabelsReader reads labels in the format adopted in
@@ -50,7 +51,7 @@
  * TODO Calibration between camera and lidar from calibration file
 */
 
-class vtkKITTIObjectLabelsReader : public vtkMultiBlockDataSetAlgorithm
+class VTKKITTIIO_EXPORT vtkKITTIObjectLabelsReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkKITTIObjectLabelsReader* New();

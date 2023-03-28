@@ -3,6 +3,7 @@ NAME
 DESCRIPTION
   Plugin to read/write standard point cloud datasets files
 REQUIRES_MODULES
+  LidarView::IOLidar
   VTK::CommonColor
   VTK::CommonComputationalGeometry
   VTK::CommonCore
