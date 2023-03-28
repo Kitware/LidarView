@@ -78,6 +78,12 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::FiltersSelection
+  XML_MODULE_FILES
+    Filters/ExtractPointSelection.xml
+)
+
+lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersTemporal
   XML_MODULE_FILES
     Filters/MLSPosesSmoothing.xml

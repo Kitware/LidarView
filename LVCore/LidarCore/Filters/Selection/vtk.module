@@ -7,4 +7,3 @@ DEPENDS
 PRIVATE_DEPENDS
   ParaView::VTKExtensionsExtraction
   VTK::FiltersPoints
-  
