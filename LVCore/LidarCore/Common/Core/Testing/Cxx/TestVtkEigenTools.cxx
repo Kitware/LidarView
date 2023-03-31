@@ -95,7 +95,7 @@ int TestGetSphericalCoordinates()
 }
 
 //-----------------------------------------------------------------------------
-int main()
+int TestVtkEigenTools(int, char*[])
 {
   // initialize the random generator to a fixed seed
   // for test repetability

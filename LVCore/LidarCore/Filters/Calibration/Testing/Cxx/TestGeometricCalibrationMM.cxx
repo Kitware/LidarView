@@ -16,20 +16,18 @@
 // limitations under the License.
 //=========================================================================
 
+#include "vtkEigenTools.h"
 #include "vtkGeometricCalibration.h"
 #include "vtkTemporalTransformsReader.h"
-#include "vtkEigenTools.h"
 
 #include <vtkMath.h>
+#include <vtkTesting.h>
 
-int main(int argc, char* argv[])
+int TestGeometricCalibrationMM(int argc, char* argv[])
 {
-  // Check that the correct number of
-  // arguments is provided
-  if (argc != 2)
-  {
-    return 1;
-  }
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  std::string dataRoot = testing->GetDataRoot();
 
   // number of error in the test
   int errors = 0;
@@ -45,13 +43,12 @@ int main(int argc, char* argv[])
   std::string alignedFile;
   vtkSmartPointer<vtkTemporalTransforms> r, a;
 
-
   // First dataset:
 
-  referenceFile = std::string(argv[1]) + "/mm03/imu.csv";
-  alignedFile = std::string(argv[1]) + "/mm03/lidar-slam.csv";
+  referenceFile = dataRoot + "/trajectories/mm03/imu.csv";
+  alignedFile = dataRoot + "/trajectories/mm03/lidar-slam.csv";
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
-  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(- mm03_gt);
+  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(-mm03_gt);
 
   std::pair<double, AnglePositionVector> calib = EstimateCalibrationFromPoses(a, r);
   Eigen::Matrix3d R1 = RollPitchYawToMatrix(calib.second(0), calib.second(1), calib.second(2));
@@ -60,19 +57,18 @@ int main(int argc, char* argv[])
   double angularError1 = (180.0 / vtkMath::Pi()) * aa1.angle();
   errors += angularError1 < angular_error_tol ? 0 : 1;
 
-  Eigen::Vector3d yprDegree1 = (180.0 / vtkMath::Pi()) * R1.eulerAngles(2,1,0);
-  std::cout << "angles: " << yprDegree1[2] << ", " << yprDegree1[1] << ", " << yprDegree1[0] << std::endl;
-  std::cout << "pos: " << std::abs(calib.second(3))
-            << ", " << std::abs(calib.second(4))
-            << ", " << std::abs(calib.second(5)) << std::endl;
-
+  Eigen::Vector3d yprDegree1 = (180.0 / vtkMath::Pi()) * R1.eulerAngles(2, 1, 0);
+  std::cout << "angles: " << yprDegree1[2] << ", " << yprDegree1[1] << ", " << yprDegree1[0]
+            << std::endl;
+  std::cout << "pos: " << std::abs(calib.second(3)) << ", " << std::abs(calib.second(4)) << ", "
+            << std::abs(calib.second(5)) << std::endl;
 
   // Second dataset:
 
-  referenceFile = std::string(argv[1]) + "/mm04/imu.csv";
-  alignedFile = std::string(argv[1]) + "/mm04/lidar-slam.csv";
+  referenceFile = dataRoot + "/trajectories/mm04/imu.csv";
+  alignedFile = dataRoot + "/trajectories/mm04/lidar-slam.csv";
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
-  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(- mm04_gt);
+  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(-mm04_gt);
 
   calib = EstimateCalibrationFromPoses(a, r);
   Eigen::Matrix3d R2 = RollPitchYawToMatrix(calib.second(0), calib.second(1), calib.second(2));
@@ -81,11 +77,11 @@ int main(int argc, char* argv[])
   double angularError2 = (180.0 / vtkMath::Pi()) * aa2.angle();
   errors += angularError2 < angular_error_tol ? 0 : 1;
 
-  Eigen::Vector3d yprDegree2 = (180.0 / vtkMath::Pi()) * R2.eulerAngles(2,1,0);
-  std::cout << "angles: " << yprDegree2[2] << ", " << yprDegree2[1] << ", " << yprDegree2[0] << std::endl;
-  std::cout << "pos: " << std::abs(calib.second(3))
-            << ", " << std::abs(calib.second(4))
-            << ", " << std::abs(calib.second(5)) << std::endl;
+  Eigen::Vector3d yprDegree2 = (180.0 / vtkMath::Pi()) * R2.eulerAngles(2, 1, 0);
+  std::cout << "angles: " << yprDegree2[2] << ", " << yprDegree2[1] << ", " << yprDegree2[0]
+            << std::endl;
+  std::cout << "pos: " << std::abs(calib.second(3)) << ", " << std::abs(calib.second(4)) << ", "
+            << std::abs(calib.second(5)) << std::endl;
 
   return errors;
 }

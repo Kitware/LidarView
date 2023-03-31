@@ -10,3 +10,5 @@ DEPENDS
 PRIVATE_DEPENDS
   LidarView::CommonCore
   VTK::CommonTransforms
+TEST_DEPENDS
+  LidarView::TestingCore

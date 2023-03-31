@@ -2,6 +2,8 @@ NAME
   LidarView::TestingCore
 LIBRARY_NAME
   lvTestingCore
+DEPENDS
+  VTK::TestingCore
 PRIVATE_DEPENDS
   LidarView::IOLidar
   LidarView::IONetwork

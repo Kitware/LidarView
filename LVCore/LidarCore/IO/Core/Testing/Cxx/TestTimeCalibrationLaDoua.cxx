@@ -1,4 +1,5 @@
 #include <vtkMath.h>
+#include <vtkTesting.h>
 
 #include "vtkTemporalTransforms.h"
 #include "vtkTemporalTransformsReader.h"
@@ -6,17 +7,17 @@
 
 typedef CorrelationStrategy S;
 
-int main(int argc, char* argv[])
+int TestTimeCalibrationLaDoua(int argc, char* argv[])
 {
-  if (argc != 2)
-  {
-    return 1;
-  }
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  std::string dataRoot = testing->GetDataRoot();
+
   int errors = 0;
   const double gt = -1302.343; // estimated, could be +- 0.1 s
-  const double dt = 0.0667; // smallest sampling rate in both signals
-  std::string referenceFile = std::string(argv[1]) + "/slam_lidar_part1.csv";
-  std::string alignedFile = std::string(argv[1]) + "/orbslam2_gopro_part1.csv";
+  const double dt = 0.0667;    // smallest sampling rate in both signals
+  std::string referenceFile = dataRoot + "/trajectories/la_doua_dataset/slam_lidar_part1.csv";
+  std::string alignedFile = dataRoot + "/trajectories/la_doua_dataset/orbslam2_gopro_part1.csv";
   vtkSmartPointer<vtkTemporalTransforms> r, a;
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
   a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile);
@@ -28,9 +29,8 @@ int main(int argc, char* argv[])
   errors += (std::abs(ComputeTimeShift(r, a, S::ORIENTATION_ANGLE, 1.0) - gt) > 2 * dt);
   errors += (std::abs(ComputeTimeShift(r, a, S::DERIVATED_ORIENTATION_ARC, 1.0) - gt) > 2 * dt);
 
-
-  referenceFile = std::string(argv[1]) + "/slam_lidar_part2.csv";
-  alignedFile = std::string(argv[1]) + "/orbslam2_gopro_part2.csv";
+  referenceFile = dataRoot + "/trajectories/la_doua_dataset/slam_lidar_part2.csv";
+  alignedFile = dataRoot + "/trajectories/la_doua_dataset/orbslam2_gopro_part2.csv";
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
   a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile);
 

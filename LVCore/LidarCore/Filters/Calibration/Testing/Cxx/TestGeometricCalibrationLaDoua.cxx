@@ -1,18 +1,19 @@
 #include <vtkMath.h>
+#include <vtkTesting.h>
 
-#include "vtkGeometricCalibration.h"
-#include "vtkTemporalTransformsReader.h"
 #include "vtkCarGeometricCalibration.h"
 #include "vtkEigenTools.h"
+#include "vtkGeometricCalibration.h"
+#include "vtkTemporalTransformsReader.h"
 
 #include "vtkTimeCalibration.h" // TODO: remove
 
-int main(int argc, char* argv[])
+int TestGeometricCalibrationLaDoua(int argc, char* argv[])
 {
-  if (argc != 2)
-  {
-    return 1;
-  }
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  std::string dataRoot = testing->GetDataRoot();
+
   int errors = 0;
   std::string referenceFile;
   std::string alignedFile;
@@ -22,17 +23,15 @@ int main(int argc, char* argv[])
   Eigen::Matrix3d R_gt = RollPitchYawToMatrix(R_gt_);
   double angular_error_tol = 1.5;
 
-
   // First dataset
 
-  referenceFile = std::string(argv[1]) + "/slam_lidar_part2.csv";
-  alignedFile = std::string(argv[1]) + "/orbslam2_gopro_part2.csv";
+  referenceFile = dataRoot + "/trajectories/la_doua_dataset/slam_lidar_part2.csv";
+  alignedFile = dataRoot + "/trajectories/la_doua_dataset/orbslam2_gopro_part2.csv";
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
   // we do not forget to correct the scale because EstimateCalibrationFromPoses
   // requires the trajectories to be scaled and our orbslam2 was produced with
   // a monocular setup.
-  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)
-      ->ApplyTimeshift(1302.343);
+  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(1302.343);
 
   a = a->ApplyScale(1.0 / 0.0120337);
 
@@ -43,20 +42,18 @@ int main(int argc, char* argv[])
   double angularError1 = (180.0 / vtkMath::Pi()) * aa1.angle();
   errors += angularError1 < angular_error_tol ? 0 : 1;
 
-  Eigen::Vector3d yprDegree1 = (180.0 / vtkMath::Pi()) * R1.eulerAngles(2,1,0);
-  std::cout << "angles: " << yprDegree1[2] << ", " << yprDegree1[1] << ", " << yprDegree1[0] << std::endl;
-  std::cout << "pos: " << std::abs(calib.second(3))
-            << ", " << std::abs(calib.second(4))
-            << ", " << std::abs(calib.second(5)) << std::endl;
-
+  Eigen::Vector3d yprDegree1 = (180.0 / vtkMath::Pi()) * R1.eulerAngles(2, 1, 0);
+  std::cout << "angles: " << yprDegree1[2] << ", " << yprDegree1[1] << ", " << yprDegree1[0]
+            << std::endl;
+  std::cout << "pos: " << std::abs(calib.second(3)) << ", " << std::abs(calib.second(4)) << ", "
+            << std::abs(calib.second(5)) << std::endl;
 
   // Second dataset
 
-  referenceFile = std::string(argv[1]) + "/slam_lidar_part1.csv";
-  alignedFile = std::string(argv[1]) + "/orbslam2_gopro_part1.csv";
+  referenceFile = dataRoot + "/trajectories/la_doua_dataset/slam_lidar_part1.csv";
+  alignedFile = dataRoot + "/trajectories/la_doua_dataset/orbslam2_gopro_part1.csv";
   r = vtkTemporalTransformsReader::OpenTemporalTransforms(referenceFile);
-  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)
-      ->ApplyTimeshift(1302.343);
+  a = vtkTemporalTransformsReader::OpenTemporalTransforms(alignedFile)->ApplyTimeshift(1302.343);
   a = a->ApplyScale(1.0 / 0.0291194);
 
   calib = EstimateCalibrationFromPoses(a, r);
@@ -66,11 +63,11 @@ int main(int argc, char* argv[])
   double angularError2 = (180.0 / vtkMath::Pi()) * aa2.angle();
   errors += angularError2 < angular_error_tol ? 0 : 1;
 
-  Eigen::Vector3d yprDegree2 = (180.0 / vtkMath::Pi()) * R2.eulerAngles(2,1,0);
-  std::cout << "angles: " << yprDegree2[2] << ", " << yprDegree2[1] << ", " << yprDegree2[0] << std::endl;
-  std::cout << "pos: " << std::abs(calib.second(3))
-            << ", " << std::abs(calib.second(4))
-            << ", " << std::abs(calib.second(5)) << std::endl;
+  Eigen::Vector3d yprDegree2 = (180.0 / vtkMath::Pi()) * R2.eulerAngles(2, 1, 0);
+  std::cout << "angles: " << yprDegree2[2] << ", " << yprDegree2[1] << ", " << yprDegree2[0]
+            << std::endl;
+  std::cout << "pos: " << std::abs(calib.second(3)) << ", " << std::abs(calib.second(4)) << ", "
+            << std::abs(calib.second(5)) << std::endl;
 
   return errors;
 }

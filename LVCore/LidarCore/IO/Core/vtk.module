@@ -19,3 +19,4 @@ PRIVATE_DEPENDS
   VTK::IOInfovis            # vtkTemporalTransformsReader needs vtkDelimitedTextReader
 TEST_DEPENDS
   LidarView::TestingCore
+  VTK::TestingRendering

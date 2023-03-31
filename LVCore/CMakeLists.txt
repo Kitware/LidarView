@@ -1,4 +1,10 @@
+#--------------------------------------
+# Set-up lvcore test & cmake variables
+#--------------------------------------
 set(lidarview_cmake_destination "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview")
+set(lidarview_test_data_directory_input "${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data")
+set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")
+set(lidarview_test_output_directory "${CMAKE_BINARY_DIR}/Testing/Temporary")
 
 #--------------------------------------
 # Scan LidarView plugins
@@ -38,7 +44,7 @@ vtk_module_scan(
   REQUIRES_MODULES      lidarview_required_modules
   UNRECOGNIZED_MODULES  lidarview_unrecognized_modules
   WANT_BY_DEFAULT       "${LIDARVIEW_BUILD_ALL_MODULES}"
-  ENABLE_TESTS          "${LIDARVIEW_BUILD_TESTING}")
+  ENABLE_TESTS          "${BUILD_TESTING}")
 
 set(lidarview_unrecognized_lidarview_modules)
 foreach (lidarview_module IN LISTS lidarview_unrecognized_modules)
@@ -71,7 +77,9 @@ vtk_module_build(
   VERSION                   "${LV_VERSION}"
   SOVERSION                 "1"
   ENABLE_WRAPPING           ON
-  TEST_INPUT_DATA_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data")
+  TEST_INPUT_DATA_DIRECTORY   "${lidarview_test_data_directory_input}"
+  TEST_OUTPUT_DATA_DIRECTORY  "${lidarview_test_data_directory_output}"
+  TEST_OUTPUT_DIRECTORY       "${lidarview_test_output_directory}")
 
 #--------------------------------------
 # Build LidarView plugins
@@ -135,9 +143,16 @@ add_subdirectory(Python)
 #--------------------------------------
 add_subdirectory(ApplicationComponents)
 
-add_subdirectory(LidarSlamPlugin/)
+add_subdirectory(LidarSlamPlugin)
 
 # Add subdirectory containing python script for animation
 add_subdirectory(Utilities/Animation)
 # Add sudbirectory containing python helper functions for pipeline scripting
 add_subdirectory(Utilities/Examples)
+
+#--------------------------------------
+# Build Python & UI XML Testing
+#--------------------------------------
+if (BUILD_TESTING)
+  add_subdirectory(Testing)
+endif ()

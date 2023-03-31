@@ -2,6 +2,8 @@
 #include "CameraProjection.h"
 #include "vtkEigenTools.h"
 
+#include <vtkTesting.h>
+
 #include <Eigen/Dense>
 
 //----------------------------------------------------------------------------
@@ -51,17 +53,16 @@ int TestFisheyeModelCalibration(std::string matchedFilename, std::string groundt
 }
 
 //----------------------------------------------------------------------------
-int main(int argc, char* argv[])
+int TestCameraCalibration(int argc, char* argv[])
 {
-  if (argc != 2)
-  {
-    return 0;
-  }
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  std::string dataRoot = testing->GetDataRoot();
 
   int errors = 0;
 
-  std::string fisheyeMatchesFilename = std::string(argv[1]) + "/fisheye_camera.csv";
-  std::string fisheyeGroundtruthFilename = std::string(argv[1]) + "/FisheyeParamsExpected.csv";
+  std::string fisheyeMatchesFilename = dataRoot + "/Camera/fisheye_camera.csv";
+  std::string fisheyeGroundtruthFilename = dataRoot + "/Camera/FisheyeParamsExpected.csv";
   errors += TestFisheyeModelCalibration(fisheyeMatchesFilename, fisheyeGroundtruthFilename);
 
   return errors;

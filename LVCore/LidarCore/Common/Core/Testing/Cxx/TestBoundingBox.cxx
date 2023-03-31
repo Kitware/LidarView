@@ -29,8 +29,12 @@
 #include "vtkEigenTools.h"
 
 //-----------------------------------------------------------------------------
-int TestBoundingBox()
+int TestBoundingBox(int, char*[])
 {
+  // initialize the random generator to a fixed seed
+  // for test repetability
+  std::srand(1992);
+
   double epsilon = 1e-3;
 
   Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
@@ -86,16 +90,4 @@ int TestBoundingBox()
   }
 
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-int main()
-{
-  // initialize the random generator to a fixed seed
-  // for test repetability
-  std::srand(1992);
-
-  int nbrErrors = 0;
-  nbrErrors += TestBoundingBox();
-  return nbrErrors;
 }

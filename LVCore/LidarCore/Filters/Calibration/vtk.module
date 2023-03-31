@@ -16,4 +16,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonMath
 TEST_DEPENDS
+  LidarView::CommonCeres
   LidarView::IOCore
+  LidarView::TestingCore
+  VTK::TestingRendering
