@@ -35,6 +35,8 @@
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 
+#include "lvFiltersTemporalModule.h"
+
 // EIGEN
 #include <Eigen/Dense>
 
@@ -43,7 +45,7 @@
 #include <cmath>
 #include <list>
 
-class Gaussian
+class LVFILTERSTEMPORAL_EXPORT Gaussian
 {
 public:
   Gaussian();
@@ -80,7 +82,7 @@ private:
   int MaxTTL;
 };
 
-class GaussianMixture
+class LVFILTERSTEMPORAL_EXPORT GaussianMixture
 {
 public:
   // default constructor
@@ -116,7 +118,7 @@ private:
 };
 
 
-class vtkSphericalMap
+class LVFILTERSTEMPORAL_EXPORT vtkSphericalMap
 {
 public:
   // default constructor

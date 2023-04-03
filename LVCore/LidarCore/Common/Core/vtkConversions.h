@@ -30,22 +30,24 @@
 // Eigen
 #include <Eigen/Dense>
 
+#include "lvCommonCoreModule.h"
+
 /// This function creates a vector of Eigen::Vector3d from vtkPoints.
-std::vector<Eigen::Vector3d> vtkPointsToEigenVector(vtkPoints* points);
+std::vector<Eigen::Vector3d> LVCOMMONCORE_EXPORT vtkPointsToEigenVector(vtkPoints* points);
 
 /// This function creates a vtkPoints from a vector of Eigen::Vector3d. (Warning: loss of precision because vtkPoints are in float)
-vtkSmartPointer<vtkPoints> eigenVectorToVTKPoints(std::vector<Eigen::Vector3d> const& points);
+vtkSmartPointer<vtkPoints> LVCOMMONCORE_EXPORT eigenVectorToVTKPoints(std::vector<Eigen::Vector3d> const& points);
 
 /// Get the 6-DOF parameters (angles, translation) of a vtkTransform
-std::pair<Eigen::Vector3d, Eigen::Vector3d> GetPoseParamsFromTransform(vtkSmartPointer<vtkTransform> transform);
+std::pair<Eigen::Vector3d, Eigen::Vector3d> LVCOMMONCORE_EXPORT GetPoseParamsFromTransform(vtkSmartPointer<vtkTransform> transform);
 
 /// Get the vtkTransform from the 6-DOF parameters (angles, translation)
-vtkSmartPointer<vtkTransform> GetTransformFromPosesParams(std::pair<Eigen::Vector3d, Eigen::Vector3d> dof6);
+vtkSmartPointer<vtkTransform> LVCOMMONCORE_EXPORT GetTransformFromPosesParams(std::pair<Eigen::Vector3d, Eigen::Vector3d> dof6);
 
 // Extracts the rotation part of a vtkTransform
-Eigen::Matrix3d RotationMatrixFromTransform(vtkTransform* transform);
+Eigen::Matrix3d LVCOMMONCORE_EXPORT RotationMatrixFromTransform(vtkTransform* transform);
 
 // Extracts the position part of a vtkTransform
-Eigen::Vector3d PositionVectorFromTransform(vtkTransform* transform);
+Eigen::Vector3d LVCOMMONCORE_EXPORT PositionVectorFromTransform(vtkTransform* transform);
 
 #endif

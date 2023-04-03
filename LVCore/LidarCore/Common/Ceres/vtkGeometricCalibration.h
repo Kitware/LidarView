@@ -104,9 +104,9 @@ typedef Eigen::Matrix<double, 6, 1> AnglePositionVector;
 * \@param targetSensor Poses trajectory of the first sensor
 * \@param Sensor2Poses Poses trajectory of the second sensor
 */
-void EstimateEulerAngleConvention(vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
+void LVCOMMONCERES_EXPORT EstimateEulerAngleConvention(vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
                                   vtkSmartPointer<vtkTemporalTransforms> targetSensor);
-void EstimateEulerAngleConvention(const std::string& sourceSensorFilename,
+void LVCOMMONCERES_EXPORT EstimateEulerAngleConvention(const std::string& sourceSensorFilename,
                                   const std::string& targetSensorFilename);
 
 
@@ -145,12 +145,12 @@ std::pair<double, AnglePositionVector> LVCOMMONCERES_EXPORT EstimateCalibrationF
                                             const double timeScaleAnalysisBound = 5.0,
                                             const double timeScaleAnalysisStep = 0.2,
                                             const double timeStep = 0.4);
-std::pair<double, AnglePositionVector> EstimateCalibrationFromPoses(const std::string& sourceSensorFilename,
+std::pair<double, AnglePositionVector> LVCOMMONCERES_EXPORT EstimateCalibrationFromPoses(const std::string& sourceSensorFilename,
                                                                     const std::string& targetSensorFilename,
                                                                     const double timeScaleAnalysisBound = 5.0,
                                                                     const double timeScaleAnalysisStep = 0.2,
                                                                     const double timeStep = 0.4);
-vtkSmartPointer<vtkTemporalTransforms> EstimateCalibrationFromPosesAndApply(
+vtkSmartPointer<vtkTemporalTransforms> LVCOMMONCERES_EXPORT EstimateCalibrationFromPosesAndApply(
                                             vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
                                             vtkSmartPointer<vtkTemporalTransforms> targetSensor,
                                             const double timeScaleAnalysisBound = 5.0,
@@ -175,12 +175,12 @@ vtkSmartPointer<vtkTemporalTransforms> EstimateCalibrationFromPosesAndApply(
 * \@param targetSensor Poses trajectory of the first sensor
 * \@param sourceSensor Poses trajectory of the second sensor
 */
-std::pair<double, AnglePositionVector> MatchTrajectoriesWithIsometry(
+std::pair<double, AnglePositionVector> LVCOMMONCERES_EXPORT MatchTrajectoriesWithIsometry(
                                                         vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
                                                         vtkSmartPointer<vtkTemporalTransforms> targetSensor);
-std::pair<double, AnglePositionVector> MatchTrajectoriesWithIsometry(const std::string& sourceSensorFilename,
+std::pair<double, AnglePositionVector> LVCOMMONCERES_EXPORT MatchTrajectoriesWithIsometry(const std::string& sourceSensorFilename,
                                                                      const std::string& targetSensorFilename);
-vtkSmartPointer<vtkTemporalTransforms> MatchTrajectoriesWithIsometryAndApply(
+vtkSmartPointer<vtkTemporalTransforms> LVCOMMONCERES_EXPORT MatchTrajectoriesWithIsometryAndApply(
                                                          vtkSmartPointer<vtkTemporalTransforms> sourceSensor,
                                                          vtkSmartPointer<vtkTemporalTransforms> targetSensor);
 
@@ -205,7 +205,7 @@ vtkSmartPointer<vtkTemporalTransforms> MatchTrajectoriesWithIsometryAndApply(
 * \@param imuPosesFilename Poses trajectory of the IMU - GPS
 * \@param sensorPosesFilename Poses trajectory of the LiDAR - SLAM
 */
-void CreateSyntheticPosesData(const std::string& vehiclePosesFilename,
+void LVCOMMONCERES_EXPORT CreateSyntheticPosesData(const std::string& vehiclePosesFilename,
                               const std::string& imuPosesFilename,
                               const std::string& sensorPosesFilename);
 

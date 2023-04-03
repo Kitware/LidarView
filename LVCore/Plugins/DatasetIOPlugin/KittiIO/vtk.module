@@ -9,6 +9,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  Boost::filesystem
   LidarView::IOLidar
   VTK::CommonColor
   VTK::CommonComputationalGeometry

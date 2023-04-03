@@ -27,6 +27,7 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 
+#include "lvCommonCoreModule.h"
 
 template <typename T>
 vtkSmartPointer<T> createArray(const std::string& Name, int NumberOfComponents = 1, int NumberOfTuples = 0)
@@ -83,6 +84,6 @@ int closestElementInOrderedVector(const std::vector<T>& v, T x)
   }
 }
 
-vtkSmartPointer<vtkPolyLine> CreatePolyLineFromPoints(const vtkSmartPointer<vtkPoints> & points);
+vtkSmartPointer<vtkPolyLine> LVCOMMONCORE_EXPORT CreatePolyLineFromPoints(const vtkSmartPointer<vtkPoints> & points);
 
 #endif // VTK_HELPER_H

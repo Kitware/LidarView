@@ -9,10 +9,12 @@
 // STD
 #include <vector>
 
+#include "lvCommonCoreModule.h"
+
 /** @brief getTimeSteps get all timesteps from a vtkInformation
  *         Can be used to synchronize inputs with different timelines
  */
-std::vector<double> getTimeSteps(vtkInformation* info);
+std::vector<double> LVCOMMONCORE_EXPORT getTimeSteps(vtkInformation* info);
 
 # endif  // VTK_PIPELINE_TOOLS-H
 
