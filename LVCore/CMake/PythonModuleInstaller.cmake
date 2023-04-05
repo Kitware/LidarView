@@ -42,9 +42,11 @@ function (python_module_install)
         COMMENT "Copying ${CMAKE_CURRENT_SOURCE_DIR}/${_python_file} to ${_output_python_file} binary directory")
     endif ()
 
+    set(_python_directory)
+    cmake_path(GET _python_file PARENT_PATH _python_directory)
     install(
       FILES       "${_output_python_file}"
-      DESTINATION "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/"
+      DESTINATION "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/${_python_directory}"
       COMPONENT   "python")
     list(APPEND _python_copied_modules
       "${_output_python_file}")
