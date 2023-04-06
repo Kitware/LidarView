@@ -13,7 +13,7 @@ author = 'Kitware, Inc.'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = ["sphinx_exercise"]
 
 templates_path = ['_templates']
 exclude_patterns = ['Thumbs.db', '.DS_Store']
