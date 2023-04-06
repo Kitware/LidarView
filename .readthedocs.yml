@@ -4,3 +4,6 @@ submodules:
   include: 
     - LVCore 
 
+python:
+  install:
+    - requirements: doc/requirements.txt
