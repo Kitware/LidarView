@@ -15,6 +15,7 @@ OPTIONAL_DEPENDS
   LidarView::FiltersProcessingPCL
   LidarView::FiltersSegmentation
   LidarView::FiltersTemporal
+  LidarView::FiltersSelection
   LidarView::FiltersVisualization
   LidarView::IOCameraOpenCV
   LidarView::IOCore

@@ -1,4 +1,3 @@
-set(xml_files)
 set(required_modules)
 
 #[==[.md
@@ -30,7 +29,11 @@ macro (lidarcoreplugin_add_module_xml)
   endif ()
 
   if (TARGET ${_lidarcoreplugin_add_module_xml_MODULE_TARGET})
-    list(APPEND xml_files ${_lidarcoreplugin_add_module_xml_XML_MODULE_FILES})
+    paraview_add_server_manager_xmls(
+      MODULE ${_lidarcoreplugin_add_module_xml_MODULE_TARGET}
+      XMLS
+        ${_lidarcoreplugin_add_module_xml_XML_MODULE_FILES}
+    )
     list(APPEND required_modules ${_lidarcoreplugin_add_module_xml_MODULE_TARGET})
   endif()
 endmacro ()
@@ -114,15 +117,6 @@ lidarcoreplugin_add_module_xml(
     IO/PCDWriter.xml
 )
 
-# Order matters Network needs to be declared before IOGeolocation and
-# IOLidar as it needs Stream.xml file
-lidarcoreplugin_add_module_xml(
-  MODULE_TARGET LidarView::IONetwork
-  XML_MODULE_FILES
-    IO/Interpreter.xml
-    IO/Stream.xml
-)
-
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOGeolocation
   XML_MODULE_FILES
@@ -142,6 +136,13 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::IONetwork
+  XML_MODULE_FILES
+    IO/Interpreter.xml
+    IO/Stream.xml
+)
+
+lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::Sources
   XML_MODULE_FILES
     Sources/GridSource.xml
@@ -152,8 +153,4 @@ paraview_add_plugin(LidarCorePlugin
   REQUIRED_ON_SERVER
   VERSION "1.0"
   MODULES ${required_modules}
-  SERVER_MANAGER_XML ${xml_files})
-
-target_link_libraries(LidarCorePlugin
-  PRIVATE
-    ${required_modules})
+)
