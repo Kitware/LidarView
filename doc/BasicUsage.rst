@@ -81,9 +81,9 @@ can both be found on the Menu Bar (File->Open) or on the Open Data Toolbar.
 
     Now let's connect **LidarView** to an active Lidar sensor stream. If you
     don't have accessing to a sensor stream LidarView includes a command line
-    tool to create one from a PCAP file described in <need ref>. Go to the the
-    File menu and select Open and then Sensor Stream. Alternatively you can
-    click on the Sensor Stream button |OpenStream| in the Open Data section
+    tool to create one from a PCAP file described in :numref:`StreamAPCAPFile`.
+    Go to the the File menu and select Open and then Sensor Stream. Alternatively
+    you can click on the Sensor Stream button |OpenStream| in the Open Data section
     of the toolbar. Select the appropriate sensor interpeter and click OK. By
     default LidarView assumes the sensor stream will be available on the network
     port 2368. You should now see the streaming Lidar data in the main window.
@@ -92,13 +92,13 @@ can both be found on the Menu Bar (File->Open) or on the Open Data Toolbar.
    :label: AdvancedSensorConfiguration
    :class: note
 
-   Sometimes when opening a sensor stream needs to access options such as
-   specifying data origin and sensor orientation or adjusting the port number
-   that the data is arriving on. Follow the same steps in either
-   :numref:`OpenSaveSensorStream` or :numref:`ConnectToSensorStream` till you
-   get to the window to select the sensor interpeter. At the bottom left of this
-   window there will be a check box labeled "Advanced configuration". Check the
-   box and you should see several advanced options for the sensor configuration.
+    Sometimes when opening a sensor stream needs to access options such as
+    specifying data origin and sensor orientation or adjusting the port number
+    that the data is arriving on. Follow the same steps in either
+    :numref:`OpenSaveSensorStream` or :numref:`ConnectToSensorStream` till you
+    get to the window to select the sensor interpeter. At the bottom left of this
+    window there will be a check box labeled "Advanced configuration". Check the
+    box and you should see several advanced options for the sensor configuration.
 
 .. |OpenPCAP| image:: ../Application/Ui/Widgets/images/WiresharkDoc-128.png
    :height: 20px
