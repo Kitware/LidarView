@@ -151,3 +151,13 @@ if (LIDARVIEW_USE_OPENCV)
   find_package(OpenCV REQUIRED)
   print_version(OpenCV)
 endif ()
+
+#--------------------------------------
+# LidarSlam dependency - optional
+#--------------------------------------
+
+if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
+  find_package(LidarSlam REQUIRED QUIET)
+  print_version(LidarSlam)
+  check_depedency_target("LidarSlam::paraview_wrapping" LidarSlam::paraview_wrapping)
+endif ()

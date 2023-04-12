@@ -18,7 +18,9 @@ mark_as_advanced(LIDARVIEW_BUILD_ALL_MODULES)
 option(BUILD_TESTING "Enable testing" OFF)
 mark_as_advanced(BUILD_TESTING)
 
-option(LIDARVIEW_BUILD_SLAM "Build Lidar SLAM (requires PCL, nanoflann and ceres)" OFF)
+lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the Slam
+option(PARAVIEW_PLUGIN_ENABLE_LidarSlam "Search for LidarSlam plugin." OFF)
+mark_as_advanced(PARAVIEW_PLUGIN_ENABLE_LidarSlam)
 
 #========================================================================
 # OPTIONNAL EXTERN LIBRARY OPTIONS
