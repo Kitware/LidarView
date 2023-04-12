@@ -20,7 +20,8 @@ set(classes
   vtkEigenTools
   vtkHelper
   vtkPipelineTools
-  vtkTemporalTransforms)
+  vtkTemporalTransforms
+  vtkVoxelGridProcessor)
 
 # set(templates
 #   BoundingBox)
