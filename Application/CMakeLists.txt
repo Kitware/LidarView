@@ -25,6 +25,15 @@ set(source_files
 # You also need to change:
 #   - bottom_logo.png (bottom logo)
 
+set(plugins_targets
+  ParaView::paraview_plugins
+  LidarView::lidarview_plugins
+)
+
+if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
+  list(APPEND plugins_targets LidarSlam::paraview_wrapping)
+endif ()
+
 paraview_client_add(
   NAME              LidarView
   NAMESPACE         "LidarView"
@@ -37,7 +46,7 @@ paraview_client_add(
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/logo.ico"
 
-  PLUGINS_TARGETS   ParaView::paraview_plugins LidarView::lidarview_plugins
+  PLUGINS_TARGETS   ${plugins_targets}
   REQUIRED_PLUGINS  PythonQtPlugin LidarCorePlugin
 
   MAIN_WINDOW_CLASS vvMainWindow
