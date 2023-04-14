@@ -139,6 +139,8 @@ vtk_module_wrap_python(
 
 add_subdirectory(Wrapping/Python)
 
+add_subdirectory(CommandLineExecutables)
+
 #--------------------------------------
 # Build non-plugin/modules LidarView source code
 # (This should be progressively removed)
