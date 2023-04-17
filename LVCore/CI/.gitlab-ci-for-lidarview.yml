@@ -173,7 +173,7 @@ workflow:
     - git log --oneline -n1 --no-abbrev
     - cd $LV_PROJECT_BLV_PATH
     # create a compilation database for the analize stage (clang-tidy)
-    - cmake -DBUILD_TESTING=True -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
+    - cmake -DBUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=True .
 
 .build:
   stage: build
