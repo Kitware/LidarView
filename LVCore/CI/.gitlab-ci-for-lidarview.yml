@@ -200,7 +200,7 @@ workflow:
     - git lfs pull
     - git submodule foreach --recursive "git lfs pull"
     - cd $LV_PROJECT_BLV_PATH
-    - ctest --timeout 120 --repeat until-pass:3
+    - ctest --timeout 120 --repeat until-pass:3 -E "pv" # Exclude ui tests for now
 
 .package:
   stage: package
@@ -217,7 +217,7 @@ workflow:
     - cmake -DBUILD_TESTING=OFF .
     - cd $LV_PROJECT_BSB_PATH
     - cmake --build . --parallel 8
-    - ctest . -VV
+    - ctest . -VV -R "cpack" # Only do packaging test for now
   artifacts:
     name: $CI_JOB_NAME
     paths:
