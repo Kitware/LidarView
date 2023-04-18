@@ -214,7 +214,7 @@ workflow:
     - git fetch --depth=10000 --tags # despite GIT_STRATEGY and git fetch --tags, git describe fail
     - git describe
     - cd $LV_PROJECT_BLV_PATH
-    - cmake -DBUILD_TESTING=False .
+    - cmake -DBUILD_TESTING=OFF .
     - cd $LV_PROJECT_BSB_PATH
     - cmake --build . --parallel 8
     - ctest . -VV
