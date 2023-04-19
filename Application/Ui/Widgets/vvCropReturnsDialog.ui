@@ -29,14 +29,37 @@
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="sliderModeCheckBox">
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>slider mode</string>
+         <string>Keep only the points that lay inside the volume defined below.</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="2" column="1">
+       <widget class="QGroupBox" name="radioButtonGroupBox">
+        <property name="title">
+         <string>Coordinates mode selection:</string>
+        </property>
+        <layout class="QGridLayout" name="radioButtonGroupBoxLayout">
+         <item row="1" column="1">
+          <widget class="QRadioButton" name="sphericalRadioButton">
+           <property name="text">
+            <string>spherical</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="cartesianRadioButton">
+           <property name="text">
+            <string>cartesian</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="1">
        <layout class="QHBoxLayout" name="XLayout">
         <item>
          <widget class="QLabel" name="XLabel">
@@ -76,7 +99,7 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="1">
+      <item row="4" column="1">
        <layout class="QHBoxLayout" name="YLayout">
         <item>
          <widget class="QLabel" name="YLabel">
@@ -116,7 +139,7 @@
         </item>
        </layout>
       </item>
-      <item row="6" column="1">
+      <item row="5" column="1">
        <layout class="QHBoxLayout" name="ZLayout">
         <item>
          <widget class="QLabel" name="ZLabel">
@@ -156,40 +179,10 @@
         </item>
        </layout>
       </item>
-      <item row="7" column="1">
+      <item row="6" column="1">
        <widget class="QCheckBox" name="CropOutsideCheckBox">
         <property name="text">
          <string>Inverse Cropping : Keep only the points that lay outside the volume defined above.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QGroupBox" name="radioButtonGroupBox">
-        <property name="title">
-         <string>Coordinates mode selection:</string>
-        </property>
-        <layout class="QGridLayout" name="radioButtonGroupBoxLayout">
-         <item row="1" column="1">
-          <widget class="QRadioButton" name="sphericalRadioButton">
-           <property name="text">
-            <string>spherical</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="cartesianRadioButton">
-           <property name="text">
-            <string>cartesian</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Keep only the points that lay inside the volume defined below.</string>
         </property>
        </widget>
       </item>
