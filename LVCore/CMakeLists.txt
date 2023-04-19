@@ -15,6 +15,12 @@ set(lidarview_test_output_directory "${CMAKE_BINARY_DIR}/Testing/Temporary")
 list(APPEND lidarview_default_plugins
   DatasetIOPlugin
   LidarCorePlugin)
+
+if (LIDARVIEW_USE_PCL)
+  list(APPEND lidarview_default_plugins
+    PCLPlugin)
+endif ()
+
 list(APPEND lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/")
 
