@@ -27,7 +27,8 @@ add_library(ApplicationUi
   lqUpdateCalibrationReaction.h
   lqPythonQtLidarView.h # LV Specific PythonQt Decorators
   lqPythonQtCalibration.h # LV Specific PythonQt Decorators
-  )
+)
+
 target_link_libraries(ApplicationUi PUBLIC
   ParaView::pqCore
   ParaView::pqWidgets
@@ -47,9 +48,14 @@ target_link_libraries(ApplicationUi PUBLIC
   ParaView::RemotingSettings
   ParaView::RemotingViews
   ParaView::RemotingViewsPython
-  lqApplicationComponents #actually LVCore/ApplicationComponents
-  PythonQt::PythonQt # Required to Wrap additional functions
-  )
+
+  # Common LVCore code base
+  LidarView::lqApplicationComponents
+  LidarView::lqCore
+
+  # Required to Wrap additional functions
+  PythonQt::PythonQt
+)
 
 target_include_directories(ApplicationUi PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
