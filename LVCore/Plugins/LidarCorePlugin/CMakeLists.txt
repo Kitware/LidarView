@@ -104,6 +104,7 @@ lidarcoreplugin_add_module_xml(
     Filters/BirdEyeViewSnap.xml
     Filters/LidarRawSignalImage.xml
     Filters/PointCloudLinearProjector.xml
+    Filters/VoxelGridFilter.xml
 )
 
 lidarcoreplugin_add_module_xml(

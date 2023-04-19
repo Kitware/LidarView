@@ -481,8 +481,8 @@ uint64 vtkVoxelGridProcessor::PositionToVoxelId(const Eigen::Vector3d& position)
     return 0;
   }
   Eigen::Vector3d minBounds = { this->Bounds[0], this->Bounds[2], this->Bounds[4] };
-  Eigen::Vector3d offset = { this->LeafSize, this->LeafSize, this->LeafSize };
-  Eigen::Vector3d positionCount = (position - minBounds - offset / 2.0) / this->LeafSize;
+  Eigen::Vector3d positionCount = (position - minBounds) / this->LeafSize;
+  positionCount = positionCount.unaryExpr([](double p) { return std::floor(p); });
   return this->To1d(positionCount.array().round().template cast<int>());
 }
 
@@ -491,9 +491,8 @@ Eigen::Vector3d vtkVoxelGridProcessor::VoxelIdToPosition(uint64 voxelId) const
 {
   Eigen::Vector3d minBounds = { this->Bounds[0], this->Bounds[2], this->Bounds[4] };
   Eigen::Vector3d voxelCenter = this->To3d(voxelId).cast<double>();
-  voxelCenter += Eigen::Vector3d::Constant(0.5);
   voxelCenter *= this->LeafSize;
-  voxelCenter += minBounds;
+  voxelCenter += minBounds + Eigen::Vector3d::Constant(this->LeafSize) / 2.0;
   return voxelCenter;
 }
 
