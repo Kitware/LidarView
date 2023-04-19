@@ -24,8 +24,6 @@
 #include <QPushButton>
 #include <QStyle>
 
-#include "ctkDoubleRangeSlider.h"
-
 #include <sstream>
 
 //-----------------------------------------------------------------------------
@@ -43,6 +41,8 @@ public:
 
     this->ApplyButton = new QPushButton("Apply");
     this->ApplyButton->setIcon(external->style()->standardIcon(QStyle::SP_DialogOkButton));
+    this->ApplyButton->setAutoDefault(true);
+    this->ApplyButton->setDefault(true);
 
     this->ApplyAndSaveButton = new QPushButton("Apply and save for future sessions");
     this->ApplyAndSaveButton->setIcon(external->style()->standardIcon(QStyle::SP_DialogSaveButton));
@@ -58,27 +58,14 @@ public:
   void SetCartesianSettings();
   void ActivateSpinBox();
   void DesactivateSpinBox();
-  void InitializeDoubleRangeSlider();
-  void SwitchSliderMode(bool isSliderMode);
   void GetCropRegion(double output[6]);
-  void onXSliderChanged(double vmin, double vmax);
-  void onYSliderChanged(double vmin, double vmax);
-  void onZSliderChanged(double vmin, double vmax);
-  void updateRangeValues(bool isSliderMode);
+  void updateRangeValues();
 
   QDialog* External;
 
   QPushButton* CancelButton;
   QPushButton* ApplyButton;
   QPushButton* ApplyAndSaveButton;
-
-  ctkDoubleRangeSlider XDoubleRangeSlider;
-  ctkDoubleRangeSlider YDoubleRangeSlider;
-  ctkDoubleRangeSlider ZDoubleRangeSlider;
-
-  QLabel XRangeLabel;
-  QLabel YRangeLabel;
-  QLabel ZRangeLabel;
 
   double xRange[2];
   double yRange[2];
@@ -165,13 +152,6 @@ void vvCropReturnsDialog::pqInternal::restoreSettings()
   this->Y2SpinBox->setValue(yRange[1]);
   this->Z1SpinBox->setValue(zRange[0]);
   this->Z2SpinBox->setValue(zRange[1]);
-
-  this->XDoubleRangeSlider.setMinimumValue(xRange[0]);
-  this->XDoubleRangeSlider.setMaximumValue(xRange[1]);
-  this->YDoubleRangeSlider.setMinimumValue(yRange[0]);
-  this->YDoubleRangeSlider.setMaximumValue(yRange[1]);
-  this->ZDoubleRangeSlider.setMinimumValue(zRange[0]);
-  this->ZDoubleRangeSlider.setMaximumValue(zRange[1]);
 }
 
 //-----------------------------------------------------------------------------
@@ -179,8 +159,6 @@ vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
   : QDialog(p)
   , Internal(new pqInternal(this))
 {
-  this->Internal->InitializeDoubleRangeSlider();
-
   connect(
     this->Internal->X1SpinBox, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxChanged(double)));
   connect(
@@ -193,19 +171,6 @@ vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
     this->Internal->Z1SpinBox, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxChanged(double)));
   connect(
     this->Internal->Z2SpinBox, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxChanged(double)));
-  connect(&this->Internal->XDoubleRangeSlider,
-    SIGNAL(positionsChanged(double, double)),
-    this,
-    SLOT(onXSliderChanged(double, double)));
-  connect(&this->Internal->YDoubleRangeSlider,
-    SIGNAL(positionsChanged(double, double)),
-    this,
-    SLOT(onYSliderChanged(double, double)));
-  connect(&this->Internal->ZDoubleRangeSlider,
-    SIGNAL(positionsChanged(double, double)),
-    this,
-    SLOT(onZSliderChanged(double, double)));
-  connect(this->Internal->sliderModeCheckBox, SIGNAL(clicked()), this, SLOT(onSliderBoxToggled()));
   connect(
     this->Internal->cartesianRadioButton, SIGNAL(clicked()), this, SLOT(onCartesianToggled()));
   connect(
@@ -326,12 +291,6 @@ void vvCropReturnsDialog::onSphericalToggled()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onSliderBoxToggled()
-{
-  this->Internal->SwitchSliderMode(this->Internal->sliderModeCheckBox->isChecked());
-}
-
-//-----------------------------------------------------------------------------
 void vvCropReturnsDialog::pqInternal::SetSphericalSettings()
 {
   this->ActivateSpinBox();
@@ -349,28 +308,22 @@ void vvCropReturnsDialog::pqInternal::SetSphericalSettings()
   // theta is between [minTheta,maxTheta] - Rotational Angle
   this->X1SpinBox->setMinimum(minTheta);
   this->X2SpinBox->setMinimum(minTheta);
-  this->XDoubleRangeSlider.setMinimum(minTheta);
   this->X1SpinBox->setMaximum(maxTheta);
   this->X2SpinBox->setMaximum(maxTheta);
-  this->XDoubleRangeSlider.setMaximum(maxTheta);
   this->X1SpinBox->setValue(0);
   this->X2SpinBox->setValue(360.0);
   // phi is between [minPhi,maxPhi] - Vertical Angle
   this->Y1SpinBox->setMinimum(minPhi);
   this->Y2SpinBox->setMinimum(minPhi);
-  this->YDoubleRangeSlider.setMinimum(minPhi);
   this->Y1SpinBox->setMaximum(maxPhi);
   this->Y2SpinBox->setMaximum(maxPhi);
-  this->YDoubleRangeSlider.setMaximum(maxPhi);
   this->Y1SpinBox->setValue(-90.0);
   this->Y2SpinBox->setValue(90.0);
   // R is positive
   this->Z1SpinBox->setMinimum(minR);
   this->Z2SpinBox->setMinimum(minR);
-  this->ZDoubleRangeSlider.setMinimum(minR);
   this->Z1SpinBox->setMaximum(maxR);
   this->Z2SpinBox->setMaximum(maxR);
-  this->ZDoubleRangeSlider.setMaximum(maxR);
   this->Z1SpinBox->setValue(0.0);
   this->Z2SpinBox->setValue(10.0);
 }
@@ -389,28 +342,22 @@ void vvCropReturnsDialog::pqInternal::SetCartesianSettings()
   // X [-10000,10000]
   this->X1SpinBox->setMinimum(minV);
   this->X2SpinBox->setMinimum(minV);
-  this->XDoubleRangeSlider.setMinimum(minV);
   this->X1SpinBox->setMaximum(maxV);
   this->X2SpinBox->setMaximum(maxV);
-  this->XDoubleRangeSlider.setMaximum(maxV);
   this->X1SpinBox->setValue(-5.0);
   this->X2SpinBox->setValue(5.0);
   // Y [-10000,10000]
   this->Y1SpinBox->setMinimum(minV);
   this->Y2SpinBox->setMinimum(minV);
-  this->YDoubleRangeSlider.setMinimum(minV);
   this->Y1SpinBox->setMaximum(maxV);
   this->Y2SpinBox->setMaximum(maxV);
-  this->YDoubleRangeSlider.setMaximum(maxV);
   this->Y1SpinBox->setValue(-5.0);
   this->Y2SpinBox->setValue(5.0);
   // Z [-10000,10000]
   this->Z1SpinBox->setMinimum(minV);
   this->Z2SpinBox->setMinimum(minV);
-  this->ZDoubleRangeSlider.setMinimum(minV);
   this->Z1SpinBox->setMaximum(maxV);
   this->Z2SpinBox->setMaximum(maxV);
-  this->ZDoubleRangeSlider.setMaximum(maxV);
   this->Z1SpinBox->setValue(-5.0);
   this->Z2SpinBox->setValue(5.0);
 }
@@ -451,98 +398,19 @@ void vvCropReturnsDialog::pqInternal::ActivateSpinBox()
 
   this->Z1SpinBox->setDisabled(false);
   this->Z2SpinBox->setDisabled(false);
-
-  this->XDoubleRangeSlider.setDisabled(false);
-  this->YDoubleRangeSlider.setDisabled(false);
-  this->ZDoubleRangeSlider.setDisabled(false);
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::InitializeDoubleRangeSlider()
-{
-  this->XLayout->addWidget(&this->XDoubleRangeSlider);
-  this->XLayout->addWidget(&this->XRangeLabel);
-  this->XDoubleRangeSlider.setOrientation(Qt::Horizontal);
-  this->XDoubleRangeSlider.setVisible(false);
-  this->XRangeLabel.setVisible(false);
-
-  this->YLayout->addWidget(&this->YDoubleRangeSlider);
-  this->YLayout->addWidget(&this->YRangeLabel);
-  this->YDoubleRangeSlider.setOrientation(Qt::Horizontal);
-  this->YDoubleRangeSlider.setVisible(false);
-  this->YRangeLabel.setVisible(false);
-
-  this->ZLayout->addWidget(&this->ZDoubleRangeSlider);
-  this->ZLayout->addWidget(&this->ZRangeLabel);
-  this->ZDoubleRangeSlider.setOrientation(Qt::Horizontal);
-  this->ZDoubleRangeSlider.setVisible(false);
-  this->ZRangeLabel.setVisible(false);
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::SwitchSliderMode(bool isSliderMode)
-{
-  this->XDoubleRangeSlider.setVisible(isSliderMode);
-  this->YDoubleRangeSlider.setVisible(isSliderMode);
-  this->ZDoubleRangeSlider.setVisible(isSliderMode);
-  this->XRangeLabel.setVisible(isSliderMode);
-  this->YRangeLabel.setVisible(isSliderMode);
-  this->ZRangeLabel.setVisible(isSliderMode);
-
-  this->X1SpinBox->setVisible(!isSliderMode);
-  this->X2SpinBox->setVisible(!isSliderMode);
-  this->Y1SpinBox->setVisible(!isSliderMode);
-  this->Y2SpinBox->setVisible(!isSliderMode);
-  this->Z1SpinBox->setVisible(!isSliderMode);
-  this->Z2SpinBox->setVisible(!isSliderMode);
-
-  if (isSliderMode)
-  {
-    this->onXSliderChanged(this->xRange[0], this->xRange[1]);
-    this->onYSliderChanged(this->yRange[0], this->yRange[1]);
-    this->onZSliderChanged(this->zRange[0], this->zRange[1]);
-  }
-
-  this->XDoubleRangeSlider.setMinimumValue(this->xRange[0]);
-  this->YDoubleRangeSlider.setMinimumValue(this->yRange[0]);
-  this->ZDoubleRangeSlider.setMinimumValue(this->zRange[0]);
-  this->XDoubleRangeSlider.setMaximumValue(this->xRange[1]);
-  this->YDoubleRangeSlider.setMaximumValue(this->yRange[1]);
-  this->ZDoubleRangeSlider.setMaximumValue(this->zRange[1]);
-
-  this->X1SpinBox->setValue(this->xRange[0]);
-  this->X2SpinBox->setValue(this->xRange[1]);
-  this->Y1SpinBox->setValue(this->yRange[0]);
-  this->Y2SpinBox->setValue(this->yRange[1]);
-  this->Z1SpinBox->setValue(this->zRange[0]);
-  this->Z2SpinBox->setValue(this->zRange[1]);
 }
 
 //-----------------------------------------------------------------------------
 void vvCropReturnsDialog::pqInternal::GetCropRegion(double output[6])
 {
-  if (this->sliderModeCheckBox->isChecked())
-  {
-    output[0] = this->XDoubleRangeSlider.minimumValue();
-    output[1] = this->XDoubleRangeSlider.maximumValue();
+  output[0] = this->X1SpinBox->value();
+  output[1] = this->X2SpinBox->value();
 
-    output[2] = this->YDoubleRangeSlider.minimumValue();
-    output[3] = this->YDoubleRangeSlider.maximumValue();
+  output[2] = this->Y1SpinBox->value();
+  output[3] = this->Y2SpinBox->value();
 
-    output[4] = this->ZDoubleRangeSlider.minimumValue();
-    output[5] = this->ZDoubleRangeSlider.maximumValue();
-  }
-  else
-  {
-    output[0] = this->X1SpinBox->value();
-    output[1] = this->X2SpinBox->value();
-
-    output[2] = this->Y1SpinBox->value();
-    output[3] = this->Y2SpinBox->value();
-
-    output[4] = this->Z1SpinBox->value();
-    output[5] = this->Z2SpinBox->value();
-  }
+  output[4] = this->Z1SpinBox->value();
+  output[5] = this->Z2SpinBox->value();
 }
 
 //-----------------------------------------------------------------------------
@@ -560,83 +428,22 @@ void vvCropReturnsDialog::pqInternal::DesactivateSpinBox()
 
   this->Z1SpinBox->setDisabled(true);
   this->Z2SpinBox->setDisabled(true);
-
-  this->XDoubleRangeSlider.setDisabled(true);
-  this->YDoubleRangeSlider.setDisabled(true);
-  this->ZDoubleRangeSlider.setDisabled(true);
 }
 
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onXSliderChanged(double vmin, double vmax)
+void vvCropReturnsDialog::pqInternal::updateRangeValues()
 {
-  this->Internal->onXSliderChanged(vmin, vmax);
-  this->Internal->updateRangeValues(true);
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onYSliderChanged(double vmin, double vmax)
-{
-  this->Internal->onYSliderChanged(vmin, vmax);
-  this->Internal->updateRangeValues(true);
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onZSliderChanged(double vmin, double vmax)
-{
-  this->Internal->onZSliderChanged(vmin, vmax);
-  this->Internal->updateRangeValues(true);
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::onXSliderChanged(double vmin, double vmax)
-{
-  std::stringstream label;
-  label << "[" << vmin << ";" << vmax << "]";
-  this->XRangeLabel.setText(QString(label.str().c_str()));
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::onYSliderChanged(double vmin, double vmax)
-{
-  std::stringstream label;
-  label << "[" << vmin << ";" << vmax << "]";
-  this->YRangeLabel.setText(QString(label.str().c_str()));
-}
-
-//-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::onZSliderChanged(double vmin, double vmax)
-{
-  std::stringstream label;
-  label << "[" << vmin << ";" << vmax << "]";
-  this->ZRangeLabel.setText(QString(label.str().c_str()));
-}
-
-void vvCropReturnsDialog::pqInternal::updateRangeValues(bool isSliderMode)
-{
-  if (isSliderMode)
-  {
-    this->xRange[0] = this->XDoubleRangeSlider.minimumValue();
-    this->xRange[1] = this->XDoubleRangeSlider.maximumValue();
-    this->yRange[0] = this->YDoubleRangeSlider.minimumValue();
-    this->yRange[1] = this->YDoubleRangeSlider.maximumValue();
-    this->zRange[0] = this->ZDoubleRangeSlider.minimumValue();
-    this->zRange[1] = this->ZDoubleRangeSlider.maximumValue();
-  }
-  else
-  {
-    this->xRange[0] = this->X1SpinBox->value();
-    this->xRange[1] = this->X2SpinBox->value();
-    this->yRange[0] = this->Y1SpinBox->value();
-    this->yRange[1] = this->Y2SpinBox->value();
-    this->zRange[0] = this->Z1SpinBox->value();
-    this->zRange[1] = this->Z2SpinBox->value();
-  }
+  this->xRange[0] = this->X1SpinBox->value();
+  this->xRange[1] = this->X2SpinBox->value();
+  this->yRange[0] = this->Y1SpinBox->value();
+  this->yRange[1] = this->Y2SpinBox->value();
+  this->zRange[0] = this->Z1SpinBox->value();
+  this->zRange[1] = this->Z2SpinBox->value();
 }
 
 //-----------------------------------------------------------------------------
 void vvCropReturnsDialog::onSpinBoxChanged(double vtkNotUsed(value))
 {
-  this->Internal->updateRangeValues(false);
+  this->Internal->updateRangeValues();
 }
 
 //-----------------------------------------------------------------------------
@@ -648,9 +455,6 @@ void vvCropReturnsDialog::onCropGroupBoxToggled()
   this->Internal->Y2SpinBox->setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->Z1SpinBox->setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->Z2SpinBox->setDisabled(!this->Internal->CropGroupBox->isChecked());
-  this->Internal->XDoubleRangeSlider.setDisabled(!this->Internal->CropGroupBox->isChecked());
-  this->Internal->YDoubleRangeSlider.setDisabled(!this->Internal->CropGroupBox->isChecked());
-  this->Internal->ZDoubleRangeSlider.setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->cartesianRadioButton->setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->sphericalRadioButton->setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->CropOutsideCheckBox->setDisabled(!this->Internal->CropGroupBox->isChecked());

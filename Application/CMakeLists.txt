@@ -60,14 +60,16 @@ paraview_client_add(
   LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-target_include_directories(${SOFTWARE_NAME} PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(${SOFTWARE_NAME}
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
 
-# We directly link against the plugin and import them statically.
-target_link_libraries(${SOFTWARE_NAME} PUBLIC
-  lqApplicationComponents #actually LVCore/ApplicationComponents
-  ApplicationUi
+target_link_libraries(${SOFTWARE_NAME}
+  PRIVATE
+    LidarView::lqApplicationComponents # Common LVCore code base
+    ApplicationUi
 )
 
 # Bundle Icon on Apple

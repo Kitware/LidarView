@@ -50,12 +50,8 @@ public slots:
   virtual void applyAndSave();
   void onCartesianToggled();
   void onSphericalToggled();
-  void onSliderBoxToggled();
   void onCropGroupBoxToggled();
   void onSpinBoxChanged(double value);
-  void onXSliderChanged(double vmin, double vmax);
-  void onYSliderChanged(double vmin, double vmax);
-  void onZSliderChanged(double vmin, double vmax);
 
 private:
   class pqInternal;
