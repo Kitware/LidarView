@@ -1,26 +1,30 @@
 cmake_minimum_required(VERSION 3.20.3 FATAL_ERROR)
 project(LidarView)
-#Thanks to ExternalProject CMAKE_SOURCE_DIR will correctly be the same as this PROJECT_SOURCE_DIR
 
-# add path to get all the needed modules used to config Lidarview
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/LVCore/CMake")
+# Add path to get all the needed modules used to config Lidarview
+set(lidarview_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+set(lvcore_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/LVCore/CMake")
+if (NOT IS_DIRECTORY "${lvcore_cmake_dir}")
+  message(FATAL_ERROR
+    "Failed to find the LVCore CMake directory. Did you forget to initialize the "
+    "submodule? (git submodule update --init --recursive)")
+endif ()
+list(APPEND CMAKE_MODULE_PATH
+  "${lidarview_cmake_dir}"
+  "${lvcore_cmake_dir}")
 
-# Include branding.cmake
-include(Application/branding.cmake)
+include(SetBranding)
+include(LidarViewSupportMacros)
+include(LidarViewOptions)
 
-# we include the module that allow us to configure the Lidarview project
 include(SetupLidarviewProject)
 
-# custom code here
-if(LIDARVIEW_BUILD_VELODYNE)
-    add_subdirectory(Plugins/VelodynePlugin)
-endif()
-if(LIDARVIEW_BUILD_HESAI)
-    add_subdirectory(Plugins/HesaiPlugin)
-endif()
+# Add plugins to be searched by default in LVCore CMakeLists.txt
+set(lidarview_default_plugins
+  VelodynePlugin
+  HesaiPlugin)
+set(lidarview_plugin_directories
+  "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
+add_subdirectory(LVCore)
 
-# Application
 add_subdirectory(Application)
-
-# Must be invoked Last
-include(FinalizeLidarViewProject)
