@@ -1,9 +1,3 @@
-set(sources
-  MIDHOG.cxx)
-
-set(headers
-  MIDHOG.h)
-
 set(classes
   vtkOpenCVImageMapper)
 
