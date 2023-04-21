@@ -14,7 +14,7 @@ endfunction()
 #--------------------------------------
 # Python dependency - required
 #--------------------------------------
-find_package(Python3 3.9 QUIET REQUIRED COMPONENTS Interpreter)
+find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
 set(lidarview_python_version "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
 message(STATUS "Using Python ${lidarview_python_version}")
 
