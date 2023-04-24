@@ -28,3 +28,5 @@ set(lidarview_plugin_directories
 add_subdirectory(LVCore)
 
 add_subdirectory(Application)
+
+add_subdirectory(Wrapping/Python)

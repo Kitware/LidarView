@@ -78,9 +78,3 @@ install(TARGETS ApplicationUi
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-#-----------------------------------------------------------------------------
-# Add python source
-#-----------------------------------------------------------------------------
-
-add_subdirectory(python)
