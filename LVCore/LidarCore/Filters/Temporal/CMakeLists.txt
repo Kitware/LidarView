@@ -1,5 +1,6 @@
 set(classes
   vtkAggregatePointsFromTrajectoryOffline
+  vtkAggregatePointsFromTrajectoryOnline
   vtkMLSPosesSmoothing
   vtkMotionDetector
   vtkSphericalMap
