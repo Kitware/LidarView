@@ -175,19 +175,21 @@ void vtkStream::Stop()
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::StartRecording(const std::string& filename,
-  std::shared_ptr<PacketFileWriter> writer)
+void vtkStream::StartRecording()
 {
+  this->StartRecording(std::make_shared<PacketFileWriter>());
+}
+
+//-----------------------------------------------------------------------------
+void vtkStream::StartRecording(std::shared_ptr<PacketFileWriter> writer)
+{
+  if (this->RecordingFilename.empty())
+  {
+    return;
+  }
   this->StopRecording();
-  if (writer)
-  {
-    this->WriterThread = writer; // Use Supplied thread
-  }
-  else
-  {
-    this->WriterThread = std::make_shared<PacketFileWriter>(); // Use your own Writer Thread
-  }
-  this->WriterThread->Start(filename);
+  this->WriterThread = writer;
+  this->WriterThread->Start(this->RecordingFilename);
 }
 
 //-----------------------------------------------------------------------------

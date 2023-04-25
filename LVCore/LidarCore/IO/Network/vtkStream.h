@@ -41,9 +41,9 @@ public:
   virtual void Start();
   void Stop();
 
-  // must become properties WIP
-  void StartRecording(const std::string& filename,
-    std::shared_ptr<PacketFileWriter> writer = nullptr);
+  vtkSetMacro(RecordingFilename, std::string);
+  void StartRecording();
+  void StartRecording(std::shared_ptr<PacketFileWriter> writer);
   void StopRecording();
   bool IsRecording();
 
@@ -138,6 +138,9 @@ private:
   std::string MulticastAddress;
   /*!< The Listening address in case of multiples interfaces*/
   std::string LocalListeningAddress;
+
+  /*!< The file to record into */
+  std::string RecordingFilename;
 
   /*!< Allowing the forwarding of the packets*/
   bool IsForwarding = false;

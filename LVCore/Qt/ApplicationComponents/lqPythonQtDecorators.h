@@ -39,7 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lqLidarCoreManager.h"
 #include "lqPlayerControlsController.h"
-#include "lqPlayerControlsToolbar.h"
 #include "lqSensorListWidget.h"
 #include "lqStreamRecordReaction.h"
 #include <pqActiveObjects.h>
@@ -54,7 +53,6 @@ public:
   {
     this->registerClassForPythonQt(&lqLidarCoreManager::staticMetaObject);
     this->registerClassForPythonQt(&lqSensorListWidget::staticMetaObject);
-    this->registerClassForPythonQt(&lqPlayerControlsToolbar::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -99,38 +97,6 @@ public Q_SLOTS:
   void static_lqLidarCoreManager_resetCameraToForwardView()
   {
     lqLidarCoreManager::instance()->onResetCameraToForwardView();
-  }
-
-  // lqPlayerControlsToolbar
-  lqPlayerControlsToolbar* new_lqPlayerControlsToolbar(QWidget* mainWindow)
-  {
-    return new lqPlayerControlsToolbar(mainWindow);
-  }
-  void onPause(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPause(); }
-  void onPlay(lqPlayerControlsToolbar* toolbar) { toolbar->getController()->onPlay(); }
-  void onSeekFrame(lqPlayerControlsToolbar* toolbar, int index)
-  {
-    toolbar->getController()->onSeekFrame(index);
-  }
-  void onSeekTime(lqPlayerControlsToolbar* toolbar, double time)
-  {
-    toolbar->getController()->onSeekTime(time);
-  }
-  void onNextFrame(lqPlayerControlsToolbar* toolbar) 
-  { 
-    toolbar->getController()->onNextFrame(); 
-  }
-  void onPreviousFrame(lqPlayerControlsToolbar* toolbar)
-  {
-    toolbar->getController()->onPreviousFrame();
-  }
-  void startRecording(lqPlayerControlsToolbar* toolbar, QString filename)
-  {
-    toolbar->getRecordController()->startRecording(filename);
-  }
-  void stopRecording(lqPlayerControlsToolbar* toolbar)
-  {
-    toolbar->getRecordController()->stopRecording(false);
   }
 
   // lqSensorListWidget

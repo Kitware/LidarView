@@ -2,9 +2,10 @@
 
 <!-- Begin Stream -->
 <ProxyGroup name="baseStream">
-<SourceProxy name="Stream"
-             class="vtkStream"
-             label="Stream">
+  <SourceProxy
+      name="Stream"
+      class="vtkStream"
+      label="Stream">
     <Documentation
        short_help="Stream"
        long_help="Stream">
@@ -30,7 +31,7 @@
         number_of_elements="1">
       <Documentation>
         Specify multicast address on which to listen for Lidar packets.
-  The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
+        The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
         Empty and non-multicast address are ignored.
         Leave it empty to listen in broadcast or in unicast.
       </Documentation>
@@ -45,7 +46,8 @@
         Specify listening address in case of multiple inferface.
         If :: or invalid, it tries to listen to ALL/ANY local IPv6 and IPv4 address.
         If 0.0.0.0, it tries to listen to ALL/ANY local IPv4 address.
-        On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast receiver address (x.x.x.255) instead of the local address.
+        On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast
+        receiver address (x.x.x.255) instead of the local address.
         Joining multicast group won't work with multiple interfaces if no specific address is entered.
       </Documentation>
     </StringVectorProperty>
@@ -93,11 +95,46 @@
 
     <Property
       name="Start"
-      command="Start" />
+      command="Start"
+      panel_widget="command_button">
+      <Documentation>
+        Start the current stream.
+      </Documentation>
+    </Property>
 
     <Property
       name="Stop"
-      command="Stop" />
+      command="Stop"
+      panel_widget="command_button">
+      <Documentation>
+        Pause the current stream. Note that the stream will continue in background.
+      </Documentation>
+    </Property>
+
+    <StringVectorProperty
+      name="RecordingFilename"
+      command="SetRecordingFilename"
+      number_of_elements="1"
+      panel_visibility="never">
+      <FileListDomain name="files" />
+      <Hints>
+        <AcceptAnyFile/>
+      </Hints>
+    </StringVectorProperty>
+
+    <Property
+      name="StartRecording"
+      command="StartRecording"
+      panel_widget="command_button"
+      panel_visibility="never">
+    </Property>
+
+    <Property
+      name="StopRecording"
+      command="StopRecording"
+      panel_widget="command_button"
+      panel_visibility="never">
+    </Property>
 
     <IntVectorProperty
         name="IsCrashAnalysing"
@@ -107,8 +144,7 @@
         panel_visibility="advanced">
       <BooleanDomain name="bool" />
     </IntVectorProperty>
-
- </SourceProxy>
+  </SourceProxy>
 </ProxyGroup>
 <!-- End Stream -->
 

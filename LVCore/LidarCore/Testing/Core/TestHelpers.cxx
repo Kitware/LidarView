@@ -774,7 +774,8 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   LidarStream1->SetLidarInterpreter(interpreter1);
   LidarStream1->SetCalibrationFileName(correctionFileName);
   LidarStream1->SetListeningPort(dataPort);
-  LidarStream1->StartRecording(temporaryFile); // WIP THIS API CHANGED
+  LidarStream1->SetRecordingFilename(temporaryFile);
+  LidarStream1->StartRecording();
   retVal += testLidarStream(LidarStream1.Get(), pcapFileName, referenceFileName, shouldPreSend);
   LidarStream1->StopRecording();
 

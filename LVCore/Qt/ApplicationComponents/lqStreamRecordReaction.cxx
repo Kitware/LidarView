@@ -154,7 +154,8 @@ void lqStreamRecordReaction::startRecording(QString filename)
       continue;
     }
     // Multiple start is okay, it detects it
-    stream->StartRecording(this->recordingFilename.toStdString(), writer);
+    stream->SetRecordingFilename(this->recordingFilename.toStdString());
+    stream->StartRecording(writer);
   }
 
   // Update state
