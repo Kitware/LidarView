@@ -641,28 +641,6 @@ def onClose():
     # Disable Actions
     disableSaveActions()
 
-# Get the player controller, it can be used to call lqPlayerControlsController functions
-# Such as onPlay(), onPause() ... 
-# Note: For the reader mode onPlay() will block the python shell
-def getPlayerController():
-    return PythonQt.paraview.lqPlayerControlsToolbar(getMainWindow())
-
-def recordFile(filename):
-    controller = getPlayerController()
-    controller.startRecording(filename)
-
-def stopRecording():
-    controller = getPlayerController()
-    controller.stopRecording()
-
-def onPlay():
-    controller = getPlayerController()
-    controller.onPlay()
-
-def onPause():
-    controller = getPlayerController()
-    controller.onPlay()
-
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
     for action in ('SavePCAP', 'Close', 'CropReturns'):
