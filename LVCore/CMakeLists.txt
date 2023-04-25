@@ -137,7 +137,7 @@ vtk_module_wrap_python(
   DEPENDS             VTK::vtkpythonmodules
 )
 
-add_subdirectory(Python)
+add_subdirectory(Wrapping/Python)
 
 #--------------------------------------
 # Build non-plugin/modules LidarView source code
