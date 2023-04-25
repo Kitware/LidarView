@@ -4,13 +4,15 @@ Select points with a query and save all the frame of the current selection
 You can download CarLoop_VLP16.pcap here: https://drive.google.com/drive/folders/1yrNUelUsjKcXdC8FH8DpXeOPTyiB_pLS
 """
 
-import lidarview.applogic as lv
+import lidarview.applogic as app
+import lidarview.simple as lvsmp
 import paraview.simple as smp
 
 ################################################################################
 carloop_pcap = "/home/user/data/CarLoop_VLP16.pcap"
 calibration_file = "/path/to/lidarview/build/.../install/share/VLP-16.xml"
 default_filename = "/home/user/data/test.csv"
+interpreter = "Velodyne Meta Interpreter"
 ################################################################################
 
 def extractFromSelectMultipleQueries(queries = []):
@@ -33,7 +35,7 @@ def planeFitSelection(source):
     smp.Render()
 
     # Call planeFit implementation (see Application/Ui/python/lidariew/planefit.py)
-    lv.planeFit()
+    app.planeFit()
 
     # Return plane fit source
     return smp.FindSource("PlaneFitter")
@@ -78,7 +80,7 @@ def saveProgrammableFilterOutput(filename, prog_filter):
 def planeFitAndProcessExample():
     """ How to use this example """
     # Open pcap
-    lv.openPcap(carloop_pcap, calibration_file)
+    lvsmp.OpenPCAP(carloop_pcap, calibration_file, interpreter)
 
     # Select region on hardcoded requirement (in this case in front of lidar)
     selection = extractFromSelectMultipleQueries(["azimuth > 34500", "vertical_angle < -10"])
