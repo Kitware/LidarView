@@ -26,14 +26,12 @@
 //-----------------------------------------------------------------------------
 vtkStream::vtkStream()
 {
-  // cannot use default constructor in header "vtkStream() = default" due to forward declaration of some class
+  // cannot use default constructor in header "vtkStream() = default" due to forward declaration of
+  // some class
 }
 
 //-----------------------------------------------------------------------------
-vtkStream::~vtkStream()
-{
-
-}
+vtkStream::~vtkStream() {}
 
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkStream::GetMTime()
@@ -46,8 +44,9 @@ vtkMTimeType vtkStream::GetMTime()
 }
 
 //-----------------------------------------------------------------------------
-template<class T>
-void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
+template <class T>
+void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value)
+{
   if (attribute != value)
   {
     attribute = value;
@@ -60,7 +59,7 @@ void vtkStream::SetAttributeAndRestartIfRunning(T& attribute, const T& value) {
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::SetForwardedIpAddress(const std::string &value)
+void vtkStream::SetForwardedIpAddress(const std::string& value)
 {
   SetAttributeAndRestartIfRunning(this->ForwardedIpAddress, value);
 }
@@ -133,9 +132,9 @@ void vtkStream::Start()
   // Create the ReceiverThread
   //**********************************
   this->ReceiverThread = std::make_unique<PacketReceiver>(this->ListeningPort,
-                                                        std::bind(&vtkStream::EnqueuePacket, this, std::placeholders::_1),
-                                                        this->MulticastAddress,
-                                                        this->LocalListeningAddress);
+    std::bind(&vtkStream::EnqueuePacket, this, std::placeholders::_1),
+    this->MulticastAddress,
+    this->LocalListeningAddress);
   if (this->IsForwarding)
   {
     this->ReceiverThread->EnableForwarding(this->ForwardedPort, this->ForwardedIpAddress);
@@ -143,12 +142,14 @@ void vtkStream::Start()
   if (this->IsCrashAnalysing)
   {
     std::string appDir = vtksys::SystemTools::GetCurrentWorkingDirectory();
-    if( !appDir.empty() ){
+    if (!appDir.empty())
+    {
       vtkErrorMacro("Unable to get Crash Analysis file");
     }
     this->ReceiverThread->EnableCrashAnalysing(appDir, 5000);
   }
-  this->ReceiverThread->SetFakeManufacturerMACAddress(this->Interpreter->GetManufacturerMACAddress());
+  this->ReceiverThread->SetFakeManufacturerMACAddress(
+    this->Interpreter->GetManufacturerMACAddress());
 
   // Start the different threads
   //************************************
@@ -174,12 +175,16 @@ void vtkStream::Stop()
 }
 
 //-----------------------------------------------------------------------------
-void vtkStream::StartRecording(const std::string &filename, std::shared_ptr<PacketFileWriter> writer)
+void vtkStream::StartRecording(const std::string& filename,
+  std::shared_ptr<PacketFileWriter> writer)
 {
   this->StopRecording();
-  if(writer){
-    this->WriterThread = writer;                               // Use Supplied thread
-  }else{
+  if (writer)
+  {
+    this->WriterThread = writer; // Use Supplied thread
+  }
+  else
+  {
     this->WriterThread = std::make_shared<PacketFileWriter>(); // Use your own Writer Thread
   }
   this->WriterThread->Start(filename);

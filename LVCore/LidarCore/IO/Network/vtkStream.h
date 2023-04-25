@@ -42,34 +42,35 @@ public:
   void Stop();
 
   // must become properties WIP
-  void StartRecording(const std::string& filename, std::shared_ptr<PacketFileWriter> writer = nullptr);
+  void StartRecording(const std::string& filename,
+    std::shared_ptr<PacketFileWriter> writer = nullptr);
   void StopRecording();
   bool IsRecording();
 
-  vtkGetMacro(ListeningPort, int)
+  vtkGetMacro(ListeningPort, int);
   void SetListeningPort(int);
 
-  vtkGetMacro(MulticastAddress, std::string)
+  vtkGetMacro(MulticastAddress, std::string);
   void SetMulticastAddress(const std::string&);
 
-  vtkGetMacro(LocalListeningAddress, std::string)
+  vtkGetMacro(LocalListeningAddress, std::string);
   void SetLocalListeningAddress(const std::string&);
 
-  vtkGetMacro(ForwardedIpAddress, std::string)
+  vtkGetMacro(ForwardedIpAddress, std::string);
   void SetForwardedIpAddress(const std::string& ipAddress);
 
-  vtkGetMacro(ForwardedPort, int)
+  vtkGetMacro(ForwardedPort, int);
   void SetForwardedPort(int);
 
-  vtkGetMacro(IsForwarding, bool)
+  vtkGetMacro(IsForwarding, bool);
   void SetIsForwarding(bool);
 
-  vtkGetMacro(IsCrashAnalysing, bool)
+  vtkGetMacro(IsCrashAnalysing, bool);
   void SetIsCrashAnalysing(bool value);
 
-  vtkGetObjectMacro(Interpreter, vtkInterpreter)
-  [[deprecated("Please use specific setter : setLidarInterpreter() or SetPosOrInterpreter()")]]
-  vtkSetObjectMacro(Interpreter, vtkInterpreter)
+  vtkGetObjectMacro(Interpreter, vtkInterpreter);
+  [[deprecated("Please use specific setter : setLidarInterpreter() or "
+               "SetPosOrInterpreter()")]] vtkSetObjectMacro(Interpreter, vtkInterpreter);
 
   /**
    * @brief GetNeedsUpdate
@@ -121,8 +122,8 @@ protected:
   virtual ~vtkStream() = 0;
 
   virtual int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override = 0;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override = 0;
 
   //! Generic Interpreter
   vtkSmartPointer<vtkInterpreter> Interpreter;
@@ -145,7 +146,6 @@ private:
   /*!< The ip to send forwarded packets*/
   std::string ForwardedIpAddress = "127.0.0.1";
 
-
   bool IsCrashAnalysing = false;
 
   //! Thread that will listen on the network to get the packets
@@ -163,7 +163,8 @@ private:
   bool IsRunning();
 
   //! helper function
-  template<class T> void SetAttributeAndRestartIfRunning(T& attribute, const T& value);
+  template <class T>
+  void SetAttributeAndRestartIfRunning(T& attribute, const T& value);
 };
 
 #endif // VTKSTREAM_H
