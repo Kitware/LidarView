@@ -19,7 +19,7 @@
         command="SetDummyProperty"
         default_values="0"
         number_of_elements="1"
-        panel_visibility="advanced">
+        panel_visibility="never">
         <Documentation>
           A dummy property to get the filter to refresh
         </Documentation>
@@ -62,6 +62,12 @@
           <Group name="LidarPacketInterpreter"/>
         </ProxyListDomain>
       </ProxyProperty>
+
+      <PropertyGroup label="Lidar Stream Options">
+        <Property name="CalibrationFileName" />
+        <Property name="PacketInterpreter" />
+        <Property name="DetectFrameDropping" />
+      </PropertyGroup>
 
       <Hints>
         <LiveSource />

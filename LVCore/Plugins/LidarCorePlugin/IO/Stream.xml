@@ -144,6 +144,21 @@
         panel_visibility="advanced">
       <BooleanDomain name="bool" />
     </IntVectorProperty>
+
+    <PropertyGroup label="Stream Player">
+      <Property name="Start" />
+      <Property name="Stop" />
+    </PropertyGroup>
+
+    <PropertyGroup label="Stream Options">
+      <Property name="ListeningPort" />
+      <Property name="MulticastAddress" />
+      <Property name="LocalListeningAddress" />
+      <Property name="IsForwarding" />
+      <Property name="ForwardedIpAddress" />
+      <Property name="ForwardedPort" />
+    </PropertyGroup>
+
   </SourceProxy>
 </ProxyGroup>
 <!-- End Stream -->
