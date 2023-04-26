@@ -1,6 +1,7 @@
 set(lidarview_test_client "$<TARGET_FILE:${SOFTWARE_TARGET}>")
 
 set(tests_with_baselines
+  TestUICropAndExportPythonExample.xml
 )
 
 paraview_add_client_tests(

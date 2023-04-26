@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Prepare variable before executing example -->
+  <pqevent object="vvMainWindow/actionPython_Console" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.crop_and_export_example import CropAndSave" />
+  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="reader = OpenPCAP('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', 'Velodyne Meta Interpreter')" />
+  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="timesteps = range(10, 20)" />
+
+  <!-- Call CropAndSave example -->
+  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="CropAndSave(reader, '$PARAVIEW_TEST_ROOT/TestCropAndExport', timesteps)" />
+
+  <!-- Load TestCropAndExport_0010 file.csv and color it by laser_id -->
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuAdvance" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileOpen" />
+  <pqevent object="vvMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestCropAndExport_0010.csv" />
+  <pqevent object="vvMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" /> <!-- This should be deactivate if PDAL is not built -->
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="TableToPolyData" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/YColumn/ComboBox" command="activated" arguments="Points_m_XYZ:1" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ZColumn/ComboBox" command="activated" arguments="Points_m_XYZ:2" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.1/TitleBar/TitleLabel" command="mousePress" arguments="1,1,0,36,3" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.1/TitleBar/TitleLabel" command="mouseRelease" arguments="1,0,0,36,3" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,12,8,/0:0/3:0/0:1" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,13,9,/0:0/3:0/0:1" />
+  <pqevent object="vvMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="laser_id" />
+
+  <!-- Load TestCropAndExportCropped_0015.csv file -->
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuAdvance" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileOpen" />
+  <pqevent object="vvMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestCropAndExportCropped_0015.csv" />
+  <pqevent object="vvMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" /> <!-- This should be deactivate if PDAL is not built -->
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="TableToPolyData" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/YColumn/ComboBox" command="activated" arguments="Points:1" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ZColumn/ComboBox" command="activated" arguments="Points:2" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.3" command="mousePress" arguments="1,1,0,117,25" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.3" command="mouseRelease" arguments="1,0,0,117,25" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,13,6,/0:0/4:0/0:1" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,13,6,/0:0/4:0/0:1" />
+
+  <!-- Zoom on view -->
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.3/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mousePress" arguments="(0.356383,0.439252,2,2,0)" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.3/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseMove" arguments="(-2,0.560748,2,0,0)" />
+  <pqevent object="vvMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.3/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseRelease" arguments="(-2,0.560748,2,0,0)" />
+</pqevents>
