@@ -11,9 +11,8 @@ python_module_install(
 )
 
 python_module_install(
-  NAME lidarviewpythonplugin
+  NAME lidarviewplugins
   FILES
-    lidarviewpythonplugin/__init__.py
-    lidarviewpythonplugin/filters/__init__.py
-    lidarviewpythonplugin/filters/SectionalViewFilter.py
+    lidarviewplugins/__init__.py
+    lidarviewplugins/SectionalView.py
 )
