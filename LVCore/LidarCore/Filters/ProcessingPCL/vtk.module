@@ -8,8 +8,9 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::FiltersGeneral
 PRIVATE_DEPENDS
   pcl_common
+  pcl_io
   pcl_sample_consensus
   LidarView::CommonCore
-  LidarView::CommonPCL

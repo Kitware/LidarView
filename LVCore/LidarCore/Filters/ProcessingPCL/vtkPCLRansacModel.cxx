@@ -15,7 +15,6 @@
 
 // local includes
 #include "vtkPCLRansacModel.h"
-#include "vtkPCLConversions.h"
 
 // vtk includes
 #include <vtkCellArray.h>
@@ -42,6 +41,7 @@
 #include <pcl/sample_consensus/sac_model_sphere.h>
 #include <pcl/sample_consensus/sac_model_line.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
+#include <pcl/io/vtk_lib_io.h>
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkPCLRansacModel);
@@ -73,7 +73,8 @@ int vtkPCLRansacModel::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData * input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
   
   // Convert input data in pcl format
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = vtkPCLConversions::PointCloudFromPolyData(input);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::io::vtkPolyDataToPointCloud(input, *pointCloud);
 
   // inliers's index according to the model and threshold
   std::vector<int> inliers;
