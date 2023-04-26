@@ -17,6 +17,7 @@
 #define vtkAggregatePointsFromTrajectory_H
 
 // Local includes
+#include "vtkMergePointsToPolyDataHelper.h"
 #include "vtkVoxelGridProcessor.h"
 
 // STL includes
@@ -32,10 +33,10 @@
 #include "lvFiltersTemporalModule.h"
 
 /**
- * @brief The vtkAggregatePointsFromTrajectory class is a filter that aggregate points from temporal
- * point clouds using a trajectory. A voxel grid is used to filter the points. If auto compute
- * bounds is set to true, the bounds of the voxel grid are computed by transforming the bounds of
- * the input point cloud using the trajectory.
+ * @brief The vtkAggregatePointsFromTrajectory class is a filter that aggregate points from
+ * temporal point clouds using a trajectory. A voxel grid is used to filter the points. If auto
+ * compute bounds is set to true, the bounds of the voxel grid are computed by transforming the
+ * bounds of the input point cloud using the trajectory.
  */
 class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectory : public vtkPolyDataAlgorithm
 {
@@ -66,6 +67,9 @@ public:
 
   vtkGetVector6Macro(CustomBounds, double);
   vtkSetVector6Macro(CustomBounds, double);
+
+  vtkGetMacro(IsVoxelGridFilterUsed, bool);
+  vtkSetMacro(IsVoxelGridFilterUsed, bool);
 
   vtkGetMacro(TimeArrayName, std::string);
   vtkSetMacro(TimeArrayName, std::string);
@@ -136,6 +140,10 @@ protected:
   //! The unit must be consistent with ConversionFactorToSecond
   double TimeOffset = 0;
 
+  //! If true, the voxel grid filter is used to aggregate the points
+  //! If false, the points are aggregated without filtering
+  bool IsVoxelGridFilterUsed = true;
+
   //! Interpolator used to get the right transform
   vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
   //! Interpolation type used to interpolate the transform between two frames
@@ -150,9 +158,18 @@ private:
 
   //! Voxel grid filter used to aggregate the points
   vtkNew<vtkVoxelGridProcessor> VoxelGrid;
+  vtkNew<vtkMergePointsToPolyDataHelper> MergePointsToPolyDataHelper;
 
   //! Specify if the bounds have been computed
   bool AreBoundsComputed = false;
+
+  //! Number of points in the frames
+  //! Used to allocate the exact memory of the output point cloud when IsVoxelGridFilterUsed is
+  //! false
+  int NumberOfPoints = 0;
+
+  // Default number of points allocated in the output point cloud when IsVoxelGridFilterUsed is true
+  int DefaultNumberOfPoints = 100000;
 
   //! Bounds of the voxel grid
   std::vector<double> Bounds = { 0, 0, 0, 0, 0, 0 };

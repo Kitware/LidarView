@@ -17,6 +17,7 @@
 #include <algorithm>
 
 // VTK includes
+#include <vtkAppendPolyData.h>
 #include <vtkBoundingBox.h>
 #include <vtkDataSet.h>
 #include <vtkInformation.h>
@@ -173,6 +174,10 @@ void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory)
 
   // Reset the bounds
   this->Bounds = { 0, 0, 0, 0, 0, 0 };
+
+  // Set initial number of points to allocate in the voxel grid and the free points
+  this->VoxelGrid->SetInitialNumberOfPoints(this->DefaultNumberOfPoints);
+  this->MergePointsToPolyDataHelper->SetInitialNumberOfPoints(this->NumberOfPoints);
 }
 
 //----------------------------------------------------------------------------
@@ -192,6 +197,9 @@ int vtkAggregatePointsFromTrajectory::AutoComputeVoxelBounds(vtkInformation* req
   auto transform = vtkSmartPointer<vtkTransform>::New();
   this->Interpolator->InterpolateTransform(currentTimestamp, transform);
   transform->Update();
+
+  // Update the number of points
+  this->NumberOfPoints += pointcloud->GetPoints()->GetNumberOfPoints();
 
   // Get the bounding box of the current pointcloud
   vtkBoundingBox boundingBox;
@@ -278,8 +286,20 @@ int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
     pointcloud->GetPoint(i, p);
     transform->TransformPoint(p, p);
 
-    // Add the point to the voxel grid
-    if (!this->VoxelGrid->AddPoint(pointcloud, i, p))
+    bool addPointSuccess;
+
+    if (this->IsVoxelGridFilterUsed)
+    {
+      // Add the point to the voxel grid
+      addPointSuccess = this->VoxelGrid->AddPoint(pointcloud, i, p);
+    }
+    else
+    {
+      // Add a free point (not filtered by the voxel grid)
+      addPointSuccess = this->MergePointsToPolyDataHelper->AddPoint(pointcloud, i, p);
+    }
+
+    if (!addPointSuccess)
     {
       vtkWarningMacro("Add point failed");
     }
@@ -294,18 +314,27 @@ int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
     // Stop the pipeline loop
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
 
-    // The voxel grid allocates extra memory to avoid reallocation, so memory needs to be freed
+    // Extra memory is allocated in the vtkVoxelGridFilter and the vtkMergePointsToPolyDataHelper
+    // outputs to avoid reallocation, so memory needs to be freed
     this->VoxelGrid->FreeUnusedMemory();
+    this->MergePointsToPolyDataHelper->FreeUnusedMemory();
 
-    // Get the output from the voxel grid
+    // Get the outputs from the voxel grid and the free points and merge them
+    vtkNew<vtkAppendPolyData> appendFilter;
+    appendFilter->AddInputData(this->VoxelGrid->GetOutput());
+    // The free points are added after the voxel grid
+    appendFilter->AddInputData(this->MergePointsToPolyDataHelper->GetOutput());
+    appendFilter->Update();
     vtkPolyData* output = vtkPolyData::GetData(outputVector);
-    output->ShallowCopy(this->VoxelGrid->GetOutput());
+    output->ShallowCopy(appendFilter->GetOutput());
 
     // Reset attributes
     this->VoxelGrid->Clear();
+    this->MergePointsToPolyDataHelper->Clear();
     this->CurrentFrame = this->AllFrames ? 0 : this->FirstFrame;
     this->Initialized = false;
     this->AreBoundsComputed = false;
+    this->NumberOfPoints = 0;
     return 1;
   }
 

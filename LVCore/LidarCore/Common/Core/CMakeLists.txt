@@ -19,6 +19,7 @@ set(classes
   vtkCustomTransformInterpolator
   vtkEigenTools
   vtkHelper
+  vtkMergePointsToPolyDataHelper
   vtkPipelineTools
   vtkTemporalTransforms
   vtkVoxelGridProcessor)

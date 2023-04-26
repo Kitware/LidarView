@@ -93,6 +93,16 @@
       <Property name="Last Frame" />
       <Property name="Step Size" />
     </PropertyGroup>
+    
+    <IntVectorProperty name="Downsample The Output"
+                       command="SetIsVoxelGridFilterUsed"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Specify if the points should be aggregated into a voxel grid.
+      </Documentation>
+    </IntVectorProperty>
 
     <IntVectorProperty name="Auto Compute Bounds"
                        command="SetAutoComputeBounds"
@@ -104,6 +114,12 @@
         This is performed browsing over the whole trajectory once at initialization,
         and computing the bounding boxes of the frames transformed with the trajectory.
       </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
     </IntVectorProperty>
 
     <DoubleVectorProperty name="Bounds"
@@ -115,10 +131,18 @@
           The bounds of the voxel grid.
       </Documentation>
       <Hints>
-        <PropertyWidgetDecorator type="GenericDecorator"
-                                 mode="visibility"
-                                 property="Auto Compute Bounds"
-                                 value="0" />
+      <PropertyWidgetDecorator type="CompositeDecorator">
+          <Expression type="and">
+            <PropertyWidgetDecorator type="GenericDecorator"
+                                    mode="visibility"
+                                    property="Auto Compute Bounds"
+                                    value="0" />
+            <PropertyWidgetDecorator type="GenericDecorator"
+                                    mode="visibility"
+                                    property="Downsample The Output"
+                                    value="1" />
+          </Expression>
+      </PropertyWidgetDecorator>
       </Hints>
     </DoubleVectorProperty>
 
@@ -137,6 +161,12 @@
       <Documentation>
         The method used to sample the points in a voxel.
       </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
     </IntVectorProperty>
 
     <DoubleVectorProperty name="Voxel Leaf Size"
@@ -147,11 +177,18 @@
       <Documentation>
         The size of a voxel grid leaf.
       </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
     </DoubleVectorProperty>
 
     <PropertyGroup label="Voxel grid parameters">
       <Property name="Auto Compute Bounds" />
       <Property name="Bounds" />
+      <Property name="Downsample The Output" />
       <Property name="Voxel Sampling Mode" />
       <Property name="Voxel Leaf Size" />
     </PropertyGroup>
