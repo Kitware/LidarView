@@ -1,3 +1,18 @@
+#==============================================================================
+#
+#  Program: LidarView
+#  Module:  SectionalView.py
+#
+#  Copyright (c) Kitware, Inc.
+#  All rights reserved.
+#  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+#
+#     This software is distributed WITHOUT ANY WARRANTY; without even
+#     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#     PURPOSE.  See the above copyright notice for more information.
+#
+#==============================================================================
+
 from paraview.util.vtkAlgorithm import *
 
 from vtk.numpy_interface import algorithms as algs
@@ -61,7 +76,7 @@ class SectionalViewFilter(VTKPythonAlgorithmBase):
 
         offset = np.dot(R, self.planeOrigin)
         points = np.dot(pts, R.transpose()) - offset
-        
+
         projected3dYAxis = np.dot(R, self.YDirection)
         projected3dYAxis[2] = 0.
         if np.linalg.norm(projected3dYAxis) < epsilon:
