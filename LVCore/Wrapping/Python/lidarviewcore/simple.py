@@ -16,6 +16,21 @@
 import os
 import paraview.simple as smp
 
+import importlib
+
+# -----------------------------------------------------------------------------
+def LoadLidarViewPythonPlugins(pluginName = None):
+    """Load a LidarView python plugin form the lidarviewplugins python module.
+
+    **Parameters**
+
+        pluginName (optional str):
+          If specified, load a specific plugin from the lidarviewplugins module.
+    """
+    toLoad = "lidarviewplugins" + ("." + pluginName if pluginName else "")
+    pluginFile = importlib.import_module(toLoad).__file__
+    smp.LoadPlugin(pluginFile, remote=False, ns=globals())
+
 # -----------------------------------------------------------------------------
 def _SearchCalibrationFiles(calibration):
     """Internal method used by OpenPCAP and OpenSensorStream

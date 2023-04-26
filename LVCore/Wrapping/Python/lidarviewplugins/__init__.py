@@ -16,14 +16,17 @@
 """ lidarviewplugins
 This python module contains paraview "programmable filter"-like plugins:
 Subclasses of `VTKPythonAlgorithmBase`.
-In order to use them in a lidarview app, add the following to the python code
-used when opening the app (such as `applogic.py`)
+In order to use them in a lidarview app, please use LoadLidarViewPythonPlugins()
+function from lidarview simple.
 
+In LidarView python shell or in python script:
 ```
-# At the beginning of the file
-import lidarviewplugins
-# When loading other plugins
-smp.LoadPlugin(lidarviewplugins.__file__, remote=False, ns=globals())
+# Not needed in LidarView app
+from lidarviewcore.simple import *
+
+LoadLidarViewPythonPlugins() # Load all available plugins
+
+LoadLidarViewPythonPlugins("SectionalView") # Only load SectionalView
 ```
 
 then you can use the capabilities of the plugin as any other paraview plugin:
