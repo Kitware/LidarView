@@ -33,7 +33,9 @@
 
 /**
  * @brief The vtkAggregatePointsFromTrajectory class is a filter that aggregate points from temporal
- * point clouds using a trajectory. A voxel grid is used to filter the points.
+ * point clouds using a trajectory. A voxel grid is used to filter the points. If auto compute
+ * bounds is set to true, the bounds of the voxel grid are computed by transforming the bounds of
+ * the input point cloud using the trajectory.
  */
 class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectory : public vtkPolyDataAlgorithm
 {
@@ -59,8 +61,11 @@ public:
   int GetVoxelLeafSize() { return VoxelGrid->GetLeafSize(); }
   void SetVoxelLeafSize(double size);
 
-  vtkGetVector6Macro(Bounds, double);
-  vtkSetVector6Macro(Bounds, double);
+  vtkGetMacro(AutoComputeBounds, bool);
+  vtkSetMacro(AutoComputeBounds, bool);
+
+  vtkGetVector6Macro(CustomBounds, double);
+  vtkSetVector6Macro(CustomBounds, double);
 
   vtkGetMacro(TimeArrayName, std::string);
   vtkSetMacro(TimeArrayName, std::string);
@@ -81,6 +86,27 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * @brief InitializeData Initialize the filter by setting the useful parameters. This method is
+   * called once at the beginning of the filter.
+   */
+  void InitializeData(vtkPolyData*);
+
+  /**
+   * @brief AutoComputeVoxelBounds Compute the bounds of the voxel grid by transforming the bounds
+   * of the input point cloud using the trajectory and calculating the global bounds of the
+   * transformed bounds. This method is called sequentially once per frame before the aggregation.
+   */
+  int AutoComputeVoxelBounds(vtkInformation*, vtkInformation*, vtkPolyData*, vtkDataArray*);
+  /**
+   * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
+   */
+  int AggregatePoints(vtkInformation*,
+    vtkInformation*,
+    vtkInformationVector*,
+    vtkPolyData*,
+    vtkDataArray*);
+
   //! Overwrite FirstFrame and LastFrame to process all the frame
   bool AllFrames = true;
 
@@ -97,8 +123,10 @@ protected:
   //! Name of the array containing the time to match the trajectory with the point cloud
   std::string TimeArrayName = "adjustedtime";
 
-  //! Bounds of the voxel grid
-  double Bounds[6];
+  //! If true, the bounds will be automatically computed
+  bool AutoComputeBounds = true;
+  //! Custom bounds of the voxel grid
+  double CustomBounds[6] = { 0, 0, 0, 0, 0, 0 };
 
   //! Double to convert time in second,
   //! Default is for data in microsecond
@@ -122,6 +150,12 @@ private:
 
   //! Voxel grid filter used to aggregate the points
   vtkNew<vtkVoxelGridProcessor> VoxelGrid;
+
+  //! Specify if the bounds have been computed
+  bool AreBoundsComputed = false;
+
+  //! Bounds of the voxel grid
+  std::vector<double> Bounds = { 0, 0, 0, 0, 0, 0 };
 
   //! Specify if the filter has been initialized
   bool Initialized = false;
