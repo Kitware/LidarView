@@ -887,11 +887,6 @@ def getPVApplicationCore():
 def getPVSettings():
     return getPVApplicationCore().settings()
 
-
-def getTimeKeeper():
-    return getPVApplicationCore().getActiveServer().getTimeKeeper()
-
-
 def onTrailingFramesChanged(number):
   # WIP sensorListWidget must provide an API / assume responsibility for this
   tr = getTrailingFrame()
