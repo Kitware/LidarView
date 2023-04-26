@@ -15,6 +15,8 @@ option(LIDARVIEW_BUILD_DEVELOPER_DOCUMENTATION "Generate LidarView C++/Python do
 option(LIDARVIEW_BUILD_ALL_MODULES "Build all modules by default" ON)
 mark_as_advanced(LIDARVIEW_BUILD_ALL_MODULES)
 
+option(LIDARVIEW_BUILD_EXAMPLES "Build LidarView examples" OFF)
+
 option(BUILD_TESTING "Enable testing" OFF)
 mark_as_advanced(BUILD_TESTING)
 

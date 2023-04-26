@@ -5,11 +5,13 @@ Inspired from paraview `Wrapping/Python/CMakeLists.txt`
 
   * `NAME`: (Required) Target name.
   * `FILES`: (Required) Python files to be installed.
+  * `OUTPUT_DIRECTORY`: (Optional) Install FILES in OUTPUT_DIRECTORY.
+                        Note that no __init__.py are created during this process.
 #]==]
 function (python_module_install)
   cmake_parse_arguments(_python_module_install
     ""
-    "NAME"
+    "NAME;OUTPUT_DIRECTORY"
     "FILES"
     ${ARGN})
 
@@ -22,10 +24,14 @@ function (python_module_install)
     message(FATAL_ERROR "`NAME` and `FILES` arguments are required.")
   endif ()
 
+  set(_output_directory_basepath "${CMAKE_BINARY_DIR}/${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}")
+  if (DEFINED _python_module_install_OUTPUT_DIRECTORY)
+    set(_output_directory_basepath "${_output_directory_basepath}/${_python_module_install_OUTPUT_DIRECTORY}")
+  endif ()
+
   set(_python_copied_modules)
   foreach (_python_file IN LISTS _python_module_install_FILES)
-    set(_output_python_file
-      "${CMAKE_BINARY_DIR}/${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/${_python_file}")
+    set(_output_python_file "${_output_directory_basepath}/${_python_file}")
     if (_python_file MATCHES "\\.in$")
       string(REPLACE ".in" "" _output_python_file "${_output_python_file}")
       configure_file(
@@ -44,6 +50,11 @@ function (python_module_install)
 
     set(_python_directory)
     cmake_path(GET _python_file PARENT_PATH _python_directory)
+
+    if (DEFINED _python_module_install_OUTPUT_DIRECTORY)
+      set(_python_directory "${_python_directory}/${_python_module_install_OUTPUT_DIRECTORY}")
+    endif ()
+
     install(
       FILES       "${_output_python_file}"
       DESTINATION "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}/${_python_directory}"

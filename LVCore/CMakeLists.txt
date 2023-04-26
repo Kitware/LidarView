@@ -143,12 +143,14 @@ vtk_module_wrap_python(
   DEPENDS             VTK::vtkpythonmodules
 )
 
+# Add sudbirectory containing python helper functions for pipeline scripting
 add_subdirectory(Wrapping/Python)
 
 add_subdirectory(CommandLineExecutables)
 
-# Add sudbirectory containing python helper functions for pipeline scripting
-add_subdirectory(Examples)
+if (LIDARVIEW_BUILD_EXAMPLES)
+  add_subdirectory(Examples/Python)
+endif ()
 
 #--------------------------------------
 # Build non-plugin/modules LidarView source code
