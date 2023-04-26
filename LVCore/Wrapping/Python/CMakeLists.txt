@@ -6,6 +6,7 @@ python_module_install(
     lidarviewcore/__init__.py
     lidarviewcore/GetLandmarks.py
     lidarviewcore/kiwiviewerExporter.py
+    lidarviewcore/pipeline_setup_helpers.py
     lidarviewcore/simple.py
     lidarviewcore/visualizationTools.py
 )

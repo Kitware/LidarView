@@ -147,14 +147,15 @@ add_subdirectory(Wrapping/Python)
 
 add_subdirectory(CommandLineExecutables)
 
+# Add sudbirectory containing python helper functions for pipeline scripting
+add_subdirectory(Examples)
+
 #--------------------------------------
 # Build non-plugin/modules LidarView source code
 # (This should be progressively removed)
 #--------------------------------------
 # Add subdirectory containing python script for animation
 add_subdirectory(Utilities/Animation)
-# Add sudbirectory containing python helper functions for pipeline scripting
-add_subdirectory(Utilities/Examples)
 
 #--------------------------------------
 # Build Python & UI XML Testing
