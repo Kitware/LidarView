@@ -24,9 +24,9 @@
 
 #include <vtkPolyDataAlgorithm.h>
 
-#include "LidarCoreModule.h"
+#include "ProcessingSampleModule.h"
 
-class LIDARCORE_EXPORT vtkProcessingSample : public vtkPolyDataAlgorithm
+class PROCESSINGSAMPLE_EXPORT vtkProcessingSample : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkProcessingSample, vtkPolyDataAlgorithm)
@@ -35,7 +35,8 @@ public:
   static vtkProcessingSample* New();
 
 protected:
-  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+  virtual int RequestData(vtkInformation* request,
+    vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   vtkProcessingSample();

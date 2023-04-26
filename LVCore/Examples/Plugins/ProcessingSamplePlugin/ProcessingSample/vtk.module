@@ -1,0 +1,9 @@
+NAME
+  ProcessingSample
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Eigen3::Eigen
+  VTK::FiltersSources
+  VTK::CommonCore
+  VTK::CommonDataModel

@@ -1,0 +1,9 @@
+NAME
+  ProcessingSamplePlugin
+DESCRIPTION
+  An example plugin with a ProcessingSample.
+REQUIRES_MODULES
+  VTK::FiltersSources
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel

@@ -42,13 +42,12 @@ vtkProcessingSample::vtkProcessingSample()
 }
 
 //----------------------------------------------------------------------------
-vtkProcessingSample::~vtkProcessingSample()
-{
-}
+vtkProcessingSample::~vtkProcessingSample() {}
 
 //----------------------------------------------------------------------------
 int vtkProcessingSample::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
