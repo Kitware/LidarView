@@ -1,0 +1,203 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="AggregatePointsFromTrajectory" class="vtkAggregatePointsFromTrajectory" label="Aggregate Points From Trajectory (offline)">
+      <Documentation
+        short_help="Aggregate points from a trajectory"
+        long_help="Aggregate points from a trajectory into a voxel grid.">
+      </Documentation>
+
+      <InputProperty name="PointCloud"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Set the input poly data.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty name="Trajectory"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Set the input trajectory.
+        </Documentation>
+    </InputProperty>
+
+    <IntVectorProperty name="All Frames"
+                       command="SetAllFrames"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Process all frames.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="First Frame"
+                       command="SetFirstFrame"
+                       number_of_elements="1"
+                       default_values="0">
+      <Documentation>
+        The first frame to process.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="All Frames"
+                                 value="0"/>
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Last Frame"
+                       command="SetLastFrame"
+                       number_of_elements="1"
+                       default_values="5">
+      <Documentation>
+        The last frame to process.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="All Frames"
+                                 value="0" />
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Step Size"
+                       command="SetStepSize"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <IntRangeDomain name="range" min="1"/>
+      <Documentation>
+        Aggregate 1 frame over StepSize.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Input frames">
+      <Property name="All Frames" />
+      <Property name="First Frame" />
+      <Property name="Last Frame" />
+      <Property name="Step Size" />
+    </PropertyGroup>
+
+    <DoubleVectorProperty name="Bounds"
+                          animateable="0"
+                          command="SetBounds"
+                          default_values="-400 400 -400 400 -20 50"
+                          number_of_elements="6">
+      <Documentation>
+          The bounds of the voxel grid.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty
+      name="Voxel Sampling Mode"
+      command="SetVoxelSamplingMode"
+      number_of_elements="1"
+      default_values="0">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="First"/>
+        <Entry value="1" text="Last"/>
+        <Entry value="2" text="Max Intensity"/>
+        <Entry value="3" text="Center Point"/>
+        <Entry value="4" text="Centroid"/>
+      </EnumerationDomain>
+      <Documentation>
+        The method used to sample the points in a voxel.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Voxel Leaf Size"
+                          command="SetVoxelLeafSize"
+                          number_of_elements="1"
+                          default_values="0.2">
+      <DoubleRangeDomain name="range" min="0.01" />
+      <Documentation>
+        The size of a voxel grid leaf.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="Voxel grid parameters">
+      <Property name="Bounds" />
+      <Property name="Voxel Sampling Mode" />
+      <Property name="Voxel Leaf Size" />
+    </PropertyGroup>
+
+    <StringVectorProperty name="Time Array"
+                          command="SetTimeArrayName"
+                          number_of_elements="1"
+                          element_types="2"
+                          default_values="adjustedtime"
+                          animateable="0">
+      <ArrayListDomain name="array_list"
+                       attribute_type="Scalars">
+        <RequiredProperties>
+          <Property name="PointCloud"
+                    function="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The array to use to match the trajectory to the point cloud.
+      </Documentation>
+    </StringVectorProperty>
+
+    <DoubleVectorProperty name="Conversion Factor To Second"
+                          command="SetConversionFactorToSecond"
+                          number_of_elements="1"
+                          default_values="1e-6"
+                          panel_visibility="advanced">
+      <Documentation>
+        Factor to convert Time unit in second.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Time Offset"
+                          command="SetTimeOffset"
+                          number_of_elements="1"
+                          default_values="0"
+                          panel_visibility="advanced">
+      <Documentation>
+        Offset to add to the time of the point cloud to match the trajectory.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Interpolation Type"
+                       command="SetInterpolationType"
+                       number_of_elements="1"
+                       default_values="0">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="linear"/>
+        <Entry value="1" text="spline"/>
+        <Entry value="2" text="manual"/>
+        <Entry value="3" text="nearest"/>
+        <Entry value="4" text="nearest low bound"/>
+      </EnumerationDomain>
+      <Documentation>
+        How to interpolate between input poses.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Time and interpolation parameters">
+      <Property name="Time Array" />
+      <Property name="Conversion Factor To Second" />
+      <Property name="Time Offset" />
+      <Property name="Interpolation Type" />
+    </PropertyGroup>
+
+   </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

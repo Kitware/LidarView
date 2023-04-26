@@ -243,6 +243,65 @@ double vtkCustomTransformInterpolator::GetPeriod()
 }
 
 //----------------------------------------------------------------------------
+bool vtkCustomTransformInterpolator::IsTimeContinuous(double offset)
+{
+  TransformListIterator iter = this->TransformList->begin();
+  TransformListIterator nextIter;
+  for (nextIter = std::next(iter); nextIter != this->TransformList->end(); ++iter, ++nextIter)
+  {
+    // Check if the difference between two consecutive times is greater than the offset
+    if (std::abs(nextIter->Time - iter->Time) > 2 * offset)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCustomTransformInterpolator::IsTimeInRange(double t, double offset)
+{
+  if (this->TransformList->empty())
+  {
+    return false;
+  }
+  if (t < this->GetMinimumT() - offset || t > this->GetMaximumT() + offset)
+  {
+    // Time out of range with offset
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCustomTransformInterpolator::IsTimeValid(double t, double offset)
+{
+  if (!this->IsTimeInRange(t, offset))
+  {
+    return false;
+  }
+
+  // Find the first transform with time greater than t
+  TransformListIterator it = std::upper_bound(this->TransformList->begin(),
+    this->TransformList->end(),
+    t,
+    [](double value, const vtkQTransform& transform) { return value < transform.Time; });
+
+  if (it == this->TransformList->end())
+  {
+    return true;
+  }
+  // Check if t is close enough to two of its neighbors
+  if (std::abs(it->Time - t) < offset || std::abs(std::prev(it)->Time - t) < offset)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void vtkCustomTransformInterpolator::Initialize()
 {
   this->TransformList->clear();

@@ -85,6 +85,19 @@ public:
   double GetPeriod();
 
   // Description:
+  // Test if the time is continuous with an offset between two consecutive times.
+  bool IsTimeContinuous(double offset = 0.5);
+
+  // Description:
+  // Check whether or not t is within range of time values
+  bool IsTimeInRange(double t, double offset = 0.5);
+
+  // Description:
+  // Check whether or not t is within range of time values and check whether or not t is located in
+  // a time interval considered as continuous to within one offset
+  bool IsTimeValid(double t, double offset = 0.5);
+
+  // Description:
   // Clear the list of transforms.
   void Initialize();
 
