@@ -6,6 +6,7 @@ python_module_install(
     __init__.py
     crop_and_export_example.py
     load_lidar_data.py
+    plane_fit_and_process.py
   OUTPUT_DIRECTORY lidarviewexamples
 )
 

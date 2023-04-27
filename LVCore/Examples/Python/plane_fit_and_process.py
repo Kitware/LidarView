@@ -71,23 +71,23 @@ output.RowData.append(approxrollangle, "roll_angle") # Append data in output
 
 def saveProgrammableFilterOutput(filename, prog_filter):
     """ Save programmabl filter ouput to a csv """
-    writer = smp.CreateWriter(filename, prog_filter)
-    writer.Precision = 16
-    writer.UpdatePipeline()
-    smp.Delete(writer)
+    csvWriter = smp.servermanager.writers.CSVWriter(Input=prog_filter, FileName=filename)
+    csvWriter.Precision = 16
+    csvWriter.UpdatePipeline()
+    smp.Delete(csvWriter)
 
 
-def planeFitAndProcessExample():
+def PlaneFitAndProcess(pcapfile, calib, outputFilename):
     """ How to use this example """
     # Open pcap
-    lvsmp.OpenPCAP(carloop_pcap, calibration_file, interpreter)
+    lvsmp.OpenPCAP(pcapfile, calib, interpreter)
 
     # Select region on hardcoded requirement (in this case in front of lidar)
     selection = extractFromSelectMultipleQueries(["azimuth > 34500", "vertical_angle < -10"])
 
     plane_fitter = planeFitSelection(selection)
     prog_filter = executeProgrammableFilter(plane_fitter)
-    saveProgrammableFilterOutput(default_filename, prog_filter)
+    saveProgrammableFilterOutput(outputFilename, prog_filter)
 
-# Uncomment below to execute the script directly when loaded
-# planeFitAndProcessExample()
+if __name__ == "__main__":
+    PlaneFitAndProcess(carloop_pcap, calibration_file, default_filename)
