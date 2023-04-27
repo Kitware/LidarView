@@ -24,6 +24,11 @@ endif ()
 list(APPEND lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/")
 
+if (LIDARVIEW_BUILD_EXAMPLES)
+  list(APPEND lidarview_plugin_directories
+    "${CMAKE_CURRENT_SOURCE_DIR}/Examples/Plugins/")
+endif ()
+
 paraview_plugin_find_plugins(lidarview_plugin_files ${lidarview_plugin_directories})
 paraview_plugin_scan(
   PLUGIN_FILES
