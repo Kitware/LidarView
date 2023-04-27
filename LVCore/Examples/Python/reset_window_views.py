@@ -1,35 +1,39 @@
 """
-Delete all render windows views and recreate a default one  
+Delete all render windows views and recreate a default one
 """
 
-from paraview.simple import *
-from lidarview.simple import *
-import lidarview.applogic as lv
+import paraview.simple as smp
+from lidarview.simple import lvsmp
+import lidarview.applogic as app
 
-# Get sources
-reader = lv.getReader()
-measurementGrid = FindSource('Measurement Grid')
+def ResetWindowViews():
+    # Get sources
+    reader = app.getReader()
+    measurementGrid = smp.FindSource('Measurement Grid')
 
-# Get views
-views = GetViews()
-layout = GetLayout()
+    # Get views
+    views = smp.GetViews()
+    layout = smp.GetLayout()
 
-# Deletes all views
-for view in views:
-    idx = layout.GetViewLocation(view)
-    Delete(view)
-    del view
-    layout.Collapse(idx)
+    # Deletes all views
+    for view in views:
+        idx = layout.GetViewLocation(view)
+        smp.Delete(view)
+        del view
+        layout.Collapse(idx)
 
-# Create and assign a new one
-renderView = CreateView('RenderView')
-layout.AssignView(0, renderView)
+    # Create and assign a new one
+    renderView = smp.CreateView('RenderView')
+    layout.AssignView(0, renderView)
 
-# Show measurement grid and reader
-if reader:
-    display = Show(reader[0], renderView)
-    ColorBy(display, ('POINTS', 'intensity'))
-Show(measurementGrid, renderView)
+    # Show measurement grid and reader
+    if reader:
+        display = smp.Show(reader[0], renderView)
+        smp.ColorBy(display, ('POINTS', 'intensity'))
+    smp.Show(measurementGrid, renderView)
 
-# Reset Camera
-ResetCameraToForwardView()
+    # Reset Camera
+    lvsmp.ResetCameraToForwardView()
+
+if __name__ == "__main__":
+    ResetWindowViews()
