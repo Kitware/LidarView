@@ -9,6 +9,7 @@ python_module_install(
     plane_fit_and_process.py
     reset_window_views.py
     save_selected_point_on_multiple_frames.py
+    split_window.py
   OUTPUT_DIRECTORY lidarviewexamples
 )
 

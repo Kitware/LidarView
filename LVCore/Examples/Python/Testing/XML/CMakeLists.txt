@@ -6,6 +6,7 @@ set(tests_with_baselines
   TestUIPlaneFitAndProcessPythonExample.xml
   TestUIResetWindowViewsPythonExample.xml
   TestUISaveSelectedPointOnMultipleFramePythonExample.xml
+  TestUISplitWindowPythonExample.xml
 )
 
 paraview_add_client_tests(
