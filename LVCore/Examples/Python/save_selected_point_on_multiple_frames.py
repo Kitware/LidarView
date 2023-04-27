@@ -4,7 +4,7 @@ Select points with a query and save all the frame of the current selection
 
 import os
 
-import lidarview.applogic as lv
+import lidarview.applogic as app
 import paraview.simple as smp
 import lidarviewcore.kiwiviewerExporter as kiwiExporter
 
@@ -25,7 +25,7 @@ def extractSelection():
     extractSelection = smp.ExtractSelection(Input=trailingFrame)
     return extractSelection
 
-def saveCSVSelectionAndFrames(selection, filename = default_filename, timesteps = default_timesteps):
+def saveCSVSelectionAndFrames(selection, filename, timesteps = default_timesteps):
     """ Save the selection for each frame defined in timesteps to a zip directory """
     # Create a temporary directory to save all frames
     tmp_dir = kiwiExporter.tempfile.mkdtemp()
@@ -35,39 +35,40 @@ def saveCSVSelectionAndFrames(selection, filename = default_filename, timesteps 
     os.makedirs(out_dir)
 
     # Create a new writer to save frames
-    writer = smp.CreateWriter('tmp.csv', selection)
-    writer.FieldAssociation = "Point Data"
-    writer.Precision = 16
+    csvWriter = smp.servermanager.writers.CSVWriter(Input=selection)
+    csvWriter.Precision = 16
+    csvWriter.FieldAssociation = "Point Data"
 
     # Get player controller to be able to search for each frame
-    controller = lv.getPlayerController()
+    scene = smp.GetAnimationScene()
 
     #get the lidar source for timestamp
-    lidarSource = FindSource('LidarReader1')
+    lidarSource = smp.FindSource('LidarReader1')
 
     for i in timesteps:
         # Load each frame
-        controller.onSeekFrame(i)
         timestamp = lidarSource.TimestepValues[i]
+        scene.AnimationTime = timestamp # or scene.GoToNext()
+
         # Name the current frame with its number
-        writer.FileName = name_template % i
-        writer.UpdatePipeline(timestamp)
+        csvWriter.FileName = name_template % i
+        csvWriter.UpdatePipeline(timestamp)
         # Format csv file
-        lv.rotateCSVFile(writer.FileName)
+        app.rotateCSVFile(csvWriter.FileName)
 
     # Clean up writer
-    smp.Delete(writer)
+    smp.Delete(csvWriter)
 
     # Zip the directory with all frames and clean up temporary directory
     zip_name = os.path.dirname(filename) + '/' + basename_without_extension + ".zip"
     kiwiExporter.zipDir(out_dir, zip_name)
     kiwiExporter.shutil.rmtree(tmp_dir)
 
-def saveSelectPointsOnMultipleFramesExample():
+def SaveSelectPointsOnMultipleFrames(filename, timesteps = default_timesteps):
     """ How to use this example """
     renderSelection() # This could be replaced by a manual selection
     selection = extractSelection()
-    saveCSVSelectionAndFrames(selection)
+    saveCSVSelectionAndFrames(selection, filename, timesteps)
 
-# Uncomment below to execute the script directly when loaded
-#saveSelectPointsOnMultipleFramesExample() 
+if __name__ == "__main__":
+    SaveSelectPointsOnMultipleFrames(default_filename)

@@ -8,6 +8,7 @@ python_module_install(
     load_lidar_data.py
     plane_fit_and_process.py
     reset_window_views.py
+    save_selected_point_on_multiple_frames.py
   OUTPUT_DIRECTORY lidarviewexamples
 )
 
