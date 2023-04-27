@@ -1,0 +1,12 @@
+NAME
+  InterpreterExamplePlugin::ExamplePacketInterpreters
+LIBRARY_NAME
+  ExamplePacketInterpreters
+DEPENDS
+  LidarView::IOLidar
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  Boost::system
+  Boost::filesystem
+  VTK::CommonDataModel
+  VTK::CommonTransforms
