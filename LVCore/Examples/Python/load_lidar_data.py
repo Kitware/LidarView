@@ -1,44 +1,42 @@
 """
-Open a pre-set LiDAR recording using a specified calibration and interpreter. 
+Open a pre-set LiDAR recording using a specified calibration and interpreter.
 """
-from paraview.simple import *
+import paraview.simple as smp
+import lidarview.simple as lvsmp
 
 ################################################################################
-file_name = '/home/user/data/lidar.pcap'
-calibration = '/home/user/software/lidarview/build/install/share/calib.xml'
-interpreter = 'My Interpreter'
+my_filename = '/home/user/data/lidar.pcap'
+my_calibration = '/home/user/software/lidarview/build/install/share/calib.xml'
+my_interpreter = 'My Interpreter'
 ################################################################################
 
-# create a new 'Lidar Reader'
-data = LidarReader(FileName=file_name, CalibrationFile=calibration)
-data.Interpreter = interpreter
-data.Interpreter.SensorTransform = 'Transform2'
+def LoadLidarData(filename, calibration, interpreter):
+    # create a new 'Lidar Reader'
+    data = lvsmp.OpenPCAP(filename, calibration, interpreter)
 
-# get animation scene
-animationScene1 = GetAnimationScene()
-# update animation scene based on data timesteps
-animationScene1.UpdateAnimationUsingDataTimeSteps()
+    # get active view
+    renderView1 = smp.GetActiveViewOrCreate('RenderView')
 
-# get active view
-renderView1 = GetActiveViewOrCreate('RenderView')
+    # set active source
+    smp.SetActiveSource(data)
 
-# set active source
-SetActiveSource(data)
+    # get color transfer function/color map for 'intensity'
+    intensityLUT = smp.GetColorTransferFunction('intensity')
+    intensityLUT.RGBPoints = [0.0, 0.0, 0.0, 1.0, 40.0, 1.0, 1.0, 0.0, 100.0, 1.0, 0.0, 0.0]
+    intensityLUT.ColorSpace = 'HSV'
+    # get opacity transfer function/opacity map for 'intensity'
+    intensityPWF = smp.GetOpacityTransferFunction('intensity')
 
-# get color transfer function/color map for 'intensity'
-intensityLUT = GetColorTransferFunction('intensity')
-intensityLUT.RGBPoints = [0.0, 0.0, 0.0, 1.0, 40.0, 1.0, 1.0, 0.0, 100.0, 1.0, 0.0, 0.0]
-intensityLUT.ColorSpace = 'HSV'
-# get opacity transfer function/opacity map for 'intensity'
-intensityPWF = GetOpacityTransferFunction('intensity')
+    # show data in view
+    dataDisplay = smp.Show(data, renderView1)
+    dataDisplay.Representation = 'Surface'
 
-# show data in view
-dataDisplay = Show(data, renderView1)
-dataDisplay.Representation = 'Surface'
+    # set scalar coloring
+    smp.ColorBy(dataDisplay, ('POINTS', 'intensity'))
+    # rescale color and/or opacity maps used to include current data range
+    dataDisplay.RescaleTransferFunctionToDataRange(True, False)
+    # hide color bar/color legend
+    dataDisplay.SetScalarBarVisibility(renderView1, False)
 
-# set scalar coloring
-ColorBy(dataDisplay, ('POINTS', 'intensity'))
-# rescale color and/or opacity maps used to include current data range
-dataDisplay.RescaleTransferFunctionToDataRange(True, False)
-# hide color bar/color legend
-dataDisplay.SetScalarBarVisibility(renderView1, False)
+if __name__ == "__main__":
+    LoadLidarData(my_filename, my_calibration, my_interpreter)
