@@ -275,25 +275,6 @@ void lqLidarCoreManager::onResetCameraToForwardView()
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::onResetCenterToLidarCenter()
-{
-  pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
-  if (!view)
-  {
-    return;
-  }
-
-  // Set Axis Center to 0 0 0
-  double center[3] = { 0.0, 0.0, 0.0 };
-  view->setCenterOfRotation(center);
-  view->render();
-
-  // Set Camera Rotation Focal Point
-  view->setCenterOfRotation(0, 0, 0);
-  view->render();
-}
-
-//-----------------------------------------------------------------------------
 void lqLidarCoreManager::saveFramesToPCAP(vtkSMSourceProxy* proxy,
   int startFrame,
   int endFrame,

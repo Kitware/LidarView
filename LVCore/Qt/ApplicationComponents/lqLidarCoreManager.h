@@ -105,7 +105,6 @@ public Q_SLOTS:
 
   void onResetCameraLidar();
   void onResetCameraToForwardView();
-  void onResetCenterToLidarCenter();
 
 private:
   Q_DISABLE_COPY(lqLidarCoreManager)
