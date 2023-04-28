@@ -248,7 +248,6 @@ void lqLidarCoreManager::onResetCameraLidar()
   vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
   vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
   proxy->UpdateVTKObjects();
-  view->resetCamera();
   view->render();
 }
 
