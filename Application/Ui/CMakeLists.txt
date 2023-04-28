@@ -26,7 +26,6 @@ add_library(ApplicationUi
   lqUpdateCalibrationReaction.cxx
   lqUpdateCalibrationReaction.h
   lqPythonQtLidarView.h # LV Specific PythonQt Decorators
-  lqPythonQtCalibration.h # LV Specific PythonQt Decorators
 )
 
 target_link_libraries(ApplicationUi PUBLIC
@@ -78,9 +77,3 @@ install(TARGETS ApplicationUi
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-#-----------------------------------------------------------------------------
-# Add python source
-#-----------------------------------------------------------------------------
-
-add_subdirectory(python)

@@ -26,8 +26,7 @@ import lidarview.gridAdjustmentDialog
 import lidarview.aboutDialog
 import lidarview.planefit as planefit
 
-from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog, vvCalibrationDialog #WIP rename to LV / Velodyne Specific
-from PythonQt.paraview import NetworkConfig, TransformConfig
+from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog #WIP rename to LV / Velodyne Specific
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
@@ -296,31 +295,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     setDefaultLookupTables(reader)
     setDefaultLookupTables(getTrailingFrame())
     updateUIwithNewLidar()
-
-# Get the calibration config 
-# The calibration file can be changed with setCalibrationFile()
-# the available configuration files can be get with getAllCalibrationFiles()
-def getCalibrationConfig():
-    return vvCalibrationDialog(getMainWindow())
-
-# Create a .pcap reader to read the data contained in the file located at filename.
-def openPcap(filename, calibrationFile, interpreter="Velodyne"):
-    config = getCalibrationConfig()
-    config.setCalibrationFile(calibrationFile)
-    config.setInterpreter(interpreter)
-    openPcapWithConfig(filename, config)
-
-def openPcapWithConfig(filename, config):
-    PythonQt.paraview.lqOpenPcapReaction.createSourceFromFile(filename, config)
-
-# Create a sensor stream with default config
-def openSensorStream():
-    config = getCalibrationConfig()
-    openSensorStreamWithConfig(config)
-
-# Takes a calibration file from getCalibrationConfig()
-def openSensorStreamWithConfig(config):
-    PythonQt.paraview.lqOpenSensorReaction.createSensorStream(config)
 
 def rotateCSVFile(filename):
 
@@ -667,28 +641,6 @@ def onClose():
     # Disable Actions
     disableSaveActions()
 
-# Get the player controller, it can be used to call lqPlayerControlsController functions
-# Such as onPlay(), onPause() ... 
-# Note: For the reader mode onPlay() will block the python shell
-def getPlayerController():
-    return PythonQt.paraview.lqPlayerControlsToolbar(getMainWindow())
-
-def recordFile(filename):
-    controller = getPlayerController()
-    controller.startRecording(filename)
-
-def stopRecording():
-    controller = getPlayerController()
-    controller.stopRecording()
-
-def onPlay():
-    controller = getPlayerController()
-    controller.onPlay()
-
-def onPause():
-    controller = getPlayerController()
-    controller.onPlay()
-
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
     for action in ('SavePCAP', 'Close', 'CropReturns'):
@@ -934,11 +886,6 @@ def getPVApplicationCore():
 
 def getPVSettings():
     return getPVApplicationCore().settings()
-
-
-def getTimeKeeper():
-    return getPVApplicationCore().getActiveServer().getTimeKeeper()
-
 
 def onTrailingFramesChanged(number):
   # WIP sensorListWidget must provide an API / assume responsibility for this

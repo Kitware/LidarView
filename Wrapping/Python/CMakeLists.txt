@@ -8,4 +8,5 @@ python_module_install(
     lidarview/applogic.py
     lidarview/gridAdjustmentDialog.py
     lidarview/planefit.py
+    lidarview/simple.py
 )
