@@ -153,3 +153,46 @@ def OpenSensorStream(calibration, interpreter, port=2368, **params):
     smp.Show(stream)
     stream.Start()
     return stream
+
+# -----------------------------------------------------------------------------
+def ResetCameraLidar(view=None, distance=100):
+    """Reset camera view to predefined viewpoint - 30 degrees behind the grid center.
+
+    **Parameters**
+
+        view (optional smp.RenderView):
+          Renders the given view (default value is active view).
+
+        distance (optional int):
+          Specify the distance camera to viewpoint. (Default 100)
+    """
+    # Mirror of lqLidarCoreManager::onResetCameraLidar
+    if not view:
+      view = smp.GetRenderView()
+
+    # See pqRenderView::resetViewDirection
+    # Position at 30 degrees [0, -(squareRoot(3)/2)*dist, (1/2)*dist]
+    view.CameraPosition = [0, -0.866025 * distance, (1.0 / 2.0) * distance]
+    view.CameraFocalPoint = [0, 0, 0]
+    view.CameraViewUp = [0, 0, 1]
+
+    smp.Render(view)
+
+# -----------------------------------------------------------------------------
+def ResetCameraToForwardView(view=None):
+    """Reset camera to forward view (default LidarView view)
+
+    **Parameters**
+
+        view (optional smp.RenderView):
+          Renders the given view (default value is active view).
+    """
+    # Mirror of lqLidarCoreManager::onResetCameraToForwardView
+    if not view:
+      view = smp.GetRenderView()
+
+    view.CameraPosition = [0.0, -72.0, 18.0]
+    view.CameraFocalPoint = [0.0, 0.0, 0.0]
+    view.CameraViewUp = [0.0, 0.27, 0.96]
+
+    smp.Render(view)

@@ -3,6 +3,7 @@ Delete all render windows views and recreate a default one
 """
 
 from paraview.simple import *
+from lidarview.simple import *
 import lidarview.applogic as lv
 
 # Get sources
@@ -31,4 +32,4 @@ if reader:
 Show(measurementGrid, renderView)
 
 # Reset Camera
-lv.resetCameraToForwardView()
+ResetCameraToForwardView()
