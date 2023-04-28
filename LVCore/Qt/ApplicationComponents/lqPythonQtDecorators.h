@@ -38,7 +38,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QObject>
 
 #include "lqLidarCoreManager.h"
-#include "lqPlayerControlsController.h"
 #include "lqSensorListWidget.h"
 #include "lqStreamRecordReaction.h"
 #include <pqActiveObjects.h>
@@ -83,20 +82,6 @@ public Q_SLOTS:
     int arg5)
   {
     lqLidarCoreManager::saveFramesToLAS(arg0, arg1, arg2, arg3, arg4, arg5);
-  }
-
-  // WIP we can absolutely forward the paraview.simple.view into a pqRenderView* here, see LAS below
-  void static_lqLidarCoreManager_resetCameraLidar()
-  {
-    lqLidarCoreManager::instance()->onResetCameraLidar();
-  }
-  void static_lqLidarCoreManager_resetCenterToLidarCenter()
-  {
-    lqLidarCoreManager::instance()->onResetCenterToLidarCenter();
-  }
-  void static_lqLidarCoreManager_resetCameraToForwardView()
-  {
-    lqLidarCoreManager::instance()->onResetCameraToForwardView();
   }
 
   // lqSensorListWidget
