@@ -71,11 +71,17 @@ public:
   vtkGetMacro(IsVoxelGridFilterUsed, bool);
   vtkSetMacro(IsVoxelGridFilterUsed, bool);
 
-  vtkGetMacro(TimeArrayName, std::string);
-  vtkSetMacro(TimeArrayName, std::string);
+  vtkGetMacro(AutoDetectTimeArray, bool);
+  vtkSetMacro(AutoDetectTimeArray, bool);
 
-  vtkGetMacro(ConversionFactorToSecond, double);
-  vtkSetMacro(ConversionFactorToSecond, double);
+  vtkGetMacro(CustomTimeArrayName, std::string);
+  vtkSetMacro(CustomTimeArrayName, std::string);
+
+  vtkGetMacro(AutoDetectTimeUnitConversion, bool);
+  vtkSetMacro(AutoDetectTimeUnitConversion, bool);
+
+  vtkGetMacro(CustomConversionFactorToSecond, double);
+  vtkSetMacro(CustomConversionFactorToSecond, double);
 
   vtkGetMacro(TimeOffset, double);
   vtkSetMacro(TimeOffset, double);
@@ -94,7 +100,7 @@ protected:
    * @brief InitializeData Initialize the filter by setting the useful parameters. This method is
    * called once at the beginning of the filter.
    */
-  void InitializeData(vtkPolyData*);
+  void InitializeData(vtkPolyData*, vtkPolyData*);
 
   /**
    * @brief AutoComputeVoxelBounds Compute the bounds of the voxel grid by transforming the bounds
@@ -111,6 +117,17 @@ protected:
     vtkPolyData*,
     vtkDataArray*);
 
+  /**
+   * @brief DetectTimeArray Detect a time array in the point cloud by searching for the words "time"
+   * or "Time" in name of arrays and return its name.
+   */
+  std::string DetectTimeArray(vtkPolyData*);
+  /**
+   * @brief ComputeTimeUnitConversion Compute the time unit conversion between the trajectory and
+   * the point cloud
+   */
+  double ComputeTimeUnitConversion(vtkDataArray*, vtkDataArray*);
+
   //! Overwrite FirstFrame and LastFrame to process all the frame
   bool AllFrames = true;
 
@@ -124,17 +141,21 @@ protected:
   //! Process one frame every StepSize frames (ex: every frame, every 2 frames, 3 frames, ...)
   int StepSize = 1;
 
+  //! If true, the time array is automatically detected
+  bool AutoDetectTimeArray = true;
   //! Name of the array containing the time to match the trajectory with the point cloud
-  std::string TimeArrayName = "adjustedtime";
+  //! Used only if AutoDetectTimmeArray is false
+  std::string CustomTimeArrayName = "adjustedtime";
+  //! If true, the time unit conversion is automatically detected
+  bool AutoDetectTimeUnitConversion = true;
+  //! Double to convert time in second (default is for data in microsecond)
+  //! Used only if AutoDetectTimeUnitConversion is false
+  double CustomConversionFactorToSecond = 1e-6;
 
   //! If true, the bounds will be automatically computed
   bool AutoComputeBounds = true;
   //! Custom bounds of the voxel grid
   double CustomBounds[6] = { 0, 0, 0, 0, 0, 0 };
-
-  //! Double to convert time in second,
-  //! Default is for data in microsecond
-  double ConversionFactorToSecond = 1e-6;
 
   //! Offset to add to the time of the point cloud to match the trajectory
   //! The unit must be consistent with ConversionFactorToSecond
@@ -173,6 +194,10 @@ private:
 
   //! Bounds of the voxel grid
   std::vector<double> Bounds = { 0, 0, 0, 0, 0, 0 };
+  //! Current time array name
+  std::string TimeArrayName;
+  //! Current conversion factor
+  double ConversionFactorToSecond = 1e-6;
 
   //! Specify if the filter has been initialized
   bool Initialized = false;

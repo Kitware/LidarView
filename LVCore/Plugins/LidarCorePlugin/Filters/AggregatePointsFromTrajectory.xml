@@ -193,8 +193,18 @@
       <Property name="Voxel Leaf Size" />
     </PropertyGroup>
 
+    <IntVectorProperty name="Auto Detect Time Array"
+                       command="SetAutoDetectTimeArray"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Automatically detect the time array in the point cloud.
+      </Documentation>
+    </IntVectorProperty>
+
     <StringVectorProperty name="Time Array"
-                          command="SetTimeArrayName"
+                          command="SetCustomTimeArrayName"
                           number_of_elements="1"
                           element_types="2"
                           default_values="adjustedtime"
@@ -209,16 +219,39 @@
       <Documentation>
         The array to use to match the trajectory to the point cloud.
       </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Auto Detect Time Array"
+                                 value="0" />
+      </Hints>
     </StringVectorProperty>
 
+    <IntVectorProperty name="Auto Detect Time Unit Conversion"
+                       command="SetAutoDetectTimeUnitConversion"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Automatically detect the time unit conversion between the trajectory and the point cloud.
+      </Documentation>
+    </IntVectorProperty>
+
     <DoubleVectorProperty name="Conversion Factor To Second"
-                          command="SetConversionFactorToSecond"
+                          command="SetCustomConversionFactorToSecond"
                           number_of_elements="1"
                           default_values="1e-6"
                           panel_visibility="advanced">
       <Documentation>
         Factor to convert Time unit in second.
       </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Auto Detect Time Unit Conversion"
+                                 value="0" />
+      </Hints>
     </DoubleVectorProperty>
 
     <DoubleVectorProperty name="Time Offset"
@@ -248,7 +281,9 @@
     </IntVectorProperty>
 
     <PropertyGroup label="Time and interpolation parameters">
+      <Property name="Auto Detect Time Array" />
       <Property name="Time Array" />
+      <Property name="Auto Detect Time Unit Conversion" />
       <Property name="Conversion Factor To Second" />
       <Property name="Time Offset" />
       <Property name="Interpolation Type" />

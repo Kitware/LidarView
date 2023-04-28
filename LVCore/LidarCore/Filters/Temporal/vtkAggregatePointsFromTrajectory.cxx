@@ -15,6 +15,7 @@
 
 // STL includes
 #include <algorithm>
+#include <cmath>
 
 // VTK includes
 #include <vtkAppendPolyData.h>
@@ -130,7 +131,7 @@ int vtkAggregatePointsFromTrajectory::RequestData(vtkInformation* request,
   if (!this->Initialized)
   {
     // Initialize the data
-    this->InitializeData(trajectory);
+    this->InitializeData(trajectory, pointcloud);
     this->Initialized = true;
   }
 
@@ -160,7 +161,8 @@ int vtkAggregatePointsFromTrajectory::RequestData(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory)
+void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory,
+  vtkPolyData* pointcloud)
 {
   // Create the temporal transform
   auto temporalTransform = vtkTemporalTransforms::CreateFromPolyData(trajectory);
@@ -171,6 +173,36 @@ void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory)
   // Check whether or not the trajectory time is considered continuous with a default tolerance of
   // 0.5s
   this->ContinuousTrajectory = this->Interpolator->IsTimeContinuous();
+
+  // Get the time array
+  if (this->AutoDetectTimeArray)
+  {
+    std::string tempTimeArrayName = this->DetectTimeArray(pointcloud);
+    this->TimeArrayName = tempTimeArrayName.empty() ? this->CustomTimeArrayName : tempTimeArrayName;
+  }
+  else
+  {
+    this->TimeArrayName = this->CustomTimeArrayName;
+  }
+
+  // Get the timestamp array
+  auto timestamp = pointcloud->GetPointData()->GetArray(this->TimeArrayName.c_str());
+  if (!timestamp)
+  {
+    vtkErrorMacro("No TimeStamp array found.");
+    return;
+  }
+
+  // Get the conversion factor between the time unit of the trajectory and the pointcloud
+  if (this->AutoDetectTimeUnitConversion)
+  {
+    this->ConversionFactorToSecond =
+      this->ComputeTimeUnitConversion(temporalTransform->GetTimeArray(), timestamp);
+  }
+  else
+  {
+    this->ConversionFactorToSecond = this->CustomConversionFactorToSecond;
+  }
 
   // Reset the bounds
   this->Bounds = { 0, 0, 0, 0, 0, 0 };
@@ -343,6 +375,61 @@ int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
   this->CurrentFrame += this->StepSize;
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+std::string vtkAggregatePointsFromTrajectory::DetectTimeArray(vtkPolyData* poly)
+{
+  // Loop over all the arrays
+  for (int i = 0; i < poly->GetPointData()->GetNumberOfArrays(); i++)
+  {
+    char* arrayName = poly->GetPointData()->GetArray(i)->GetName();
+    std::string arrayNameStr(arrayName);
+    std::size_t found_Time = arrayNameStr.find("Time");
+    std::size_t found_time = arrayNameStr.find("time");
+    if (found_Time != std::string::npos || found_time != std::string::npos)
+    {
+      return arrayNameStr;
+    }
+  }
+  return "";
+}
+
+//----------------------------------------------------------------------------
+double vtkAggregatePointsFromTrajectory::ComputeTimeUnitConversion(vtkDataArray* trajTimeArray,
+  vtkDataArray* pcTimeArray)
+{
+  // Check if the trajectory time array is empty
+  if (trajTimeArray->GetNumberOfComponents() != 1 || pcTimeArray->GetNumberOfComponents() != 1)
+  {
+    vtkErrorMacro("One of the selected time array is not a scalar.");
+    return 1e-6;
+  }
+  // Check if the trajectory time array is empty
+  if (trajTimeArray->GetNumberOfTuples() == 0 || pcTimeArray->GetNumberOfTuples() == 0)
+  {
+    vtkErrorMacro("One of the selected time arrays is empty.");
+    return 1e-6;
+  }
+
+  // Get the first timestamp
+  double firstTrajTimestamp = trajTimeArray->GetTuple1(0);
+  double firstPCTimestamp = pcTimeArray->GetTuple1(0);
+
+  if (firstPCTimestamp < 1e-6)
+  {
+    vtkErrorMacro("The first timestamp of the point cloud is too small.");
+    return 1e-6;
+  }
+
+  double div = firstTrajTimestamp / firstPCTimestamp;
+  // Get the order of magnitude of conversion
+  double order = std::floor(std::log10(div));
+  // Round the power to the nearest multiple of 3
+  order = std::round(order / 3) * 3;
+  // Get the conversion factor
+  double conversionFactor = std::pow(10, order);
+  return conversionFactor;
 }
 
 //----------------------------------------------------------------------------
