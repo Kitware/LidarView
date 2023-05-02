@@ -17,20 +17,21 @@
 #define vtkAggregatePointsFromTrajectory_H
 
 // Local includes
+#include "vtkAggregatePointsFromTrajectoryOnline.h"
 #include "vtkMergePointsToPolyDataHelper.h"
 #include "vtkVoxelGridProcessor.h"
 
 // STL includes
 #include <queue>
-#include <string>
 
 // VTK includes
-#include <vtkCustomTransformInterpolator.h>
 #include <vtkNew.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 
 #include "lvFiltersTemporalModule.h"
+
+class vtkAggregatePointsFromTrajectoryOnline;
 
 /**
  * @brief The vtkAggregatePointsFromTrajectoryOffline class is a filter that aggregate points from
@@ -38,11 +39,13 @@
  * compute bounds is set to true, the bounds of the voxel grid are computed by transforming the
  * bounds of the input point cloud using the trajectory.
  */
-class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectoryOffline : public vtkPolyDataAlgorithm
+
+class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectoryOffline
+  : public vtkAggregatePointsFromTrajectoryOnline
 {
 public:
   static vtkAggregatePointsFromTrajectoryOffline* New();
-  vtkTypeMacro(vtkAggregatePointsFromTrajectoryOffline, vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkAggregatePointsFromTrajectoryOffline, vtkAggregatePointsFromTrajectoryOnline)
 
   vtkGetMacro(FirstFrame, int);
   vtkSetMacro(FirstFrame, int);
@@ -56,58 +59,17 @@ public:
   vtkGetMacro(AllFrames, bool);
   vtkSetMacro(AllFrames, bool);
 
-  int GetVoxelSamplingMode() { return VoxelGrid->GetSampling(); }
-  void SetVoxelSamplingMode(int mode);
-
-  int GetVoxelLeafSize() { return VoxelGrid->GetLeafSize(); }
-  void SetVoxelLeafSize(double size);
-
-  vtkGetMacro(AutoComputeBounds, bool);
-  vtkSetMacro(AutoComputeBounds, bool);
-
-  vtkGetVector6Macro(CustomBounds, double);
-  vtkSetVector6Macro(CustomBounds, double);
-
-  vtkGetMacro(IsVoxelGridFilterUsed, bool);
-  vtkSetMacro(IsVoxelGridFilterUsed, bool);
-
-  vtkGetMacro(AutoDetectTimeArray, bool);
-  vtkSetMacro(AutoDetectTimeArray, bool);
-
-  vtkGetMacro(CustomTimeArrayName, std::string);
-  vtkSetMacro(CustomTimeArrayName, std::string);
-
-  vtkGetMacro(AutoDetectTimeUnitConversion, bool);
-  vtkSetMacro(AutoDetectTimeUnitConversion, bool);
-
-  vtkGetMacro(CustomConversionFactorToSecond, double);
-  vtkSetMacro(CustomConversionFactorToSecond, double);
-
-  vtkGetMacro(TimeOffset, double);
-  vtkSetMacro(TimeOffset, double);
-
-  vtkGetMacro(InterpolationType, int);
-  vtkSetMacro(InterpolationType, int);
-
 protected:
   vtkAggregatePointsFromTrajectoryOffline();
 
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
-   * @brief InitializeData Initialize the filter by setting the useful parameters. This method is
-   * called once at the beginning of the filter.
+   * @brief UpdateAutoComputeBoundsProgress Update the state of the autoComputeBounds process
    */
-  void InitializeData(vtkPolyData*, vtkPolyData*);
+  void UpdateAutoComputeBoundsProgress(vtkInformation*) override;
 
-  /**
-   * @brief AutoComputeVoxelBounds Compute the bounds of the voxel grid by transforming the bounds
-   * of the input point cloud using the trajectory and calculating the global bounds of the
-   * transformed bounds. This method is called sequentially once per frame before the aggregation.
-   */
-  int AutoComputeVoxelBounds(vtkInformation*, vtkInformation*, vtkPolyData*, vtkDataArray*);
   /**
    * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
    */
@@ -115,18 +77,7 @@ protected:
     vtkInformation*,
     vtkInformationVector*,
     vtkPolyData*,
-    vtkDataArray*);
-
-  /**
-   * @brief DetectTimeArray Detect a time array in the point cloud by searching for the words "time"
-   * or "Time" in name of arrays and return its name.
-   */
-  std::string DetectTimeArray(vtkPolyData*);
-  /**
-   * @brief ComputeTimeUnitConversion Compute the time unit conversion between the trajectory and
-   * the point cloud
-   */
-  double ComputeTimeUnitConversion(vtkDataArray*, vtkDataArray*);
+    vtkDataArray*) override;
 
   //! Overwrite FirstFrame and LastFrame to process all the frame
   bool AllFrames = true;
@@ -141,70 +92,9 @@ protected:
   //! Process one frame every StepSize frames (ex: every frame, every 2 frames, 3 frames, ...)
   int StepSize = 1;
 
-  //! If true, the time array is automatically detected
-  bool AutoDetectTimeArray = true;
-  //! Name of the array containing the time to match the trajectory with the point cloud
-  //! Used only if AutoDetectTimmeArray is false
-  std::string CustomTimeArrayName = "adjustedtime";
-  //! If true, the time unit conversion is automatically detected
-  bool AutoDetectTimeUnitConversion = true;
-  //! Double to convert time in second (default is for data in microsecond)
-  //! Used only if AutoDetectTimeUnitConversion is false
-  double CustomConversionFactorToSecond = 1e-6;
-
-  //! If true, the bounds will be automatically computed
-  bool AutoComputeBounds = true;
-  //! Custom bounds of the voxel grid
-  double CustomBounds[6] = { 0, 0, 0, 0, 0, 0 };
-
-  //! Offset to add to the time of the point cloud to match the trajectory
-  //! The unit must be consistent with ConversionFactorToSecond
-  double TimeOffset = 0;
-
-  //! If true, the voxel grid filter is used to aggregate the points
-  //! If false, the points are aggregated without filtering
-  bool IsVoxelGridFilterUsed = true;
-
-  //! Interpolator used to get the right transform
-  vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
-  //! Interpolation type used to interpolate the transform between two frames
-  int InterpolationType = vtkCustomTransformInterpolator::INTERPOLATION_TYPE_LINEAR;
-
 private:
   vtkAggregatePointsFromTrajectoryOffline(const vtkAggregatePointsFromTrajectoryOffline&);
   void operator=(const vtkAggregatePointsFromTrajectoryOffline&);
-
-  //! Current frame to be processed
-  int CurrentFrame = 0;
-
-  //! Voxel grid filter used to aggregate the points
-  vtkNew<vtkVoxelGridProcessor> VoxelGrid;
-  vtkNew<vtkMergePointsToPolyDataHelper> MergePointsToPolyDataHelper;
-
-  //! Specify if the bounds have been computed
-  bool AreBoundsComputed = false;
-
-  //! Number of points in the frames
-  //! Used to allocate the exact memory of the output point cloud when IsVoxelGridFilterUsed is
-  //! false
-  int NumberOfPoints = 0;
-
-  // Default number of points allocated in the output point cloud when IsVoxelGridFilterUsed is true
-  int DefaultNumberOfPoints = 100000;
-
-  //! Bounds of the voxel grid
-  std::vector<double> Bounds = { 0, 0, 0, 0, 0, 0 };
-  //! Current time array name
-  std::string TimeArrayName;
-  //! Current conversion factor
-  double ConversionFactorToSecond = 1e-6;
-
-  //! Specify if the filter has been initialized
-  bool Initialized = false;
-
-  //! Specify if the trajectory time is considered as continuous with an offset between two
-  //! consecutive poses
-  bool ContinuousTrajectory = false;
 };
 
 #endif // vtkAggregatePointsFromTrajectory_H

@@ -89,8 +89,9 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersTemporal
   XML_MODULE_FILES
-    Filters/AggregatePointsFromTrajectoryOffline.xml
+    Filters/AggregatePointsFromTrajectory.xml
     Filters/AggregatePointsFromTrajectoryOnline.xml
+    Filters/AggregatePointsFromTrajectoryOffline.xml
     Filters/MLSPosesSmoothing.xml
     Filters/MotionDetector.xml
     Filters/TemporalTransformsApplier.xml

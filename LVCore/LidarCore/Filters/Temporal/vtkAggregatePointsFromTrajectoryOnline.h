@@ -26,7 +26,6 @@
 
 // VTK includes
 #include <vtkCustomTransformInterpolator.h>
-#include <vtkNew.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 
@@ -109,14 +108,25 @@ protected:
   int AutoComputeVoxelBounds(vtkInformation*, vtkInformation*, vtkPolyData*, vtkDataArray*);
 
   /**
+   * @brief UpdateAutoComputeBoundsProgress Update the state of the autoComputeBounds process
+   */
+  virtual void UpdateAutoComputeBoundsProgress(vtkInformation*);
+
+  /**
    * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
    * filter.
    */
-  int AggregatePoints(vtkInformation*,
+  virtual int AggregatePoints(vtkInformation*,
     vtkInformation*,
     vtkInformationVector*,
     vtkPolyData*,
     vtkDataArray*);
+
+  /**
+   * @brief TransformAndAddPoints Transform the points of the input point cloud using the trajectory
+   * and add them to the voxel grid.
+   */
+  virtual int TransformAndAddPoints(vtkDataArray*, vtkPolyData*);
 
   /**
    * @brief DetectTimeArray Detect a time array in the point cloud by searching for the words "time"
@@ -158,7 +168,6 @@ protected:
   //! Interpolation type used to interpolate the transform between two frames
   int InterpolationType = vtkCustomTransformInterpolator::INTERPOLATION_TYPE_LINEAR;
 
-private:
   //! Current frame to be processed
   int CurrentFrame = 0;
 
@@ -197,6 +206,7 @@ private:
   //! consecutive poses
   bool ContinuousTrajectory = false;
 
+private:
   vtkAggregatePointsFromTrajectoryOnline(const vtkAggregatePointsFromTrajectoryOnline&);
   void operator=(const vtkAggregatePointsFromTrajectoryOnline&);
 };

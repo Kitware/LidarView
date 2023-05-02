@@ -217,22 +217,27 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
                                  : std::max(this->Bounds[i], transformedBoundingBox.GetBound(i));
   }
 
-  // Relaunch the pipeline if necessary
+  // Update the state of the autoComputeBounds process
+  this->UpdateAutoComputeBoundsProgress(inInfo);
+
+  // Continue the pipeline loop
+  request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+
+  return 1;
+}
+
+void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtkInformation* inInfo)
+{
   int timeStepNumber = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  bool lastIteration = CurrentFrame - 1 >= timeStepNumber - 1;
 
   if (this->CurrentFrame >= timeStepNumber - 1)
   {
     this->AreBoundsComputed = true;
     this->CurrentFrame = 0;
-    return 1;
+    return;
   }
 
   this->CurrentFrame += 1;
-  // Continue the pipeline loop
-  request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -250,6 +255,31 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
     this->IsVoxelGridFilterInitialized = true;
   }
 
+  // Transform the points of the pointcloud with the trajectory and add them to the voxel grid
+  if (!this->TransformAndAddPoints(timestamp, pointcloud))
+  {
+    vtkErrorMacro(<< "Aggregation failed.");
+    return 0;
+  }
+
+  // Get the outputs from the voxel grid and the free points and merge them
+  vtkNew<vtkAppendPolyData> appendFilter;
+  appendFilter->AddInputData(this->VoxelGrid->GetOutput());
+  // The free points are added after the voxel grid
+  appendFilter->AddInputData(this->MergePointsToPolyDataHelper->GetOutput());
+  appendFilter->Update();
+  vtkPolyData* output = vtkPolyData::GetData(outputVector);
+  output->ShallowCopy(appendFilter->GetOutput());
+
+  request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0);
+
+  return 1;
+}
+
+int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* timestamp,
+  vtkPolyData* pointcloud)
+{
   for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
   {
     // Get the current timestamp in seconds
@@ -284,18 +314,6 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
       vtkWarningMacro("Add point failed");
     }
   }
-
-  // Get the outputs from the voxel grid and the free points and merge them
-  vtkNew<vtkAppendPolyData> appendFilter;
-  appendFilter->AddInputData(this->VoxelGrid->GetOutput());
-  // The free points are added after the voxel grid
-  appendFilter->AddInputData(this->MergePointsToPolyDataHelper->GetOutput());
-  appendFilter->Update();
-  vtkPolyData* output = vtkPolyData::GetData(outputVector);
-  output->ShallowCopy(appendFilter->GetOutput());
-
-  request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0);
 
   return 1;
 }
