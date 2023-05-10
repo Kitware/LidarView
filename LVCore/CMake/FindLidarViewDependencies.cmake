@@ -64,7 +64,11 @@ endif ()
 # PCAP dependency - required
 #--------------------------------------
 if (LIDARVIEW_USE_PCAP)
-  find_library(PCAP_LIBRARY pcap DOC "pcap library")
+  if (WIN32)
+    find_library(PCAP_LIBRARY wpcap DOC "pcap library")
+  else ()
+    find_library(PCAP_LIBRARY pcap DOC "pcap library")
+  endif ()
   find_path(PCAP_INCLUDE_DIR pcap.h DOC "pcap include directory")
   if (PCAP_LIBRARY AND PCAP_INCLUDE_DIR)
     add_library(PCAP::pcap UNKNOWN IMPORTED)
