@@ -5,6 +5,7 @@ LIBRARY_NAME
 CONDITION
   LIDARVIEW_USE_PCAP AND LIDARVIEW_USE_OPENCV
 DEPENDS
+  opencv_core
   LidarView::CommonCore
   LidarView::IOCore
   LidarView::IONetwork
@@ -12,5 +13,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  opencv_imgcodecs
+  opencv_videoio
   LidarView::CommonOpenCV
   VTK::IOImage              # For vtkPNGWriter

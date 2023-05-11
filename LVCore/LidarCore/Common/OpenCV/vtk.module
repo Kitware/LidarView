@@ -5,5 +5,8 @@ LIBRARY_NAME
 CONDITION
   LIDARVIEW_USE_OPENCV
 DEPENDS
+  opencv_core
   VTK::CommonCore
   VTK::CommonDataModel
+PRIVATE_DEPENDS
+  opencv_imgcodecs

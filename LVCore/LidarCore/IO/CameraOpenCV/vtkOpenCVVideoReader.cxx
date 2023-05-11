@@ -41,6 +41,7 @@
 
 // OPENCV
 #include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
 
 // BOOST
 #include <boost/algorithm/string.hpp>

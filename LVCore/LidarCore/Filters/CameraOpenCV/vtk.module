@@ -5,13 +5,12 @@ LIBRARY_NAME
 CONDITION
   LIDARVIEW_USE_OPENCV
 DEPENDS
+  opencv_core
   LidarView::CommonCore
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   Boost::filesystem
+  opencv_imgcodecs
   LidarView::CommonOpenCV
-TEST_DEPENDS
-  LidarView::FiltersCalibration
-  VTK::IOXML
