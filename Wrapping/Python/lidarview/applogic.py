@@ -25,6 +25,7 @@ import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 import lidarview.gridAdjustmentDialog
 import lidarview.aboutDialog
 import lidarview.planefit as planefit
+import lidarview.simple as lvsmp
 
 from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog #WIP rename to LV / Velodyne Specific
 
@@ -630,7 +631,7 @@ def onClose():
     smp.HideUnusedScalarBars()
 
     # Reset Camera
-    resetCameraToForwardView()
+    lvsmp.ResetCameraToForwardView()
 
     # Reset Labels
     app.filenameLabel.setText('')
@@ -738,15 +739,6 @@ def onCropReturns(show = True):
         lidarInterpreter.CropRegion = [p1.x(), p2.x(), p1.y(), p2.y(), p1.z(), p2.z()]
         if show:
             smp.Render()
-
-def resetCameraLidar():
-  PythonQt.paraview.lqLidarCoreManager.resetCameraLidar()
-
-def resetCenterToLidarCenter():
-  PythonQt.paraview.lqLidarCoreManager.resetCenterToLidarCenter()
-
-def resetCameraToForwardView():
-  PythonQt.paraview.lqLidarCoreManager.resetCameraToForwardView()
 
 def saveScreenshot(filename):
     smp.WriteImage(filename)
@@ -859,7 +851,7 @@ def start():
     smp._DisableFirstRenderCameraReset()
     smp.GetActiveView().LODThreshold = 1e100
 
-    resetCameraToForwardView()
+    lvsmp.ResetCameraToForwardView()
 
     setupActions()
     disableSaveActions()
