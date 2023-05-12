@@ -17,28 +17,15 @@
 # Ship Qt5
 foreach (qt5_opengl_lib IN ITEMS opengl32sw libEGL libGLESv2 libEGLd
   Qt5Core Qt5Gui Qt5Help Qt5PrintSupport Qt5Sql Qt5Svg Qt5Widgets Qt5Network)
-install(FILES "${Qt5_DIR}/../../../bin/${qt5_opengl_lib}.dll"
-        DESTINATION "bin"
-        )
+  install(
+    FILES "${Qt5_DIR}/../../../bin/${qt5_opengl_lib}.dll"
+    DESTINATION "bin"
+  )
 endforeach ()
-install(DIRECTORY "${Qt5_DIR}/../../../plugins/platforms"
-        DESTINATION "bin"
-        )
-install(DIRECTORY "${Qt5_DIR}/../../../plugins/styles"
-        DESTINATION "bin"
-        )
-install(DIRECTORY "${Qt5_DIR}/../../../plugins/iconengines"
-        DESTINATION "bin"
-        )
-install(DIRECTORY "${Qt5_DIR}/../../../plugins/imageformats"
-        DESTINATION "bin"
-        )
-        
-# Ship Python #WIP May not be necessary
-get_filename_component(python_lib_location ${Python3_LIBRARY} PATH)
-install(FILES "${python_lib_location}/../python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}.dll" 
-        DESTINATION "bin"
-        )
-install(DIRECTORY "${python_lib_location}/../Lib" 
-        DESTINATION "bin"
-        )
+
+foreach (qt5_plugin_dir IN ITEMS platforms styles iconengines imageformats)
+  install(
+    DIRECTORY "${Qt5_DIR}/../../../plugins/${qt5_plugin_dir}"
+    DESTINATION "bin"
+  )
+endforeach ()
