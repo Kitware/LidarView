@@ -8,7 +8,7 @@
 
 .fedora35:
     extends: .linux
-    image: "tcouble/lidarview:ci-fedora35-20230511"
+    image: "kitware/paraview-ci-plugin:lidarview-ci-fedora35-20230511"
 
 .fedora35_shared_debug:
     extends: .fedora35
@@ -58,6 +58,7 @@
 
     script:
         - *before_script_linux
-        - xvfb-run ctest --test-dir $CI_PROJECT_DIR/build/ --output-on-failure
+        - cp .gitlab/ci/CMakePresets.json $CI_PROJECT_DIR
+        - xvfb-run ctest --preset ci-fedora35-shared-debug
 
     interruptible: true

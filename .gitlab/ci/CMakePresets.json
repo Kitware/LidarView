@@ -1,0 +1,43 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 21,
+      "patch": 0
+    },
+
+  "configurePresets": [
+    {
+      "name": "ci-common",
+      "binaryDir": "${sourceDir}/build/"
+    }
+  ],
+    "testPresets": [
+      {
+        "name": "ci-common",
+        "configurePreset": "ci-common",
+        "hidden": true,
+        "output": {"outputOnFailure": true},
+        "execution": {
+            "jobs": 1,
+            "repeat": {"mode": "until-pass", "count": 3},
+            "timeout": 120,
+            "noTestsAction": "error"
+        },
+        "filter": {
+            "exclude": {"name": "lv|Python"}
+        }
+      },
+      {
+        "name": "ci-fedora35-shared-debug",
+        "inherits": ["ci-common"],
+        "filter": {
+            "exclude": {"name": "lv|Python|TestVelodyneHDLPositionReader"}
+        }
+      },
+      {
+        "name": "ci-windows-vs2019",
+        "inherits": ["ci-common"]
+      }
+    ]
+  }
