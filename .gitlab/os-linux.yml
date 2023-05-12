@@ -1,0 +1,64 @@
+# Linux-specific builder configurations and build commands
+
+## Base configurations
+.linux:
+    variables:
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/lidarview-ci/$CI_PROJECT_ID
+        GIT_SUBMODULE_STRATEGY: none
+
+.fedora35:
+    extends: .linux
+    image: "kitware/paraview-ci-plugin:lidarview-ci-fedora35-20230511"
+
+.fedora35_shared_debug:
+    extends: .fedora35
+
+    variables:
+        CMAKE_CONFIGURATION: fedora35_shared_debug
+
+## Tags
+
+.linux_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64
+        - lidarview
+
+.linux_tester_tags:
+    tags:
+        - docker
+        - lidarview
+        - linux-x86_64
+
+## Linux-specific scripts
+
+.before_script_linux: &before_script_linux
+    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/ninja.sh
+    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
+    - cmake --version
+    - ninja --version
+    - "git submodule update --init --recursive || :"
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+.cmake_build_linux:
+    stage: build
+    extends: .warning_policy
+
+    script:
+        - *before_script_linux
+        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_common.cmake -GNinja
+        - cmake --build $CI_PROJECT_DIR/build --parallel 8
+    interruptible: true
+
+.cmake_test_linux:
+    stage: test
+
+    script:
+        - *before_script_linux
+        - cp .gitlab/ci/CMakePresets.json $CI_PROJECT_DIR
+        - xvfb-run ctest --preset ci-fedora35-shared-debug
+
+    interruptible: true
