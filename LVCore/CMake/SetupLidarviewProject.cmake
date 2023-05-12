@@ -93,11 +93,6 @@ if (APPLE)
   set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
   #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../Libraries") #setting this will replace @rpath which is bad ??
   #@rpath does not work, but it says it is  "more flexible
-
-elseif(UNIX)
-  #WIP this is not necessarry
-  #Set Explicit /lib DIR RPATH to avoid diamond depencencies issues (e.g libz)
-  #list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../${LV_INSTALL_LIBRARY_DIR}")
 endif()
 
 # Fixup-Install
