@@ -346,7 +346,7 @@ int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
     // Stop the pipeline loop
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
 
-    // Extra memory is allocated in the vtkVoxelGridFilter and the vtkMergePointsToPolyDataHelper
+    // Extra memory is allocated in the vtkVoxelGridProcessor and the vtkMergePointsToPolyDataHelper
     // outputs to avoid reallocation, so memory needs to be freed
     this->VoxelGrid->FreeUnusedMemory();
     this->MergePointsToPolyDataHelper->FreeUnusedMemory();
