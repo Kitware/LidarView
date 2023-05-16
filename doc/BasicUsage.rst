@@ -124,6 +124,18 @@ this data.
     sensor stream. The playback can be paused at any time by clicking on the
     |Pause| button which replaces the |Play| button while the stream is advancing.
 
+.. exercise:: Enabling Advanced Features
+   :label: EnablingAdvancedFeatures
+   :class: note
+
+    There are advanced features available in **LidarView** that are not enabled
+    by default. In particular, many of the tools from **ParaView** can be accessed
+    by enabling these advanced features. To enable these features, go to the Help
+    menu and then select Advanced Feature. You will now see four more sections
+    on the Menu Bar: Sources, Filters, Views, and Advance. You will also see a
+    new Toolbar at the top of the Render View. These are controls for the Render
+    View from **ParaView**.
+
 .. |Play| image:: ../LVCore/ApplicationComponents/Icons/media-playback-start.png
    :height: 20px
 
