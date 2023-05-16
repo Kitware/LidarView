@@ -132,9 +132,12 @@ this data.
     by default. In particular, many of the tools from **ParaView** can be accessed
     by enabling these advanced features. To enable these features, go to the Help
     menu and then select Advanced Feature. You will now see four more sections
-    on the Menu Bar: Sources, Filters, Views, and Advance. You will also see a
+    on the Menu Bar: Sources, Filters, Views, and Advance. The image below shows
+    how the Menu Bar and Toolbar should appear now. You will also see a
     new Toolbar at the top of the Render View. These are controls for the Render
     View from **ParaView**.
+
+    .. figure:: ./images/AdvancedFeatures.png
 
 .. |Play| image:: ../LVCore/ApplicationComponents/Icons/media-playback-start.png
    :height: 20px
