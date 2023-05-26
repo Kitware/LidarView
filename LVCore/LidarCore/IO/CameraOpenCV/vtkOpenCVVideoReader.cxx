@@ -22,10 +22,10 @@
 #include "vtkOpenCVConversions.h"
 
 // STD
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 // VTK
 #include <vtkDataArray.h>
@@ -33,9 +33,9 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkMath.h>
+#include <vtkPNGWriter.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
-#include <vtkPNGWriter.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
@@ -148,8 +148,8 @@ int vtkOpenCVVideoReaderInternal::ReadVideoInformation()
   this->FramesPosition.resize(this->VideoInfo.NbrFrame);
   for (unsigned int frameIndex = 0; frameIndex < this->VideoInfo.NbrFrame; frameIndex++)
   {
-    this->FramesPosition[frameIndex] = VideoFramePosition(frameIndex,
-                                                          static_cast<double>(frameIndex) / this->VideoInfo.Fps + this->TimeOffset);
+    this->FramesPosition[frameIndex] = VideoFramePosition(
+      frameIndex, static_cast<double>(frameIndex) / this->VideoInfo.Fps + this->TimeOffset);
   }
   return 1;
 }
@@ -161,12 +161,12 @@ void vtkOpenCVVideoReaderInternal::SetTimestepInformation(vtkInformation* info)
   std::vector<double> timesteps;
   for (size_t i = 0; i < numberOfTimesteps; i++)
   {
-    timesteps.push_back( this->FramesPosition[i].Time);
+    timesteps.push_back(this->FramesPosition[i].Time);
   }
 
   if (this->FramesPosition.size())
   {
-    double timeRange[2] = {timesteps.front(), timesteps.back()};
+    double timeRange[2] = { timesteps.front(), timesteps.back() };
     info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps.front(), timesteps.size());
     info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
@@ -181,11 +181,15 @@ void vtkOpenCVVideoReaderInternal::SetTimestepInformation(vtkInformation* info)
 void vtkOpenCVVideoReaderInternal::UpdateVideoInfo()
 {
   this->VideoInfo.UpdateInfo(&this->Video);
-  this->DataExtend[0] = 0; this->DataExtend[1] = this->VideoInfo.Width - 1;
-  this->DataExtend[2] = 0; this->DataExtend[3] = this->VideoInfo.Height - 1;
-  this->DataExtend[4] = 0; this->DataExtend[5] = 0;
+  this->DataExtend[0] = 0;
+  this->DataExtend[1] = this->VideoInfo.Width - 1;
+  this->DataExtend[2] = 0;
+  this->DataExtend[3] = this->VideoInfo.Height - 1;
+  this->DataExtend[4] = 0;
+  this->DataExtend[5] = 0;
   this->Scale[0] = 100.0 / static_cast<double>(this->VideoInfo.Width);
-  this->Scale[1] = this->Scale[0]; this->Scale[2] = this->Scale[0];
+  this->Scale[1] = this->Scale[0];
+  this->Scale[2] = this->Scale[0];
   this->Origin[0] = -50.0;
   this->Origin[1] = -Scale[0] * static_cast<double>(this->VideoInfo.Height) / 2.0;
   this->Origin[2] = 0.0;
@@ -239,8 +243,8 @@ void vtkOpenCVVideoReader::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 int vtkOpenCVVideoReader::RequestInformation(vtkInformation* vtkNotUsed(request),
-                                             vtkInformationVector** vtkNotUsed(inputVector),
-                                             vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   if (!this->Internal->FileName.empty() && this->Internal->FramesPosition.empty())
   {
@@ -261,8 +265,9 @@ int vtkOpenCVVideoReader::RequestInformation(vtkInformation* vtkNotUsed(request)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOpenCVVideoReader::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector), vtkInformationVector *outputVector)
+int vtkOpenCVVideoReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   vtkImageData* output = vtkImageData::GetData(outputVector);
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -282,7 +287,8 @@ int vtkOpenCVVideoReader::RequestData(vtkInformation *vtkNotUsed(request),
   // iterating over all timesteps until finding the first one with a greater time value
   // this is suboptimal
   int frameRequested = 0;
-  for (; timestep > this->Internal->FramesPosition[frameRequested].Time; frameRequested++);
+  for (; timestep > this->Internal->FramesPosition[frameRequested].Time; frameRequested++)
+    ;
 
   if (frameRequested < 0 || frameRequested >= this->GetNumberOfFrames())
   {
@@ -323,8 +329,8 @@ void vtkOpenCVVideoReader::SetFileName(const char* filename)
 {
   if (!this->Internal->Video.open(std::string(filename)))
   {
-    vtkGenericWarningMacro("Can not load video:" << filename
-                           << " check that the file exists and has the correct extension");
+    vtkGenericWarningMacro("Can not load video:"
+      << filename << " check that the file exists and has the correct extension");
   }
   this->Internal->FileName = std::string(filename);
   this->Internal->FramesPosition = std::vector<VideoFramePosition>();
