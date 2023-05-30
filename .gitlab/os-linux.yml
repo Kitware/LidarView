@@ -49,7 +49,7 @@
 
     script:
         - *before_script_linux
-        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_common.cmake -GNinja
+        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_$CMAKE_CONFIGURATION.cmake -GNinja
         - cmake --build $CI_PROJECT_DIR/build --parallel 8
     interruptible: true
 
