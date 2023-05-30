@@ -1,13 +1,18 @@
 # launch lidarview CI, see https://docs.gitlab.com/ee/ci/multi_project_pipelines.html
-launch_lidarview_CI:
-  variables:
-    TRIGGER_MODULE_SHA: $CI_COMMIT_SHA
-    TRIGGER_MODULE_PATH: LVCore
-  only:
-    - master
-    - merge_requests
-    - tags
-  trigger:
-    project: lidarview/lidarview
-    branch: master
-    strategy: depend
+stages:
+    - test
+
+lidarview:test:
+    variables:
+        TRIGGER_MODULE_BRANCH: $CI_COMMIT_REF_NAME
+        TRIGGER_MODULE_PATH: LVCore
+    rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: manual
+        - if: $CI_COMMIT_TAG
+        - if: $CI_COMMIT_BRANCH == "master"
+        - when: never
+    trigger:
+        project: lidarview/lidarview
+        branch: master
+        strategy: depend
