@@ -2,7 +2,6 @@ include:
     # Metadata shared my many jobs
     - local: .gitlab/rules.yml
     - local: .gitlab/artifacts.yml
-    - local: .gitlab/warning-policy.yml
 
     # OS builds.
     - local: .gitlab/os-linux.yml
@@ -11,6 +10,7 @@ include:
 stages:
     - build
     - test
+    - analyse
 
 ################################################################################
 # Job declarations
@@ -51,6 +51,14 @@ fedora35-shared-debug:test:
         - fedora35-shared-debug:build
     needs:
         - fedora35-shared-debug:build
+
+clang-format-check:analyse:
+    extends:
+        - .fedora35
+        - .clang_format_check
+        - .linux_tester_tags
+        - .run_automatically
+    needs: []
 
 # Windows
 

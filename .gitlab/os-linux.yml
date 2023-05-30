@@ -46,7 +46,6 @@
 
 .cmake_build_linux:
     stage: build
-    extends: .warning_policy
 
     script:
         - *before_script_linux
@@ -61,5 +60,17 @@
         - *before_script_linux
         - cp .gitlab/ci/CMakePresets.json $CI_PROJECT_DIR
         - xvfb-run ctest --preset ci-fedora35-shared-debug
+
+    interruptible: true
+
+.clang_format_check:
+    stage: analyse
+
+    script:
+        - *before_script_linux
+        - git fetch --all
+        - .gitlab/ci/clang_format_check.sh
+    allow_failure:
+        exit_codes: 1
 
     interruptible: true
