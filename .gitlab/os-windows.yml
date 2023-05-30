@@ -48,6 +48,7 @@
     - ninja --version
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - powershell -File ".gitlab/ci/checkout_trigger_submodule.ps1"
 
 .before_script_windows_deps: &before_script_windows_deps
     - Set-Item -Force -Path "env:PATH" -Value "$QTBINARIES;$env:PATH"

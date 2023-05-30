@@ -42,6 +42,7 @@
     - "git submodule update --init --recursive || :"
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - .gitlab/ci/checkout_trigger_submodule.sh
 
 .cmake_build_linux:
     stage: build
