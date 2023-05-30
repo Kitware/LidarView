@@ -5,6 +5,8 @@
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
           when: on_success
+        - if: '$TRIGGER_MODULE_PATH'
+          when: on_success
         - if: $CI_COMMIT_TAG
           when: on_success
         - if: $CI_COMMIT_BRANCH == "master"
@@ -15,6 +17,7 @@
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
           when: manual
+        - if: '$TRIGGER_MODULE_PATH'
         - if: $CI_COMMIT_TAG
         - if: $CI_COMMIT_BRANCH == "master"
         - when: never
