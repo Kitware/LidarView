@@ -46,7 +46,6 @@
 
 .cmake_build_linux:
     stage: build
-    extends: .warning_policy
 
     script:
         - *before_script_linux

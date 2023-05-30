@@ -57,7 +57,6 @@
 
 .cmake_build_windows:
     stage: build
-    extends: .warning_policy
 
     script:
         - *before_script_windows
