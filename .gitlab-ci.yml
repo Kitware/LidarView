@@ -11,6 +11,7 @@ include:
 stages:
     - build
     - test
+    - analyse
 
 ################################################################################
 # Job declarations
@@ -51,6 +52,14 @@ fedora35-shared-debug:test:
         - fedora35-shared-debug:build
     needs:
         - fedora35-shared-debug:build
+
+clang-format-check:analyse:
+    extends:
+        - .fedora35
+        - .clang_format_check
+        - .linux_tester_tags
+        - .run_automatically
+    needs: []
 
 # Windows
 
