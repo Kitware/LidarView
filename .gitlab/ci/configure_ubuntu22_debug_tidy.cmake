@@ -5,3 +5,6 @@ set(PARAVIEW_ENABLE_PLUGIN_HesaiPlugin OFF CACHE BOOL "")
 
 # Treats warnings as errors
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra" CACHE STRING "")
+
+# Create a compilation database for the analize stage (clang-tidy)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "")

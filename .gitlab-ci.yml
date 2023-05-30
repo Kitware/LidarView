@@ -57,7 +57,7 @@ ubuntu22-debug-tidy:build:
         - .ubuntu22_debug_tidy
         - .cmake_build_linux
         - .linux_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_tidy_artifacts
         - .run_manually
     needs: []
 
@@ -68,6 +68,17 @@ clang-format-check:analyse:
         - .linux_tester_tags
         - .run_automatically
     needs: []
+
+clang-tidy-check:analyse:
+    extends:
+        - .ubuntu22
+        - .clang_tidy_check
+        - .linux_tester_tags
+        - .run_automatically
+    dependencies:
+        - ubuntu22-debug-tidy:build
+    needs:
+        - ubuntu22-debug-tidy:build
 
 # Windows
 

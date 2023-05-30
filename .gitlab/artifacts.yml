@@ -36,6 +36,20 @@
             - build/Testing/
             - build/Testing/Temporary/
 
+.cmake_tidy_artifacts:
+    artifacts:
+        expire_in: 1d
+        # Because build logs are in here, we should always upload artifacts.
+        when: always
+        paths:
+            # Logs of the build
+            - compile_output.log
+            - build/compile_commands.json
+
+            # The artifacts of Qt generation.
+            - build/**/*.h
+            - build/**/*.hxx
+
 .cmake_test_artifacts:
     artifacts:
         expire_in: 1d

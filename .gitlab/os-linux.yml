@@ -80,3 +80,16 @@
         exit_codes: 1
 
     interruptible: true
+
+.clang_tidy_check:
+    stage: analyse
+
+    script:
+        - *before_script_linux
+        - git fetch --all
+        - cp .clang-tidy $CI_PROJECT_DIR/build
+        - .gitlab/ci/clang_tidy_check.sh
+    allow_failure:
+        exit_codes: 1
+
+    interruptible: true
