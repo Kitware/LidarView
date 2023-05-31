@@ -1,25 +1,32 @@
 #!/bin/sh
 
-branch_origin=""
+set -e
 
-if [[ -z "${TRIGGER_MODULE_BRANCH}" ]]; then
+target_repository=""
+
+if [[ -z "${TRIGGER_MODULE_PATH}" ]]; then
     if [[ -z "${CI_COMMIT_REF_NAME}" ]]; then
         echo "Missing CI_COMMIT_REF_NAME env variable"
         exit 1
     fi
-    branch_origin="origin/$CI_COMMIT_REF_NAME"
+    target_repository="."
 else
-    branch_origin="origin/$TRIGGER_MODULE_BRANCH"
+    target_repository="$TRIGGER_MODULE_PATH"
 fi
 
-exit_code=0
-changed_files=`git diff --name-only $branch_origin $(git merge-base $branch_origin origin/master)| egrep "\.txx$|\.cxx$|\.h$"`
+cd $target_repository
 
-if [[ -z "${changed_files}" ]]; then
+exit_code=0
+
+current_SHA=$(git rev-parse HEAD)
+ancestor_SHA=$(git merge-base $current_SHA origin/master)
+modified_files=$(git diff --name-only  $ancestor_SHA $current_SHA *.{h,cxx,txx})
+
+if [[ -z "${modified_files}" ]]; then
     echo "No c++ files detected in changes for clang-format to run against"
 else
-    echo "Performing clang-format check on: $changed_files"
-    clang-format --dry-run -Werror "$changed_files"
+    echo "Performing clang-format check on: $modified_files"
+    clang-format --dry-run -Werror "$modified_files"
     exit_code=`echo $?`
 fi
 
