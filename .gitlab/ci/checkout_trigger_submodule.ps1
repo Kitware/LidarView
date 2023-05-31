@@ -1,6 +1,7 @@
 if (Test-Path env:TRIGGER_MODULE_PATH) {
     git -C "$env:TRIGGER_MODULE_PATH" fetch
     git -C "$env:TRIGGER_MODULE_PATH" checkout "$env:TRIGGER_MODULE_BRANCH"
+    git -C "$env:TRIGGER_MODULE_PATH" reset --hard origin/"$env:TRIGGER_MODULE_PATH"
     git -C "$env:TRIGGER_MODULE_PATH" pull
     git -C "$env:TRIGGER_MODULE_PATH" submodule sync --recursive
     git -C "$env:TRIGGER_MODULE_PATH" submodule update --init --recursive
