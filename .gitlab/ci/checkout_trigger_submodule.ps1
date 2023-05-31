@@ -1,3 +1,5 @@
+$erroractionpreference = "stop"
+
 if (Test-Path env:TRIGGER_MODULE_PATH) {
     git -C "$env:TRIGGER_MODULE_PATH" fetch
     git -C "$env:TRIGGER_MODULE_PATH" checkout "$env:TRIGGER_MODULE_BRANCH"
