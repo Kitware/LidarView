@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load PCAP -->
+  <pqevent object="vvMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="vvMainWindow/vvCalibrationDialog" command="key" arguments="16777220" />
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuAdvance" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
+  <pqevent object="vvMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileOpen" />
+  <!-- Load Trajectory -->
+  <pqevent object="vvMainWindow/FileOpenDialog" command="filesSelected" arguments="PARAVIEW_DATA_ROOT/Slam/trajectory.poses" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,66,17,/0:0/3:0" />
+  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,66,17,/0:0/3:0" />
+  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <!-- Aggregate Points -->
+  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectory" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,68,14,/0:0/2:0/0:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,68,14,/0:0/2:0/0:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/buttonFrame/Trajectory" command="set_boolean" arguments="true" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,48,0,/0:0/3:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,48,0,/0:0/3:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+</pqevents>
