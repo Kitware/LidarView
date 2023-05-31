@@ -20,12 +20,12 @@ exit_code=0
 
 current_SHA=$(git rev-parse HEAD)
 ancestor_SHA=$(git merge-base $current_SHA origin/master)
-modified_files=$(git diff --name-only  $ancestor_SHA $current_SHA *.{h,cxx,txx})
+modified_files=$(git diff --name-only $ancestor_SHA $current_SHA *.{h,cxx,txx})
 
 declare -a existing_files
 
 for file in $modified_files; do
-    test -e $file && echo "test $file" && existing_files+=("$file")
+    test -e $file && existing_files+=("$file")
 done
 
 if [[ ${#existing_files[@]} -eq 0 ]]; then
