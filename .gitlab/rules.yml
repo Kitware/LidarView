@@ -18,6 +18,7 @@
         - if: '$CI_MERGE_REQUEST_ID'
           when: manual
         - if: '$TRIGGER_MODULE_PATH'
+          when: manual
         - if: $CI_COMMIT_TAG
         - if: $CI_COMMIT_BRANCH == "master"
         - when: never
