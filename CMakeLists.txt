@@ -30,3 +30,7 @@ add_subdirectory(LVCore)
 add_subdirectory(Application)
 
 add_subdirectory(Wrapping/Python)
+
+if (BUILD_DOCUMENTATION)
+  add_subdirectory(Documentation)
+endif ()
