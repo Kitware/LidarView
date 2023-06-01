@@ -139,10 +139,10 @@ this data.
 
     .. figure:: ./images/AdvancedFeatures.png
 
-.. |Play| image:: ../LVCore/ApplicationComponents/Icons/media-playback-start.png
+.. |Play| image:: ../LVCore/Qt/ApplicationComponents/Resources/Icons/media-playback-start.png
    :height: 20px
 
-.. |Pause| image:: ../LVCore/ApplicationComponents/Icons/media-playback-pause.png
+.. |Pause| image:: ../LVCore/Qt/ApplicationComponents/Resources/Icons/media-playback-pause.png
    :height: 20px
 
 .. _LidarView: https://gitlab.kitware.com/LidarView/lidarview/-/releases
