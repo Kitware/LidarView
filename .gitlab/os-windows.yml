@@ -15,6 +15,7 @@
     extends: .windows
 
     variables:
+        CMAKE_CONFIGURATION: windows_vs2019
         QTBINARIES: "C:\\Qt\\Qt5.12.9\\5.12.9\\msvc2017_64\\bin"
         VCVARSALL: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
         VCVARSPLATFORM: "x64"
@@ -62,7 +63,7 @@
         - *before_script_windows
         - *before_script_windows_deps
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_common.cmake -GNinja
+        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_$CMAKE_CONFIGURATION.cmake -GNinja
         - cmake --build $CI_PROJECT_DIR/build --parallel 8
     interruptible: true
 
