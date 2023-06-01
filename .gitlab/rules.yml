@@ -16,9 +16,9 @@
 .run_manually:
     rules:
         - if: '$CI_MERGE_REQUEST_ID'
-          when: manual
+          # when: manual
         - if: '$TRIGGER_MODULE_PATH && $TRIGGER_MODULE_BRANCH != "master"'
-          when: manual
+          # when: manual
         - if: $TRIGGER_MODULE_BRANCH == "master"
         - if: $CI_COMMIT_TAG
         - if: $CI_COMMIT_BRANCH == "master"
