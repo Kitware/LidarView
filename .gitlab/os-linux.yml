@@ -41,7 +41,7 @@
     - ninja --version
     - "git submodule update --init --recursive || :"
     - git submodule sync --recursive
-    - git submodule update --init --recursive
+    - git submodule update --init --recursive --force
     - .gitlab/ci/checkout_trigger_submodule.sh
 
 .cmake_build_linux:
