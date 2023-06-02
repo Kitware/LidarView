@@ -48,7 +48,7 @@
     - cmake --version
     - ninja --version
     - git submodule sync --recursive
-    - git submodule update --init --recursive
+    - git submodule update --init --recursive --force
     - powershell -File ".gitlab/ci/checkout_trigger_submodule.ps1"
 
 .before_script_windows_deps: &before_script_windows_deps
