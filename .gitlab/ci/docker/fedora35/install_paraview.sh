@@ -10,7 +10,7 @@ readonly paraview_src="$paraview_root/src"
 readonly paraview_build_root="$paraview_root/build"
 
 git clone "$paraview_repo" "$paraview_src" --recursive
-git -C "$paraview_src" checkout "$paraview_commit"
+git -C "$paraview_src" checkout "$paraview_commit" --recurse-submodules
 
 paraview_build () {
     local prefix="$1"
