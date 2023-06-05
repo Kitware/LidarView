@@ -1,0 +1,61 @@
+diff -u -Nru5 libLAS-1.8.1/include/liblas/detail/binary.hpp libLAS-1.8.1.new-boost/include/liblas/detail/binary.hpp
+--- libLAS-1.8.1/include/liblas/detail/binary.hpp	2016-08-22 09:06:34.000000000 -0400
++++ libLAS-1.8.1.new-boost/include/liblas/detail/binary.hpp	2021-10-19 18:42:44.908166204 -0400
+@@ -23,11 +23,11 @@
+ #include <cstddef>
+ #include <iterator>
+ 
+ #include <boost/config.hpp>
+ #include <boost/static_assert.hpp>
+-#include <boost/detail/endian.hpp>
++#include <boost/endian.hpp>
+ #include <boost/type_traits/is_signed.hpp>
+ 
+ #if CHAR_BIT != 8
+ #error Platforms with CHAR_BIT != 8 are not supported
+ #endif
+diff -u -Nru5 libLAS-1.8.1/src/c_api.cpp libLAS-1.8.1.new-boost/src/c_api.cpp
+--- libLAS-1.8.1/src/c_api.cpp	2016-08-22 09:06:34.000000000 -0400
++++ libLAS-1.8.1.new-boost/src/c_api.cpp	2021-10-19 18:46:56.615071745 -0400
+@@ -496,11 +496,11 @@
+         liblas::SpatialReference* out_ref = ((liblas::SpatialReference*) hSRS);
+         std::vector<liblas::TransformPtr> transforms = reader->GetTransforms();
+         
+         transforms.erase( std::remove_if( transforms.begin(), 
+                                   transforms.end(),
+-                                  boost::bind( &IsReprojectionTransform, _1 ) ),
++                                  boost::bind( &IsReprojectionTransform, boost::placeholders::_1 ) ),
+                   transforms.end());
+         
+         liblas::TransformPtr srs_transform = liblas::TransformPtr(new liblas::ReprojectionTransform(in_ref, *out_ref, &h));
+         if (transforms.size())
+             transforms.insert(transforms.begin(), srs_transform);
+@@ -1838,11 +1838,11 @@
+         liblas::SpatialReference* out_ref = ((liblas::SpatialReference*) hSRS);
+         std::vector<liblas::TransformPtr> transforms = writer->GetTransforms();
+         
+         transforms.erase( std::remove_if( transforms.begin(), 
+                                   transforms.end(),
+-                                  boost::bind( &IsReprojectionTransform, _1 ) ),
++                                  boost::bind( &IsReprojectionTransform, boost::placeholders::_1 ) ),
+                   transforms.end());
+         
+         liblas::TransformPtr srs_transform = liblas::TransformPtr(new liblas::ReprojectionTransform(in_ref, *out_ref, &h));
+         if (transforms.size())
+             transforms.insert(transforms.begin(), srs_transform);
+diff -u -Nru5 libLAS-1.8.1/src/header.cpp libLAS-1.8.1.new-boost/src/header.cpp
+--- libLAS-1.8.1/src/header.cpp	2016-08-22 09:06:34.000000000 -0400
++++ libLAS-1.8.1.new-boost/src/header.cpp	2021-10-19 18:47:54.707126839 -0400
+@@ -608,11 +608,11 @@
+ void Header::DeleteVLRs(std::string const& name, uint16_t id)
+ {
+ 
+     m_vlrs.erase( std::remove_if( m_vlrs.begin(),
+                                   m_vlrs.end(),
+-                                  boost::bind( &SameVLRs, name, id, _1 ) ),
++                                  boost::bind( &SameVLRs, name, id, boost::placeholders::_1 ) ),
+                   m_vlrs.end());
+ 
+     m_recordsCount = static_cast<uint32_t>(m_vlrs.size());
+ 
+ }
