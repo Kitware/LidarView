@@ -1,0 +1,11 @@
+NAME
+  LidarView::PythonInitializer
+LIBRARY_NAME
+  lvPythonInitializer
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::PythonInterpreter
+  ParaView::RemotingCore
+EXCLUDE_WRAP

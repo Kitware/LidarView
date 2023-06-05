@@ -1,0 +1,25 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkLVPythonConfigure.h.in
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkLVPythonConfigure_h
+#define vtkLVPythonConfigure_h
+
+/*
+ * Build specific site-packages suffix. This is used to setup Python
+ * module paths during initialization.
+ */
+#define LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX "@LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX@"
+
+#endif
