@@ -15,3 +15,5 @@ PRIVATE_DEPENDS
   YAML::yamlcpp
 TEST_DEPENDS
   LidarView::TestingCore
+  LidarView::IOCore
+  VTK::TestingRendering
