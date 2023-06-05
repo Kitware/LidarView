@@ -21,6 +21,7 @@ extern "C"
 
 #include "vtkCLIOptions.h"
 #include "vtkInitializationHelper.h"
+#include "vtkLVPython.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPVPluginTracker.h"
@@ -41,7 +42,9 @@ namespace LidarViewPython
 //---------------------------------------------------------------------------
 
 inline void ProcessArgsForPython(std::vector<char*>& pythonArgs,
-  const std::vector<std::string>& args, int vtkNotUsed(argc), char** argv)
+  const std::vector<std::string>& args,
+  int vtkNotUsed(argc),
+  char** argv)
 {
   pythonArgs.clear();
 
@@ -93,6 +96,9 @@ inline int Run(int processType, int argc, char* argv[])
   // register callback to initialize modules statically. The callback is
   // empty when BUILD_SHARED_LIBS is ON.
   vtkPVInitializePythonModules();
+
+  // Append lidarview modules path to python path
+  vtkLVPython::PrependLVModulesPythonPath();
 
   // Setup python options
   std::vector<char*> pythonArgs;

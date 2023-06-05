@@ -27,7 +27,8 @@ function (lidarview_add_executable name)
   target_link_libraries("${name}"
     PRIVATE
       VTK::PythonInterpreter
-      ParaView::PythonInitializer)
+      ParaView::PythonInitializer
+      LidarView::PythonInitializer)
 
   install(
     TARGETS     "${name}"

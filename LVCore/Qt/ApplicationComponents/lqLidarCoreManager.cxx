@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <lqPythonQtDecorators.h>
 #include <lqSensorListWidget.h>
 #include <vtkGridSource.h>
+#include <vtkLVPython.h>
 #include <vtkLidarReader.h>
 
 #include <pqActiveObjects.h>
@@ -58,7 +59,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vtkFieldData.h>
 #include <vtkPVVersion.h> //  needed for PARAVIEW_VERSION
-#include <vtkProcessModule.h>
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxyManager.h>
@@ -67,7 +67,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkSMViewProxy.h>
 
 #include <vtkPointData.h>
-#include <vtkPythonInterpreter.h>
 #include <vtkTimerLog.h>
 
 #include <QApplication>
@@ -191,9 +190,8 @@ void lqLidarCoreManager::createMainRenderView()
 //-----------------------------------------------------------------------------
 void lqLidarCoreManager::pythonStartup()
 {
-  vtkProcessModule* pm = vtkProcessModule::GetProcessModule();
   // PrependPythonPath will complete automatically path to right python lib path depending os.
-  vtkPythonInterpreter::PrependPythonPath(pm->GetSelfDir().c_str(), "lidarview/__init__.py");
+  vtkLVPython::PrependLVModulesPythonPath();
 
   // Python Decorators
   PythonQt::self()->addDecorators(new lqPythonQtDecorators(this));

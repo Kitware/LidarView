@@ -18,6 +18,7 @@ PRIVATE_DEPENDS
   LidarView::IOGeneral
   LidarView::IOLidar
   LidarView::IONetwork
+  LidarView::PythonInitializer
   ParaView::pqCore
   ParaView::pqPython
   ParaView::pqWidgets
