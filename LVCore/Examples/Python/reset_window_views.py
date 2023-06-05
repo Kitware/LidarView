@@ -3,7 +3,7 @@ Delete all render windows views and recreate a default one
 """
 
 import paraview.simple as smp
-from lidarview.simple import lvsmp
+import lidarview.simple as lvsmp
 import lidarview.applogic as app
 
 def ResetWindowViews():
