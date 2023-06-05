@@ -29,10 +29,10 @@
         }
       },
       {
-        "name": "ci-fedora35-shared-debug",
+        "name": "ci-ubuntu22-shared-debug",
         "inherits": ["ci-common"],
         "filter": {
-            "exclude": {"name": "lv|Python|TestVelodyneHDLPositionReader"}
+            "exclude": {"name": "TestVelodyneHDLPositionReader"}
         }
       },
       {

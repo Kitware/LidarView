@@ -31,30 +31,30 @@ stages:
 
 # Linux
 
-fedora35-shared-debug:build:
+ubuntu22-shared-debug:build:
     extends:
-        - .fedora35_shared_debug
+        - .ubuntu22_shared_debug
         - .cmake_build_linux
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
 
-fedora35-shared-debug:test:
+ubuntu22-shared-debug:test:
     extends:
-        - .fedora35_shared_debug
+        - .ubuntu22_shared_debug
         - .cmake_test_linux
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora35-shared-debug:build
+        - ubuntu22-shared-debug:build
     needs:
-        - fedora35-shared-debug:build
+        - ubuntu22-shared-debug:build
 
 clang-format-check:analyse:
     extends:
-        - .fedora35
+        - .ubuntu22
         - .clang_format_check
         - .linux_tester_tags
         - .run_automatically
