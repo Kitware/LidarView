@@ -59,7 +59,7 @@
     script:
         - *before_script_linux
         - cp .gitlab/ci/CMakePresets.json $CI_PROJECT_DIR
-        - xvfb-run ctest --preset ci-ubuntu22-shared-debug
+        - xvfb-run ctest --preset ci_$CMAKE_CONFIGURATION
 
     interruptible: true
 
