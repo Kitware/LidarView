@@ -333,7 +333,7 @@ void vtkOpenCVVideoReader::SetFileName(const char* filename)
       << filename << " check that the file exists and has the correct extension");
   }
   this->Internal->FileName = std::string(filename);
-  this->Internal->FramesPosition = std::vector<VideoFramePosition>();
+  this->Internal->FramesPosition.clear();
   this->Internal->UpdateVideoInfo();
   this->Modified();
 }
@@ -342,6 +342,9 @@ void vtkOpenCVVideoReader::SetFileName(const char* filename)
 void vtkOpenCVVideoReader::SetTimeOffset(double argTs)
 {
   this->Internal->TimeOffset = argTs;
+  this->Internal->FramesPosition.clear();
+  this->Internal->UpdateVideoInfo();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
