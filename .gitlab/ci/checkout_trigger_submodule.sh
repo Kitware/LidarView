@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -z "${TRIGGER_MODULE_PATH}" ]]; then
+if [ -z "${TRIGGER_MODULE_PATH}" ]; then
     echo "Using default submodules SHA"
 else
     git -C $TRIGGER_MODULE_PATH fetch

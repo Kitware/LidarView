@@ -12,6 +12,7 @@
             # The artifacts of the build.
             - build/bin/
             - build/lib/
+            - build/share/
 
             # Python packages go here
             - build/lib64/
@@ -43,3 +44,4 @@
         paths:
             # Debugging logs
             - build/Testing/Temporary/Last*.log
+            - build/Testing/Temporary/*.png

@@ -3,18 +3,18 @@
 ## Base configurations
 .linux:
     variables:
-        GIT_CLONE_PATH: $CI_BUILDS_DIR/lidarview-ci/$CI_PROJECT_ID
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/kitware-lidarview-ci
         GIT_SUBMODULE_STRATEGY: none
 
-.fedora35:
+.ubuntu22:
     extends: .linux
-    image: "kitware/paraview-ci-plugin:lidarview-ci-fedora35-20230511"
+    image: "kitware/paraview-ci-plugin:lidarview-ci-ubuntu22-20230607"
 
-.fedora35_shared_debug:
-    extends: .fedora35
+.ubuntu22_shared_debug:
+    extends: .ubuntu22
 
     variables:
-        CMAKE_CONFIGURATION: fedora35_shared_debug
+        CMAKE_CONFIGURATION: ubuntu22_shared_debug
 
 ## Tags
 
@@ -59,7 +59,7 @@
     script:
         - *before_script_linux
         - cp .gitlab/ci/CMakePresets.json $CI_PROJECT_DIR
-        - xvfb-run ctest --preset ci-fedora35-shared-debug
+        - xvfb-run ctest --preset ci_$CMAKE_CONFIGURATION
 
     interruptible: true
 

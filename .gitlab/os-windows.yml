@@ -79,5 +79,5 @@
         # Some tests run CMake steps, so we need a compiler environment.
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
         - Copy-Item -Path ".gitlab\ci\CMakePresets.json" -Destination "$CI_PROJECT_DIR"
-        - ctest --preset ci-windows-vs2019
+        - ctest --preset ci_$CMAKE_CONFIGURATION
     interruptible: true

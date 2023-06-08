@@ -8,14 +8,14 @@
 
   "configurePresets": [
     {
-      "name": "ci-common",
+      "name": "ci_common",
       "binaryDir": "${sourceDir}/build/"
     }
   ],
     "testPresets": [
       {
-        "name": "ci-common",
-        "configurePreset": "ci-common",
+        "name": "ci_common",
+        "configurePreset": "ci_common",
         "hidden": true,
         "output": {"outputOnFailure": true},
         "execution": {
@@ -29,15 +29,15 @@
         }
       },
       {
-        "name": "ci-fedora35-shared-debug",
-        "inherits": ["ci-common"],
+        "name": "ci_ubuntu22_shared_debug",
+        "inherits": ["ci_common"],
         "filter": {
-            "exclude": {"name": "lv|Python|TestVelodyneHDLPositionReader"}
+            "exclude": {"name": "TestVelodyneHDLPositionReader"}
         }
       },
       {
-        "name": "ci-windows-vs2019",
-        "inherits": ["ci-common"]
+        "name": "ci_windows_vs2019",
+        "inherits": ["ci_common"]
       }
     ]
   }

@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 target_repository=""
 
-if [[ -z "${TRIGGER_MODULE_PATH}" ]]; then
-    if [[ -z "${CI_COMMIT_REF_NAME}" ]]; then
+if [ -z "${TRIGGER_MODULE_PATH}" ]; then
+    if [ -z "${CI_COMMIT_REF_NAME}" ]; then
         echo "Missing CI_COMMIT_REF_NAME env variable"
         exit 1
     fi
@@ -28,7 +28,7 @@ for file in $modified_files; do
     test -e $file && existing_files+=("$file")
 done
 
-if [[ ${#existing_files[@]} -eq 0 ]]; then
+if [ ${#existing_files[@]} -eq 0 ]; then
     echo "No c++ files detected in changes for clang-format to run against"
 else
     echo "Performing clang-format check on: ${existing_files[@]}"

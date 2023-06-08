@@ -29,7 +29,6 @@ pythonqt_build () {
         -DPythonQt_Wrap_Qtgui=ON \
         -DPythonQt_Wrap_Qtuitools=ON \
         -DCMAKE_BUILD_TYPE=Release \
-        -DLIB_SUFFIX=64 \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
     cmake --build "$pythonqt_build_root" --target install
