@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    TestVtkVoxelGridFilter.cxx
+  Module:    TestVtkCustomTransformInterpolator.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
