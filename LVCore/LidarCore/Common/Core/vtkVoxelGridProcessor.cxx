@@ -63,7 +63,7 @@ bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const do
 
   if (!IsInBounds(position))
   {
-    return false;
+    return true;
   }
 
   // Compute the voxel id
@@ -180,6 +180,14 @@ bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const do
 
         default:
         {
+          // Security check to avoid division by 0 in case of sampling mode change during the
+          // process
+          if (this->NumberOfPointsPerVoxel.size() <= pointId)
+          {
+            vtkErrorMacro("vtkVoxelGridProcessor::Add : CENTROID sampling mode requires to clear "
+                          "the voxel grid before adding points");
+            return false;
+          }
           double previousCoord[3];
           this->Output->GetPoints()->GetPoint(pointId, previousCoord);
           int nbPtsInVox = this->NumberOfPointsPerVoxel[pointId];
