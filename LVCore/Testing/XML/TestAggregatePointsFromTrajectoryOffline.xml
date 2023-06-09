@@ -15,7 +15,7 @@
   <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
   <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
   <!-- Aggregate Points -->
-  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectory" />
+  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectoryOffline" />
   <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,68,14,/0:0/2:0/0:0" />
   <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,68,14,/0:0/2:0/0:0" />
   <pqevent object="vvMainWindow/SelectInputDialog/buttonFrame/Trajectory" command="set_boolean" arguments="true" />

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    vtkAggregatePointsFromTrajectory.h
+  Module:    vtkAggregatePointsFromTrajectoryOffline.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -33,16 +33,16 @@
 #include "lvFiltersTemporalModule.h"
 
 /**
- * @brief The vtkAggregatePointsFromTrajectory class is a filter that aggregate points from
+ * @brief The vtkAggregatePointsFromTrajectoryOffline class is a filter that aggregate points from
  * temporal point clouds using a trajectory. A voxel grid is used to filter the points. If auto
  * compute bounds is set to true, the bounds of the voxel grid are computed by transforming the
  * bounds of the input point cloud using the trajectory.
  */
-class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectory : public vtkPolyDataAlgorithm
+class LVFILTERSTEMPORAL_EXPORT vtkAggregatePointsFromTrajectoryOffline : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkAggregatePointsFromTrajectory* New();
-  vtkTypeMacro(vtkAggregatePointsFromTrajectory, vtkPolyDataAlgorithm)
+  static vtkAggregatePointsFromTrajectoryOffline* New();
+  vtkTypeMacro(vtkAggregatePointsFromTrajectoryOffline, vtkPolyDataAlgorithm)
 
   vtkGetMacro(FirstFrame, int);
   vtkSetMacro(FirstFrame, int);
@@ -90,7 +90,7 @@ public:
   vtkSetMacro(InterpolationType, int);
 
 protected:
-  vtkAggregatePointsFromTrajectory();
+  vtkAggregatePointsFromTrajectoryOffline();
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -171,8 +171,8 @@ protected:
   int InterpolationType = vtkCustomTransformInterpolator::INTERPOLATION_TYPE_LINEAR;
 
 private:
-  vtkAggregatePointsFromTrajectory(const vtkAggregatePointsFromTrajectory&);
-  void operator=(const vtkAggregatePointsFromTrajectory&);
+  vtkAggregatePointsFromTrajectoryOffline(const vtkAggregatePointsFromTrajectoryOffline&);
+  void operator=(const vtkAggregatePointsFromTrajectoryOffline&);
 
   //! Current frame to be processed
   int CurrentFrame = 0;

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    vtkAggregatePointsFromTrajectory.cxx
+  Module:    vtkAggregatePointsFromTrajectoryOffline.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
@@ -34,13 +34,13 @@
 #include <vtkTransform.h>
 
 // Local includes
-#include "vtkAggregatePointsFromTrajectory.h"
+#include "vtkAggregatePointsFromTrajectoryOffline.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkAggregatePointsFromTrajectory)
+vtkStandardNewMacro(vtkAggregatePointsFromTrajectoryOffline)
 
 //----------------------------------------------------------------------------
-vtkAggregatePointsFromTrajectory::vtkAggregatePointsFromTrajectory()
+vtkAggregatePointsFromTrajectoryOffline::vtkAggregatePointsFromTrajectoryOffline()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
@@ -50,7 +50,8 @@ vtkAggregatePointsFromTrajectory::vtkAggregatePointsFromTrajectory()
 }
 
 //-----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectory::FillInputPortInformation(int port, vtkInformation* info)
+int vtkAggregatePointsFromTrajectoryOffline::FillInputPortInformation(int port,
+  vtkInformation* info)
 {
   // Pointcloud data
   if (port == 0 || port == 1)
@@ -62,7 +63,8 @@ int vtkAggregatePointsFromTrajectory::FillInputPortInformation(int port, vtkInfo
 }
 
 //----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectory::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+int vtkAggregatePointsFromTrajectoryOffline::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
@@ -74,7 +76,7 @@ int vtkAggregatePointsFromTrajectory::RequestUpdateExtent(vtkInformation* vtkNot
 }
 
 //----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectory::RequestData(vtkInformation* request,
+int vtkAggregatePointsFromTrajectoryOffline::RequestData(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
@@ -161,7 +163,7 @@ int vtkAggregatePointsFromTrajectory::RequestData(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory,
+void vtkAggregatePointsFromTrajectoryOffline::InitializeData(vtkPolyData* trajectory,
   vtkPolyData* pointcloud)
 {
   // Create the temporal transform
@@ -213,7 +215,7 @@ void vtkAggregatePointsFromTrajectory::InitializeData(vtkPolyData* trajectory,
 }
 
 //----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectory::AutoComputeVoxelBounds(vtkInformation* request,
+int vtkAggregatePointsFromTrajectoryOffline::AutoComputeVoxelBounds(vtkInformation* request,
   vtkInformation* inInfo,
   vtkPolyData* pointcloud,
   vtkDataArray* timestamp)
@@ -276,7 +278,7 @@ int vtkAggregatePointsFromTrajectory::AutoComputeVoxelBounds(vtkInformation* req
 }
 
 //----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
+int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* request,
   vtkInformation* inInfo,
   vtkInformationVector* outputVector,
   vtkPolyData* pointcloud,
@@ -378,7 +380,7 @@ int vtkAggregatePointsFromTrajectory::AggregatePoints(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-std::string vtkAggregatePointsFromTrajectory::DetectTimeArray(vtkPolyData* poly)
+std::string vtkAggregatePointsFromTrajectoryOffline::DetectTimeArray(vtkPolyData* poly)
 {
   // Loop over all the arrays
   for (int i = 0; i < poly->GetPointData()->GetNumberOfArrays(); i++)
@@ -396,7 +398,8 @@ std::string vtkAggregatePointsFromTrajectory::DetectTimeArray(vtkPolyData* poly)
 }
 
 //----------------------------------------------------------------------------
-double vtkAggregatePointsFromTrajectory::ComputeTimeUnitConversion(vtkDataArray* trajTimeArray,
+double vtkAggregatePointsFromTrajectoryOffline::ComputeTimeUnitConversion(
+  vtkDataArray* trajTimeArray,
   vtkDataArray* pcTimeArray)
 {
   // Check if the trajectory time array is empty
@@ -433,14 +436,14 @@ double vtkAggregatePointsFromTrajectory::ComputeTimeUnitConversion(vtkDataArray*
 }
 
 //----------------------------------------------------------------------------
-void vtkAggregatePointsFromTrajectory::SetVoxelSamplingMode(int mode)
+void vtkAggregatePointsFromTrajectoryOffline::SetVoxelSamplingMode(int mode)
 {
   this->VoxelGrid->SetSampling(mode);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkAggregatePointsFromTrajectory::SetVoxelLeafSize(double size)
+void vtkAggregatePointsFromTrajectoryOffline::SetVoxelLeafSize(double size)
 {
   this->VoxelGrid->SetLeafSize(size);
   this->Modified();

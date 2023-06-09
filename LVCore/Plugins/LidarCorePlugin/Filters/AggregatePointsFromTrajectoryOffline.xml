@@ -1,6 +1,6 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="AggregatePointsFromTrajectory" class="vtkAggregatePointsFromTrajectory" label="Aggregate Points From Trajectory (offline)">
+    <SourceProxy name="AggregatePointsFromTrajectoryOffline" class="vtkAggregatePointsFromTrajectoryOffline" label="Aggregate Points From Trajectory (offline)">
       <Documentation
         short_help="Aggregate points from a trajectory"
         long_help="Aggregate points from a trajectory into a voxel grid.">
