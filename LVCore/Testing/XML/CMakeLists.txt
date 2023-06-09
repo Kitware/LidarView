@@ -3,6 +3,7 @@ set(lidarview_test_client "$<TARGET_FILE:${SOFTWARE_TARGET}>")
 set(tests_with_baselines
   TestUIvtkExtractPointSelection.xml
   TestAggregatePointsFromTrajectoryOffline.xml
+  TestAggregatePointsFromTrajectoryOnline.xml
 )
 
 paraview_add_client_tests(

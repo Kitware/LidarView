@@ -17,13 +17,15 @@
   <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
   <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
 
-  <!-- Aggregate Points Offline -->
-  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectoryOffline" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,68,14,/0:0/2:0/0:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,68,14,/0:0/2:0/0:0" />
+  <!-- Aggregate Points Online-->
+  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectoryOnline" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,56,7,/0:0/2:0/0:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,56,7,/0:0/2:0/0:0" />
   <pqevent object="vvMainWindow/SelectInputDialog/buttonFrame/Trajectory" command="set_boolean" arguments="true" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,48,0,/0:0/3:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,48,0,/0:0/3:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,49,10,/0:0/3:0" />
+  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,49,10,/0:0/3:0" />
   <pqevent object="vvMainWindow/SelectInputDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
   <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="vvMainWindow/Player Control/1QComboBox0" command="activated" arguments="All Frame" />
+  <pqevent object="vvMainWindow/Player Control/actionVCRPlay" command="activate" arguments="" />
 </pqevents>
