@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <lqSensorListWidget.h>
 #include <vtkGridSource.h>
 #include <vtkLVPython.h>
+#include <vtkLVVersion.h>
 #include <vtkLidarReader.h>
 
 #include <pqActiveObjects.h>

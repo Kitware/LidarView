@@ -17,3 +17,4 @@ DEPENDS
   YAML::yamlcpp             # Needed for LIBLAS
 PRIVATE_DEPENDS
   VTK::CommonTransforms
+  LidarView::Versioning

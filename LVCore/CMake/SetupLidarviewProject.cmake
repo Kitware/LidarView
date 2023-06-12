@@ -39,11 +39,6 @@ endif ()
 set(BUILD_SHARED_LIBS "${${software_name_upper}_BUILD_SHARED_LIBS}")
 include(SetCompilationFlags)
 
-# Branding
-add_definitions(-DPROJECT_NAME="${SOFTWARE_NAME}")
-add_definitions(-DSOFTWARE_NAME="${SOFTWARE_NAME}")
-add_definitions(-DSOFTWARE_VENDOR="${SOFTWARE_VENDOR}")
-
 #-------------------------------------------------------------------------------
 # Dependencies
 include(Git)
@@ -51,10 +46,10 @@ include(CTest)
 
 # Version
 include(ParaViewDetermineVersion)
-# Sets LV_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
+# Sets LIDARVIEW_VERSION_{MAJOR,MINOR,PATCH} using PARAVIEW determine_version
 file(STRINGS version.txt version_txt)
-extract_version_components("${version_txt}" "LV")
-determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LV")
+extract_version_components("${version_txt}" "LIDARVIEW")
+determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LIDARVIEW")
 
 include(FindLidarViewDependencies)
 

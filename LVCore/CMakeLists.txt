@@ -84,7 +84,7 @@ vtk_module_build(
   HEADERS_DESTINATION       "${CMAKE_INSTALL_INCLUDEDIR}/lidarview"
   CMAKE_DESTINATION         "${lidarview_cmake_destination}"
   LICENSE_DESTINATION       "${CMAKE_INSTALL_LICENSEDIR}"
-  VERSION                   "${LV_VERSION}"
+  VERSION                   "${LIDARVIEW_VERSION}"
   SOVERSION                 "1"
   ENABLE_WRAPPING           ON
   TEST_INPUT_DATA_DIRECTORY   "${lidarview_test_data_directory_input}"

@@ -11,3 +11,5 @@ DEPENDS
   PCAP::pcap
   VTK::CommonCore
   VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  LidarView::Versioning

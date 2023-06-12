@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "LASFileWriter.h"
+#include "vtkLVVersion.h"
 
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
@@ -59,7 +60,7 @@ Eigen::Vector3d ConvertGcs(Eigen::Vector3d p, PJ* inProj, PJ* outProj)
     vtkGenericWarningMacro("Error : CRS conversion failed with error: " << proj_errno(transformPJ));
   }
 
-  return Eigen::Vector3d(result.enu.n, result.enu.e, result.enu.u);;
+  return Eigen::Vector3d(result.enu.n, result.enu.e, result.enu.u);
 }
 }
 

@@ -17,6 +17,7 @@
 
 // LOCAL
 #include "CrashAnalysing.h"
+#include "vtkLVVersion.h"
 
 // STD
 #include <ctime>
@@ -68,7 +69,8 @@ void CrashAnalysisWriter::WriteLastPacket(const NetworkPacket& packet)
   // check that the writer is opened
   if (!this->Writer.IsOpen())
   {
-    vtkGenericWarningMacro("Crash analysis couldn't save last packet received since the writer is not opened");
+    vtkGenericWarningMacro(
+      "Crash analysis couldn't save last packet received since the writer is not opened");
     return;
   }
 
@@ -101,7 +103,7 @@ void CrashAnalysisWriter::ArchivePreviousLogIfExist()
 
   // Get the date and time
   std::time_t rawtime;
-  struct std::tm * timeinfo;
+  struct std::tm* timeinfo;
   char buffer[80];
   std::time(&rawtime);
   timeinfo = std::localtime(&rawtime);
@@ -125,8 +127,8 @@ void CrashAnalysisWriter::ArchivePreviousLogIfExist()
 
   if (fileHasBeenRenamed)
   {
-    vtkGenericWarningMacro("We found log files in folder: " << this->Filename
-                           << " which may be due to " << SOFTWARE_NAME << " previous crash. "
-                           << "The log files have been renamed using timestamp: " << timeStr);
+    vtkGenericWarningMacro("We found log files in folder: "
+      << this->Filename << " which may be due to " << SOFTWARE_NAME << " previous crash. "
+      << "The log files have been renamed using timestamp: " << timeStr);
   }
 }
