@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "vvMainWindow.h"
-#include "ui_vvMainWindow.h"
+#include "LidarViewMainWindow.h"
+#include "ui_LidarViewMainWindow.h"
 
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
@@ -77,17 +77,17 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqViewFrameActions.h"
 
 //-----------------------------------------------------------------------------
-class vvMainWindow::pqInternals : public Ui::vvMainWindow
+class LidarViewMainWindow::pqInternals : public Ui::LidarViewMainWindow
 {
 public:
   pqInternals()
-    : Ui::vvMainWindow()
+    : Ui::LidarViewMainWindow()
   {
   }
 };
 
 //-----------------------------------------------------------------------------
-vvMainWindow::vvMainWindow()
+LidarViewMainWindow::LidarViewMainWindow()
 {
   // ParaView Init Start
   // DebugLeaksView MUST be instantiated first
@@ -156,14 +156,14 @@ vvMainWindow::vvMainWindow()
 }
 
 //-----------------------------------------------------------------------------
-vvMainWindow::~vvMainWindow()
+LidarViewMainWindow::~LidarViewMainWindow()
 {
   delete this->Internals;
   this->Internals = NULL;
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::setupPVGUI()
+void LidarViewMainWindow::setupPVGUI()
 {
   // Common Parts of the ParaViewMainWindow.cxx
   // Easily updatable and referenceable
@@ -289,7 +289,7 @@ void vvMainWindow::setupPVGUI()
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::pqbuildToolbars()
+void LidarViewMainWindow::pqbuildToolbars()
 {
   // Rework of pqParaViewMenuBuilders::buildToolbars
   // Removed pqMainControlsToolbar, pqVCRToolbar, pqAnimationTimeToolbar,
@@ -314,7 +314,7 @@ void vvMainWindow::pqbuildToolbars()
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::setupLVGUI()
+void LidarViewMainWindow::setupLVGUI()
 {
   // Add generally common elements to all LidarView-based apps
   // Not necessarilly verbatim Paraview
@@ -348,7 +348,7 @@ void vvMainWindow::setupLVGUI()
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::setupGUICustom()
+void LidarViewMainWindow::setupGUICustom()
 {
   // LidarView Specific UI elements
 
@@ -462,7 +462,7 @@ void vvMainWindow::setupGUICustom()
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::setBranding()
+void LidarViewMainWindow::setBranding()
 {
 // For good measure
 #ifndef SOFTWARE_NAME
@@ -491,13 +491,13 @@ void vvMainWindow::setBranding()
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::dragEnterEvent(QDragEnterEvent* evt)
+void LidarViewMainWindow::dragEnterEvent(QDragEnterEvent* evt)
 {
   pqApplicationCore::instance()->getMainWindowEventManager()->dragEnterEvent(evt);
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::showEvent(QShowEvent* evt)
+void LidarViewMainWindow::showEvent(QShowEvent* evt)
 {
   // TODO PV uses it to show Welcome Message once
   // could also be used for the "first startup" stuff
@@ -505,13 +505,13 @@ void vvMainWindow::showEvent(QShowEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::closeEvent(QCloseEvent* evt)
+void LidarViewMainWindow::closeEvent(QCloseEvent* evt)
 {
   pqApplicationCore::instance()->getMainWindowEventManager()->closeEvent(evt);
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::dropEvent(QDropEvent* evt)
+void LidarViewMainWindow::dropEvent(QDropEvent* evt)
 {
   QList<QUrl> urls = evt->mimeData()->urls();
   if (urls.isEmpty())
@@ -551,13 +551,13 @@ void vvMainWindow::dropEvent(QDropEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::showHelpForProxy(const QString& groupname, const QString& proxyname)
+void LidarViewMainWindow::showHelpForProxy(const QString& groupname, const QString& proxyname)
 {
   pqHelpReaction::showProxyHelp(groupname, proxyname);
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::handleMessage(const QString&, int type)
+void LidarViewMainWindow::handleMessage(const QString&, int type)
 {
   QDockWidget* dock = this->Internals->outputWidgetDock;
   if (!dock)
@@ -587,7 +587,7 @@ void vvMainWindow::handleMessage(const QString&, int type)
 }
 
 //-----------------------------------------------------------------------------
-void vvMainWindow::toggleMVDecoration()
+void LidarViewMainWindow::toggleMVDecoration()
 {
   // pqTabbedMultiViewWidget::setDecorationsVisibility()
   pqTabbedMultiViewWidget* mv = qobject_cast<pqTabbedMultiViewWidget*>(this->centralWidget());

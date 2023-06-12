@@ -869,7 +869,7 @@ def findQObjectByName(widgets, name):
 
 
 def getMainWindow():
-    return findQObjectByName(QtGui.QApplication.topLevelWidgets(), 'vvMainWindow')
+    return findQObjectByName(QtGui.QApplication.topLevelWidgets(), 'LidarViewMainWindow')
 
 
 def getPVApplicationCore():

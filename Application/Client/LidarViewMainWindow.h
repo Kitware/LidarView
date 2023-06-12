@@ -11,21 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef __vvMainWindow_h
-#define __vvMainWindow_h
+
+#ifndef LidarViewMainWindow_h
+#define LidarViewMainWindow_h
 
 #include <QMainWindow>
 
 class pqDataRepresentation;
 
-class vvMainWindow : public QMainWindow
+class LidarViewMainWindow : public QMainWindow
 {
   Q_OBJECT
   typedef QMainWindow Superclass;
 
 public:
-  vvMainWindow();
-  virtual ~vvMainWindow() override;
+  LidarViewMainWindow();
+  virtual ~LidarViewMainWindow() override;
 
 protected:
   void dragEnterEvent(QDragEnterEvent* evt) override;
@@ -42,7 +43,7 @@ protected Q_SLOTS:
   void toggleMVDecoration(); // Toggle Multiview decorations
 
 private:
-  Q_DISABLE_COPY(vvMainWindow)
+  Q_DISABLE_COPY(LidarViewMainWindow)
 
   class pqInternals;
   pqInternals* Internals;
