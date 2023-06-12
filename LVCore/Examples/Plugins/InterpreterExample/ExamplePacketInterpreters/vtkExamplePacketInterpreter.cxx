@@ -79,13 +79,6 @@ void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsig
       this->SensorTransform->InternalTransformPoint(pos, pos);
     }
 
-    // Test if the point should be displayed
-    if ((this->IgnoreZeroDistances && dataPacket->firings[i].GetDistance() == 0) ||
-      this->shouldBeCroppedOut(pos))
-    {
-      return;
-    }
-
     this->Points->InsertNextPoint(pos);
     InsertNextValueIfNotNull(this->PointsX, pos[0]);
     InsertNextValueIfNotNull(this->PointsY, pos[1]);
@@ -129,39 +122,19 @@ vtkSmartPointer<vtkPolyData> vtkExamplePacketInterpreter::CreateNewEmptyFrame(vt
 
   // Initialize data arrays
   this->Points = points.GetPointer();
-  InitArrayForPolyData(true,
-    this->PointsX,
-    "X",
-    nbrOfPoints,
-    prereservedNbrOfPoints,
-    polyData,
-    this->EnableAdvancedArrays);
-  InitArrayForPolyData(true,
-    this->PointsY,
-    "Y",
-    nbrOfPoints,
-    prereservedNbrOfPoints,
-    polyData,
-    this->EnableAdvancedArrays);
-  InitArrayForPolyData(true,
-    this->PointsZ,
-    "Z",
-    nbrOfPoints,
-    prereservedNbrOfPoints,
-    polyData,
-    this->EnableAdvancedArrays);
-  InitArrayForPolyData(
-    false, this->Intensity, "intensity", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  // InitArrayForPolyData(
-  //   false, this->Channel, "channel", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(true, this->PointsX, "X", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(true, this->PointsY, "Y", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(true, this->PointsZ, "Z", nbrOfPoints, prereservedNbrOfPoints, polyData);
   InitArrayForPolyData(
     false, this->Azimuth, "azimuth", nbrOfPoints, prereservedNbrOfPoints, polyData);
   InitArrayForPolyData(
-    false, this->Distance, "distance", nbrOfPoints, prereservedNbrOfPoints, polyData);
+    false, this->Intensity, "intensity", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(
+    false, this->LaserId, "laser_id", nbrOfPoints, prereservedNbrOfPoints, polyData);
   InitArrayForPolyData(
     false, this->Timestamp, "Timestamp", nbrOfPoints, prereservedNbrOfPoints, polyData);
   InitArrayForPolyData(
-    false, this->VerticalAngle, "vertical_angle", nbrOfPoints, prereservedNbrOfPoints, polyData);
+    false, this->Distance, "distance_m", nbrOfPoints, prereservedNbrOfPoints, polyData);
 
   // Set the default array to display in the application
   polyData->GetPointData()->SetActiveScalars("intensity");
@@ -210,10 +183,10 @@ std::string vtkExamplePacketInterpreter::GetSensorInformation(bool vtkNotUsed(sh
 }
 
 //-----------------------------------------------------------------------------
-// std::string vtkExamplePacketInterpreter::GetSensorName()
-// {
-//   return "ExampleSensor" + std::to_string(this->GetNumberOfChannels());
-// }
+std::string vtkExamplePacketInterpreter::GetSensorName()
+{
+  return "ExampleSensor" + std::to_string(this->GetNumberOfChannels());
+}
 
 void vtkExamplePacketInterpreter::LoadCalibration(const std::string& filename)
 {

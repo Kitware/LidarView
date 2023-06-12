@@ -55,7 +55,7 @@ public:
 
   std::string GetSensorInformation(bool shortVersion = false) override;
 
-  // std::string GetSensorName() override;
+  std::string GetSensorName();
 
   void LoadCalibration(const std::string& filename) override;
 
@@ -72,7 +72,6 @@ protected:
   vtkSmartPointer<vtkUnsignedShortArray> Azimuth;
   vtkSmartPointer<vtkDoubleArray> Distance;
   vtkSmartPointer<vtkTypeInt64Array> Timestamp;
-  vtkSmartPointer<vtkDoubleArray> VerticalAngle;
 
   unsigned int LastTimestamp = 0;
 
