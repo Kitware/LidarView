@@ -176,10 +176,7 @@ bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
 //-----------------------------------------------------------------------------
 std::string vtkExamplePacketInterpreter::GetSensorInformation(bool vtkNotUsed(shortVersion))
 {
-  std::stringstream streamInfo;
-  streamInfo << "Example Sensor";
-
-  return std::string(streamInfo.str());
+  return std::string("Example Sensor");
 }
 
 //-----------------------------------------------------------------------------

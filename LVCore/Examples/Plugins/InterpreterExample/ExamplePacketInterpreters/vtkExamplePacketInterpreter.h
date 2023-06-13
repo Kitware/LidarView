@@ -39,13 +39,7 @@ public:
 
   void ProcessPacket(unsigned char const* data, unsigned int dataLength) override;
 
-  bool SplitFrame(bool force = false,
-    FramingMethod_t framingMethodAskingForSplitFrame =
-      FramingMethod_t::INTERPRETER_FRAMING) override;
-
   bool IsLidarPacket(unsigned char const* data, unsigned int dataLength) override;
-
-  void ResetCurrentFrame() override;
 
   bool PreProcessPacket(unsigned char const* data,
     unsigned int dataLength,
@@ -86,7 +80,7 @@ private:
 struct ExampleSpecificFrameInformation : public SpecificFrameInformation
 {
   // Keep the frame id
-  u_int32_t frameID = 0;
+  unsigned int frameID = 0;
 
   void reset() override { *this = ExampleSpecificFrameInformation(); }
   std::unique_ptr<SpecificFrameInformation> clone() override
