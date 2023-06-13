@@ -1,17 +1,17 @@
 <?xml version="1.0" ?>
 <pqevents>
   <!-- Prepare variable before executing example -->
-  <pqevent object="vvMainWindow/actionPython_Console" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.save_selected_point_on_multiple_frames import SaveSelectPointsOnMultipleFrames" />
-  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="reader = OpenPCAP('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', 'Velodyne Meta Interpreter')" />
-  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="timesteps = range(90, 99)" />
+  <pqevent object="LidarViewMainWindow/actionPython_Console" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.save_selected_point_on_multiple_frames import SaveSelectPointsOnMultipleFrames" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="reader = OpenPCAP('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', 'Velodyne Meta Interpreter')" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="timesteps = range(90, 99)" />
 
   <!-- Call SaveSelectPointsOnMultipleFrames example -->
-  <pqevent object="vvMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="SaveSelectPointsOnMultipleFrames('$PARAVIEW_TEST_ROOT/TestSaveSelectPointsOnMultipleFrames.csv', timesteps)" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="SaveSelectPointsOnMultipleFrames('$PARAVIEW_TEST_ROOT/TestSaveSelectPointsOnMultipleFrames.csv', timesteps)" />
 
   <!-- Only show selected points -->
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,3,7,/0:0/2:0/0:1" />
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,3,7,/0:0/2:0/0:1" />
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,13,12,/0:0/2:0/0:0/0:1" />
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,13,12,/0:0/2:0/0:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,3,7,/0:0/2:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,3,7,/0:0/2:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,13,12,/0:0/2:0/0:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,13,12,/0:0/2:0/0:0/0:1" />
 </pqevents>

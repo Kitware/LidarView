@@ -1,29 +1,29 @@
 <?xml version="1.0" ?>
 <pqevents>
   <!-- Load PCAP -->
-  <pqevent object="vvMainWindow/actionOpenPcap" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
-  <pqevent object="vvMainWindow/vvCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
-  <pqevent object="vvMainWindow/vvCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
 
   <!-- Load Trajectory -->
-  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuAdvance" />
-  <pqevent object="vvMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
-  <pqevent object="vvMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileOpen" />
-  <pqevent object="vvMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/trajectory.poses" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,66,17,/0:0/3:0" />
-  <pqevent object="vvMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,66,17,/0:0/3:0" />
-  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
-  <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuAdvance" />
+  <pqevent object="LidarViewMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
+  <pqevent object="LidarViewMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileOpen" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/trajectory.poses" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,66,17,/0:0/3:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,66,17,/0:0/3:0" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
 
   <!-- Aggregate Points Offline -->
-  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectoryOffline" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,68,14,/0:0/2:0/0:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,68,14,/0:0/2:0/0:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/buttonFrame/Trajectory" command="set_boolean" arguments="true" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,48,0,/0:0/3:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,48,0,/0:0/3:0" />
-  <pqevent object="vvMainWindow/SelectInputDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="AggregatePointsFromTrajectoryOffline" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,68,14,/0:0/2:0/0:0" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,68,14,/0:0/2:0/0:0" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/buttonFrame/Trajectory" command="set_boolean" arguments="true" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/pipelineView" command="mousePress" arguments="1,1,0,48,0,/0:0/3:0" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/pipelineView" command="mouseRelease" arguments="1,0,0,48,0,/0:0/3:0" />
+  <pqevent object="LidarViewMainWindow/SelectInputDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
 </pqevents>
