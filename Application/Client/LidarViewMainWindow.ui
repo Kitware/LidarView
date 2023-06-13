@@ -17,7 +17,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="lvResources.qrc">
+   <iconset resource="Resources/lvResources.qrc">
     <normaloff>:/lvResources/Icons/logo.png</normaloff>:/lvResources/Icons/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -358,7 +358,7 @@
   </action>
   <action name="actionOpenPcap">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/WiresharkDoc-128.png</normaloff>:/lvResources/Icons/WiresharkDoc-128.png</iconset>
    </property>
    <property name="text">
@@ -379,7 +379,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/pqFrustumSelectionPoint24.png</normaloff>:/lvResources/Icons/pqFrustumSelectionPoint24.png</iconset>
    </property>
    <property name="text">
@@ -394,7 +394,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/pqSpreadsheet16.png</normaloff>:/lvResources/Icons/pqSpreadsheet16.png</iconset>
    </property>
    <property name="text">
@@ -409,7 +409,7 @@
   </action>
   <action name="actionOpen_Sensor_Stream">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset>
      <normaloff>:/lvResources/Icons/lidar.png</normaloff>:/lvResources/Icons/lidar.png</iconset>
    </property>
    <property name="text">
@@ -436,7 +436,7 @@
   </action>
   <action name="actionChoose_Calibration_File">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset>
      <normaloff>:/lvResources/Icons/calibrate.png</normaloff>:/lvResources/Icons/calibrate.png</iconset>
    </property>
    <property name="text">
@@ -445,7 +445,7 @@
   </action>
   <action name="actionPause">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset>
      <normaloff>:/lvResources/Icons/media-playback-pause.png</normaloff>:/lvResources/Icons/media-playback-pause.png</iconset>
    </property>
    <property name="text">
@@ -457,7 +457,7 @@
   </action>
   <action name="actionPython_Console">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/python_logo_124.png</normaloff>:/lvResources/Icons/python_logo_124.png</iconset>
    </property>
    <property name="text">
@@ -609,7 +609,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/ViewOrtho.png</normaloff>
      <normalon>:/lvResources/Icons/ViewPerspective.png</normalon>:/lvResources/Icons/ViewOrtho.png</iconset>
    </property>
@@ -625,7 +625,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/Measurements.png</normaloff>:/lvResources/Icons/Measurements.png</iconset>
    </property>
    <property name="text">
@@ -637,7 +637,7 @@
   </action>
   <action name="actionPlaneFit">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/planefit.png</normaloff>:/lvResources/Icons/planefit.png</iconset>
    </property>
    <property name="text">
@@ -649,7 +649,7 @@
   </action>
   <action name="actionSavePositionCSV">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/pqSpreadsheet16.png</normaloff>:/lvResources/Icons/pqSpreadsheet16.png</iconset>
    </property>
    <property name="text">
@@ -661,7 +661,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/location.png</normaloff>:/lvResources/Icons/location.png</iconset>
    </property>
    <property name="text">
@@ -676,7 +676,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/absolute.png</normaloff>:/lvResources/Icons/absolute.png</iconset>
    </property>
    <property name="text">
@@ -688,7 +688,7 @@
   </action>
   <action name="actionSaveLAS">
    <property name="icon">
-    <iconset>
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/las.png</normaloff>:/lvResources/Icons/las.png</iconset>
    </property>
    <property name="text">
@@ -700,7 +700,7 @@
   </action>
   <action name="actionCropReturns">
    <property name="icon">
-    <iconset>
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/crop.png</normaloff>:/lvResources/Icons/crop.png</iconset>
    </property>
    <property name="text">
@@ -734,7 +734,7 @@
   </action>
   <action name="actionShowErrorDialog">
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/errorConsole.png</normaloff>:/lvResources/Icons/errorConsole.png</iconset>
    </property>
    <property name="text">
@@ -772,7 +772,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="lvResources.qrc">
+    <iconset resource="Resources/lvResources.qrc">
      <normaloff>:/lvResources/Icons/map.png</normaloff>:/lvResources/Icons/map.png</iconset>
    </property>
    <property name="text">
@@ -837,7 +837,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="lvResources.qrc"/>
+  <include location="Resources/lvResources.qrc"/>
   <include location="../../LVCore/Qt/ApplicationComponents/lqResources.qrc"/>
  </resources>
  <connections>
