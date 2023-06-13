@@ -18,7 +18,7 @@ import math
 def showDialog(mainWindow, app):
 
     loader = QtUiTools.QUiLoader()
-    uifile = QtCore.QFile(':/LidarViewPlugin/vvGridAdjustmentDialog.ui')
+    uifile = QtCore.QFile(':/lvResources/lqGridAdjustmentDialog.ui')
     if not uifile.open(uifile.ReadOnly):
         print("error opening file")
         return

@@ -17,7 +17,7 @@ from PythonQt import QtCore, QtGui, QtUiTools
 def showDialog(mainWindow):
 
     loader = QtUiTools.QUiLoader()
-    uifile = QtCore.QFile(':/lvResources/lvAboutDialog.ui')
+    uifile = QtCore.QFile(':/lvResources/lqAboutDialog.ui')
     if not uifile.open(uifile.ReadOnly):
         print("Canno't open the ui for the about dialog.")
         return

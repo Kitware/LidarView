@@ -27,7 +27,7 @@ import lidarview.aboutDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
-from PythonQt.paraview import vvCropReturnsDialog, vvSelectFramesDialog #WIP rename to LV / Velodyne Specific
+from PythonQt.paraview import lqCropReturnsDialog, lqSelectFramesDialog
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
@@ -441,7 +441,7 @@ def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=F
     class FrameOptions(object):
         pass
 
-    dialog = PythonQt.paraview.vvSelectFramesDialog(getMainWindow())
+    dialog = PythonQt.paraview.lqSelectFramesDialog(getMainWindow())
     dialog.frameMinimum = 0
     if getReader() is None:
         dialog.frameMaximum = 0
@@ -488,13 +488,13 @@ def onSaveLAS():
     if frameOptions is None:
         return
 
-    if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
+    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
         frameOptions.start = frameOptions.stop = getAnimationScene().AnimationTime
-    elif frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
+    elif frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
         frameOptions.start = int(getAnimationScene().StartTime)
         frameOptions.stop = int(getAnimationScene().EndTime)
 
-    if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
+    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
         fileName = getSaveFileName('Save LAS', 'las', getDefaultSaveFileName('las', appendFrameNumber=True))
         if fileName:
             oldTransform = transformMode()
@@ -504,7 +504,7 @@ def onSaveLAS():
 
             setTransformMode(oldTransform)
 
-    elif frameOptions.pack == vvSelectFramesDialog.FILE_PER_FRAME:
+    elif frameOptions.pack == lqSelectFramesDialog.FILE_PER_FRAME:
         fileName = getSaveFileName('Save LAS (to zip file)', 'zip',
                                    getDefaultSaveFileName('zip'))
         if fileName:
@@ -514,7 +514,7 @@ def onSaveLAS():
             def saveTransformedLAS(filename, timesteps):
                 saveLAS(filename, timesteps, frameOptions.transform)
 
-            if frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
+            if frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
                 start = 0
                 stop = len(getLidar().TimestepValues) - 1
             else:
@@ -553,11 +553,11 @@ def onSavePCAP():
     if frameOptions is None:
         return
 
-    if frameOptions.mode == vvSelectFramesDialog.CURRENT_FRAME:
+    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
         frameOptions.start = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
         frameOptions.stop = frameOptions.start
         defaultFileName = getDefaultSaveFileName('pcap', frameId=frameOptions.start)
-    elif frameOptions.mode == vvSelectFramesDialog.ALL_FRAMES:
+    elif frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
         frameOptions.start = 0
         frameOptions.stop = 0 if getReader() is None else getReader().GetClientSideObject().GetNumberOfFrames() - 1
         defaultFileName = getDefaultSaveFileName('pcap')
@@ -698,7 +698,7 @@ def getPosition():
     return getattr(app, 'position', None)
 
 def onCropReturns(show = True):
-    dialog = vvCropReturnsDialog(getMainWindow())
+    dialog = lqCropReturnsDialog(getMainWindow())
 
     cropEnabled = False
     cropOutside = False
