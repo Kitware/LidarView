@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "vvSelectFramesDialog.h"
+#include "lqSelectFramesDialog.h"
 
-#include "ui_vvSelectFramesDialog.h"
+#include "ui_lqSelectFramesDialog.h"
 
 #include <pqApplicationCore.h>
 #include <pqSettings.h>
@@ -21,12 +21,12 @@
 #include <QMessageBox>
 
 //-----------------------------------------------------------------------------
-class vvSelectFramesDialog::pqInternal : public Ui::vvSelectFramesDialog
+class lqSelectFramesDialog::pqInternal : public Ui::lqSelectFramesDialog
 {
 };
 
 //-----------------------------------------------------------------------------
-vvSelectFramesDialog::vvSelectFramesDialog(QWidget* p)
+lqSelectFramesDialog::lqSelectFramesDialog(QWidget* p)
   : QDialog(p)
 {
   this->Internal = new pqInternal;
@@ -35,13 +35,13 @@ vvSelectFramesDialog::vvSelectFramesDialog(QWidget* p)
 }
 
 //-----------------------------------------------------------------------------
-vvSelectFramesDialog::~vvSelectFramesDialog()
+lqSelectFramesDialog::~lqSelectFramesDialog()
 {
   delete this->Internal;
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::accept()
+void lqSelectFramesDialog::accept()
 {
   if (this->Internal->FrameStop->value() < this->Internal->FrameStart->value())
   {
@@ -57,7 +57,7 @@ void vvSelectFramesDialog::accept()
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameMode() const
+int lqSelectFramesDialog::frameMode() const
 {
   if (this->Internal->CurrentFrameButton->isChecked())
   {
@@ -74,7 +74,7 @@ int vvSelectFramesDialog::frameMode() const
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameMode(int frameMode)
+void lqSelectFramesDialog::setFrameMode(int frameMode)
 {
   if (frameMode == CURRENT_FRAME)
   {
@@ -91,43 +91,43 @@ void vvSelectFramesDialog::setFrameMode(int frameMode)
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameStart() const
+int lqSelectFramesDialog::frameStart() const
 {
   return this->Internal->FrameStart->value();
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameStop() const
+int lqSelectFramesDialog::frameStop() const
 {
   return this->Internal->FrameStop->value();
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameStride() const
+int lqSelectFramesDialog::frameStride() const
 {
   return this->Internal->FrameStride->value();
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameStart(int frameStart)
+void lqSelectFramesDialog::setFrameStart(int frameStart)
 {
   this->Internal->FrameStart->setValue(frameStart);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameStop(int frameStop)
+void lqSelectFramesDialog::setFrameStop(int frameStop)
 {
   this->Internal->FrameStop->setValue(frameStop);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameStride(int frameStride)
+void lqSelectFramesDialog::setFrameStride(int frameStride)
 {
   this->Internal->FrameStride->setValue(frameStride);
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::framePack() const
+int lqSelectFramesDialog::framePack() const
 {
   if (this->Internal->FilePerFrameButton->isChecked())
   {
@@ -140,7 +140,7 @@ int vvSelectFramesDialog::framePack() const
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFramePack(int framePack)
+void lqSelectFramesDialog::setFramePack(int framePack)
 {
   if (framePack == SINGLE_FILE)
   {
@@ -153,7 +153,7 @@ void vvSelectFramesDialog::setFramePack(int framePack)
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameTransform() const
+int lqSelectFramesDialog::frameTransform() const
 {
   if (this->Internal->RelativeButton->isChecked())
   {
@@ -174,41 +174,41 @@ int vvSelectFramesDialog::frameTransform() const
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameMaximun() const
+int lqSelectFramesDialog::frameMaximun() const
 {
   return std::max(this->Internal->FrameStart->maximum(), this->Internal->FrameStop->maximum());
 }
 
 //-----------------------------------------------------------------------------
-int vvSelectFramesDialog::frameMinimun() const
+int lqSelectFramesDialog::frameMinimun() const
 {
   return std::max(this->Internal->FrameStart->minimum(), this->Internal->FrameStop->minimum());
   ;
 }
 
 //-----------------------------------------------------------------------------
-bool vvSelectFramesDialog::frameStrideVisibility() const
+bool lqSelectFramesDialog::frameStrideVisibility() const
 {
   return this->Internal->FrameStrideContainer->isVisible();
   ;
 }
 
 //-----------------------------------------------------------------------------
-bool vvSelectFramesDialog::framePackVisibility() const
+bool lqSelectFramesDialog::framePackVisibility() const
 {
   return this->Internal->FramePackContainer->isVisible();
   ;
 }
 
 //-----------------------------------------------------------------------------
-bool vvSelectFramesDialog::frameTransformVisibility() const
+bool lqSelectFramesDialog::frameTransformVisibility() const
 {
   return this->Internal->FrameTransformContainer->isVisible();
   ;
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameTransform(int frameTransform)
+void lqSelectFramesDialog::setFrameTransform(int frameTransform)
 {
   if (frameTransform == SENSOR)
   {
@@ -229,46 +229,46 @@ void vvSelectFramesDialog::setFrameTransform(int frameTransform)
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameMinimum(int frameMin)
+void lqSelectFramesDialog::setFrameMinimum(int frameMin)
 {
   this->Internal->FrameStart->setMinimum(frameMin);
   this->Internal->FrameStop->setMinimum(frameMin);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameMaximum(int frameMax)
+void lqSelectFramesDialog::setFrameMaximum(int frameMax)
 {
   this->Internal->FrameStart->setMaximum(frameMax);
   this->Internal->FrameStop->setMaximum(frameMax);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameStrideVisibility(bool visible)
+void lqSelectFramesDialog::setFrameStrideVisibility(bool visible)
 {
   this->Internal->FrameStrideContainer->setVisible(visible);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFramePackVisibility(bool visible)
+void lqSelectFramesDialog::setFramePackVisibility(bool visible)
 {
   this->Internal->FramePackContainer->setVisible(visible);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::setFrameTransformVisibility(bool visible)
+void lqSelectFramesDialog::setFrameTransformVisibility(bool visible)
 {
   this->Internal->FrameTransformContainer->setVisible(visible);
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::showEvent(QShowEvent* e)
+void lqSelectFramesDialog::showEvent(QShowEvent* e)
 {
   QDialog::showEvent(e);
   this->resize(this->width(), this->minimumSizeHint().height());
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::saveState()
+void lqSelectFramesDialog::saveState()
 {
   pqSettings* settings = pqApplicationCore::instance()->settings();
   settings->setValue("LidarPlugin/SelectFramesDialog/Mode", this->frameMode());
@@ -281,7 +281,7 @@ void vvSelectFramesDialog::saveState()
 }
 
 //-----------------------------------------------------------------------------
-void vvSelectFramesDialog::restoreState()
+void lqSelectFramesDialog::restoreState()
 {
   pqSettings* settings = pqApplicationCore::instance()->settings();
   this->restoreGeometry(settings->value("LidarPlugin/SelectFramesDialog/Geometry").toByteArray());

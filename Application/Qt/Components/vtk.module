@@ -1,0 +1,11 @@
+NAME
+  LidarViewApp::lvComponents
+LIBRARY_NAME
+  lvComponents
+DEPENDS
+  ParaView::pqCore
+PRIVATE_DEPENDS
+  LidarView::lqCore
+  ParaView::pqComponents
+  VTK::CommonCore
+EXCLUDE_WRAP

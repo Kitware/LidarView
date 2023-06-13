@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>vvCalibrationDialog</class>
- <widget class="QDialog" name="vvCalibrationDialog">
+ <class>lqCalibrationDialog</class>
+ <widget class="QDialog" name="lqCalibrationDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -716,7 +716,7 @@
   <connection>
    <sender>ButtonBox</sender>
    <signal>accepted()</signal>
-   <receiver>vvCalibrationDialog</receiver>
+   <receiver>lqCalibrationDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -732,7 +732,7 @@
   <connection>
    <sender>ButtonBox</sender>
    <signal>rejected()</signal>
-   <receiver>vvCalibrationDialog</receiver>
+   <receiver>lqCalibrationDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

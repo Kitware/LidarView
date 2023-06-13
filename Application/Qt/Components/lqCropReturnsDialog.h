@@ -11,13 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef __vvCropReturnsDialog_h
-#define __vvCropReturnsDialog_h
+#ifndef lqCropReturnsDialog_h
+#define lqCropReturnsDialog_h
+
+#include "lvComponentsModule.h"
 
 #include <QDialog>
 #include <QVector3D>
 
-class vvCropReturnsDialog : public QDialog
+class LVCOMPONENTS_EXPORT lqCropReturnsDialog : public QDialog
 {
   Q_OBJECT
   Q_PROPERTY(bool croppingEnabled READ croppingEnabled WRITE setCroppingEnabled)
@@ -26,8 +28,8 @@ class vvCropReturnsDialog : public QDialog
   Q_PROPERTY(QVector3D secondCorner READ secondCorner WRITE setSecondCorner)
 
 public:
-  vvCropReturnsDialog(QWidget* p = 0);
-  virtual ~vvCropReturnsDialog();
+  lqCropReturnsDialog(QWidget* p = 0);
+  virtual ~lqCropReturnsDialog();
 
   bool croppingEnabled() const;
   bool cropOutside() const;
@@ -45,7 +47,7 @@ public:
 
   Q_INVOKABLE int GetCropMode() const;
 
-public slots:
+public Q_SLOTS:
   virtual void apply();
   virtual void applyAndSave();
   void onCartesianToggled();
@@ -57,7 +59,7 @@ private:
   class pqInternal;
   QScopedPointer<pqInternal> Internal;
 
-  Q_DISABLE_COPY(vvCropReturnsDialog)
+  Q_DISABLE_COPY(lqCropReturnsDialog)
 };
 
 #endif

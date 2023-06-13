@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef __vvSelectFramesDialog_h
-#define __vvSelectFramesDialog_h
+#ifndef lqSelectFramesDialog_h
+#define lqSelectFramesDialog_h
+
+#include "lvComponentsModule.h"
 
 #include <QDialog>
 
-class vvSelectFramesDialog : public QDialog
+class LVCOMPONENTS_EXPORT lqSelectFramesDialog : public QDialog
 {
   Q_OBJECT
   Q_PROPERTY(int frameMode READ frameMode WRITE setFrameMode)
@@ -34,8 +36,8 @@ class vvSelectFramesDialog : public QDialog
   Q_ENUMS(FrameMode FramePack FrameTransform)
 
 public:
-  vvSelectFramesDialog(QWidget* p = 0);
-  virtual ~vvSelectFramesDialog();
+  lqSelectFramesDialog(QWidget* p = 0);
+  virtual ~lqSelectFramesDialog();
 
   enum FrameMode
   {
@@ -70,7 +72,7 @@ public:
   bool framePackVisibility() const;
   bool frameTransformVisibility() const;
 
-public slots:
+public Q_SLOTS:
   virtual void accept() override;
 
   void setFrameMode(int frameMode);
@@ -97,7 +99,7 @@ private:
   class pqInternal;
   pqInternal* Internal;
 
-  Q_DISABLE_COPY(vvSelectFramesDialog)
+  Q_DISABLE_COPY(lqSelectFramesDialog)
 };
 
 #endif

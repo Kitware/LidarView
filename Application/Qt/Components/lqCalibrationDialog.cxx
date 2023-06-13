@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
-#include "ui_vvCalibrationDialog.h"
+#include "ui_lqCalibrationDialog.h"
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
@@ -33,7 +33,7 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-class vvCalibrationDialog::pqInternal : public Ui::vvCalibrationDialog
+class lqCalibrationDialog::pqInternal : public Ui::lqCalibrationDialog
 {
 public:
   pqInternal()
@@ -119,14 +119,14 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveInterpreter()
+void lqCalibrationDialog::pqInternal::saveInterpreter()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/Interpreter", this->InterpreterSelectionBox->currentText());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& interpreter)
+void lqCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& interpreter)
 {
   int buildInFileCount = this->BuiltInCalibrationFiles[interpreter].size();
 
@@ -147,14 +147,14 @@ void vvCalibrationDialog::pqInternal::saveFileList(const vvCalibration::Plugin& 
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveSelectedRow(const vvCalibration::Plugin& interpreter)
+void lqCalibrationDialog::pqInternal::saveSelectedRow(const vvCalibration::Plugin& interpreter)
 {
   QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
   this->Settings->setValue(path, this->CalibrationFileListWidget->currentRow());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreInterpreter()
+void lqCalibrationDialog::pqInternal::restoreInterpreter()
 {
   QString interpreter =
     this->Settings->value("LidarPlugin/CalibrationFileDialog/Interpreter").toString();
@@ -172,7 +172,7 @@ void vvCalibrationDialog::pqInternal::restoreInterpreter()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreSelectedRow(const vvCalibration::Plugin& interpreter)
+void lqCalibrationDialog::pqInternal::restoreSelectedRow(const vvCalibration::Plugin& interpreter)
 {
   QString path = "LidarPlugin/CalibrationFileDialog/CurrentRow" + QString::number((int)interpreter);
   int row = this->Settings->value(path).toInt();
@@ -180,7 +180,7 @@ void vvCalibrationDialog::pqInternal::restoreSelectedRow(const vvCalibration::Pl
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveSensorTransform()
+void lqCalibrationDialog::pqInternal::saveSensorTransform()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/LidarOriginX", this->LidarXSpinBox->value());
@@ -199,7 +199,7 @@ void vvCalibrationDialog::pqInternal::saveSensorTransform()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveGpsTransform()
+void lqCalibrationDialog::pqInternal::saveGpsTransform()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/GpsOriginX", this->GpsXSpinBox->value());
@@ -221,56 +221,56 @@ void vvCalibrationDialog::pqInternal::saveGpsTransform()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveLidarPort()
+void lqCalibrationDialog::pqInternal::saveLidarPort()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/LidarPort", this->LidarPortSpinBox->value());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveGpsPort()
+void lqCalibrationDialog::pqInternal::saveGpsPort()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/GpsPort", this->GPSPortSpinBox->value());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveGPSForwardingPort()
+void lqCalibrationDialog::pqInternal::saveGPSForwardingPort()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/GpsForwardingPort", this->GPSForwardingPortSpinBox->value());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveLidarForwardingPort()
+void lqCalibrationDialog::pqInternal::saveLidarForwardingPort()
 {
   this->Settings->setValue("LidarPlugin/CalibrationFileDialog/LidarForwardingPort",
     this->LidarForwardingPortSpinBox->value());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveEnableForwarding()
+void lqCalibrationDialog::pqInternal::saveEnableForwarding()
 {
   this->Settings->setValue("LidarPlugin/CalibrationFileDialog/EnableForwarding",
     this->EnableForwardingCheckBox->isChecked());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveAdvancedConfiguration()
+void lqCalibrationDialog::pqInternal::saveAdvancedConfiguration()
 {
   this->Settings->setValue("LidarPlugin/CalibrationFileDialog/AdvancedConfiguration",
     this->AdvancedConfiguration->isChecked());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveForwardIpAddress()
+void lqCalibrationDialog::pqInternal::saveForwardIpAddress()
 {
   this->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/ForwardIpAddress", this->ipAddresslineEdit->text());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveIsCrashAnalysing()
+void lqCalibrationDialog::pqInternal::saveIsCrashAnalysing()
 {
   // Only save the state if the crash analysing is enabled
   if (this->CrashAnalysisCheckBox->isEnabled())
@@ -281,7 +281,7 @@ void vvCalibrationDialog::pqInternal::saveIsCrashAnalysing()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreCrashAnalysing()
+void lqCalibrationDialog::pqInternal::restoreCrashAnalysing()
 {
   // Only restore the state if the crash analysing is enabled
   if (this->CrashAnalysisCheckBox->isEnabled())
@@ -295,7 +295,7 @@ void vvCalibrationDialog::pqInternal::restoreCrashAnalysing()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveEnableMultiSensors()
+void lqCalibrationDialog::pqInternal::saveEnableMultiSensors()
 {
   // Only save the state if the crash analysing is enabled
   if (this->EnableMultiSensors->isEnabled())
@@ -306,7 +306,7 @@ void vvCalibrationDialog::pqInternal::saveEnableMultiSensors()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreEnableMultiSensors()
+void lqCalibrationDialog::pqInternal::restoreEnableMultiSensors()
 {
   this->EnableMultiSensors->setChecked(
     this->Settings
@@ -316,7 +316,7 @@ void vvCalibrationDialog::pqInternal::restoreEnableMultiSensors()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveEnableInterpretGPSPackets()
+void lqCalibrationDialog::pqInternal::saveEnableInterpretGPSPackets()
 {
   // Only save the state if the Interpreter GPS Packet is enabled
   if (this->EnableInterpretGPSPackets->isEnabled())
@@ -327,7 +327,7 @@ void vvCalibrationDialog::pqInternal::saveEnableInterpretGPSPackets()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveShowFirstAndLastFrame()
+void lqCalibrationDialog::pqInternal::saveShowFirstAndLastFrame()
 {
   // Only save the state if the show first and last frame option is enabled
   if (this->ShowFirstAndLastFrame->isEnabled())
@@ -338,7 +338,7 @@ void vvCalibrationDialog::pqInternal::saveShowFirstAndLastFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::saveUseRelativeStartTime()
+void lqCalibrationDialog::pqInternal::saveUseRelativeStartTime()
 {
   // Only save the state if the use relative start time option is enabled
   if (this->UseRelativeStartTime->isEnabled())
@@ -349,7 +349,7 @@ void vvCalibrationDialog::pqInternal::saveUseRelativeStartTime()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
+void lqCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
 {
   // Only restore the state if the Interpreter GPS Packet is enabled
   if (this->EnableInterpretGPSPackets->isEnabled())
@@ -363,7 +363,7 @@ void vvCalibrationDialog::pqInternal::restoreEnableInterpretGPSPackets()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreSensorTransform()
+void lqCalibrationDialog::pqInternal::restoreSensorTransform()
 {
   this->LidarXSpinBox->setValue(
     this->Settings
@@ -398,7 +398,7 @@ void vvCalibrationDialog::pqInternal::restoreSensorTransform()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreGpsTransform()
+void lqCalibrationDialog::pqInternal::restoreGpsTransform()
 {
   this->GpsXSpinBox->setValue(
     this->Settings->value(
@@ -432,7 +432,7 @@ void vvCalibrationDialog::pqInternal::restoreGpsTransform()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreLidarPort()
+void lqCalibrationDialog::pqInternal::restoreLidarPort()
 {
   this->LidarPortSpinBox->setValue(
     this->Settings
@@ -441,7 +441,7 @@ void vvCalibrationDialog::pqInternal::restoreLidarPort()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreGpsPort()
+void lqCalibrationDialog::pqInternal::restoreGpsPort()
 {
   this->GPSPortSpinBox->setValue(
     this->Settings->value(
@@ -450,7 +450,7 @@ void vvCalibrationDialog::pqInternal::restoreGpsPort()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreGPSForwardingPort()
+void lqCalibrationDialog::pqInternal::restoreGPSForwardingPort()
 {
   this->GPSForwardingPortSpinBox->setValue(
     this->Settings
@@ -460,7 +460,7 @@ void vvCalibrationDialog::pqInternal::restoreGPSForwardingPort()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreLidarForwardingPort()
+void lqCalibrationDialog::pqInternal::restoreLidarForwardingPort()
 {
   this->LidarForwardingPortSpinBox->setValue(
     this->Settings
@@ -470,7 +470,7 @@ void vvCalibrationDialog::pqInternal::restoreLidarForwardingPort()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreEnableForwarding()
+void lqCalibrationDialog::pqInternal::restoreEnableForwarding()
 {
   bool tempIsChecked =
     this->Settings->value("LidarPlugin/CalibrationFileDialog/EnableForwarding").toBool();
@@ -478,7 +478,7 @@ void vvCalibrationDialog::pqInternal::restoreEnableForwarding()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreAdvancedConfiguration()
+void lqCalibrationDialog::pqInternal::restoreAdvancedConfiguration()
 {
   bool tempIsChecked =
     this->Settings->value("LidarPlugin/CalibrationFileDialog/AdvancedConfiguration").toBool();
@@ -486,14 +486,14 @@ void vvCalibrationDialog::pqInternal::restoreAdvancedConfiguration()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreForwardIpAddress()
+void lqCalibrationDialog::pqInternal::restoreForwardIpAddress()
 {
   this->ipAddresslineEdit->setText(
     this->Settings->value("LidarPlugin/CalibrationFileDialog/ForwardIpAddress").toString());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreShowFirstAndLastFrame()
+void lqCalibrationDialog::pqInternal::restoreShowFirstAndLastFrame()
 {
   // Only restore the state if the show first and last frame option is enabled
   if (this->ShowFirstAndLastFrame->isEnabled())
@@ -507,7 +507,7 @@ void vvCalibrationDialog::pqInternal::restoreShowFirstAndLastFrame()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::pqInternal::restoreUseRelativeStartTime()
+void lqCalibrationDialog::pqInternal::restoreUseRelativeStartTime()
 {
   // Only restore the state if the use relative start time option is enabled
   if (this->UseRelativeStartTime->isEnabled())
@@ -521,7 +521,7 @@ void vvCalibrationDialog::pqInternal::restoreUseRelativeStartTime()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::clearAdvancedSettings()
+void lqCalibrationDialog::clearAdvancedSettings()
 {
   this->setDefaultConfiguration();
 }
@@ -547,7 +547,7 @@ QListWidgetItem* createEntry(QString path, bool useBaseName)
 }
 
 //-----------------------------------------------------------------------------
-vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
+lqCalibrationDialog::lqCalibrationDialog(QWidget* p, bool isStreamSensor)
   : QDialog(p)
   , Internal(new pqInternal)
 {
@@ -568,7 +568,7 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
   this->Internal->ShowFirstAndLastFrame->setEnabled(!isStreamSensor);
   this->Internal->UseRelativeStartTime->setEnabled(!isStreamSensor);
 
-  foreach (QString interpreterName, this->Internal->AvailableInterpreters.keys())
+  Q_FOREACH (QString interpreterName, this->Internal->AvailableInterpreters.keys())
   {
     this->Internal->InterpreterSelectionBox->addItem(interpreterName);
   }
@@ -684,8 +684,8 @@ vvCalibrationDialog::vvCalibrationDialog(QWidget* p, bool isStreamSensor)
 }
 
 //-----------------------------------------------------------------------------
-vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p)
-  : vvCalibrationDialog(p)
+lqCalibrationDialog::lqCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p)
+  : lqCalibrationDialog(p)
 {
   if (!IsLidarProxy(lidarProxy))
   {
@@ -788,14 +788,14 @@ vvCalibrationDialog::vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
 }
 
 //-----------------------------------------------------------------------------
-vvCalibrationDialog::~vvCalibrationDialog()
+lqCalibrationDialog::~lqCalibrationDialog()
 {
   this->Internal->Settings->setValue(
     "LidarPlugin/CalibrationFileDialog/Geometry", this->saveGeometry());
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setDefaultConfiguration()
+void lqCalibrationDialog::setDefaultConfiguration()
 {
   const double defaultSensorValue = 0.00;
   const int minAllowedPort = 1024;   // The port between 0 and 1023 are reserved
@@ -846,7 +846,7 @@ void vvCalibrationDialog::setDefaultConfiguration()
 }
 
 //-----------------------------------------------------------------------------
-vvCalibration::Plugin vvCalibrationDialog::selectedInterpreter() const
+vvCalibration::Plugin lqCalibrationDialog::selectedInterpreter() const
 {
   QString currentInterpreter = this->Internal->InterpreterSelectionBox->currentText();
   QMap<QString, vvCalibration::Plugin>::const_iterator it =
@@ -860,7 +860,7 @@ vvCalibration::Plugin vvCalibrationDialog::selectedInterpreter() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setInterpreter(QString& interpreter)
+void lqCalibrationDialog::setInterpreter(QString& interpreter)
 {
   QMap<QString, vvCalibration::Plugin>::const_iterator it =
     this->Internal->AvailableInterpreters.find(interpreter);
@@ -872,14 +872,14 @@ void vvCalibrationDialog::setInterpreter(QString& interpreter)
 }
 
 //-----------------------------------------------------------------------------
-QString vvCalibrationDialog::selectedCalibrationFile() const
+QString lqCalibrationDialog::selectedCalibrationFile() const
 {
   const int row = this->Internal->CalibrationFileListWidget->currentRow();
   return this->Internal->CalibrationFileListWidget->item(row)->data(Qt::UserRole).toString();
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setCalibrationFile(QString& filename) const
+void lqCalibrationDialog::setCalibrationFile(QString& filename) const
 {
   QStringList existingFiles = this->getAllCalibrationFiles();
   unsigned int idx = 0;
@@ -899,7 +899,7 @@ void vvCalibrationDialog::setCalibrationFile(QString& filename) const
 }
 
 //-----------------------------------------------------------------------------
-QStringList vvCalibrationDialog::getAllCalibrationFiles() const
+QStringList lqCalibrationDialog::getAllCalibrationFiles() const
 {
   QStringList calibrationFiles;
   for (int i = 0; i < this->Internal->CalibrationFileListWidget->count(); ++i)
@@ -912,7 +912,7 @@ QStringList vvCalibrationDialog::getAllCalibrationFiles() const
 }
 
 //-----------------------------------------------------------------------------
-QStringList vvCalibrationDialog::getCustomCalibrationFiles() const
+QStringList lqCalibrationDialog::getCustomCalibrationFiles() const
 {
   QString interpreter = QString::number((int)this->selectedInterpreter());
   QString path = "LidarPlugin/CalibrationFileDialog/Files" + interpreter;
@@ -920,31 +920,31 @@ QStringList vvCalibrationDialog::getCustomCalibrationFiles() const
 }
 
 //-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isEnableMultiSensors() const
+bool lqCalibrationDialog::isEnableMultiSensors() const
 {
   return this->Internal->EnableMultiSensors->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isShowFirstAndLastFrame() const
+bool lqCalibrationDialog::isShowFirstAndLastFrame() const
 {
   return this->Internal->ShowFirstAndLastFrame->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isUseRelativeStartTime() const
+bool lqCalibrationDialog::isUseRelativeStartTime() const
 {
   return this->Internal->UseRelativeStartTime->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-bool vvCalibrationDialog::isEnableInterpretGPSPackets() const
+bool lqCalibrationDialog::isEnableInterpretGPSPackets() const
 {
   return this->Internal->EnableInterpretGPSPackets->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-QMatrix4x4 vvCalibrationDialog::sensorTransform() const
+QMatrix4x4 lqCalibrationDialog::sensorTransform() const
 {
   // QMatrix4x4 class uses openGL / renderer conventions which
   // is counterintuitive from a linear algebra point of view regarding
@@ -980,7 +980,7 @@ QMatrix4x4 vvCalibrationDialog::sensorTransform() const
 }
 
 //-----------------------------------------------------------------------------
-QMatrix4x4 vvCalibrationDialog::gpsTransform() const
+QMatrix4x4 lqCalibrationDialog::gpsTransform() const
 {
   // QMatrix4x4 class uses openGL / renderer conventions which
   // is counterintuitive from a linear algebra point of view regarding
@@ -1016,7 +1016,7 @@ QMatrix4x4 vvCalibrationDialog::gpsTransform() const
 }
 
 //-----------------------------------------------------------------------------
-vvCalibration::TransformConfig vvCalibrationDialog::getLidarConfig() const
+vvCalibration::TransformConfig lqCalibrationDialog::getLidarConfig() const
 {
   vvCalibration::TransformConfig config = { this->Internal->LidarYawSpinBox->value(),
     this->Internal->LidarRollSpinBox->value(),
@@ -1029,7 +1029,7 @@ vvCalibration::TransformConfig vvCalibrationDialog::getLidarConfig() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setLidarConfig(vvCalibration::TransformConfig& conf)
+void lqCalibrationDialog::setLidarConfig(vvCalibration::TransformConfig& conf)
 {
   this->Internal->LidarYawSpinBox->setValue(conf.yaw);
   this->Internal->LidarRollSpinBox->setValue(conf.roll);
@@ -1041,7 +1041,7 @@ void vvCalibrationDialog::setLidarConfig(vvCalibration::TransformConfig& conf)
 }
 
 //-----------------------------------------------------------------------------
-vvCalibration::NetworkConfig vvCalibrationDialog::getLidarNetworkConfig() const
+vvCalibration::NetworkConfig lqCalibrationDialog::getLidarNetworkConfig() const
 {
   vvCalibration::NetworkConfig config = { this->Internal->LidarPortSpinBox->value(),
     this->Internal->LidarForwardingPortSpinBox->value(),
@@ -1052,7 +1052,7 @@ vvCalibration::NetworkConfig vvCalibrationDialog::getLidarNetworkConfig() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setLidarNetworkConfig(vvCalibration::NetworkConfig& conf)
+void lqCalibrationDialog::setLidarNetworkConfig(vvCalibration::NetworkConfig& conf)
 {
   this->Internal->LidarPortSpinBox->setValue(conf.listenningPort);
   this->Internal->LidarForwardingPortSpinBox->setValue(conf.forwardingPort);
@@ -1062,7 +1062,7 @@ void vvCalibrationDialog::setLidarNetworkConfig(vvCalibration::NetworkConfig& co
 }
 
 //-----------------------------------------------------------------------------
-vvCalibration::TransformConfig vvCalibrationDialog::getGPSConfig() const
+vvCalibration::TransformConfig lqCalibrationDialog::getGPSConfig() const
 {
   vvCalibration::TransformConfig config = { this->Internal->GpsYawSpinBox->value(),
     this->Internal->GpsRollSpinBox->value(),
@@ -1075,7 +1075,7 @@ vvCalibration::TransformConfig vvCalibrationDialog::getGPSConfig() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setGPSConfig(vvCalibration::TransformConfig& conf)
+void lqCalibrationDialog::setGPSConfig(vvCalibration::TransformConfig& conf)
 {
   this->Internal->GpsYawSpinBox->setValue(conf.yaw);
   this->Internal->GpsRollSpinBox->setValue(conf.roll);
@@ -1087,7 +1087,7 @@ void vvCalibrationDialog::setGPSConfig(vvCalibration::TransformConfig& conf)
 }
 
 //-----------------------------------------------------------------------------
-vvCalibration::NetworkConfig vvCalibrationDialog::getGPSNetworkConfig() const
+vvCalibration::NetworkConfig lqCalibrationDialog::getGPSNetworkConfig() const
 {
   vvCalibration::NetworkConfig config = { this->Internal->GPSPortSpinBox->value(),
     this->Internal->GPSForwardingPortSpinBox->value(),
@@ -1098,7 +1098,7 @@ vvCalibration::NetworkConfig vvCalibrationDialog::getGPSNetworkConfig() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::setGPSNetworkConfig(vvCalibration::NetworkConfig& conf)
+void lqCalibrationDialog::setGPSNetworkConfig(vvCalibration::NetworkConfig& conf)
 {
   this->Internal->GPSPortSpinBox->setValue(conf.listenningPort);
   this->Internal->GPSForwardingPortSpinBox->setValue(conf.forwardingPort);
@@ -1108,7 +1108,7 @@ void vvCalibrationDialog::setGPSNetworkConfig(vvCalibration::NetworkConfig& conf
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::accept()
+void lqCalibrationDialog::accept()
 {
   this->Internal->saveInterpreter();
   this->Internal->saveSensorTransform();
@@ -1130,7 +1130,7 @@ void vvCalibrationDialog::accept()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::onCurrentRowChanged(int row)
+void lqCalibrationDialog::onCurrentRowChanged(int row)
 {
   const vvCalibration::Plugin interpreter = this->selectedInterpreter();
   const int builtInCalibFileSize = this->Internal->BuiltInCalibrationFiles[interpreter].size();
@@ -1141,7 +1141,7 @@ void vvCalibrationDialog::onCurrentRowChanged(int row)
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
+void lqCalibrationDialog::onCurrentTextChanged(const QString& text)
 {
   const vvCalibration::Plugin interpreter = this->Internal->AvailableInterpreters[text];
   this->Internal->CalibrationFileListWidget->clear();
@@ -1156,11 +1156,11 @@ void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
     this->Internal->CalibrationFileListWidget->addItem(liveCalibrationItem);
   }
 
-  foreach (QString fullname, this->Internal->BuiltInCalibrationFiles[interpreter])
+  Q_FOREACH (QString fullname, this->Internal->BuiltInCalibrationFiles[interpreter])
   {
     this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, true));
   }
-  foreach (QString fullname, this->getCustomCalibrationFiles())
+  Q_FOREACH (QString fullname, this->getCustomCalibrationFiles())
   {
     this->Internal->CalibrationFileListWidget->addItem(createEntry(fullname, false));
   }
@@ -1168,7 +1168,7 @@ void vvCalibrationDialog::onCurrentTextChanged(const QString& text)
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::addFile()
+void lqCalibrationDialog::addFile()
 {
   QString defaultDir =
     this->Internal->Settings->value("LidarPlugin/OpenData/DefaultDir", QDir::homePath()).toString();
@@ -1195,7 +1195,7 @@ void vvCalibrationDialog::addFile()
 }
 
 //-----------------------------------------------------------------------------
-void vvCalibrationDialog::removeSelectedFile()
+void lqCalibrationDialog::removeSelectedFile()
 {
   const int row = this->Internal->CalibrationFileListWidget->currentRow();
   if (row >= this->Internal->BuiltInCalibrationFiles.size())

@@ -11,24 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef __vvCalibrationDialog_h
-#define __vvCalibrationDialog_h
+#ifndef lqCalibrationDialog_h
+#define lqCalibrationDialog_h
+
+#include "lvComponentsModule.h"
 
 #include <QDialog>
 #include <QMatrix4x4>
 
-#include "vvCalibrationStructs.h"
+#include "lqCalibrationStructs.h"
 
 class vtkSMProxy;
-class vvCalibrationDialog : public QDialog
+class LVCOMPONENTS_EXPORT lqCalibrationDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  vvCalibrationDialog(QWidget* p = 0, bool isStreamSensor = false);
-  vvCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p = 0);
+  lqCalibrationDialog(QWidget* p = 0, bool isStreamSensor = false);
+  lqCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPSProxy, QWidget* p = 0);
 
-  virtual ~vvCalibrationDialog();
+  virtual ~lqCalibrationDialog();
 
   Q_INVOKABLE vvCalibration::Plugin selectedInterpreter() const;
   Q_INVOKABLE void setInterpreter(QString& interpreter);
@@ -61,10 +63,10 @@ public:
 protected:
   void setDefaultConfiguration();
 
-public slots:
+public Q_SLOTS:
   virtual void accept() override;
 
-protected slots:
+protected Q_SLOTS:
   void addFile();
   void removeSelectedFile();
   void onCurrentRowChanged(int row);
@@ -75,7 +77,7 @@ private:
   class pqInternal;
   QScopedPointer<pqInternal> Internal;
 
-  Q_DISABLE_COPY(vvCalibrationDialog)
+  Q_DISABLE_COPY(lqCalibrationDialog)
 };
 
 #endif

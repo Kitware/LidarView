@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef __vvCalibrationStructs_h
-#define __vvCalibrationStructs_h
+#ifndef lqCalibrationStructs_h
+#define lqCalibrationStructs_h
 
 #include <QString>
 #include <iostream>
@@ -48,4 +48,4 @@ struct NetworkConfig
 };
 };
 
-#endif /* !__vvCalibrationStructs_h */
+#endif /* !__lqCalibrationStructs_h */

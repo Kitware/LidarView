@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>vvCropReturnsDialog</class>
- <widget class="QDialog" name="vvCropReturnsDialog">
+ <class>lqCropReturnsDialog</class>
+ <widget class="QDialog" name="lqCropReturnsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -206,7 +206,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>vvCropReturnsDialog</receiver>
+   <receiver>lqCropReturnsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -222,7 +222,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>vvCropReturnsDialog</receiver>
+   <receiver>lqCropReturnsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

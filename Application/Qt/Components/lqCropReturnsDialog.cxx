@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "vvCropReturnsDialog.h"
+#include "lqCropReturnsDialog.h"
 
-#include "ui_vvCropReturnsDialog.h"
+#include "ui_lqCropReturnsDialog.h"
 
 #include <vtkSetGet.h> //vtkNotUsed
 
@@ -27,7 +27,7 @@
 #include <sstream>
 
 //-----------------------------------------------------------------------------
-class vvCropReturnsDialog::pqInternal : public Ui::vvCropReturnsDialog
+class lqCropReturnsDialog::pqInternal : public Ui::lqCropReturnsDialog
 {
 public:
   pqInternal(QDialog* external)
@@ -75,7 +75,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::saveSettings()
+void lqCropReturnsDialog::pqInternal::saveSettings()
 {
   this->Settings->setValue(
     "LidarPlugin/CropReturnsDialog/EnableCropping", this->CropGroupBox->isChecked());
@@ -97,7 +97,7 @@ void vvCropReturnsDialog::pqInternal::saveSettings()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::restoreSettings()
+void lqCropReturnsDialog::pqInternal::restoreSettings()
 {
   this->sphericalRadioButton->setChecked(
     this->Settings->value("LidarPlugin/CropReturnsDialog/sphericalRadioButton", true).toBool());
@@ -155,7 +155,7 @@ void vvCropReturnsDialog::pqInternal::restoreSettings()
 }
 
 //-----------------------------------------------------------------------------
-vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
+lqCropReturnsDialog::lqCropReturnsDialog(QWidget* p)
   : QDialog(p)
   , Internal(new pqInternal(this))
 {
@@ -185,34 +185,34 @@ vvCropReturnsDialog::vvCropReturnsDialog(QWidget* p)
 }
 
 //-----------------------------------------------------------------------------
-vvCropReturnsDialog::~vvCropReturnsDialog() {}
+lqCropReturnsDialog::~lqCropReturnsDialog() {}
 
 //-----------------------------------------------------------------------------
-bool vvCropReturnsDialog::croppingEnabled() const
+bool lqCropReturnsDialog::croppingEnabled() const
 {
   return this->Internal->CropGroupBox->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::setCroppingEnabled(bool checked)
+void lqCropReturnsDialog::setCroppingEnabled(bool checked)
 {
   this->Internal->CropGroupBox->setChecked(checked);
 }
 
 //-----------------------------------------------------------------------------
-bool vvCropReturnsDialog::cropOutside() const
+bool lqCropReturnsDialog::cropOutside() const
 {
   return this->Internal->CropOutsideCheckBox->isChecked();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::setCropOutside(bool checked)
+void lqCropReturnsDialog::setCropOutside(bool checked)
 {
   this->Internal->CropOutsideCheckBox->setChecked(checked);
 }
 
 //-----------------------------------------------------------------------------
-QVector3D vvCropReturnsDialog::firstCorner() const
+QVector3D lqCropReturnsDialog::firstCorner() const
 {
   double cropRegion[6];
   this->Internal->GetCropRegion(cropRegion);
@@ -230,7 +230,7 @@ QVector3D vvCropReturnsDialog::firstCorner() const
 }
 
 //-----------------------------------------------------------------------------
-QVector3D vvCropReturnsDialog::secondCorner() const
+QVector3D lqCropReturnsDialog::secondCorner() const
 {
   double cropRegion[6];
   this->Internal->GetCropRegion(cropRegion);
@@ -248,7 +248,7 @@ QVector3D vvCropReturnsDialog::secondCorner() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::setFirstCorner(QVector3D corner)
+void lqCropReturnsDialog::setFirstCorner(QVector3D corner)
 {
   pqInternal* const d = this->Internal.data();
   d->X1SpinBox->setValue(corner.x());
@@ -257,7 +257,7 @@ void vvCropReturnsDialog::setFirstCorner(QVector3D corner)
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::setSecondCorner(QVector3D corner)
+void lqCropReturnsDialog::setSecondCorner(QVector3D corner)
 {
   pqInternal* const d = this->Internal.data();
   d->X2SpinBox->setValue(corner.x());
@@ -266,32 +266,32 @@ void vvCropReturnsDialog::setSecondCorner(QVector3D corner)
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::apply()
+void lqCropReturnsDialog::apply()
 {
   QDialog::accept();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::applyAndSave()
+void lqCropReturnsDialog::applyAndSave()
 {
   this->Internal->saveSettings();
   QDialog::accept();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onCartesianToggled()
+void lqCropReturnsDialog::onCartesianToggled()
 {
   this->Internal->SetCartesianSettings();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onSphericalToggled()
+void lqCropReturnsDialog::onSphericalToggled()
 {
   this->Internal->SetSphericalSettings();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::SetSphericalSettings()
+void lqCropReturnsDialog::pqInternal::SetSphericalSettings()
 {
   this->ActivateSpinBox();
   // change the labels
@@ -329,7 +329,7 @@ void vvCropReturnsDialog::pqInternal::SetSphericalSettings()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::SetCartesianSettings()
+void lqCropReturnsDialog::pqInternal::SetCartesianSettings()
 {
   double maxV = 300;
   double minV = -maxV;
@@ -363,7 +363,7 @@ void vvCropReturnsDialog::pqInternal::SetCartesianSettings()
 }
 
 //-----------------------------------------------------------------------------
-int vvCropReturnsDialog::GetCropMode() const
+int lqCropReturnsDialog::GetCropMode() const
 {
   if (!this->Internal->CropGroupBox->isChecked())
   {
@@ -384,7 +384,7 @@ int vvCropReturnsDialog::GetCropMode() const
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::ActivateSpinBox()
+void lqCropReturnsDialog::pqInternal::ActivateSpinBox()
 {
   this->XLabel->setDisabled(false);
   this->YLabel->setDisabled(false);
@@ -401,7 +401,7 @@ void vvCropReturnsDialog::pqInternal::ActivateSpinBox()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::GetCropRegion(double output[6])
+void lqCropReturnsDialog::pqInternal::GetCropRegion(double output[6])
 {
   output[0] = this->X1SpinBox->value();
   output[1] = this->X2SpinBox->value();
@@ -414,7 +414,7 @@ void vvCropReturnsDialog::pqInternal::GetCropRegion(double output[6])
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::pqInternal::DesactivateSpinBox()
+void lqCropReturnsDialog::pqInternal::DesactivateSpinBox()
 {
   this->XLabel->setDisabled(true);
   this->YLabel->setDisabled(true);
@@ -430,7 +430,7 @@ void vvCropReturnsDialog::pqInternal::DesactivateSpinBox()
   this->Z2SpinBox->setDisabled(true);
 }
 
-void vvCropReturnsDialog::pqInternal::updateRangeValues()
+void lqCropReturnsDialog::pqInternal::updateRangeValues()
 {
   this->xRange[0] = this->X1SpinBox->value();
   this->xRange[1] = this->X2SpinBox->value();
@@ -441,13 +441,13 @@ void vvCropReturnsDialog::pqInternal::updateRangeValues()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onSpinBoxChanged(double vtkNotUsed(value))
+void lqCropReturnsDialog::onSpinBoxChanged(double vtkNotUsed(value))
 {
   this->Internal->updateRangeValues();
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::onCropGroupBoxToggled()
+void lqCropReturnsDialog::onCropGroupBoxToggled()
 {
   this->Internal->X1SpinBox->setDisabled(!this->Internal->CropGroupBox->isChecked());
   this->Internal->X2SpinBox->setDisabled(!this->Internal->CropGroupBox->isChecked());
@@ -461,7 +461,7 @@ void vvCropReturnsDialog::onCropGroupBoxToggled()
 }
 
 //-----------------------------------------------------------------------------
-void vvCropReturnsDialog::UpdateDialogWithCurrentSetting()
+void lqCropReturnsDialog::UpdateDialogWithCurrentSetting()
 {
   this->onCropGroupBoxToggled();
 }
