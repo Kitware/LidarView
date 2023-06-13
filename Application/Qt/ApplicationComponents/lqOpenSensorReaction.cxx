@@ -19,7 +19,7 @@
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
 #include <QString>
 #include <string>
@@ -35,7 +35,7 @@ void lqOpenSensorReaction::onTriggered()
 {
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
-  vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), true);
+  lqCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), true);
   DisplayDialogOnActiveWindow(dialog);
   if (dialog.exec())
   {
@@ -44,7 +44,7 @@ void lqOpenSensorReaction::onTriggered()
 }
 
 //-----------------------------------------------------------------------------
-void lqOpenSensorReaction::createSensorStream(const vvCalibrationDialog& dialog)
+void lqOpenSensorReaction::createSensorStream(const lqCalibrationDialog& dialog)
 {
   pqServer* server = pqActiveObjects::instance().activeServer();
   pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();

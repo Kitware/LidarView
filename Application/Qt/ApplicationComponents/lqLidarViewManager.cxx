@@ -31,7 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ========================================================================*/
 #include "lqLidarViewManager.h"
 
-#include "lqOpenPcapReaction.h"
 #include "lqPythonQtLidarView.h"
 
 #include <QFileInfo>

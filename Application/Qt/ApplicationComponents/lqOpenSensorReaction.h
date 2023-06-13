@@ -1,23 +1,23 @@
 #ifndef LQOPENSENSORREACTION_H
 #define LQOPENSENSORREACTION_H
 
-#include "applicationui_export.h"
+#include "lvApplicationComponentsModule.h"
 
 #include "pqReaction.h"
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
 /**
  * @ingroup Reactions
  * Reaction to open a sensor stream
  */
-class APPLICATIONUI_EXPORT lqOpenSensorReaction : public pqReaction
+class LVAPPLICATIONCOMPONENTS_EXPORT lqOpenSensorReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;
 
 public:
   lqOpenSensorReaction(QAction* action);
-  static void createSensorStream(const vvCalibrationDialog& dialog);
+  static void createSensorStream(const lqCalibrationDialog& dialog);
 
 protected:
   /// Called when the action is triggered.

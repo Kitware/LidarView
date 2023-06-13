@@ -21,7 +21,7 @@
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
 #include <QApplication>
 #include <QProgressDialog>
@@ -92,7 +92,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
 {
   // Launch the calibration Dialog before creating the Source to allow to cancel the action
   // (with the "cancel" button in the dialog)
-  vvCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), false);
+  lqCalibrationDialog dialog(lqLidarViewManager::instance()->getMainWindow(), false);
   // DisplayDialogOnActiveWindow(dialog);
   if (dialog.exec())
   {
@@ -101,7 +101,7 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName)
 }
 
 //-----------------------------------------------------------------------------
-void lqOpenPcapReaction::createSourceFromFile(QString fileName, const vvCalibrationDialog& dialog)
+void lqOpenPcapReaction::createSourceFromFile(QString fileName, const lqCalibrationDialog& dialog)
 {
   pqServer* server = pqActiveObjects::instance().activeServer();
   pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();

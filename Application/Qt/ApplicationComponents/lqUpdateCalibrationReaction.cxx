@@ -19,7 +19,7 @@
 #include "lqHelper.h"
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
 #include <cctype>
 //-----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ lqUpdateCalibrationReaction::lqUpdateCalibrationReaction(QAction* action)
   this->connect(
     smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
 
-  foreach (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
 }
 
@@ -188,7 +188,7 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
 //-----------------------------------------------------------------------------
 void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSource,
   pqPipelineSource*& posOrSource,
-  const vvCalibrationDialog& dialog)
+  const lqCalibrationDialog& dialog)
 {
   vtkSMProxy* lidarProxy = lidarSource->getProxy();
   if (!lidarProxy)
@@ -291,7 +291,7 @@ void lqUpdateCalibrationReaction::UpdateExistingSource(pqPipelineSource*& lidarS
   }
 
   // Create the dialog with the proxy so the dialog has the proxy information
-  vvCalibrationDialog dialog(
+  lqCalibrationDialog dialog(
     lidarSource->getProxy(), posOrProxy, lqLidarViewManager::instance()->getMainWindow());
   DisplayDialogOnActiveWindow(dialog);
 

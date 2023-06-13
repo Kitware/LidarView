@@ -1,17 +1,17 @@
 #ifndef LQOPENPCAPREACTION_H
 #define LQOPENPCAPREACTION_H
 
-#include "applicationui_export.h"
+#include "lvApplicationComponentsModule.h"
 
 #include "pqReaction.h"
-#include "vvCalibrationDialog.h"
+#include "lqCalibrationDialog.h"
 
 #include <vtkObject.h>
 /**
  * @ingroup Reactions
  * Reaction to open a pcap
  */
-class APPLICATIONUI_EXPORT lqOpenPcapReaction : public pqReaction
+class LVAPPLICATIONCOMPONENTS_EXPORT lqOpenPcapReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;
@@ -19,7 +19,7 @@ class APPLICATIONUI_EXPORT lqOpenPcapReaction : public pqReaction
 public:
   lqOpenPcapReaction(QAction* action);
   static void createSourceFromFile(QString fileName);
-  static void createSourceFromFile(QString fileName, const vvCalibrationDialog& dialog);
+  static void createSourceFromFile(QString fileName, const lqCalibrationDialog& dialog);
 
 protected:
   /// Called when the action is triggered.

@@ -1,7 +1,7 @@
 /*=========================================================================
 
    Program: LidarView
-   Module:  lqLidarViewManager.h
+   Module:  lqPythonQtLidarView.h
 
    Copyright (c) Kitware Inc.
    All rights reserved.
@@ -29,34 +29,48 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#ifndef LQLIDARVIEWMANAGER_H
-#define LQLIDARVIEWMANAGER_H
+#ifndef lqPythonQtLidarView_h
+#define lqPythonQtLidarView_h
 
-#include <lqLidarCoreManager.h>
+#include <PythonQt.h>
+#include <QObject>
 
-#include "applicationui_export.h"
+#include "lqCropReturnsDialog.h"
+#include "lqSelectFramesDialog.h"
+#include "lqLidarViewManager.h"
 
-class APPLICATIONUI_EXPORT lqLidarViewManager : public lqLidarCoreManager
+#include "lvApplicationComponentsModule.h"
+
+// WIP Could thinks about subclassing and rework how manager add it
+class LVAPPLICATIONCOMPONENTS_EXPORT lqPythonQtLidarView : public QObject
 {
-
   Q_OBJECT
-  typedef lqLidarCoreManager Superclass;
 
 public:
-  lqLidarViewManager(QObject* parent = nullptr);
-  ~lqLidarViewManager() override;
-
-  /**
-   * Returns the pqPVApplicationCore instance. If no pqPVApplicationCore has been
-   * created then return nullptr.
-   */
-  static lqLidarViewManager* instance()
+  lqPythonQtLidarView(QObject* parent = 0)
+    : QObject(parent)
   {
-    return qobject_cast<lqLidarViewManager*>(Superclass::instance());
+    this->registerClassForPythonQt(&lqLidarViewManager::staticMetaObject);
+
+    this->registerClassForPythonQt(&lqCropReturnsDialog::staticMetaObject);
+    this->registerClassForPythonQt(&lqSelectFramesDialog::staticMetaObject);
   }
 
-  // LidarView specific
-  void pythonStartup() override;
+  inline void registerClassForPythonQt(const QMetaObject* metaobject)
+  {
+    PythonQt::self()->registerClass(metaobject, "paraview");
+  }
+
+public Q_SLOTS:
+  lqCropReturnsDialog* new_lqCropReturnsDialog(QWidget* arg0)
+  {
+    return new lqCropReturnsDialog(arg0);
+  }
+
+  lqSelectFramesDialog* new_lqSelectFramesDialog(QWidget* arg0)
+  {
+    return new lqSelectFramesDialog(arg0);
+  }
 };
 
-#endif // LQLIDARVIEWMANAGER_H
+#endif // lqPythonQtLidarView_h

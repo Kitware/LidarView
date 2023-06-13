@@ -1,22 +1,22 @@
 #ifndef LQUpdateCalibrationReaction_H
 #define LQUpdateCalibrationReaction_H
 
-#include "applicationui_export.h"
+#include "lvApplicationComponentsModule.h"
 
-#include "Widgets/vvCalibrationStructs.h"
+#include "lqCalibrationStructs.h"
 #include "pqReaction.h"
 
 #include "vtkSmartPointer.h"
 
 class pqPipelineSource;
 class vtkSMProxy;
-class vvCalibrationDialog;
+class lqCalibrationDialog;
 
 /**
  * @ingroup Reactions
  * Reaction to update the calibration
  */
-class APPLICATIONUI_EXPORT lqUpdateCalibrationReaction : public pqReaction
+class LVAPPLICATIONCOMPONENTS_EXPORT lqUpdateCalibrationReaction : public pqReaction
 {
   Q_OBJECT
   typedef pqReaction Superclass;
@@ -39,11 +39,11 @@ public:
 
   static void UpdateCalibration(pqPipelineSource*& lidarSource,
     pqPipelineSource*& posOrSource,
-    const vvCalibrationDialog& dialog);
+    const lqCalibrationDialog& dialog);
 
   static void UpdateExistingSource(pqPipelineSource*& lidarSource, pqPipelineSource*& posOrSource);
 
-public slots:
+public Q_SLOTS:
   /**
    * Called when the action is triggered.
    */

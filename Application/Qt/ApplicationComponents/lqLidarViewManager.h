@@ -1,7 +1,7 @@
 /*=========================================================================
 
    Program: LidarView
-   Module:  lqPythonQtLidarView.h
+   Module:  lqLidarViewManager.h
 
    Copyright (c) Kitware Inc.
    All rights reserved.
@@ -29,46 +29,34 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#ifndef lqPythonQtLidarView_h
-#define lqPythonQtLidarView_h
+#ifndef LQLIDARVIEWMANAGER_H
+#define LQLIDARVIEWMANAGER_H
 
-#include <PythonQt.h>
-#include <QObject>
+#include <lqLidarCoreManager.h>
 
-#include "Widgets/vvCropReturnsDialog.h"
-#include "Widgets/vvSelectFramesDialog.h"
-#include "lqLidarViewManager.h"
+#include "lvApplicationComponentsModule.h"
 
-// WIP Could thinks about subclassing and rework how manager add it
-class lqPythonQtLidarView : public QObject
+class LVAPPLICATIONCOMPONENTS_EXPORT lqLidarViewManager : public lqLidarCoreManager
 {
+
   Q_OBJECT
+  typedef lqLidarCoreManager Superclass;
 
 public:
-  lqPythonQtLidarView(QObject* parent = 0)
-    : QObject(parent)
-  {
-    this->registerClassForPythonQt(&lqLidarViewManager::staticMetaObject);
+  lqLidarViewManager(QObject* parent = nullptr);
+  ~lqLidarViewManager() override;
 
-    this->registerClassForPythonQt(&vvCropReturnsDialog::staticMetaObject);
-    this->registerClassForPythonQt(&vvSelectFramesDialog::staticMetaObject);
+  /**
+   * Returns the pqPVApplicationCore instance. If no pqPVApplicationCore has been
+   * created then return nullptr.
+   */
+  static lqLidarViewManager* instance()
+  {
+    return qobject_cast<lqLidarViewManager*>(Superclass::instance());
   }
 
-  inline void registerClassForPythonQt(const QMetaObject* metaobject)
-  {
-    PythonQt::self()->registerClass(metaobject, "paraview");
-  }
-
-public Q_SLOTS:
-  vvCropReturnsDialog* new_vvCropReturnsDialog(QWidget* arg0)
-  {
-    return new vvCropReturnsDialog(arg0);
-  }
-
-  vvSelectFramesDialog* new_vvSelectFramesDialog(QWidget* arg0)
-  {
-    return new vvSelectFramesDialog(arg0);
-  }
+  // LidarView specific
+  void pythonStartup() override;
 };
 
-#endif // lqPythonQtLidarView_h
+#endif // LQLIDARVIEWMANAGER_H

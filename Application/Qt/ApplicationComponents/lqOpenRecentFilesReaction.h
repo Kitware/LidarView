@@ -1,7 +1,7 @@
 #ifndef lqOpenRecentFilesReaction_h
 #define lqOpenRecentFilesReaction_h
 
-#include "applicationui_export.h"
+#include "lvApplicationComponentsModule.h"
 
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSmartPointer.h>
@@ -17,7 +17,7 @@ class QMenu;
  * @brief manages recent files menu used in LidarView
  */
 
-class APPLICATIONUI_EXPORT lqOpenRecentFilesReaction : public QObject
+class LVAPPLICATIONCOMPONENTS_EXPORT lqOpenRecentFilesReaction : public QObject
 {
   Q_OBJECT
   typedef QObject Superclass;
@@ -25,7 +25,7 @@ class APPLICATIONUI_EXPORT lqOpenRecentFilesReaction : public QObject
 public:
   lqOpenRecentFilesReaction(QMenu* recentFilesMenu, QAction* clearRecentFiles, QObject* parent = 0);
 
-protected slots:
+protected Q_SLOTS:
   void onSourceAdded(pqPipelineSource* src);
   void onOpenRecentFile(QString filename);
   void onClearMenu();
