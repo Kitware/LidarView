@@ -16,6 +16,10 @@ set(sources
   LidarViewMainWindow.ui
 )
 
+set(resource_files
+  Resources/lvResources.qrc
+)
+
 set(plugins_targets
   ParaView::paraview_plugins
   LidarView::lidarview_plugins
@@ -42,10 +46,10 @@ paraview_client_add(
 
   MAIN_WINDOW_CLASS LidarViewMainWindow
   MAIN_WINDOW_INCLUDE LidarViewMainWindow.h
-  SOURCES ${sources}
+  SOURCES ${sources} ${resource_files}
   APPLICATION_XMLS
-    ${CMAKE_CURRENT_SOURCE_DIR}/LidarViewSources.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/LidarViewFilters.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/lvSources.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/lvFilters.xml
 
   RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -60,7 +64,7 @@ target_include_directories(${SOFTWARE_NAME}
 target_link_libraries(${SOFTWARE_NAME}
   PRIVATE
     LidarView::lqApplicationComponents # Common LVCore code base
-    ApplicationUi
+    LidarViewApp::lvApplicationComponents # Specific LidarView code base
 )
 
 # Bundle Icon on Apple

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>lvAboutDialog</class>
- <widget class="QDialog" name="lvAboutDialog">
+ <class>lqAboutDialog</class>
+ <widget class="QDialog" name="lqAboutDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -51,7 +51,7 @@
       <string notr="true"/>
      </property>
      <property name="pixmap">
-      <pixmap resource="lvResources.qrc">:/lvResources/Client/Resources/Images/About.png</pixmap>
+      <pixmap resource="lvResources.qrc">:/lvResources/Images/About.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>true</bool>
