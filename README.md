@@ -1,4 +1,4 @@
-![LidarView](Application/SoftwareInformation/About.png)
+![LidarView](Application/Client/Resources/Images/About.png)
 
 # Introduction
 
@@ -25,7 +25,7 @@ and screenshots of the currently displayed point cloud can be easily exported wi
 
 As a [Paraview](https://www.paraview.org/) based application, LidarView can effortlessly offer Paraview's features and plugins.
 
-![LidarView](Application/SoftwareInformation/LidarViewExample.png)
+![LidarView](Application/Client/Resources/Images/LidarViewExample.png)
     Lidar data processed by [Kitware's SLAM](#slam) within LidarView
 
 
@@ -46,7 +46,7 @@ Many other features can be added using Plugins, some can be found on [this page]
 
 Feel free to reach out at kitware@kitware.com for support or new features development.
 
-![LidarView](Application/SoftwareInformation/LidarViewLayout.svg)
+![LidarView](Application/Client/Resources/Images/LidarViewLayout.svg)
 
 # How to get
 
