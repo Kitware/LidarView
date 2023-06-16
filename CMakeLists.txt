@@ -27,9 +27,8 @@ set(lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
 add_subdirectory(LVCore)
 
+# Build lidarview application & QT module specific
 add_subdirectory(Application)
-
-add_subdirectory(Wrapping/Python)
 
 if (BUILD_DOCUMENTATION)
   add_subdirectory(Documentation)

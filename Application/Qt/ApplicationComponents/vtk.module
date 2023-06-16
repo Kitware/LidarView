@@ -1,0 +1,28 @@
+NAME
+LidarViewApp::lvApplicationComponents
+LIBRARY_NAME
+  lvApplicationComponents
+DEPENDS
+  ParaView::pqApplicationComponents
+  ParaView::pqCore
+  ParaView::pqWidgets
+  ParaView::pqComponents
+  ParaView::pqPython
+  ParaView::pvpythonmodules
+  ParaView::PythonInitializer
+  ParaView::RemotingAnimation
+  ParaView::RemotingApplication
+  ParaView::RemotingClientServerStream
+  ParaView::RemotingCore
+  ParaView::RemotingLive
+  ParaView::RemotingMisc
+  ParaView::RemotingServerManager
+  ParaView::RemotingServerManagerPython
+  ParaView::RemotingSettings
+  ParaView::RemotingViews
+  ParaView::RemotingViewsPython
+  LidarView::lqApplicationComponents
+  LidarView::lqCore
+  LidarViewApp::lvComponents
+  PythonQt::PythonQt
+EXCLUDE_WRAP

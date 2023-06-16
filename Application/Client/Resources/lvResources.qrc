@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/lvResources">
+        <file>Icons/absolute.png</file>
+        <file>Icons/calibrate.png</file>
+        <file>Icons/camera_logo.png</file>
+        <file>Icons/crop.png</file>
+        <file>Icons/csv.png</file>
+        <file>Icons/errorConsole.png</file>
+        <file>Icons/gps.png</file>
+        <file>Icons/icon_motion.png</file>
+        <file>Icons/kiwi_200.png</file>
+        <file>Icons/las.png</file>
+        <file>Icons/lidar.png</file>
+        <file>Icons/location.png</file>
+        <file>Icons/logo.png</file>
+        <file>Icons/map.png</file>
+        <file>Icons/Measurements.png</file>
+        <file>Icons/media-eject.png</file>
+        <file>Icons/open.png</file>
+        <file>Icons/planefit.png</file>
+        <file>Icons/pqFrustumSelectionPoint24.png</file>
+        <file>Icons/pqResetCamera32.png</file>
+        <file>Icons/pqSpreadsheet16.png</file>
+        <file>Icons/pqSurfaceSelectionPoint24.png</file>
+        <file>Icons/preferences-system-64.png</file>
+        <file>Icons/python_logo_124.png</file>
+        <file>Icons/trailingframes.png</file>
+        <file>Icons/ViewPerspective.png</file>
+        <file>Icons/WiresharkDoc-128.png</file>
+        <file>Images/About.png</file>
+        <file>Images/bottom_logo.png</file>
+        <file>lqAboutDialog.ui</file>
+        <file>lqGridAdjustmentDialog.ui</file>
+    </qresource>
+</RCC>

@@ -1,79 +1,51 @@
-# Sanitize checks
-if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
-  message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
-endif()
-if(NOT LV_VERSION_FULL)
-  message(FATAL_ERROR "LV_VERSION_ variables not set")
-endif()
-
-add_subdirectory(Ui/)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-set(source_files
-  vvMainWindow.h
-  vvMainWindow.ui
-  vvResources.qrc
-  vvMainWindow.cxx
-  vvMainWindow.h
+#--------------------------------------
+# Scan and find LidarViewApp vtk modules
+#--------------------------------------
+set(lidarview_source_directories
+  "${CMAKE_CURRENT_SOURCE_DIR}/Qt"
 )
 
-# Please make sure to adapt the AboutDialog text in the followin file
-#  Lidar\python\lidarview\aboutDialog.py
-# You also need to change:
-#   - bottom_logo.png (bottom logo)
+vtk_module_find_modules(lidarview_module_files ${lidarview_source_directories})
+vtk_module_scan(
+  MODULE_FILES          ${lidarview_module_files}
+  PROVIDES_MODULES      lidarview_modules
+  REQUIRES_MODULES      lidarview_required_modules
+  UNRECOGNIZED_MODULES  lidarview_unrecognized_modules
+  WANT_BY_DEFAULT       ON)
 
-set(plugins_targets
-  ParaView::paraview_plugins
-  LidarView::lidarview_plugins
-)
+set(lidarview_unrecognized_lidarview_modules)
+foreach (lidarview_module IN LISTS lidarview_unrecognized_modules)
+  if (lidarview_module MATCHES "LidarViewApp::")
+    list(APPEND lidarview_unrecognized_lidarview_modules
+      "${lidarview_module}")
+  endif ()
+endforeach ()
 
-if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
-  list(APPEND plugins_targets LidarSlam::paraview_wrapping)
+if (lidarview_unrecognized_lidarview_modules)
+  message(FATAL_ERROR
+    "The following modules were requested or required, but not found: "
+    "${lidarview_unrecognized_lidarview_modules}.")
 endif ()
 
-paraview_client_add(
-  NAME              LidarView
-  NAMESPACE         "LidarView"
-  EXPORT            "LidarViewClient"
-  VERSION           ${LV_VERSION_FULL}
-  APPLICATION_NAME  "LidarView"
-  ORGANIZATION      "${SOFTWARE_VENDOR}"
-  TITLE             "${SOFTWARE_NAME} ${LV_VERSION_FULL} ${LV_BUILD_PLATFORM}"
-  SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/Splash.jpg"
-  BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/logo.icns"
-  APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/SoftwareInformation/logo.ico"
+#--------------------------------------
+# Build LidarViewApp vtk modules
+#--------------------------------------
+vtk_module_build(
+  MODULES                   ${lidarview_modules}
+  PACKAGE                   LidarViewApp
+  INSTALL_EXPORT            LidarViewApp
+  INSTALL_HEADERS           "${LIDARVIEW_INSTALL_DEVELOPMENT_FILES}"
+  HEADERS_DESTINATION       "${CMAKE_INSTALL_INCLUDEDIR}/lidarview"
+  CMAKE_DESTINATION         "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview"
+  VERSION                   "${LV_VERSION}"
+  ENABLE_WRAPPING           OFF)
 
-  PLUGINS_TARGETS   ${plugins_targets}
-  REQUIRED_PLUGINS  PythonQtPlugin LidarCorePlugin
+#--------------------------------------
+# Build LidarView binary
+#--------------------------------------
+add_subdirectory(Client)
 
-  MAIN_WINDOW_CLASS vvMainWindow
-  MAIN_WINDOW_INCLUDE vvMainWindow.h
-  SOURCES ${source_files}
-  APPLICATION_XMLS
-    ${CMAKE_CURRENT_SOURCE_DIR}/lqSources.xml
-    ${CMAKE_CURRENT_SOURCE_DIR}/lqFilters.xml
-
-  RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-
-target_include_directories(${SOFTWARE_NAME}
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(${SOFTWARE_NAME}
-  PRIVATE
-    LidarView::lqApplicationComponents # Common LVCore code base
-    ApplicationUi
-)
-
-# Bundle Icon on Apple
-if(APPLE)
-  get_target_property(MACOSX_BUNDLE_ICON_FILE ${SOFTWARE_NAME} MACOSX_BUNDLE_ICON_FILE)
-  install(FILES ${MACOSX_BUNDLE_ICON_FILE} DESTINATION "${LV_INSTALL_RESOURCE_DIR}") # to install tree
-endif()
+#--------------------------------------
+# Export python wrapping
+#--------------------------------------
+add_subdirectory(Wrapping/Python)
