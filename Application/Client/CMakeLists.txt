@@ -2,8 +2,8 @@
 if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
   message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
 endif()
-if(NOT LV_VERSION_FULL)
-  message(FATAL_ERROR "LV_VERSION_ variables not set")
+if(NOT LIDARVIEW_VERSION_FULL)
+  message(FATAL_ERROR "LIDARVIEW_VERSION_ variables not set")
 endif()
 
 set(CMAKE_AUTOMOC ON)
@@ -33,10 +33,10 @@ paraview_client_add(
   NAME              LidarView
   NAMESPACE         "LidarView"
   EXPORT            "LidarViewClient"
-  VERSION           ${LV_VERSION_FULL}
+  VERSION           ${LIDARVIEW_VERSION_FULL}
   APPLICATION_NAME  "LidarView"
   ORGANIZATION      "${SOFTWARE_VENDOR}"
-  TITLE             "${SOFTWARE_NAME} ${LV_VERSION_FULL} ${LV_BUILD_PLATFORM}"
+  TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
   SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.jpg"
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.icns"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.ico"

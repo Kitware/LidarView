@@ -37,7 +37,7 @@ vtk_module_build(
   INSTALL_HEADERS           "${LIDARVIEW_INSTALL_DEVELOPMENT_FILES}"
   HEADERS_DESTINATION       "${CMAKE_INSTALL_INCLUDEDIR}/lidarview"
   CMAKE_DESTINATION         "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview"
-  VERSION                   "${LV_VERSION}"
+  VERSION                   "${LIDARVIEW_VERSION}"
   ENABLE_WRAPPING           OFF)
 
 #--------------------------------------

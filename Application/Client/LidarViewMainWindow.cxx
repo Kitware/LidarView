@@ -26,6 +26,7 @@
 #include "lqSaveLidarFrameReaction.h"
 #include "lqSaveLidarStateReaction.h"
 #include "lqUpdateCalibrationReaction.h"
+#include "vtkLVVersion.h"
 #include <lqCameraParallelProjectionReaction.h>
 #include <lqLidarViewManager.h>
 #include <lqSensorListWidget.h>
@@ -464,12 +465,6 @@ void LidarViewMainWindow::setupGUICustom()
 //-----------------------------------------------------------------------------
 void LidarViewMainWindow::setBranding()
 {
-// For good measure
-#ifndef SOFTWARE_NAME
-#error "SOFTWARE_NAME not defined"
-#endif
-  static_assert(SOFTWARE_NAME, "SOFTWARE_NAME is not defined");
-
   std::stringstream ss;
   ss << "Reset " << SOFTWARE_NAME << " settings";
   QString text = QString(ss.str().c_str());

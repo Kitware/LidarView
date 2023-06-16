@@ -23,6 +23,7 @@ DEPENDS
   ParaView::RemotingViewsPython
   LidarView::lqApplicationComponents
   LidarView::lqCore
+  LidarView::Versioning
   LidarViewApp::lvComponents
   PythonQt::PythonQt
 EXCLUDE_WRAP
