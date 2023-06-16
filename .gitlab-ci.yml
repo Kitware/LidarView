@@ -52,6 +52,15 @@ ubuntu22-debug:test:
     needs:
         - ubuntu22-debug:build
 
+ubuntu22-debug-tidy:build:
+    extends:
+        - .ubuntu22_debug_tidy
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    needs: []
+
 clang-format-check:analyse:
     extends:
         - .ubuntu22

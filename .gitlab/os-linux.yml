@@ -16,6 +16,12 @@
     variables:
         CMAKE_CONFIGURATION: ubuntu22_debug
 
+.ubuntu22_debug_tidy:
+    extends: .ubuntu22_debug
+
+    variables:
+        CMAKE_CONFIGURATION: ubuntu22_debug_tidy
+
 ## Tags
 
 .linux_builder_tags:
