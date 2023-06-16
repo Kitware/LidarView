@@ -23,7 +23,6 @@ from PythonQt import QtCore, QtGui
 
 import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 import lidarview.gridAdjustmentDialog
-import lidarview.aboutDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
@@ -997,7 +996,6 @@ def setupActions():
     app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
-    app.actions['actionAbout_LidarView'].connect('triggered()', lambda : lidarview.aboutDialog.showDialog(getMainWindow()) )
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
     app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
 

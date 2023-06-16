@@ -15,6 +15,7 @@
 #include "LidarViewMainWindow.h"
 #include "ui_LidarViewMainWindow.h"
 
+#include "lqAboutDialogReaction.h"
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
@@ -358,6 +359,9 @@ void LidarViewMainWindow::setupGUICustom()
     SIGNAL(triggered()),
     lqLidarViewManager::instance(),
     SLOT(onResetDefaultSettings()));
+
+  // About dialog
+  new lqAboutDialogReaction(this->Internals->actionAbout_LidarView);
 
   // Add Professional Support menu action
   new pqDesktopServicesReaction(
