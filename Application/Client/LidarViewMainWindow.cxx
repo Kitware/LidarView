@@ -50,6 +50,7 @@
 #include <pqPythonManager.h>
 #include <pqRenderView.h>
 #include <pqRenderViewSelectionReaction.h>
+#include <pqSaveScreenshotReaction.h>
 #include <pqServer.h>
 #include <pqSetName.h>
 #include <pqSettings.h>
@@ -380,6 +381,8 @@ void LidarViewMainWindow::setupGUICustom()
 
   // Break ToolBar Lines
   this->addToolBarBreak();
+
+  new pqSaveScreenshotReaction(this->Internals->actionSaveScreenshot);
 
   // LidarView-Base Toolbars
   QToolBar* vcrToolbar = new lqPlayerControlsToolbar(this) << pqSetName("Player Control");

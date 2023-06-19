@@ -579,20 +579,6 @@ def getFrameFromAnimationTime(time):
         index = index - 1 if (abs(previousTime - time) < abs(nextTime - time)) else index
     return index
 
-def onSaveScreenshot():
-    nameCurrentFrame= "Frame"
-    numCurrentFrame = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
-    # If we did not find a frame number, we use the animation time
-    if numCurrentFrame == -1:
-        numCurrentFrame = getAnimationScene().AnimationTime
-        nameCurrentFrame = "Time"
-
-    fileName = getSaveFileName('Save Screenshot', 'png', getDefaultSaveFileName('png', frameId=numCurrentFrame, baseName=nameCurrentFrame))
-    if fileName:
-        if fileName[-4:] != ".png":
-            fileName += ".png"
-        saveScreenshot(fileName)
-
 def exportToDirectory(outDir, timesteps):
 
     filenames = []
@@ -738,25 +724,6 @@ def onCropReturns(show = True):
         lidarInterpreter.CropRegion = [p1.x(), p2.x(), p1.y(), p2.y(), p1.z(), p2.z()]
         if show:
             smp.Render()
-
-def saveScreenshot(filename):
-    smp.WriteImage(filename)
-
-    # reload the saved screenshot as a pixmap
-    screenshot = QtGui.QPixmap()
-    screenshot.load(filename)
-
-    # create a new pixmap with the status bar widget painted at the bottom
-    statusBar = QtGui.QWidget.grab(getMainWindow().statusBar())
-    composite = QtGui.QPixmap(screenshot.width(), screenshot.height() + statusBar.height())
-    painter = QtGui.QPainter()
-    painter.begin(composite)
-    painter.drawPixmap(screenshot.rect(), screenshot, screenshot.rect())
-    painter.drawPixmap(statusBar.rect().translated(0, screenshot.height()), statusBar, statusBar.rect())
-    painter.end()
-
-    # save final screenshot
-    composite.save(filename)
 
 
 def getSpreadSheetViewProxy(): #WIP this is probably unreliable
@@ -993,7 +960,6 @@ def setupActions():
     app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
-    app.actions['actionSaveScreenshot'].connect('triggered()', onSaveScreenshot)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
