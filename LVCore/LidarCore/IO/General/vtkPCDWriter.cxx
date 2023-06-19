@@ -38,7 +38,7 @@ void vtkPCDWriter::WriteData()
 {
   auto* polyData = vtkPolyData::SafeDownCast(this->Superclass::GetInput());
 
-  if (!polyData && polyData->GetNumberOfPoints() == 0)
+  if (!polyData || (polyData && polyData->GetNumberOfPoints() == 0))
   {
     vtkErrorMacro("No points to save");
     return;
