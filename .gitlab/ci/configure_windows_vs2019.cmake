@@ -11,3 +11,6 @@ message(STATUS "CMAKE_PREFIX_PATH setted to ${lvsb_dir}")
 set(CMAKE_PREFIX_PATH "${lvsb_dir}" CACHE PATH "")
 
 set(Boost_USE_STATIC_LIBS OFF CACHE STRING "")
+
+# Treats warnings as errors
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /W4")

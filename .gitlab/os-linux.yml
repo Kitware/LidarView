@@ -10,11 +10,17 @@
     extends: .linux
     image: "kitware/paraview-ci-plugin:lidarview-ci-ubuntu22-20230607"
 
-.ubuntu22_shared_debug:
+.ubuntu22_debug:
     extends: .ubuntu22
 
     variables:
-        CMAKE_CONFIGURATION: ubuntu22_shared_debug
+        CMAKE_CONFIGURATION: ubuntu22_debug
+
+.ubuntu22_debug_tidy:
+    extends: .ubuntu22_debug
+
+    variables:
+        CMAKE_CONFIGURATION: ubuntu22_debug_tidy
 
 ## Tags
 
