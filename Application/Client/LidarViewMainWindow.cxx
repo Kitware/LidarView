@@ -15,6 +15,7 @@
 #include "LidarViewMainWindow.h"
 #include "ui_LidarViewMainWindow.h"
 
+#include "lqAboutDialogReaction.h"
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
@@ -26,6 +27,7 @@
 #include "lqSaveLidarFrameReaction.h"
 #include "lqSaveLidarStateReaction.h"
 #include "lqUpdateCalibrationReaction.h"
+#include "vtkLVVersion.h"
 #include <lqCameraParallelProjectionReaction.h>
 #include <lqLidarViewManager.h>
 #include <lqSensorListWidget.h>
@@ -358,6 +360,9 @@ void LidarViewMainWindow::setupGUICustom()
     lqLidarViewManager::instance(),
     SLOT(onResetDefaultSettings()));
 
+  // About dialog
+  new lqAboutDialogReaction(this->Internals->actionAbout_LidarView);
+
   // Add Professional Support menu action
   new pqDesktopServicesReaction(
     QUrl("https://www.kitware.com/what-we-offer"), (this->Internals->actionHelpSupport));
@@ -464,12 +469,6 @@ void LidarViewMainWindow::setupGUICustom()
 //-----------------------------------------------------------------------------
 void LidarViewMainWindow::setBranding()
 {
-// For good measure
-#ifndef SOFTWARE_NAME
-#error "SOFTWARE_NAME not defined"
-#endif
-  static_assert(SOFTWARE_NAME, "SOFTWARE_NAME is not defined");
-
   std::stringstream ss;
   ss << "Reset " << SOFTWARE_NAME << " settings";
   QString text = QString(ss.str().c_str());

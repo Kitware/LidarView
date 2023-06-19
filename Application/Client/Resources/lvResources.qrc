@@ -29,7 +29,6 @@
         <file>Icons/WiresharkDoc-128.png</file>
         <file>Images/About.png</file>
         <file>Images/bottom_logo.png</file>
-        <file>lqAboutDialog.ui</file>
         <file>lqGridAdjustmentDialog.ui</file>
     </qresource>
 </RCC>

@@ -1,4 +1,5 @@
 set(classes
+  lqAboutDialog
   lqCalibrationDialog
   lqCropReturnsDialog
   lqSelectFramesDialog
@@ -9,12 +10,18 @@ set(headers
 )
 
 set(ui_files
+  Resources/UI/lqAboutDialog.ui
   Resources/UI/lqCalibrationDialog.ui
   Resources/UI/lqCropReturnsDialog.ui
   Resources/UI/lqSelectFramesDialog.ui)
 
+set(resource_files
+  Resources/lvComponents.qrc
+)
+
 source_group("Resources" FILES
-  ${ui_files})
+  ${ui_files}
+  ${resource_files})
 
 set(CMAKE_AUTOMOC 1)
 set(CMAKE_AUTORCC 1)

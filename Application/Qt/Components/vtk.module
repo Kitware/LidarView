@@ -6,6 +6,7 @@ DEPENDS
   ParaView::pqCore
 PRIVATE_DEPENDS
   LidarView::lqCore
+  LidarView::Versioning
   ParaView::pqComponents
   VTK::CommonCore
 EXCLUDE_WRAP
