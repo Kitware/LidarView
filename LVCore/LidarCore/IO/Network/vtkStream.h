@@ -69,8 +69,9 @@ public:
   void SetIsCrashAnalysing(bool value);
 
   vtkGetObjectMacro(Interpreter, vtkInterpreter);
-  [[deprecated("Please use specific setter : setLidarInterpreter() or "
-               "SetPosOrInterpreter()")]] vtkSetObjectMacro(Interpreter, vtkInterpreter);
+  // [[deprecated("Please use specific setter : setLidarInterpreter() or "
+  //              "SetPosOrInterpreter()")]]
+  vtkSetObjectMacro(Interpreter, vtkInterpreter);
 
   /**
    * @brief GetNeedsUpdate
