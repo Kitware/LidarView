@@ -182,7 +182,7 @@ bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const do
         {
           // Security check to avoid division by 0 in case of sampling mode change during the
           // process
-          if (this->NumberOfPointsPerVoxel.size() <= pointId)
+          if (pointId < 0 || this->NumberOfPointsPerVoxel.size() <= static_cast<size_t>(pointId))
           {
             vtkErrorMacro("vtkVoxelGridProcessor::Add : CENTROID sampling mode requires to clear "
                           "the voxel grid before adding points");

@@ -48,7 +48,7 @@ public:
     int sup = std::distance(this->t.begin(), lb);
     int inf = sup - 1;
     assert(inf >= 0);
-    assert(sup <= this->t.size() - 1);
+    assert(sup < 0 || static_cast<size_t>(sup) <= this->t.size() - 1);
     T alpha = (this->t[sup] - time) / (this->t[sup] - this->t[inf]);
     return alpha * this->x[inf] + (1.0 - alpha) * this->x[sup];
   }
