@@ -1,20 +1,24 @@
 <?xml version="1.0" ?>
 <pqevents>
-  <pqevent object="vvMainWindow/actionOpenPcap" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
-  <pqevent object="vvMainWindow/vvCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/menubar" command="activate" arguments="menuFilters" />
-  <pqevent object="vvMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
-  <pqevent object="vvMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="VoxelGridFilter" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Last" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Max Intensity" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Center Point" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Centroid" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/LeafSize/DoubleLineEdit0" command="set_string" arguments="0.1" />
-  <pqevent object="vvMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <!-- Load PCAP -->
+  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Apply filter-->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="VoxelGridFilter" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Last" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Max Intensity" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Center Point" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/SamplingMode/ComboBox" command="activated" arguments="Centroid" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/LeafSize/DoubleLineEdit0" command="set_string" arguments="0.8" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
 </pqevents>
