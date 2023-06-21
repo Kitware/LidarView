@@ -3,7 +3,7 @@ set(lidarview_test_client "$<TARGET_FILE:${SOFTWARE_TARGET}>")
 set(tests_with_baselines
   TestAggregatePointsFromTrajectoryOffline.xml
   TestAggregatePointsFromTrajectoryOnline.xml
-  TestUIvtkExtractPointSelection.xml
+  TestExtractPointSelection.xml
   TestVoxelGridFilter.xml
 )
 
