@@ -416,6 +416,7 @@ void LidarViewMainWindow::setupGUICustom()
 
   new lqOpenSensorReaction(this->Internals->actionOpen_Sensor_Stream);
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
+  new pqLoadDataReaction(this->Internals->actionOpenFile);
 
   new lqUpdateCalibrationReaction(
     this->Internals->actionChoose_Calibration_File); // Requires lqSensorListWidget init

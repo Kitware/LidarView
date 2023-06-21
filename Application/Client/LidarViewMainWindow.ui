@@ -62,6 +62,7 @@
      </property>
      <addaction name="actionOpenPcap"/>
      <addaction name="actionOpen_Sensor_Stream"/>
+     <addaction name="actionOpenFile"/>
      <addaction name="separator"/>
      <addaction name="actionChoose_Calibration_File"/>
     </widget>
@@ -154,6 +155,7 @@
    </attribute>
    <addaction name="actionOpenPcap"/>
    <addaction name="actionOpen_Sensor_Stream"/>
+   <addaction name="actionOpenFile"/>
    <addaction name="actionSaveLidarState"/>
    <addaction name="actionLoadLidarState"/>
    <addaction name="actionChoose_Calibration_File"/>
@@ -371,7 +373,19 @@
     <string>Open Data File</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionOpenFile">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqOpen.svg</normaloff>:/pqWidgets/Icons/pqOpen.svg</iconset>
+   </property>
+   <property name="toolTip">
+    <string>Open a file</string>
+   </property>
+   <property name="statusTip">
+    <string>Open Data File</string>
    </property>
   </action>
   <action name="actionSelect_Points">
