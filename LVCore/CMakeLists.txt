@@ -21,6 +21,15 @@ if (LIDARVIEW_USE_PCL)
     PCLPlugin)
 endif ()
 
+# Ignore following default plugins in autoload default.
+set(lidarview_default_autoload_plugins ${lidarview_default_plugins})
+
+if (LIDARVIEW_BUILD_EXAMPLES)
+  list(APPEND lidarview_default_plugins
+    ProcessingSamplePlugin
+    InterpreterExamplePlugin)
+endif ()
+
 list(APPEND lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/")
 
@@ -29,11 +38,14 @@ if (LIDARVIEW_BUILD_EXAMPLES)
     "${CMAKE_CURRENT_SOURCE_DIR}/Examples/Plugins/")
 endif ()
 
+foreach (lidarview_default_plugin IN LISTS lidarview_default_plugins)
+  set("_paraview_plugin_default_${lidarview_default_plugin}" "ON")
+endforeach ()
+
 paraview_plugin_find_plugins(lidarview_plugin_files ${lidarview_plugin_directories})
 paraview_plugin_scan(
   PLUGIN_FILES
     ${lidarview_plugin_files}
-  ENABLE_BY_DEFAULT ON
   PROVIDES_PLUGINS  lidarview_plugins
   REQUIRES_MODULES  lidarview_plugin_required_modules)
 
@@ -103,7 +115,7 @@ endforeach ()
 set(autoload_plugins)
 foreach (lidarview_plugin IN LISTS lidarview_plugins)
   set(_autoload_plugin OFF)
-  if (lidarview_plugin IN_LIST lidarview_default_plugins)
+  if (lidarview_plugin IN_LIST lidarview_default_autoload_plugins)
     set(_autoload_plugin ON)
   endif ()
 
