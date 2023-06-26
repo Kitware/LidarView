@@ -39,6 +39,8 @@ option(LIDARVIEW_USE_NANOFLANN "Nanoflann will be required for filters using som
 lidarview_deprecated_setting(opencv_default LIDARVIEW_USE_OPENCV ENABLE_opencv OFF)
 option(LIDARVIEW_USE_OPENCV "OpenCV is required for handling lidar-camera multisensor systems" "${opencv_default}")
 
+option(LIDARVIEW_USE_PDAL "PDAL is required for writing .las files" OFF)
+
 # The following libaries required for most LidarView functionnalities
 option(LIDARVIEW_USE_PYTHONQT "PythonQt is required for QT python binding" ON)
 mark_as_advanced(LIDARVIEW_USE_PYTHONQT)

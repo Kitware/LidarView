@@ -22,4 +22,5 @@ OPTIONAL_DEPENDS
   LidarView::IOGeolocation
   LidarView::IOLidar
   LidarView::IONetwork
+  LidarView::IOPDAL
   LidarView::Sources

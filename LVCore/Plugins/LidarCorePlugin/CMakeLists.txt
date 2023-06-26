@@ -149,6 +149,12 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::IOPDAL
+  XML_MODULE_FILES
+    IO/LASWriter.xml
+)
+
+lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::Sources
   XML_MODULE_FILES
     Sources/GridSource.xml
