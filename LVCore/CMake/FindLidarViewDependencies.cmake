@@ -82,28 +82,6 @@ if (LIDARVIEW_USE_PCAP)
 endif ()
 
 #--------------------------------------
-# Liblas dependency - required
-#--------------------------------------
-if (LIDARVIEW_USE_LIBLAS)
-  set(las_name las)
-  if (WIN32)
-    set(las_name liblas)
-  endif ()
-
-  find_library(LIBLAS_LIBRARY ${las_name} DOC "las library")
-  find_path(LIBLAS_INCLUDE_DIR liblas/version.hpp DOC "las include directory")
-  if (LIBLAS_LIBRARY AND LIBLAS_INCLUDE_DIR)
-    add_library(LIBLAS::las UNKNOWN IMPORTED)
-    set_target_properties(LIBLAS::las
-      PROPERTIES
-        IMPORTED_LOCATION "${LIBLAS_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${LIBLAS_INCLUDE_DIR}")
-  endif ()
-  check_depedency_target(liblas LIBLAS::las)
-  message(STATUS "Found LibLAS")
-endif ()
-
-#--------------------------------------
 # Eigen dependency - required
 #--------------------------------------
 find_package(Eigen3 REQUIRED)

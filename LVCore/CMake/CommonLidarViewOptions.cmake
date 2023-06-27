@@ -46,8 +46,8 @@ option(LIDARVIEW_USE_PYTHONQT "PythonQt is required for QT python binding" ON)
 mark_as_advanced(LIDARVIEW_USE_PYTHONQT)
 option(LIDARVIEW_USE_PCAP "PCAP is required for reading .pcap (from lidar)" ON)
 mark_as_advanced(LIDARVIEW_USE_PCAP)
-option(LIDARVIEW_USE_LIBLAS "Liblas is required for writing .las" ON)
-mark_as_advanced(LIDARVIEW_USE_LIBLAS)
+
+lidarview_obsolete_setting(LIDARVIEW_USE_LIBLAS)
 
 #========================================================================
 # LidarCorePlugin option required for LidarView filters
