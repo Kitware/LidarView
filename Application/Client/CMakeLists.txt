@@ -67,6 +67,10 @@ target_link_libraries(${SOFTWARE_NAME}
     LidarViewApp::lvApplicationComponents # Specific LidarView code base
 )
 
+target_compile_definitions(${SOFTWARE_NAME}
+  PRIVATE
+    "LIDARVIEW_USE_PDAL=$<BOOL:${LIDARVIEW_USE_PDAL}>")
+
 # Bundle Icon on Apple
 if(APPLE)
   get_target_property(MACOSX_BUNDLE_ICON_FILE ${SOFTWARE_NAME} MACOSX_BUNDLE_ICON_FILE)

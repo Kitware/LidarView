@@ -23,7 +23,6 @@
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
 #include "lqOpenSensorReaction.h"
-#include "lqSaveLASReaction.h"
 #include "lqSaveLidarFrameReaction.h"
 #include "lqSaveLidarStateReaction.h"
 #include "lqUpdateCalibrationReaction.h"
@@ -438,7 +437,14 @@ void LidarViewMainWindow::setupGUICustom()
     this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
   new lqSaveLidarFrameReaction(
     this->Internals->actionSavePLY, "PPLYWriter", "ply", false, false, true, true);
-  new lqSaveLASReaction(this->Internals->actionSaveLAS, false, false, true, true);
+
+// Check if PDAL should be used with lidarview.
+#if LIDARVIEW_USE_PDAL
+  new lqSaveLidarFrameReaction(
+    this->Internals->actionSaveLAS, "PLASWriter", "las", false, false, true, true);
+#else
+  this->Internals->actionSaveLAS->setEnabled(false);
+#endif
 
   // Add save/load lidar state action
   new lqEnableAdvancedArraysReaction(this->Internals->actionEnableAdvancedArrays);
