@@ -104,7 +104,6 @@ void vtkLASWriter::WriteData()
 
   int arrayNb = ptsData->GetNumberOfArrays();
   std::vector<pdal::Dimension::Id> pdalMapId(arrayNb, pdal::Dimension::Id::Unknown);
-  std::vector<pdal::Dimension::Type> pdalMapType(arrayNb, pdal::Dimension::Type::None);
 
   int dataformat_id = 0;
   pdal::PointTable table;
@@ -113,27 +112,35 @@ void vtkLASWriter::WriteData()
   table.layout()->registerDim(pdal::Dimension::Id::Z);
   for (int i = 0; i < arrayNb; ++i)
   {
-    pdalMapType[i] = ::vtkTypeToPDAL(ptsData->GetAbstractArray(i)->GetDataType());
+    std::string arrayName = ptsData->GetAbstractArray(i)->GetName();
+    if (arrayName == "Color" && ptsData->GetAbstractArray(i)->GetNumberOfComponents() == 3)
+    {
+      table.layout()->registerDim(pdal::Dimension::Id::Red);
+      table.layout()->registerDim(pdal::Dimension::Id::Green);
+      table.layout()->registerDim(pdal::Dimension::Id::Blue);
+      dataformat_id += 2;
+    }
+
+    pdal::Dimension::Type pdalType = ::vtkTypeToPDAL(ptsData->GetAbstractArray(i)->GetDataType());
     if (ptsData->GetAbstractArray(i)->GetNumberOfComponents() != 1 ||
-      pdalMapType[i] == pdal::Dimension::Type::None)
+      pdalType == pdal::Dimension::Type::None)
     {
       continue;
     }
 
-    std::string arrayName = ptsData->GetAbstractArray(i)->GetName();
     if ((pdalMapId[i] = ::vtkArrayToPDAL(arrayName)) != pdal::Dimension::Id::Unknown)
     {
       table.layout()->registerDim(pdalMapId[i]);
       if (pdalMapId[i] == pdal::Dimension::Id::GpsTime)
       {
-        dataformat_id = 1;
+        dataformat_id += 1;
       }
     }
     else
     {
-      if (pdalMapType[i] != pdal::Dimension::Type::None)
+      if (pdalType != pdal::Dimension::Type::None)
       {
-        pdalMapId[i] = table.layout()->registerOrAssignDim(arrayName, pdalMapType[i]);
+        pdalMapId[i] = table.layout()->registerOrAssignDim(arrayName, pdalType);
       }
     }
   }
@@ -184,45 +191,16 @@ void vtkLASWriter::WriteData()
     view->setField(pdal::Dimension::Id::Z, i, arr->GetComponent(i, 2));
     for (int j = 0; j < arrayNb; ++j)
     {
-      if (pdalMapId[j] == pdal::Dimension::Id::Unknown)
+      vtkDataArray* array = vtkDataArray::SafeDownCast(ptsData->GetAbstractArray(j));
+      if (strcmp(array->GetName(), "Color") == 0 && array->GetNumberOfComponents() == 3)
       {
-        continue;
+        view->setField(pdal::Dimension::Id::Red, i, array->GetComponent(i, 0));
+        view->setField(pdal::Dimension::Id::Green, i, array->GetComponent(i, 1));
+        view->setField(pdal::Dimension::Id::Blue, i, array->GetComponent(i, 2));
       }
-      vtkVariant value = ptsData->GetAbstractArray(j)->GetVariantValue(i);
-      switch (pdalMapType[j])
+      else if (pdalMapId[j] != pdal::Dimension::Id::Unknown)
       {
-        case pdal::Dimension::Type::Signed8:
-          view->setField(pdalMapId[j], i, value.ToChar());
-          break;
-        case pdal::Dimension::Type::Signed16:
-          view->setField(pdalMapId[j], i, value.ToShort());
-          break;
-        case pdal::Dimension::Type::Signed32:
-          view->setField(pdalMapId[j], i, value.ToInt());
-          break;
-        case pdal::Dimension::Type::Signed64:
-          view->setField(pdalMapId[j], i, value.ToLong());
-          break;
-        case pdal::Dimension::Type::Unsigned8:
-          view->setField(pdalMapId[j], i, value.ToUnsignedChar());
-          break;
-        case pdal::Dimension::Type::Unsigned16:
-          view->setField(pdalMapId[j], i, value.ToUnsignedShort());
-          break;
-        case pdal::Dimension::Type::Unsigned32:
-          view->setField(pdalMapId[j], i, value.ToUnsignedInt());
-          break;
-        case pdal::Dimension::Type::Unsigned64:
-          view->setField(pdalMapId[j], i, value.ToUnsignedLong());
-          break;
-        case pdal::Dimension::Type::Float:
-          view->setField(pdalMapId[j], i, value.ToFloat());
-          break;
-        case pdal::Dimension::Type::Double:
-          view->setField(pdalMapId[j], i, value.ToDouble());
-          break;
-        default:
-          break;
+        view->setField(pdalMapId[j], i, array->GetComponent(i, 0));
       }
     }
   }
