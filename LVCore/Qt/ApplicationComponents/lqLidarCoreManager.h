@@ -85,13 +85,6 @@ public:
     int endFrame,
     const QString& filename);
 
-  static void saveFramesToLAS(vtkLidarReader* reader,
-    vtkPolyData* position,
-    int startFrame,
-    int endFrame,
-    const QString& filename,
-    int positionMode);
-
 public Q_SLOTS:
   // Perform delayed python shell startup
   virtual void pythonStartup();

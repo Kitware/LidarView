@@ -34,7 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO This pqPythonShell Include is higher to prevent an unindentified macro conflict
 #include <pqPythonShell.h>
 
-#include "LASFileWriter.h"
 #include <lqHelper.h>
 #include <lqPythonQtDecorators.h>
 #include <lqSensorListWidget.h>
@@ -291,131 +290,6 @@ void lqLidarCoreManager::saveFramesToPCAP(vtkSMSourceProxy* proxy,
 
   reader->Open();
   reader->SaveFrame(startFrame, endFrame, filename.toUtf8().data());
-  reader->Close();
-}
-
-//-----------------------------------------------------------------------------
-void lqLidarCoreManager::saveFramesToLAS(vtkLidarReader* reader,
-  vtkPolyData* position,
-  int startFrame,
-  int endFrame,
-  const QString& filename,
-  int positionMode)
-{
-  if (!reader || (positionMode > 0 && !position))
-  {
-    return;
-  }
-
-  // initialize origin point
-  double northing, easting, height;
-  easting = northing = height = 0;
-
-  // projection transform parameters
-  int gcs, in, out, utmZone;
-  gcs = in = out = utmZone = 0;
-
-  // data accuracy
-  double neTol, hTol;
-  hTol = neTol = 1e-3;
-
-  bool isLatLon = false;
-
-  LASFileWriter writer;
-  writer.Open(qPrintable(filename));
-
-  // not sensor relative; it can be
-  // relative registered data or
-  // georeferenced data
-  if (positionMode > 0)
-  {
-
-    // Georeferenced data
-    if (positionMode > 1)
-    {
-      // Since the data are georeferenced here, we must
-      // check that a position reader is provided
-      if (position)
-      {
-        vtkDataArray* const zoneData = position->GetFieldData()->GetArray("zone");
-        vtkDataArray* const eastingData = position->GetPointData()->GetArray("easting");
-        vtkDataArray* const northingData = position->GetPointData()->GetArray("northing");
-        vtkDataArray* const heightData = position->GetPointData()->GetArray("height");
-
-        if (zoneData && zoneData->GetNumberOfTuples() && eastingData &&
-          eastingData->GetNumberOfTuples() && northingData && northingData->GetNumberOfTuples() &&
-          heightData && heightData->GetNumberOfTuples())
-        {
-          // We assume that eastingData, norhtingData and heightData are in system reference
-          // coordinates (srs) of UTM zoneData
-          utmZone = static_cast<int>(zoneData->GetComponent(0, 0));
-
-          // should in some cases use 32700? 32600 is for northern UTM zone, 32700 for southern UTM
-          // zone
-          gcs = 32600 + utmZone;
-
-          out = gcs;
-          if (positionMode == 3) // Absolute lat/lon
-          {
-            in = gcs;     // ...or 32700?
-            out = 4326;   // lat/lon (espg id code for lat-long-alt coordinates)
-            neTol = 1e-8; // about 1mm;
-            isLatLon = true;
-          }
-
-          northing = northingData->GetComponent(0, 0);
-          easting = eastingData->GetComponent(0, 0);
-          height = heightData->GetComponent(0, 0);
-        }
-      }
-    }
-  }
-
-  std::cout << "origin : [" << northing << ";" << easting << ";" << height << "]" << std::endl;
-  std::cout << "gcs : " << gcs << std::endl;
-
-  writer.SetPrecision(neTol, hTol);
-  writer.SetGeoConversionUTM(utmZone, isLatLon);
-  writer.SetOrigin(easting, northing, height);
-
-  QProgressDialog progress("Exporting LAS...",
-    "Abort Export",
-    startFrame,
-    startFrame + (endFrame - startFrame) * 2,
-    getMainWindow());
-  progress.setWindowModality(Qt::WindowModal);
-
-  reader->Open();
-  for (int frame = startFrame; frame <= endFrame; ++frame)
-  {
-    progress.setValue(frame);
-
-    if (progress.wasCanceled())
-    {
-      reader->Close();
-      return;
-    }
-
-    const vtkSmartPointer<vtkPolyData>& data = reader->GetFrame(frame);
-    writer.UpdateMetaData(data.GetPointer());
-  }
-
-  writer.FlushMetaData();
-
-  for (int frame = startFrame; frame <= endFrame; ++frame)
-  {
-    progress.setValue(endFrame + (frame - startFrame));
-
-    if (progress.wasCanceled())
-    {
-      reader->Close();
-      return;
-    }
-
-    const vtkSmartPointer<vtkPolyData>& data = reader->GetFrame(frame);
-    writer.WriteFrame(data.GetPointer());
-  }
-
   reader->Close();
 }
 

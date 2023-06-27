@@ -74,15 +74,6 @@ public Q_SLOTS:
   {
     lqLidarCoreManager::saveFramesToPCAP(arg0, arg1, arg2, arg3);
   }
-  void static_lqLidarCoreManager_saveFramesToLAS(vtkLidarReader* arg0,
-    vtkPolyData* arg1,
-    int arg2,
-    int arg3,
-    const QString& arg4,
-    int arg5)
-  {
-    lqLidarCoreManager::saveFramesToLAS(arg0, arg1, arg2, arg3, arg4, arg5);
-  }
 
   // lqSensorListWidget
   lqSensorListWidget* static_lqSensorListWidget_instance()
