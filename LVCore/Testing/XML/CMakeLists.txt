@@ -4,6 +4,7 @@ set(tests_with_baselines
   TestAggregatePointsFromTrajectoryOffline.xml
   TestAggregatePointsFromTrajectoryOnline.xml
   TestExtractPointSelection.xml
+  TestSaveLAS.xml
   TestVoxelGridFilter.xml
 )
 

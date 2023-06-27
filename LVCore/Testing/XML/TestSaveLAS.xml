@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load PCAP -->
+  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Save LAS -->
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,64,9,/0:0/2:0/0:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,64,9,/0:0/2:0/0:0" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuAdvance" />
+  <pqevent object="LidarViewMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
+  <pqevent object="LidarViewMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileSaveData" />
+  <pqevent object="LidarViewMainWindow/FileSaveDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLAS.las" />
+  <pqevent object="LidarViewMainWindow/WriterSettingsDialog/widget/OKButton" command="activate" arguments="" />
+
+  <!-- Load LAS -->
+  <pqevent object="LidarViewMainWindow/actionOpenFile" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLAS.las" />
+  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/listWidget" command="setCurrent" arguments="1.0" />
+  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/listWidget" command="setCheckState" arguments="1.0,0" />
+  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="Intensity" />
+</pqevents>
