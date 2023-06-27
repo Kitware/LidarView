@@ -87,6 +87,9 @@ public:
   vtkGetMacro(InterpolationType, int);
   vtkSetMacro(InterpolationType, int);
 
+  vtkGetMacro(DisplayOutput, bool);
+  vtkSetMacro(DisplayOutput, bool);
+
 protected:
   vtkAggregatePointsFromTrajectoryOnline();
 
@@ -205,6 +208,9 @@ protected:
   //! Specify if the trajectory time is considered as continuous with an offset between two
   //! consecutive poses
   bool ContinuousTrajectory = false;
+
+  //! Specify if the output should be displayed
+  bool DisplayOutput = true;
 
 private:
   vtkAggregatePointsFromTrajectoryOnline(const vtkAggregatePointsFromTrajectoryOnline&);

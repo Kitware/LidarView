@@ -1,7 +1,7 @@
 <ServerManagerConfiguration>
   <!-- Begin CameraProjector -->
   <ProxyGroup name="filters">
-    <SourceProxy name="CameraProjector" class="vtkCameraProjector" label="CameraProjector">
+    <SourceProxy name="CameraProjector" class="vtkCameraProjector" label="Camera Projector">
       <Documentation
         short_help="Project 3D points into the image using a camera model"
         long_help="Project 3D points into the image using a camera model">
@@ -86,6 +86,16 @@
         Timeshift to apply to lidar time to get pipeline time. Used only if a trajectory is provided and if UseTrajectoryToCorrectPoints is set to true.
       </Documentation>
     </DoubleVectorProperty>
+
+    <IntVectorProperty name="ColorizedOutputOnly"
+                       command="SetColorizedOutputOnly"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        If true, only the colorized output is produced.
+      </Documentation>
+    </IntVectorProperty>
 
 
 

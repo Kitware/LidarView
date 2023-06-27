@@ -44,6 +44,7 @@ public:
   vtkSetMacro(ProjectedPointSizeInImage, int);
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
   vtkSetMacro(PipelineTimeToLidarTime, double);
+  vtkSetMacro(ColorizedOutputOnly, double);
 
 protected:
   vtkCameraProjector();
@@ -75,7 +76,7 @@ private:
   std::string Filename;
 
   //! Name of the color array
-  std::string ColorArrayName = "RGB";
+  std::string ColorArrayName = "Color";
 
   //! Size of the points in image with projection
   int ProjectedPointSizeInImage = 1;
@@ -96,6 +97,8 @@ private:
   //! used only if a trajectory is provided and UseTrajectoryToCorrectPoints is
   //! true
   double PipelineTimeToLidarTime = 0.0;
+
+  double ColorizedOutputOnly = false;
 };
 
 #endif // VTK_CAMERA_PROJECTOR_H

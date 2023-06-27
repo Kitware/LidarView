@@ -64,8 +64,8 @@ public:
   Eigen::VectorXd GetOptics();
   ProjectionType GetType();
 
-  // Please check the returned value when using the following function
-  bool LoadParamsFromFile(std::string filename);  // Returns true when parameters have been read correctly
+  // Returns true when parameters have been read correctly
+  bool LoadParamsFromFile(std::string filename);
 
   static void WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win, ProjectionType typein);
 

@@ -52,7 +52,7 @@
                        default_values="1">
       <BooleanDomain name="bool"/>
       <Documentation>
-        Automatically compute the bounds of the voxel grid.
+        Automatically compute the bounds of the voxel grid. This should be disabled with large trajectories.
         This is performed browsing over the whole trajectory once at initialization,
         and computing the bounding boxes of the frames transformed with the trajectory.
       </Documentation>

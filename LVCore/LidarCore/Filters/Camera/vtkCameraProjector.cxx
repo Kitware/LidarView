@@ -37,6 +37,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkSMPTools.h>
 
 #define IMAGE_INPUT_PORT 0
 #define POINTS_INPUT_PORT 1
@@ -201,54 +202,73 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
   }
 
+  vtkNew<vtkPoints> outPoints;
+  vtkNew<vtkCellArray> outVerts;
+  outPoints->Resize(pointcloud->GetNumberOfPoints());
+  outVerts->SetNumberOfCells(pointcloud->GetNumberOfPoints());
+  outCloud->SetPoints(outPoints);
+  outCloud->SetVerts(outVerts);
+  outCloud->GetPointData()->CopyAllocate(pointcloud->GetPointData());
+
+
   outImg->DeepCopy(inImg);
-  outCloud->DeepCopy(pointcloud);
-  projectedCloud->DeepCopy(pointcloud);
-  projectedCloud->GetPoints()->Resize(0);
-  for (int i = 0; i < projectedCloud->GetPointData()->GetNumberOfArrays(); ++i)
-  {
-    projectedCloud->GetPointData()->GetArray(i)->Resize(0);
-  }
+
+  // projectedCloud->DeepCopy(outCloud);
+  vtkNew<vtkPoints> outPointsProjected;
+  vtkNew<vtkCellArray> outVertsProjected;
+  outPointsProjected->Resize(pointcloud->GetNumberOfPoints());
+  outVertsProjected->SetNumberOfCells(pointcloud->GetNumberOfPoints());
+  projectedCloud->SetPoints(outPointsProjected);
+  projectedCloud->SetVerts(outVertsProjected);
+  projectedCloud->GetPointData()->CopyAllocate(pointcloud->GetPointData());
 
   // Store original indices of the points in the projected cloud for potential matching (eg. for reprojections)
   auto preProjectionIndexArray = createArray<vtkIntArray>("preProjectionIndex", 1, projectedCloud->GetNumberOfPoints());
   projectedCloud->GetPointData()->AddArray(preProjectionIndexArray);
 
-  vtkDataArray* intensity = outCloud->GetPointData()->GetArray("intensity");
+  vtkDataArray* intensity = pointcloud->GetPointData()->GetArray("intensity");
   vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
 
   // Try to get RGB array, if it does not exist, create it and fill it
-  vtkSmartPointer<vtkIntArray> rgbArray = vtkIntArray::SafeDownCast(outCloud->GetPointData()->GetArray(this->ColorArrayName.c_str()));
-  if (!rgbArray)
-  {
-    rgbArray = createArray<vtkIntArray>(std::string(this->ColorArrayName), 3, outCloud->GetNumberOfPoints());
-    outCloud->GetPointData()->AddArray(rgbArray);
+  vtkNew<vtkIntArray> rgbArray;
+  rgbArray->SetNumberOfComponents(3);
+  rgbArray->SetNumberOfTuples(pointcloud->GetNumberOfPoints());
+  rgbArray->SetName(this->ColorArrayName.c_str());
 
-    // fill tuples to (255, 255, 255)
-    rgbArray->Fill(255);
-  }
+  vtkNew<vtkIntArray> rgbArrayProjected;
+  rgbArrayProjected->SetNumberOfComponents(3);
+  rgbArrayProjected->SetNumberOfTuples(pointcloud->GetNumberOfPoints());
+  rgbArrayProjected->SetName(this->ColorArrayName.c_str());
 
   Eigen::VectorXd W = this->Model.GetParametersVector();
+    auto poseAtCameraTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
   Eigen::Transform<double, 3, Eigen::Affine> poseAtCameraTime;
   if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
   {
-    auto poseAtCameraTimeTemp = vtkSmartPointer<vtkTransform>::New();
-    this->Trajectory->InterpolateTransform(this->PipelineTimeToLidarTime + this->CurrentImagePipelineTime, poseAtCameraTimeTemp);
+    double pointTimestamp = 1e-6 * timestampArray->GetTuple1(0);
+    this->Trajectory->InterpolateTransform(pointTimestamp, poseAtCameraTimeTemp);
+    poseAtCameraTimeTemp->Update();
     poseAtCameraTime = ToEigenTransform(poseAtCameraTimeTemp);
   }
-  auto poseAtPointTimeTemp = vtkSmartPointer<vtkTransform>::New(); // place this costly heap allocation outside the loop
+  // place this costly heap allocation outside the loop
+  auto poseAtPointTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
   // Project the points in the image
-  for (int pointIndex = 0; pointIndex < outCloud->GetNumberOfPoints(); ++pointIndex)
+  vtkIdType numPoints = 0;
+  vtkIdType numPointsProjected = 0;
+  for (vtkIdType pointIndex = 0; pointIndex < pointcloud->GetNumberOfPoints(); ++pointIndex)
   {
-    double* pos = outCloud->GetPoint(pointIndex);
+    double pos[3];
+    pointcloud->GetPoint(pointIndex, pos);
     Eigen::Vector3d X(pos[0], pos[1], pos[2]);
     Eigen::Vector2d y;
     if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
     {
       double pointTimestamp = 1e-6 * timestampArray->GetTuple1(pointIndex);
       this->Trajectory->InterpolateTransform(pointTimestamp, poseAtPointTimeTemp);
+      poseAtPointTimeTemp->Update();
+
       Eigen::Transform<double, 3, Eigen::Affine> poseAtPointTime = ToEigenTransform(poseAtPointTimeTemp);
 
       Eigen::Transform<double, 3, Eigen::Affine> correction = poseAtCameraTime.inverse(Eigen::Affine) * poseAtPointTime;
@@ -264,9 +284,23 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     int vtkRow = static_cast<int>(y(1));
     int vtkCol = static_cast<int>(y(0));
 
-    if ((vtkRow < 0) || (vtkRow >= inImg->GetDimensions()[1]) ||
-        (vtkCol < 0) || (vtkCol >= inImg->GetDimensions()[0]))
+    bool isInside = (vtkRow >= 0) && (vtkRow < inImg->GetDimensions()[1]) && (vtkCol >= 0) &&
+      (vtkCol < inImg->GetDimensions()[0]);
+
+    if (isInside || !this->ColorizedOutputOnly)
     {
+      outCloud->GetPoints()->InsertNextPoint(pos);
+      outCloud->GetVerts()->InsertNextCell(1, &numPoints);
+      outCloud->GetPointData()->CopyData(pointcloud->GetPointData(), pointIndex, numPoints);
+      numPoints++;
+    }
+
+    if (!isInside)
+    {
+      if (!this->ColorizedOutputOnly)
+      {
+        rgbArray->SetTuple3(numPoints - 1, 255, 255, 255);
+      }
       continue;
     }
 
@@ -274,13 +308,12 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     vtkCol = std::min(std::max(0, vtkCol), inImg->GetDimensions()[0] - 1);
 
     // register the point if it is valid
-    double pt[3] = {y(0), y(1), 0};
+    double pt[3] = {y(0), y(1), 0.};
     projectedCloud->GetPoints()->InsertNextPoint(pt);
-    for (int i = 0; i < pointcloud->GetPointData()->GetNumberOfArrays(); ++i)
-    {
-      projectedCloud->GetPointData()->GetArray(i)->InsertNextTuple(
-            pointcloud->GetPointData()->GetArray(i)->GetTuple(pointIndex));
-    }
+    projectedCloud->GetVerts()->InsertNextCell(1, &numPointsProjected);
+    projectedCloud->GetPointData()->CopyData(pointcloud->GetPointData(), pointIndex, numPointsProjected);
+    numPointsProjected++;
+
     preProjectionIndexArray->InsertNextTuple1(pointIndex);
 
     // Get its color
@@ -301,20 +334,25 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
       }
       rgb[k] = inImg->GetScalarComponentAsDouble(vtkCol, vtkRow, 0, k);
     }
-    rgbArray->SetTuple3(pointIndex, rgb[0], rgb[1], rgb[2]);
+    rgbArray->SetTuple3(numPoints - 1, rgb[0], rgb[1], rgb[2]);
+    rgbArrayProjected->SetTuple3(numPointsProjected - 1, rgb[0], rgb[1], rgb[2]);
   }
 
-  vtkNew<vtkIdTypeArray> cells;
-  cells->SetNumberOfValues(projectedCloud->GetNumberOfPoints() * 2);
-  vtkIdType* ids = cells->GetPointer(0);
-  for (vtkIdType i = 0; i < projectedCloud->GetNumberOfPoints(); ++i)
-  {
-    ids[i * 2] = 1;
-    ids[i * 2 + 1] = i;
-  }
-  vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
-  cellArray->SetCells(projectedCloud->GetNumberOfPoints(), cells.GetPointer());
-  projectedCloud->SetVerts(cellArray);
+  // Resize data
+  outCloud->GetPoints()->Resize(numPoints);
+  outCloud->GetVerts()->SetNumberOfCells(numPoints);
+
+  rgbArray->Resize(numPoints);
+  outCloud->GetPointData()->AddArray(rgbArray);
+  outCloud->GetPointData()->SetActiveScalars(rgbArray->GetName());
+
+  
+  projectedCloud->GetPoints()->Resize(numPointsProjected);
+  projectedCloud->GetVerts()->SetNumberOfCells(numPointsProjected);
+
+  rgbArrayProjected->Resize(numPointsProjected);
+  projectedCloud->GetPointData()->AddArray(rgbArrayProjected);
+  projectedCloud->GetPointData()->SetActiveScalars(rgbArrayProjected->GetName());
 
   return 1;
 }
@@ -336,6 +374,7 @@ void vtkCameraProjector::SetFileName(const std::string &argfilename)
 void vtkCameraProjector::Modified()
 {
   this->Superclass::Modified();
-  this->NeedsToUpdateCachedValues = true; // we do not do the update now, in case multiple Modified() are done in a row
+  // do not update now, in case multiple Modified() are done in a row
+  this->NeedsToUpdateCachedValues = true;
 }
 

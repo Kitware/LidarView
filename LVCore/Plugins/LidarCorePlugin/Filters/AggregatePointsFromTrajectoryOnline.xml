@@ -22,9 +22,21 @@
       </Documentation>
     </Property>
 
+    <IntVectorProperty name="Display Output"
+                       command="SetDisplayOutput"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Indicates whether or not to display the filter output.
+      </Documentation>
+    </IntVectorProperty>
+
     <PropertyGroup label="Output Management">
       <Property name="Free Unused Memory" />
       <Property name="Clear voxel grid" />
+      <Property name="Display Output" />
     </PropertyGroup>
 
    </SourceProxy>

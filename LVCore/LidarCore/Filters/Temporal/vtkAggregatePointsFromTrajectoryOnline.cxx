@@ -268,8 +268,11 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
   // The free points are added after the voxel grid
   appendFilter->AddInputData(this->MergePointsToPolyDataHelper->GetOutput());
   appendFilter->Update();
-  vtkPolyData* output = vtkPolyData::GetData(outputVector);
-  output->ShallowCopy(appendFilter->GetOutput());
+  if (this->DisplayOutput)
+  {
+    vtkPolyData* output = vtkPolyData::GetData(outputVector);
+    output->ShallowCopy(appendFilter->GetOutput());
+  }
 
   request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0);
