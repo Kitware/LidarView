@@ -119,7 +119,6 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOGeneral
   XML_MODULE_FILES
-    IO/LASFileWriter.xml
     IO/PCDWriter.xml
 )
 

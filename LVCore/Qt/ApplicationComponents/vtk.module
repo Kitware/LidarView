@@ -15,7 +15,6 @@ PRIVATE_DEPENDS
   LidarView::FiltersTemporal
   LidarView::IOCore
   LidarView::IOGeolocation
-  LidarView::IOGeneral
   LidarView::IOLidar
   LidarView::IONetwork
   LidarView::PythonInitializer

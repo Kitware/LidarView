@@ -12,7 +12,6 @@ set(classes
   lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
   lqRulerReaction
-  lqSaveLASReaction
   lqSaveLidarFrameReaction
   lqSaveLidarStateReaction
   lqSensorListWidget
