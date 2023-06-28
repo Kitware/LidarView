@@ -55,7 +55,7 @@ public:
       "Alpha Prime.xml" };
 
     // Hesai Calibration
-    const std::vector<QString> hesaiCalibFiles = { "PandarXT.csv", "Pandar128.csv" };
+    const std::vector<QString> hesaiCalibFiles = { "PandarXT32.csv", "Pandar128.csv" };
 
     QString prefix;
 #if defined(_WIN32)

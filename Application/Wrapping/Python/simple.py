@@ -20,7 +20,7 @@ from lidarviewcore.simple import *
 
 INTERPRETER_MAP = {
     "Velodyne": "Velodyne Meta Interpreter",
-    "Hesai-pandarXT": "Hesai General Packet Interpreter",
+    "Hesai-pandarXT32": "Hesai General Packet Interpreter",
     "Hesai-pandar128": "Hesai Packet Interpreter"
 }
 
@@ -30,7 +30,7 @@ INTERPRETER_MAP = {
 def GetInterpreterName(interpreter):
     """Utility method to help selecting the right interpreter.
 
-    Options are: `Velodyne`, `Hesai-pandarXT` and `Hesai-pandar128`
+    Options are: `Velodyne`, `Hesai-pandarXT32` and `Hesai-pandar128`
     """
     interpreterName = INTERPRETER_MAP.get(interpreter, "")
     if not interpreterName:
