@@ -563,6 +563,10 @@
    </property>
   </action>
   <action name="actionSaveLAS">
+   <property name="icon">
+    <iconset resource="Resources/lvResources.qrc">
+     <normaloff>:/lvResources/Icons/las.png</normaloff>:/lvResources/Icons/las.png</iconset>
+   </property>
    <property name="text">
     <string>Save LAS...</string>
    </property>
@@ -698,18 +702,6 @@
    </property>
    <property name="toolTip">
     <string>Geolocation in absolute coordinates</string>
-   </property>
-  </action>
-  <action name="actionSaveLAS">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/las.png</normaloff>:/lvResources/Icons/las.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save &amp;LAS</string>
-   </property>
-   <property name="toolTip">
-    <string>Save to ASPRS LAS format</string>
    </property>
   </action>
   <action name="actionCropReturns">

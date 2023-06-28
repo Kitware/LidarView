@@ -33,7 +33,7 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     libXcursor-devel libharu-devel utf8cpp-devel pugixml-devel libtiff-devel \
     eigen3-devel double-conversion-devel glew-devel jsoncpp-devel boost-devel \
-    libpcap-devel gdal-devel PDAL-devel liblas-devel pcl-devel yaml-cpp-devel
+    libpcap-devel gdal-devel PDAL-devel pcl-devel yaml-cpp-devel
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \

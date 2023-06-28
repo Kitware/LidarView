@@ -7,10 +7,6 @@ RUN sh /root/install_deps.sh
 COPY install_pythonqt.sh /root/install_pythonqt.sh
 RUN sh /root/install_pythonqt.sh
 
-COPY install_liblas.sh /root/install_liblas.sh
-COPY patches/las-new-boost.patch /root/patches/las-new-boost.patch
-RUN sh /root/install_liblas.sh
-
 COPY install_paraview.sh /root/install_paraview.sh
 RUN sh /root/install_paraview.sh
 

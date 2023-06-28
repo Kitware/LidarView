@@ -334,41 +334,6 @@ def saveCSVCurrentFrameSelection(filename):
     smp.Delete(w)
     rotateCSVFile(filename)
 
-# transform parameter indicates the coordinates system and
-# the referential for the exported points clouds:
-# - 0 Sensor: sensor referential, cartesian coordinate system
-# - 1: Relative Geoposition: NED base centered at the first position
-#      of the sensor, cartesian coordinate system
-# - 2: Absolute Geoposition: NED base centered at the corresponding
-#      UTM zone, cartesian coordinate system
-# - 3: Absolute Geoposition Lat/Lon: Lat / Lon coordinate system
-def saveLASFrames(filename, first, last, transform = 0):
-    reader = getReader().GetClientSideObject()
-
-    # Check that we have a position provider
-    if getPosition() is not None:
-        position = getPosition().GetClientSideObject().GetOutput()
-
-        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
-            reader, position, first, last, filename, transform)
-
-    else:
-        PythonQt.paraview.lqLidarViewManager.saveFramesToLAS(
-            reader, None, first, last, filename, transform)
-
-
-# transform parameter indicates the coordinates system and
-# the referential for the exported points clouds:
-# - 0 Sensor: sensor referential, cartesian coordinate system
-# - 1: Relative Geoposition: NED base centered at the first position
-#      of the sensor, cartesian coordinate system
-# - 2: Absolute Geoposition: NED base centered at the corresponding
-#      UTM zone, cartesian coordinate system
-# - 3: Absolute Geoposition Lat/Lon: Lat / Lon coordinate system
-def saveLASCurrentFrame(filename, transform = 0):
-    t = getAnimationScene().AnimationTime
-    saveLASFrames(filename, t, t, transform)
-
 def saveFrameRange(filename, frameStart, frameStop, saveFunction):
     timesteps = range(frameStart, frameStop+1)
     saveFunction(filename, timesteps)
@@ -396,29 +361,6 @@ def saveCSV(filename, timesteps):
 
     kiwiviewerExporter.zipDir(outDir, filename)
     kiwiviewerExporter.shutil.rmtree(tempDir)
-
-# transform parameter indicates the coordinates system and
-# the referential for the exported points clouds:
-# - 0 Sensor: sensor referential, cartesian coordinate system
-# - 1: Relative Geoposition: NED base centered at the first position
-#      of the sensor, cartesian coordinate system
-# - 2: Absolute Geoposition: NED base centered at the corresponding
-#      UTM zone, cartesian coordinate system
-# - 3: Absolute Geoposition Lat/Lon: Lat / Lon coordinate system
-def saveLAS(filename, timesteps, transform = 0):
-
-    tempDir = kiwiviewerExporter.tempfile.mkdtemp()
-    basenameWithoutExtension = os.path.splitext(os.path.basename(filename))[0]
-    outDir = os.path.join(tempDir, basenameWithoutExtension)
-    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + '_%04d.csv')
-    os.makedirs(outDir)
-
-    for t in sorted(timesteps):
-        saveLASFrames(filenameTemplate % t, t, t, transform)
-
-    kiwiviewerExporter.zipDir(outDir, filename)
-    kiwiviewerExporter.shutil.rmtree(tempDir)
-
 
 def getSaveFileName(title, extension, defaultFileName=None):
 
@@ -472,72 +414,6 @@ def onSavePosition():
     fileName = getSaveFileName('Save CSV', 'csv', getDefaultSaveFileName('csv', '-position'))
     if fileName:
         savePositionCSV(fileName)
-
-
-def onSaveLAS():
-    # It is not possible to save as LAS during stream as we need frame numbers
-    if getSensor():
-        QtGui.QMessageBox.information(getMainWindow(),
-                                      'Save As LAS not available during stream',
-                                      'Saving as LAS is not possible during lidar stream mode. '
-                                      'Please use the "Record" tool, and open the resulting pcap offline to process it.')
-        return
-
-    frameOptions = getFrameSelectionFromUser(framePackVisibility=True, frameTransformVisibility=False)
-    if frameOptions is None:
-        return
-
-    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
-        frameOptions.start = frameOptions.stop = getAnimationScene().AnimationTime
-    elif frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
-        frameOptions.start = int(getAnimationScene().StartTime)
-        frameOptions.stop = int(getAnimationScene().EndTime)
-
-    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
-        fileName = getSaveFileName('Save LAS', 'las', getDefaultSaveFileName('las', appendFrameNumber=True))
-        if fileName:
-            oldTransform = transformMode()
-            setTransformMode(1 if frameOptions.transform else 0)
-
-            saveLASCurrentFrame(fileName, frameOptions.transform)
-
-            setTransformMode(oldTransform)
-
-    elif frameOptions.pack == lqSelectFramesDialog.FILE_PER_FRAME:
-        fileName = getSaveFileName('Save LAS (to zip file)', 'zip',
-                                   getDefaultSaveFileName('zip'))
-        if fileName:
-            oldTransform = transformMode()
-            setTransformMode(1 if frameOptions.transform else 0)
-
-            def saveTransformedLAS(filename, timesteps):
-                saveLAS(filename, timesteps, frameOptions.transform)
-
-            if frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
-                start = 0
-                stop = len(getLidar().TimestepValues) - 1
-            else:
-                start = frameOptions.start
-                stop  = frameOptions.stop
-            saveFrameRange(fileName, start, stop, saveTransformedLAS)
-
-            setTransformMode(oldTransform)
-
-    else:
-        suffix = ' (Frame %d to %d)' % (frameOptions.start, frameOptions.stop)
-        defaultFileName = getDefaultSaveFileName('las', suffix=suffix)
-        fileName = getSaveFileName('Save LAS', 'las', defaultFileName)
-        if not fileName:
-            return
-
-        oldTransform = transformMode()
-        setTransformMode(1 if frameOptions.transform else 0)
-
-        saveLASFrames(fileName, frameOptions.start, frameOptions.stop,
-                      frameOptions.transform)
-
-        setTransformMode(oldTransform)
-
 
 def onSavePCAP():
     # It is not possible to save as PCAP during stream as we need frame numbers
