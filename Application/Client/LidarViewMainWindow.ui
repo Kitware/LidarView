@@ -381,11 +381,14 @@
     <iconset>
      <normaloff>:/pqWidgets/Icons/pqOpen.svg</normaloff>:/pqWidgets/Icons/pqOpen.svg</iconset>
    </property>
-   <property name="toolTip">
+   <property name="text">
     <string>Open a file</string>
    </property>
    <property name="statusTip">
     <string>Open Data File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionSelect_Points">
