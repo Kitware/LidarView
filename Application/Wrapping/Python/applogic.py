@@ -292,7 +292,7 @@ def disableSaveActions():
 
 def unloadData():
     for k, src in smp.GetSources().items():
-        if src != app.grid and src != smp.FindSource("RPM"):
+        if src != app.grid:
             smp.Delete(src)
 
     clearSpreadSheetView()
@@ -462,7 +462,6 @@ def start():
     setupActions()
     disableSaveActions()
     hideColorByComponent()
-    createRPMBehaviour()
 
     # Create Grid #WIP not perfect requires loaded plugin
     createGrid()
@@ -521,15 +520,6 @@ def adjustScalarBarRangeLabelFormat():
     if arrayName != '' and hasArrayName(getReader(), arrayName):
         sb = smp.GetScalarBar(smp.GetLookupTableForArray(arrayName, []))
         sb.RangeLabelFormat = '%g'
-        smp.Render()
-
-def toggleRPM():
-    rpm = smp.FindSource("RPM")
-    if rpm:
-        if app.actions['actionShowRPM'].isChecked():
-            smp.Show(rpm)
-        else:
-            smp.Hide(rpm)
         smp.Render()
 
 def transformMode():
@@ -602,7 +592,6 @@ def setupActions():
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
-    app.actions['actionShowRPM'].connect('triggered()', toggleRPM)
 
     # Restore action states from settings
     settings = getPVSettings()
@@ -659,39 +648,3 @@ def setupActions():
     displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
     displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
     app.actions['actionScalarBarVisibility'].connect('triggered()',adjustScalarBarRangeLabelFormat)
-
-
-def createRPMBehaviour():
-    # create and customize a label to display the rpm
-    rpm = smp.Text(guiName="RPM", Text="No RPM/FPS")
-    representation = smp.GetRepresentation(rpm)
-    representation.FontSize = 16
-    representation.Color = [1,1,0]
-    # create an python animation cue to update the rpm value in the label
-    PythonAnimationCue1 = smp.PythonAnimationCue()
-    PythonAnimationCue1.Script= """
-import paraview.simple as smp
-import lidarview.applogic as lv
-def start_cue(self):
-    pass
-
-def tick(self):
-    rpm = smp.FindSource("RPM")
-    lidar = lv.getLidar()
-    if (lidar):
-      valrpm  = int(lidar.Interpreter.GetClientSideObject().GetRpm())
-      valfps = int(lidar.Interpreter.GetClientSideObject().GetFrequency())
-      if  (valrpm):
-        rpm.Text = f"{str(valrpm)} RPM"
-      elif(valfps):
-        rpm.Text = f"{str(valfps)} FPS"
-      else:
-        rpm.Text = "No RPM/FPS Info"
-
-def end_cue(self):
-    pass
-"""
-    smp.GetAnimationScene().Cues.append(PythonAnimationCue1)
-    # force to be consistant with the UI
-    toggleRPM()
-    smp.SetActiveSource(None)
