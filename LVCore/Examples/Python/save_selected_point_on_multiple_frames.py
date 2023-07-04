@@ -4,7 +4,6 @@ Select points with a query and save all the frame of the current selection
 
 import os
 
-import lidarview.applogic as app
 import paraview.simple as smp
 import lidarviewcore.kiwiviewerExporter as kiwiExporter
 
@@ -53,8 +52,6 @@ def saveCSVSelectionAndFrames(selection, filename, timesteps = default_timesteps
         # Name the current frame with its number
         csvWriter.FileName = name_template % i
         csvWriter.UpdatePipeline(timestamp)
-        # Format csv file
-        app.rotateCSVFile(csvWriter.FileName)
 
     # Clean up writer
     smp.Delete(csvWriter)
