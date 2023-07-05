@@ -6,6 +6,7 @@ endfunction ()
 
 lidarview_add_test_python(
     NO_RT
-    TestResetCamera.py
     TestImportPythonModules.py
+    TestResetCamera.py
+    TestSaveCSV.py
 )
