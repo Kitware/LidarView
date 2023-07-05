@@ -57,6 +57,12 @@ public:
 
   // LidarView specific
   void pythonStartup() override;
+
+  /**
+   * Change ParaView default settings value such as background color
+   * and LUT for lidar scalars.
+   */
+  static void SetLidarViewDefaultSettings();
 };
 
 #endif // LQLIDARVIEWMANAGER_H

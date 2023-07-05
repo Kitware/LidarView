@@ -129,6 +129,7 @@ LidarViewMainWindow::LidarViewMainWindow()
     leaksView->setShell(shell);
   }
   // ParaView Init END
+  lqLidarViewManager::SetLidarViewDefaultSettings();
 
   // Setup ParaView  Base GUI
   this->setupPVGUI();

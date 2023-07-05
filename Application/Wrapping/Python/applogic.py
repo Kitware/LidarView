@@ -76,107 +76,6 @@ def hasArrayName(sourceProxy, arrayName):
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
-# Helpers
-def findPresetByName(name):
-    presets = paraview.servermanager.vtkSMTransferFunctionPresets()
-
-    numberOfPresets = presets.GetNumberOfPresets()
-
-    for i in range(0,numberOfPresets):
-        currentName = presets.GetPresetName(i)
-        if currentName == name:
-            return i
-
-    return -1
-
-def createDSRColorsPreset():
-
-    dsrColorIndex = findPresetByName("DSR Colors")
-
-    if dsrColorIndex == -1:
-        rcolor = [0,        0,         0,         0,         0,         0,         0,         0,         0,         0,         0,         0,         0,         0,         0,
-                  0,         0,         0,         0,         0,         0,         0,         0,         0,    0.0625,    0.1250,    0.1875,    0.2500,    0.3125,    0.3750,
-                  0.4375,    0.5000,    0.5625,    0.6250,    0.6875,    0.7500,    0.8125,    0.8750,    0.9375,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,
-                  1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000 ,   1.0000,    1.0000,    0.9375,    0.8750,    0.8125,    0.7500,
-                  0.6875,    0.6250,    0.5625,    0.5000]
-
-        gcolor = [0,         0,         0,         0,         0,         0 ,        0,         0,    0.0625,    0.1250,    0.1875,    0.2500,    0.3125,    0.3750,    0.4375,
-                  0.5000,    0.5625,    0.6250,    0.6875,    0.7500,    0.8125,    0.8750,    0.9375,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,
-                  1.0000,    1.0000,    1.0000,    1.0000,   1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    0.9375,    0.8750,    0.8125,    0.7500,    0.6875,
-                  0.6250,    0.5625,    0.5000,    0.4375,    0.3750,    0.3125,    0.2500,    0.1875,    0.1250,    0.0625,         0,         0,         0,         0,         0,
-                  0,         0,         0,         0]
-
-        bcolor = [0.5625,    0.6250,    0.6875,    0.7500,    0.8125,    0.8750,    0.9375,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,
-                  1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    1.0000,    0.9375,    0.8750,    0.8125,    0.7500,    0.6875,    0.6250,
-                  0.5625,    0.5000,    0.4375,    0.3750,    0.3125,    0.2500,   0.1875,    0.1250,    0.0625,         0,         0,         0,         0,         0,         0,
-                  0,         0 ,        0,         0,         0,         0,         0,         0,         0 ,        0 ,        0 ,        0,         0 ,        0 ,        0,
-                  0,         0,         0,         0]
-
-        intensityColor = [0] * 256
-
-        for i in range(0,63):
-            index = i/63.0*255.0
-
-            intensityColor[i*4] = index
-            intensityColor[i*4+1] = rcolor[i]
-            intensityColor[i*4+2] = gcolor[i]
-            intensityColor[i*4+3] = bcolor[i]
-            i = i + 1
-
-        presets = paraview.servermanager.vtkSMTransferFunctionPresets()
-
-        intensityString = ',\n'.join(map(str, intensityColor))
-
-        intensityJSON = "{\n\"ColorSpace\" : \"RGB\",\n\"Name\" : \"DSR\",\n\"NanColor\" : [ 1, 1, 0 ],\n\"RGBPoints\" : [\n"+ intensityString + "\n]\n}"
-
-        presets.AddPreset("DSR Colors",intensityJSON)
-
-
-def setDefaultLookupTables(sourceProxy):
-    if not sourceProxy:
-      return
-    createDSRColorsPreset()
-
-    #presets = paraview.servermanager.vtkSMTransferFunctionPresets()
-    #dsrIndex = findPresetByName("DSR Colors")
-    #presetDSR = presets.GetPresetAsString(dsrIndex)
-
-    # LUT for 'intensity'
-    smp.GetLookupTableForArray(
-      'intensity', 1,
-      ScalarRangeInitialized=1.0,
-      ColorSpace='HSV',
-      RGBPoints=[0.0, 0.0, 0.0, 1.0,
-               100.0, 1.0, 1.0, 0.0,
-               256.0, 1.0, 0.0, 0.0])
-
-    # LUT for 'reflectivity'
-    smp.GetLookupTableForArray(
-       'reflectivity', 1,
-       ScalarRangeInitialized=1.0,
-       ColorSpace='HSV',
-       RGBPoints=[0.0, 0.0, 0.0, 1.0,
-                100.0, 1.0, 1.0, 0.0,
-                256.0, 1.0, 0.0, 0.0])
-
-    # LUT for 'dual_distance'
-    smp.GetLookupTableForArray(
-      'dual_distance', 1,
-      InterpretValuesAsCategories=True, NumberOfTableValues=3,
-      RGBPoints=[-1.0, 0.1, 0.5, 0.7,
-                  0.0, 0.9, 0.9, 0.9,
-                 +1.0, 0.8, 0.2, 0.3],
-      Annotations=['-1', 'near', '0', 'dual', '1', 'far'])
-
-    # LUT for 'dual_intensity'
-    smp.GetLookupTableForArray(
-      'dual_intensity', 1,
-      InterpretValuesAsCategories=True, NumberOfTableValues=3,
-      RGBPoints=[-1.0, 0.5, 0.2, 0.8,
-                  0.0, 0.6, 0.6, 0.6,
-                 +1.0, 1.0, 0.9, 0.4],
-      Annotations=['-1', 'low', '0', 'dual', '1', 'high'])
-
 def getDefaultSaveFileName(extension, suffix='', frameId=None, baseName="Frame"):
 
     sensor = getSensor()
@@ -231,7 +130,6 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
 
     enableSaveActions() # WIP UNSURE
 
-    setDefaultLookupTables(sensor)
     updateUIwithNewLidar()
 
     rep = smp.Show(sensor)
@@ -267,33 +165,10 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
 
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
-    posreader = smp.FindSource(posOrName)
-
-    if posreader :
-        output0 = posreader.GetClientSideObject().GetOutput(0)
-        if output0.GetNumberOfPoints() != 0:
-
-            output1 = posreader.GetClientSideObject().GetOutputDataObject(1)
-            trange = output1.GetColumnByName("time").GetRange()
-
-            # Setup scalar bar
-            rep = smp.GetDisplayProperties(posreader)
-            rep.ColorArrayName = 'time'
-            rgbPoints = [trange[0], 0.0, 0.0, 1.0,
-                         trange[1], 1.0, 0.0, 0.0]
-            rep.LookupTable = smp.GetLookupTableForArray('time', 1,
-                                                         RGBPoints=rgbPoints,
-                                                         ScalarRangeInitialized=1.0)
-            sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
-            sb.Orientation = 'Horizontal'
-
-
     smp.SetActiveView(smp.GetActiveView())
 
     showSourceInSpreadSheet(getTrailingFrame())
 
-    setDefaultLookupTables(reader)
-    setDefaultLookupTables(getTrailingFrame())
     updateUIwithNewLidar()
 
 def rotateCSVFile(filename):
@@ -685,11 +560,6 @@ def start():
     global app
     app = AppLogic()
 
-    view = smp.GetActiveView()
-    view.Background = [0.0, 0.0, 0.0]
-    view.Background2 = [0.0, 0.0, 0.2]
-    view.BackgroundColorMode = "Gradient"
-    view.UseColorPaletteForBackground = False
     smp._DisableFirstRenderCameraReset()
     smp.GetActiveView().LODThreshold = 1e100
 
