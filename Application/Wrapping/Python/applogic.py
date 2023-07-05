@@ -165,27 +165,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
 
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
-    posreader = smp.FindSource(posOrName)
-
-    if posreader :
-        output0 = posreader.GetClientSideObject().GetOutput(0)
-        if output0.GetNumberOfPoints() != 0:
-
-            output1 = posreader.GetClientSideObject().GetOutputDataObject(1)
-            trange = output1.GetColumnByName("time").GetRange()
-
-            # Setup scalar bar
-            rep = smp.GetDisplayProperties(posreader)
-            rep.ColorArrayName = 'time'
-            rgbPoints = [trange[0], 0.0, 0.0, 1.0,
-                         trange[1], 1.0, 0.0, 0.0]
-            rep.LookupTable = smp.GetLookupTableForArray('time', 1,
-                                                         RGBPoints=rgbPoints,
-                                                         ScalarRangeInitialized=1.0)
-            sb = smp.CreateScalarBar(LookupTable=rep.LookupTable, Title='Time')
-            sb.Orientation = 'Horizontal'
-
-
     smp.SetActiveView(smp.GetActiveView())
 
     showSourceInSpreadSheet(getTrailingFrame())
