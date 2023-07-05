@@ -29,8 +29,7 @@ def CropAndSave(reader, filename, timesteps):
     for i in timesteps:
 
         timestamp = reader.TimestepValues[i]
-        smp.GetAnimationScene().SetPropertyWithName('AnimationTime',timestamp)
-        #note : this could alternatively be done with lv.getPlayerController().onSeekFrame(i)
+        smp.GetAnimationScene().AnimationTime = timestamp # or scene.GoToNext()
 
         threshold.UpdateVTKObjects()
         smp.UpdatePipeline(timestamp)
