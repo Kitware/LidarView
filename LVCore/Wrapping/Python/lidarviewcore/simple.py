@@ -13,10 +13,12 @@
 #
 #==============================================================================
 
-import os
-import paraview.simple as smp
+import csv, os
 
 import importlib
+import paraview.simple as smp
+
+import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 
 # -----------------------------------------------------------------------------
 def LoadLidarViewPythonPlugins(pluginName = None):
@@ -153,6 +155,66 @@ def OpenSensorStream(calibration, interpreter, port=2368, **params):
     smp.Show(stream)
     stream.Start()
     return stream
+
+# -----------------------------------------------------------------------------
+def RotateCSVFile(filename, nbOfColumns=3):
+    """Change order of columns in csv file, this is usually done to bring the
+    last 3 columns which are points coordinate in front. (For user lisibility)
+
+    **Parameters**
+
+        filename (str):
+          Full path to the csv file to rotate.
+
+        nbOfColumns (optional int):
+          Number of columns to bring back in front. (default 3)
+    """
+    csvFile = open(filename, 'rt')
+    reader = csv.reader(csvFile, quoting=csv.QUOTE_NONNUMERIC)
+    rows = [row[-nbOfColumns:] + row[:-nbOfColumns] for row in reader]
+    csvFile.close()
+
+    writer = csv.writer(open(filename, 'wt'), quoting=csv.QUOTE_NONNUMERIC, delimiter=',', lineterminator = '\n')
+    writer.writerows(rows)
+
+# -----------------------------------------------------------------------------
+def SaveCSV(source, filename, timesteps):
+    """Save the source data in a zipped directory with all specified timesteps as csv.
+
+    **Parameters**
+
+        source (smp.Proxy):
+          Paraview proxy that will be saved.
+
+        filename (str):
+          Full path to zipped directory
+
+        timesteps (range):
+          Save a csv for each timestep specified.
+
+    Note: More generic smp.SaveData() from paraview.smp could be also used instead.
+    """
+    tempDir = kiwiviewerExporter.tempfile.mkdtemp()
+    basenameWithoutExtension = os.path.splitext(os.path.basename(filename))[0]
+    outDir = os.path.join(tempDir, basenameWithoutExtension)
+    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + '_%04d.csv')
+    os.makedirs(outDir)
+
+    writer = smp.CreateWriter('tmp.csv', Input=source)
+    writer.FieldAssociation = 'Point Data'
+    writer.Precision = 16
+
+    for i in timesteps:
+        timestamp = source.TimestepValues[i]
+        smp.GetAnimationScene().AnimationTime = timestamp
+        writer.FileName = filenameTemplate % i
+        writer.UpdatePipeline(timestamp)
+        RotateCSVFile(writer.FileName)
+
+    smp.Delete(writer)
+
+    kiwiviewerExporter.zipDir(outDir, filename)
+    kiwiviewerExporter.shutil.rmtree(tempDir)
 
 # -----------------------------------------------------------------------------
 def ResetCameraLidar(view=None, distance=100):
