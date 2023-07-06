@@ -4,6 +4,7 @@ set(classes
   lqOpenPcapReaction
   lqOpenRecentFilesReaction
   lqOpenSensorReaction
+  lqStatusBar
   lqUpdateCalibrationReaction
 )
 
