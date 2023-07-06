@@ -3,7 +3,8 @@
 #include <ctime>
 #include <sstream>
 
-namespace {
+namespace
+{
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
 {
@@ -28,8 +29,10 @@ double place_in_interval(double x, double mod)
 {
   if (x < 0.0)
   {
-    return x + std::ceil(- x / mod) * mod; // not equal to std::fmod (always >= 0)
-  } else {
+    return x + std::ceil(-x / mod) * mod; // not equal to std::fmod (always >= 0)
+  }
+  else
+  {
     return std::fmod(x, mod);
   }
 }
@@ -56,11 +59,12 @@ bool inside_interval_mod(double x, double a, double b, double mod)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPacketInterpreter::SplitFrame(bool force, FramingMethod_t framingMethodAskingForSplitFrame)
+bool vtkLidarPacketInterpreter::SplitFrame(bool force,
+  FramingMethod_t framingMethodAskingForSplitFrame)
 {
   if ((force || this->FramingMethod == framingMethodAskingForSplitFrame) && this->CurrentFrame)
   {
-    const vtkIdType nPtsOfCurrentDataset= this->CurrentFrame->GetNumberOfPoints();
+    const vtkIdType nPtsOfCurrentDataset = this->CurrentFrame->GetNumberOfPoints();
     if (this->IgnoreEmptyFrames && (nPtsOfCurrentDataset == 0) && !force)
     {
       return false;
@@ -81,8 +85,7 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force, FramingMethod_t framingMe
 //-----------------------------------------------------------------------------
 void vtkLidarPacketInterpreter::SetLaserSelection(int index, int value)
 {
-  if ((index < 0) ||
-      (index >= this->LaserSelection->GetNumberOfTuples()))
+  if ((index < 0) || (index >= this->LaserSelection->GetNumberOfTuples()))
   {
     vtkErrorMacro(<< "Bad mode index: " << index);
   }
@@ -141,7 +144,7 @@ bool vtkLidarPacketInterpreter::IsNewData()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPacketInterpreter::IsValidPacket(unsigned char const * data, unsigned int dataLength)
+bool vtkLidarPacketInterpreter::IsValidPacket(unsigned char const* data, unsigned int dataLength)
 {
   return this->IsLidarPacket(data, dataLength);
 }
@@ -153,17 +156,19 @@ void vtkLidarPacketInterpreter::ResetCurrentData()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPacketInterpreter::ProcessPacketWrapped(unsigned char const * data,
-                                                  unsigned int dataLength,
-                                                  double PacketNetworkTime_s)
+void vtkLidarPacketInterpreter::ProcessPacketWrapped(unsigned char const* data,
+  unsigned int dataLength,
+  double PacketNetworkTime_s)
 {
   // if the framing Method is the NetworkPacketTime one
   // We check if the frame has te be split.
-  if(this->IsLidarPacket(data, dataLength) && this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
+  if (this->IsLidarPacket(data, dataLength) &&
+    this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
   {
-    auto currentFrameNumber = static_cast<unsigned long long>(PacketNetworkTime_s / this->FrameDuration_s);
+    auto currentFrameNumber =
+      static_cast<unsigned long long>(PacketNetworkTime_s / this->FrameDuration_s);
     if (this->LastNetworkTimeFrameNumber != 0 // do not frame on first call of this function
-        && currentFrameNumber != this->LastNetworkTimeFrameNumber) // new frame found
+      && currentFrameNumber != this->LastNetworkTimeFrameNumber) // new frame found
     {
       this->SplitFrame(false, FramingMethod_t::NETWORK_PACKET_TIME_FRAMING);
     }
@@ -175,22 +180,26 @@ void vtkLidarPacketInterpreter::ProcessPacketWrapped(unsigned char const * data,
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPacketInterpreter::PreProcessPacketWrapped(unsigned char const * data,
-                              unsigned int dataLength, fpos_t filePosition, double packetNetworkTime_s,
-                              std::vector<FrameInformation>* frameCatalog)
+bool vtkLidarPacketInterpreter::PreProcessPacketWrapped(unsigned char const* data,
+  unsigned int dataLength,
+  fpos_t filePosition,
+  double packetNetworkTime_s,
+  std::vector<FrameInformation>* frameCatalog)
 {
   // If the framing method is the interpreter one
   // frameCatalog is filled with the PreProcessPacket function
-  if(this->FramingMethod == FramingMethod_t::INTERPRETER_FRAMING)
+  if (this->FramingMethod == FramingMethod_t::INTERPRETER_FRAMING)
   {
-    return this->PreProcessPacket(data, dataLength, filePosition, packetNetworkTime_s, frameCatalog);
+    return this->PreProcessPacket(
+      data, dataLength, filePosition, packetNetworkTime_s, frameCatalog);
   }
 
   // If the framing method is the network time packet one,
   // frameCatalog is filled every frameDuration time.
-  if(this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
+  if (this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
   {
-    unsigned long long currentFrameNumber = static_cast<unsigned long long>(packetNetworkTime_s / this->FrameDuration_s);
+    unsigned long long currentFrameNumber =
+      static_cast<unsigned long long>(packetNetworkTime_s / this->FrameDuration_s);
     if (currentFrameNumber != this->previousFrameNumber)
     {
       FrameInformation information;

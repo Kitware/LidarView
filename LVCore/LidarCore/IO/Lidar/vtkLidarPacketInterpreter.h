@@ -16,37 +16,40 @@
 #ifndef VTKLIDARPROVIDERINTERNAL_H
 #define VTKLIDARPROVIDERINTERNAL_H
 
+// Compliance with vtk's fpos_t policy, needs to be included before any libc header
 #include <vtkSystemIncludes.h>
+
 #include <vtkNew.h>
+#include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
-#include <vtkPolyData.h>
 
-#include "vtkInterpreter.h"
 #include "FrameInformation.h"
+#include "vtkInterpreter.h"
 
 #include "lvIOLidarModule.h"
 
-enum FramingMethod_t {
-        INTERPRETER_FRAMING = 0, // the interpreter in charge of the framing
-        NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
+enum FramingMethod_t
+{
+  INTERPRETER_FRAMING = 0,        // the interpreter in charge of the framing
+  NETWORK_PACKET_TIME_FRAMING = 1 // interpreter not in charge
 };
 
-class LVIOLIDAR_EXPORT  vtkLidarPacketInterpreter : public vtkInterpreter
+class LVIOLIDAR_EXPORT vtkLidarPacketInterpreter : public vtkInterpreter
 {
 public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)
-  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} //TODO
+  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} // TODO
 
   /**
    * @brief The CropModeEnum enum to select the cropping mode
    */
   enum CROP_MODE
   {
-    None = 0,       /*!< 0 */
-    Cartesian = 1,  /*!< 1 */
-    Spherical = 2,  /*!< 2 */
-    Cylindric = 3,  /*!< 3 */
+    None = 0,      /*!< 0 */
+    Cartesian = 1, /*!< 1 */
+    Spherical = 2, /*!< 2 */
+    Cylindric = 3, /*!< 3 */
   };
 
   /**
@@ -69,9 +72,11 @@ public:
    *        if the current framing method is the same as framingMethodAskingForSplitFrame
    * @param force force the split even if the frame is empty regardless of the Framing method
    * @param framingMethodAskingForSplitFrame Framing method which ask for the splitFrame
-   *        by default it's called with the interpreter framing method to avoid modification of all specific interpreters
+   *        by default it's called with the interpreter framing method to avoid modification of all
+   *        specific interpreters
    */
-  virtual bool SplitFrame(bool force = false, FramingMethod_t framingMethodAskingForSplitFrame = FramingMethod_t::INTERPRETER_FRAMING);
+  virtual bool SplitFrame(bool force = false,
+    FramingMethod_t framingMethodAskingForSplitFrame = FramingMethod_t::INTERPRETER_FRAMING);
 
   /**
    * @brief PreProcessPacket is use to construct the frame index and get some corretion
@@ -81,9 +86,11 @@ public:
    * @param dataLength size of the data packet
    * @param packetInfo[out] Miscellaneous information about the packet
    */
-  virtual bool PreProcessPacket(unsigned char const * data, unsigned int dataLength,
-                                fpos_t filePosition = fpos_t(), double packetNetworkTime = 0,
-                                std::vector<FrameInformation>* frameCatalog = nullptr) = 0;
+  virtual bool PreProcessPacket(unsigned char const* data,
+    unsigned int dataLength,
+    fpos_t filePosition = fpos_t(),
+    double packetNetworkTime = 0,
+    std::vector<FrameInformation>* frameCatalog = nullptr) = 0;
 
   /**
    * @brief PreProcessPacketWrapped is used to construct the frame index
@@ -93,16 +100,18 @@ public:
    * @param dataLength size of the data packet
    * @param packetInfo[out] Miscellaneous information about the packet
    */
-  virtual bool PreProcessPacketWrapped(unsigned char const * data, unsigned int dataLength,
-                                       fpos_t filePosition = fpos_t(), double packetNetworkTime = 0,
-                                       std::vector<FrameInformation>* frameCatalog = nullptr);
+  virtual bool PreProcessPacketWrapped(unsigned char const* data,
+    unsigned int dataLength,
+    fpos_t filePosition = fpos_t(),
+    double packetNetworkTime = 0,
+    std::vector<FrameInformation>* frameCatalog = nullptr);
 
   /**
    * @brief IsLidarPacket check if the given packet is really a lidar packet
    * @param data raw data packet
    * @param dataLength size of the data packet
    */
-  virtual bool IsLidarPacket(unsigned char const * data, unsigned int dataLength) = 0;
+  virtual bool IsLidarPacket(unsigned char const* data, unsigned int dataLength) = 0;
 
   /**
    * @brief ResetCurrentFrame reset all information to handle some new frame. This reset the
@@ -160,25 +169,30 @@ public:
    *        ProcessPacket
    * @return
    */
-  virtual void SetParserMetaData(const FrameInformation& metaData) { this->ParserMetaData = metaData; }
+  virtual void SetParserMetaData(const FrameInformation& metaData)
+  {
+    this->ParserMetaData = metaData;
+  }
 
   virtual int GetNumberOfChannels() { return this->CalibrationReportedNumLasers; }
 
   bool IsNewData() override;
 
-  bool IsValidPacket(unsigned char const * data, unsigned int dataLength) override;
+  bool IsValidPacket(unsigned char const* data, unsigned int dataLength) override;
 
   void ResetCurrentData() override;
 
-  void ProcessPacketWrapped(unsigned char const * data, unsigned int dataLength, double PacketNetworkTime) override;
+  void ProcessPacketWrapped(unsigned char const* data,
+    unsigned int dataLength,
+    double PacketNetworkTime) override;
 
-  vtkGetMacro(CalibrationFileName, std::string)
-  vtkSetMacro(CalibrationFileName, std::string)
+  vtkGetMacro(CalibrationFileName, std::string);
+  vtkSetMacro(CalibrationFileName, std::string);
 
-  vtkGetMacro(IsCalibrated, bool)
+  vtkGetMacro(IsCalibrated, bool);
 
-  vtkGetMacro(TimeOffset, double)
-  vtkSetMacro(TimeOffset, double)
+  vtkGetMacro(TimeOffset, double);
+  vtkSetMacro(TimeOffset, double);
 
   /**
    * @copydoc LidarPacketInterpreter::LaserSelection
@@ -186,41 +200,42 @@ public:
   virtual vtkIntArray* GetLaserSelection();
   virtual void SetLaserSelection(int index, int value);
 
-  vtkGetMacro(DistanceResolutionM, double)
+  vtkGetMacro(DistanceResolutionM, double);
 
-  vtkGetMacro(Frequency, double)
-  vtkGetMacro(Rpm, double)
+  vtkGetMacro(Frequency, double);
+  vtkGetMacro(Rpm, double);
 
-  vtkGetMacro(IgnoreZeroDistances, bool)
-  vtkSetMacro(IgnoreZeroDistances, bool)
+  vtkGetMacro(IgnoreZeroDistances, bool);
+  vtkSetMacro(IgnoreZeroDistances, bool);
 
-  vtkGetMacro(IgnoreEmptyFrames, bool)
-  vtkSetMacro(IgnoreEmptyFrames, bool)
+  vtkGetMacro(IgnoreEmptyFrames, bool);
+  vtkSetMacro(IgnoreEmptyFrames, bool);
 
-  vtkGetMacro(CropMode, int)
-  vtkSetMacro(CropMode, int)
+  vtkGetMacro(CropMode, int);
+  vtkSetMacro(CropMode, int);
 
-  vtkGetMacro(CropOutside, bool)
-  vtkSetMacro(CropOutside, bool)
+  vtkGetMacro(CropOutside, bool);
+  vtkSetMacro(CropOutside, bool);
 
-  vtkSetVector6Macro(CropRegion, double)
+  vtkSetVector6Macro(CropRegion, double);
 
   vtkGetMacro(EnableAdvancedArrays, bool);
   vtkSetMacro(EnableAdvancedArrays, bool);
 
-  vtkSetMacro(FramingMethod, int)
-  vtkGetMacro(FramingMethod, int)
+  vtkSetMacro(FramingMethod, int);
+  vtkGetMacro(FramingMethod, int);
 
-  vtkSetMacro(FrameDuration_s, double)
-  vtkGetMacro(FrameDuration_s, double)
+  vtkSetMacro(FrameDuration_s, double);
+  vtkGetMacro(FrameDuration_s, double);
 
 protected:
   /**
-   * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate some
-   * space. No CellArray should be created as it can be create once the frame is ready.
+   * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate
+   * some space. No CellArray should be created as it can be create once the frame is ready.
    * @param numberOfPoints indicate the space to allocate @todo change the meaning
    */
-  virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints, vtkIdType prereservedNumberOfPoints = 0) = 0;
+  virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints,
+    vtkIdType prereservedNumberOfPoints = 0) = 0;
 
   /**
    * @brief shouldBeCroppedOut Returns true if a point should be removed,
@@ -238,7 +253,7 @@ protected:
   bool shouldBeCroppedOut(double pos[3]);
 
   //! Buffer to store the frame once they are ready
-  std::vector<vtkSmartPointer<vtkPolyData> > Frames;
+  std::vector<vtkSmartPointer<vtkPolyData>> Frames;
 
   //! Frame under construction
   vtkSmartPointer<vtkPolyData> CurrentFrame;
@@ -315,7 +330,6 @@ protected:
 private:
   vtkLidarPacketInterpreter(const vtkLidarPacketInterpreter&) = delete;
   void operator=(const vtkLidarPacketInterpreter&) = delete;
-
 };
 
 #endif // VTKLIDARPROVIDERINTERNAL_H
