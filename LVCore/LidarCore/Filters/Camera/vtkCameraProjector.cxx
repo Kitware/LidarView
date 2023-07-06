@@ -229,6 +229,9 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataArray* intensity = pointcloud->GetPointData()->GetArray("intensity");
   vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
 
+  // Get RGB array from input pointcloud
+  vtkSmartPointer<vtkIntArray> inputRGBArray = vtkIntArray::SafeDownCast(outCloud->GetPointData()->GetArray(this->ColorArrayName.c_str()));
+
   // Try to get RGB array, if it does not exist, create it and fill it
   vtkNew<vtkIntArray> rgbArray;
   rgbArray->SetNumberOfComponents(3);
@@ -299,7 +302,15 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
     {
       if (!this->ColorizedOutputOnly)
       {
-        rgbArray->SetTuple3(numPoints - 1, 255, 255, 255);
+        if (inputRGBArray)
+        {
+          double* rgb = inputRGBArray->GetTuple3(pointIndex);
+          rgbArray->SetTuple3(numPoints - 1, rgb[0], rgb[1], rgb[2]);
+        }
+        else
+        {
+          rgbArray->SetTuple3(numPoints - 1, 255, 255, 255);
+        }
       }
       continue;
     }
