@@ -14,7 +14,7 @@
 =========================================================================*/
 
 #ifndef vtkExtractPointSelection_h
-#define vtkExtractPointSelectionl_h
+#define vtkExtractPointSelection_h
 
 // vtk includes
 #include <vtkPolyData.h>
