@@ -161,9 +161,20 @@ Eigen::VectorXd CameraModel::GetParametersVector()
 bool CameraModel::LoadParamsFromFile(std::string filename)
 {
   Eigen::VectorXd W;
-  YAML::Node calib = YAML::LoadFile(filename);
+  YAML::Node calib; 
+  std::string type;
 
-  std::string type = calib["calib"]["type"].as<std::string>();
+  // Load calibration file
+  try
+  {
+    calib= YAML::LoadFile(filename);
+    type = calib["calib"]["type"].as<std::string>();
+  }
+  catch(const std::exception& e)
+  {
+    // Calibration file not valid
+    return false;
+  }
 
   if (type == "Pinhole")
   {

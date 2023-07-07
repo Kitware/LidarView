@@ -67,6 +67,7 @@ private:
 
   //! Camera model
   CameraModel Model;
+  bool ModelValid = false;
   double CurrentImagePipelineTime = 0.0; // time of the image given to RequestData
 
   vtkSmartPointer<vtkCustomTransformInterpolator> Trajectory = nullptr;

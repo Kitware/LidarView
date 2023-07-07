@@ -113,8 +113,13 @@ int vtkCameraProjector::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* inPointsInfo = inputVector[POINTS_INPUT_PORT]->GetInformationObject(0);
   std::vector<double> pointTimesteps = getTimeSteps(inPointsInfo);
 
-  double timeRange[2] = {pointTimesteps[0], pointTimesteps[pointTimesteps.size() - 1]};
+  if (pointTimesteps.size() == 0)
+  {
+    vtkErrorMacro("No timesteps available in the input point cloud");
+    return 0;
+  }
 
+  double timeRange[2] = {pointTimesteps[0], pointTimesteps[pointTimesteps.size() - 1]};
   // We provide the same timestamps for all outputs
   for (int i = 0; i < OUTPUT_PORT_COUNT; i++)
   {
@@ -166,6 +171,12 @@ int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
+  if (!this->ModelValid)
+  {
+    vtkErrorMacro("Camera model is not valid");
+    return 0;
+  }
+
   // Get inputs
   vtkImageData *inImg = vtkImageData::GetData(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
   vtkPolyData *pointcloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT]->GetInformationObject(0));
@@ -376,7 +387,10 @@ void vtkCameraProjector::SetFileName(const std::string &argfilename)
   if (!ret)
   {
     vtkWarningMacro("Calibration parameters could not be read from file.");
+    this->ModelValid = false;
+    return;
   }
+  this->ModelValid = true;
   this->Modified();
 }
 
