@@ -8,8 +8,6 @@
   <!-- Create another render view -->
   <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/SplitHorizontal" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.2/CentralWidgetFrame/EmptyView/scrollArea/qt_scrollarea_viewport/widgetFoo/ConvertActionsFrame/RenderView" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,12,10,/0:0/2:0/0:1" />
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,12,10,/0:0/2:0/0:1" />
 
   <!-- Call ResetWindowViews example -->
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="ResetWindowViews()" />

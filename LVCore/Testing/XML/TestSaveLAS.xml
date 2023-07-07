@@ -7,8 +7,8 @@
   <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
 
   <!-- Save LAS -->
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,64,9,/0:0/2:0/0:0" />
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,64,9,/0:0/2:0/0:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,56,12,/0:0/1:0/0:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,56,12,/0:0/1:0/0:0" />
   <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuAdvance" />
   <pqevent object="LidarViewMainWindow/menubar/menuAdvance" command="activate" arguments="File (Paraview)" />
   <pqevent object="LidarViewMainWindow/menubar/menuAdvance/1QMenu0" command="activate" arguments="actionFileSaveData" />
