@@ -61,6 +61,12 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::FiltersGeneral
+  XML_MODULE_FILES
+    Filters/RPMText.xml
+)
+
+lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersProcessing
   XML_MODULE_FILES
     Filters/PlaneProjector.xml

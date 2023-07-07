@@ -11,6 +11,7 @@ OPTIONAL_DEPENDS
   LidarView::FiltersCalibration
   LidarView::FiltersCamera
   LidarView::FiltersCameraOpenCV
+  LidarView::FiltersGeneral
   LidarView::FiltersProcessing
   LidarView::FiltersSegmentation
   LidarView::FiltersTemporal

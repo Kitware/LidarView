@@ -15,6 +15,9 @@
 
 #include "vtkLidarPacketInterpreter.h"
 
+#include <vtkDoubleArray.h>
+#include <vtkFieldData.h>
+
 #include <ctime>
 #include <sstream>
 
@@ -83,6 +86,25 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     if (this->IgnoreEmptyFrames && (nPtsOfCurrentDataset == 0) && !force)
     {
       return false;
+    }
+
+    // Create a field data array with RPM info
+    const std::string fsNameArray[2] = { "RPM", "FPS" };
+    double fsValues[2];
+    fsValues[0] = this->GetRpm();
+    fsValues[1] = this->GetFrequency();
+    for (unsigned int i = 0; i < 2; i++)
+    {
+      if (fsValues[i] != 0)
+      {
+        vtkDoubleArray* fsArray = vtkDoubleArray::New();
+        fsArray->SetName(fsNameArray[i].c_str());
+        fsArray->SetNumberOfComponents(1);
+        fsArray->SetNumberOfTuples(1);
+        fsArray->InsertComponent(0, 0, fsValues[i]);
+        this->CurrentFrame->GetFieldData()->AddArray(fsArray);
+        fsArray->Delete();
+      }
     }
 
     // add vertex to the polydata
