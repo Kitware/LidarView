@@ -6,6 +6,7 @@ endfunction ()
 
 lidarview_add_test_python(
     NO_RT
+    TestAggregatePointsFromTrajectory.py
     TestImportPythonModules.py
     TestResetCamera.py
     TestRPMText.py
