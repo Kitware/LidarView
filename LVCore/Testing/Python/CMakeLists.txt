@@ -8,5 +8,6 @@ lidarview_add_test_python(
     NO_RT
     TestImportPythonModules.py
     TestResetCamera.py
+    TestRPMText.py
     TestSaveCSV.py
 )
