@@ -30,6 +30,7 @@
 // LOCAL
 #include "CameraModel.h"
 #include "vtkCustomTransformInterpolator.h"
+#include "vtkEigenTools.h"
 
 #include "lvFiltersCameraModule.h"
 
@@ -45,6 +46,19 @@ public:
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
   vtkSetMacro(PipelineTimeToLidarTime, double);
   vtkSetMacro(ColorizedOutputOnly, double);
+
+  void SetUseCalibrationFile(bool argUseCalibrationFile);
+
+  // Camera model parameters
+  void SetCameraType(int type);
+  void SetRotation(double roll, double pitch, double yaw);
+  void SetTranslation(double x, double y, double z);
+  void SetFocal(double fx, double fy);
+  void SetOpticalCenter(double cx, double cy);
+  void SetSkew(double skew);
+  void SetKCoeffs(double k1, double k2);
+  void SetPCoeffs(double p1, double p2, double p3 = 0., double p4 = 0.);
+  void SetCameraModelParams();
 
 protected:
   vtkCameraProjector();
@@ -100,6 +114,22 @@ private:
   double PipelineTimeToLidarTime = 0.0;
 
   double ColorizedOutputOnly = false;
+
+  //! Should the calibration file be used ?
+  bool UseCalibrationFile = true;
+
+    //! intrinsic parameters of the camera model
+  Eigen::Matrix3d K = Eigen::Matrix3d::Identity();
+
+  //! extrinsic parameters of the camera model
+  Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+  Eigen::Vector3d T = Eigen::Vector3d::Zero();
+
+  //! optical parameters of the camera
+  Eigen::VectorXd Optics = Eigen::VectorXd::Zero(6);
+
+  //! type of camera model
+  ProjectionType Type = ProjectionType::Pinhole;
 };
 
 #endif // VTK_CAMERA_PROJECTOR_H

@@ -171,6 +171,12 @@ int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector, vtkInformationVector *outputVector)
 {
+  if (!this->UseCalibrationFile)
+  {
+    this->SetCameraModelParams();
+    this->ModelValid = true;
+  }
+
   if (!this->ModelValid)
   {
     vtkErrorMacro("Camera model is not valid");
@@ -364,11 +370,10 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
   outCloud->GetPoints()->Resize(numPoints);
   outCloud->GetVerts()->SetNumberOfCells(numPoints);
 
-  rgbArray->Resize(numPoints);
+  rgbArray->SetNumberOfTuples(numPoints);
   outCloud->GetPointData()->AddArray(rgbArray);
   outCloud->GetPointData()->SetActiveScalars(rgbArray->GetName());
 
-  
   projectedCloud->GetPoints()->Resize(numPointsProjected);
   projectedCloud->GetVerts()->SetNumberOfCells(numPointsProjected);
 
@@ -380,8 +385,23 @@ int vtkCameraProjector::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+void vtkCameraProjector::SetUseCalibrationFile(bool argUseCalibrationFile)
+{
+  this->UseCalibrationFile = argUseCalibrationFile;
+  if (this->UseCalibrationFile)
+  {
+    this->SetFileName(this->Filename);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkCameraProjector::SetFileName(const std::string &argfilename)
 {
+  if (!this->UseCalibrationFile)
+  {
+    return;
+  }
   this->Filename = argfilename;
   int ret = this->Model.LoadParamsFromFile(this->Filename);
   if (!ret)
@@ -394,7 +414,6 @@ void vtkCameraProjector::SetFileName(const std::string &argfilename)
   this->Modified();
 }
 
-
 //-----------------------------------------------------------------------------
 void vtkCameraProjector::Modified()
 {
@@ -403,3 +422,76 @@ void vtkCameraProjector::Modified()
   this->NeedsToUpdateCachedValues = true;
 }
 
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetCameraType(int type)
+{
+  this->Type = static_cast<ProjectionType>(type);
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetRotation(double roll, double pitch, double yaw)
+{
+  Eigen::Matrix3d r = RollPitchYawToMatrix(roll, pitch, yaw);
+  this->R = r;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetTranslation(double x, double y, double z)
+{
+  Eigen::Vector3d t = { x, y, z };
+  this->T = t;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetFocal(double fx, double fy)
+{
+  this->K(0, 0) = fx;
+  this->K(1, 1) = fy;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetOpticalCenter(double cx, double cy)
+{
+  this->K(0, 2) = cx;
+  this->K(1, 2) = cy;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetSkew(double skew)
+{
+  this->K(0, 1) = skew;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetKCoeffs(double k1, double k2)
+{
+  this->Optics(0) = k1;
+  this->Optics(1) = k2;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetPCoeffs(double p1, double p2, double p3, double p4)
+{
+  this->Optics(2) = p1;
+  this->Optics(3) = p2;
+  this->Optics(4) = p3;
+  this->Optics(5) = p4;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCameraProjector::SetCameraModelParams()
+{
+  this->Model.SetR(this->R);
+  this->Model.SetT(this->T);
+  this->Model.SetK(this->K);
+  this->Model.SetOptics(this->Optics);
+  this->Model.SetCameraModelType(this->Type);
+}

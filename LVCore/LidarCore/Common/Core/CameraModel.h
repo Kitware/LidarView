@@ -80,7 +80,7 @@ protected:
   Eigen::Vector3d T = Eigen::Vector3d::Zero();
 
   //! optical parameters of the camera
-  Eigen::VectorXd Optics;
+  Eigen::VectorXd Optics = Eigen::VectorXd::Zero(6);
 
   //! type of camera model
   ProjectionType Type = ProjectionType::Pinhole;
