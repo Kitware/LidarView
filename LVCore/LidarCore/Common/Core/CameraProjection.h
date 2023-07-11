@@ -46,6 +46,18 @@ LVCOMMONCORE_EXPORT void LoadCameraParamsFromCSV(std::string filename, Eigen::Ve
 LVCOMMONCORE_EXPORT void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W);
 
 /**
+   * @brief PinholeProjection Project a 3D point using a pinhole camera model
+   *        the projected 2D points will be expressed in pixel coordinates
+   *
+   * @param W pinhole camera model parameters
+   * @param X 3D point to project
+   * @param shouldClip Clip points that are behind the camera plane
+   */
+LVCOMMONCORE_EXPORT Eigen::Vector2d PinholeProjection(const Eigen::Matrix<double, 15, 1>& W,
+                                  const Eigen::Vector3d& X,
+                                  bool shouldClip = false);
+
+/**
    * @brief FisheyeProjection Project a 3D point using a fisheye camera model
    *        the projected 2D points will be expressed in pixel coordinates
    *

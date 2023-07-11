@@ -99,6 +99,42 @@ void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W)
 }
 
 //----------------------------------------------------------------------------
+Eigen::Vector2d PinholeProjection(const Eigen::Matrix<double, 15, 1>& W,
+                                  const Eigen::Vector3d& X,
+                                  bool shouldClip)
+{
+  // Get rotation matrix
+  Eigen::Matrix3d R = RollPitchYawToMatrix(W(0), W(1), W(2));
+  Eigen::Vector3d T(W(3), W(4), W(5));
+
+  // Express the 3D point in the camera reference frame
+  Eigen::Vector3d Xcam = R.transpose() * (X - T);
+
+  // check that the point is not behind the camera plane
+  if (shouldClip && (Xcam(2) < 0))
+  {
+    return Eigen::Vector2d(-1, -1);
+  }
+
+  // Project the 3D point in the plan
+  Eigen::Vector2d Xp1(Xcam(0) / Xcam(2), Xcam(1) / Xcam(2));
+
+   // Create current intrinsic parameters
+   Eigen::Matrix3d K = Eigen::Matrix3d::Zero();
+   K(0, 0) = W(6);
+   K(1, 1) = W(7);
+   K(0, 2) = W(8);
+   K(1, 2) = W(9);
+   K(0, 1) = W(10);
+   K(2, 2) = 1;
+
+   // Express the point in the pixel coordinates
+   Eigen::Vector3d Xp1dh(Xp1(0), Xp1(1), 1);
+   Eigen::Vector3d Xpix = K * Xp1dh;
+   return Eigen::Vector2d(Xpix(0) / Xpix(2), Xpix(1) / Xpix(2));
+}
+
+//----------------------------------------------------------------------------
 Eigen::Vector2d FisheyeProjection(const Eigen::Matrix<double, 15, 1>& W,
                                   const Eigen::Vector3d& X,
                                   bool shouldClip)

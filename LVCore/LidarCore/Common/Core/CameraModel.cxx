@@ -300,8 +300,7 @@ Eigen::Vector2d CameraModel::Projection(const Eigen::Vector3d& X,  bool shouldCl
   switch (this->Type)
   {
   case ProjectionType::Pinhole:
-    std::cout << "Projection not implemented for Pinhole cameras" << std::endl;
-    exit(EXIT_FAILURE);
+    y = PinholeProjection(W, X,shouldClip);
     break;
   case ProjectionType::BrownConradyPinhole:
     y = BrownConradyPinholeProjection(W, X,shouldClip);
