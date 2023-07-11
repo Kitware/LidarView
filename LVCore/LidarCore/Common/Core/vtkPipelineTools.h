@@ -16,5 +16,4 @@
  */
 std::vector<double> LVCOMMONCORE_EXPORT getTimeSteps(vtkInformation* info);
 
-# endif  // VTK_PIPELINE_TOOLS-H
-
+#endif // VTK_PIPELINE_TOOLS-H

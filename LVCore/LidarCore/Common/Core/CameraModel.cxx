@@ -120,15 +120,15 @@ Eigen::VectorXd CameraModel::GetParametersVector()
 
   switch (this->Type)
   {
-  case ProjectionType::Pinhole:
-    W = Eigen::VectorXd(11);
-    break;
-  case ProjectionType::BrownConradyPinhole:
-    W = Eigen::VectorXd(17);
-    break;
-  case ProjectionType::FishEye:
-    W = Eigen::VectorXd(15);
-    break;
+    case ProjectionType::Pinhole:
+      W = Eigen::VectorXd(11);
+      break;
+    case ProjectionType::BrownConradyPinhole:
+      W = Eigen::VectorXd(17);
+      break;
+    case ProjectionType::FishEye:
+      W = Eigen::VectorXd(15);
+      break;
   }
 
   W.block(0, 0, 3, 1) = MatrixToRollPitchYaw(this->R);
@@ -161,16 +161,16 @@ Eigen::VectorXd CameraModel::GetParametersVector()
 bool CameraModel::LoadParamsFromFile(std::string filename)
 {
   Eigen::VectorXd W;
-  YAML::Node calib; 
+  YAML::Node calib;
   std::string type;
 
   // Load calibration file
   try
   {
-    calib= YAML::LoadFile(filename);
+    calib = YAML::LoadFile(filename);
     type = calib["calib"]["type"].as<std::string>();
   }
-  catch(const std::exception& e)
+  catch (const std::exception& e)
   {
     // Calibration file not valid
     return false;
@@ -235,7 +235,9 @@ bool CameraModel::LoadParamsFromFile(std::string filename)
 }
 
 //------------------------------------------------------------------------------
-void CameraModel::WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win, ProjectionType typein)
+void CameraModel::WriteParamsToFile(std::string outFilename,
+  Eigen::VectorXd Win,
+  ProjectionType typein)
 {
   YAML::Node calib;
 
@@ -244,15 +246,15 @@ void CameraModel::WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win
 
   switch (typein)
   {
-  case ProjectionType::Pinhole:
-    calib["calib"]["type"] = "Pinhole";
-    break;
-  case ProjectionType::BrownConradyPinhole:
-    calib["calib"]["type"] = "BrownConradyPinhole";
-    break;
-  case ProjectionType::FishEye:
-    calib["calib"]["type"] = "FishEye";
-    break;
+    case ProjectionType::Pinhole:
+      calib["calib"]["type"] = "Pinhole";
+      break;
+    case ProjectionType::BrownConradyPinhole:
+      calib["calib"]["type"] = "BrownConradyPinhole";
+      break;
+    case ProjectionType::FishEye:
+      calib["calib"]["type"] = "FishEye";
+      break;
   }
 
   calib["calib"]["extrinsic"] = YAML::Node();
@@ -293,23 +295,23 @@ void CameraModel::WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win
 }
 
 //------------------------------------------------------------------------------
-Eigen::Vector2d CameraModel::Projection(const Eigen::Vector3d& X,  bool shouldClip)
+Eigen::Vector2d CameraModel::Projection(const Eigen::Vector3d& X, bool shouldClip)
 {
   Eigen::VectorXd W = this->GetParametersVector();
   Eigen::Vector2d y(0, 0);
   switch (this->Type)
   {
-  case ProjectionType::Pinhole:
-    y = PinholeProjection(W, X,shouldClip);
-    break;
-  case ProjectionType::BrownConradyPinhole:
-    y = BrownConradyPinholeProjection(W, X,shouldClip);
-    break;
-  case ProjectionType::FishEye:
-    y = FisheyeProjection(W, X,shouldClip);
-    break;
-  default:
-    std::cout << "Warning: Projection type " << this->Type << " not handled!" << std::endl;
+    case ProjectionType::Pinhole:
+      y = PinholeProjection(W, X, shouldClip);
+      break;
+    case ProjectionType::BrownConradyPinhole:
+      y = BrownConradyPinholeProjection(W, X, shouldClip);
+      break;
+    case ProjectionType::FishEye:
+      y = FisheyeProjection(W, X, shouldClip);
+      break;
+    default:
+      std::cout << "Warning: Projection type " << this->Type << " not handled!" << std::endl;
   }
   return y;
 }

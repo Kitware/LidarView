@@ -37,10 +37,10 @@
 class LVFILTERSCAMERA_EXPORT vtkCameraProjector : public vtkImageAlgorithm
 {
 public:
-  static vtkCameraProjector *New();
+  static vtkCameraProjector* New();
   vtkTypeMacro(vtkCameraProjector, vtkImageAlgorithm)
 
-  void SetFileName(const std::string &argfilename);
+  void SetFileName(const std::string& argfilename);
 
   vtkSetMacro(ProjectedPointSizeInImage, int);
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
@@ -63,15 +63,15 @@ public:
 protected:
   vtkCameraProjector();
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void Modified() override;
 
@@ -85,7 +85,6 @@ private:
   double CurrentImagePipelineTime = 0.0; // time of the image given to RequestData
 
   vtkSmartPointer<vtkCustomTransformInterpolator> Trajectory = nullptr;
-
 
   //! File containing the camera model and parameters
   std::string Filename;
@@ -118,7 +117,7 @@ private:
   //! Should the calibration file be used ?
   bool UseCalibrationFile = true;
 
-    //! intrinsic parameters of the camera model
+  //! intrinsic parameters of the camera model
   Eigen::Matrix3d K = Eigen::Matrix3d::Identity();
 
   //! extrinsic parameters of the camera model

@@ -21,8 +21,8 @@
 #define VTK_OPENCV_VIDEO_READER_H
 
 // VTK
-#include <vtkPolyData.h>
 #include <vtkImageAlgorithm.h>
+#include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
@@ -33,7 +33,7 @@ class vtkOpenCVVideoReaderInternal;
 class LVIOCAMERAOPENCV_EXPORT vtkOpenCVVideoReader : public vtkImageAlgorithm
 {
 public:
-  static vtkOpenCVVideoReader *New();
+  static vtkOpenCVVideoReader* New();
   vtkTypeMacro(vtkOpenCVVideoReader, vtkImageAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -43,12 +43,13 @@ public:
 
   void SetTimeOffset(double argTs);
   double GetTimeOffset();
+
 protected:
   vtkOpenCVVideoReader();
   ~vtkOpenCVVideoReader() override;
 
   // Request data / information VTK mechanism
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:

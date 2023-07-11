@@ -4,7 +4,6 @@
 // VTK
 #include <vtkStreamingDemandDrivenPipeline.h>
 
-
 std::vector<double> getTimeSteps(vtkInformation* info)
 {
   if (!info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))

@@ -37,12 +37,12 @@ enum ProjectionType
 };
 
 /**
-   * @brief CameraModel class that represents a camera model included
-   *        by the following modelization:
-   *        1- Extrinsic parameters, element of SE(3)
-   *        2- Intrinsic parameters, representing the focal and pixel grid
-   *        3- Optical parameters, representing the optical system distortions
-   */
+ * @brief CameraModel class that represents a camera model included
+ *        by the following modelization:
+ *        1- Extrinsic parameters, element of SE(3)
+ *        2- Intrinsic parameters, representing the focal and pixel grid
+ *        3- Optical parameters, representing the optical system distortions
+ */
 class LVCOMMONCORE_EXPORT CameraModel
 {
 public:
@@ -67,9 +67,11 @@ public:
   // Returns true when parameters have been read correctly
   bool LoadParamsFromFile(std::string filename);
 
-  static void WriteParamsToFile(std::string outFilename, Eigen::VectorXd Win, ProjectionType typein);
+  static void WriteParamsToFile(std::string outFilename,
+    Eigen::VectorXd Win,
+    ProjectionType typein);
 
-  Eigen::Vector2d Projection(const Eigen::Vector3d& X,  bool shouldClip=false);
+  Eigen::Vector2d Projection(const Eigen::Vector3d& X, bool shouldClip = false);
 
 protected:
   //! intrinsic parameters of the camera model
