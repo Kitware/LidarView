@@ -50,9 +50,8 @@ def _SearchCalibrationFiles(calibration):
     raise ValueError(f"A valid calibration file must be specified.")
 
 # -----------------------------------------------------------------------------
-def _SetParamsOpenLidar(source, interpreterName, **params):
+def _SetParamsOpenLidar(source, **params):
     """Internal method used by OpenPCAP and OpenSensorStream"""
-    source.Interpreter = interpreterName
     for prop in ["Translate", "Rotate"]:
         if prop in params:
             source.Interpreter.SensorTransform.__setattr__(prop, params[prop])
@@ -108,8 +107,8 @@ def OpenPCAP(filename, calibration, interpreter, **params):
     """
     calibrationFile = _SearchCalibrationFiles(calibration)
 
-    reader = smp.LidarReader(FileName=filename, CalibrationFile=calibrationFile)
-    reader = _SetParamsOpenLidar(reader, interpreter, **params)
+    reader = smp.LidarReader(FileName=filename, CalibrationFile=calibrationFile, Interpreter=interpreter)
+    reader = _SetParamsOpenLidar(reader, **params)
 
     # Update animation scene based on data timesteps loaded in pcap
     animationScene = smp.GetAnimationScene()
@@ -149,8 +148,8 @@ def OpenSensorStream(calibration, interpreter, port=2368, **params):
     """
     calibrationFile = _SearchCalibrationFiles(calibration)
 
-    stream = smp.LidarStream(CalibrationFile=calibrationFile)
-    stream = _SetParamsOpenLidar(stream, interpreter, **params)
+    stream = smp.LidarStream(CalibrationFile=calibrationFile, Interpreter=interpreter)
+    stream = _SetParamsOpenLidar(stream, **params)
 
     smp.Show(stream)
     stream.Start()
