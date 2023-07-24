@@ -81,18 +81,13 @@
     </property>
     <addaction name="actionSpreadsheet"/>
     <addaction name="actionMeasurement_Grid"/>
-    <addaction name="actionShowRPM"/>
     <addaction name="actionGrid_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionChoose_Calibration_File"/>
     <addaction name="actionCropReturns"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
     <addaction name="actionPython_Console"/>
     <addaction name="actionShowErrorDialog"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -704,20 +699,6 @@
    </property>
    <property name="text">
     <string>Crop Returns...</string>
-   </property>
-  </action>
-  <action name="actionShowRPM">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show FrameRate</string>
-   </property>
-   <property name="toolTip">
-    <string>Display the rotations per minute</string>
    </property>
   </action>
   <action name="actionPersisting_Grid_Properties">
