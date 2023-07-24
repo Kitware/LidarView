@@ -39,15 +39,7 @@ import lidarview.modules.lvIOLidar
 class AppLogic(object):
 
     def __init__(self):
-      # WIP This can be removed through Statusbar creation and python wrappings in lqLidarViewManager
-      # Fields that Can be overriden to show some statuses
-      self.filenameLabel           = QtGui.QLabel()
-      self.sensorInformationLabel  = QtGui.QLabel()
-      self.positionPacketInfoLabel = QtGui.QLabel()
-      statusBar = getMainWindow().statusBar()
-      statusBar.addWidget(self.filenameLabel)
-      statusBar.addWidget(self.sensorInformationLabel)
-      statusBar.addWidget(self.positionPacketInfoLabel)
+        pass
 
 # Array Helper
 def hasArrayName(sourceProxy, arrayName):
@@ -122,16 +114,9 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     # TR Disabled in Sensor mode
     app.trailingFramesSpinBox.enabled = True
 
-    # Labels
-    LidarPort = sensor.GetClientSideObject().GetListeningPort()
-    app.filenameLabel.setText('Live sensor stream (Port:'+str(LidarPort)+')' )
-    app.positionPacketInfoLabel.setText('')
-
     enableSaveActions() # WIP UNSURE
 
-    updateUIwithNewLidar()
-
-    rep = smp.Show(sensor)
+    smp.Show(sensor)
     showSourceInSpreadSheet(sensor)
     smp.Render()
 
@@ -151,15 +136,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     app.trailingFramesSpinBox.enabled = True
     onTrailingFramesChanged(app.trailingFramesSpinBox.value)
 
-    filename = reader.FileName
-    displayableFilename = os.path.basename(filename)
-    # shorten the name to display because the status bar gives a lower bound to main window width
-    shortDisplayableFilename = (displayableFilename[:59] + '...' + displayableFilename[-58:]) if len(displayableFilename) > 120 else displayableFilename
-    app.filenameLabel.setText('File: %s' % shortDisplayableFilename)
-    app.filenameLabel.setToolTip('File: %s' % displayableFilename)
-
-    app.positionPacketInfoLabel.setText('') # will be updated later if possible
-
     enableSaveActions()
 
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
@@ -168,7 +144,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
 
     showSourceInSpreadSheet(getTrailingFrame())
 
-    updateUIwithNewLidar()
 
 def getSaveFileName(title, extension, defaultFileName=None):
 
@@ -296,12 +271,6 @@ def onClose():
 
     # Reset Camera
     lvsmp.ResetCameraToForwardView()
-
-    # Reset Labels
-    app.filenameLabel.setText('')
-    app.sensorInformationLabel.setText('')
-    app.positionPacketInfoLabel.setText('')
-    getMainWindow().statusBar().showMessage('')
 
     # Disable Actions
     disableSaveActions()
@@ -726,11 +695,3 @@ def end_cue(self):
     # force to be consistant with the UI
     toggleRPM()
     smp.SetActiveSource(None)
-
-# Status Bar helper
-def updateUIwithNewLidar():
-    lidar = getLidar()
-    if lidar:
-        app.sensorInformationLabel.setText(lidar.GetClientSideObject().GetSensorInformation(True))
-        app.sensorInformationLabel.setToolTip(lidar.GetClientSideObject().GetSensorInformation())
-    smp.Render()
