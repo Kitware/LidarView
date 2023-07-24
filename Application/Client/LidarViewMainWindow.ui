@@ -51,7 +51,6 @@
      </property>
      <addaction name="actionSavePCAP"/>
      <addaction name="actionSaveCSV"/>
-     <addaction name="actionSavePositionCSV"/>
      <addaction name="actionSavePCD"/>
      <addaction name="actionSavePLY"/>
      <addaction name="actionSaveLAS"/>
@@ -666,15 +665,6 @@
    </property>
    <property name="toolTip">
     <string>Plane Fit to selection</string>
-   </property>
-  </action>
-  <action name="actionSavePositionCSV">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/pqSpreadsheet16.png</normaloff>:/lvResources/Icons/pqSpreadsheet16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save Position CSV...</string>
    </property>
   </action>
   <action name="actionGPSApply">

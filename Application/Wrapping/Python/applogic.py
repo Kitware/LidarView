@@ -21,7 +21,6 @@ from paraview import vtk
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 import lidarview.gridAdjustmentDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
@@ -171,72 +170,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
 
     updateUIwithNewLidar()
 
-def rotateCSVFile(filename):
-
-    # read the csv file, move the last 3 columns to the
-    # front, and then overwrite the file with the result
-    csvFile = open(filename, 'rt')
-    reader = csv.reader(csvFile, quoting=csv.QUOTE_NONNUMERIC)
-    rows = [row[-3:] + row[:-3] for row in reader]
-    csvFile.close()
-
-    writer = csv.writer(open(filename, 'wt'), quoting=csv.QUOTE_NONNUMERIC, delimiter=',', lineterminator = '\n')
-    writer.writerows(rows)
-
-
-def savePositionCSV(filename):
-    w = smp.CreateWriter(filename, getPosition())
-    w.Precision = 16
-    w.FieldAssociation = 'Point Data'
-    w.UpdatePipeline()
-    smp.Delete(w)
-
-def saveCSVCurrentFrame(filename):
-    w = smp.CreateWriter(filename, getLidar())
-    w.Precision = 16
-    w.FieldAssociation = 'Point Data'
-    w.UpdatePipeline()
-    smp.Delete(w)
-    rotateCSVFile(filename)
-
-def saveCSVCurrentFrameSelection(filename):
-    source = smp.GetActiveSource()
-    extractSelection = smp.ExtractSelection(Input = source)
-    w = smp.CreateWriter(filename, extractSelection)
-    w.Precision = 16
-    w.FieldAssociation = 'Point Data'
-    w.UpdatePipeline()
-    smp.Delete(w)
-    rotateCSVFile(filename)
-
-def saveFrameRange(filename, frameStart, frameStop, saveFunction):
-    timesteps = range(frameStart, frameStop+1)
-    saveFunction(filename, timesteps)
-
-
-def saveCSV(filename, timesteps):
-
-    tempDir = kiwiviewerExporter.tempfile.mkdtemp()
-    basenameWithoutExtension = os.path.splitext(os.path.basename(filename))[0]
-    outDir = os.path.join(tempDir, basenameWithoutExtension)
-    filenameTemplate = os.path.join(outDir, basenameWithoutExtension + '_%04d.csv')
-    os.makedirs(outDir)
-
-    writer = smp.CreateWriter('tmp.csv', getLidar())
-    writer.FieldAssociation = 'Point Data'
-    writer.Precision = 16
-
-    for i in timesteps:
-        getAnimationScene().AnimationTime = getLidar().TimestepValues[i]
-        writer.FileName = filenameTemplate % i
-        writer.UpdatePipeline()
-        rotateCSVFile(writer.FileName)
-
-    smp.Delete(writer)
-
-    kiwiviewerExporter.zipDir(outDir, filename)
-    kiwiviewerExporter.shutil.rmtree(tempDir)
-
 def getSaveFileName(title, extension, defaultFileName=None):
 
     settings = getPVSettings()
@@ -284,11 +217,6 @@ def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=F
     dialog.setParent(None)
 
     return frameOptions
-
-def onSavePosition():
-    fileName = getSaveFileName('Save CSV', 'csv', getDefaultSaveFileName('csv', '-position'))
-    if fileName:
-        savePositionCSV(fileName)
 
 def onSavePCAP():
     # It is not possible to save as PCAP during stream as we need frame numbers
@@ -387,13 +315,10 @@ def _setSaveActionsEnabled(enabled):
 
 def enableSaveActions():
     _setSaveActionsEnabled(True)
-    if getPosition():
-        app.actions['actionSavePositionCSV'].setEnabled(True)
 
 
 def disableSaveActions():
     _setSaveActionsEnabled(False)
-    app.actions['actionSavePositionCSV'].setEnabled(False)
 
 
 def unloadData():
@@ -704,7 +629,6 @@ def setupActions():
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionClose'].connect('triggered()', onClose)
-    app.actions['actionSavePositionCSV'].connect('triggered()', onSavePosition)
     app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
