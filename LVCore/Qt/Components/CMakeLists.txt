@@ -1,13 +1,11 @@
 set(classes
   lqChooseLidarDialog
   lqLidarStateDialog
-  lqSaveLASDialog
   lqSelectLidarFrameDialog
   lqStreamRecordDialog)
 
 set(ui_files
   Resources/UI/lqChooseLidarDialog.ui
-  Resources/UI/lqSaveLASDialog.ui
   Resources/UI/lqSelectLidarFrameDialog.ui
   Resources/UI/lqStreamRecordDialog.ui)
 
