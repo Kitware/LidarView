@@ -18,6 +18,7 @@
 #include "CameraProjection.h"
 #include "vtkEigenTools.h"
 #include "vtkHelper.h"
+#include "vtkOpenCVVideoReader.h"
 #include "vtkPipelineTools.h"
 #include "vtkTemporalTransforms.h"
 
@@ -61,6 +62,7 @@ int vtkCameraProjector::FillInputPortInformation(int port, vtkInformation* info)
   if (port == IMAGE_INPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     return 1;
   }
   if (port == POINTS_INPUT_PORT)
@@ -146,6 +148,8 @@ int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   double requestedTimestampProjectedPoints =
     outputVector->GetInformationObject(PROJECTED_POINTS_OUTPUT_PORT)
       ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  this->FrameTimestamp = requestedTimestampPoints;
+
   // I do not fully understand why these three times are differents (even
   // though the same timesteps are copied to all outputs by RequestInformation
   // and all outputs are all shown), so we take the maximum.
@@ -154,6 +158,11 @@ int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   double requestedTimestamp = std::max(
     requestedTimestampPoints, std::max(requestedTimestampImage, requestedTimestampProjectedPoints));
 
+  // If there is no image, nothing must be done, the video path will be used instead
+  if (vtkImageData::GetData(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0)) == nullptr)
+  {
+    return 1;
+  }
   std::vector<double> imageTimesteps =
     getTimeSteps(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
   int bestImageTimeId = closestElementInOrderedVector(imageTimesteps, requestedTimestamp);
@@ -223,6 +232,22 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     vtkPolyData::GetData(outputVector->GetInformationObject(POINTS_OUTPUT_PORT));
   vtkPolyData* projectedCloud =
     vtkPolyData::GetData(outputVector->GetInformationObject(PROJECTED_POINTS_OUTPUT_PORT));
+
+  vtkNew<vtkImageData> inputImg;
+
+  if (inImg == nullptr)
+  {
+    vtkNew<vtkOpenCVVideoReader> reader;
+    reader->SetTimeOffset(this->VideoTimeOffset);
+    reader->SetFileName(this->VideoPath.c_str());
+    reader->SetForceTimeStamp(true);
+    reader->SetForcedTimeStamp(this->FrameTimestamp);
+    reader->Update();
+    inputImg->DeepCopy(reader->GetOutput(0));
+    inImg = inputImg;
+    outImg->DeepCopy(inputImg);
+  }
+
   if (!inImg || !pointcloud)
   {
     vtkGenericWarningMacro("Null pointer entry, can not launch the filter");

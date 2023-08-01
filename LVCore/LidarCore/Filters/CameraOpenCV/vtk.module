@@ -14,3 +14,4 @@ PRIVATE_DEPENDS
   Boost::filesystem
   opencv_imgcodecs
   LidarView::CommonOpenCV
+  LidarView::IOCameraOpenCV

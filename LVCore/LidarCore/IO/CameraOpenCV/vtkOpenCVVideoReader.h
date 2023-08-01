@@ -44,6 +44,12 @@ public:
   void SetTimeOffset(double argTs);
   double GetTimeOffset();
 
+  vtkGetMacro(ForceTimeStamp, bool);
+  vtkSetMacro(ForceTimeStamp, bool);
+
+  vtkGetMacro(ForcedTimeStamp, double);
+  vtkSetMacro(ForcedTimeStamp, double);
+
 protected:
   vtkOpenCVVideoReader();
   ~vtkOpenCVVideoReader() override;
@@ -56,6 +62,11 @@ private:
   vtkOpenCVVideoReaderInternal* Internal;
   vtkOpenCVVideoReader(const vtkOpenCVVideoReader&);
   void operator=(const vtkOpenCVVideoReader&);
+
+  //! Flag to force the timestamp to be the one given by ForcedTimeStamp
+  bool ForceTimeStamp = false;
+  //! Forced timestamp
+  double ForcedTimeStamp = 0.;
 };
 
 #endif // VTK_OPENCV_VIDEO_READER_H

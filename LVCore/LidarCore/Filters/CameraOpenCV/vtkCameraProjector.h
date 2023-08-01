@@ -27,15 +27,18 @@
 #include "vtkCustomTransformInterpolator.h"
 #include "vtkEigenTools.h"
 
-#include "lvFiltersCameraModule.h"
+#include "lvFiltersCameraOpenCVModule.h"
 
-class LVFILTERSCAMERA_EXPORT vtkCameraProjector : public vtkImageAlgorithm
+class LVFILTERSCAMERAOPENCV_EXPORT vtkCameraProjector : public vtkImageAlgorithm
 {
 public:
   static vtkCameraProjector* New();
   vtkTypeMacro(vtkCameraProjector, vtkImageAlgorithm)
 
   void SetFileName(const std::string& argfilename);
+
+  vtkSetMacro(VideoPath, std::string);
+  vtkSetMacro(VideoTimeOffset, double);
 
   vtkSetMacro(ProjectedPointSizeInImage, int);
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
@@ -80,6 +83,13 @@ private:
   double CurrentImagePipelineTime = 0.0; // time of the image given to RequestData
 
   vtkSmartPointer<vtkCustomTransformInterpolator> Trajectory = nullptr;
+
+  //! Path to the video file if not given as input
+  std::string VideoPath;
+  //! Video time offset
+  double VideoTimeOffset = 0.0;
+  //! Timestamp of the current frame
+  double FrameTimestamp = 0.0;
 
   //! File containing the camera model and parameters
   std::string Filename;

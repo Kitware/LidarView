@@ -279,7 +279,12 @@ int vtkOpenCVVideoReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   double timestep = 0.0;
-  if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  if (this->ForceTimeStamp)
+  {
+    // info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->ForcedTimeStamp);
+    timestep = this->ForcedTimeStamp;
+  }
+  else if (info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     timestep = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }

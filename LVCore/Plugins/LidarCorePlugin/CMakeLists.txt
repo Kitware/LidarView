@@ -50,13 +50,13 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersCamera
   XML_MODULE_FILES
     Filters/CameraMapper.xml
-    Filters/CameraProjector.xml
     Filters/LaplacianInfilling.xml
 )
 
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersCameraOpenCV
   XML_MODULE_FILES
+    Filters/CameraProjector.xml
     Filters/OpenCVImageMapper.xml
 )
 

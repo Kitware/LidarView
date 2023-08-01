@@ -4,18 +4,9 @@
     <SourceProxy name="CameraProjector" class="vtkCameraProjector" label="Camera Projector">
       <Documentation
         short_help="Project 3D points into the image using a camera model"
-        long_help="Project 3D points into the image using a camera model">
-        Project 3D points into the image using a camera model
+        long_help="Project 3D points into the image using a camera model. To improve the result, 
+        give the path to the video in the filter properties rather than giving the video as input.">
       </Documentation>
-
-      <InputProperty
-        name="Image"
-        port_index="0"
-        command="SetInputConnection">
-        <DataTypeDomain name="input_type">
-          <DataType value="vtkImageData"/>
-        </DataTypeDomain>
-      </InputProperty>
 
       <InputProperty
         name="PointCloud"
@@ -23,6 +14,19 @@
         command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          To improve the result, give the path to the video in the filter properties rather than
+          giving the video as input.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty
+        name="Video"
+        port_index="0"
+        command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkImageData"/>
         </DataTypeDomain>
       </InputProperty>
 
@@ -46,6 +50,32 @@
       <OutputPort name="Image With Projection" index="0" id="port0" />
       <OutputPort name="Colored Frame" index="1" id="port1" />
       <OutputPort name="Projected Frame" index="2" id="port2" />
+
+      <StringVectorProperty
+          name="VideoPath"
+          animateable="0"
+          command="SetVideoPath"
+          number_of_elements="1">
+          <FileListDomain name="files"/>
+          <Documentation>
+            This property specifies the path to the video file. It should be set only if the video
+            is not given as input.
+          </Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="VideoTimeOffset"
+                            command="SetVideoTimeOffset"
+                            number_of_elements="1"
+                            default_values="0">
+        <Documentation>
+          This property specifies the time offset of the video. 
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Video Parameters">
+        <Property name="VideoPath" />
+        <Property name="VideoTimeOffset" />
+      </PropertyGroup>
 
       <IntVectorProperty name="UseCalibrationFile"
                         command="SetUseCalibrationFile"

@@ -1,5 +1,6 @@
 set(classes
-  vtkOpenCVImageMapper)
+  vtkOpenCVImageMapper
+  vtkCameraProjector)
 
 vtk_module_add_module(LidarView::FiltersCameraOpenCV
   CLASSES ${classes})
