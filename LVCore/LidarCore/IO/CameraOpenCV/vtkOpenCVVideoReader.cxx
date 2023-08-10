@@ -332,10 +332,11 @@ int vtkOpenCVVideoReader::GetNumberOfFrames()
 //-----------------------------------------------------------------------------
 void vtkOpenCVVideoReader::SetFileName(const char* filename)
 {
-  if (!this->Internal->Video.open(std::string(filename)))
+  if (!this->Internal->Video.open(filename))
   {
-    vtkGenericWarningMacro("Can not load video:"
+    vtkGenericWarningMacro("Could not load video: "
       << filename << " check that the file exists and has the correct extension");
+    return;
   }
   this->Internal->FileName = std::string(filename);
   this->Internal->FramesPosition.clear();
