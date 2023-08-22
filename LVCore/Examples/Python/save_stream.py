@@ -30,8 +30,8 @@ stream.StopRecording()
 
 # Pause visualisation ( recording would not be paused )
 time.sleep(3)
-stream.Pause()
+stream.Stop()
 
 # Start it again
 time.sleep(3)
-stream.Play()
+stream.Start()
