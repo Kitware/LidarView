@@ -91,7 +91,6 @@ public:
   vtkSMProxy* getLidar(int index = -1);
   vtkSMProxy* getReader(int index = -1);
   vtkSMProxy* getSensor(int index = -1);
-  vtkSMProxy* getTrailingFrame(int index = -1);
   vtkSMProxy* getPosOrSource(int index = -1);
 
 protected Q_SLOTS:

@@ -489,28 +489,6 @@ vtkSMProxy* lqSensorListWidget::getSensor(int idx)
   return IsLidarStreamProxy(proxy) ? proxy : nullptr;
 }
 
-vtkSMProxy* lqSensorListWidget::getTrailingFrame(int idx)
-{
-  // Find First TrailingFrame filter that is connected to ActiveLidarSource
-  auto lidar = idx == -1 ? this->getActiveLidarSource() : this->getLidarSource(idx);
-  if (!lidar)
-  {
-    return nullptr;
-  }
-
-  // WIP Rely on the fact that frame is first output // getOutputPort("frame")
-  Q_FOREACH (pqPipelineSource* src, lidar->getOutputPort(0)->getConsumers())
-  {
-    vtkSMProxy* proxy = src->getProxy();
-    if (IsProxy<vtkTrailingFrame>(proxy))
-    {
-      return proxy;
-    }
-  }
-
-  return nullptr;
-}
-
 vtkSMProxy* lqSensorListWidget::getPosOrSource(int idx)
 {
   // Find First PosOr filter that is connected to ActiveLidarSource

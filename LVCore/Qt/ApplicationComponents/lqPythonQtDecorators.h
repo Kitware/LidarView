@@ -98,10 +98,6 @@ public Q_SLOTS:
   {
     return lqSensorListWidget::instance()->getSensor(index);
   }
-  vtkSMProxy* static_lqSensorListWidget_getTrailingFrame(int index)
-  {
-    return lqSensorListWidget::instance()->getTrailingFrame(index);
-  }
   vtkSMProxy* static_lqSensorListWidget_getPosOrSource(int index)
   {
     return lqSensorListWidget::instance()->getPosOrSource(index);
