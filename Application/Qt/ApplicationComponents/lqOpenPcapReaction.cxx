@@ -183,26 +183,13 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName, const lqCalibrat
     controller->Show(posOrSource->getSourceProxy(), 0, view->getViewProxy());
   }
 
-  // Create the trailing Frame filter on the output of the LidarReader
-  QMap<QString, QList<pqOutputPort*>> namedInputs;
-  QList<pqOutputPort*> inputs;
-  inputs.push_back(lidarSource->getOutputPort(0));
-  namedInputs["Input"] = inputs;
-  pqPipelineSource* trailingFrameFilter =
-    builder->createFilter("filters", "TrailingFrame", namedInputs, server);
-  trailingFrameFilter->setModifiedState(pqProxy::UNMODIFIED);
-
-  // Set the trailing frame associated to the sensor Widget
-  lqSensorListWidget* listSensor = lqSensorListWidget::instance();
-  listSensor->setSourceToDisplayToLidarSourceWidget(lidarSource, trailingFrameFilter);
-
   // Update applogic to be able to use function only define in applogic.
   lqLidarViewManager::instance()->runPython(
     QString("lv.UpdateApplogicReader('%1', '%2')\n").arg(lidarName, posOrName));
 
-  // Show the trailing frame
-  controller->Show(trailingFrameFilter->getSourceProxy(), 0, view->getViewProxy());
-  pqActiveObjects::instance().setActiveSource(trailingFrameFilter);
+  // Show the Lidar source
+  controller->Show(lidarSource->getSourceProxy(), 0, view->getViewProxy());
+  pqActiveObjects::instance().setActiveSource(lidarSource);
   pqApplicationCore::instance()->render();
 
   // WIP Workaround Seek to first Frame To prevent displaying half frame from begining
