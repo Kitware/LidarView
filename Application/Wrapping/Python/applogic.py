@@ -183,35 +183,6 @@ def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=F
 
     return frameOptions
 
-def onSavePCAP():
-    # It is not possible to save as PCAP during stream as we need frame numbers
-    if getSensor():
-        QtGui.QMessageBox.information(getMainWindow(),
-                                      'Save As PCAP not available during stream',
-                                      'Saving as PCAP is not possible during lidar stream mode. '
-                                      'Please use the "Record" tool, and open the resulting pcap offline to process it.')
-        return
-
-    frameOptions = getFrameSelectionFromUser(frameTransformVisibility=False)
-    if frameOptions is None:
-        return
-
-    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
-        frameOptions.start = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
-        frameOptions.stop = frameOptions.start
-        defaultFileName = getDefaultSaveFileName('pcap', frameId=frameOptions.start)
-    elif frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
-        frameOptions.start = 0
-        frameOptions.stop = 0 if getReader() is None else getReader().GetClientSideObject().GetNumberOfFrames() - 1
-        defaultFileName = getDefaultSaveFileName('pcap')
-    else:
-        defaultFileName = getDefaultSaveFileName('pcap', suffix=' (Frame %d to %d)' % (frameOptions.start, frameOptions.stop))
-
-    fileName = getSaveFileName('Save PCAP', 'pcap', defaultFileName)
-    if not fileName:
-        return
-    PythonQt.paraview.lqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
-
 def getFrameFromAnimationTime(time):
     if not getReader():
         return -1
@@ -267,7 +238,7 @@ def onClose():
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
-    for action in ('SavePCAP', 'Close', 'CropReturns'):
+    for action in ('Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
@@ -568,7 +539,6 @@ def setupActions():
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionClose'].connect('triggered()', onClose)
-    app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)

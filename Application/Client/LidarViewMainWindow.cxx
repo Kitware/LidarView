@@ -25,6 +25,7 @@
 #include "lqOpenSensorReaction.h"
 #include "lqSaveLidarFrameReaction.h"
 #include "lqSaveLidarStateReaction.h"
+#include "lqSavePcapReaction.h"
 #include "lqUpdateCalibrationReaction.h"
 #include "vtkLVVersion.h"
 #include <lqCameraParallelProjectionReaction.h>
@@ -438,6 +439,7 @@ void LidarViewMainWindow::setupGUICustom()
     this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
   new lqSaveLidarFrameReaction(
     this->Internals->actionSavePLY, "PPLYWriter", "ply", false, false, true, true);
+  new lqSavePcapReaction(this->Internals->actionSavePcap, false, true);
 
 // Check if PDAL should be used with lidarview.
 #if LIDARVIEW_USE_PDAL

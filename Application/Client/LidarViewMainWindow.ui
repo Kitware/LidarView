@@ -49,7 +49,7 @@
      <property name="title">
       <string>Save &amp;As</string>
      </property>
-     <addaction name="actionSavePCAP"/>
+     <addaction name="actionSavePcap"/>
      <addaction name="actionSaveCSV"/>
      <addaction name="actionSavePCD"/>
      <addaction name="actionSavePLY"/>
@@ -522,7 +522,7 @@
     <string>Grid Properties</string>
    </property>
   </action>
-  <action name="actionSavePCAP">
+  <action name="actionSavePcap">
    <property name="icon">
     <iconset>
      <normaloff>:/lvResources/Icons/WiresharkDoc-128.png</normaloff>:/lvResources/Icons/WiresharkDoc-128.png</iconset>
