@@ -58,10 +58,6 @@ if (${software_name_upper}_BUILD_DEVELOPER_DOCUMENTATION)
 endif ()
 
 #-------------------------------------------------------------------------------
-# Set Relative Path Variables
-include(SetupOutputDirs)
-
-#-------------------------------------------------------------------------------
 # Set Absolute Variables
 
 vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
