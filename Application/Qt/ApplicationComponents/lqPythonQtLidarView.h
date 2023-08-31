@@ -36,7 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QObject>
 
 #include "lqCropReturnsDialog.h"
-#include "lqSelectFramesDialog.h"
 #include "lqLidarViewManager.h"
 
 #include "lvApplicationComponentsModule.h"
@@ -53,7 +52,6 @@ public:
     this->registerClassForPythonQt(&lqLidarViewManager::staticMetaObject);
 
     this->registerClassForPythonQt(&lqCropReturnsDialog::staticMetaObject);
-    this->registerClassForPythonQt(&lqSelectFramesDialog::staticMetaObject);
   }
 
   inline void registerClassForPythonQt(const QMetaObject* metaobject)
@@ -65,11 +63,6 @@ public Q_SLOTS:
   lqCropReturnsDialog* new_lqCropReturnsDialog(QWidget* arg0)
   {
     return new lqCropReturnsDialog(arg0);
-  }
-
-  lqSelectFramesDialog* new_lqSelectFramesDialog(QWidget* arg0)
-  {
-    return new lqSelectFramesDialog(arg0);
   }
 };
 

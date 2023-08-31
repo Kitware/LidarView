@@ -2,7 +2,6 @@ set(classes
   lqAboutDialog
   lqCalibrationDialog
   lqCropReturnsDialog
-  lqSelectFramesDialog
 )
 
 set(headers
@@ -13,7 +12,7 @@ set(ui_files
   Resources/UI/lqAboutDialog.ui
   Resources/UI/lqCalibrationDialog.ui
   Resources/UI/lqCropReturnsDialog.ui
-  Resources/UI/lqSelectFramesDialog.ui)
+)
 
 set(resource_files
   Resources/lvComponents.qrc

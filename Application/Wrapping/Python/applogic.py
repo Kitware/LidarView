@@ -25,7 +25,7 @@ import lidarview.gridAdjustmentDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
-from PythonQt.paraview import lqCropReturnsDialog, lqSelectFramesDialog
+from PythonQt.paraview import lqCropReturnsDialog
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
@@ -149,39 +149,6 @@ def getSaveFileName(title, extension, defaultFileName=None):
     if fileName:
         settings.setValue('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
         return fileName
-
-# Action related Logic
-def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=False, frameTransformVisibility=False):
-    class FrameOptions(object):
-        pass
-
-    dialog = PythonQt.paraview.lqSelectFramesDialog(getMainWindow())
-    dialog.frameMinimum = 0
-    if getReader() is None:
-        dialog.frameMaximum = 0
-    elif getReader().GetClientSideObject().GetShowFirstAndLastFrame():
-        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 1
-    else:
-        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 3
-    dialog.frameStrideVisibility = frameStrideVisibility
-    dialog.framePackVisibility = framePackVisibility
-    dialog.frameTransformVisibility = frameTransformVisibility
-    dialog.restoreState()
-
-    if not dialog.exec_():
-        return None
-
-    frameOptions = FrameOptions()
-    frameOptions.mode = dialog.frameMode
-    frameOptions.start = dialog.frameStart
-    frameOptions.stop = dialog.frameStop
-    frameOptions.stride = dialog.frameStride
-    frameOptions.pack = dialog.framePack
-    frameOptions.transform = dialog.frameTransform
-
-    dialog.setParent(None)
-
-    return frameOptions
 
 def getFrameFromAnimationTime(time):
     if not getReader():
