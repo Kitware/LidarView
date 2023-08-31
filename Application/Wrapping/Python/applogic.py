@@ -67,28 +67,6 @@ def hasArrayName(sourceProxy, arrayName):
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
-def getDefaultSaveFileName(extension, suffix='', frameId=None, baseName="Frame"):
-
-    sensor = getSensor()
-    reader = getReader()
-
-    # Use current datetime and Interpreter DefaultRecordFileName
-    if sensor and sensor.Interpreter:
-        sensor.Interpreter.UpdatePipelineInformation()
-        return '%s.%s' % (sensor.Interpreter.GetProperty("DefaultRecordFileName")[0], extension)
-
-    # Use PCAP Basename
-    if reader:
-        filename = reader.FileName
-        filename = filename[0] if isinstance(filename, paraview.servermanager.FileNameProperty) else filename # WIP FIX ?
-        basename =  os.path.splitext(os.path.basename(filename))[0]
-        if frameId is not None:
-            suffix = '%s(%s%04d)' % (suffix, baseName, frameId)
-        return '%s%s.%s' % (basename, suffix, extension)
-
-    else:
-      return "filename"
-
 # Main API
 def UpdateApplogicCommon(lidar):
   # WIP ACTUALLY THINK ABOUT always enabled ok, just apply settings on current lidar actually needed
@@ -134,59 +112,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
     smp.SetActiveView(smp.GetActiveView())
-
-def getSaveFileName(title, extension, defaultFileName=None):
-
-    settings = getPVSettings()
-    defaultDir = settings.value('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QDir.homePath())
-    defaultFileName = defaultDir if not defaultFileName else os.path.join(defaultDir, defaultFileName)
-
-    filters = '%s (*.%s)' % (extension, extension)
-    selectedFilter = '%s (*.%s)' % (extension, extension)
-    fileName = QtGui.QFileDialog.getSaveFileName(getMainWindow(), title,
-                        defaultFileName, filters, selectedFilter, 0)
-
-    if fileName:
-        settings.setValue('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
-        return fileName
-
-def getFrameFromAnimationTime(time):
-    if not getReader():
-        return -1
-
-    index = bisect.bisect_right(getAnimationScene().TimeKeeper.TimestepValues, time)
-    if index > 0:
-        previousTime = getAnimationScene().TimeKeeper.TimestepValues[index - 1]
-        nextTime     = getAnimationScene().TimeKeeper.TimestepValues[index]
-        index = index - 1 if (abs(previousTime - time) < abs(nextTime - time)) else index
-    return index
-
-def exportToDirectory(outDir, timesteps):
-
-    filenames = []
-
-    alg = smp.GetActiveSource().GetClientSideObject()
-
-    writer = vtk.vtkXMLPolyDataWriter()
-    writer.SetDataModeToAppended()
-    writer.EncodeAppendedDataOff()
-    writer.SetCompressorTypeToZLib()
-
-    for t in timesteps:
-
-        filename = 'frame_%04d.vtp' % t
-        filenames.append(filename)
-
-        getAnimationScene().AnimationTime = t
-        polyData = vtk.vtkPolyData()
-        polyData.ShallowCopy(alg.GetOutput())
-
-        writer.SetInputData(polyData)
-        writer.SetFileName(os.path.join(outDir, filename))
-        writer.Update()
-
-    return filenames
-
 
 def onClose():
     # Pause
