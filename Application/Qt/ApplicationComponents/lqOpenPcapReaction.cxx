@@ -17,11 +17,11 @@
 #include <pqSettings.h>
 #include <pqView.h>
 
+#include "lqCalibrationDialog.h"
 #include "lqHelper.h"
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "lqCalibrationDialog.h"
 
 #include <QApplication>
 #include <QProgressDialog>
