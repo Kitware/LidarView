@@ -111,9 +111,6 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     sensor.UpdatePipelineInformation()
     sensor.UpdatePipeline()
 
-    # TR Disabled in Sensor mode
-    app.trailingFramesSpinBox.enabled = True
-
     enableSaveActions() # WIP UNSURE
 
     smp.Show(sensor)
@@ -132,18 +129,11 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     reader.UpdatePipelineInformation()
     reader.UpdatePipeline()
 
-    # TR
-    app.trailingFramesSpinBox.enabled = True
-    onTrailingFramesChanged(app.trailingFramesSpinBox.value)
-
     enableSaveActions()
 
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
     smp.SetActiveView(smp.GetActiveView())
-
-    showSourceInSpreadSheet(getTrailingFrame())
-
 
 def getSaveFileName(title, extension, defaultFileName=None):
 
@@ -308,9 +298,6 @@ def getReader(index = -1):
 
 def getSensor(index = -1):
   return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getSensor(index))
-
-def getTrailingFrame(index = -1):
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getTrailingFrame(index))
 
 def getPosOrSource(index = -1):
   return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getPosOrSource(index))
@@ -484,13 +471,6 @@ def getPVApplicationCore():
 def getPVSettings():
     return getPVApplicationCore().settings()
 
-def onTrailingFramesChanged(number):
-  # WIP sensorListWidget must provide an API / assume responsibility for this
-  tr = getTrailingFrame()
-  if tr:
-    tr.NumberOfTrailingFrames = number
-    smp.Render()
-
 def onGridProperties():
     if not app.grid:
       createGrid()
@@ -629,21 +609,6 @@ def setupActions():
 
     # Set default toolbar visibility
     geolocationToolBar.visible = False
-
-    # Get playback speed control toolbar
-    timeToolBar = mW.findChild('QToolBar','Player Control')
-
-    # Trailing Frame Spinbox
-    spinBoxLabel = QtGui.QLabel('TF:')
-    spinBoxLabel.toolTip = "Number of trailing frames"
-    timeToolBar.addWidget(spinBoxLabel)
-    spinBox = QtGui.QSpinBox()
-    spinBox.toolTip = "Number of trailing frames"
-    spinBox.setMinimum(0)
-    spinBox.setMaximum(100)
-    spinBox.connect('valueChanged(int)', onTrailingFramesChanged)
-    app.trailingFramesSpinBox = spinBox
-    timeToolBar.addWidget(app.trailingFramesSpinBox)
 
     displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
     displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
