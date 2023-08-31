@@ -89,10 +89,3 @@ if (APPLE)
   #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../Libraries") #setting this will replace @rpath which is bad ??
   #@rpath does not work, but it says it is  "more flexible
 endif()
-
-# Fixup-Install
-# On windows, we install all needed tools manually in install dir
-if (WIN32)
-  # Ship Qt5, Python3
-  include(SetupWindowsCustomInstall)
-endif ()
