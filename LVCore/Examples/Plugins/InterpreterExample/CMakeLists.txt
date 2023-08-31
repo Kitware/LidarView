@@ -18,10 +18,9 @@ foreach(file ${calib_files})
 endforeach()
 
 # Install step
-set(install_calib_files_dest share)
-if(APPLE)
-  set(install_calib_files_dest "${LV_INSTALL_LIBRARY_DIR}/../Resources")
-endif()
 foreach(file ${calib_files})
-  install(FILES "${PROJECT_BINARY_DIR}/share/${file}" DESTINATION ${install_calib_files_dest})
+  install(
+    FILES "${PROJECT_BINARY_DIR}/share/${file}"
+    DESTINATION "share"
+  )
 endforeach()
