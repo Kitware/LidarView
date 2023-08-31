@@ -1,6 +1,7 @@
 #--------------------------------------
 # Set-up lvcore test & cmake variables
 #--------------------------------------
+set(lidarview_plugins_library_subdirectory "lidarview/plugins")
 set(lidarview_cmake_destination "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview")
 set(lidarview_test_data_directory_input "${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data")
 set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")
@@ -132,7 +133,7 @@ paraview_plugin_build(
   HEADERS_DESTINATION   "${CMAKE_INSTALL_INCLUDEDIR}/lidarview"
   RUNTIME_DESTINATION   "${CMAKE_INSTALL_BINDIR}"
   LIBRARY_DESTINATION   "${CMAKE_INSTALL_LIBDIR}"
-  LIBRARY_SUBDIRECTORY  "lidarview/plugins"
+  LIBRARY_SUBDIRECTORY  "${lidarview_plugins_library_subdirectory}"
   CMAKE_DESTINATION     "${lidarview_cmake_destination}"
   PLUGINS_FILE_NAME     "lidarview.plugins.xml"
   TARGET                LidarView::lidarview_plugins
