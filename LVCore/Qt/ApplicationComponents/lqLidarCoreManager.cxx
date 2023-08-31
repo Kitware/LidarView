@@ -272,28 +272,6 @@ void lqLidarCoreManager::onResetCameraToForwardView()
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::saveFramesToPCAP(vtkSMSourceProxy* proxy,
-  int startFrame,
-  int endFrame,
-  const QString& filename)
-{
-  if (!proxy)
-  {
-    return;
-  }
-
-  vtkLidarReader* reader = vtkLidarReader::SafeDownCast(proxy->GetClientSideObject());
-  if (!reader)
-  {
-    return;
-  }
-
-  reader->Open();
-  reader->SaveFrame(startFrame, endFrame, filename.toUtf8().data());
-  reader->Close();
-}
-
-//-----------------------------------------------------------------------------
 pqServer* lqLidarCoreManager::getActiveServer()
 {
   pqApplicationCore* app = pqApplicationCore::instance();

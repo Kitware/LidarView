@@ -79,12 +79,6 @@ public:
   static pqServer* getActiveServer();
   static QWidget* getMainWindow();
 
-  // WIP Those are common to all ParaView-based Apps, it may change in the future
-  static void saveFramesToPCAP(vtkSMSourceProxy* proxy,
-    int startFrame,
-    int endFrame,
-    const QString& filename);
-
 public Q_SLOTS:
   // Perform delayed python shell startup
   virtual void pythonStartup();

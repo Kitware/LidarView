@@ -14,6 +14,7 @@ set(classes
   lqRulerReaction
   lqSaveLidarFrameReaction
   lqSaveLidarStateReaction
+  lqSavePcapReaction
   lqSensorListWidget
   lqSensorReaderWidget
   lqSensorStreamWidget
