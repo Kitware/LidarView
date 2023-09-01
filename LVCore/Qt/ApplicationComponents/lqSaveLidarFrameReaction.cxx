@@ -34,7 +34,6 @@
 #include <pqProxyWidgetDialog.h>
 
 #include <QDebug>
-#include <QFileDialog>
 #include <QProgressDialog>
 
 #include "lqHelper.h"
@@ -133,9 +132,16 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
   std::string pcapName = vtkSMPropertyHelper(lidar, "FileName").GetAsString();
   QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
 
+  pqFileDialog dialog(nullptr, pqCoreUtilities::mainWidget(), tr("Save File"));
+  dialog.selectFile(fileInfo.path() + "/" + fileInfo.baseName());
+  dialog.setFileMode(pqFileDialog::AnyFile);
 
-  QString saveFileName = QFileDialog::getSaveFileName(
-    pqCoreUtilities::mainWidget(), tr("Save File:"), this->BaseName, this->Extension);
+  QString saveFileName;
+  if (dialog.exec())
+  {
+    saveFileName = dialog.getSelectedFiles(0).first();
+  }
+
   if (saveFileName.isEmpty())
   {
     return false;
