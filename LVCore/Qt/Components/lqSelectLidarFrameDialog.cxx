@@ -20,7 +20,9 @@
 #include <QMessageBox>
 
 //-----------------------------------------------------------------------------
-lqSelectLidarFrameDialog::lqSelectLidarFrameDialog(int nbFrame, QWidget* parent)
+lqSelectLidarFrameDialog::lqSelectLidarFrameDialog(int nbFrame,
+  QWidget* parent,
+  FrameMode defaultMode)
   : QDialog(parent)
   , ui(new Ui::lqSelectLidarFrameDialog)
 {
@@ -28,6 +30,19 @@ lqSelectLidarFrameDialog::lqSelectLidarFrameDialog(int nbFrame, QWidget* parent)
   this->ui->StartFrameSpinBox->setMaximum(nbFrame);
   this->ui->StopFrameSpinBox->setMaximum(nbFrame);
   this->ui->StopFrameSpinBox->setValue(nbFrame);
+
+  switch (defaultMode)
+  {
+    case FrameMode::CURRENT_FRAME:
+      this->ui->CurrentFrameRadioButton->setChecked(true);
+      break;
+    case FrameMode::ALL_FRAMES:
+      this->ui->AllFrameRadioButton->setChecked(true);
+      break;
+    case FrameMode::FRAME_RANGE:
+      this->ui->FrameRangeRadioButton->setChecked(true);
+      break;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -37,7 +52,7 @@ lqSelectLidarFrameDialog::~lqSelectLidarFrameDialog()
 }
 
 //-----------------------------------------------------------------------------
-FrameMode lqSelectLidarFrameDialog::frameMode() const
+lqSelectLidarFrameDialog::FrameMode lqSelectLidarFrameDialog::frameMode() const
 {
   if (this->ui->CurrentFrameRadioButton->isChecked())
   {

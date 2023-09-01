@@ -49,7 +49,8 @@ void lqSavePcapReaction::onTriggered()
     nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements() - 1 : 0;
   }
 
-  lqSelectLidarFrameDialog dialog(nbFrame);
+  lqSelectLidarFrameDialog dialog(
+    nbFrame, pqCoreUtilities::mainWidget(), lqSelectLidarFrameDialog::ALL_FRAMES);
   if (dialog.exec())
   {
     this->saveFrame(lidar->getProxy(), dialog.StartFrame(), dialog.StopFrame());

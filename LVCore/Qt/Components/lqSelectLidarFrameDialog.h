@@ -20,13 +20,6 @@
 
 #include <QDialog>
 
-enum FrameMode
-{
-  CURRENT_FRAME = 0,
-  ALL_FRAMES,
-  FRAME_RANGE
-};
-
 namespace Ui
 {
 class lqSelectLidarFrameDialog;
@@ -37,7 +30,16 @@ class LQCOMPONENTS_EXPORT lqSelectLidarFrameDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit lqSelectLidarFrameDialog(int nbFrame, QWidget* parent = nullptr);
+  enum FrameMode
+  {
+    CURRENT_FRAME = 0,
+    ALL_FRAMES,
+    FRAME_RANGE
+  };
+
+  explicit lqSelectLidarFrameDialog(int nbFrame,
+    QWidget* parent = nullptr,
+    FrameMode defaultMode = FrameMode::CURRENT_FRAME);
   ~lqSelectLidarFrameDialog();
 
   FrameMode frameMode() const;
