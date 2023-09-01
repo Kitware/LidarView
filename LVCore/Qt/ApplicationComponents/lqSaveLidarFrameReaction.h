@@ -45,10 +45,7 @@ public:
   lqSaveLidarFrameReaction(QAction* action,
     const QString& writerName,
     const QString& extension,
-    bool DisplaySettings = false,
-    bool useDirectory = false,
-    bool keepNameFromPcapFile = false,
-    bool fileNameWithFrameNumber = false);
+    bool displaySettings = false);
 
   /**
    *  Save the frame generate by the lidar "lidar"
@@ -88,19 +85,8 @@ protected:
    */
   virtual bool GetFolderAndBaseNameFromUser(vtkSMProxy* lidar);
 
-  // True if the user only select a directory where all exported files will be saved (with default
-  // filename)
-  bool UseDirectory;
-
-  // True if the exported filename should have the same name as the origin pcap file ("Frame"
-  // otherwise)
-  bool KeepNameFromPcapFile;
-
-  // True if the exported fileName should have the number of the frame (instead of the timestamp)
-  bool FileNameWithFrameNumber;
-
   // True if the settings of the writer should be exposed to the user
-  bool DisplaySettings;
+  bool DisplaySettings = false;
 
   QString FolderPath;
   QString BaseName;

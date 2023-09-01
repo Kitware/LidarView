@@ -41,9 +41,7 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqSavePcapReaction : public lqSaveLidarFram
   typedef lqSaveLidarFrameReaction Superclass;
 
 public:
-  lqSavePcapReaction(QAction* action,
-    bool displaySettings = false,
-    bool keepNameFromPcapFile = false);
+  lqSavePcapReaction(QAction* action, bool displaySettings = false);
 
   /**
    *  Save the frame generate by the lidar "lidar"

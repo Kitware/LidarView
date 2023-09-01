@@ -26,16 +26,8 @@
 #include "vtkLidarReader.h"
 
 //-----------------------------------------------------------------------------
-lqSavePcapReaction::lqSavePcapReaction(QAction* action,
-  bool displaySettings,
-  bool keepNameFromPcapFile)
-  : lqSaveLidarFrameReaction(action,
-      "",
-      "pcap",
-      displaySettings,
-      false,
-      keepNameFromPcapFile,
-      false)
+lqSavePcapReaction::lqSavePcapReaction(QAction* action, bool displaySettings)
+  : lqSaveLidarFrameReaction(action, "", "pcap", displaySettings)
 {
 }
 

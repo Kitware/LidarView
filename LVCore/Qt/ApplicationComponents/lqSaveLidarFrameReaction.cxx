@@ -44,18 +44,12 @@
 //-----------------------------------------------------------------------------
 lqSaveLidarFrameReaction::lqSaveLidarFrameReaction(QAction* action,
   const QString& writerName,
-  const QString& extention,
-  bool displaySettings,
-  bool useDirectory,
-  bool keepNameFromPcapFile,
-  bool fileNameWithFrameNumber)
+  const QString& extension,
+  bool displaySettings)
   : pqReaction(action)
-  , UseDirectory(useDirectory)
-  , KeepNameFromPcapFile(keepNameFromPcapFile)
-  , FileNameWithFrameNumber(fileNameWithFrameNumber)
   , DisplaySettings(displaySettings)
   , WriterName(writerName)
-  , Extension(extention)
+  , Extension(extension)
 {
   auto* core = pqApplicationCore::instance();
 
@@ -136,38 +130,20 @@ void lqSaveLidarFrameReaction::onTriggered()
 //-----------------------------------------------------------------------------
 bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
 {
-  this->FolderPath = QString("");
-  this->BaseName = QString("Frame_");
+  std::string pcapName = vtkSMPropertyHelper(lidar, "FileName").GetAsString();
+  QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
 
-  if (this->KeepNameFromPcapFile)
+
+  QString saveFileName = QFileDialog::getSaveFileName(
+    pqCoreUtilities::mainWidget(), tr("Save File:"), this->BaseName, this->Extension);
+  if (saveFileName.isEmpty())
   {
-    std::string pcapName = vtkSMPropertyHelper(lidar, "FileName").GetAsString();
-    QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
-    this->BaseName = fileInfo.baseName();
+    return false;
   }
 
-  if (this->UseDirectory)
-  {
-    this->FolderPath =
-      QFileDialog::getExistingDirectory(pqCoreUtilities::mainWidget(), tr("Save File:"));
-    if (this->FolderPath.isEmpty())
-    {
-      return false;
-    }
-  }
-  else
-  {
-    QString saveFileName = QFileDialog::getSaveFileName(
-      pqCoreUtilities::mainWidget(), tr("Save File:"), this->BaseName, this->Extension);
-    if (saveFileName.isEmpty())
-    {
-      return false;
-    }
-
-    QFileInfo fileInfo = QFile(saveFileName);
-    this->FolderPath = fileInfo.path();
-    this->BaseName = fileInfo.baseName();
-  }
+  fileInfo = QFile(saveFileName);
+  this->FolderPath = fileInfo.path();
+  this->BaseName = fileInfo.baseName();
   return true;
 }
 
@@ -251,12 +227,8 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
 //-----------------------------------------------------------------------------
 QString lqSaveLidarFrameReaction::GenerateFileName(QString baseName, double timestep)
 {
-  QString timeInfo = QString::number(timestep);
-  if (this->FileNameWithFrameNumber)
-  {
-    // format filename in a way that is readable again as a time sequence when re-opening the data
-    timeInfo = "_" + QString::number(GetFrameIndexOfTimestamp(timestep));
-  }
+  // format filename in a way that is readable again as a time sequence when re-opening the data
+  QString timeInfo = "_" + QString::number(GetFrameIndexOfTimestamp(timestep));
 
   QString sFilenameMainString = baseName + timeInfo;
 
