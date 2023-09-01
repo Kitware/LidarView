@@ -119,6 +119,12 @@ void lqSaveLidarFrameReaction::onTriggered()
     nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements() - 1 : 0;
   }
 
+  // Set BaseName and FolderPath
+  std::string pcapName = vtkSMPropertyHelper(lidar->getProxy(), "FileName").GetAsString();
+  QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
+  this->FolderPath = fileInfo.path();
+  this->BaseName = fileInfo.baseName();
+
   lqSelectLidarFrameDialog dialog(nbFrame);
   if (dialog.exec())
   {
@@ -127,13 +133,10 @@ void lqSaveLidarFrameReaction::onTriggered()
 }
 
 //-----------------------------------------------------------------------------
-bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
+bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser()
 {
-  std::string pcapName = vtkSMPropertyHelper(lidar, "FileName").GetAsString();
-  QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
-
   pqFileDialog dialog(nullptr, pqCoreUtilities::mainWidget(), tr("Save File"));
-  dialog.selectFile(fileInfo.path() + "/" + fileInfo.baseName());
+  dialog.selectFile(this->FolderPath + "/" + this->BaseName);
   dialog.setFileMode(pqFileDialog::AnyFile);
 
   QString saveFileName;
@@ -147,7 +150,7 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
     return false;
   }
 
-  fileInfo = QFile(saveFileName);
+  QFileInfo fileInfo = QFile(saveFileName);
   this->FolderPath = fileInfo.path();
   this->BaseName = fileInfo.baseName();
   return true;
@@ -156,7 +159,7 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
 //-----------------------------------------------------------------------------
 bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
 {
-  if (!GetFolderAndBaseNameFromUser(lidar))
+  if (!GetFolderAndBaseNameFromUser())
   {
     return false;
   }

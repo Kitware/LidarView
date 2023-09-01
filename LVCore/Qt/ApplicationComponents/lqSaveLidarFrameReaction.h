@@ -83,7 +83,7 @@ protected:
   /**
    * Get the folder and the baseName from the user (with a file dialog).
    */
-  virtual bool GetFolderAndBaseNameFromUser(vtkSMProxy* lidar);
+  virtual bool GetFolderAndBaseNameFromUser();
 
   // True if the settings of the writer should be exposed to the user
   bool DisplaySettings = false;

@@ -15,11 +15,15 @@
 
 #include "lqSavePcapReaction.h"
 
+#include <sstream>
+
+#include <pqCoreUtilities.h>
 #include <pqPipelineSource.h>
 #include <vtkSMDoubleVectorProperty.h>
+#include <vtkSMPropertyHelper.h>
 #include <vtkSMSourceProxy.h>
 
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QProgressDialog>
 
 #include "lqSelectLidarFrameDialog.h"
@@ -49,10 +53,23 @@ void lqSavePcapReaction::onTriggered()
     nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements() - 1 : 0;
   }
 
+  // Set BaseName and FolderPath
+  std::string pcapName = vtkSMPropertyHelper(lidar->getProxy(), "FileName").GetAsString();
+  QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
+  this->FolderPath = fileInfo.path();
+  this->BaseName = fileInfo.baseName();
+
   lqSelectLidarFrameDialog dialog(
     nbFrame, pqCoreUtilities::mainWidget(), lqSelectLidarFrameDialog::ALL_FRAMES);
   if (dialog.exec())
   {
+    if (dialog.frameMode() == lqSelectLidarFrameDialog::FRAME_RANGE)
+    {
+      std::stringstream ss;
+      ss << fileInfo.baseName().toStdString() << " (Frame " << dialog.StartFrame() << " to "
+         << dialog.StopFrame() << ")";
+      this->BaseName = ss.str().c_str();
+    }
     this->saveFrame(lidar->getProxy(), dialog.StartFrame(), dialog.StopFrame());
   }
 }
@@ -60,7 +77,7 @@ void lqSavePcapReaction::onTriggered()
 //-----------------------------------------------------------------------------
 bool lqSavePcapReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
 {
-  if (!this->GetFolderAndBaseNameFromUser(lidar))
+  if (!this->GetFolderAndBaseNameFromUser())
   {
     return false;
   }
