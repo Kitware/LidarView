@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load PCAP -->
+  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Save PCAP -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menu_File" />
+  <pqevent object="LidarViewMainWindow/menubar/menu_File" command="activate" arguments="Save &amp;As" />
+  <pqevent object="LidarViewMainWindow/menubar/menu_File/menuSaveAs" command="activate" arguments="actionSavePcap" />
+  <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/FrameRangeRadioButton" command="set_boolean" arguments="true" />
+  <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StartFrameSpinBox" command="set_int" arguments="5" />
+  <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StopFrameSpinBox" command="set_int" arguments="20" />
+  <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pqFileDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20" />
+
+  <!-- Re-load saved PCAP -->
+  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20.pcap" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/Player Control/actionVCRPlay" command="activate" arguments="" />
+</pqevents>
