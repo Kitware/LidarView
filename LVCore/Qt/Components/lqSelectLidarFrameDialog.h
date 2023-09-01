@@ -12,7 +12,8 @@ enum FrameMode
   FRAME_RANGE
 };
 
-namespace Ui {
+namespace Ui
+{
 class lqSelectLidarFrameDialog;
 }
 
@@ -21,15 +22,16 @@ class LQCOMPONENTS_EXPORT lqSelectLidarFrameDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit lqSelectLidarFrameDialog(int nbFrame, QWidget *parent = nullptr);
+  explicit lqSelectLidarFrameDialog(int nbFrame, QWidget* parent = nullptr);
   ~lqSelectLidarFrameDialog();
 
   FrameMode frameMode() const;
   int StartFrame() const;
   int StopFrame() const;
   void accept() override;
+
 private:
-  Ui::lqSelectLidarFrameDialog *ui;
+  Ui::lqSelectLidarFrameDialog* ui;
 };
 
 #endif // LQSELECTLIDARFRAMEDIALOG_H

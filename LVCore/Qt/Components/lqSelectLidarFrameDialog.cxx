@@ -1,13 +1,13 @@
 #include "lqSelectLidarFrameDialog.h"
 #include "ui_lqSelectLidarFrameDialog.h"
 
-#include <QMessageBox>
 #include <QDebug>
+#include <QMessageBox>
 
 //-----------------------------------------------------------------------------
-lqSelectLidarFrameDialog::lqSelectLidarFrameDialog(int nbFrame, QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::lqSelectLidarFrameDialog)
+lqSelectLidarFrameDialog::lqSelectLidarFrameDialog(int nbFrame, QWidget* parent)
+  : QDialog(parent)
+  , ui(new Ui::lqSelectLidarFrameDialog)
 {
   ui->setupUi(this);
   this->ui->StartFrameSpinBox->setMaximum(nbFrame);
@@ -28,7 +28,7 @@ FrameMode lqSelectLidarFrameDialog::frameMode() const
   {
     return FrameMode::CURRENT_FRAME;
   }
-  else if(this->ui->AllFrameRadioButton->isChecked())
+  else if (this->ui->AllFrameRadioButton->isChecked())
   {
     return FrameMode::ALL_FRAMES;
   }
@@ -84,9 +84,10 @@ int lqSelectLidarFrameDialog::StopFrame() const
 void lqSelectLidarFrameDialog::accept()
 {
   if (this->ui->FrameRangeRadioButton->isChecked() &&
-      this->ui->StartFrameSpinBox->value() > this->ui->StopFrameSpinBox->value())
+    this->ui->StartFrameSpinBox->value() > this->ui->StopFrameSpinBox->value())
   {
-    QMessageBox::critical(this, "Invalid frame range",
+    QMessageBox::critical(this,
+      "Invalid frame range",
       "The requested frame range is not valid. "
       "The start frame must be less than or equal to the stop frame.");
     return;

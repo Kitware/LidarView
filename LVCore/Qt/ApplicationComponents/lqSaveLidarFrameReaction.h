@@ -12,34 +12,37 @@ class vtkSMSourceProxy;
 class vtkSMProxy;
 
 /**
-* @ingroup Reactions
-* Save the frame generate by a LidarReader. The writer should be choosen at compile time.
-* Basic example are `PCDWriter` or `DataSetCSVWriter`.
-*
-* The reaction provide some basic UI to let the user select the frame to save:
-* - current frame
-* - all frame
-* - frame interval
-*/
+ * @ingroup Reactions
+ * Save the frame generate by a LidarReader. The writer should be choosen at compile time.
+ * Basic example are `PCDWriter` or `DataSetCSVWriter`.
+ *
+ * The reaction provide some basic UI to let the user select the frame to save:
+ * - current frame
+ * - all frame
+ * - frame interval
+ */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqSaveLidarFrameReaction : public pqReaction
 {
-    Q_OBJECT
-    typedef pqReaction Superclass;
+  Q_OBJECT
+  typedef pqReaction Superclass;
 
 public:
-  lqSaveLidarFrameReaction(QAction* action, const QString& writerName,
-                           const QString& extension, bool DisplaySettings = false,
-                           bool useDirectory = false, bool keepNameFromPcapFile = false,
-                           bool fileNameWithFrameNumber = false);
+  lqSaveLidarFrameReaction(QAction* action,
+    const QString& writerName,
+    const QString& extension,
+    bool DisplaySettings = false,
+    bool useDirectory = false,
+    bool keepNameFromPcapFile = false,
+    bool fileNameWithFrameNumber = false);
 
   /**
    *  Save the frame generate by the lidar "lidar"
    *  Start and Stop correspond to the timestep index. Both are included [start; stop]
    *  In case both are -1, the current timestep is saved
    */
-  virtual bool saveFrame(vtkSMProxy * lidar ,int start = -1, int stop = -1);
+  virtual bool saveFrame(vtkSMProxy* lidar, int start = -1, int stop = -1);
 
-  pqPipelineSource * getCorrectLidar();
+  pqPipelineSource* getCorrectLidar();
 
 public Q_SLOTS:
   /**
@@ -48,8 +51,8 @@ public Q_SLOTS:
   void onUpdateUI(pqPipelineSource* src);
 
   /**
-  * Called when the action is triggered.
-  */
+   * Called when the action is triggered.
+   */
   virtual void onTriggered() override;
 
 protected:
@@ -68,13 +71,14 @@ protected:
   /**
    * Get the folder and the baseName from the user (with a file dialog).
    */
-  virtual bool GetFolderAndBaseNameFromUser(vtkSMProxy * lidar);
+  virtual bool GetFolderAndBaseNameFromUser(vtkSMProxy* lidar);
 
-
-  // True if the user only select a directory where all exported files will be saved (with default filename)
+  // True if the user only select a directory where all exported files will be saved (with default
+  // filename)
   bool UseDirectory;
 
-  // True if the exported filename should have the same name as the origin pcap file ("Frame" otherwise)
+  // True if the exported filename should have the same name as the origin pcap file ("Frame"
+  // otherwise)
   bool KeepNameFromPcapFile;
 
   // True if the exported fileName should have the number of the frame (instead of the timestamp)

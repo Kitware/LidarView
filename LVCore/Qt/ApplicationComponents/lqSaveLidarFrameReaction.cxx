@@ -1,7 +1,7 @@
 #include "lqSaveLidarFrameReaction.h"
 
-#include <sstream>
 #include <chrono>
+#include <sstream>
 #include <string>
 
 #include <vtkSMDoubleVectorProperty.h>
@@ -10,41 +10,46 @@
 #include <vtkSMSourceProxy.h>
 #include <vtkSMWriterFactory.h>
 
+#include <pqActiveObjects.h>
 #include <pqAnimationManager.h>
 #include <pqAnimationScene.h>
-#include <pqActiveObjects.h>
 #include <pqCoreUtilities.h>
 #include <pqFileDialog.h>
-#include <pqProxyWidgetDialog.h>
 #include <pqPVApplicationCore.h>
+#include <pqProxyWidgetDialog.h>
 
+#include <QDebug>
 #include <QFileDialog>
 #include <QProgressDialog>
-#include <QDebug>
 
 #include "lqHelper.h"
 #include "lqSelectLidarFrameDialog.h"
 #include "lqSensorListWidget.h"
 
-
 //-----------------------------------------------------------------------------
 lqSaveLidarFrameReaction::lqSaveLidarFrameReaction(QAction* action,
-                                                   const QString& writerName,
-                                                   const QString& extention,
-                                                   bool displaySettings,
-                                                   bool useDirectory,
-                                                   bool keepNameFromPcapFile,
-                                                   bool fileNameWithFrameNumber)
-  :pqReaction(action), UseDirectory(useDirectory), KeepNameFromPcapFile(keepNameFromPcapFile),
-    FileNameWithFrameNumber(fileNameWithFrameNumber), DisplaySettings(displaySettings),
-    WriterName(writerName), Extension(extention)
+  const QString& writerName,
+  const QString& extention,
+  bool displaySettings,
+  bool useDirectory,
+  bool keepNameFromPcapFile,
+  bool fileNameWithFrameNumber)
+  : pqReaction(action)
+  , UseDirectory(useDirectory)
+  , KeepNameFromPcapFile(keepNameFromPcapFile)
+  , FileNameWithFrameNumber(fileNameWithFrameNumber)
+  , DisplaySettings(displaySettings)
+  , WriterName(writerName)
+  , Extension(extention)
 {
   auto* core = pqApplicationCore::instance();
 
   pqServerManagerModel* smmodel = core->getServerManagerModel();
-  this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
-  this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
-  
+  this->connect(
+    smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
+  this->connect(
+    smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
+
   this->onUpdateUI(nullptr);
 }
 
@@ -60,28 +65,28 @@ pqPipelineSource* lqSaveLidarFrameReaction::getCorrectLidar()
 {
   pqPipelineSource* lidar = nullptr;
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  if(smmodel == nullptr)
+  if (smmodel == nullptr)
   {
     return nullptr;
   }
 
   // If the current selected source belongs to a known widget,
   // We get the lidar associated to the selected widget
-  lqSensorListWidget * listSensor = lqSensorListWidget::instance();
-  if(listSensor)
+  lqSensorListWidget* listSensor = lqSensorListWidget::instance();
+  if (listSensor)
   {
     lidar = listSensor->getActiveLidarSource();
   }
 
   // Otherwise we get the first Lidar of the pipeline
-  if(!lidar)
+  if (!lidar)
   {
     Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     {
-      if(IsLidarReader(src))
+      if (IsLidarReader(src))
       {
-         lidar = src;
-         break;
+        lidar = src;
+        break;
       }
     }
   }
@@ -91,44 +96,45 @@ pqPipelineSource* lqSaveLidarFrameReaction::getCorrectLidar()
 //-----------------------------------------------------------------------------
 void lqSaveLidarFrameReaction::onTriggered()
 {
-  pqPipelineSource * lidar = this->getCorrectLidar();
+  pqPipelineSource* lidar = this->getCorrectLidar();
 
-  if(!lidar)
+  if (!lidar)
   {
     return;
   }
 
   int nbFrame = 0;
-  auto* tsv = vtkSMDoubleVectorProperty::SafeDownCast(lidar->getProxy()->GetProperty("TimestepValues"));
+  auto* tsv =
+    vtkSMDoubleVectorProperty::SafeDownCast(lidar->getProxy()->GetProperty("TimestepValues"));
   if (tsv)
   {
-    nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements()-1 : 0 ;
+    nbFrame = tsv->GetNumberOfElements() ? tsv->GetNumberOfElements() - 1 : 0;
   }
 
   lqSelectLidarFrameDialog dialog(nbFrame);
   if (dialog.exec())
   {
-    saveFrame(lidar->getProxy(), dialog.StartFrame(), dialog.StopFrame());
+    this->saveFrame(lidar->getProxy(), dialog.StartFrame(), dialog.StopFrame());
   }
 }
 
 //-----------------------------------------------------------------------------
-bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy * lidar)
+bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy* lidar)
 {
   this->FolderPath = QString("");
   this->BaseName = QString("Frame_");
 
-  if(this->KeepNameFromPcapFile)
+  if (this->KeepNameFromPcapFile)
   {
     std::string pcapName = vtkSMPropertyHelper(lidar, "FileName").GetAsString();
     QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
     this->BaseName = fileInfo.baseName();
   }
 
-  if(this->UseDirectory)
+  if (this->UseDirectory)
   {
-    this->FolderPath = QFileDialog::getExistingDirectory(pqCoreUtilities::mainWidget(),
-                                                   tr("Save File:"));
+    this->FolderPath =
+      QFileDialog::getExistingDirectory(pqCoreUtilities::mainWidget(), tr("Save File:"));
     if (this->FolderPath.isEmpty())
     {
       return false;
@@ -136,36 +142,32 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser(vtkSMProxy * lidar)
   }
   else
   {
-    QString saveFileName = QFileDialog::getSaveFileName(pqCoreUtilities::mainWidget(),
-                                                        tr("Save File:"),
-                                                        this->BaseName,
-                                                        this->Extension);
+    QString saveFileName = QFileDialog::getSaveFileName(
+      pqCoreUtilities::mainWidget(), tr("Save File:"), this->BaseName, this->Extension);
     if (saveFileName.isEmpty())
     {
       return false;
     }
 
     QFileInfo fileInfo = QFile(saveFileName);
-    this->FolderPath =  fileInfo.path();
+    this->FolderPath = fileInfo.path();
     this->BaseName = fileInfo.baseName();
   }
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
-bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop)
+bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
 {
-  if(!GetFolderAndBaseNameFromUser(lidar))
+  if (!GetFolderAndBaseNameFromUser(lidar))
   {
     return false;
   }
 
   auto* lidarProxy = vtkSMSourceProxy::SafeDownCast(lidar);
 
-
   // Create writer asked by the action
-  vtkSmartPointer<vtkSMSourceProxy> writer = CreateWriter(lidarProxy);
+  vtkSmartPointer<vtkSMSourceProxy> writer = this->CreateWriter(lidarProxy);
   if (!writer)
   {
     qCritical() << "Failed to create writer for: " << lidarProxy;
@@ -201,7 +203,8 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
 
   if (start == -1 && stop == -1)
   {
-    QString filename = this->FolderPath + "/" + GenerateFileName(this->BaseName, timestep_bakup);
+    QString filename =
+      this->FolderPath + "/" + this->GenerateFileName(this->BaseName, timestep_bakup);
     vtkSMPropertyHelper(writer, "FileName").Set(filename.toStdString().c_str());
     writer->UpdateVTKObjects();
     writer->UpdatePipeline(timestep_bakup);
@@ -209,13 +212,13 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
   else
   {
     auto* tsv = vtkSMDoubleVectorProperty::SafeDownCast(lidarProxy->GetProperty("TimestepValues"));
-    QProgressDialog progress("Saving files...", "Abort", 0, stop-start);
+    QProgressDialog progress("Saving files...", "Abort", 0, stop - start);
     progress.setWindowModality(Qt::ApplicationModal);
     for (int i = start; i <= stop; ++i)
     {
       double timestep = tsv->GetElement(i);
       scene->setAnimationTime(timestep);
-      QString filename = this->FolderPath + "/" + GenerateFileName(this->BaseName, timestep);
+      QString filename = this->FolderPath + "/" + this->GenerateFileName(this->BaseName, timestep);
 
       vtkSMPropertyHelper(writer, "FileName").Set(filename.toStdString().c_str());
       writer->UpdateVTKObjects();
@@ -223,7 +226,7 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
 
       progress.setValue(i - start);
       if (progress.wasCanceled())
-          break;
+        break;
     }
     scene->setAnimationTime(timestep_bakup);
   }
@@ -234,16 +237,17 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy * lidar, int start, int stop
 QString lqSaveLidarFrameReaction::GenerateFileName(QString baseName, double timestep)
 {
   QString timeInfo = QString::number(timestep);
-  if(this->FileNameWithFrameNumber)
+  if (this->FileNameWithFrameNumber)
   {
-    // format filename in a way that is readable again as a time sequence when re-opening the data 
+    // format filename in a way that is readable again as a time sequence when re-opening the data
     timeInfo = "_" + QString::number(GetFrameIndexOfTimestamp(timestep));
   }
 
   QString sFilenameMainString = baseName + timeInfo;
 
   QString sFilenameWithoutExt = sFilenameMainString;
-  // Add suffix to the new file in case they already exist with the base name we would like to give it 
+  // Add suffix to the new file in case they already exist with the base name we would like
+  // to give it
   if (QFileInfo(QFile(sFilenameWithoutExt + "." + this->Extension)).exists())
   {
     int nSuffix = 1;
@@ -262,9 +266,11 @@ QString lqSaveLidarFrameReaction::GenerateFileName(QString baseName, double time
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkSMSourceProxy> lqSaveLidarFrameReaction::CreateWriter(vtkSMSourceProxy* lidarProxy)
+vtkSmartPointer<vtkSMSourceProxy> lqSaveLidarFrameReaction::CreateWriter(
+  vtkSMSourceProxy* lidarProxy)
 {
   vtkSMWriterFactory* writerFactory = vtkSMProxyManager::GetProxyManager()->GetWriterFactory();
-  auto* tmp = vtkSMSourceProxy::SafeDownCast(writerFactory->CreateWriter(this->WriterName.toStdString().c_str(), lidarProxy, 0, true));
+  auto* tmp = vtkSMSourceProxy::SafeDownCast(
+    writerFactory->CreateWriter(this->WriterName.toStdString().c_str(), lidarProxy, 0, true));
   return vtkSmartPointer<vtkSMSourceProxy>(tmp);
 }
