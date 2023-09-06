@@ -71,7 +71,7 @@
     <addaction name="menuSaveAs"/>
     <addaction name="actionSaveScreenshot"/>
     <addaction name="separator"/>
-    <addaction name="actionClose"/>
+    <addaction name="actionResetSession"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -476,12 +476,12 @@
     <string>F8</string>
    </property>
   </action>
-  <action name="actionClose">
+  <action name="actionResetSession">
    <property name="text">
-    <string>&amp;Close Data</string>
+    <string>Reset Session</string>
    </property>
    <property name="toolTip">
-    <string>Close Data</string>
+    <string>Reset Session</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>

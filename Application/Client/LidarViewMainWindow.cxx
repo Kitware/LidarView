@@ -218,7 +218,7 @@ void LidarViewMainWindow::setupPVGUI()
 
   // TODO Enable help from the properties panel.
 
-  /// hook delete to pqDeleteReaction.
+  /// Hook delete to pqDeleteReaction in pipeline browser.
   QAction* tempDeleteAction = new QAction(this);
   pqDeleteReaction* handler = new pqDeleteReaction(tempDeleteAction);
   handler->connect(this->Internals->propertiesPanel,
@@ -420,6 +420,7 @@ void LidarViewMainWindow::setupGUICustom()
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
   new lqMenuSaveAsReaction(this->Internals->menuSaveAs);
   new pqLoadDataReaction(this->Internals->actionOpenFile);
+  new pqDeleteReaction(this->Internals->actionResetSession, pqDeleteReaction::DeleteModes::ALL);
 
   new lqUpdateCalibrationReaction(
     this->Internals->actionChoose_Calibration_File); // Requires lqSensorListWidget init

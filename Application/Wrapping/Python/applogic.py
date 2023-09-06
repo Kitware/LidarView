@@ -85,8 +85,6 @@ def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
     sensor.UpdatePipelineInformation()
     sensor.UpdatePipeline()
 
-    enableSaveActions() # WIP UNSURE
-
     smp.Show(sensor)
     showSourceInSpreadSheet(sensor)
     smp.Render()
@@ -103,46 +101,9 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
     reader.UpdatePipelineInformation()
     reader.UpdatePipeline()
 
-    enableSaveActions()
-
     getAnimationScene().UpdateAnimationUsingDataTimeSteps()
 
     smp.SetActiveView(smp.GetActiveView())
-
-def onClose():
-    # Pause
-    smp.GetAnimationScene().Stop()
-    # Remove Lidar Related
-    unloadData()
-    getAnimationScene().AnimationTime = 0
-    # Remove widgets
-    smp.HideUnusedScalarBars()
-
-    # Reset Camera
-    lvsmp.ResetCameraToForwardView()
-
-    # Disable Actions
-    disableSaveActions()
-
-# Generic Helpers
-def _setSaveActionsEnabled(enabled):
-    app.actions['actionClose'].setEnabled(enabled)
-
-
-def enableSaveActions():
-    _setSaveActionsEnabled(True)
-
-
-def disableSaveActions():
-    _setSaveActionsEnabled(False)
-
-
-def unloadData():
-    for k, src in smp.GetSources().items():
-        if src != app.grid:
-            smp.Delete(src)
-
-    clearSpreadSheetView()
 
 def getReaderSource():
   return PythonQt.paraview.lqSensorListWidget.getActiveLidarSource()
@@ -164,12 +125,6 @@ def getLidar(index = -1): # WIP TODO
 
 def getSpreadSheetViewProxy(): #WIP this is probably unreliable
     return smp.servermanager.ProxyManager().GetProxy("views", "main spreadsheet view")
-
-def clearSpreadSheetView():
-    view = getSpreadSheetViewProxy()
-    if view is not None:
-        view.Representations = []
-
 
 def showSourceInSpreadSheet(source):
   if not source:
@@ -251,7 +206,6 @@ def start():
     lvsmp.ResetCameraToForwardView()
 
     setupActions()
-    disableSaveActions()
     hideColorByComponent()
 
     # Create Grid #WIP not perfect requires loaded plugin
@@ -371,7 +325,6 @@ def setupActions():
 
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
-    app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
