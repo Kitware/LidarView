@@ -20,6 +20,7 @@
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqLoadLidarStateReaction.h"
+#include "lqMenuSaveAsReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
 #include "lqOpenSensorReaction.h"
@@ -163,7 +164,7 @@ LidarViewMainWindow::LidarViewMainWindow()
 LidarViewMainWindow::~LidarViewMainWindow()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -417,6 +418,7 @@ void LidarViewMainWindow::setupGUICustom()
 
   new lqOpenSensorReaction(this->Internals->actionOpen_Sensor_Stream);
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
+  new lqMenuSaveAsReaction(this->Internals->menuSaveAs);
   new pqLoadDataReaction(this->Internals->actionOpenFile);
 
   new lqUpdateCalibrationReaction(

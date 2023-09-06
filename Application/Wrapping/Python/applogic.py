@@ -127,7 +127,6 @@ def onClose():
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
     app.actions['actionClose'].setEnabled(enabled)
-    getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
 
 def enableSaveActions():

@@ -1,6 +1,7 @@
 set(classes
   lqAboutDialogReaction
   lqLidarViewManager
+  lqMenuSaveAsReaction
   lqOpenPcapReaction
   lqOpenRecentFilesReaction
   lqOpenSensorReaction
