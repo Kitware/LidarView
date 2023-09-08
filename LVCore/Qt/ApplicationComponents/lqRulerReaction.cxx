@@ -296,7 +296,7 @@ QList<QVariant> lqRulerReaction::get3DPoint(QPoint coord)
   // Was required for origin changes
   //auto viewSize = pqSMAdaptor::getMultipleElementProperty(this->view->getProxy()->GetProperty("ViewSize"));
 
-  double position[3];
+  double position[4];
 
   if (this->mode == Mode::BETWEEN_2D_POINTS)
   {
