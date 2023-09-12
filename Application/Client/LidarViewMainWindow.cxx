@@ -25,6 +25,7 @@
 #include "lqOpenSensorReaction.h"
 #include "lqSaveLidarFrameReaction.h"
 #include "lqSaveLidarStateReaction.h"
+#include "lqSavePcapReaction.h"
 #include "lqUpdateCalibrationReaction.h"
 #include "vtkLVVersion.h"
 #include <lqCameraParallelProjectionReaction.h>
@@ -430,19 +431,15 @@ void LidarViewMainWindow::setupGUICustom()
   new lqOpenRecentFilesReaction(
     this->Internals->menuRecent_Files, this->Internals->actionClear_Menu);
 
-  // Writer reactions (action, writerName, extension, displaySettings, useDirectory,
-  // keepNameFromPcapFile, fileNameWithFrameNumber )
-  new lqSaveLidarFrameReaction(
-    this->Internals->actionSavePCD, "PCDWriter", "pcd", false, false, true, true);
-  new lqSaveLidarFrameReaction(
-    this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv", false, false, true, true);
-  new lqSaveLidarFrameReaction(
-    this->Internals->actionSavePLY, "PPLYWriter", "ply", false, false, true, true);
+  // Writer reactions (action, writerName, extension, displaySettings)
+  new lqSaveLidarFrameReaction(this->Internals->actionSavePCD, "PCDWriter", "pcd");
+  new lqSaveLidarFrameReaction(this->Internals->actionSaveCSV, "DataSetCSVWriter", "csv");
+  new lqSaveLidarFrameReaction(this->Internals->actionSavePLY, "PPLYWriter", "ply");
+  new lqSavePcapReaction(this->Internals->actionSavePcap);
 
 // Check if PDAL should be used with lidarview.
 #if LIDARVIEW_USE_PDAL
-  new lqSaveLidarFrameReaction(
-    this->Internals->actionSaveLAS, "PLASWriter", "las", false, false, true, true);
+  new lqSaveLidarFrameReaction(this->Internals->actionSaveLAS, "PLASWriter", "las");
 #else
   this->Internals->actionSaveLAS->setEnabled(false);
 #endif

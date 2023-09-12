@@ -25,7 +25,7 @@ import lidarview.gridAdjustmentDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
-from PythonQt.paraview import lqCropReturnsDialog, lqSelectFramesDialog
+from PythonQt.paraview import lqCropReturnsDialog
 
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
@@ -66,28 +66,6 @@ def hasArrayName(sourceProxy, arrayName):
 # Action Related Logic
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
-
-def getDefaultSaveFileName(extension, suffix='', frameId=None, baseName="Frame"):
-
-    sensor = getSensor()
-    reader = getReader()
-
-    # Use current datetime and Interpreter DefaultRecordFileName
-    if sensor and sensor.Interpreter:
-        sensor.Interpreter.UpdatePipelineInformation()
-        return '%s.%s' % (sensor.Interpreter.GetProperty("DefaultRecordFileName")[0], extension)
-
-    # Use PCAP Basename
-    if reader:
-        filename = reader.FileName
-        filename = filename[0] if isinstance(filename, paraview.servermanager.FileNameProperty) else filename # WIP FIX ?
-        basename =  os.path.splitext(os.path.basename(filename))[0]
-        if frameId is not None:
-            suffix = '%s(%s%04d)' % (suffix, baseName, frameId)
-        return '%s%s.%s' % (basename, suffix, extension)
-
-    else:
-      return "filename"
 
 # Main API
 def UpdateApplogicCommon(lidar):
@@ -135,121 +113,6 @@ def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy 
 
     smp.SetActiveView(smp.GetActiveView())
 
-def getSaveFileName(title, extension, defaultFileName=None):
-
-    settings = getPVSettings()
-    defaultDir = settings.value('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QDir.homePath())
-    defaultFileName = defaultDir if not defaultFileName else os.path.join(defaultDir, defaultFileName)
-
-    filters = '%s (*.%s)' % (extension, extension)
-    selectedFilter = '%s (*.%s)' % (extension, extension)
-    fileName = QtGui.QFileDialog.getSaveFileName(getMainWindow(), title,
-                        defaultFileName, filters, selectedFilter, 0)
-
-    if fileName:
-        settings.setValue('LidarPlugin/OpenData/DefaultDir', PythonQt.QtCore.QFileInfo(fileName).absoluteDir().absolutePath())
-        return fileName
-
-# Action related Logic
-def getFrameSelectionFromUser(frameStrideVisibility=False, framePackVisibility=False, frameTransformVisibility=False):
-    class FrameOptions(object):
-        pass
-
-    dialog = PythonQt.paraview.lqSelectFramesDialog(getMainWindow())
-    dialog.frameMinimum = 0
-    if getReader() is None:
-        dialog.frameMaximum = 0
-    elif getReader().GetClientSideObject().GetShowFirstAndLastFrame():
-        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 1
-    else:
-        dialog.frameMaximum = getReader().GetClientSideObject().GetNumberOfFrames() - 3
-    dialog.frameStrideVisibility = frameStrideVisibility
-    dialog.framePackVisibility = framePackVisibility
-    dialog.frameTransformVisibility = frameTransformVisibility
-    dialog.restoreState()
-
-    if not dialog.exec_():
-        return None
-
-    frameOptions = FrameOptions()
-    frameOptions.mode = dialog.frameMode
-    frameOptions.start = dialog.frameStart
-    frameOptions.stop = dialog.frameStop
-    frameOptions.stride = dialog.frameStride
-    frameOptions.pack = dialog.framePack
-    frameOptions.transform = dialog.frameTransform
-
-    dialog.setParent(None)
-
-    return frameOptions
-
-def onSavePCAP():
-    # It is not possible to save as PCAP during stream as we need frame numbers
-    if getSensor():
-        QtGui.QMessageBox.information(getMainWindow(),
-                                      'Save As PCAP not available during stream',
-                                      'Saving as PCAP is not possible during lidar stream mode. '
-                                      'Please use the "Record" tool, and open the resulting pcap offline to process it.')
-        return
-
-    frameOptions = getFrameSelectionFromUser(frameTransformVisibility=False)
-    if frameOptions is None:
-        return
-
-    if frameOptions.mode == lqSelectFramesDialog.CURRENT_FRAME:
-        frameOptions.start = getFrameFromAnimationTime(getAnimationScene().AnimationTime)
-        frameOptions.stop = frameOptions.start
-        defaultFileName = getDefaultSaveFileName('pcap', frameId=frameOptions.start)
-    elif frameOptions.mode == lqSelectFramesDialog.ALL_FRAMES:
-        frameOptions.start = 0
-        frameOptions.stop = 0 if getReader() is None else getReader().GetClientSideObject().GetNumberOfFrames() - 1
-        defaultFileName = getDefaultSaveFileName('pcap')
-    else:
-        defaultFileName = getDefaultSaveFileName('pcap', suffix=' (Frame %d to %d)' % (frameOptions.start, frameOptions.stop))
-
-    fileName = getSaveFileName('Save PCAP', 'pcap', defaultFileName)
-    if not fileName:
-        return
-    PythonQt.paraview.lqLidarViewManager.saveFramesToPCAP(getReader().SMProxy, frameOptions.start, frameOptions.stop, fileName)
-
-def getFrameFromAnimationTime(time):
-    if not getReader():
-        return -1
-
-    index = bisect.bisect_right(getAnimationScene().TimeKeeper.TimestepValues, time)
-    if index > 0:
-        previousTime = getAnimationScene().TimeKeeper.TimestepValues[index - 1]
-        nextTime     = getAnimationScene().TimeKeeper.TimestepValues[index]
-        index = index - 1 if (abs(previousTime - time) < abs(nextTime - time)) else index
-    return index
-
-def exportToDirectory(outDir, timesteps):
-
-    filenames = []
-
-    alg = smp.GetActiveSource().GetClientSideObject()
-
-    writer = vtk.vtkXMLPolyDataWriter()
-    writer.SetDataModeToAppended()
-    writer.EncodeAppendedDataOff()
-    writer.SetCompressorTypeToZLib()
-
-    for t in timesteps:
-
-        filename = 'frame_%04d.vtp' % t
-        filenames.append(filename)
-
-        getAnimationScene().AnimationTime = t
-        polyData = vtk.vtkPolyData()
-        polyData.ShallowCopy(alg.GetOutput())
-
-        writer.SetInputData(polyData)
-        writer.SetFileName(os.path.join(outDir, filename))
-        writer.Update()
-
-    return filenames
-
-
 def onClose():
     # Pause
     smp.GetAnimationScene().Stop()
@@ -267,7 +130,7 @@ def onClose():
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
-    for action in ('SavePCAP', 'Close', 'CropReturns'):
+    for action in ('Close', 'CropReturns'):
         app.actions['action'+action].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
@@ -568,7 +431,6 @@ def setupActions():
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionClose'].connect('triggered()', onClose)
-    app.actions['actionSavePCAP'].connect('triggered()', onSavePCAP)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
     app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
