@@ -15,6 +15,9 @@
 #ifndef FRAMEINFORMATION_H
 #define FRAMEINFORMATION_H
 
+// Compliance with vtk's fpos_t policy, needs to be included before any libc header
+#include <vtkSystemIncludes.h>
+
 #include <memory>
 
 /**

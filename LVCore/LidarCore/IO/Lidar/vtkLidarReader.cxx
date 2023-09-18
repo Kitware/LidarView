@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "vtkLidarPacketInterpreter.h"
 #include "vtkPacketFileReader.h"
 #include "vtkPacketFileWriter.h"
 #include "statistics.h"
@@ -563,6 +564,12 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* info = outputVector->GetInformationObject(0);
   this->SetTimestepInformation(info);
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarReader::SetInterpreter(vtkLidarPacketInterpreter* interpreter)
+{
+  this->Interpreter = interpreter;
 }
 
 //-----------------------------------------------------------------------------

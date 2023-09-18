@@ -15,6 +15,11 @@
 // limitations under the License.
 //=========================================================================
 
+// This needs to be included first because vtkSystemIncludes.h is included
+// instead of stdio.h so the CMake variable __USE_LARGEFILE64 must be consistent.
+// Otherwise fpos_t has 2 differents definition _G_fpos_t and _G_fpos64_t
+#include "vtkLidarPacketInterpreter.h"
+
 #include "vtkLidarStream.h"
 
 #include <sstream>

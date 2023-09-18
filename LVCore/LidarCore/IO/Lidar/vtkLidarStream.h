@@ -20,9 +20,12 @@
 #include <memory>
 
 #include "vtkStream.h"
-#include "vtkLidarPacketInterpreter.h"
+
+#include <vtkPolyData.h>
 
 #include "lvIOLidarModule.h"
+
+class vtkLidarPacketInterpreter;
 
 class LVIOLIDAR_EXPORT vtkLidarStream : public vtkStream
 {

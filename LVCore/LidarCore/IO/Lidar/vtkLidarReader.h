@@ -16,12 +16,14 @@
 #ifndef VTKLIDARREADER_H
 #define VTKLIDARREADER_H
 
-#include "vtkLidarPacketInterpreter.h"
+#include "FrameInformation.h"
+
 #include <vtkPolyDataAlgorithm.h>
 
 #include "lvIOLidarModule.h"
 
 class vtkPacketFileReader;
+class vtkLidarPacketInterpreter;
 
 //! @todo a decition should be made if the opening/closing of the pcap should be handle by
 //! the class itself of the class user. Currently this is not clear
@@ -67,7 +69,7 @@ public:
    * @copydoc vtkLidarPacketInterpreter
    */
   vtkGetObjectMacro(Interpreter, vtkLidarPacketInterpreter);
-  vtkSetObjectMacro(Interpreter, vtkLidarPacketInterpreter);
+  void SetInterpreter(vtkLidarPacketInterpreter* interpreter);
 
   /**
    * @copydoc NetworkTimeToDataTime

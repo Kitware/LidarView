@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "InterpreterHelper.h"
-#include "vtkLidarPacketInterpreter.h"
 
 static constexpr unsigned int numberOfChannels{ 64 };
 

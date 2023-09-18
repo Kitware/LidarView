@@ -16,6 +16,7 @@
 
 #include "PacketSender.h"
 
+#include "vtkLidarPacketInterpreter.h"
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
 
