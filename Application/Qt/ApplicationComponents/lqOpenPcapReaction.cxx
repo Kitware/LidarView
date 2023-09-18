@@ -1,5 +1,7 @@
 #include "lqOpenPcapReaction.h"
 
+#include <vtkLidarPacketInterpreter.h>
+
 #include <vtkNew.h>
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
