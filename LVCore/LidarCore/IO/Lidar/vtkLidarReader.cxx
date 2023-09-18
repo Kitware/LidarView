@@ -5,6 +5,7 @@
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkPacketFileReader.h"
 #include "vtkPacketFileWriter.h"
+
 #include "statistics.h"
 
 #include <vtkInformation.h>

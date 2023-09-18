@@ -31,27 +31,29 @@
 // The default playback speed is based on the timestamps specified in the pcap file
 
 #include "vtkPacketFileReader.h"
+
 #include "PacketSender.h"
 
 #include <cstdlib>
 #include <ctime>
 
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <chrono>
 
-#include <boost/thread/thread.hpp>
 #include <boost/program_options.hpp>
+#include <boost/thread/thread.hpp>
 namespace po = boost::program_options;
 
 const int OUTPUT_WIDTH = 15; // width of the column (#packet, duration, ...) in the output stream
 
 int main(int argc, char* argv[])
 {
-  bool loop = false;  // run the capture 1 time or in loop
+  bool loop = false; // run the capture 1 time or in loop
 
   // parse the command line options
   po::options_description visible("Allowed options");
+  // clang-format off
   visible.add_options()
       ("help", "produce help message")
       ("ip", po::value<std::string>()->default_value("127.0.0.1"), "destination ip adress")
@@ -66,6 +68,7 @@ int main(int argc, char* argv[])
   hidden.add_options()
       ("input-file", po::value<std::string>(), "input file")
       ;
+  // clang-format on
 
   po::positional_options_description p;
   p.add("input-file", -1);
@@ -74,21 +77,21 @@ int main(int argc, char* argv[])
   cmdline_options.add(visible).add(hidden);
 
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).
-            options(cmdline_options).positional(p).run(), vm);
+  po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
   po::notify(vm);
 
-  if (vm.count("help") || argc < 2) {
-      std::cout << "Usage: PacketFileSender <pcap_file> [options]\n";
-      std::cout << visible << "\n";
-      return 1;
+  if (vm.count("help") || argc < 2)
+  {
+    std::cout << "Usage: PacketFileSender <pcap_file> [options]\n";
+    std::cout << visible << "\n";
+    return 1;
   }
 
   // convert to the right type
   std::string filename = vm["input-file"].as<std::string>();
   double speed = vm["speed"].as<double>();
   std::string destinationIp = vm["ip"].as<std::string>();
-  unsigned int lidarPort =  vm["lidarPort"].as<unsigned int>();
+  unsigned int lidarPort = vm["lidarPort"].as<unsigned int>();
   unsigned int GPSPort = vm["GPSPort"].as<unsigned int>();
   unsigned int display_frequency = vm["display-frequency"].as<unsigned int>();
 

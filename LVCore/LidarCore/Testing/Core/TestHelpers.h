@@ -23,7 +23,6 @@ class vtkLidarStream;
 class vtkLidarPacketInterpreter;
 class vtkPolyData;
 
-
 // Helper functions
 bool compare(const double* const a, const double* const b, const size_t N, double epsilon);
 
@@ -95,8 +94,7 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
  */
 int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference);
 
-int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
-                               double referenceNetworkTimeToLidarTime);
+int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader, double referenceNetworkTimeToLidarTime);
 
 /**
  * @brief CheckCurrentFrameAgainst Compare 2 frames
@@ -114,10 +112,9 @@ int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference);
  * @return nb of error
  */
 int testLidarReader(vtkLidarReader* reader,
-                    double referenceNetworkTimeToDataTime,
-                    const std::string& referenceFileName,
-                    const double FrequencyReference_Hz = 10);
-
+  double referenceNetworkTimeToDataTime,
+  const std::string& referenceFileName,
+  const double FrequencyReference_Hz = 10);
 
 /**
  * @brief SendAndTestAllFrames send packets of pcapFileName on (destinationIp, dataPort)
@@ -130,11 +127,12 @@ int testLidarReader(vtkLidarReader* reader,
  * @param dataPort port on which the packets should be sent
  * @return nb of error
  */
-int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* interpreter,
-                         std::vector<std::string> referenceFilesList,
-                         const std::string& pcapFileName,
-                         std::string destinationIp, int dataPort);
-
+int SendAndTestAllFrames(vtkLidarStream* stream,
+  vtkLidarPacketInterpreter* interpreter,
+  std::vector<std::string> referenceFilesList,
+  const std::string& pcapFileName,
+  std::string destinationIp,
+  int dataPort);
 
 /**
  * @brief testLidarStream comapre the the stream output to prerecorded frames
@@ -146,14 +144,13 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
  * @param referenceFileName the file containing the vtp to compare with
  * @return nb of error
  */
-[[deprecated("Use the simplier signature instead.")]]
-int testLidarStream(vtkLidarStream* stream,
-                    bool preSend,
-                    double preSendSpeed,
-                    double speed,
-                    const std::string& pcapFileName,
-                    const std::string& referenceFileName,
-                    bool testLastFrame = false);
+[[deprecated("Use the simplier signature instead.")]] int testLidarStream(vtkLidarStream* stream,
+  bool preSend,
+  double preSendSpeed,
+  double speed,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool testLastFrame = false);
 
 /**
  * @brief testLidarStream comapre the the stream output to prerecorded frames
@@ -164,12 +161,13 @@ int testLidarStream(vtkLidarStream* stream,
  * @return nb of error
  */
 int testLidarStream(vtkLidarStream* stream,
-                    const std::string& pcapFileName,
-                    const std::string& referenceFileName,
-                    bool preSend);
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool preSend);
 
 /**
- * @brief TestLidarMulticast compare the stream output to prerecorded frames using the multicast option
+ * @brief TestLidarMulticast compare the stream output to prerecorded frames using the multicast
+ * option
  * @param interpreter
  * @param pcapFileName file to replay
  * @param referenceFileName the file containing the vtp to compare with
@@ -179,13 +177,15 @@ int testLidarStream(vtkLidarStream* stream,
  * @return nb of error
  */
 int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
-                       const std::string& pcapFileName,
-                       const std::string& referenceFileName,
-                       bool shouldPreSend, int dataPort,
-                       const std::string correctionFileName = "");
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName = "");
 
 /**
- * @brief TestLidarForwarding compare the stream output to prerecorded frames using the forwarding option
+ * @brief TestLidarForwarding compare the stream output to prerecorded frames using the forwarding
+ * option
  * @param interpreter
  * @param pcapFileName file to replay
  * @param referenceFileName the file containing the vtp to compare with
@@ -195,15 +195,16 @@ int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
  * @return nb of error
  */
 int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
-                        vtkLidarPacketInterpreter* interpreter2,
-                        const std::string& pcapFileName,
-                        const std::string& referenceFileName,
-                        bool shouldPreSend, int dataPort,
-                        const std::string correctionFileName);
-
+  vtkLidarPacketInterpreter* interpreter2,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName);
 
 /**
- * @brief TestLidarRecording compare the stream output to prerecorded frames using the recording option
+ * @brief TestLidarRecording compare the stream output to prerecorded frames using the recording
+ * option
  * @param interpreter1 interpreter for the stream that forwards the packet
  * @param interpreter2 interpreter for the stream that tests the recorded pcap
  * @param pcapFileName file to replay
@@ -214,12 +215,12 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
  * @return nb of error
  */
 int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
-                       vtkLidarPacketInterpreter* interpreter2,
-                       const std::string& pcapFileName,
-                       const std::string& referenceFileName,
-                       bool shouldPreSend, int dataPort,
-                       const std::string correctionFileName = "");
-
+  vtkLidarPacketInterpreter* interpreter2,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName = "");
 
 bool GetFrameTimeRange(vtkPolyData* frame, double& firstTime, double& lastTime);
 

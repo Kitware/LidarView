@@ -24,7 +24,8 @@
  * @brief SpecificFrameInformation placeholder for
  *        specific sensor implementation
  */
-struct SpecificFrameInformation {
+struct SpecificFrameInformation
+{
   virtual void reset() = 0;
   virtual std::unique_ptr<SpecificFrameInformation> clone() = 0;
 };
@@ -49,7 +50,8 @@ struct FrameInformation
   //! Packet information that are specific to a sensor
   std::shared_ptr<SpecificFrameInformation> SpecificInformation = nullptr;
 
-  void Reset() {
+  void Reset()
+  {
     this->FirstPacketDataTime = 0;
     this->FirstPacketNetworkTime = 0;
     if (this->SpecificInformation)
@@ -62,16 +64,16 @@ struct FrameInformation
 
   FrameInformation(const FrameInformation& arg) { *this = arg; }
 
-  void operator=(const FrameInformation& arg) {
+  void operator=(const FrameInformation& arg)
+  {
     this->FilePosition = arg.FilePosition;
     this->FirstPacketNetworkTime = arg.FirstPacketNetworkTime;
     this->FirstPacketDataTime = arg.FirstPacketDataTime;
-    if(arg.SpecificInformation != nullptr)
+    if (arg.SpecificInformation != nullptr)
     {
       this->SpecificInformation = arg.SpecificInformation->clone();
     }
   }
-
 };
 
 #endif

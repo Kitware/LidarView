@@ -45,14 +45,15 @@ public:
   virtual void SetCalibrationFileName(const std::string& filename);
 
   /**
-   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually only calls Modified,
-   * however for some obscure reason, doing the same from python does not have the same effect
+   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually
+   * only calls Modified, however for some obscure reason, doing the same from python does not have
+   * the same effect
    * @todo set how to remove this methode as it is a workaround
    */
   void SetDummyProperty(int);
 
-  vtkGetMacro(DetectFrameDropping, bool)
-  vtkSetMacro(DetectFrameDropping, bool)
+  vtkGetMacro(DetectFrameDropping, bool);
+  vtkSetMacro(DetectFrameDropping, bool);
 
   void AddNewData() override;
 
@@ -70,8 +71,8 @@ protected:
   ~vtkLidarStream() override;
 
   int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
@@ -93,7 +94,7 @@ private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
 
-  std::deque<vtkSmartPointer<vtkPolyData> > Frames;
+  std::deque<vtkSmartPointer<vtkPolyData>> Frames;
 };
 
 #endif // VTKLIDARSTREAM_H

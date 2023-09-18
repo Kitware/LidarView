@@ -24,8 +24,8 @@
 
 #include <sstream>
 
-#include <vtkInformationVector.h>
 #include <vtkInformation.h>
+#include <vtkInformationVector.h>
 #include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
@@ -34,14 +34,14 @@ vtkStandardNewMacro(vtkLidarStream)
 //-----------------------------------------------------------------------------
 int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == 0 )
+  if (port == 0)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
-  if ( port == 1 )
+  if (port == 1)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
   return 0;
@@ -54,15 +54,14 @@ std::string vtkLidarStream::GetSensorInformation(bool shortVersion)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarStream::SetCalibrationFileName(const std::string &filename)
+void vtkLidarStream::SetCalibrationFileName(const std::string& filename)
 {
   if (filename == this->CalibrationFileName)
   {
     return;
   }
 
-  if (!vtksys::SystemTools::FileExists(filename) ||
-    vtksys::SystemTools::FileIsDirectory(filename))
+  if (!vtksys::SystemTools::FileExists(filename) || vtksys::SystemTools::FileIsDirectory(filename))
   {
     std::ostringstream errorMessage("Invalid sensor configuration file ");
     errorMessage << filename << ": ";
@@ -120,8 +119,8 @@ int vtkLidarStream::Calibrate()
 
 //----------------------------------------------------------------------------
 int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
-                                vtkInformationVector** vtkNotUsed(inputVector),
-                                vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   vtkPolyData* output = vtkPolyData::GetData(outputVector);
 
@@ -144,12 +143,12 @@ int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
     {
       std::stringstream text;
       text << "WARNING : At frame " << std::right << std::setw(6) << this->LastFrameProcessed
-           << " Drop " << std::right << std::setw(2) << numberOfFrameAvailable-1 << " frame(s)\n";
-      vtkWarningMacro( << text.str() );
+           << " Drop " << std::right << std::setw(2) << numberOfFrameAvailable - 1 << " frame(s)\n";
+      vtkWarningMacro(<< text.str());
     }
   }
 
-  vtkTable* calibration = vtkTable::GetData(outputVector,1);
+  vtkTable* calibration = vtkTable::GetData(outputVector, 1);
   calibration->ShallowCopy(this->GetLidarInterpreter()->GetCalibrationTable());
 
   return 1;

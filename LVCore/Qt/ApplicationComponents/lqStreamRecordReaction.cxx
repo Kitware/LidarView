@@ -11,8 +11,8 @@
 
 #include "PacketFileWriter.h"
 #include "lqStreamRecordDialog.h"
-#include "vtkLidarStream.h"
 #include "vtkLidarPacketInterpreter.h"
+#include "vtkLidarStream.h"
 
 namespace
 {

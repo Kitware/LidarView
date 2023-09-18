@@ -27,13 +27,15 @@ class vtkPacketFileReader;
  * \class PacketSender
  * \brief This class is responsible to send all packets in a .pcap file once.
  *        To send a pcap file multiples times, a new PacketSender should be created each time.
-*/
+ */
 
 class LVIONETWORK_EXPORT PacketSender
 {
 public:
-  PacketSender(std::string pcapfile, std::string destinationio = "127.0.0.1",
-    int lidarport = 2368, int positionport = 8308);
+  PacketSender(std::string pcapfile,
+    std::string destinationio = "127.0.0.1",
+    int lidarport = 2368,
+    int positionport = 8308);
   ~PacketSender();
 
   /**
@@ -43,7 +45,9 @@ public:
    * @param callback function executed after sending a packet
    * @return
    */
-  bool sendAllPackets(double speed = 1.0, int display_frequency = 0, std::function<void()> callback = nullptr);
+  bool sendAllPackets(double speed = 1.0,
+    int display_frequency = 0,
+    std::function<void()> callback = nullptr);
 
   /**
    * @brief pumpPacket

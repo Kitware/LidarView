@@ -27,8 +27,8 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkXMLPolyDataReader.h>
 #include <vtkTimerLog.h>
+#include <vtkXMLPolyDataReader.h>
 
 #include <chrono>
 #include <sstream>
@@ -151,8 +151,7 @@ int TestFrameCount(unsigned int frameCount, unsigned int referenceCount)
   std::cout << "Frame count : \t";
   if (frameCount != referenceCount)
   {
-    std::cerr << "failed : expected " << referenceCount << ", got " << frameCount
-              << std::endl;
+    std::cerr << "failed : expected " << referenceCount << ", got " << frameCount << std::endl;
 
     return 1;
   }
@@ -197,8 +196,9 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
 
   if (currentFrameNbPointDataArrays != currentReferenceNbPointDataArrays)
   {
-    std::cerr << "failed :Wrong point data array count. Expected " << currentReferenceNbPointDataArrays
-              << ", got " << currentFrameNbPointDataArrays << std::endl;
+    std::cerr << "failed :Wrong point data array count. Expected "
+              << currentReferenceNbPointDataArrays << ", got " << currentFrameNbPointDataArrays
+              << std::endl;
 
     return 1;
   }
@@ -209,11 +209,13 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
   {
     vtkAbstractArray* currentReferenceArray = currentReferencePointData->GetAbstractArray(idArray);
     std::string currentReferenceArrayName = currentReferenceArray->GetName();
-    vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(currentReferenceArrayName.c_str());
+    vtkAbstractArray* currentFrameArray =
+      currentFramePointData->GetAbstractArray(currentReferenceArrayName.c_str());
 
     if (currentFrameArray == nullptr)
     {
-      std::cerr << "failed : Could not find an array named " << currentReferenceArrayName << std::endl;
+      std::cerr << "failed : Could not find an array named " << currentReferenceArrayName
+                << std::endl;
       return 1;
     }
 
@@ -249,43 +251,42 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
 int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* referenceArray)
 {
 
-  if(currentArray->GetNumberOfValues() != referenceArray->GetNumberOfValues())
+  if (currentArray->GetNumberOfValues() != referenceArray->GetNumberOfValues())
   {
     std::cerr << "number of values does not match" << std::endl;
     return 1;
   }
 
-  for(int idValue = 0; idValue < currentArray->GetNumberOfValues(); idValue++)
+  for (int idValue = 0; idValue < currentArray->GetNumberOfValues(); idValue++)
   {
     vtkVariant currentValue = currentArray->GetVariantValue(idValue);
     vtkVariant referenceValue = referenceArray->GetVariantValue(idValue);
 
-    if(currentValue.IsArray() && referenceValue.IsArray())
+    if (currentValue.IsArray() && referenceValue.IsArray())
     {
       vtkAbstractArray* currentValueAsAbstractArray = currentValue.ToArray();
       vtkAbstractArray* referenceValueAsAbstractArray = referenceValue.ToArray();
       return CompareAbstractArray(currentValueAsAbstractArray, referenceValueAsAbstractArray);
     }
 
-    else if(currentValue.IsString() && referenceValue.IsString())
+    else if (currentValue.IsString() && referenceValue.IsString())
     {
       vtkStdString currentValueAsString = currentValue.ToString();
       vtkStdString referenceValueAsString = referenceValue.ToString();
-      if(currentValueAsString.compare(referenceValueAsString) == 1)
+      if (currentValueAsString.compare(referenceValueAsString) == 1)
       {
         std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
-                  << referenceArray->GetName() << ". Expected "
-                  << referenceValueAsString << ", got " << currentValueAsString
-                  << std::endl;
+                  << referenceArray->GetName() << ". Expected " << referenceValueAsString
+                  << ", got " << currentValueAsString << std::endl;
         return 1;
       }
     }
 
-    else if(currentValue.IsNumeric() && referenceValue.IsNumeric())
+    else if (currentValue.IsNumeric() && referenceValue.IsNumeric())
     {
       double currentDoubleValue = currentValue.ToDouble();
       double referenceDoubleValue = referenceValue.ToDouble();
-      if(abs(currentDoubleValue - referenceDoubleValue) > 1e-12)
+      if (abs(currentDoubleValue - referenceDoubleValue) > 1e-12)
       {
         if ((referenceValue.ToTypeInt64() - currentValue.ToTypeInt64()) % 3600 * 1e6 == 0)
         {
@@ -293,9 +294,8 @@ int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* refer
         }
 
         std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
-                  << referenceArray->GetName() << ". Expected "
-                  << referenceDoubleValue << ", got " << currentDoubleValue
-                  << std::endl;
+                  << referenceArray->GetName() << ". Expected " << referenceDoubleValue << ", got "
+                  << currentDoubleValue << std::endl;
 
         return 1;
       }
@@ -304,8 +304,7 @@ int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* refer
     else
     {
       std::cerr << "failed : Tuples " << idValue << " doesn't match for array "
-                << referenceArray->GetName() << ". They don't have the same type"
-                << std::endl;
+                << referenceArray->GetName() << ". They don't have the same type" << std::endl;
       return 1;
     }
   }
@@ -327,10 +326,11 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
   // For each array, Checks the values
   for (int idArray = 0; idArray < currentReferencePointData->GetNumberOfArrays(); ++idArray)
   {
-    const char * arrayName = currentFramePointData->GetArrayName(idArray);
+    const char* arrayName = currentFramePointData->GetArrayName(idArray);
     vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(arrayName);
-    vtkAbstractArray* currentReferenceArray = currentReferencePointData->GetAbstractArray(arrayName);
-    if(CompareAbstractArray(currentFrameArray, currentReferenceArray))
+    vtkAbstractArray* currentReferenceArray =
+      currentReferencePointData->GetAbstractArray(arrayName);
+    if (CompareAbstractArray(currentFrameArray, currentReferenceArray))
     {
       return 1;
     }
@@ -375,8 +375,7 @@ int TestPointPositions(vtkPolyData* currentFrame, vtkPolyData* currentReference)
 }
 
 //-----------------------------------------------------------------------------
-int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
-                               double referenceNetworkTimeToLidarTime)
+int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader, double referenceNetworkTimeToLidarTime)
 {
   std::cout << "NetworkTimeToLidarTime : \t";
   double currentNetworkTimeToLidarTime = HDLReader->GetNetworkTimeToDataTime();
@@ -385,14 +384,12 @@ int TestNetworkTimeToLidarTime(vtkLidarReader* HDLReader,
   // computed using the timestamp of the first data packet inside the
   // network packet (not of the first used data packet) so this timeshift
   // can be improved.
-  if (!vtkMathUtilities::FuzzyCompare(currentNetworkTimeToLidarTime,
-                                      referenceNetworkTimeToLidarTime,
-                                      1.0))
+  if (!vtkMathUtilities::FuzzyCompare(
+        currentNetworkTimeToLidarTime, referenceNetworkTimeToLidarTime, 1.0))
   {
     std::cerr << "failed : Wrong NetworkTimeToLidarTime value. Expected "
-	      << referenceNetworkTimeToLidarTime
-	      << ", got " << std::fixed << std::setprecision(17) << currentNetworkTimeToLidarTime
-              << std::endl;
+              << referenceNetworkTimeToLidarTime << ", got " << std::fixed << std::setprecision(17)
+              << currentNetworkTimeToLidarTime << std::endl;
 
     return 1;
   }
@@ -421,10 +418,10 @@ int CheckCurrentFrame(vtkPolyData* currentFrame, vtkPolyData* currentReference)
 }
 
 //-----------------------------------------------------------------------------
-int testLidarReader(vtkLidarReader *reader,
-                    double referenceNetworkTimeToDataTime,
-                    const std::string& referenceFileName,
-                    const double FrequencyReference_Hz)
+int testLidarReader(vtkLidarReader* reader,
+  double referenceNetworkTimeToDataTime,
+  const std::string& referenceFileName,
+  const double FrequencyReference_Hz)
 {
   // get VTP file name from the reference file
   std::vector<std::string> referenceFilesList;
@@ -438,9 +435,9 @@ int testLidarReader(vtkLidarReader *reader,
   // Check if we can read the PCAP file
   if (reader->GetNumberOfFrames() == 0)
   {
-      std::cout << "ERROR, the reader ouput 0 frame!!" << std::endl
-                << "PLEASE CHECK YOUR PCAP FILE OR FILEPATH" << std::endl;
-      return 1;
+    std::cout << "ERROR, the reader ouput 0 frame!!" << std::endl
+              << "PLEASE CHECK YOUR PCAP FILE OR FILEPATH" << std::endl;
+    return 1;
   }
 
   // Checks frame count
@@ -472,25 +469,25 @@ int testLidarReader(vtkLidarReader *reader,
   }
 
   // Check the frequency of the processing of a frame
-  if(durations.size() > 0)
+  if (durations.size() > 0)
   {
     std::cout << "Frequency : \t";
 
     // Compute the mean of all duration
     double mean_s = durations[0].count() * 1e-9;
-    for(unsigned int i = 1; i < durations.size(); i++)
+    for (unsigned int i = 1; i < durations.size(); i++)
     {
       mean_s = mean_s + (durations[i].count() * 1e-9);
     }
     mean_s = mean_s / durations.size();
-    if(mean_s == 0)
+    if (mean_s == 0)
     {
       std::cerr << "failed : The mean duration of frame processing is equal to 0 s " << std::endl;
       return 1;
     }
 
-    double FrameFrequency_Hz = 1/mean_s;
-    if((FrameFrequency_Hz) >= FrequencyReference_Hz )
+    double FrameFrequency_Hz = 1 / mean_s;
+    if ((FrameFrequency_Hz) >= FrequencyReference_Hz)
     {
       std::cout << "passed , expected" << FrequencyReference_Hz
                 << " Hz, got : " << (FrameFrequency_Hz) << "Hz." << std::endl;
@@ -498,36 +495,36 @@ int testLidarReader(vtkLidarReader *reader,
     else
     {
       std::cerr << "failed : The processing of the frame is to slow. Expected : "
-          << FrequencyReference_Hz << " Hz, got : " << (FrameFrequency_Hz) << "Hz." << std::endl;
+                << FrequencyReference_Hz << " Hz, got : " << (FrameFrequency_Hz) << "Hz."
+                << std::endl;
 
       retVal += 1;
     }
   }
 
-  retVal  += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
-  return  retVal;
-
+  retVal += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
+  return retVal;
 }
 
 //-----------------------------------------------------------------------------
-int testLidarStream(vtkLidarStream *stream,
-                    bool preSend,
-                    double vtkNotUsed(preSendSpeed),
-                    double vtkNotUsed(speed),
-                    const std::string &pcapFileName,
-                    const std::string &referenceFileName,
-                    bool vtkNotUsed(testLastFrame))
+int testLidarStream(vtkLidarStream* stream,
+  bool preSend,
+  double vtkNotUsed(preSendSpeed),
+  double vtkNotUsed(speed),
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool vtkNotUsed(testLastFrame))
 {
   return testLidarStream(stream, pcapFileName, referenceFileName, preSend);
 }
 
 //-----------------------------------------------------------------------------
-int testLidarStream(vtkLidarStream *stream,
-                    const std::string& pcapFileName,
-                    const std::string& referenceFileName,
-                    bool preSend)
+int testLidarStream(vtkLidarStream* stream,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool preSend)
 {
-  if(!stream)
+  if (!stream)
   {
     std::cout << "Stream is nullptr" << std::endl;
     return 1;
@@ -541,7 +538,7 @@ int testLidarStream(vtkLidarStream *stream,
   // Set the value for sending packets
   std::string destinationIp = "127.0.0.1";
   // If the stream listen in multicast, packets should be sent to the right multicast adress
-  if(stream->GetMulticastAddress() != "")
+  if (stream->GetMulticastAddress() != "")
   {
     destinationIp = stream->GetMulticastAddress();
   }
@@ -551,7 +548,7 @@ int testLidarStream(vtkLidarStream *stream,
 
   auto interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
 
-  if(!interpreter)
+  if (!interpreter)
   {
     std::cout << "Interpreter is nullptr" << std::endl;
     return 1;
@@ -579,7 +576,8 @@ int testLidarStream(vtkLidarStream *stream,
   stream->Start();
   if (interpreter->GetIsCalibrated())
   {
-    retVal += SendAndTestAllFrames(stream, interpreter, referenceFilesList, pcapFileName, destinationIp, dataPort);
+    retVal += SendAndTestAllFrames(
+      stream, interpreter, referenceFilesList, pcapFileName, destinationIp, dataPort);
     stream->Stop();
   }
   else
@@ -593,10 +591,12 @@ int testLidarStream(vtkLidarStream *stream,
 }
 
 //-----------------------------------------------------------------------------
-int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* interpreter,
-                         std::vector<std::string> referenceFilesList,
-                         const std::string& pcapFileName,
-                         std::string destinationIp, int dataPort)
+int SendAndTestAllFrames(vtkLidarStream* stream,
+  vtkLidarPacketInterpreter* interpreter,
+  std::vector<std::string> referenceFilesList,
+  const std::string& pcapFileName,
+  std::string destinationIp,
+  int dataPort)
 {
   int retVal = 0;
 
@@ -604,7 +604,8 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
   std::cout << "Sending data... " << std::endl;
   unsigned int idFrame = 0;
 
-  std::function<void()> testFrame = [&](){
+  std::function<void()> testFrame = [&]()
+  {
     // A new frame is ready
     if (stream->GetNeedsUpdate())
     {
@@ -625,8 +626,8 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
   bool isOk = sender.sendAllPackets(0.15, 0, testFrame);
   if (!isOk)
   {
-      std::cout << "Test failed: Error while sending the packets." << std::endl;
-      return 1;
+    std::cout << "Test failed: Error while sending the packets." << std::endl;
+    return 1;
   }
 
   // Wait a bit for every packet to arrive and check if a last complete frame is available.
@@ -635,29 +636,30 @@ int SendAndTestAllFrames(vtkLidarStream *stream, vtkLidarPacketInterpreter* inte
 
   // check for a potential uncomplete last frame.
   if (idFrame < referenceFilesList.size())
-   {
-     interpreter->SplitFrame(true);
+  {
+    interpreter->SplitFrame(true);
 
-     vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
-     vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
+    vtkPolyData* currentFrame = interpreter->GetLastFrameAvailable();
+    vtkPolyData* currentReference = GetCurrentReference(referenceFilesList, idFrame);
 
-     // Do not check for the last RPM value as the frame is incomplete.
-     retVal += CheckCurrentFrame(currentFrame, currentReference);
+    // Do not check for the last RPM value as the frame is incomplete.
+    retVal += CheckCurrentFrame(currentFrame, currentReference);
 
-     idFrame++;
-   }
+    idFrame++;
+  }
 
-   retVal += TestFrameCount(idFrame, referenceFilesList.size());
+  retVal += TestFrameCount(idFrame, referenceFilesList.size());
 
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
 int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
-                       const std::string& pcapFileName,
-                       const std::string& referenceFileName,
-                       bool shouldPreSend, int dataPort,
-                       const std::string correctionFileName)
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName)
 {
   // return value indicate if the test passed
   int retVal = 0;
@@ -676,11 +678,12 @@ int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
 
 //-----------------------------------------------------------------------------
 int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
-                        vtkLidarPacketInterpreter* interpreter2,
-                        const std::string& pcapFileName,
-                        const std::string& referenceFileName,
-                        bool shouldPreSend, int dataPort,
-                        const std::string correctionFileName)
+  vtkLidarPacketInterpreter* interpreter2,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName)
 {
 
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
@@ -739,7 +742,8 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   if (interpreter2->GetIsCalibrated())
   {
     // Send all data on DataPort (listen by LidarStream1) and check the result of lidarStream2
-    retVal += SendAndTestAllFrames(LidarStream2, interpreter2, referenceFilesList, pcapFileName, destinationIp, dataPort);
+    retVal += SendAndTestAllFrames(
+      LidarStream2, interpreter2, referenceFilesList, pcapFileName, destinationIp, dataPort);
 
     LidarStream1->Stop();
     LidarStream2->Stop();
@@ -756,11 +760,12 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 
 //-----------------------------------------------------------------------------
 int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
-                       vtkLidarPacketInterpreter* interpreter2,
-                       const std::string& pcapFileName,
-                       const std::string& referenceFileName,
-                       bool shouldPreSend, int dataPort,
-                       const std::string correctionFileName)
+  vtkLidarPacketInterpreter* interpreter2,
+  const std::string& pcapFileName,
+  const std::string& referenceFileName,
+  bool shouldPreSend,
+  int dataPort,
+  const std::string correctionFileName)
 {
   // return value indicate if the test passed
   int retVal = 0;
@@ -801,9 +806,8 @@ bool GetFrameTimeRange(vtkPolyData* frame, double& firstTime, double& lastTime)
   }
 
   vtkDataArray* timestamps = frame->GetPointData()->GetArray("timestamp");
-  if (timestamps == nullptr
-      || timestamps->GetNumberOfComponents() != 1
-      || timestamps->GetNumberOfTuples() < 1)
+  if (timestamps == nullptr || timestamps->GetNumberOfComponents() != 1 ||
+    timestamps->GetNumberOfTuples() < 1)
   {
     return false;
   }
