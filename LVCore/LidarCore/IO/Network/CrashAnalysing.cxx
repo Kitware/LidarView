@@ -23,7 +23,6 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
-#include <stdio.h>
 
 // VTK
 #include <vtkInformation.h>

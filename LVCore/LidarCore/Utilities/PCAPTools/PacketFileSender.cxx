@@ -79,8 +79,8 @@ int main(int argc, char* argv[])
   po::notify(vm);
 
   if (vm.count("help") || argc < 2) {
-      cout << "Usage: PacketFileSender <pcap_file> [options]\n";
-      cout << visible << "\n";
+      std::cout << "Usage: PacketFileSender <pcap_file> [options]\n";
+      std::cout << visible << "\n";
       return 1;
   }
 
