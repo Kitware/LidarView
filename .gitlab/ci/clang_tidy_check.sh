@@ -2,8 +2,10 @@
 
 set -e
 
-# Remove -fno-fat-lto-objects flags (unsupported by clang-tidy)
-sed -i 's/-fno-fat-lto-objects //g' build/compile_commands.json
+if [ -z "${CI_PROJECT_DIR}" ]; then
+    echo "Missing CI_PROJECT_DIR env variable"
+    exit 1
+fi
 
 target_repository=""
 
@@ -34,8 +36,11 @@ done
 if [ ${#existing_files[@]} -eq 0 ]; then
     echo "No c++ files detected in changes for clang-tidy to run against"
 else
+    # Remove -fno-fat-lto-objects flags (unsupported by clang-tidy)
+    sed -i 's/-fno-fat-lto-objects //g' $CI_PROJECT_DIR/build/compile_commands.json
+
     echo "Performing clang-format check on: ${existing_files[@]}"
-    run-clang-tidy -p build/ ${existing_files[@]}
+    run-clang-tidy -p $CI_PROJECT_DIR/build/ ${existing_files[@]}
     exit_code=`echo $?`
 fi
 
