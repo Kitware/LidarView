@@ -97,6 +97,7 @@ readability-*,\
 -readability-string-compare,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
+-readability-identifier-length,\
 "
 WarningsAsErrors: "*"
 ...
