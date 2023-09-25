@@ -77,6 +77,19 @@ pdal::Dimension::Type vtkTypeToPDAL(int type)
       return pdal::Dimension::Type::None;
   }
 }
+
+bool isIgnoredArray(const std::string arrayName)
+{
+  static const std::vector<std::string> toIgnore{ "x", "y", "z" };
+
+  std::string stringLower;
+  std::transform(arrayName.cbegin(),
+    arrayName.cend(),
+    std::back_inserter(stringLower),
+    [](unsigned char c) { return std::tolower(c); });
+
+  return std::find(toIgnore.cbegin(), toIgnore.cend(), stringLower) != toIgnore.cend();
+}
 }
 
 vtkLASWriter::vtkLASWriter()
@@ -123,7 +136,7 @@ void vtkLASWriter::WriteData()
 
     pdal::Dimension::Type pdalType = ::vtkTypeToPDAL(ptsData->GetAbstractArray(i)->GetDataType());
     if (ptsData->GetAbstractArray(i)->GetNumberOfComponents() != 1 ||
-      pdalType == pdal::Dimension::Type::None)
+      pdalType == pdal::Dimension::Type::None || isIgnoredArray(arrayName))
     {
       continue;
     }
@@ -138,10 +151,7 @@ void vtkLASWriter::WriteData()
     }
     else
     {
-      if (pdalType != pdal::Dimension::Type::None)
-      {
-        pdalMapId[i] = table.layout()->registerOrAssignDim(arrayName, pdalType);
-      }
+      pdalMapId[i] = table.layout()->registerOrAssignDim(arrayName, pdalType);
     }
   }
 
