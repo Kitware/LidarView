@@ -163,15 +163,6 @@ def getPosOrSource(index = -1):
 def getLidar(index = -1): # WIP TODO
     return getReader(index) or getSensor(index)
 
-def getLidarPacketInterpreter(): # WIP Used in places where explicit lidar / current lidar is mixed
-    lidar = getLidar()
-    if lidar:
-      return lidar.Interpreter
-    return None
-
-def getPosition():
-    return getattr(app, 'position', None)
-
 def getSpreadSheetViewProxy(): #WIP this is probably unreliable
     return smp.servermanager.ProxyManager().GetProxy("views", "main spreadsheet view")
 
