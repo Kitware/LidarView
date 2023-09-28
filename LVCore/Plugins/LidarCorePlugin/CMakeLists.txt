@@ -76,6 +76,7 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersSegmentation
   XML_MODULE_FILES
+    Filters/ClipPoints.xml
     Filters/DBSCANClustering.xml
     Filters/SeparateCloudKnn.xml
 )
