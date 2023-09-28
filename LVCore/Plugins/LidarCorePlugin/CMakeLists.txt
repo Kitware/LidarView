@@ -79,6 +79,7 @@ lidarcoreplugin_add_module_xml(
     Filters/ClipPoints.xml
     Filters/DBSCANClustering.xml
     Filters/SeparateCloudKnn.xml
+    Filters/ThresholdPoints.xml
 )
 
 lidarcoreplugin_add_module_xml(
