@@ -25,8 +25,6 @@ import lidarview.gridAdjustmentDialog
 import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
-from PythonQt.paraview import lqCropReturnsDialog
-
 # import the vtk wrapping of the Lidar Plugin
 # this enable to get the specific vtkObject behind a proxy via GetClientSideObject()
 # without this plugin, GetClientSideObject(), would return the first mother class known by paraview
@@ -71,8 +69,6 @@ def planeFit():
 def UpdateApplogicCommon(lidar):
   # WIP ACTUALLY THINK ABOUT always enabled ok, just apply settings on current lidar actually needed
   # Overall on what buttons are on-off when there is data or not
-
-  onCropReturns(False) # Dont show the dialog just restore settings
 
   # Reset Scene Time # WIP TIME CONTROLLER API ?
   smp.GetActiveView().ViewTime = 0.0
@@ -130,8 +126,7 @@ def onClose():
 
 # Generic Helpers
 def _setSaveActionsEnabled(enabled):
-    for action in ('Close', 'CropReturns'):
-        app.actions['action'+action].setEnabled(enabled)
+    app.actions['actionClose'].setEnabled(enabled)
     getMainWindow().findChild('QMenu', 'menuSaveAs').enabled = enabled
 
 
@@ -176,50 +171,6 @@ def getLidarPacketInterpreter(): # WIP Used in places where explicit lidar / cur
 
 def getPosition():
     return getattr(app, 'position', None)
-
-def onCropReturns(show = True):
-    dialog = lqCropReturnsDialog(getMainWindow())
-
-    cropEnabled = False
-    cropOutside = False
-    firstCorner = QtGui.QVector3D()
-    secondCorner = QtGui.QVector3D()
-
-    lidarInterpreter = getLidarPacketInterpreter()
-
-    # Retrieve current values to fill the UI
-    if lidarInterpreter:
-        cropEnabled = lidarInterpreter.CropMode != 'None'
-        cropOutside = lidarInterpreter.CropOutside
-        firstCorner = QtGui.QVector3D(lidarInterpreter.CropRegion[0], lidarInterpreter.CropRegion[2], lidarInterpreter.CropRegion[4])
-        secondCorner = QtGui.QVector3D(lidarInterpreter.CropRegion[1], lidarInterpreter.CropRegion[3], lidarInterpreter.CropRegion[5])
-
-    #show the dialog box
-    if show:
-        dialog.cropOutside = cropOutside
-        dialog.firstCorner = firstCorner
-        dialog.secondCorner = secondCorner
-        dialog.croppingEnabled = cropEnabled
-        # Enforce the call to dialog.croppingEnabled."onChanged" even if dialog.croppingEnabled == cropEnabled
-        dialog.croppingEnabled = not dialog.croppingEnabled
-        dialog.croppingEnabled = not dialog.croppingEnabled
-
-        # update the dialog configuration
-        dialog.UpdateDialogWithCurrentSetting()
-
-        if not dialog.exec_():
-            return
-
-    if lidarInterpreter:
-        lidarInterpreter.CropOutside = dialog.cropOutside
-        dialogCropMode = ['None', 'Cartesian', 'Spherical']
-        lidarInterpreter.CropMode = dialogCropMode[dialog.GetCropMode()]
-        p1 = dialog.firstCorner
-        p2 = dialog.secondCorner
-        lidarInterpreter.CropRegion = [p1.x(), p2.x(), p1.y(), p2.y(), p1.z(), p2.z()]
-        if show:
-            smp.Render()
-
 
 def getSpreadSheetViewProxy(): #WIP this is probably unreliable
     return smp.servermanager.ProxyManager().GetProxy("views", "main spreadsheet view")
@@ -432,7 +383,6 @@ def setupActions():
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionClose'].connect('triggered()', onClose)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
-    app.actions['actionCropReturns'].connect('triggered()', onCropReturns)
     app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     # Restore action states from settings
