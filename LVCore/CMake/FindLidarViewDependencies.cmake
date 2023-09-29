@@ -105,9 +105,7 @@ find_package(Boost REQUIRED COMPONENTS atomic filesystem program_options system 
 # PCL dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_PCL)
-  find_package(PCL 1.11 REQUIRED COMPONENTS common kdtree octree features registration io sample_consensus segmentation surface)
-  # WIP not clean contains a NIP "-Dno-qhull"
-  add_definitions(${PCL_DEFINITIONS})
+  find_package(PCL 1.11 QUIET REQUIRED COMPONENTS common io)
   print_version(PCL)
 endif ()
 
