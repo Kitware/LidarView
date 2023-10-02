@@ -1,28 +1,57 @@
-<!-- list of Sources copy past from paraview -->
 <ParaViewSources>
+
+  <!-- This section list all categories/toolbar sources. Sources should be duplicated in the next section -->
+  <Category name="GeometricShapes" menu_label="&amp;Geometric Shapes" preserve_order="1">
+    <Proxy group="sources" name="CubeSource" />
+    <Proxy group="sources" name="ConeSource" />
+    <Proxy group="sources" name="CylinderSource" />
+    <Proxy group="sources" name="DiskSource" />
+    <Proxy group="sources" name="EllipseSource" />
+    <Proxy group="sources" name="LineSource" />
+    <Proxy group="sources" name="PlaneSource" />
+    <Proxy group="sources" name="PointSource" />
+    <Proxy group="sources" name="PolyLineSource" />
+    <Proxy group="sources" name="PolyPointSource" />
+    <Proxy group="sources" name="SphereSource" />
+    <Proxy group="sources" name="SplineSource" />
+  </Category>
+  <Category name="MeasurementTools" menu_label="&amp;Measurement Tools" preserve_order="1">
+    <Proxy group="sources" name="Axes" omit_from_toolbar="1" />
+    <Proxy group="sources" name="Ruler" />
+    <Proxy group="sources" name="Protractor" />
+  </Category>
+  <Category name="ScreenAnnotation" menu_label="&amp;Screen Annotation" preserve_order="1">
+    <Proxy group="sources" name="VectorText" />
+    <Proxy group="sources" name="TimeToTextConvertorSource" />
+    <Proxy group="sources" name="ArrowSource" />
+    <Proxy group="sources" name="LogoSource" />
+    <Proxy group="sources" name="TextSource" />
+  </Category>
+
+  <!-- This section list all sources that can be available in ParaView and their icons -->
   <Proxy group="sources" name="ArrowSource" />
-  <Proxy group="sources" name="Axes" />
-  <Proxy group="sources" name="CubeSource" />
+  <Proxy group="sources" name="Axes" icon=":/pqWidgets/Icons/pqAxes.png"/>
   <Proxy group="sources" name="ConeSource" />
+  <Proxy group="sources" name="CubeSource" />
   <Proxy group="sources" name="CylinderSource" />
   <Proxy group="sources" name="DataObjectGenerator" />
   <Proxy group="sources" name="DiskSource" />
+  <Proxy group="sources" name="EllipseSource" />
   <Proxy group="sources" name="GlyphSource2D" />
-  <Proxy group="sources" name="HierarchicalFractal" />
-  <Proxy group="sources" name="ImageMandelbrotSource" />
   <Proxy group="sources" name="LineSource" />
+  <Proxy group="sources" name="LiveProgrammableSource" icon=":/pqWidgets/Icons/pqProgrammableFilter.svg" />
   <Proxy group="sources" name="LogoSource" />
-  <Proxy group="sources" name="OutlineSource" />
   <Proxy group="sources" name="PlaneSource" />
   <Proxy group="sources" name="PointSource" />
-  <Proxy group="sources" name="ProgrammableSource" />
-  <Proxy group="sources" name="RTAnalyticSource" />
-  <Proxy group="sources" name="Ruler" />
+  <Proxy group="sources" name="PolyLineSource" />
+  <Proxy group="sources" name="PolyPointSource" />
+  <Proxy group="sources" name="ProgrammableSource" icon=":/pqWidgets/Icons/pqProgrammableFilter.svg" />
+  <Proxy group="sources" name="Ruler" icon=":/pqWidgets/Icons/pqRuler.svg"/>
+  <Proxy group="sources" name="Protractor" icon=":/pqWidgets/Icons/pqProtractor.svg"/>
   <Proxy group="sources" name="SphereSource" />
   <Proxy group="sources" name="SplineSource" />
-  <Proxy group="sources" name="SuperquadricSource" />
   <Proxy group="sources" name="TextSource" />
-  <Proxy group="sources" name="TimeToTextConvertorSource" />
   <Proxy group="sources" name="TimeSource" />
+  <Proxy group="sources" name="TimeToTextConvertorSource" />
   <Proxy group="sources" name="VectorText" />
 </ParaViewSources>
