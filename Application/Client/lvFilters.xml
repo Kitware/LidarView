@@ -3,15 +3,17 @@
   <!-- This section list all categories/toolbar filters. Filters should be duplicated in the next section -->
   <Category name="Common" menu_label="&amp;Common" preserve_order="1">
     <Proxy group="filters" name="Calculator" />
-    <Proxy group="filters" name="Clip" />
-    <Proxy group="filters" name="Threshold" />
+    <Proxy group="filters" name="ClipPoints" />
+    <Proxy group="filters" name="ThresholdPoints" />
+    <Proxy group="filters" name="ExtractPointSelection" />
+    <Proxy group="filters" name="AggregatePointsFromTrajectoryOnline" />
     <Proxy group="filters" name="Glyph" />
   </Category>
 
   <Category name="DataAnalysis" menu_label="&amp;Data Analysis" preserve_order="1">
     <Proxy group="filters" name="Calculator" />
     <Proxy group="filters" name="PythonCalculator" />
-    <Proxy group="filters" name="ExtractSelection" />
+    <Proxy group="filters" name="ExtractPointSelection" />
     <Proxy group="filters" name="ExtractHistogram" />
     <Proxy group="filters" name="ExtractFieldDataOverTime" />
     <Proxy group="filters" name="ProgrammableFilter" />
@@ -36,7 +38,7 @@
     <Proxy group="filters" name="TimeToTextConvertor" />
   </Category>
 
-  <Category name="Annotation" menu_label="Annotation" preserve_order="1">
+  <Category name="ScreenAnnotation" menu_label="Screen Annotation" preserve_order="1">
     <Proxy group="filters" name="AnnotateGlobalData" />
     <Proxy group="filters" name="AnnotateAttributeData" />
     <Proxy group="filters" name="PythonAnnotation" />
@@ -46,6 +48,7 @@
   </Category>
 
   <!-- This section list all filters that can be available in ParaView and their icons -->
+  <Proxy group="filters" name="AggregatePointsFromTrajectoryOnline" />
   <Proxy group="filters" name="Append" />
   <Proxy group="filters" name="AppendAttributes" />
   <Proxy group="filters" name="AppendPolyData" />
@@ -60,6 +63,7 @@
   <Proxy group="filters" name="CellDerivatives"/>
   <Proxy group="filters" name="CleanPolyData" />
   <Proxy group="filters" name="Clip" icon=":/pqWidgets/Icons/pqClip.svg" />
+  <Proxy group="filters" name="ClipPoints" icon=":/pqWidgets/Icons/pqClip.svg" />
   <Proxy group="filters" name="Contour" icon=":/pqWidgets/Icons/pqIsosurface.svg" />
   <Proxy group="filters" name="ConvertToPointCloud" />
   <Proxy group="filters" name="Curvatures" />
@@ -75,6 +79,7 @@
   <Proxy group="filters" name="ExtractEdges" />
   <Proxy group="filters" name="ExtractGeometry" />
   <Proxy group="filters" name="ExtractHistogram" icon=":/pqWidgets/Icons/pqHistogram24.png" />
+  <Proxy group="filters" name="ExtractPointSelection" />
   <Proxy group="filters" name="ExtractSelection" icon=":/pqWidgets/Icons/pqExtractSelection.svg" />
   <Proxy group="filters" name="ExtractSelectionOverTime" icon=":/pqWidgets/Icons/pqPlotCellOverTime24.png" />
   <Proxy group="filters" name="ExtractHierarchicalDataSets" />
@@ -102,7 +107,7 @@
   <Proxy group="filters" name="ProgrammableFilter" icon=":/pqWidgets/Icons/pqProgrammableFilter.svg" />
   <Proxy group="filters" name="PVConnectivityFilter" />
   <Proxy group="filters" name="PythonAnnotation" />
-  <Proxy group="filters" name="PythonCalculator" />
+  <Proxy group="filters" name="PythonCalculator"  icon=":/lvResources/Icons/python_logo_124.png" />
   <Proxy group="filters" name="ReflectionFilter" />
   <Proxy group="filters" name="RotationalExtrusionFilter" />
   <Proxy group="filters" name="ScatterPlot"/>
@@ -117,6 +122,7 @@
   <Proxy group="filters" name="TemporalShiftScale" />
   <Proxy group="filters" name="TemporalStatistics" />
   <Proxy group="filters" name="Threshold" icon=":/pqWidgets/Icons/pqThreshold.svg" />
+  <Proxy group="filters" name="ThresholdPoints" icon=":/pqWidgets/Icons/pqThreshold.svg" />
   <Proxy group="filters" name="TimeStepProgressFilter" />
   <Proxy group="filters" name="TimeToTextConvertor" />
   <Proxy group="filters" name="TransformFilter" />
