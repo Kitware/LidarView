@@ -26,12 +26,23 @@
   </Category>
 
   <Category name="Temporal" menu_label="&amp;Temporal" preserve_order="1">
+    <Proxy group="filters" name="ForceTime" />
     <Proxy group="filters" name="TemporalCache" />
     <Proxy group="filters" name="TemporalInterpolator" />
     <Proxy group="filters" name="TemporalSnapToTimeStep" />
     <Proxy group="filters" name="TemporalShiftScale" />
     <Proxy group="filters" name="TemporalStatistics" />
+    <Proxy group="filters" name="TimeStepProgressFilter" />
     <Proxy group="filters" name="TimeToTextConvertor" />
+  </Category>
+
+  <Category name="Annotation" menu_label="Annotation" preserve_order="1">
+    <Proxy group="filters" name="AnnotateGlobalData" />
+    <Proxy group="filters" name="AnnotateAttributeData" />
+    <Proxy group="filters" name="PythonAnnotation" />
+    <Proxy group="filters" name="TimeStepProgressFilter" />
+    <Proxy group="filters" name="TimeToTextConvertor" />
+    <Proxy group="filters" name="EnvironmentAnnotation" />
   </Category>
 
   <!-- This section list all filters that can be available in ParaView and their icons -->
@@ -39,6 +50,8 @@
   <Proxy group="filters" name="AppendAttributes" />
   <Proxy group="filters" name="AppendPolyData" />
   <Proxy group="filters" name="ArbitrarySourceGlyph" />
+  <Proxy group="filters" name="AnnotateAttributeData" />
+  <Proxy group="filters" name="AnnotateGlobalData" />
   <Proxy group="filters" name="BlockIdScalars" />
   <Proxy group="filters" name="BrownianPoints" />
   <Proxy group="filters" name="Calculator" icon=":/pqWidgets/Icons/pqCalculator.svg" />
@@ -57,6 +70,7 @@
   <Proxy group="filters" name="Delaunay2D" />
   <Proxy group="filters" name="Delaunay3D" />
   <Proxy group="filters" name="ElevationFilter" />
+  <Proxy group="filters" name="EnvironmentAnnotation" />
   <Proxy group="filters" name="ExtractBlock" icon=":/pqWidgets/Icons/pqGroupExtract.svg" />
   <Proxy group="filters" name="ExtractEdges" />
   <Proxy group="filters" name="ExtractGeometry" />
@@ -65,6 +79,7 @@
   <Proxy group="filters" name="ExtractSelectionOverTime" icon=":/pqWidgets/Icons/pqPlotCellOverTime24.png" />
   <Proxy group="filters" name="ExtractHierarchicalDataSets" />
   <Proxy group="filters" name="FeatureEdges" />
+  <Proxy group="filters" name="ForceTime" />
   <Proxy group="filters" name="GenerateIdScalars"/>
   <Proxy group="filters" name="Glyph" icon=":/pqWidgets/Icons/pqGlyph.svg" />
   <Proxy group="filters" name="Gradient" />
@@ -86,6 +101,7 @@
   <Proxy group="filters" name="ProcessIdScalars" />
   <Proxy group="filters" name="ProgrammableFilter" icon=":/pqWidgets/Icons/pqProgrammableFilter.svg" />
   <Proxy group="filters" name="PVConnectivityFilter" />
+  <Proxy group="filters" name="PythonAnnotation" />
   <Proxy group="filters" name="PythonCalculator" />
   <Proxy group="filters" name="ReflectionFilter" />
   <Proxy group="filters" name="RotationalExtrusionFilter" />
@@ -101,6 +117,7 @@
   <Proxy group="filters" name="TemporalShiftScale" />
   <Proxy group="filters" name="TemporalStatistics" />
   <Proxy group="filters" name="Threshold" icon=":/pqWidgets/Icons/pqThreshold.svg" />
+  <Proxy group="filters" name="TimeStepProgressFilter" />
   <Proxy group="filters" name="TimeToTextConvertor" />
   <Proxy group="filters" name="TransformFilter" />
   <Proxy group="filters" name="TriangleFilter" />
