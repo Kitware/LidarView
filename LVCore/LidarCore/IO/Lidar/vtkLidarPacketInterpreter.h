@@ -43,17 +43,6 @@ public:
   void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} // TODO
 
   /**
-   * @brief The CropModeEnum enum to select the cropping mode
-   */
-  enum CROP_MODE
-  {
-    None = 0,      /*!< 0 */
-    Cartesian = 1, /*!< 1 */
-    Spherical = 2, /*!< 2 */
-    Cylindric = 3, /*!< 3 */
-  };
-
-  /**
    * @brief LoadCalibration read a provided calibration file to initialize the sensor's
    * calibration parameters (angles corrections, distances corrections, ...) which will be
    * used later on while processing the packet.
@@ -212,14 +201,6 @@ public:
   vtkGetMacro(IgnoreEmptyFrames, bool);
   vtkSetMacro(IgnoreEmptyFrames, bool);
 
-  vtkGetMacro(CropMode, int);
-  vtkSetMacro(CropMode, int);
-
-  vtkGetMacro(CropOutside, bool);
-  vtkSetMacro(CropOutside, bool);
-
-  vtkSetVector6Macro(CropRegion, double);
-
   vtkGetMacro(EnableAdvancedArrays, bool);
   vtkSetMacro(EnableAdvancedArrays, bool);
 
@@ -237,21 +218,6 @@ protected:
    */
   virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints,
     vtkIdType prereservedNumberOfPoints = 0) = 0;
-
-  /**
-   * @brief shouldBeCroppedOut Returns true if a point should be removed,
-   * i.e. if it lays *outside* the cropping volume.
-   *
-   * This cropping as the same definition as in Gimp: when cropping an image
-   * by drawing a selection, only the selection is kept.
-   * If this->CropOutside == false (the default), the cropping volume is
-   * the 3D volume inside the two boundaries defined using either cartesian
-   * coordinates or spherical coordinates.
-   * if this->CropOutside == true the cropping volume is the 3D volume
-   * outside the two boundaries (i.e. complement set of the previous case)
-   * @param pos cartesian coordinates of the point to be check
-   */
-  bool shouldBeCroppedOut(double pos[3]);
 
   //! Buffer to store the frame once they are ready
   std::vector<vtkSmartPointer<vtkPolyData>> Frames;
@@ -294,28 +260,9 @@ protected:
   //! Proccess/skip frame with 0 points
   bool IgnoreEmptyFrames = false;
 
-  //! Indicate which cropping mode should be used.
-  int CropMode = CROP_MODE::None;
-
-  //! If true, the region outside of the area defined by CropRegion is cropped/removed.
-  //! If false, the region within the area is cropped/removed.
-  bool CropOutside = false;
-
   //! Meta data required to correctly parse the
   //! data contained within the udp packets
   FrameInformation ParserMetaData;
-
-  //! Depending on the CroppingMode selected this can have different meaning:
-  //! - Cartesian -> [x_min, x_max, y_min, y_max, z_min, z_max]
-  //! - Spherical -> [azimuth_min, azimuth_max, vertAngle_min, vertAngle_max, r_min, r_max]
-  //! The choosen convention is clockwise from y+
-  //! (-180° <= azimuth <= 180, -90° <= vertAngle <= 90°, r >= 0.0,
-  //! vertAngle increasing with z and vertAngle = 0 in plane z = 0)
-  //! any interval is valid for the azimuthal but [ a, b ] is different from
-  //! [ b, a ]
-  //! - Cylindric -> Not implemented yet
-  //! all distances are in meters and all angles are in degrees
-  double CropRegion[6] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
   bool EnableAdvancedArrays = false;
 

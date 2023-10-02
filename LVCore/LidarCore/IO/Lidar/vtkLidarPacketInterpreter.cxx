@@ -39,41 +39,6 @@ vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
   cellArray->SetCells(numberOfVerts, cells.GetPointer());
   return cellArray;
 }
-
-//-----------------------------------------------------------------------------
-// Returns the value that is equal to x modulo mod, and that is inside to (0, mod(
-// mod must be > 0.0
-double place_in_interval(double x, double mod)
-{
-  if (x < 0.0)
-  {
-    return x + std::ceil(-x / mod) * mod; // not equal to std::fmod (always >= 0)
-  }
-  else
-  {
-    return std::fmod(x, mod);
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Returns true if x is "inside" (a, b) modulo mod
-bool inside_interval_mod(double x, double a, double b, double mod)
-{
-  // first step: place everything in [0.0, mod]
-  x = place_in_interval(x, mod);
-  a = place_in_interval(a, mod);
-  b = place_in_interval(b, mod);
-  if (a >= b)
-  {
-    // [ ...in...|b|...out...|a|...in...]
-    return x >= a || x <= b;
-  }
-  else
-  {
-    // [ ...out...|a|...in...|b|...out...]
-    return x >= a && x <= b;
-  }
-}
 }
 
 //-----------------------------------------------------------------------------
@@ -135,43 +100,6 @@ void vtkLidarPacketInterpreter::SetLaserSelection(int index, int value)
 vtkIntArray* vtkLidarPacketInterpreter::GetLaserSelection()
 {
   return this->LaserSelection.GetPointer();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkLidarPacketInterpreter::shouldBeCroppedOut(double pos[3])
-{
-  bool pointInside = true;
-  switch (this->CropMode)
-  {
-    case CROP_MODE::Cartesian:
-    {
-      pointInside = pos[0] >= this->CropRegion[0] && pos[0] <= this->CropRegion[1];
-      pointInside &= pos[1] >= this->CropRegion[2] && pos[1] <= this->CropRegion[3];
-      pointInside &= pos[2] >= this->CropRegion[4] && pos[2] <= this->CropRegion[5];
-      break;
-    }
-    case CROP_MODE::Spherical:
-    {
-      double R = std::sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
-      // azimuth in [-180°, 180°]
-      // The choosen convention is clockwise from +y, hence -atan2(-x, y)
-      double azimuth = (180.0 / vtkMath::Pi()) * std::atan2(pos[0], pos[1]);
-      // vertAngle in [-90°, 90°], increasing with z - 0 is horizontal
-      double vertAngle = 90.0 - (180.0 / vtkMath::Pi()) * std::acos(pos[2] / R);
-
-      pointInside = inside_interval_mod(azimuth, this->CropRegion[0], this->CropRegion[1], 360.0);
-      pointInside &= vertAngle >= this->CropRegion[2] && vertAngle <= this->CropRegion[3];
-      pointInside &= R >= this->CropRegion[4] && R <= this->CropRegion[5];
-      break;
-    }
-    case CROP_MODE::Cylindric:
-    {
-      // space holder for future implementation
-    }
-    case CROP_MODE::None:
-      return false;
-  }
-  return !((pointInside && !this->CropOutside) || (!pointInside && this->CropOutside));
 }
 
 //-----------------------------------------------------------------------------

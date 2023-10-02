@@ -16,55 +16,6 @@
       </StringVectorProperty>
 
       <IntVectorProperty
-        name="CropMode"
-        animateable="0"
-        command="SetCropMode"
-        default_values="0"
-        number_of_elements="1"
-        panel_visibility="advanced">
-        <EnumerationDomain name="enum">
-          <Entry value="0" text="None"/>
-          <Entry value="1" text="Cartesian"/>
-          <Entry value="2" text="Spherical"/>
-        </EnumerationDomain>
-      </IntVectorProperty>
-
-      <IntVectorProperty
-        name="CropOutside"
-        animateable="0"
-        command="SetCropOutside"
-        default_values="0"
-        number_of_elements="1"
-        panel_visibility="advanced">
-        <BooleanDomain name="bool" />
-        <Documentation>
-          Crop outside (instead of inside) the 3D volume defined by the boudaries specified below
-          i.e. keep the points that lay outside the volume below.
-        </Documentation>
-      </IntVectorProperty>
-
-      <DoubleVectorProperty
-        name="CropRegion"
-        animateable="0"
-        command="SetCropRegion"
-        default_values="0 0 0 0 0 0"
-        number_of_elements="6"
-        panel_visibility="advanced">
-        <Documentation>
-          Defines the 3D cropping volume (the volume where points should be kept) by providing two boundaries.
-          If CropMode == None, this feature is not used and all points are kept
-          If CropMode == Cartesian, the format is: Xmin, Xmax, Ymin, Ymax, Zmin, Zmax (all in meters)
-          If CropMode == Spherical, the format is: AzimuthMin, AzimuthMax, VerticalAngleMin, VerticalAngleMax, DistanceMin, DistanceMax (Azimuth in [0;360] mod 360, VerticalAngle in [-90, 90] increasing with z, with 0 in plane z = 0, distance >= 0 in meters)
-        </Documentation>
-      </DoubleVectorProperty>
-
-      <PropertyGroup label="Cropping Option">
-        <Property name="CropMode" />
-        <Property name="CropOutside" />
-        <Property name="CropRegion" />
-      </PropertyGroup>
-
-      <IntVectorProperty
         name="IgnoreZeroDistances"
         animateable="0"
         command="SetIgnoreZeroDistances"
