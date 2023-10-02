@@ -45,6 +45,7 @@ int vtkExtractPointSelection::FillInputPortInformation(int port, vtkInformation*
   else
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
   return 1;
 }
@@ -61,6 +62,11 @@ int vtkExtractPointSelection::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector* outputVector)
 {
   vtkSelection* selection = vtkSelection::GetData(inputVector[1]->GetInformationObject(0));
+
+  if (!selection)
+  {
+    return 1;
+  }
 
   if (this->InvertSelection)
   {
