@@ -39,28 +39,6 @@ class AppLogic(object):
     def __init__(self):
         pass
 
-# Array Helper
-def hasArrayName(sourceProxy, arrayName):
-    '''
-    Returns True if the data has non-zero points and has a point data
-    attribute with the given arrayName.
-    '''
-    if not sourceProxy:
-        return False
-
-    info = sourceProxy.GetDataInformation().DataInformation
-    if info.GetNumberOfPoints() == 0:
-        return False
-
-    # ~ info = info.GetAttributeInformation(0)
-    # ~ for i in range(info.GetNumberOfArrays()):
-        # ~ if info.GetArrayInformation(i).GetName() == arrayName:
-            # ~ return True
-    # ~ return False
-    array = sourceProxy.PointData.GetArray(arrayName)
-    if array:
-        return True
-
 # Action Related Logic
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
@@ -196,16 +174,6 @@ def onGridProperties():
 def hideColorByComponent():
     getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChildren('QComboBox')[1].hide()
 
-def adjustScalarBarRangeLabelFormat():
-    if not app.actions['actionScalarBarVisibility'].isChecked():
-        return
-
-    arrayName = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChild('QComboBox').currentText
-    if arrayName != '' and hasArrayName(getReader(), arrayName):
-        sb = smp.GetScalarBar(smp.GetLookupTableForArray(arrayName, []))
-        sb.RangeLabelFormat = '%g'
-        smp.Render()
-
 def onToogleAdvancedGUI(updateSettings = True):
   """ Switch the GUI between advanced and classic mode"""
   # hide/show Sources menu
@@ -259,7 +227,3 @@ def setupActions():
     if not advanceMode:
       app.actions['actionAdvanceFeature'].checked = False
       onToogleAdvancedGUI(updateSettings=False)
-
-    displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
-    displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
-    app.actions['actionScalarBarVisibility'].connect('triggered()',adjustScalarBarRangeLabelFormat)
