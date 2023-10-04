@@ -26,7 +26,7 @@ apt install -y --no-install-recommends \
 # Development tools
 apt install -y --no-install-recommends \
     clang-tools clang-tidy clang-format cmake cmake-curses-gui \
-    gcc g++ ninja-build curl
+    gcc g++ ninja-build curl cppcheck
 
 # External dependencies
 apt install -y --no-install-recommends \
