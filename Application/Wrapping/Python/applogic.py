@@ -206,28 +206,6 @@ def adjustScalarBarRangeLabelFormat():
         sb.RangeLabelFormat = '%g'
         smp.Render()
 
-def transformMode():
-    reader = getReader()
-    if not reader:
-        return None
-    if hasattr(reader.Interpreter, 'ApplyTransform') and reader.Interpreter.ApplyTransform:
-      return 1 # absolute
-    else:
-      return 0 # raw
-
-def setTransformMode(mode):
-    # 0 - raw
-    # 1 - absolute
-    # 2 - relative # WIP what ?
-    reader = getReader()
-
-    if reader:
-        reader.Interpreter.ApplyTransform = (mode > 0)
-
-def geolocationChanged(setting):
-    setTransformMode(setting)
-    smp.Render(view=smp.GetActiveView())
-
 def onToogleAdvancedGUI(updateSettings = True):
   """ Switch the GUI between advanced and classic mode"""
   # hide/show Sources menu
@@ -281,35 +259,6 @@ def setupActions():
     if not advanceMode:
       app.actions['actionAdvanceFeature'].checked = False
       onToogleAdvancedGUI(updateSettings=False)
-
-    # Setup and add the geolocation toolbar
-    geolocationToolBar = mW.findChild('QToolBar', 'geolocationToolbar')
-
-    # Creating and adding the geolocation label to the geolocation toolbar
-    geolocationLabel = QtGui.QLabel('Frame Mapping: ')
-    geolocationToolBar.addWidget(geolocationLabel)
-
-    # Creating the geolocation combobox
-    geolocationComboBox = QtGui.QComboBox()
-
-    # Add the different entries
-    # Currently, as Absolute and Relative Geolocation options are broken, disable them.
-    geolocationComboBox.addItem('None (RAW Data)')
-    geolocationComboBox.setItemData(0, "No mapping: Each frame is at the origin", 3)
-
-    geolocationComboBox.addItem('Absolute Geolocation')
-    geolocationComboBox.setItemData(1, "Use GPS geolocation to get each frame absolute location, the first frame is shown at origin", 3)
-    geolocationComboBox.model().item(1).setEnabled(False)
-
-    geolocationComboBox.addItem('Relative Geolocation')
-    geolocationComboBox.setItemData(2, "Use GPS geolocation to get each frame absolute location, the current frame is shown at origin", 3)
-    geolocationComboBox.model().item(2).setEnabled(False)
-
-    geolocationComboBox.connect('currentIndexChanged(int)', geolocationChanged)
-    geolocationToolBar.addWidget(geolocationComboBox)
-
-    # Set default toolbar visibility
-    geolocationToolBar.visible = False
 
     displayWidget = getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget')
     displayWidget.connect('arraySelectionChanged ()',adjustScalarBarRangeLabelFormat)
