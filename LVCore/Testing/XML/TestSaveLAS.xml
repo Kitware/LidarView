@@ -18,11 +18,6 @@
   <!-- Load LAS -->
   <pqevent object="LidarViewMainWindow/actionOpenFile" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLAS.las" />
-  <!-- Multiple LAS Reader with libLAS -->
-  <!-- <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" /> -->
-  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/listWidget" command="setCurrent" arguments="1.0" />
-  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/listWidget" command="setCheckState" arguments="1.0,0" />
-  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="Intensity" />
 </pqevents>
