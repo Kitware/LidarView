@@ -420,7 +420,13 @@ void LidarViewMainWindow::setupGUICustom()
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
   new lqMenuSaveAsReaction(this->Internals->menuSaveAs);
   new pqLoadDataReaction(this->Internals->actionOpenFile);
-  new pqDeleteReaction(this->Internals->actionResetSession, pqDeleteReaction::DeleteModes::ALL);
+  // Doesn't currently works a refact of LidarViewMaindow and how the main render view is handled
+  // needed.
+  // new pqDeleteReaction(this->Internals->actionResetSession, pqDeleteReaction::DeleteModes::ALL);
+  connect(this->Internals->actionResetSession,
+    SIGNAL(triggered()),
+    lqLidarCoreManager::instance(),
+    SLOT(onCloseAllData()));
 
   new lqUpdateCalibrationReaction(
     this->Internals->actionChoose_Calibration_File); // Requires lqSensorListWidget init
