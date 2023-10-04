@@ -65,46 +65,6 @@ def hasArrayName(sourceProxy, arrayName):
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
-# Main API
-def UpdateApplogicCommon(lidar):
-  # WIP ACTUALLY THINK ABOUT always enabled ok, just apply settings on current lidar actually needed
-  # Overall on what buttons are on-off when there is data or not
-
-  # Reset Scene Time # WIP TIME CONTROLLER API ?
-  smp.GetActiveView().ViewTime = 0.0
-
-# Used by lqLidarViewManager
-def UpdateApplogicLidar(lidarProxyName, gpsProxyName):
-
-    sensor = smp.FindSource(lidarProxyName) #WIP use getSensor() and getPosOr()
-    if not sensor:
-      return
-
-    UpdateApplogicCommon(sensor)
-
-    sensor.UpdatePipelineInformation()
-    sensor.UpdatePipeline()
-
-    smp.Show(sensor)
-    showSourceInSpreadSheet(sensor)
-    smp.Render()
-
-# Used by lqLidarViewManager
-def UpdateApplogicReader(lidarName, posOrName): # WIP could explicit send Proxy using _getPyProxy(vtkSMProxy)
-
-    reader = getReader()
-    if not reader :
-      return
-
-    UpdateApplogicCommon(reader)
-
-    reader.UpdatePipelineInformation()
-    reader.UpdatePipeline()
-
-    getAnimationScene().UpdateAnimationUsingDataTimeSteps()
-
-    smp.SetActiveView(smp.GetActiveView())
-
 def getReaderSource():
   return PythonQt.paraview.lqSensorListWidget.getActiveLidarSource()
 
@@ -122,20 +82,6 @@ def getPosOrSource(index = -1):
 
 def getLidar(index = -1): # WIP TODO
     return getReader(index) or getSensor(index)
-
-def getSpreadSheetViewProxy(): #WIP this is probably unreliable
-    return smp.servermanager.ProxyManager().GetProxy("views", "main spreadsheet view")
-
-def showSourceInSpreadSheet(source):
-  if not source:
-    return
-  spreadSheetView = getSpreadSheetViewProxy()
-  smp.Show(source, spreadSheetView)
-
-  # Work around a bug where the 'Showing' combobox doesn't update.
-  # Calling hide and show again will trigger the refresh.
-  smp.Hide(source, spreadSheetView)
-  smp.Show(source, spreadSheetView)
 
 def createGrid():
     app.grid = smp.GridSource(guiName='Measurement Grid')

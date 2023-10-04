@@ -15,11 +15,11 @@
 #include <pqServerManagerModel.h>
 #include <pqView.h>
 
+#include "lqCalibrationDialog.h"
 #include "lqHelper.h"
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
 #include "lqUpdateCalibrationReaction.h"
-#include "lqCalibrationDialog.h"
 
 #include <QString>
 #include <string>
@@ -96,8 +96,4 @@ void lqOpenSensorReaction::createSensorStream(const lqCalibrationDialog& dialog)
 
   // "Start" of the lidar Source have to be called
   lidarSource->getProxy()->InvokeCommand("Start");
-
-  // Update applogic to be able to use function only define in applogic.
-  lqLidarViewManager::instance()->runPython(
-    QString("lv.UpdateApplogicLidar('%1', '%2')\n").arg(lidarName, posOrName));
 }
