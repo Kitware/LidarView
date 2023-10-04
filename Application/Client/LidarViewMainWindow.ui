@@ -84,7 +84,6 @@
     <addaction name="actionGrid_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionChoose_Calibration_File"/>
-    <addaction name="actionCropReturns"/>
     <addaction name="separator"/>
     <addaction name="actionPython_Console"/>
     <addaction name="actionShowErrorDialog"/>
@@ -153,7 +152,6 @@
    <addaction name="actionSaveLidarState"/>
    <addaction name="actionLoadLidarState"/>
    <addaction name="actionChoose_Calibration_File"/>
-   <addaction name="actionCropReturns"/>
    <addaction name="separator"/>
    <addaction name="actionSelect_Points"/>
    <addaction name="actionSpreadsheet"/>
@@ -690,15 +688,6 @@
    </property>
    <property name="toolTip">
     <string>Geolocation in absolute coordinates</string>
-   </property>
-  </action>
-  <action name="actionCropReturns">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/crop.png</normaloff>:/lvResources/Icons/crop.png</iconset>
-   </property>
-   <property name="text">
-    <string>Crop Returns...</string>
    </property>
   </action>
   <action name="actionPersisting_Grid_Properties">
