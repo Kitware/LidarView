@@ -23,7 +23,6 @@ paraview_build () {
         -DPARAVIEW_BUILD_TESTING=OFF \
         -DPARAVIEW_ENABLE_GDAL=ON \
         -DPARAVIEW_ENABLE_PDAL=ON \
-        -DPARAVIEW_ENABLE_LAS=ON \
         -DPARAVIEW_USE_VTKM=OFF \
         -DPARAVIEW_USE_QT=ON \
         -DPARAVIEW_USE_PYTHON=ON \
@@ -31,7 +30,7 @@ paraview_build () {
         -DPARAVIEW_PLUGIN_AUTOLOAD_PythonQtPlugin=ON \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
-    cmake --build "$paraview_build_root" --target install
+    cmake --build "$paraview_build_root" --target install --parallel 4
 }
 
 paraview_build /usr
