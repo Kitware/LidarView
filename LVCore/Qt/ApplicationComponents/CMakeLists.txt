@@ -22,10 +22,6 @@ set(classes
   lqStreamRecordReaction
   lqViewFrameActions)
 
-set(headers
-  lqPythonQtDecorators.h # Should have it's own vtk module, but currently circular dependency
-)
-
 set(ui_files
   Resources/UI/lqColorToolbar.ui
   Resources/UI/lqLidarCameraToolbar.ui

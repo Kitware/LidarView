@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqPythonShell.h>
 
 #include <lqHelper.h>
-#include <lqPythonQtDecorators.h>
 #include <lqSensorListWidget.h>
 #include <vtkGridSource.h>
 #include <vtkLVPython.h>
@@ -70,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vtkTimerLog.h>
 
 #include <QApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLabel>
@@ -192,9 +192,6 @@ void lqLidarCoreManager::pythonStartup()
 {
   // PrependPythonPath will complete automatically path to right python lib path depending os.
   vtkLVPython::PrependLVModulesPythonPath();
-
-  // Python Decorators
-  PythonQt::self()->addDecorators(new lqPythonQtDecorators(this));
 
   // Start applogic
   this->runPython(QString("import PythonQt\n"
