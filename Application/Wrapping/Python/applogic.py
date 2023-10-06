@@ -98,20 +98,8 @@ def start():
 
     lvsmp.ResetCameraToForwardView()
 
-    setupActions()
-
     # Create Grid #WIP not perfect requires loaded plugin
     createGrid()
-
-
-def findQObjectByName(widgets, name):
-    for w in widgets:
-        if w.objectName == name:
-            return w
-
-
-def getMainWindow():
-    return findQObjectByName(QtGui.QApplication.topLevelWidgets(), 'LidarViewMainWindow')
 
 
 def getPVApplicationCore():
@@ -120,14 +108,3 @@ def getPVApplicationCore():
 
 def getPVSettings():
     return getPVApplicationCore().settings()
-
-# Setup Actions
-def setupActions():
-
-    mW = getMainWindow()
-    actions = mW.findChildren('QAction')
-
-    app.actions = {}
-
-    for a in actions:
-        app.actions[a.objectName] = a
