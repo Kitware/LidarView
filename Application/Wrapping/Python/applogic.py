@@ -43,24 +43,6 @@ class AppLogic(object):
 def planeFit():
     planefit.fitPlane(app.actions['actionSpreadsheet'])
 
-def getReaderSource():
-  return PythonQt.paraview.lqSensorListWidget.getActiveLidarSource()
-
-def getReader(index = -1):
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getReader(index))
-
-#def getLidarNew():
-#  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getLidar())
-
-def getSensor(index = -1):
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getSensor(index))
-
-def getPosOrSource(index = -1):
-  return paraview.servermanager._getPyProxy(PythonQt.paraview.lqSensorListWidget.getPosOrSource(index))
-
-def getLidar(index = -1): # WIP TODO
-    return getReader(index) or getSensor(index)
-
 def createGrid():
     app.grid = smp.GridSource(guiName='Measurement Grid')
 
