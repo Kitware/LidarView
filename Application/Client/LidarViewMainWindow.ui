@@ -193,7 +193,6 @@
    </attribute>
    <addaction name="actionToggleProjection"/>
    <addaction name="actionMeasure"/>
-   <addaction name="actionPlaneFit"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QDockWidget" name="colorMapEditorDock">
@@ -634,18 +633,6 @@
    </property>
    <property name="toolTip">
     <string>Advanced Selection and Measurement options</string>
-   </property>
-  </action>
-  <action name="actionPlaneFit">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/planefit.png</normaloff>:/lvResources/Icons/planefit.png</iconset>
-   </property>
-   <property name="text">
-    <string>Plane Fit</string>
-   </property>
-   <property name="toolTip">
-    <string>Plane Fit to selection</string>
    </property>
   </action>
   <action name="actionGPSApply">

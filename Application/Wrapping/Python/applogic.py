@@ -22,7 +22,6 @@ import PythonQt
 from PythonQt import QtCore, QtGui
 
 import lidarview.gridAdjustmentDialog
-import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 
 # import the vtk wrapping of the Lidar Plugin
@@ -38,10 +37,6 @@ class AppLogic(object):
 
     def __init__(self):
         pass
-
-# Action Related Logic
-def planeFit():
-    planefit.fitPlane(app.actions['actionSpreadsheet'])
 
 def createGrid():
     app.grid = smp.GridSource(guiName='Measurement Grid')
@@ -176,7 +171,6 @@ def setupActions():
         app.actions[a.objectName] = a
 
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
-    app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
 
     # Restore action states from settings
