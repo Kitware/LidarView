@@ -123,7 +123,6 @@ def start():
     lvsmp.ResetCameraToForwardView()
 
     setupActions()
-    hideColorByComponent()
 
     # Create Grid #WIP not perfect requires loaded plugin
     createGrid()
@@ -163,9 +162,6 @@ def onGridProperties():
             getPVSettings().setValue('LidarPlugin/grid/Scale', app.grid.Scale)
 
         smp.Render()
-
-def hideColorByComponent():
-    getMainWindow().findChild('lqColorToolbar').findChild('pqDisplayColorWidget').findChildren('QComboBox')[1].hide()
 
 def onToogleAdvancedGUI(updateSettings = True):
   """ Switch the GUI between advanced and classic mode"""
