@@ -81,7 +81,6 @@
     </property>
     <addaction name="actionSpreadsheet"/>
     <addaction name="actionMeasurement_Grid"/>
-    <addaction name="actionGrid_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionChoose_Calibration_File"/>
     <addaction name="separator"/>
@@ -499,11 +498,6 @@
    </property>
    <property name="text">
     <string>Save &amp;CSV...</string>
-   </property>
-  </action>
-  <action name="actionGrid_Properties">
-   <property name="text">
-    <string>Grid Properties</string>
    </property>
   </action>
   <action name="actionSavePcap">

@@ -21,7 +21,6 @@ from paraview import vtk
 import PythonQt
 from PythonQt import QtCore, QtGui
 
-import lidarview.gridAdjustmentDialog
 import lidarview.simple as lvsmp
 
 # import the vtk wrapping of the Lidar Plugin
@@ -122,24 +121,6 @@ def getPVApplicationCore():
 def getPVSettings():
     return getPVApplicationCore().settings()
 
-def onGridProperties():
-    if not app.grid:
-      createGrid()
-    if lidarview.gridAdjustmentDialog.showDialog(getMainWindow(), app):
-        rep = smp.Show(app.grid)
-        rep.LineWidth    = app.grid.LineWidth
-        rep.DiffuseColor = app.grid.Color
-
-        if(getPVSettings().value('LidarPlugin/grid/gridPropertiesPersist') == "true") :
-            getPVSettings().setValue('LidarPlugin/grid/gridColor', app.grid.Color)
-            getPVSettings().setValue('LidarPlugin/grid/LineWidth', app.grid.LineWidth)
-            getPVSettings().setValue('LidarPlugin/grid/GridNbTicks', app.grid.GridNbTicks)
-            getPVSettings().setValue('LidarPlugin/grid/Normal', app.grid.Normal)
-            getPVSettings().setValue('LidarPlugin/grid/Origin', app.grid.Origin)
-            getPVSettings().setValue('LidarPlugin/grid/Scale', app.grid.Scale)
-
-        smp.Render()
-
 # Setup Actions
 def setupActions():
 
@@ -150,6 +131,3 @@ def setupActions():
 
     for a in actions:
         app.actions[a.objectName] = a
-
-    app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
-
