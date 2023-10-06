@@ -4,7 +4,7 @@ Select points with a query and save all the frame of the current selection
 You can download CarLoop_VLP16.pcap here: https://drive.google.com/drive/folders/1yrNUelUsjKcXdC8FH8DpXeOPTyiB_pLS
 """
 
-import lidarview.applogic as app
+import lidarview.planefit as planefit
 import lidarview.simple as lvsmp
 import paraview.simple as smp
 
@@ -34,8 +34,8 @@ def planeFitSelection(source):
     smp.SelectPoints("", source)
     smp.Render()
 
-    # Call planeFit implementation (see Application/Ui/python/lidariew/planefit.py)
-    app.planeFit()
+    # Call planeFit implementation (see Wrapping/Python/planefit.py)
+    planefit.fitPlane()
 
     # Return plane fit source
     return smp.FindSource("PlaneFitter")
