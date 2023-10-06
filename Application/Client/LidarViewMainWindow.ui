@@ -105,7 +105,6 @@
     <addaction name="actionHelpSlam"/>
     <addaction name="separator"/>
     <addaction name="actionResetDefaultSettings"/>
-    <addaction name="actionAdvanceFeature"/>
    </widget>
    <widget class="QMenu" name="menuViews">
     <property name="title">
@@ -698,17 +697,6 @@
    </property>
    <property name="toolTip">
     <string>Enable the interpreter's advanced arrays.</string>
-   </property>
-  </action>
-  <action name="actionAdvanceFeature">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Advance Feature</string>
    </property>
   </action>
  </widget>

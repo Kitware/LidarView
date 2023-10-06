@@ -140,25 +140,6 @@ def onGridProperties():
 
         smp.Render()
 
-def onToogleAdvancedGUI(updateSettings = True):
-  """ Switch the GUI between advanced and classic mode"""
-  # hide/show Sources menu
-  menuSources = getMainWindow().findChild("QMenu", "menuSources").menuAction()
-  menuSources.visible = not menuSources.visible
-  # hide/show Filters menu
-  menuFilters = getMainWindow().findChild("QMenu", "menuFilters").menuAction()
-  menuFilters.visible = not menuFilters.visible
-  # hide/show Advance menu
-  menuAdvance = getMainWindow().findChild("QMenu", "menuAdvance").menuAction()
-  menuAdvance.visible = not menuAdvance.visible
-  # hide/show view decorator
-  getMainWindow().centralWidget().toggleWidgetDecoration()
-  # update the UserSettings
-  if updateSettings:
-    # booleans must be store as int
-    newValue = int(not int(getPVSettings().value("LidarPlugin/AdvanceFeature/Enable", 0)))
-    getPVSettings().setValue("LidarPlugin/AdvanceFeature/Enable", newValue)
-
 # Setup Actions
 def setupActions():
 
@@ -170,13 +151,5 @@ def setupActions():
     for a in actions:
         app.actions[a.objectName] = a
 
-    app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
 
-    # Restore action states from settings
-    settings = getPVSettings()
-
-    advanceMode = int(settings.value("LidarPlugin/AdvanceFeature/Enable", 0))
-    if not advanceMode:
-      app.actions['actionAdvanceFeature'].checked = False
-      onToogleAdvancedGUI(updateSettings=False)

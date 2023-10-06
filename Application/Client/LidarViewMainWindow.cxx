@@ -203,8 +203,6 @@ void LidarViewMainWindow::setupPVGUI()
 
   // Hide Various Other Docks
   this->Internals->colorMapEditorDock->hide();
-  this->Internals->pipelineBrowserDock->hide();
-  this->Internals->propertiesDock->hide();
   this->Internals->viewPropertiesDock->hide();
   this->Internals->displayPropertiesDock->hide();
   this->Internals->informationDock->hide();
