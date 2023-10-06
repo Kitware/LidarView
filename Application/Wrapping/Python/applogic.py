@@ -186,17 +186,6 @@ def onToogleAdvancedGUI(updateSettings = True):
     newValue = int(not int(getPVSettings().value("LidarPlugin/AdvanceFeature/Enable", 0)))
     getPVSettings().setValue("LidarPlugin/AdvanceFeature/Enable", newValue)
 
-def switchVisibility(Proxy):
-    """ Invert the Proxy visibility int the current view """
-    ProxyRep = smp.GetRepresentation(Proxy)
-    ProxyRep.Visibility = not ProxyRep.Visibility
-
-def ShowPosition():
-    position = getPosOrSource()
-    if position:
-        switchVisibility(position)
-        smp.Render()
-
 # Setup Actions
 def setupActions():
 
@@ -211,7 +200,6 @@ def setupActions():
     app.actions['actionAdvanceFeature'].connect('triggered()', onToogleAdvancedGUI)
     app.actions['actionPlaneFit'].connect('triggered()', planeFit)
     app.actions['actionGrid_Properties'].connect('triggered()', onGridProperties)
-    app.actions['actionShowPosition'].connect('triggered()', ShowPosition)
 
     # Restore action states from settings
     settings = getPVSettings()

@@ -724,21 +724,6 @@
     <string>Advance Feature</string>
    </property>
   </action>
-  <action name="actionShowPosition">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/map.png</normaloff>:/lvResources/Icons/map.png</iconset>
-   </property>
-   <property name="text">
-    <string>actionShowPosition</string>
-   </property>
-   <property name="toolTip">
-    <string>Show the GPS Track</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
