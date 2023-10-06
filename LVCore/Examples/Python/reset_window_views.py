@@ -4,11 +4,10 @@ Delete all render windows views and recreate a default one
 
 import paraview.simple as smp
 import lidarview.simple as lvsmp
-import lidarview.applogic as app
 
 def ResetWindowViews():
     # Get sources
-    reader = app.getReader()
+    reader = smp.FindSource('LidarReader1')
     measurementGrid = smp.FindSource('Measurement Grid')
 
     # Get views

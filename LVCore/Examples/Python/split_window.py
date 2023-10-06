@@ -3,11 +3,10 @@ Split the view in multiple rend windows and change display Properties for each
 """
 
 import paraview.simple as smp
-import lidarview.applogic as app
 
 def SplitWindow():
     # Get sources
-    reader = app.getReader()
+    reader = smp.FindSource('LidarReader1')
     measurementGrid = smp.FindSource('Measurement Grid')
 
     # Get views
