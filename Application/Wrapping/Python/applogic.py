@@ -111,13 +111,6 @@ def createGrid():
     smp.Show(app.grid)
     return app.grid
 
-def getAnimationScene():
-    '''This function is a workaround because paraview.simple.GetAnimationScene()
-    has an issue where the returned proxy might not have its Cues property initialized'''
-    for proxy in paraview.servermanager.ProxyManager().GetProxiesInGroup("animation").values():
-        if proxy.GetXMLName() == 'AnimationScene' and len(proxy.Cues):
-            return proxy
-
 # Main function, Used by lqLidarViewManager
 def start():
 
