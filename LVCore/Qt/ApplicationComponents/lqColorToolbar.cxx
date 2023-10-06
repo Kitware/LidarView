@@ -38,6 +38,13 @@ void lqColorToolbar::constructor()
     ui.actionRescaleCustomRange, true, pqResetScalarRangeReaction::CUSTOM);
 
   pqDisplayColorWidget* display_color = new pqDisplayColorWidget(this) << pqSetName("displayColor");
+  // Hide "Components" QComboBox has it is limited used in LidarView
+  // A better way to do this would be to add option in pqDisplayColorWidget directly in paraview
+  auto widget = display_color->findChild<QWidget*>("Components");
+  if (widget)
+  {
+    widget->setVisible(false);
+  }
   this->addWidget(display_color);
 
   QObject::connect(&pqActiveObjects::instance(),
