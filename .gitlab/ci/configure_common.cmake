@@ -1,6 +1,6 @@
 # Stock CI builds test everything possible (platforms will disable modules as
 # needed).
-set(LIDARVIEW_BUILD_ALL_MODULES ON CACHE BOOL "")
+set(BUILD_ALL_MODULES ON CACHE BOOL "")
 set(LIDARVIEW_BUILD_EXAMPLES ON CACHE BOOL "")
 set(BUILD_TESTING ON CACHE STRING "")
 
