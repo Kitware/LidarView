@@ -25,7 +25,7 @@ set(plugins_targets
   LidarView::lidarview_plugins
 )
 
-if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
+if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   list(APPEND plugins_targets LidarSlam::paraview_wrapping)
 endif ()
 
