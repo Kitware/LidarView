@@ -136,7 +136,7 @@ endif ()
 # LidarSlam dependency - optional
 #--------------------------------------
 
-if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
+if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   find_package(LidarSlam REQUIRED QUIET)
   print_version(LidarSlam)
   check_depedency_target("LidarSlam::paraview_wrapping" LidarSlam::paraview_wrapping)

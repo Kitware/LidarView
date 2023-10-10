@@ -20,10 +20,6 @@ option(LIDARVIEW_BUILD_EXAMPLES "Build LidarView examples" OFF)
 option(BUILD_TESTING "Enable testing" OFF)
 mark_as_advanced(BUILD_TESTING)
 
-lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the Slam
-option(PARAVIEW_PLUGIN_ENABLE_LidarSlam "Search for LidarSlam plugin." OFF)
-mark_as_advanced(PARAVIEW_PLUGIN_ENABLE_LidarSlam)
-
 #========================================================================
 # OPTIONNAL EXTERN LIBRARY OPTIONS
 #========================================================================
@@ -40,6 +36,10 @@ lidarview_deprecated_setting(opencv_default LIDARVIEW_USE_OPENCV ENABLE_opencv O
 option(LIDARVIEW_USE_OPENCV "OpenCV is required for handling lidar-camera multisensor systems" "${opencv_default}")
 
 option(LIDARVIEW_USE_PDAL "PDAL is required for writing .las files" OFF)
+
+lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the Slam
+lidarview_deprecated_setting(slam_default LIDARVIEW_USE_LIDARSLAM_PLUGIN PARAVIEW_PLUGIN_ENABLE_LidarSlam "OFF")
+option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_default}")
 
 # The following libaries required for most LidarView functionnalities
 option(LIDARVIEW_USE_PYTHONQT "PythonQt is required for QT python binding" ON)
