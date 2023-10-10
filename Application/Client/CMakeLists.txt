@@ -30,11 +30,11 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
 endif ()
 
 paraview_client_add(
-  NAME              LidarView
-  NAMESPACE         "LidarView"
+  NAME              ${SOFTWARE_NAME}
+  NAMESPACE         "${SOFTWARE_NAME}"
   EXPORT            "LidarViewClient"
   VERSION           ${LIDARVIEW_VERSION_FULL}
-  APPLICATION_NAME  "LidarView"
+  APPLICATION_NAME  "${SOFTWARE_NAME}"
   ORGANIZATION      "${SOFTWARE_VENDOR}"
   TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
   SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.jpg"
