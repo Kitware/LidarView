@@ -15,12 +15,6 @@
 #CMake
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-#Sanitize checks
-if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
-  message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
-endif()
-string(TOUPPER ${SOFTWARE_NAME} software_name_upper)
-
 include(CheckBuildType)
 
 include(GNUInstallDirs)
@@ -36,7 +30,6 @@ endif ()
 
 #-------------------------------------------------------------------------------
 # Set Variables
-set(BUILD_SHARED_LIBS "${${software_name_upper}_BUILD_SHARED_LIBS}")
 include(SetCompilationFlags)
 
 #-------------------------------------------------------------------------------
@@ -53,7 +46,7 @@ determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LIDARVIEW")
 
 include(FindLidarViewDependencies)
 
-if (${software_name_upper}_BUILD_DEVELOPER_DOCUMENTATION)
+if (BUILD_DEVELOPER_DOCUMENTATION)
   include(SetupDoxygenDocumentation)
 endif ()
 

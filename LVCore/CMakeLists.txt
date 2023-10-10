@@ -66,7 +66,7 @@ vtk_module_scan(
   PROVIDES_MODULES      lidarview_modules
   REQUIRES_MODULES      lidarview_required_modules
   UNRECOGNIZED_MODULES  lidarview_unrecognized_modules
-  WANT_BY_DEFAULT       "${LIDARVIEW_BUILD_ALL_MODULES}"
+  WANT_BY_DEFAULT       "${BUILD_ALL_MODULES}"
   ENABLE_TESTS          "${BUILD_TESTING}")
 
 set(lidarview_unrecognized_lidarview_modules)

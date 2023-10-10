@@ -6,16 +6,19 @@ include(LidarViewSupportMacros)
 # These should begin with `LIDARVIEW_BUILD_`.
 #========================================================================
 
-lidarview_deprecated_setting(shared_default LIDARVIEW_BUILD_SHARED_LIBS BUILD_SHARED_LIBS "ON")
-option(LIDARVIEW_BUILD_SHARED_LIBS "Build LidarView with shared libraries" "${shared_default}")
+lidarview_deprecated_setting(shared_default BUILD_SHARED_LIBS LIDARVIEW_BUILD_SHARED_LIBS "ON")
+option(BUILD_SHARED_LIBS "Build with shared libraries" "${shared_default}")
 
 lidarview_deprecated_setting(doc_default LIDARVIEW_BUILD_DEVELOPER_DOCUMENTATION BUILD_DOC "OFF")
-option(LIDARVIEW_BUILD_DEVELOPER_DOCUMENTATION "Generate LidarView C++/Python docs" "${doc_default}")
+lidarview_deprecated_setting(doc_default BUILD_DEVELOPER_DOCUMENTATION LIDARVIEW_BUILD_DEVELOPER_DOCUMENTATION "OFF")
+option(BUILD_DEVELOPER_DOCUMENTATION "Generate LidarView C++/Python docs" "${doc_default}")
 
-option(LIDARVIEW_BUILD_ALL_MODULES "Build all modules by default" ON)
-mark_as_advanced(LIDARVIEW_BUILD_ALL_MODULES)
+lidarview_deprecated_setting(build_all_modules_default BUILD_ALL_MODULES LIDARVIEW_BUILD_ALL_MODULES "ON")
+option(BUILD_ALL_MODULES "Build all modules by default" "${build_all_modules_default}")
+mark_as_advanced(BUILD_ALL_MODULES)
 
-option(LIDARVIEW_BUILD_EXAMPLES "Build LidarView examples" OFF)
+lidarview_deprecated_setting(doc_default BUILD_EXAMPLES LIDARVIEW_BUILD_EXAMPLES "OFF")
+option(BUILD_EXAMPLES "Build LidarView examples" "${doc_default}")
 
 option(BUILD_TESTING "Enable testing" OFF)
 mark_as_advanced(BUILD_TESTING)
