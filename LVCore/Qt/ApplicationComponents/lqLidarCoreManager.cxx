@@ -307,9 +307,6 @@ void lqLidarCoreManager::onCloseAllData()
 
   // Reset Camera
   this->onResetCameraToForwardView();
-
-  // WIP Disable actions
-  this->runPython("lv.disableSaveActions()\n");
 }
 
 //-----------------------------------------------------------------------------
