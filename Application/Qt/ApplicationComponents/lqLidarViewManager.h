@@ -55,9 +55,6 @@ public:
     return qobject_cast<lqLidarViewManager*>(Superclass::instance());
   }
 
-  // LidarView specific
-  void pythonStartup() override;
-
   /**
    * Change ParaView default settings value such as background color
    * and LUT for lidar scalars.

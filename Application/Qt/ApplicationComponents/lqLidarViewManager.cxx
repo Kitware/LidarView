@@ -31,8 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ========================================================================*/
 #include "lqLidarViewManager.h"
 
-#include "lqPythonQtLidarView.h"
-
 #include <vtkSMSettings.h>
 
 #include <QFileInfo>
@@ -56,19 +54,6 @@ lqLidarViewManager::lqLidarViewManager(QObject* parent /*=nullptr*/)
 
 //-----------------------------------------------------------------------------
 lqLidarViewManager::~lqLidarViewManager() {}
-
-//-----------------------------------------------------------------------------
-void lqLidarViewManager::pythonStartup()
-{
-  // Register LidarView specific decorators first
-  PythonQt::self()->addDecorators(new lqPythonQtLidarView(this));
-
-  Superclass::pythonStartup();
-
-  // Alias vv
-  this->runPython(QString("import lidarview.applogic as lv\n"));
-  this->runPython(QString("from lidarview.simple import *\n"));
-}
 
 //-----------------------------------------------------------------------------
 void lqLidarViewManager::SetLidarViewDefaultSettings()

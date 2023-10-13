@@ -42,7 +42,7 @@ paraview_client_add(
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.ico"
 
   PLUGINS_TARGETS   ${plugins_targets}
-  REQUIRED_PLUGINS  PythonQtPlugin LidarCorePlugin
+  REQUIRED_PLUGINS  LidarCorePlugin
 
   MAIN_WINDOW_CLASS LidarViewMainWindow
   MAIN_WINDOW_INCLUDE LidarViewMainWindow.h

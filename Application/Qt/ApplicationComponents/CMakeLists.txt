@@ -9,10 +9,6 @@ set(classes
   lqUpdateCalibrationReaction
 )
 
-set(headers
-  lqPythonQtLidarView.h # Pending delete
-)
-
 set(CMAKE_AUTOMOC 1)
 set(CMAKE_AUTORCC 1)
 set(CMAKE_AUTOUIC 1)
