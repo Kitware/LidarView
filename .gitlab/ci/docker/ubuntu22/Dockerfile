@@ -4,9 +4,6 @@ MAINTAINER Timothée Couble <timothee.couble@kitware.com>
 COPY install_deps.sh /root/install_deps.sh
 RUN sh /root/install_deps.sh
 
-COPY install_pythonqt.sh /root/install_pythonqt.sh
-RUN sh /root/install_pythonqt.sh
-
 COPY install_paraview.sh /root/install_paraview.sh
 RUN sh /root/install_paraview.sh
 
