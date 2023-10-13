@@ -167,6 +167,12 @@ lidarcoreplugin_add_module_xml(
     Sources/GridSource.xml
 )
 
+lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::Views
+  XML_MODULE_FILES
+    Views/LidarGridView.xml
+)
+
 set(qrc_files
   Resources/lqFilters.qrc
 )

@@ -1,0 +1,10 @@
+NAME
+  LidarView::Views
+LIBRARY_NAME
+  lvViews
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  ParaView::RemotingViews
+PRIVATE_DEPENDS
+  LidarView::Sources
