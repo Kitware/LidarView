@@ -52,15 +52,6 @@ endif ()
 print_version(Qt5)
 
 #--------------------------------------
-# PythonQt dependency - required
-#--------------------------------------
-if (LIDARVIEW_USE_PYTHONQT)
-  find_package(PythonQt REQUIRED)
-  check_depedency_target(PythonQt PythonQt::PythonQt)
-  message(STATUS "Found PythonQt")
-endif ()
-
-#--------------------------------------
 # PCAP dependency - required
 #--------------------------------------
 if (LIDARVIEW_USE_PCAP)

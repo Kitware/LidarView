@@ -45,12 +45,11 @@ lidarview_deprecated_setting(slam_default LIDARVIEW_USE_LIDARSLAM_PLUGIN PARAVIE
 option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_default}")
 
 # The following libaries required for most LidarView functionnalities
-option(LIDARVIEW_USE_PYTHONQT "PythonQt is required for QT python binding" ON)
-mark_as_advanced(LIDARVIEW_USE_PYTHONQT)
 option(LIDARVIEW_USE_PCAP "PCAP is required for reading .pcap (from lidar)" ON)
 mark_as_advanced(LIDARVIEW_USE_PCAP)
 
 lidarview_obsolete_setting(LIDARVIEW_USE_LIBLAS)
+lidarview_obsolete_setting(LIDARVIEW_USE_PYTHONQT)
 
 #========================================================================
 # LidarCorePlugin option required for LidarView filters

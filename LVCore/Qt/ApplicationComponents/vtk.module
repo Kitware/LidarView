@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   lqApplicationComponents
 CONDITION
-  PARAVIEW_USE_PYTHON AND LIDARVIEW_USE_PYTHONQT
+  PARAVIEW_USE_PYTHON
 DEPENDS
   LidarView::lqComponents
   ParaView::pqApplicationComponents
@@ -26,5 +26,4 @@ PRIVATE_DEPENDS
   ParaView::RemotingViews
   ParaView::RemotingServerManager
   VTK::CommonSystem
-  PythonQt::PythonQt              # Should be in another vtk module
 EXCLUDE_WRAP
