@@ -1,24 +1,11 @@
-// Copyright 2013 Velodyne Acoustics, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkGridSource.cxx
+  Program: LidarView
+  Module:  vtkGridSource.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Kitware Inc.
   All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
 
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -68,13 +55,13 @@ vtkGridSource::vtkGridSource()
 }
 
 //-----------------------------------------------------------------------------
-vtkGridSource::~vtkGridSource()
-{
-}
+vtkGridSource::~vtkGridSource() {}
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkGridSource::CreateGrid(
-  int gridNbTicks, double scale, double origin[3], double normal[3])
+vtkSmartPointer<vtkPolyData> vtkGridSource::CreateGrid(int gridNbTicks,
+  double scale,
+  double origin[3],
+  double normal[3])
 {
   vtkNew<vtkPlaneSource> plane;
   vtkNew<vtkExtractEdges> edges;
@@ -95,8 +82,9 @@ vtkSmartPointer<vtkPolyData> vtkGridSource::CreateGrid(
 
   for (int i = 1; i <= gridNbTicks; ++i)
   {
-    double startPoint[3] = { arcStartVector[0] * i * scale, arcStartVector[1] * i * scale,
-      arcStartVector[2] * i * scale };
+    double startPoint[3] = {
+      arcStartVector[0] * i * scale, arcStartVector[1] * i * scale, arcStartVector[2] * i * scale
+    };
     vtkNew<vtkArcSource> arc;
     arc->UseNormalAndAngleOn();
     arc->SetCenter(origin);
@@ -115,8 +103,8 @@ vtkSmartPointer<vtkPolyData> vtkGridSource::CreateGrid(
 
 //-----------------------------------------------------------------------------
 int vtkGridSource::RequestData(vtkInformation* vtkNotUsed(request),
-                                          vtkInformationVector** vtkNotUsed(inputVector),
-                                          vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   vtkPolyData* output = vtkPolyData::GetData(outputVector);
 

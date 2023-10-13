@@ -1,36 +1,26 @@
-// Copyright 2013 Velodyne Acoustics, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkGridSource.cxx
+  Program: LidarView
+  Module:  vtkGridSource.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Kitware Inc.
   All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
 
   This software is distributed WITHOUT ANY WARRANTY; without even
   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGridSource - generates a vtkPolyData measurement grid plane
-// .Section Description
-//
 
-#ifndef _vtkGridSource_h
-#define _vtkGridSource_h
+/**
+ * @class vtkGridSource
+ *
+ * Generates a vtkPolyData measurement grid plane
+ */
+
+#ifndef vtkGridSource_h
+#define vtkGridSource_h
 
 #include "lvSourcesModule.h"
 
@@ -65,8 +55,10 @@ public:
   vtkSetVector3Macro(Color, double);
   vtkGetVector3Macro(Color, double);
 
-  static vtkSmartPointer<vtkPolyData> CreateGrid(
-    int gridNbTicks, double scale, double origin[3], double normal[3]);
+  static vtkSmartPointer<vtkPolyData> CreateGrid(int gridNbTicks,
+    double scale,
+    double origin[3],
+    double normal[3]);
 
 protected:
   vtkGridSource();
@@ -87,4 +79,5 @@ private:
   vtkGridSource(const vtkGridSource&);
   void operator=(const vtkGridSource&);
 };
+
 #endif
