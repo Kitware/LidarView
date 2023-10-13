@@ -35,8 +35,6 @@ vtkGridSource::vtkGridSource()
 {
   this->GridNbTicks = 10;
   this->Scale = 10.0;
-  this->LineWidth = 1;
-  this->DistanceResolutionM = 0.2;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -45,10 +43,6 @@ vtkGridSource::vtkGridSource()
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
-
-  this->Color[0] = 0.2;
-  this->Color[1] = 0.2;
-  this->Color[2] = 0.2;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -110,7 +104,6 @@ int vtkGridSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->GridNbTicks < 1)
   {
-
     vtkErrorMacro(
       "Specified grid size " << this->GridNbTicks << " is out of range.  Must be >= 1.");
     return 0;
@@ -124,5 +117,10 @@ int vtkGridSource::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "GridSize: " << this->GridNbTicks << endl;
+  os << indent << "GridSize: " << this->GridNbTicks << std::endl;
+  os << indent << "Scale: " << this->Scale << std::endl;
+  os << indent << "Origin: " << this->Origin[0] << " " << this->Origin[1] << " " << this->Origin[2]
+     << std::endl;
+  os << indent << "Normal: " << this->Normal[0] << " " << this->Normal[1] << " " << this->Normal[2]
+     << std::endl;
 }

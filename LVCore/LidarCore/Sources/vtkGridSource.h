@@ -40,20 +40,11 @@ public:
   vtkSetMacro(Scale, double);
   vtkGetMacro(Scale, double);
 
-  vtkSetMacro(LineWidth, int);
-  vtkGetMacro(LineWidth, int);
-
-  vtkSetMacro(DistanceResolutionM, double);
-  vtkGetMacro(DistanceResolutionM, double);
-
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
 
   vtkSetVector3Macro(Normal, double);
   vtkGetVector3Macro(Normal, double);
-
-  vtkSetVector3Macro(Color, double);
-  vtkGetVector3Macro(Color, double);
 
   static vtkSmartPointer<vtkPolyData> CreateGrid(int gridNbTicks,
     double scale,
@@ -66,14 +57,10 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  // width of the grid in number of square
   int GridNbTicks;
   double Scale;
-  double DistanceResolutionM;
-  int LineWidth;
   double Origin[3];
   double Normal[3];
-  double Color[3];
 
 private:
   vtkGridSource(const vtkGridSource&);
