@@ -66,11 +66,11 @@ void lqLidarViewManager::SetLidarViewDefaultSettings()
 
   for (unsigned short i = 0; i < 3; i++)
   {
-    settings->SetSetting("views.RenderView.Background", i, background1[i]);
-    settings->SetSetting("views.RenderView.Background2", i, background2[i]);
+    settings->SetSetting("views.LidarGridView.Background", i, background1[i]);
+    settings->SetSetting("views.LidarGridView.Background2", i, background2[i]);
   }
-  settings->SetSetting("views.RenderView.BackgroundColorMode", 1);
-  settings->SetSetting("views.RenderView.UseColorPaletteForBackground", 0);
+  settings->SetSetting("views.LidarGridView.BackgroundColorMode", 1);
+  settings->SetSetting("views.LidarGridView.UseColorPaletteForBackground", 0);
 
   // Set default LUT for lidar intensity/reflectivity
   const std::array<std::string, 2> LUTName = { "intensity", "reflectivity" };

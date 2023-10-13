@@ -1,5 +1,6 @@
 set(classes
   lqAboutDialogReaction
+  lqCommandLineOptionsBehavior
   lqLidarViewManager
   lqMenuSaveAsReaction
   lqOpenPcapReaction
