@@ -46,10 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqDataRepresentation.h>
 #include <pqObjectBuilder.h>
 #include <pqPVApplicationCore.h>
-#include <pqParaViewBehaviors.h>
-#include <pqPersistentMainWindowStateBehavior.h>
 #include <pqPipelineSource.h>
-#include <pqPythonManager.h>
 #include <pqRenderView.h>
 #include <pqServer.h>
 #include <pqServerManagerModel.h>
@@ -58,10 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vtkFieldData.h>
 #include <vtkPVVersion.h> //  needed for PARAVIEW_VERSION
-#include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMPropertyHelper.h>
-#include <vtkSMProxyManager.h>
-#include <vtkSMSessionProxyManager.h>
 #include <vtkSMSourceProxy.h>
 #include <vtkSMViewProxy.h>
 
@@ -161,49 +155,24 @@ void lqLidarCoreManager::forceShowShell()
 }
 
 //-----------------------------------------------------------------------------
-void lqLidarCoreManager::createMainRenderView()
-{
-  vtkSMSessionProxyManager* pxm =
-    vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager();
-  vtkSMProxy* renderviewsettings = pxm->GetProxy("RenderViewSettings");
-  assert(renderviewsettings);
-  vtkSMPropertyHelper(renderviewsettings, "ResolveCoincidentTopology")
-    .Set(0); // WIP Is This necessary
-
-  pqRenderView* view =
-    qobject_cast<pqRenderView*>(pqApplicationCore::instance()->getObjectBuilder()->createView(
-      pqRenderView::renderViewType(), pqActiveObjects::instance().activeServer()));
-  assert(view);
-  pqActiveObjects::instance().setActiveView(view);
-  pqApplicationCore::instance()->getObjectBuilder()->addToLayout(view);
-
-  double bgcolor[3] = { 0, 0, 0 };
-  vtkSMPropertyHelper(view->getProxy(), "Background").Set(bgcolor, 3);
-  vtkSMPropertyHelper(view->getProxy(), "CenterAxesVisibility").Set(0);
-  // vtkSMPropertyHelper(view->getProxy(),"MultiSamples").Set(4); //WIP set to 0 1, 4 ?
-  view->getProxy()->UpdateVTKObjects();
-}
-
-//-----------------------------------------------------------------------------
 void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
 {
-  pqSettings* settings = pqApplicationCore::instance()->settings();
-  settings->setValue("LidarPlugin/MeasurementGrid/Visibility", gridVisible);
-
-  vtkNew<vtkSMParaViewPipelineControllerWithRendering> controller;
-
-  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  pqView* view = pqActiveObjects::instance().activeView();
+  pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
+  if (renderView)
   {
-    if (IsProxy<vtkGridSource>(src->getProxy()))
+    const std::string viewName = view->getViewProxy()->GetVTKClassName();
+    if (viewName == "vtkLidarGridView")
     {
-      controller->SetVisibility(vtkSMSourceProxy::SafeDownCast(src->getProxy()),
-        0,
-        pqActiveObjects::instance().activeView()->getViewProxy(),
-        gridVisible);
+      vtkSMProxy* lidarGridProxy = vtkSMPropertyHelper(view->getProxy(), "LidarGrid").GetAsProxy();
+      if (lidarGridProxy)
+      {
+        vtkSMPropertyHelper(lidarGridProxy, "Visibility").Set(gridVisible);
+        lidarGridProxy->UpdateVTKObjects();
+        view->render();
+      }
     }
   }
-  pqApplicationCore::instance()->render();
 }
 
 //-----------------------------------------------------------------------------

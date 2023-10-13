@@ -34,15 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QObject>
 
-class vtkLidarReader;
-
 class pqPipelineSource;
 class pqServer;
 class pqPythonShell;
-
-class vtkSMSourceProxy;
-
-class vtkPolyData;
 
 class QWidget;
 
@@ -70,9 +64,6 @@ public:
   pqPythonShell* getPythonShell();
   void runPython(const QString& statements);
   void forceShowShell();
-
-  // Main render view Creation
-  void createMainRenderView();
 
   // Convenience methods
   static pqServer* getActiveServer();
