@@ -108,6 +108,9 @@ lqLidarCoreManager::lqLidarCoreManager(QObject* parent)
   // Create lqSensorListWidget, a critical component of LidarView core.
   // App can choose wether or not to show it or not, and how to present it (e.g QWidgetDock)
   new lqSensorListWidget();
+
+  // PrependPythonPath will complete automatically path to right python lib path depending os.
+  vtkLVPython::PrependLVModulesPythonPath();
 }
 
 //-----------------------------------------------------------------------------
@@ -119,12 +122,6 @@ lqLidarCoreManager::~lqLidarCoreManager()
   } // WIP Paraview has similar code but 'else' case should not happend at all
 
   delete this->Internal;
-}
-
-//-----------------------------------------------------------------------------
-void lqLidarCoreManager::schedulePythonStartup()
-{
-  QTimer::singleShot(0, this, SLOT(pythonStartup()));
 }
 
 //-----------------------------------------------------------------------------
@@ -185,20 +182,6 @@ void lqLidarCoreManager::createMainRenderView()
   vtkSMPropertyHelper(view->getProxy(), "CenterAxesVisibility").Set(0);
   // vtkSMPropertyHelper(view->getProxy(),"MultiSamples").Set(4); //WIP set to 0 1, 4 ?
   view->getProxy()->UpdateVTKObjects();
-}
-
-//-----------------------------------------------------------------------------
-void lqLidarCoreManager::pythonStartup()
-{
-  // PrependPythonPath will complete automatically path to right python lib path depending os.
-  vtkLVPython::PrependLVModulesPythonPath();
-
-  // Start applogic
-  this->runPython(QString("import PythonQt\n"
-                          "QtGui = PythonQt.QtGui\n"
-                          "QtCore = PythonQt.QtCore\n"
-                          "import lidarview.applogic as lv\n"
-                          "lv.start()\n"));
 }
 
 //-----------------------------------------------------------------------------

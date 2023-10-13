@@ -66,7 +66,6 @@ public:
   static lqLidarCoreManager* instance();
 
   // Python Shell related
-  void schedulePythonStartup();
   void setPythonShell(pqPythonShell* pythonShell);
   pqPythonShell* getPythonShell();
   void runPython(const QString& statements);
@@ -80,9 +79,6 @@ public:
   static QWidget* getMainWindow();
 
 public Q_SLOTS:
-  // Perform delayed python shell startup
-  virtual void pythonStartup();
-
   void onEnableCrashAnalysis(bool crashAnalysisEnabled);
 
   void onCloseAllData();
