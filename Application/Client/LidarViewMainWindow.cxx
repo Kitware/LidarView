@@ -126,10 +126,12 @@ LidarViewMainWindow::LidarViewMainWindow()
   // LidarView Specific Manager
   new lqLidarViewManager(this);
 
+  QStringList preamble = { "from paraview.simple import *", "from lidarview.simple import *" };
   // Create pythonshell
   pqPythonShell* shell = new pqPythonShell(this);
   shell->setObjectName("pythonShell");
   shell->setFontSize(8);
+  shell->setPreamble(preamble);
   lqLidarViewManager::instance()->setPythonShell(shell);
   if (leaksView)
   {
