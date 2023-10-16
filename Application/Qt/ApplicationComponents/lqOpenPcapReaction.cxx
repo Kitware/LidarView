@@ -18,6 +18,7 @@
 #include <pqPipelineSource.h>
 #include <pqSettings.h>
 #include <pqView.h>
+#include <vtkSMAnimationSceneProxy.h>
 
 #include "lqCalibrationDialog.h"
 #include "lqHelper.h"
@@ -185,9 +186,8 @@ void lqOpenPcapReaction::createSourceFromFile(QString fileName, const lqCalibrat
     controller->Show(posOrSource->getSourceProxy(), 0, view->getViewProxy());
   }
 
-  // Update applogic to be able to use function only define in applogic.
-  lqLidarViewManager::instance()->runPython(
-    QString("lv.UpdateApplogicReader('%1', '%2')\n").arg(lidarName, posOrName));
+  vtkSMAnimationSceneProxy::UpdateAnimationUsingDataTimeSteps(
+    controller->GetAnimationScene(server->session()));
 
   // Show the Lidar source
   controller->Show(lidarSource->getSourceProxy(), 0, view->getViewProxy());

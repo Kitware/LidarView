@@ -20,6 +20,7 @@
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqLoadLidarStateReaction.h"
+#include "lqMenuSaveAsReaction.h"
 #include "lqOpenPcapReaction.h"
 #include "lqOpenRecentFilesReaction.h"
 #include "lqOpenSensorReaction.h"
@@ -163,7 +164,7 @@ LidarViewMainWindow::LidarViewMainWindow()
 LidarViewMainWindow::~LidarViewMainWindow()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -202,8 +203,6 @@ void LidarViewMainWindow::setupPVGUI()
 
   // Hide Various Other Docks
   this->Internals->colorMapEditorDock->hide();
-  this->Internals->pipelineBrowserDock->hide();
-  this->Internals->propertiesDock->hide();
   this->Internals->viewPropertiesDock->hide();
   this->Internals->displayPropertiesDock->hide();
   this->Internals->informationDock->hide();
@@ -217,7 +216,7 @@ void LidarViewMainWindow::setupPVGUI()
 
   // TODO Enable help from the properties panel.
 
-  /// hook delete to pqDeleteReaction.
+  /// Hook delete to pqDeleteReaction in pipeline browser.
   QAction* tempDeleteAction = new QAction(this);
   pqDeleteReaction* handler = new pqDeleteReaction(tempDeleteAction);
   handler->connect(this->Internals->propertiesPanel,
@@ -417,7 +416,15 @@ void LidarViewMainWindow::setupGUICustom()
 
   new lqOpenSensorReaction(this->Internals->actionOpen_Sensor_Stream);
   new lqOpenPcapReaction(this->Internals->actionOpenPcap);
+  new lqMenuSaveAsReaction(this->Internals->menuSaveAs);
   new pqLoadDataReaction(this->Internals->actionOpenFile);
+  // Doesn't currently works a refact of LidarViewMaindow and how the main render view is handled
+  // needed.
+  // new pqDeleteReaction(this->Internals->actionResetSession, pqDeleteReaction::DeleteModes::ALL);
+  connect(this->Internals->actionResetSession,
+    SIGNAL(triggered()),
+    lqLidarCoreManager::instance(),
+    SLOT(onCloseAllData()));
 
   new lqUpdateCalibrationReaction(
     this->Internals->actionChoose_Calibration_File); // Requires lqSensorListWidget init
