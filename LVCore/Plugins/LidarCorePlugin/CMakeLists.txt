@@ -167,9 +167,14 @@ lidarcoreplugin_add_module_xml(
     Sources/GridSource.xml
 )
 
+set(qrc_files
+  Resources/lqFilters.qrc
+)
+
 paraview_add_plugin(LidarCorePlugin
   REQUIRED_ON_CLIENT
   REQUIRED_ON_SERVER
   VERSION "1.0"
+  UI_RESOURCES ${qrc_files}
   MODULES ${required_modules}
 )

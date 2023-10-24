@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/lqFilters">
+        <file>Icons/lqAggregatePointsTrajectory.svg</file>
+        <file>Icons/lqExtractPointSelection.svg</file>
+    </qresource>
+</RCC>

@@ -55,6 +55,10 @@
         <BooleanDomain name="bool" />
         <Documentation>Invert which part of the geometry is clipped.</Documentation>
       </IntVectorProperty>
+
+      <Hints>
+        <ShowInMenu icon=":/pqWidgets/Icons/pqClip.svg" />
+      </Hints>
       <!-- End Clip -->
     </SourceProxy>
   </ProxyGroup>

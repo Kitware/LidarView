@@ -1,5 +1,5 @@
 <ServerManagerConfiguration>
-  <!-- Begin vtkPointCloudClip -->
+  <!-- Begin vtkThresholdPoints -->
   <ProxyGroup name="filters">
     <SourceProxy class="vtkThresholdPoints"
                  name="ThresholdPoints"
@@ -89,8 +89,12 @@
           thresholding operation.
         </Documentation>
       </DoubleVectorProperty>
-      <!-- End Clip -->
+
+      <Hints>
+        <ShowInMenu icon=":/pqWidgets/Icons/pqThreshold.svg" />
+      </Hints>
+      <!-- End Threshold -->
     </SourceProxy>
   </ProxyGroup>
-  <!-- End vtkPointCloudClip -->
+  <!-- End vtkThresholdPoints -->
 </ServerManagerConfiguration>

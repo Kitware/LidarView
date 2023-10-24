@@ -53,6 +53,7 @@
 
       <Hints>
         <InitializationHelper class="vtkSMExtractSelectionProxyInitializationHelper"/>
+        <ShowInMenu icon=":/lqFilters/Icons/lqExtractPointSelection.svg" />
       </Hints>
 
     </SourceProxy>

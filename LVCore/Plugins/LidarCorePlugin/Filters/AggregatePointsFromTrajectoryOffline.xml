@@ -68,6 +68,9 @@
       <Property name="Step Size" />
     </PropertyGroup>
 
+    <Hints>
+      <ShowInMenu icon=":/lqFilters/Icons/lqAggregatePointsTrajectory.svg" />
+    </Hints>
    </SourceProxy>
   </ProxyGroup>
 

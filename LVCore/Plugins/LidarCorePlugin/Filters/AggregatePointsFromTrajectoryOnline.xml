@@ -39,6 +39,9 @@
       <Property name="Display Output" />
     </PropertyGroup>
 
+    <Hints>
+      <ShowInMenu icon=":/lqFilters/Icons/lqAggregatePointsTrajectory.svg" />
+    </Hints>
    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
