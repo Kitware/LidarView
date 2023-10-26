@@ -1,0 +1,98 @@
+/*=========================================================================
+
+  Program:   LidarView
+  Module:    lqLidarCorePluginManager.cxx
+
+  Copyright (c) Kitware, Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "lqLidarCorePluginManager.h"
+
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMViewProxy.h>
+
+#include <QtDebug>
+
+#include <pqActiveObjects.h>
+#include <pqApplicationCore.h>
+#include <pqObjectBuilder.h>
+#include <pqPluginManager.h>
+#include <pqRenderView.h>
+#include <pqServer.h>
+#include <pqServerManagerModel.h>
+#include <pqView.h>
+
+//-----------------------------------------------------------------------------
+lqLidarCorePluginManager::lqLidarCorePluginManager(QObject* p /*=0*/)
+  : QObject(p)
+{
+  pqPluginManager* pluginManager = pqApplicationCore::instance()->getPluginManager();
+  QObject::connect(pluginManager,
+    &pqPluginManager::pluginsUpdated,
+    this,
+    &lqLidarCorePluginManager::onPluginUpdated);
+
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  QObject::connect(
+    smmodel, &pqServerManagerModel::viewAdded, this, &lqLidarCorePluginManager::onViewAdded);
+}
+
+//-----------------------------------------------------------------------------
+lqLidarCorePluginManager::~lqLidarCorePluginManager() = default;
+
+//-----------------------------------------------------------------------------
+void lqLidarCorePluginManager::onPluginUpdated()
+{
+  pqView* existingView = pqActiveObjects::instance().activeView();
+
+  // If no render view already exist create a new one with the LidarGridView
+  if (!existingView)
+  {
+    pqServer* server = pqActiveObjects::instance().activeServer();
+    pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
+    if (!server || !builder)
+    {
+      return;
+    }
+
+    pqRenderView* view = qobject_cast<pqRenderView*>(builder->createView("LidarGridView", server));
+    if (!view)
+    {
+      return;
+    }
+    pqActiveObjects::instance().setActiveView(view);
+    builder->addToLayout(view);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCorePluginManager::onViewAdded(pqView* view)
+{
+  pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
+  if (renderView)
+  {
+    const std::string viewName = view->getViewProxy()->GetVTKClassName();
+    if (viewName == "vtkLidarGridView")
+    {
+
+      vtkSMProxy* proxy = renderView->getProxy();
+      const double pos[3] = { 0, -72, 18.0 };
+      const double focal_point[3] = { 0, 0, 0 };
+      const double view_up[3] = { 0, 0.27, 0.96 };
+      vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
+      vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
+      vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
+      proxy->UpdateVTKObjects();
+
+      renderView->setCenterOfRotation(0, 0, 0);
+      renderView->render();
+    }
+  }
+}
