@@ -41,6 +41,7 @@ protected Q_SLOTS:
   // void updateFontSize();
 
   void toggleMVDecoration(); // Toggle Multiview decorations
+  void refreshMeasurementGridButton();
 
 private:
   Q_DISABLE_COPY(LidarViewMainWindow)

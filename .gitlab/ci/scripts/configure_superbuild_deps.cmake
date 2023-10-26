@@ -20,7 +20,6 @@ set(ENABLE_eigen ON CACHE STRING "")
 set(ENABLE_las ON CACHE STRING "")
 set(ENABLE_yaml ON CACHE STRING "")
 set(ENABLE_python3 ON CACHE STRING "")
-set(ENABLE_pythonqt ON CACHE STRING "")
 set(ENABLE_numpy ON CACHE STRING "")
 
 # LidarView optionnal dependencies

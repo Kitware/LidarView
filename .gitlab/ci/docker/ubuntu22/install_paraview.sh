@@ -26,8 +26,6 @@ paraview_build () {
         -DPARAVIEW_USE_VTKM=OFF \
         -DPARAVIEW_USE_QT=ON \
         -DPARAVIEW_USE_PYTHON=ON \
-        -DPARAVIEW_PLUGIN_ENABLE_PythonQtPlugin=ON \
-        -DPARAVIEW_PLUGIN_AUTOLOAD_PythonQtPlugin=ON \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
     cmake --build "$paraview_build_root" --target install --parallel 4

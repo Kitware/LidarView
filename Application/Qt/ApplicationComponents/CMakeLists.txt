@@ -1,5 +1,6 @@
 set(classes
   lqAboutDialogReaction
+  lqCommandLineOptionsBehavior
   lqLidarViewManager
   lqMenuSaveAsReaction
   lqOpenPcapReaction
@@ -7,10 +8,6 @@ set(classes
   lqOpenSensorReaction
   lqStatusBar
   lqUpdateCalibrationReaction
-)
-
-set(headers
-  lqPythonQtLidarView.h # Pending delete
 )
 
 set(CMAKE_AUTOMOC 1)

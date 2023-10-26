@@ -15,6 +15,9 @@
 #include "LidarViewMainWindow.h"
 #include "ui_LidarViewMainWindow.h"
 
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMViewProxy.h>
+
 #include "lqAboutDialogReaction.h"
 #include "lqDockableSpreadSheetReaction.h"
 #include "lqEnableAdvancedArraysReaction.h"
@@ -30,6 +33,7 @@
 #include "lqUpdateCalibrationReaction.h"
 #include "vtkLVVersion.h"
 #include <lqCameraParallelProjectionReaction.h>
+#include <lqCommandLineOptionsBehavior.h>
 #include <lqLidarViewManager.h>
 #include <lqSensorListWidget.h>
 
@@ -37,6 +41,7 @@
 #include <pqApplicationCore.h>
 #include <pqAxesToolbar.h>
 #include <pqCameraToolbar.h>
+#include <pqCommandLineOptionsBehavior.h>
 #include <pqDataRepresentation.h>
 #include <pqDeleteReaction.h>
 #include <pqDesktopServicesReaction.h>
@@ -121,10 +126,12 @@ LidarViewMainWindow::LidarViewMainWindow()
   // LidarView Specific Manager
   new lqLidarViewManager(this);
 
+  QStringList preamble = { "from paraview.simple import *", "from lidarview.simple import *" };
   // Create pythonshell
   pqPythonShell* shell = new pqPythonShell(this);
   shell->setObjectName("pythonShell");
   shell->setFontSize(8);
+  shell->setPreamble(preamble);
   lqLidarViewManager::instance()->setPythonShell(shell);
   if (leaksView)
   {
@@ -145,19 +152,14 @@ LidarViewMainWindow::LidarViewMainWindow()
   // LidarView Branding
   this->setBranding();
 
-  // Create Main Render View
-  lqLidarViewManager::instance()->createMainRenderView();
-
-  // Schedule Python Init late otherwise startup is slow, WIP to investigate (related to window
-  // creation timing)
-  lqLidarViewManager::instance()->schedulePythonStartup();
-
   // Force Show App
   this->show();
   this->raise();
   this->activateWindow();
 
   new pqParaViewBehaviors(this, this);
+
+  new lqCommandLineOptionsBehavior(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -278,7 +280,6 @@ void LidarViewMainWindow::setupPVGUI()
   // CUSTOMIZED Paraview behaviors
   pqParaViewBehaviors::enableApplyBehavior();
   pqParaViewBehaviors::enableAutoLoadPluginXMLBehavior();
-  pqParaViewBehaviors::enableCommandLineOptionsBehavior();
   pqParaViewBehaviors::enableCrashRecoveryBehavior();
   pqParaViewBehaviors::enableDataTimeStepBehavior();
   pqParaViewBehaviors::enableLiveSourceBehavior();
@@ -289,6 +290,8 @@ void LidarViewMainWindow::setupPVGUI()
   pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pqParaViewBehaviors::setEnableDefaultViewBehavior(false);
   pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
+  // This must be delayed in onPluginsLoaded() so the test can run with LidarGridView
+  pqParaViewBehaviors::setEnableCommandLineOptionsBehavior(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -410,6 +413,9 @@ void LidarViewMainWindow::setupGUICustom()
     SIGNAL(toggled(bool)),
     lqLidarViewManager::instance(),
     SLOT(onMeasurementGrid(bool)));
+
+  connect(
+    this->Internals->menuTools, SIGNAL(aboutToShow()), this, SLOT(refreshMeasurementGridButton()));
 
   // Ruler Menu
   connect(this->Internals->actionMeasure, SIGNAL(triggered()), this, SLOT(toggleMVDecoration()));
@@ -606,4 +612,27 @@ void LidarViewMainWindow::toggleMVDecoration()
   // pqTabbedMultiViewWidget::setDecorationsVisibility()
   pqTabbedMultiViewWidget* mv = qobject_cast<pqTabbedMultiViewWidget*>(this->centralWidget());
   mv->setDecorationsVisibility(!mv->decorationsVisibility());
+}
+
+void LidarViewMainWindow::refreshMeasurementGridButton()
+{
+  double gridVisible;
+  pqView* view = pqActiveObjects::instance().activeView();
+  pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
+  if (renderView)
+  {
+    const std::string viewName = view->getViewProxy()->GetVTKClassName();
+    if (viewName == "vtkLidarGridView")
+    {
+      vtkSMProxy* lidarGridProxy = vtkSMPropertyHelper(view->getProxy(), "LidarGrid").GetAsProxy();
+      vtkSMPropertyHelper(lidarGridProxy, "Visibility").Get(&gridVisible);
+      this->Internals->actionMeasurement_Grid->setEnabled(true);
+      this->Internals->actionMeasurement_Grid->setChecked(gridVisible);
+    }
+    else
+    {
+      this->Internals->actionMeasurement_Grid->setEnabled(false);
+      this->Internals->actionMeasurement_Grid->setChecked(false);
+    }
+  }
 }

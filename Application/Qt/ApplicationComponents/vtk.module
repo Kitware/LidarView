@@ -25,5 +25,4 @@ DEPENDS
   LidarView::lqCore
   LidarView::Versioning
   LidarViewApp::lvComponents
-  PythonQt::PythonQt
 EXCLUDE_WRAP
