@@ -15,7 +15,7 @@ def LoadLidarData(filename, calibration, interpreter):
     data = lvsmp.OpenPCAP(filename, calibration, interpreter)
 
     # get active view
-    renderView1 = smp.GetActiveViewOrCreate('RenderView')
+    renderView1 = smp.GetActiveViewOrCreate('LidarGridView')
 
     # set active source
     smp.SetActiveSource(data)

@@ -12,6 +12,6 @@
   <!-- Only show selected points -->
   <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,7,13,/0:0/1:0/0:0/0:1" />
   <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,7,13,/0:0/1:0/0:0/0:1" />
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,16,5,/0:0/1:0/0:1" />
-  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,16,5,/0:0/1:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,12,12,/0:0/0:0/0:0/0:1" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,12,12,/0:0/0:0/0:0/0:1" />
 </pqevents>

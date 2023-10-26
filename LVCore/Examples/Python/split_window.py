@@ -7,7 +7,6 @@ import paraview.simple as smp
 def SplitWindow():
     # Get sources
     reader = smp.FindSource('LidarReader1')
-    measurementGrid = smp.FindSource('Measurement Grid')
 
     # Get views
     renderView1 = smp.GetActiveView()
@@ -19,11 +18,11 @@ def SplitWindow():
     layout1.SplitVertical(2, 0.5)
 
     # Create a new 'Render View'
-    renderView2 = smp.CreateView('RenderView')
+    renderView2 = smp.CreateView('LidarGridView')
     renderView2.Background = [0.05, 0.43, 0.32]
-    renderView3 = smp.CreateView('RenderView')
+    renderView3 = smp.CreateView('LidarGridView')
     renderView3.Background = [0.43, 0.05, 0.34]
-    renderView4 = smp.CreateView('RenderView')
+    renderView4 = smp.CreateView('LidarGridView')
     renderView4.Background = [0.32, 0.34, 0.05]
 
     # Place view in the layout
@@ -43,13 +42,6 @@ def SplitWindow():
         smp.ColorBy(display3, ('POINTS', 'azimuth'))
         display4 = smp.Show(reader[0], renderView4)
         smp.ColorBy(display4, ('POINTS', 'intensity'))
-
-    # Show measurement grid
-    smp.Show(measurementGrid, renderView1)
-    smp.Show(measurementGrid, renderView2)
-    smp.Show(measurementGrid, renderView3)
-    smp.Show(measurementGrid, renderView4)
-
 
     # Add camera links
     smp.AddCameraLink(renderView1, renderView2, "link_1")
