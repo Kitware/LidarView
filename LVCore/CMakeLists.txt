@@ -25,7 +25,7 @@ endif ()
 # Ignore following default plugins in autoload default.
 set(lidarview_default_autoload_plugins ${lidarview_default_plugins})
 
-if (LIDARVIEW_BUILD_EXAMPLES)
+if (BUILD_EXAMPLES)
   list(APPEND lidarview_default_plugins
     ProcessingSamplePlugin
     InterpreterExamplePlugin)
@@ -34,7 +34,7 @@ endif ()
 list(APPEND lidarview_plugin_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/")
 
-if (LIDARVIEW_BUILD_EXAMPLES)
+if (BUILD_EXAMPLES)
   list(APPEND lidarview_plugin_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/Examples/Plugins/")
 endif ()
@@ -168,7 +168,7 @@ add_subdirectory(Wrapping/Python)
 
 add_subdirectory(CommandLineExecutables)
 
-if (LIDARVIEW_BUILD_EXAMPLES)
+if (BUILD_EXAMPLES)
   add_subdirectory(Examples/Python)
 endif ()
 
