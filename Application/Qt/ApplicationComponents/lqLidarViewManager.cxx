@@ -353,6 +353,10 @@ void lqLidarViewManager::setLidarViewDefaultSettings()
 {
   vtkSMSettings* settings = vtkSMSettings::GetInstance();
 
+  // By default add an empty RenderView which will be remplace by a LidarGridView
+  // at LidarCorePlugin loading
+  settings->SetSetting("settings.GeneralSettings.DefaultViewType", "Empty");
+
   // Set default LUT for lidar intensity/reflectivity
   const std::array<std::string, 2> LUTName = { "intensity", "reflectivity" };
   const double LUTValue[12] = { 0.0, 0.0, 0.0, 1.0, 100.0, 1.0, 1.0, 0.0, 256.0, 1.0, 0.0, 0.0 };

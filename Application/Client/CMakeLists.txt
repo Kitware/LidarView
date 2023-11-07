@@ -66,7 +66,3 @@ target_link_libraries(${SOFTWARE_NAME}
     LidarView::lqApplicationComponents # Common LVCore code base
     LidarViewApp::lvApplicationComponents # Specific LidarView code base
 )
-
-target_compile_definitions(${SOFTWARE_NAME}
-  PRIVATE
-    "LIDARVIEW_USE_PDAL=$<BOOL:${LIDARVIEW_USE_PDAL}>")
