@@ -1,4 +1,4 @@
-include(PythonModuleInstaller)
+include(FileModuleInstaller)
 
 python_module_install(
   NAME lidarviewcore
@@ -9,6 +9,7 @@ python_module_install(
     lidarviewcore/pipeline_setup_helpers.py
     lidarviewcore/simple.py
     lidarviewcore/visualizationTools.py
+  OUTPUT_DIRECTORY lidarviewcore
 )
 
 python_module_install(
@@ -16,4 +17,5 @@ python_module_install(
   FILES
     lidarviewplugins/__init__.py
     lidarviewplugins/SectionalView.py
+  OUTPUT_DIRECTORY lidarviewplugins
 )
