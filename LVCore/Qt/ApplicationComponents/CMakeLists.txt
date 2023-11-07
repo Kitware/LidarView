@@ -9,6 +9,7 @@ set(classes
   lqLidarStreamColorByInitBehavior
   lqLiveSourceScalarColoringBehavior
   lqLoadLidarStateReaction
+  lqMeasurementGridReaction
   lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
   lqRulerReaction

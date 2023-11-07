@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqPythonShell.h>
 
 #include <lqHelper.h>
+#include <lqMeasurementGridReaction.h>
 #include <lqSensorListWidget.h>
 #include <vtkGridSource.h>
 #include <vtkLVPython.h>
@@ -157,22 +158,7 @@ void lqLidarCoreManager::forceShowShell()
 //-----------------------------------------------------------------------------
 void lqLidarCoreManager::onMeasurementGrid(bool gridVisible)
 {
-  pqView* view = pqActiveObjects::instance().activeView();
-  pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
-  if (renderView)
-  {
-    const std::string viewName = view->getViewProxy()->GetVTKClassName();
-    if (viewName == "vtkLidarGridView")
-    {
-      vtkSMProxy* lidarGridProxy = vtkSMPropertyHelper(view->getProxy(), "LidarGrid").GetAsProxy();
-      if (lidarGridProxy)
-      {
-        vtkSMPropertyHelper(lidarGridProxy, "Visibility").Set(gridVisible);
-        lidarGridProxy->UpdateVTKObjects();
-        view->render();
-      }
-    }
-  }
+  lqMeasurementGridReaction::updateGridVisibility(gridVisible);
 }
 
 //-----------------------------------------------------------------------------
