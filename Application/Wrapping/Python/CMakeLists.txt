@@ -1,4 +1,4 @@
-include(PythonModuleInstaller)
+include(FileModuleInstaller)
 
 python_module_install(
   NAME lidarview
