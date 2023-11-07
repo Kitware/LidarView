@@ -1,4 +1,34 @@
 <ServerManagerConfiguration>
+  <ProxyGroup name="palettes">
+    <!-- ================================================================= -->
+    <Proxy label="Lidar Dark Blue Background" name="LidarDarkBlueBackground">
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="ForegroundColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.0"
+                            name="BackgroundColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.2"
+                            name="BackgroundColor2"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="SurfaceColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="TextAnnotationColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 0.0 1.0"
+                            name="SelectionColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.5"
+                            name="EdgeColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <IntVectorProperty default_values="1"
+                         name="BackgroundColorMode"
+                         number_of_elements="1"></IntVectorProperty>
+    </Proxy>
+  </ProxyGroup>
+
   <ProxyGroup name="annotations">
     <Proxy name="LidarGridActor"
            class="vtkLidarGridActor"

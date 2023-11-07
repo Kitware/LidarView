@@ -16,6 +16,7 @@
 #include "lqLidarCorePluginManager.h"
 
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMSessionProxyManager.h>
 #include <vtkSMViewProxy.h>
 
 #include <QtDebug>
@@ -37,7 +38,7 @@ lqLidarCorePluginManager::lqLidarCorePluginManager(QObject* p /*=0*/)
   QObject::connect(pluginManager,
     &pqPluginManager::pluginsUpdated,
     this,
-    &lqLidarCorePluginManager::onPluginUpdated);
+    &lqLidarCorePluginManager::onPluginLoaded);
 
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   QObject::connect(
@@ -48,7 +49,19 @@ lqLidarCorePluginManager::lqLidarCorePluginManager(QObject* p /*=0*/)
 lqLidarCorePluginManager::~lqLidarCorePluginManager() = default;
 
 //-----------------------------------------------------------------------------
-void lqLidarCorePluginManager::onPluginUpdated()
+void lqLidarCorePluginManager::onPluginLoaded()
+{
+  static bool loaded = false;
+  if (!loaded)
+  {
+    this->loadLidarRenderView();
+    this->loadLidarPalette();
+    loaded = true;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCorePluginManager::loadLidarRenderView()
 {
   pqView* existingView = pqActiveObjects::instance().activeView();
 
@@ -70,6 +83,21 @@ void lqLidarCorePluginManager::onPluginUpdated()
     pqActiveObjects::instance().setActiveView(view);
     builder->addToLayout(view);
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCorePluginManager::loadLidarPalette()
+{
+  vtkSMSessionProxyManager* pxm = pqActiveObjects::instance().proxyManager();
+  assert(pxm);
+
+  vtkSMProxy* paletteProxy = pxm->GetProxy("settings", "ColorPalette");
+  vtkSMProxy* palettePrototype = pxm->GetPrototypeProxy("palettes", "LidarDarkBlueBackground");
+  assert(palettePrototype);
+
+  paletteProxy->Copy(palettePrototype);
+  paletteProxy->UpdateVTKObjects();
+  pqApplicationCore::instance()->render();
 }
 
 //-----------------------------------------------------------------------------

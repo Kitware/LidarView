@@ -48,10 +48,9 @@ private Q_SLOTS:
 
   /**
    * Slot triggered each time a plugin is updated.
-   * Used to load the LidarGridView once added to the proxy list,
-   * only add the RenderView if no other RenderView is not already active.
+   * Calls loadLidarRenderView() and loadLidarPalette()
    */
-  void onPluginUpdated();
+  void onPluginLoaded();
 
   /**
    * Slot triggered each time a view is added.
@@ -59,6 +58,18 @@ private Q_SLOTS:
    * position.
    */
   void onViewAdded(pqView* view);
+
+private:
+  /**
+   * Used to load the LidarGridView once added to the proxy list,
+   * only add the RenderView if no other RenderView is not already active.
+   */
+  void loadLidarRenderView();
+
+  /**
+   * Used to load the default color palette.
+   */
+  void loadLidarPalette();
 
 private:
   Q_DISABLE_COPY(lqLidarCorePluginManager)
