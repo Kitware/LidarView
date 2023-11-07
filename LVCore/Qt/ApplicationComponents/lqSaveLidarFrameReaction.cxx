@@ -62,10 +62,20 @@ lqSaveLidarFrameReaction::lqSaveLidarFrameReaction(QAction* action,
 }
 
 //-----------------------------------------------------------------------------
-void lqSaveLidarFrameReaction::onUpdateUI(pqPipelineSource*)
+void lqSaveLidarFrameReaction::onUpdateUI(pqPipelineSource* source)
 {
   bool hasLidarReader = HasProxy<vtkLidarReader>();
-  this->parentAction()->setEnabled(hasLidarReader);
+
+  bool hasWriter = false;
+  if (source)
+  {
+    vtkSMSourceProxy* proxy = source->getSourceProxy();
+    vtkSMWriterFactory* writerFactory = vtkSMProxyManager::GetProxyManager()->GetWriterFactory();
+    std::string supportedWriters = writerFactory->GetSupportedWriterProxies(proxy, 0);
+    hasWriter = supportedWriters.find(this->WriterName.toStdString()) != std::string::npos;
+  }
+
+  this->parentAction()->setEnabled(hasLidarReader && hasWriter);
 }
 
 //-----------------------------------------------------------------------------
