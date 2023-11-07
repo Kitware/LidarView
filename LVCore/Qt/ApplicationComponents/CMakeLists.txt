@@ -12,6 +12,7 @@ set(classes
   lqMeasurementGridReaction
   lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
+  lqPythonShellReaction
   lqRulerReaction
   lqSaveLidarFrameReaction
   lqSaveLidarStateReaction
