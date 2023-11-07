@@ -1,6 +1,8 @@
 set(classes
   lqAboutDialogReaction
+  lqChangeInterfaceReaction
   lqCommandLineOptionsBehavior
+  lqInterfaceControlsToolbar
   lqLidarViewManager
   lqMenuSaveAsReaction
   lqOpenPcapReaction
@@ -10,13 +12,19 @@ set(classes
   lqUpdateCalibrationReaction
 )
 
+set(ui_files
+  Resources/UI/lqInterfaceControlsToolbar.ui
+)
+
 set(CMAKE_AUTOMOC 1)
 set(CMAKE_AUTORCC 1)
 set(CMAKE_AUTOUIC 1)
+set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/UI")
 
 vtk_module_add_module(LidarViewApp::lvApplicationComponents
   CLASSES ${classes}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  SOURCES ${ui_files})
 vtk_module_link(LidarViewApp::lvApplicationComponents
   PRIVATE
     Qt5::Core
