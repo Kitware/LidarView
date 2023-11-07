@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>lqColorToolbar</class>
-  <widget class="QToolBar" name="variableToolbar" >
+  <widget class="QToolBar" name="colorToolBar" >
    <property name="windowTitle" >
     <string>Active Variable Controls</string>
    </property>
