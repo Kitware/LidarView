@@ -20,6 +20,8 @@
 
 #include "lvApplicationComponentsModule.h"
 
+#include <QScopedPointer>
+
 class LVAPPLICATIONCOMPONENTS_EXPORT lqLidarViewManager : public lqLidarCoreManager
 {
 
@@ -27,8 +29,15 @@ class LVAPPLICATIONCOMPONENTS_EXPORT lqLidarViewManager : public lqLidarCoreMana
   typedef lqLidarCoreManager Superclass;
 
 public:
+  enum InterfaceModes
+  {
+    LIDAR_VIEWER = 0,
+    POINT_CLOUD_TOOL,
+    ADVANCED_MODE
+  };
+
   lqLidarViewManager(QObject* parent = nullptr);
-  ~lqLidarViewManager() override = default;
+  ~lqLidarViewManager() override;
 
   /**
    * Returns the pqPVApplicationCore instance. If no pqPVApplicationCore has been
@@ -44,6 +53,34 @@ public:
    * and LUT for lidar scalars.
    */
   static void SetLidarViewDefaultSettings();
+
+  /**
+   * Switch to a new interface layout defined by InterfaceModes.
+   * The modes are defined in json config files. Mode layout configurations
+   * are stored in memory, which means that when you switch modes while
+   * LidarView is running, any changes to the layout will be preserved.
+   *
+   * Note that a signal interfaceLayoutUpdated will be emitted with the
+   * new mode, and it will be saved in GeneralSettings.InterfaceMode
+   */
+  void updateInterfaceLayout(InterfaceModes mode);
+
+  /**
+   * Restore last interface layout used.
+   */
+  void restoreSavedInterfaceLayout();
+
+Q_SIGNALS:
+  /**
+   * Signal emitted when a new interface mode is changed.
+   */
+  void interfaceLayoutUpdated(InterfaceModes mode);
+
+private:
+  Q_DISABLE_COPY(lqLidarViewManager)
+
+  struct lqInternals;
+  QScopedPointer<lqInternals> Internals;
 };
 
 #endif
