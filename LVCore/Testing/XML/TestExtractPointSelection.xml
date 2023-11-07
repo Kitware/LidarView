@@ -1,16 +1,16 @@
 <?xml version="1.0" ?>
 <pqevents>
   <!-- Load PCAP -->
-  <pqevent object="LidarViewMainWindow/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/LidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
   <pqevent object="LidarViewMainWindow/lqCalibrationDialog/CalibrationGroup/CalibrationFileListWidget" command="currentChangedbyItemName" arguments="VLP-16" />
   <pqevent object="LidarViewMainWindow/lqCalibrationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
 
   <!-- Select points -->
-  <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/actionSelectSurfacePoints" command="set_boolean" arguments="true" />
-  <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mousePress" arguments="(0.350842,0.332561,1,1,0)" />
-  <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseMove" arguments="(0.670961,0.746234,1,0,0)" />
-  <pqevent object="LidarViewMainWindow/1pqTabbedMultiViewWidget0/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseRelease" arguments="(0.670961,0.746234,1,0,0)" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/actionSelectFrustumPoints" command="set_boolean" arguments="true" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mousePress" arguments="(0.350842,0.332561,1,1,0)" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseMove" arguments="(0.670961,0.746234,1,0,0)" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/CentralWidgetFrame/Viewport/1QVTKOpenGLNativeWidget0" command="mouseRelease" arguments="(0.670961,0.746234,1,0,0)" />
 
   <!-- Extract Points -->
   <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
