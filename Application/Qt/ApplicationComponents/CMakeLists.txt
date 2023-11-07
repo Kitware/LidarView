@@ -4,6 +4,8 @@ set(classes
   lqCommandLineOptionsBehavior
   lqInterfaceControlsToolbar
   lqLidarViewManager
+  lqLidarViewMenuBuilders
+  lqMainControlsToolbar
   lqMenuSaveAsReaction
   lqOpenPcapReaction
   lqOpenRecentFilesReaction
@@ -14,7 +16,11 @@ set(classes
 )
 
 set(ui_files
+  Resources/UI/lqFileMenuBuilder.ui
+  Resources/UI/lqEditMenuBuilder.ui
+  Resources/UI/lqHelpMenuBuilder.ui
   Resources/UI/lqInterfaceControlsToolbar.ui
+  Resources/UI/lqMainControlsToolbar.ui
   Resources/UI/lqWelcomeDialog.ui
 )
 

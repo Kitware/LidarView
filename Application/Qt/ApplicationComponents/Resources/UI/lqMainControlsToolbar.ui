@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqMainControlsToolbar</class>
+ <widget class="QToolBar" name="lqMainControlsToolbar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>464</width>
+    <height>39</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Main Controls</string>
+  </property>
+  <property name="orientation">
+   <enum>Qt::Horizontal</enum>
+  </property>
+  <action name="actionOpenPcap">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvOpenPcap.svg</normaloff>:/lvComponents/Icons/lvOpenPcap.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open Pcap File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Pcap File</string>
+   </property>
+   <property name="statusTip">
+    <string>Open Pcap File</string>
+   </property>
+  </action>
+  <action name="actionSavePcap">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvSavePcap.svg</normaloff>:/lvComponents/Icons/lvSavePcap.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save to Pcap File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save to Pcap File</string>
+   </property>
+   <property name="statusTip">
+    <string>Save to Pcap File</string>
+   </property>
+  </action>
+  <action name="actionOpenSensorStream">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvOpenStream.svg</normaloff>:/lvComponents/Icons/lvOpenStream.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open Sensor Stream...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open Sensor Stream</string>
+   </property>
+  </action>
+  <action name="actionChooseCalibrationFile">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Choose &amp;Calibration File...</string>
+   </property>
+  </action>
+  <action name="actionToggleAdvancedArrays">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <!-- Icon setted by lqEnableAdvancedArraysReaction -->
+  </action>
+  <action name="actionOpenData">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqOpen.svg</normaloff>:/pqWidgets/Icons/pqOpen.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="statusTip">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSaveData">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqSave.svg</normaloff>:/pqWidgets/Icons/pqSave.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save Data...</string>
+   </property>
+  </action>
+  <action name="actionDeleteAll">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqResetSession.svg</normaloff>:/pqWidgets/Icons/pqResetSession.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Reset Session</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset Session</string>
+   </property>
+   <property name="statusTip">
+    <string>Reset Session</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset>
+     <normaloff>:pqWidgets/Icons/pqUndo.svg</normaloff>:pqWidgets/Icons/pqUndo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqRedo.svg</normaloff>:/pqWidgets/Icons/pqRedo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+  </action>
+  <action name="actionLoadPalette">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqPalette.svg</normaloff>:/pqWidgets/Icons/pqPalette.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Load Palette</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a color palette</string>
+   </property>
+  </action>
+  <action name="actionAutoApply">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqAutoApply.svg</normaloff>:/pqWidgets/Icons/pqAutoApply.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Auto Apply</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply changes to parameters automatically</string>
+   </property>
+  </action>
+  <action name="actionQuery">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqFindData.svg</normaloff>:/pqWidgets/Icons/pqFindData.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Find Data...</string>
+   </property>
+   <property name="toolTip">
+    <string>Find data matching various criteria from the current source (v)</string>
+   </property>
+  </action>
+  <action name="actionPythonShell">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvPythonShell.svg</normaloff>:/lvComponents/Icons/lvPythonShell.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open Python Shell view</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Python Shell</string>
+   </property>
+  </action>
+  <addaction name="actionOpenPcap"/>
+  <addaction name="actionSavePcap"/>
+  <addaction name="actionOpenSensorStream"/>
+  <addaction name="separator"/>
+  <addaction name="actionToggleAdvancedArrays"/>
+  <addaction name="actionChooseCalibrationFile"/>
+  <addaction name="separator"/>
+  <addaction name="actionOpenData"/>
+  <addaction name="actionSaveData"/>
+  <addaction name="separator"/>
+  <addaction name="actionUndo"/>
+  <addaction name="actionRedo"/>
+  <addaction name="separator"/>
+  <addaction name="actionLoadPalette"/>
+  <addaction name="actionAutoApply"/>
+  <addaction name="actionQuery"/>
+  <addaction name="actionPythonShell"/>
+  <addaction name="separator"/>
+  <addaction name="actionDeleteAll"/>
+ </widget>
+ <resources>
+  <include location="../../../Components/Resources/lvComponents.qrc"/>
+ </resources>
+ <connections/>
+</ui>

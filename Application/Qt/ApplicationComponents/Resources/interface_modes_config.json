@@ -47,10 +47,11 @@
     "toolbars": {
       "show": [
         "mainControlsToolbar",
-        "variableToolbar",
+        "colorToolBar",
         "interfaceControlsToolbar",
         "cameraToolbar",
         "axesToolbar",
+        "rulersToolbar",
         "playerControlToolbar"
       ],
       "toolbarBreaks": [
@@ -65,7 +66,7 @@
         "actionLoadPalette",
         "actionDeleteAll"
       ],
-      "variableToolbar": [
+      "colorToolBar": [
         "actionScalarBarVisibility",
         "actionChangeColorPreset",
         "actionResetRange",
@@ -150,11 +151,12 @@
     "toolbars": {
       "show": [
         "mainControlsToolbar",
-        "variableToolbar",
+        "colorToolBar",
         "interfaceControlsToolbar",
         "macrosToolbar",
         "cameraToolbar",
         "axesToolbar",
+        "rulersToolbar",
         "customViewpointsToolbar",
         "ToolBar"
       ],
@@ -172,7 +174,7 @@
         "actionPythonShell",
         "actionDeleteAll"
       ],
-      "variableToolbar": [
+      "colorToolBar": [
         "actionScalarBarVisibility",
         "actionChangeColorPreset",
         "actionResetRange",
@@ -250,11 +252,12 @@
     "toolbars": {
       "show": [
         "mainControlsToolbar",
-        "variableToolbar",
+        "colorToolBar",
         "interfaceControlsToolbar",
         "macrosToolbar",
         "cameraToolbar",
         "axesToolbar",
+        "rulersToolbar",
         "customViewpointsToolbar",
         "playerControlToolbar",
         "ToolBar"

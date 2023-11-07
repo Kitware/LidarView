@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqFileMenuBuilder</class>
+ <widget class="QMenu" name="lqFileMenuBuilder">
+  <property name="title">
+   <string>&amp;File</string>
+  </property>
+  <action name="actionOpenPcap">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvOpenPcap.svg</normaloff>:/lvComponents/Icons/lvOpenPcap.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open Pcap File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a Wireshark-format capture file (.pcap) with data collected from a lidar sensor.</string>
+   </property>
+   <property name="statusTip">
+    <string>Open Pcap File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionOpenSensorStream">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvOpenStream.svg</normaloff>:/lvComponents/Icons/lvOpenStream.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open Sensor &amp;Stream...</string>
+   </property>
+  </action>
+  <action name="actionClearLidarRecentMenu">
+   <property name="text">
+    <string>Clear Menu</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuRecentLidarFiles">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvMenuRecentPcap.svg</normaloff>:/lvComponents/Icons/lvMenuRecentPcap.svg</iconset>
+   </property>
+   <property name="title">
+    <string>&amp;Recent Pcap Files</string>
+   </property>
+   <addaction name="separator"/>
+   <addaction name="actionClearLidarRecentMenu"/>
+  </widget>
+  <action name="actionSaveData">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqSave.svg</normaloff>:/pqWidgets/Icons/pqSave.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save Data...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSavePcap">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvSavePcap.svg</normaloff>:/lvComponents/Icons/lvSavePcap.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save to Pcap File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save to Pcap File</string>
+   </property>
+   <property name="statusTip">
+    <string>Save to Pcap File</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuOpen">
+    <property name="title">
+      <string>&amp;Open...</string>
+    </property>
+    <property name="icon">
+     <iconset>
+     <normaloff>:/pqWidgets/Icons/pqOpen.svg</normaloff>:/pqWidgets/Icons/pqOpen.svg</iconset>
+    </property>
+    <addaction name="actionOpenPcap"/>
+    <addaction name="actionOpenSensorStream"/>
+  </widget>
+  <widget class="QMenu" name="menuSaveAs">
+   <property name="title">
+     <string>&amp;Save as...</string>
+    </property>
+   <property name="icon">
+     <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvSaveAs.svg</normaloff>:/lvComponents/Icons/lvSaveAs.svg</iconset>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../../Components/Resources/lvComponents.qrc"/>
+ </resources>
+ <connections/>
+</ui>
