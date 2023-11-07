@@ -40,7 +40,7 @@ public:
   ~lqLidarViewManager() override;
 
   /**
-   * Returns the pqPVApplicationCore instance. If no pqPVApplicationCore has been
+   * Returns the lqLidarViewManager instance. If no lqLidarViewManager has been
    * created then return nullptr.
    */
   static lqLidarViewManager* instance()
@@ -52,7 +52,7 @@ public:
    * Change ParaView default settings value such as background color
    * and LUT for lidar scalars.
    */
-  static void SetLidarViewDefaultSettings();
+  static void setLidarViewDefaultSettings();
 
   /**
    * Switch to a new interface layout defined by InterfaceModes.

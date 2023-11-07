@@ -48,7 +48,8 @@ namespace
 {
 static const std::string INTERFACE_CONFIGURATION_FILENAME = "interface_modes_config.json";
 
-void SetSetting(vtkSMSettings* settings, std::string name, double value)
+//-----------------------------------------------------------------------------
+void setSetting(vtkSMSettings* settings, std::string name, double value)
 {
   settings->SetSetting(name.c_str(), value);
 }
@@ -348,7 +349,7 @@ lqLidarViewManager::lqLidarViewManager(QObject* parent /*=nullptr*/)
 lqLidarViewManager::~lqLidarViewManager() = default;
 
 //-----------------------------------------------------------------------------
-void lqLidarViewManager::SetLidarViewDefaultSettings()
+void lqLidarViewManager::setLidarViewDefaultSettings()
 {
   vtkSMSettings* settings = vtkSMSettings::GetInstance();
 
@@ -363,7 +364,7 @@ void lqLidarViewManager::SetLidarViewDefaultSettings()
     {
       settings->SetSetting(settingName.c_str(), i_val, LUTValue[i_val]);
     }
-    ::SetSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.ColorSpace", 1);
+    ::setSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.ColorSpace", 1);
   }
 
   // Set default LUT for dual return lidar scalars
@@ -388,8 +389,8 @@ void lqLidarViewManager::SetLidarViewDefaultSettings()
     {
       settings->SetSetting(settingAnnot.c_str(), i_annot, drLUTAnnotations[i_name][i_annot]);
     }
-    ::SetSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.IndexedLookup", 1);
-    ::SetSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.NumberOfTableValues", 3);
+    ::setSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.IndexedLookup", 1);
+    ::setSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.NumberOfTableValues", 3);
   }
 }
 
