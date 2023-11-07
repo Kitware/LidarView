@@ -52,6 +52,11 @@ public:
 
 public Q_SLOTS:
   /**
+   * Updates the enabled state.
+   */
+  void updateEnableState() override;
+
+  /**
    * Called when the action is triggered.
    */
   virtual void onTriggered() override;

@@ -17,14 +17,17 @@
 
 #include <sstream>
 
-#include <pqCoreUtilities.h>
-#include <pqPipelineSource.h>
 #include <vtkSMDoubleVectorProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMSourceProxy.h>
 
 #include <QFileInfo>
 #include <QProgressDialog>
+
+#include <pqActiveObjects.h>
+#include <pqCoreUtilities.h>
+#include <pqOutputPort.h>
+#include <pqPipelineSource.h>
 
 #include "lqSelectLidarFrameDialog.h"
 #include "vtkLidarReader.h"
@@ -33,6 +36,24 @@
 lqSavePcapReaction::lqSavePcapReaction(QAction* action, bool displaySettings)
   : lqSaveLidarFrameReaction(action, "", "pcap", displaySettings)
 {
+  pqActiveObjects* activeObjects = &pqActiveObjects::instance();
+  QObject::connect(
+    activeObjects, SIGNAL(portChanged(pqOutputPort*)), this, SLOT(updateEnableState()));
+
+  this->updateEnableState();
+}
+
+//-----------------------------------------------------------------------------
+void lqSavePcapReaction::updateEnableState()
+{
+  pqOutputPort* port = pqActiveObjects::instance().activePort();
+  bool enableState = false;
+  if (port)
+  {
+    vtkSMSourceProxy* proxy = vtkSMSourceProxy::SafeDownCast(port->getSource()->getProxy());
+    enableState = proxy->GetVTKClassName() == std::string("vtkLidarReader");
+  }
+  this->parentAction()->setEnabled(enableState);
 }
 
 //-----------------------------------------------------------------------------
@@ -98,7 +119,7 @@ bool lqSavePcapReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
   QString filename = this->FolderPath + "/" + this->BaseName + "." + this->Extension;
 
   reader->Open();
-  reader->SaveFrame(start, stop, filename.toStdString().c_str());
+  reader->SaveFrame(start, stop, filename.toStdString());
   reader->Close();
   return true;
 }
