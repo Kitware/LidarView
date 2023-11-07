@@ -41,18 +41,6 @@ void lqLidarViewManager::SetLidarViewDefaultSettings()
 {
   vtkSMSettings* settings = vtkSMSettings::GetInstance();
 
-  // Set default background color
-  const double background1[3] = { 0.0, 0.0, 0.0 };
-  const double background2[3] = { 0.0, 0.0, 0.2 };
-
-  for (unsigned short i = 0; i < 3; i++)
-  {
-    settings->SetSetting("views.LidarGridView.Background", i, background1[i]);
-    settings->SetSetting("views.LidarGridView.Background2", i, background2[i]);
-  }
-  settings->SetSetting("views.LidarGridView.BackgroundColorMode", 1);
-  settings->SetSetting("views.LidarGridView.UseColorPaletteForBackground", 0);
-
   // Set default LUT for lidar intensity/reflectivity
   const std::array<std::string, 2> LUTName = { "intensity", "reflectivity" };
   const double LUTValue[12] = { 0.0, 0.0, 0.0, 1.0, 100.0, 1.0, 1.0, 0.0, 256.0, 1.0, 0.0, 0.0 };
