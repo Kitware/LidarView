@@ -10,10 +10,12 @@ set(classes
   lqOpenSensorReaction
   lqStatusBar
   lqUpdateCalibrationReaction
+  lqWelcomeDialog
 )
 
 set(ui_files
   Resources/UI/lqInterfaceControlsToolbar.ui
+  Resources/UI/lqWelcomeDialog.ui
 )
 
 set(CMAKE_AUTOMOC 1)
