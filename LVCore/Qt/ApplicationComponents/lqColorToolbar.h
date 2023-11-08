@@ -23,6 +23,8 @@
 /**
  * lqColorToolbar is the toolbar that allows the user to choose the scalar
  * color or solid color for the active representation.
+ *
+ * @sa pqRepresentationToolbar
  */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqColorToolbar : public QToolBar
 {

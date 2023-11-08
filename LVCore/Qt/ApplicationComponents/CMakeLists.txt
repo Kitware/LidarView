@@ -1,5 +1,6 @@
 set(classes
   lqCameraParallelProjectionReaction
+  lqChangeColorPresetReaction
   lqColorToolbar
   lqDockableSpreadSheetReaction
   lqEnableAdvancedArraysReaction

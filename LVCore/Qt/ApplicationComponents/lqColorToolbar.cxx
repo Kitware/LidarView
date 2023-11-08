@@ -17,6 +17,7 @@
 #include "ui_lqColorToolbar.h"
 
 #include <QWidget>
+#include <QToolButton>
 
 #include <pqActiveObjects.h>
 #include <pqDisplayColorWidget.h>
@@ -25,6 +26,8 @@
 #include <pqScalarBarVisibilityReaction.h>
 #include <pqSetName.h>
 
+#include "lqChangeColorPresetReaction.h"
+
 //-----------------------------------------------------------------------------
 void lqColorToolbar::constructor()
 {
@@ -32,10 +35,15 @@ void lqColorToolbar::constructor()
   ui.setupUi(this);
 
   new pqScalarBarVisibilityReaction(ui.actionScalarBarVisibility);
+  new lqChangeColorPresetReaction(ui.actionChangeColorPreset);
   new pqEditColorMapReaction(ui.actionEditColorMap);
-  new pqResetScalarRangeReaction(ui.actionResetRange);
+  new pqResetScalarRangeReaction(ui.actionResetRange, true, pqResetScalarRangeReaction::DATA);
   new pqResetScalarRangeReaction(
     ui.actionRescaleCustomRange, true, pqResetScalarRangeReaction::CUSTOM);
+  new pqResetScalarRangeReaction(
+    ui.actionRescaleTemporalRange, true, pqResetScalarRangeReaction::TEMPORAL);
+  new pqResetScalarRangeReaction(
+    ui.actionRescaleVisibleRange, true, pqResetScalarRangeReaction::VISIBLE);
 
   pqDisplayColorWidget* display_color = new pqDisplayColorWidget(this) << pqSetName("displayColor");
   // Hide "Components" QComboBox has it is limited used in LidarView
@@ -51,4 +59,10 @@ void lqColorToolbar::constructor()
     SIGNAL(representationChanged(pqDataRepresentation*)),
     display_color,
     SLOT(setRepresentation(pqDataRepresentation*)));
+
+  QToolButton* tb = qobject_cast<QToolButton*>(this->widgetForAction(ui.actionChangeColorPreset));
+  if (tb)
+  {
+    tb->setPopupMode(QToolButton::InstantPopup);
+  }
 }
