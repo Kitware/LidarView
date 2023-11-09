@@ -180,6 +180,14 @@
         <Property name="CameraOrientationWidgetVisibility" show="0"/>
         <Property name="CenterAxesVisibility" show="0"/>
         <Property name="HiddenLineRemoval" show="0"/>
+        <StandardViewFrameActions>
+          <SelectSurfaceCells visibility="never" />
+          <SelectFrustumCells visibility="never" />
+          <SelectPolygonSelectionCells visibility="never" />
+          <InteractiveSelectSurfaceCells visibility="never" />
+          <InteractiveSelectSurfaceCellData visibility="never" />
+          <HoveringSurfaceCells visibility="never" />
+        </StandardViewFrameActions>
       </Hints>
     </RenderViewProxy>
   </ProxyGroup>
