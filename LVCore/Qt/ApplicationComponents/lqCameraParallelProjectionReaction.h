@@ -1,5 +1,20 @@
-#ifndef LQCAMERAPARALLELPROJECTIONREACTION_H
-#define LQCAMERAPARALLELPROJECTIONREACTION_H
+/*=========================================================================
+
+  Program: LidarView
+  Module:  lqCameraParallelProjectionReaction.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef lqCameraParallelProjectionReaction_h
+#define lqCameraParallelProjectionReaction_h
 
 #include <pqReaction.h>
 #include <vtkSmartPointer.h>
@@ -10,9 +25,9 @@ class pqView;
 class pqRenderView;
 
 /**
-* @ingroup Reactions
-* Reaction to change the camera projection type between perspective and parallel
-*/
+ * @ingroup Reactions
+ * Reaction to change the camera projection type between perspective and parallel
+ */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqCameraParallelProjectionReaction : public pqReaction
 {
   Q_OBJECT
@@ -22,15 +37,14 @@ public:
   lqCameraParallelProjectionReaction(QAction* parent);
 
 protected Q_SLOTS:
-
   /**
-  * Called when activeView changed.
-  */
+   * Called when activeView changed.
+   */
   void onViewChanged(pqView* view);
 
   /**
-  * Called when the action is triggered.
-  */
+   * Called when the action is triggered.
+   */
   void onTriggered() override;
 
   /**
@@ -42,4 +56,4 @@ private:
   Q_DISABLE_COPY(lqCameraParallelProjectionReaction)
 };
 
-#endif // LQCAMERAPARALLELPROJECTIONREACTION_H
+#endif

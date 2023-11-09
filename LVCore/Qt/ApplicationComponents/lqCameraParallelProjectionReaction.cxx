@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  lqCameraParallelProjectionReaction.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "lqCameraParallelProjectionReaction.h"
 
 #include <QtDebug>
@@ -9,16 +24,14 @@
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSMProxyProperty.h>
 
-lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction *parent)
+lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction* parent)
   : pqReaction(parent)
 {
   this->parentAction()->setToolTip("Toggle between projective and orthogonal view");
 
   // Connect Views
   QObject::connect(
-      &pqActiveObjects::instance(), SIGNAL(viewChanged(pqView*)),
-      this, SLOT(onViewChanged(pqView*))
-  );
+    &pqActiveObjects::instance(), SIGNAL(viewChanged(pqView*)), this, SLOT(onViewChanged(pqView*)));
 
   // Update for current View if any
   this->onViewChanged(pqActiveObjects::instance().activeView());
@@ -61,11 +74,15 @@ void lqCameraParallelProjectionReaction::onTriggered()
 void lqCameraParallelProjectionReaction::updateUI(pqRenderView* view)
 {
   // Not a RenderView
-  if (!view) { return; }
+  if (!view)
+  {
+    return;
+  }
 
   vtkSMProperty* property = view->getProxy()->GetProperty("CameraParallelProjection");
   bool mode = pqSMAdaptor::getElementProperty(property).toBool();
   this->parentAction()->setChecked(mode);
-  QIcon icon = mode ? QIcon(":/lqResources/Icons/lqViewOrtho.png") : QIcon(":/lqResources/Icons/lqViewPerspective.png");
+  QIcon icon = mode ? QIcon(":/lqResources/Icons/lqViewOrtho.png")
+                    : QIcon(":/lqResources/Icons/lqViewPerspective.png");
   this->parentAction()->setIcon(icon);
 }

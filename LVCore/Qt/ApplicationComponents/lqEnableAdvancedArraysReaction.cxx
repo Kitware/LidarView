@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  lqEnableAdvancedArraysReaction.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "lqEnableAdvancedArraysReaction.h"
 
 #include "lqHelper.h"
@@ -7,21 +22,24 @@
 
 #include <pqApplicationCore.h>
 #include <pqFileDialog.h>
-#include <pqServerManagerModel.h>
 #include <pqPipelineSource.h>
-#include <vtkSMSourceProxy.h>
+#include <pqServerManagerModel.h>
+
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMSourceProxy.h>
 
 //-----------------------------------------------------------------------------
-lqEnableAdvancedArraysReaction::lqEnableAdvancedArraysReaction(QAction *action)
+lqEnableAdvancedArraysReaction::lqEnableAdvancedArraysReaction(QAction* action)
   : Superclass(action)
 {
   this->parentAction()->setEnabled(false);
   auto* core = pqApplicationCore::instance();
 
   pqServerManagerModel* smmodel = core->getServerManagerModel();
-  this->connect(smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
-  this->connect(smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
+  this->connect(
+    smmodel, SIGNAL(sourceAdded(pqPipelineSource*)), SLOT(onSourceAdded(pqPipelineSource*)));
+  this->connect(
+    smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onSourceRemoved(pqPipelineSource*)));
 
   Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
@@ -32,7 +50,7 @@ lqEnableAdvancedArraysReaction::lqEnableAdvancedArraysReaction(QAction *action)
 //-----------------------------------------------------------------------------
 void lqEnableAdvancedArraysReaction::updateIcon(bool setEnable)
 {
-  if(setEnable)
+  if (setEnable)
   {
     // Set the icon on "Enable advanced Arrays"
     this->parentAction()->setIcon(QIcon(":/lqResources/Icons/EnableAdvancedArrays.png"));
@@ -57,18 +75,18 @@ void lqEnableAdvancedArraysReaction::onTriggered()
 
   // Update all lidar proxy with the new property value
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
-  for(vtkSMProxy* proxy : lidarProxys)
+  for (vtkSMProxy* proxy : lidarProxys)
   {
     vtkSMProxy* interp = SearchProxyByGroupName(proxy, "LidarPacketInterpreter");
-    if(interp != nullptr)
+    if (interp != nullptr)
     {
       vtkSMProperty* property = GetPropertyFromProxy(interp, "EnableAdvancedArrays");
       vtkSMPropertyHelper(property).Set(booleanToSet);
 
-      //Update the proxy
+      // Update the proxy
       proxy->UpdateSelfAndAllInputs();
-      vtkSMSourceProxy * sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(proxy);
-      if(sourcelidarProxy)
+      vtkSMSourceProxy* sourcelidarProxy = vtkSMSourceProxy::SafeDownCast(proxy);
+      if (sourcelidarProxy)
       {
         sourcelidarProxy->UpdatePipelineInformation();
       }
@@ -78,7 +96,7 @@ void lqEnableAdvancedArraysReaction::onTriggered()
 }
 
 //-----------------------------------------------------------------------------
-void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource *src)
+void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource* src)
 {
   if (!this->parentAction()->isEnabled() && IsLidarProxy(src->getProxy()))
   {
@@ -89,7 +107,7 @@ void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource *src)
     // So the "Enable/Disable" button should be initialize according to the default value
     // of the property "Enable Advanced Array" of the interpreter
     std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
-    if(lidarProxys.empty())
+    if (lidarProxys.empty())
     {
       return;
     }
@@ -109,14 +127,14 @@ void lqEnableAdvancedArraysReaction::updateUI()
 {
   // The choice of the button "Enable" or "Disable" is based on the first lidar of the pipeline
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
-  if(lidarProxys.empty())
+  if (lidarProxys.empty())
   {
     return;
   }
   vtkSMProxy* proxy = lidarProxys[0];
 
   vtkSMProxy* interp = SearchProxyByGroupName(proxy, "LidarPacketInterpreter");
-  if(interp != nullptr)
+  if (interp != nullptr)
   {
     vtkSMProperty* property = GetPropertyFromProxy(interp, "EnableAdvancedArrays");
     bool enableAdvancedArrays = vtkSMPropertyHelper(property).GetAsInt();
@@ -129,7 +147,8 @@ void lqEnableAdvancedArraysReaction::updateUI()
 }
 
 //-----------------------------------------------------------------------------
-void lqEnableAdvancedArraysReaction::onSourceRemoved(pqPipelineSource * vtkNotUsed(src)){
+void lqEnableAdvancedArraysReaction::onSourceRemoved(pqPipelineSource* vtkNotUsed(src))
+{
   if (this->parentAction()->isEnabled() && !HasLidarProxy())
   {
     this->parentAction()->setEnabled(false);

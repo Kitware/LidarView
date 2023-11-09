@@ -1,5 +1,20 @@
-#ifndef LQRULERREACTION_H
-#define LQRULERREACTION_H
+/*=========================================================================
+
+  Program: LidarView
+  Module:  lqRulerReaction.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef lqRulerReaction_h
+#define lqRulerReaction_h
 
 #include <pqReaction.h>
 #include <vtkSmartPointer.h>
@@ -36,25 +51,26 @@ public:
 protected Q_SLOTS:
 
   /**
-  * Called when activeView changed.
-  */
+   * Called when activeView changed.
+   */
   void onViewChanged(pqView* view);
 
   /**
-  * Called when activeView changed.
-  */
+   * Called when activeView changed.
+   */
   void onViewRemoved(pqView* view);
 
   /**
-  * Called when the action is triggered / when projection changes
-  */
+   * Called when the action is triggered / when projection changes
+   */
   void onTriggered() override;
 
 private:
-
   // Mouse Click Callback
-  static void mousePressCallback(
-    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
+  static void mousePressCallback(vtkObject* object,
+    unsigned long event,
+    void* clientdata,
+    void* calldata);
 
   // Internal Helpers
   void setView(pqRenderView* rview); // Set the new Rview
@@ -62,7 +78,7 @@ private:
   void destroyState();               // Clear Saved View and dwr
   void displayRuler(bool value);     // Change dwr visibility
 
-  void updateUI();  // Update UI according to state
+  void updateUI(); // Update UI according to state
 
   bool isEnabled(); // Is action checked
 
@@ -75,11 +91,10 @@ private:
   vtkSmartPointer<vtkEventQtSlotConnect> connection; // Used to listen for projection state changes
 
   // Tracked State
-  pqRenderView* view; // Current active View
-  vtkSMProxy* dwr;    // Current active View's distanceWidgetRepresentation
+  pqRenderView* view;                          // Current active View
+  vtkSMProxy* dwr;                             // Current active View's distanceWidgetRepresentation
   vtkSmartPointer<vtkCallbackCommand> mouseCC; // Mouse Callback command
-  bool started = false; // Set to true when ruler has been clicked once
-
+  bool started = false;                        // Set to true when ruler has been clicked once
 };
 
-#endif // LQRULERREACTION_H
+#endif
