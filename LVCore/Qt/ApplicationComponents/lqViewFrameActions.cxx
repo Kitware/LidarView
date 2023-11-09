@@ -28,12 +28,12 @@ void lqViewFrameActions::frameConnected(pqViewFrame* frame, pqView* view)
     // Mutually exclusive 2D / 3D Selection
     QActionGroup* actionGroup = new QActionGroup(this);
 
-    QAction* measurePtP = frame->addTitleBarAction(QIcon(":/lqResources/Icons/lqRuler3D.png"), "Tooltip overwrite by reaction");
+    QAction* measurePtP = frame->addTitleBarAction(QIcon(":/lqResources/Icons/lqRulerPointToPoint.svg"), "Tooltip overwrite by reaction");
     measurePtP->setObjectName("measurePointToPoint");
     new lqRulerReaction(measurePtP, lqRulerReaction::Mode::BETWEEN_3D_POINTS);
     actionGroup->addAction(measurePtP);
 
-    QAction* measure = frame->addTitleBarAction(QIcon(":/lqResources/Icons/lqRuler2D.png"), "Tooltip overwrite by reaction");
+    QAction* measure = frame->addTitleBarAction(QIcon(":/pqWidgets/Icons/pqRuler.svg"), "Tooltip overwrite by reaction");
     measure->setObjectName("measureinParallelePlane");
     new lqRulerReaction(measure   , lqRulerReaction::Mode::BETWEEN_2D_POINTS);
     actionGroup->addAction(measure);

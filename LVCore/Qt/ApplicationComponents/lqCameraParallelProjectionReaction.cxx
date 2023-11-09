@@ -32,6 +32,7 @@ lqCameraParallelProjectionReaction::lqCameraParallelProjectionReaction(QAction* 
   // Connect Views
   QObject::connect(
     &pqActiveObjects::instance(), SIGNAL(viewChanged(pqView*)), this, SLOT(onViewChanged(pqView*)));
+  QObject::connect(&pqActiveObjects::instance(), SIGNAL(viewUpdated()), this, SLOT(updateUI()));
 
   // Update for current View if any
   this->onViewChanged(pqActiveObjects::instance().activeView());
@@ -43,12 +44,7 @@ void lqCameraParallelProjectionReaction::onViewChanged(pqView* view)
   pqRenderView* rview = qobject_cast<pqRenderView*>(view);
   // Disable if not a render view
   this->parentAction()->setEnabled(static_cast<bool>(rview));
-
-  // Update UI if it is a render view
-  if (rview)
-  {
-    this->updateUI(rview);
-  }
+  this->updateUI();
 }
 
 //-----------------------------------------------------------------------------
@@ -67,13 +63,14 @@ void lqCameraParallelProjectionReaction::onTriggered()
   pqSMAdaptor::setElementProperty(property, mode);
   rview->getProxy()->UpdateVTKObjects();
   rview->render();
-  // no need to call updateUi here as the function will be trigger anyways thanks to the connection.
+  this->updateUI();
 }
 
 //-----------------------------------------------------------------------------
-void lqCameraParallelProjectionReaction::updateUI(pqRenderView* view)
+void lqCameraParallelProjectionReaction::updateUI()
 {
-  // Not a RenderView
+  pqRenderView* view = qobject_cast<pqRenderView*>(pqActiveObjects::instance().activeView());
+  // No Active View
   if (!view)
   {
     return;

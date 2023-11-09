@@ -15,6 +15,7 @@ set(classes
   lqPlayerControlsToolbar
   lqPythonShellReaction
   lqRulerReaction
+  lqRulersToolbar
   lqSaveLidarFrameReaction
   lqSaveLidarStateReaction
   lqSavePcapReaction
@@ -29,6 +30,7 @@ set(ui_files
   Resources/UI/lqColorToolbar.ui
   Resources/UI/lqLidarCameraToolbar.ui
   Resources/UI/lqPlayerControlsToolbar.ui
+  Resources/UI/lqRulersToolbar.ui
   Resources/UI/lqSensorWidget.ui)
 
 set(resource_files

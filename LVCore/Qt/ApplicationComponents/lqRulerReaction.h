@@ -48,6 +48,11 @@ public:
   };
   lqRulerReaction(QAction* parent, lqRulerReaction::Mode mode);
 
+  /**
+   * When called hide ruler and uncheck button.
+   */
+  void onDisable();
+
 protected Q_SLOTS:
 
   /**

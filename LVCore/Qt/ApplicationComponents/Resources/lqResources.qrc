@@ -25,8 +25,7 @@
         <file>Icons/media-skip-backward.png</file>
         <file>Icons/media-skip-forward.png</file>
         <file>Icons/lqRecord.png</file>
-        <file>Icons/lqRuler2D.png</file>
-        <file>Icons/lqRuler3D.png</file>
+        <file>Icons/lqRulerPointToPoint.svg</file>
         <file>Icons/lqScalarColorPreset.svg</file>
         <file>Icons/lqViewOrtho.png</file>
         <file>Icons/lqViewPerspective.png</file>

@@ -105,16 +105,6 @@ lqRulerReaction::lqRulerReaction(QAction* parent, lqRulerReaction::Mode m)
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   QObject::connect(smmodel, SIGNAL(preViewRemoved(pqView*)), this, SLOT(onViewRemoved(pqView*)));
 
-  // Prevent 2D usage when CameraParallelProjection is off
-  if (this->mode == Mode::BETWEEN_2D_POINTS)
-  {
-    // The Ui needs to be updated, each time the ParalllelProjection property is modified
-    this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-    this->connection->Connect(this->view->getProxy()->GetProperty("CameraParallelProjection"),
-      vtkCommand::ModifiedEvent,
-      this,
-      SLOT(onTriggered()));
-  }
   this->onTriggered(); // Update
 
   // Set Tooltip
@@ -166,6 +156,17 @@ void lqRulerReaction::onViewChanged(pqView* view)
     this->createDWR();
   }
 
+  // Prevent 2D usage when CameraParallelProjection is off
+  if (this->mode == Mode::BETWEEN_2D_POINTS)
+  {
+    // The Ui needs to be updated, each time the ParalllelProjection property is modified
+    this->connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    this->connection->Connect(view->getProxy()->GetProperty("CameraParallelProjection"),
+      vtkCommand::ModifiedEvent,
+      this,
+      SLOT(onTriggered()));
+  }
+
   // Update Button / Ruler
   this->onTriggered();
 
@@ -207,6 +208,16 @@ void lqRulerReaction::onTriggered()
 
   // Display Ruler
   this->displayRuler(this->isEnabled());
+}
+
+//-----------------------------------------------------------------------------
+void lqRulerReaction::onDisable()
+{
+  if (this->isEnabled())
+  {
+    this->displayRuler(false);
+    this->parentAction()->setChecked(false);
+  }
 }
 
 //-----------------------------------------------------------------------------

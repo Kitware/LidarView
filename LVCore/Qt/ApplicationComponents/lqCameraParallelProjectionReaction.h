@@ -50,7 +50,7 @@ protected Q_SLOTS:
   /**
    * Update the button state according to the camera state.
    */
-  void updateUI(pqRenderView* rview);
+  void updateUI();
 
 private:
   Q_DISABLE_COPY(lqCameraParallelProjectionReaction)
