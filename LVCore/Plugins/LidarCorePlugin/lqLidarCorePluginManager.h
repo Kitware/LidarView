@@ -53,6 +53,11 @@ private Q_SLOTS:
   void onPluginLoaded();
 
   /**
+   * Slot triggered each time a server is added/reset.
+   */
+  void onServerAdded();
+
+  /**
    * Slot triggered each time a view is added.
    * Used to watch when a LidarGridView is added, it will change camera
    * position.

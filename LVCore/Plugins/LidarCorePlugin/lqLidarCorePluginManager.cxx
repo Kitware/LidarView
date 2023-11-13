@@ -40,6 +40,13 @@ lqLidarCorePluginManager::lqLidarCorePluginManager(QObject* p /*=0*/)
     this,
     &lqLidarCorePluginManager::onPluginLoaded);
 
+  pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
+  // Needed for reset session
+  QObject::connect(builder,
+    &pqObjectBuilder::finishedAddingServer,
+    this,
+    &lqLidarCorePluginManager::onServerAdded);
+
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   QObject::connect(
     smmodel, &pqServerManagerModel::viewAdded, this, &lqLidarCorePluginManager::onViewAdded);
@@ -58,6 +65,13 @@ void lqLidarCorePluginManager::onPluginLoaded()
     this->loadLidarPalette();
     loaded = true;
   }
+}
+
+//-----------------------------------------------------------------------------
+void lqLidarCorePluginManager::onServerAdded()
+{
+  this->loadLidarRenderView();
+  this->loadLidarPalette();
 }
 
 //-----------------------------------------------------------------------------
