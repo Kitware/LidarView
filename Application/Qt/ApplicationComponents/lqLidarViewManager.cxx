@@ -16,6 +16,7 @@
 #include "lqLidarViewManager.h"
 
 #include <vtkNew.h>
+#include <vtkPVGeneralSettings.h>
 #include <vtkRemotingCoreConfiguration.h>
 #include <vtkResourceFileLocator.h>
 #include <vtkSMSettings.h>
@@ -308,6 +309,20 @@ public:
   }
 
   //-----------------------------------------------------------------------------
+  void updateShowScalarsBarsSettings()
+  {
+    vtkPVGeneralSettings* gsSettings = vtkPVGeneralSettings::GetInstance();
+    if (this->currentJsonMode["automaticallyShowScalarBars"])
+    {
+      gsSettings->SetScalarBarMode(vtkPVGeneralSettings::AUTOMATICALLY_SHOW_AND_HIDE_SCALAR_BARS);
+    }
+    else
+    {
+      gsSettings->SetScalarBarMode(vtkPVGeneralSettings::AUTOMATICALLY_HIDE_SCALAR_BARS);
+    }
+  }
+
+  //-----------------------------------------------------------------------------
   void saveModeState()
   {
     ModeSettingsType& settings = this->modesSettings[this->currentMode];
@@ -425,6 +440,7 @@ void lqLidarViewManager::updateInterfaceLayout(InterfaceModes mode)
   intern.updateToolBarsLayout();
   intern.updateDockWidgetsLayout();
   intern.updateMultiViewWidgetVisibility();
+  intern.updateShowScalarsBarsSettings();
 
   // Restore layout for the current mode
   intern.restoreModeState();

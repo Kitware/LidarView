@@ -33,6 +33,9 @@
         "toolbars": {
           "$ref": "#/$defs/widgets"
         },
+        "automaticallyShowScalarBars": {
+          "type": "boolean"
+        },
         "showFrameDecoration": {
           "type": "boolean"
         }

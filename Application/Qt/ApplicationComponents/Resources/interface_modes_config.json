@@ -86,6 +86,7 @@
         "actionShowOrientationAxes"
       ]
     },
+    "automaticallyShowScalarBars": false,
     "showFrameDecoration": false
   },
   "pointCloudTool": {
@@ -182,6 +183,7 @@
         "actionRescaleVisibleRange"
       ]
     },
+    "automaticallyShowScalarBars": true,
     "showFrameDecoration": true
   },
   "advancedMode": {
@@ -267,6 +269,7 @@
         "playerControlToolbar"
       ]
     },
+    "automaticallyShowScalarBars": true,
     "showFrameDecoration": true
   }
 }
