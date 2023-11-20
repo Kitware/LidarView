@@ -15,8 +15,6 @@
         <file>Icons/pqZoomToSelection.png</file>
         <file>Icons/pqSensorListDown.png</file>
         <file>Icons/pqSensorListUp.png</file>
-        <file>Icons/EnableAdvancedArrays.png</file>
-        <file>Icons/DisableAdvancedArrays.png</file>
         <file>Icons/media-loop.png</file>
         <file>Icons/media-playback-pause.png</file>
         <file>Icons/media-playback-start.png</file>
@@ -24,6 +22,8 @@
         <file>Icons/media-seek-forward.png</file>
         <file>Icons/media-skip-backward.png</file>
         <file>Icons/media-skip-forward.png</file>
+        <file>Icons/lqDisableAdvancedArrays.svg</file>
+        <file>Icons/lqEnableAdvancedArrays.svg</file>
         <file>Icons/lqRecord.png</file>
         <file>Icons/lqRulerPointToPoint.svg</file>
         <file>Icons/lqScalarColorPreset.svg</file>

@@ -44,6 +44,7 @@ lqEnableAdvancedArraysReaction::lqEnableAdvancedArraysReaction(QAction* action)
   Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     this->onSourceAdded(src);
 
+  this->updateIcon(true);
   this->parentAction()->setCheckable(true);
 }
 
@@ -53,13 +54,13 @@ void lqEnableAdvancedArraysReaction::updateIcon(bool setEnable)
   if (setEnable)
   {
     // Set the icon on "Enable advanced Arrays"
-    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/EnableAdvancedArrays.png"));
+    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/lqEnableAdvancedArrays.svg"));
     this->parentAction()->setToolTip(QString("Enable the interpreter's advanced arrays."));
   }
   else
   {
     // Set the icon on "Disable advanced Arrays"
-    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/DisableAdvancedArrays.png"));
+    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/lqDisableAdvancedArrays.svg"));
     this->parentAction()->setToolTip(QString("Disable the interpreter's advanced arrays."));
   }
 }
