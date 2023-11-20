@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqInterfaceControlsToolbar</class>
+ <widget class="QToolBar" name="lqInterfaceControlsToolbar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>464</width>
+    <height>39</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>User Interface Controls</string>
+  </property>
+  <property name="orientation">
+   <enum>Qt::Horizontal</enum>
+  </property>
+  <action name="actionLidarViewerSetup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvLidarViewerSetup.svg</normaloff>:/lvComponents/Icons/lvLidarViewerSetup.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Lidar Viewer</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch to "Lidar Viewer" mode, for connecting, observing, and recording lidar data.</string>
+   </property>
+  </action>
+  <action name="actionPointCloudToolSetup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvPointCloudToolSetup.svg</normaloff>:/lvComponents/Icons/lvPointCloudToolSetup.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Point Cloud Tool</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch to "Point Cloud Tool" mode, to process and apply filters on non-temporal point clouds.</string>
+   </property>
+  </action>
+  <action name="actionAdvancedModeSetup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvAdvancedModeSetup.svg</normaloff>:/lvComponents/Icons/lvAdvancedModeSetup.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Advanced Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch to "Advanced Mode" for an enhanced experience with the complete user interface and extra ParaView tools.</string>
+   </property>
+  </action>
+  <addaction name="actionLidarViewerSetup"/>
+  <addaction name="actionPointCloudToolSetup"/>
+  <addaction name="actionAdvancedModeSetup"/>
+ </widget>
+ <resources>
+  <include location="../../../Components/Resources/lvComponents.qrc"/>
+ </resources>
+ <connections/>
+</ui>

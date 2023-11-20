@@ -18,6 +18,10 @@
 #include <pqPVApplicationCore.h>
 
 #include "lqHelper.h"
+#include "lqSaveLidarFrameReaction.h"
+
+#include <string>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 lqMenuSaveAsReaction::lqMenuSaveAsReaction(QMenu* parentObject)
@@ -32,6 +36,7 @@ lqMenuSaveAsReaction::lqMenuSaveAsReaction(QMenu* parentObject)
     smmodel, SIGNAL(sourceRemoved(pqPipelineSource*)), SLOT(onUpdateUI(pqPipelineSource*)));
 
   this->onUpdateUI(nullptr);
+  this->populateMenu();
 }
 
 //-----------------------------------------------------------------------------
@@ -39,4 +44,24 @@ void lqMenuSaveAsReaction::onUpdateUI(pqPipelineSource*)
 {
   bool hasLidarReader = HasProxy<vtkLidarReader>();
   this->parentMenu()->setEnabled(hasLidarReader);
+}
+
+//-----------------------------------------------------------------------------
+void lqMenuSaveAsReaction::populateMenu()
+{
+  std::vector<std::string> supportedExtensions = { "pcd", "csv", "ply", "las" };
+  std::vector<std::string> writers = {
+    "PCDWriter", "DataSetCSVWriter", "PPLYWriter", "PLASWriter"
+  };
+
+  for (unsigned int i = 0; i < supportedExtensions.size(); i++)
+  {
+    const char* writer = writers[i].c_str();
+    std::string label = "Save as " + supportedExtensions[i] + "...";
+    std::string actionName = "actionSave" + supportedExtensions[i];
+    QAction* actn = new QAction(label.c_str());
+    actn->setObjectName(actionName.c_str());
+    new lqSaveLidarFrameReaction(actn, writer, supportedExtensions[i].c_str());
+    this->parentMenu()->addAction(actn);
+  }
 }

@@ -50,6 +50,12 @@ public Q_SLOTS:
   void onUpdateUI(pqPipelineSource*);
 
 private:
+  /**
+   * Add writers in the menu save as with lqSaveLidarFrameReaction.
+   */
+  void populateMenu();
+
+private:
   Q_DISABLE_COPY(lqMenuSaveAsReaction)
 };
 

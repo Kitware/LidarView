@@ -25,4 +25,6 @@ DEPENDS
   LidarView::lqCore
   LidarView::Versioning
   LidarViewApp::lvComponents
+PRIVATE_DEPENDS
+  VTK::nlohmannjson
 EXCLUDE_WRAP

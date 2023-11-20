@@ -1,0 +1,275 @@
+{
+  "lidarViewer": {
+    "dockWidgets": [],
+    "menus": {
+      "hide": [
+        "menuView",
+        "menuSources",
+        "menuFilters",
+        "menuTools",
+        "menuMacros"
+      ],
+      "menuFile": [
+        "actionOpenPcap",
+        "menuRecentLidarFiles",
+        "separator",
+        "actionOpenSensorStream",
+        "separator",
+        "actionSavePcap",
+        "menuSaveAs",
+        "actionFileSaveScreenshot",
+        "separator",
+        "actionFileExit"
+      ],
+      "menuEdit": [
+        "actionChooseCalibrationFile",
+        "actionShowMeasurementGrid",
+        "separator",
+        "actionEditCameraUndo",
+        "actionEditCameraRedo",
+        "separator",
+        "actionDelete_All",
+        "separator",
+        "actionSetMainWindowTitle"
+      ],
+      "menuHelp": [
+        "actionHowToSLAM",
+        "actionProfessionalSupport",
+        "separator",
+        "actionWebSite",
+        "actionReleaseNotes",
+        "actionCommunitySupport",
+        "separator",
+        "actionBugReport",
+        "actionAboutLidarView"
+      ]
+    },
+    "toolbars": {
+      "show": [
+        "mainControlsToolbar",
+        "colorToolBar",
+        "interfaceControlsToolbar",
+        "cameraToolbar",
+        "axesToolbar",
+        "rulersToolbar",
+        "playerControlToolbar"
+      ],
+      "toolbarBreaks": [
+        "playerControlToolbar"
+      ],
+      "mainControlsToolbar": [
+        "actionOpenPcap",
+        "actionSavePcap",
+        "actionOpenSensorStream",
+        "actionChooseCalibrationFile",
+        "actionToggleAdvancedArrays",
+        "actionLoadPalette",
+        "actionDeleteAll"
+      ],
+      "colorToolBar": [
+        "actionScalarBarVisibility",
+        "actionChangeColorPreset",
+        "actionResetRange",
+        "actionRescaleTemporalRange"
+      ],
+      "cameraToolbar": [
+        "actionPositiveX",
+        "actionNegativeX",
+        "actionPositiveY",
+        "actionNegativeY",
+        "actionPositiveZ",
+        "actionNegativeZ",
+        "actionRotate90degCW",
+        "actionRotate90degCCW"
+      ],
+      "axesToolbar": [
+        "actionShowOrientationAxes"
+      ]
+    },
+    "automaticallyShowScalarBars": false,
+    "showFrameDecoration": false
+  },
+  "pointCloudTool": {
+    "dockWidgets": [
+      "pipelineBrowserDock",
+      "propertiesDock"
+    ],
+    "menus": {
+      "hide": [],
+      "menuFile": [
+        "actionFileOpen",
+        "menuRecentFiles",
+        "separator",
+        "actionSaveData",
+        "actionFileSaveScreenshot",
+        "actionFileSaveAnimation",
+        "separator",
+        "actionExport",
+        "actionAnimatedExport",
+        "separator",
+        "actionFileExit"
+      ],
+      "menuEdit": [
+        "actionShowMeasurementGrid",
+        "separator",
+        "actionEditUndo",
+        "actionEditRedo",
+        "separator",
+        "actionEditCameraUndo",
+        "actionEditCameraRedo",
+        "separator",
+        "actionCopyScreenshotToClipboard",
+        "separator",
+        "actionDelete",
+        "actionDeleteTree",
+        "actionRename",
+        "actionChangeFile",
+        "actionChangeInput",
+        "separator",
+        "actionShow_All",
+        "actionHide_All",
+        "actionDelete_All",
+        "separator",
+        "actionQuery",
+        "separator",
+        "actionEditSettings",
+        "actionResetDefaultSettings",
+        "separator",
+        "actionSetMainWindowTitle"
+      ],
+      "menuHelp": [
+        "actionProfessionalSupport",
+        "separator",
+        "actionWebSite",
+        "actionReleaseNotes",
+        "actionCommunitySupport",
+        "menuAboutParaView",
+        "separator",
+        "actionBugReport",
+        "actionAboutLidarView"
+      ]
+    },
+    "toolbars": {
+      "show": [
+        "mainControlsToolbar",
+        "colorToolBar",
+        "interfaceControlsToolbar",
+        "macrosToolbar",
+        "cameraToolbar",
+        "axesToolbar",
+        "rulersToolbar",
+        "customViewpointsToolbar",
+        "ToolBar"
+      ],
+      "toolbarBreaks": [
+        "cameraToolbar"
+      ],
+      "mainControlsToolbar": [
+        "actionOpenData",
+        "actionSaveData",
+        "actionUndo",
+        "actionRedo",
+        "actionLoadPalette",
+        "actionAutoApply",
+        "actionQuery",
+        "actionPythonShell",
+        "actionDeleteAll"
+      ],
+      "colorToolBar": [
+        "actionScalarBarVisibility",
+        "actionChangeColorPreset",
+        "actionResetRange",
+        "actionRescaleCustomRange",
+        "actionRescaleVisibleRange"
+      ]
+    },
+    "automaticallyShowScalarBars": true,
+    "showFrameDecoration": true
+  },
+  "advancedMode": {
+    "dockWidgets": [
+      "pipelineBrowserDock",
+      "propertiesDock",
+      "displayPropertiesDock"
+    ],
+    "menus": {
+      "hide": [],
+      "menuFile": [
+        "menuOpen",
+        "menuRecentFiles",
+        "menuRecentLidarFiles",
+        "separator",
+        "actionSaveData",
+        "actionSavePcap",
+        "actionFileSaveScreenshot",
+        "actionFileSaveAnimation",
+        "separator",
+        "actionExport",
+        "actionAnimatedExport",
+        "separator",
+        "actionFileExit"
+      ],
+      "menuEdit": [
+        "actionChooseCalibrationFile",
+        "actionShowMeasurementGrid",
+        "separator",
+        "actionEditUndo",
+        "actionEditRedo",
+        "separator",
+        "actionEditCameraUndo",
+        "actionEditCameraRedo",
+        "separator",
+        "actionCopyScreenshotToClipboard",
+        "separator",
+        "actionDelete",
+        "actionDeleteTree",
+        "actionRename",
+        "actionChangeFile",
+        "actionChangeInput",
+        "separator",
+        "actionShow_All",
+        "actionHide_All",
+        "actionDelete_All",
+        "separator",
+        "actionQuery",
+        "separator",
+        "actionEditSettings",
+        "actionResetDefaultSettings",
+        "separator",
+        "actionSetMainWindowTitle"
+      ],
+      "menuHelp": [
+        "actionHowToSLAM",
+        "actionProfessionalSupport",
+        "separator",
+        "actionWebSite",
+        "actionReleaseNotes",
+        "actionCommunitySupport",
+        "menuAboutParaView",
+        "separator",
+        "actionBugReport",
+        "actionAboutLidarView"
+      ]
+    },
+    "toolbars": {
+      "show": [
+        "mainControlsToolbar",
+        "colorToolBar",
+        "interfaceControlsToolbar",
+        "macrosToolbar",
+        "cameraToolbar",
+        "axesToolbar",
+        "rulersToolbar",
+        "customViewpointsToolbar",
+        "playerControlToolbar",
+        "ToolBar"
+      ],
+      "toolbarBreaks": [
+        "cameraToolbar",
+        "playerControlToolbar"
+      ]
+    },
+    "automaticallyShowScalarBars": true,
+    "showFrameDecoration": true
+  }
+}

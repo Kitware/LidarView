@@ -1,5 +1,15 @@
 <RCC>
     <qresource prefix="/lvComponents">
         <file>Icons/AboutDialog.png</file>
+        <file>Icons/lvAdvancedModeSetup.svg</file>
+        <file>Icons/lvCalibrationFile.svg</file>
+        <file>Icons/lvLidarViewerSetup.svg</file>
+        <file>Icons/lvMenuRecentPcap.svg</file>
+        <file>Icons/lvOpenPcap.svg</file>
+        <file>Icons/lvOpenStream.svg</file>
+        <file>Icons/lvPointCloudToolSetup.svg</file>
+        <file>Icons/lvPythonShell.svg</file>
+        <file>Icons/lvSaveAs.svg</file>
+        <file>Icons/lvSavePcap.svg</file>
     </qresource>
 </RCC>
