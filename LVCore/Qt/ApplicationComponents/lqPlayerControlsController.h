@@ -37,13 +37,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QObject>
 #include <QPointer>
 
-#include <vtkAnimationScene.h>
-
 #include <pqVCRController.h>
 
 #include "lqApplicationComponentsModule.h"
 
-/*
+/**
  * lqPlayerControlsController is an upgrade of pqVCRController
  *  - RT Speed / Snap-To-Timesteps Management
  *  - Adds a Layer to pqAnimationManager with LiveSources

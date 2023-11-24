@@ -41,14 +41,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pqLiveSourceBehavior.h>
 #include <pqSMAdaptor.h>
 
+#include <vtkCompositeAnimationPlayer.h>
 #include <vtkSMIntVectorProperty.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
-
-// vtkAnimationScene doesn't have a enum for PLAYMODE_SNAP_TO_TIMESTEP despite this mode is
-// implemented
-constexpr int PLAYMODE_SNAP_TO_TIMESTEP = 2;
 
 // Scene Property Helpers
 namespace
@@ -269,7 +266,8 @@ void lqPlayerControlsController::setSceneTime(double time)
 void lqPlayerControlsController::onNextFrame()
 {
   // need to change the mode as in realtime next frame is actually t = t+1s
-  SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+  SetProperty(
+    this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
   this->getAnimationScene()->getProxy()->InvokeCommand("GoToNext");
 }
 
@@ -277,7 +275,8 @@ void lqPlayerControlsController::onNextFrame()
 void lqPlayerControlsController::onPreviousFrame()
 {
   // need to change the mode as in realtime previous frame is actually t = t-1s
-  SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+  SetProperty(
+    this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
   this->getAnimationScene()->getProxy()->InvokeCommand("GoToPrevious");
 }
 
@@ -290,12 +289,13 @@ void lqPlayerControlsController::setPlayMode(double speed)
   if (speed <= 0)
   {
     // There is no enum for
-    SetProperty(this->getAnimationScene(), "PlayMode", PLAYMODE_SNAP_TO_TIMESTEP);
+    SetProperty(
+      this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
   }
   else
   {
     QPair<double, double> range = this->getAnimationScene()->getClockTimeRange();
     SetProperty(this->getAnimationScene(), "Duration", (range.second - range.first) / this->speed);
-    SetProperty(this->getAnimationScene(), "PlayMode", vtkAnimationScene::PLAYMODE_REALTIME);
+    SetProperty(this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::REAL_TIME);
   }
 }
