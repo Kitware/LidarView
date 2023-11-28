@@ -15,6 +15,7 @@
 
 #include "lqSavePcapReaction.h"
 
+#include <cstring>
 #include <sstream>
 
 #include <vtkSMDoubleVectorProperty.h>
@@ -51,7 +52,11 @@ void lqSavePcapReaction::updateEnableState()
   if (port)
   {
     vtkSMSourceProxy* proxy = vtkSMSourceProxy::SafeDownCast(port->getSource()->getProxy());
-    enableState = proxy->GetVTKClassName() == std::string("vtkLidarReader");
+    char* name = proxy->GetVTKClassName();
+    if (name)
+    {
+      enableState = std::strcmp(name, "vtkLidarReader") == 0;
+    }
   }
   this->parentAction()->setEnabled(enableState);
 }
