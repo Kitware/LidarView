@@ -154,6 +154,6 @@ void lqEnableAdvancedArraysReaction::onSourceRemoved(pqPipelineSource* vtkNotUse
   {
     this->parentAction()->setEnabled(false);
     this->parentAction()->setChecked(false);
-    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/EnableAdvancedArrays.png"));
+    this->parentAction()->setIcon(QIcon(":/lqResources/Icons/lqEnableAdvancedArrays.svg"));
   }
 }
