@@ -113,12 +113,11 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   {
     // If the bounds have not been computed yet, and autoComputeBounds is enabled, compute them
     // before aggregating the points
+    // /!\ This is called for all frames at the start of the filter.
+    //     (Does not work with online SLAM)
     return this->AutoComputeVoxelBounds(request, inInfo, pointcloud, timestamp);
   }
-  else
-  {
-    return this->AggregatePoints(request, inInfo, outputVector, pointcloud, timestamp);
-  }
+  return this->AggregatePoints(request, inInfo, outputVector, pointcloud, timestamp);
 }
 
 //----------------------------------------------------------------------------
@@ -253,6 +252,18 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
     auto bounds = this->AutoComputeBounds ? this->Bounds.data() : this->CustomBounds;
     this->VoxelGrid->SetBounds(bounds);
     this->IsVoxelGridFilterInitialized = true;
+  }
+
+  std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
+  for (const auto& idx : pointIdx)
+  {
+    double currentTimestamp =
+      timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset;
+    if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+    {
+      vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
+        << "interpolation might be invalid.");
+    }
   }
 
   // Transform the points of the pointcloud with the trajectory and add them to the voxel grid
