@@ -132,7 +132,7 @@ lqSensorListWidget::lqSensorListWidget(QWidget* parent)
   // Save background color which will represent the not-selected widget
   // Create the darker selected-widget color
   int r, g, b;
-  this->palette().color(QPalette::Background).getRgb(&r, &g, &b);
+  this->palette().color(QPalette::Window).getRgb(&r, &g, &b);
   colorWidget[0] = r;
   colorWidget[1] = g;
   colorWidget[2] = b;
