@@ -104,8 +104,8 @@
    <widget class="pqColorMapEditor" name="colorMapEditorPanel"/>
   </widget>
   <widget class="QDockWidget" name="pipelineBrowserDock">
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Pipeline Browser</string>
@@ -116,9 +116,6 @@
    <widget class="pqPipelineBrowserWidget" name="pipelineBrowser"/>
   </widget>
   <widget class="QDockWidget" name="propertiesDock">
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
    <property name="windowTitle">
     <string>Properties</string>
    </property>
