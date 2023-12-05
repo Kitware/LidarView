@@ -37,12 +37,6 @@ vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
 }
 
 //-----------------------------------------------------------------------------
-vtkExamplePacketInterpreter::~vtkExamplePacketInterpreter()
-{
-  // delete this->CurrentFrameState;
-}
-
-//-----------------------------------------------------------------------------
 void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsigned int dataLength)
 {
   if (!this->IsLidarPacket(data, dataLength))
@@ -84,7 +78,6 @@ void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsig
     InsertNextValueIfNotNull(this->PointsX, pos[0]);
     InsertNextValueIfNotNull(this->PointsY, pos[1]);
     InsertNextValueIfNotNull(this->PointsZ, pos[2]);
-    InsertNextValueIfNotNull(this->Azimuth, 0);
     InsertNextValueIfNotNull(this->Intensity, 0);
     InsertNextValueIfNotNull(this->LaserId, 0);
     InsertNextValueIfNotNull(this->Timestamp, 0);
@@ -123,19 +116,15 @@ vtkSmartPointer<vtkPolyData> vtkExamplePacketInterpreter::CreateNewEmptyFrame(vt
 
   // Initialize data arrays
   this->Points = points.GetPointer();
-  InitArrayForPolyData(true, this->PointsX, "X", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(true, this->PointsY, "Y", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(true, this->PointsZ, "Z", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(
-    false, this->Azimuth, "azimuth", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(
-    false, this->Intensity, "intensity", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(
-    false, this->LaserId, "laser_id", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(
-    false, this->Timestamp, "Timestamp", nbrOfPoints, prereservedNbrOfPoints, polyData);
-  InitArrayForPolyData(
-    false, this->Distance, "distance_m", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  // clang-format off
+  InitArrayForPolyData(true, this->PointsX, "X", nbrOfPoints, prereservedNbrOfPoints, polyData, this->EnableAdvancedArrays);
+  InitArrayForPolyData(true, this->PointsY, "Y", nbrOfPoints, prereservedNbrOfPoints, polyData, this->EnableAdvancedArrays);
+  InitArrayForPolyData(true, this->PointsZ, "Z", nbrOfPoints, prereservedNbrOfPoints, polyData, this->EnableAdvancedArrays);
+  InitArrayForPolyData(false, this->Intensity, "intensity", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(false, this->LaserId, "laser_id", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(false, this->Timestamp, "timestamp", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  InitArrayForPolyData(false, this->Distance, "distance_m", nbrOfPoints, prereservedNbrOfPoints, polyData);
+  // clang-format on
 
   // Set the default array to display in the application
   polyData->GetPointData()->SetActiveScalars("intensity");
@@ -161,10 +150,7 @@ bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
   bool isNewFrame = (dataPacket->header.GetFrameID() != frameInfo->frameID);
   if (isNewFrame)
   {
-    // A new frame is detected, we flush the previous one
-    this->SplitFrame();
-
-    // We also update the information for the new frame
+    // Update the information for the new frame
     // You need to set the file position to determine the beginning of a frame
     this->ParserMetaData.FilePosition = filePosition;
     this->ParserMetaData.FirstPacketDataTime = this->ParserMetaData.FirstPacketNetworkTime =

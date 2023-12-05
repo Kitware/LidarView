@@ -19,7 +19,7 @@
 // This needs to be included first because vtkSystemIncludes.h is included
 // instead of stdio.h so the CMake variable __USE_LARGEFILE64 must be consistent.
 // Otherwise fpos_t has 2 differents definition _G_fpos_t and _G_fpos64_t
-#include "vtkLidarPacketInterpreter.h"
+#include <vtkLidarPacketInterpreter.h>
 
 #include <vtkStringArray.h>
 #include <vtkTypeInt64Array.h>
@@ -66,14 +66,13 @@ protected:
   vtkSmartPointer<vtkDoubleArray> PointsZ;
   vtkSmartPointer<vtkUnsignedCharArray> Intensity;
   vtkSmartPointer<vtkUnsignedCharArray> LaserId;
-  vtkSmartPointer<vtkUnsignedShortArray> Azimuth;
   vtkSmartPointer<vtkDoubleArray> Distance;
   vtkSmartPointer<vtkTypeInt64Array> Timestamp;
 
   unsigned int LastTimestamp = 0;
 
   vtkExamplePacketInterpreter();
-  ~vtkExamplePacketInterpreter();
+  ~vtkExamplePacketInterpreter() = default;
 
 private:
   vtkExamplePacketInterpreter(const vtkExamplePacketInterpreter&) = delete;
