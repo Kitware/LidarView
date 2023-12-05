@@ -18,11 +18,12 @@
 
 #include "ExampleFormat.h"
 
-#include <boost/filesystem.hpp>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkTransform.h>
+
+#include <filesystem>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExamplePacketInterpreter)
@@ -187,7 +188,8 @@ std::string vtkExamplePacketInterpreter::GetSensorName()
 
 void vtkExamplePacketInterpreter::LoadCalibration(const std::string& filename)
 {
-  if (filename.empty() || boost::filesystem::extension(filename) != ".csv")
+  const auto path = std::filesystem::path(filename);
+  if (filename.empty() || path.extension() != ".csv")
   {
     this->IsCalibrated = false;
     return;
