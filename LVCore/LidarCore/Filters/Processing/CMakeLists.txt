@@ -1,6 +1,7 @@
 set(classes
   vtkPlaneProjector
-  vtkRansacPlaneModel)
+  vtkRansacPlaneModel
+  vtkComputeVolume)
 
 vtk_module_add_module(LidarView::FiltersProcessing
   CLASSES ${classes})

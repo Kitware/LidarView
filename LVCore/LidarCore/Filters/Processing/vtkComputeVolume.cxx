@@ -1,0 +1,184 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkComputeVolume.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+// LOCAL
+#include "vtkComputeVolume.h"
+#include "vtkConversions.h"
+
+// VTK
+#include <vtkCenterOfMass.h>
+#include <vtkInformation.h>
+#include <vtkMath.h>
+#include <vtkMultiBlockDataSet.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
+#include <vtkTransform.h>
+
+// EIGEN
+#include <Eigen/Dense>
+
+// STD
+#include <climits>
+
+class vtkComputeVolume::vtkInternals
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /**
+   * The inputs data of a plane are the 4 vertices of the rectangle and the plane normal
+   * An isometry of the plane reference, the length and the width are computed by inputs
+   */
+  class Plane
+  {
+  public:
+    // Getters / Setters of the plane
+    void SetPlane(const std::vector<Eigen::Vector3d>& planePts, const Eigen::Vector3d& normal)
+    {
+      const Eigen::Vector3d& origin = planePts[0];
+      // Compute vectors from origin
+      double minDist = DBL_MAX;
+      Eigen::Vector3d axisX, axisY = { 0., 0., 0. };
+      for (int i = 1; i < 4; ++i)
+      {
+        Eigen::Vector3d vec = planePts[i] - origin;
+        double dist = vec.norm();
+        // Include the square case
+        if (dist <= minDist)
+        {
+          axisX = axisY;
+          axisY = vec;
+          minDist = dist;
+        }
+      }
+      this->Length = axisX.norm();
+      this->Width = axisY.norm();
+      this->Reference.translation() = origin;
+      this->Reference.linear().col(0) = axisX.normalized();
+      this->Reference.linear().col(1) = axisY.normalized();
+      this->Reference.linear().col(2) = normal.normalized();
+    }
+
+    Eigen::Isometry3d GetReference() { return this->Reference; }
+    double GetLength() { return this->Length; }
+    double GetWidth() { return this->Width; }
+
+  private:
+    Eigen::Isometry3d Reference = Eigen::Isometry3d::Identity();
+    // On X axis
+    double Length;
+    // On Y axis
+    double Width;
+  };
+  Plane InputPlane;
+};
+
+constexpr unsigned int POINTS_INPUT_PORT = 0;
+constexpr unsigned int PLANE_INPUT_PORT = 1;
+constexpr unsigned int INPUT_PORT_COUNT = 2;
+
+constexpr unsigned int RASTERIZED_POINTS_OUTPUT_PORT = 0;
+constexpr unsigned int OUTPUT_PORT_COUNT = 1;
+
+vtkStandardNewMacro(vtkComputeVolume)
+
+//-----------------------------------------------------------------------------
+vtkComputeVolume::vtkComputeVolume()
+  : Internals(new vtkComputeVolume::vtkInternals())
+{
+  this->SetNumberOfInputPorts(INPUT_PORT_COUNT);
+  this->SetNumberOfOutputPorts(OUTPUT_PORT_COUNT);
+}
+
+//-----------------------------------------------------------------------------
+int vtkComputeVolume::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  if (!this->Internals)
+    return 0;
+
+  // Step 1: Get IO
+  vtkPolyData* inCloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT], 0);
+  vtkPolyData* inPlane = vtkPolyData::GetData(inputVector[PLANE_INPUT_PORT], 0);
+  vtkPolyData* rasterizedCloud = vtkPolyData::GetData(outputVector, RASTERIZED_POINTS_OUTPUT_PORT);
+  // Check if input plane is a multiblock
+  if (!inPlane)
+  {
+    vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::GetData(inputVector[PLANE_INPUT_PORT], 0);
+    // Extract first block if it is a vtkPolyData
+    inPlane = vtkPolyData::SafeDownCast(mb->GetBlock(0));
+  }
+
+  if (!inCloud || !inPlane)
+  {
+    vtkErrorMacro("No input data");
+    return 0;
+  }
+
+  if (inPlane->GetNumberOfPoints() != 4 || !inPlane->GetPointData()->GetArray("Normals"))
+  {
+    vtkErrorMacro("No valid plane data");
+    return 0;
+  }
+
+  // Get plane normal and 4 vertices
+  Eigen::Vector3d planeNormal;
+  inPlane->GetPointData()->GetArray("Normals")->GetTuple(0, planeNormal.data());
+  std::vector<Eigen::Vector3d> planePts(4);
+  for (auto ptIdx = 0; ptIdx < 4; ++ptIdx)
+  {
+    inPlane->GetPoint(ptIdx, planePts[ptIdx].data());
+  }
+
+  // Get pointcloud centroid
+  Eigen::Vector3d pointcloudCentroid;
+  vtkSmartPointer<vtkCenterOfMass> centerOfMassFilter = vtkSmartPointer<vtkCenterOfMass>::New();
+  centerOfMassFilter->SetInputData(inCloud);
+  centerOfMassFilter->SetUseScalarsAsWeights(false);
+  centerOfMassFilter->Update();
+  centerOfMassFilter->GetCenter(pointcloudCentroid.data());
+  // Orient normal towards the cloud
+  Eigen::Vector3d pointsDirection = pointcloudCentroid - planePts[0];
+  if (planeNormal.dot(pointsDirection) < 0.)
+    planeNormal *= -1.0;
+  this->Internals->InputPlane.SetPlane(planePts, planeNormal);
+
+  // Convert the input pointcloud in Eigen data structure pointcloud
+  std::vector<Eigen::Vector3d> points = vtkPointsToEigenVector(inCloud->GetPoints());
+  // Transform input pointcloud into the input plane reference
+  Eigen::Isometry3d transform = this->Internals->InputPlane.GetReference().inverse();
+  for (auto& pt : points)
+    pt = transform * pt;
+
+  // Step 2: Rasterize pointcloud
+  // TODO
+
+  // Step 3: Compute integral volume
+  // TODO
+
+  double volume = 0.;
+  vtkWarningMacro("The volume of input pointcloud is estimated to " << volume);
+
+  return 1;
+}

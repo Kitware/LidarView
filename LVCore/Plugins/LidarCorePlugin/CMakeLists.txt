@@ -72,6 +72,7 @@ lidarcoreplugin_add_module_xml(
   XML_MODULE_FILES
     Filters/PlaneProjector.xml
     Filters/RansacPlaneModel.xml
+    Filters/ComputeVolume.xml
 )
 
 lidarcoreplugin_add_module_xml(

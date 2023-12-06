@@ -1,0 +1,38 @@
+<ServerManagerConfiguration>
+  <!-- Begin ComputeVolume -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ComputeVolume" class="vtkComputeVolume" label="Compute Volume">
+      <Documentation
+        short_help="Compute volume of a space formed by a plane and a pointcloud"
+        long_help="Compute volume of a space formed by a plane and a pointcloud">
+        Compute volume of a space formed by a plane and a pointcloud
+      </Documentation>
+
+    <InputProperty
+      name="PointCloud"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Set the input pointcloud.
+      </Documentation>
+    </InputProperty>
+
+    <InputProperty
+      name="Plane"
+      port_index="1"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Set the input plane.
+      </Documentation>
+    </InputProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End ComputeVolume -->
+</ServerManagerConfiguration>
