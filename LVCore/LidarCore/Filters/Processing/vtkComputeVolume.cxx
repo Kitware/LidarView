@@ -39,6 +39,24 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /**
+   * Size of the leaf used to rasterize the pointcloud (in meters)
+   * It should be equivalent to or greater than the average resolution of the input pointcloud
+   */
+  double GridResolution = 0.001;
+
+  /**
+   * Map containing one raster bin index and the point in this bin
+   */
+  std::unordered_map<int, Eigen::Vector3d> Raster;
+
+  /**
+   * Size of the raster grid { X-direction, Y-direction }
+   * This parameter is automatically computed from the bounds and the leaf
+   * Size: NbinsX * NbinsY
+   */
+  Eigen::Vector2i GridSize = { 100, 100 };
+
+  /**
    * The inputs data of a plane are the 4 vertices of the rectangle and the plane normal
    * An isometry of the plane reference, the length and the width are computed by inputs
    */
@@ -84,6 +102,56 @@ public:
     double Width;
   };
   Plane InputPlane;
+
+  //----------------------------------------------------------------------------
+  int ToOneDimension(int xId, int yId)
+  {
+    // Fill Y direction first, GridSize = {xSize, ySize}
+    return xId * this->GridSize[1] + yId;
+  }
+
+  //----------------------------------------------------------------------------
+  Eigen::Vector2i ToTwoDimensions(int index)
+  {
+    // Fill Y direction first, GridSize = {xSize, ySize}
+    return { index / this->GridSize[1], index % this->GridSize[1] };
+  }
+
+  //----------------------------------------------------------------------------
+  Eigen::Vector2i ProjectInGrid(const Eigen::Vector3d& pt)
+  {
+    // return {xId, yId}
+    return (pt / this->GridResolution).cast<int>().head(2);
+  }
+
+  //----------------------------------------------------------------------------
+  void RasterizePointcloud(const std::vector<Eigen::Vector3d>& pointcloud)
+  {
+    this->Raster.clear();
+    // Compute grid size
+    this->GridSize = { this->InputPlane.GetLength() / this->GridResolution,
+      this->InputPlane.GetWidth() / this->GridResolution };
+
+    // Helper to check if a point lays in the grid
+    auto isPointInSpace = [this](const Eigen::Vector3d& point)
+    {
+      // clang-format off
+      return point.z() >  0 &&
+             point.x() >= 0 && point.x() <= (this->GridSize[0] * this->GridResolution) &&
+             point.y() >= 0 && point.y() <= (this->GridSize[1] * this->GridResolution);
+      // clang-format on
+    };
+    // Fill raster
+    for (const auto& pt : pointcloud)
+    {
+      Eigen::Vector2i coord2D = this->ProjectInGrid(pt);
+      int id1D = this->ToOneDimension(coord2D(0), coord2D(1));
+      if (isPointInSpace(pt) && (this->Raster.count(id1D) == 0 || pt.z() > this->Raster[id1D].z()))
+      {
+        this->Raster[id1D] = pt;
+      }
+    }
+  }
 };
 
 constexpr unsigned int POINTS_INPUT_PORT = 0;
@@ -108,6 +176,22 @@ int vtkComputeVolume::FillInputPortInformation(int vtkNotUsed(port), vtkInformat
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkComputeVolume::SetGridResolution(double resolution)
+{
+  if (resolution < 0)
+  {
+    vtkErrorMacro("Invalid input resolution '" << resolution << "'.");
+    return;
+  }
+
+  if (this->Internals->GridResolution != resolution)
+  {
+    this->Internals->GridResolution = resolution;
+    this->Modified();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -172,7 +256,7 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
     pt = transform * pt;
 
   // Step 2: Rasterize pointcloud
-  // TODO
+  this->Internals->RasterizePointcloud(points);
 
   // Step 3: Compute integral volume
   // TODO

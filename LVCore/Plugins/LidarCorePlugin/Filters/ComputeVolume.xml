@@ -32,6 +32,19 @@
       </Documentation>
     </InputProperty>
 
+    <DoubleVectorProperty name="Grid resolution"
+                          command="SetGridResolution"
+                          number_of_elements="1"
+                          default_values="0.2">
+      <DoubleRangeDomain name="range" min="0.001" />
+      <Documentation>
+        The size of a raster bin should correspond to the input pointcloud density
+        If the value is too small with respect to the density of the input pointcloud,
+        the volume will be under-estimated. If the value is too large, the volume will
+        be over-estimated.
+      </Documentation>
+    </DoubleVectorProperty>
+
     </SourceProxy>
   </ProxyGroup>
   <!-- End ComputeVolume -->

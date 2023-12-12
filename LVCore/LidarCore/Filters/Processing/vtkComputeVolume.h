@@ -40,6 +40,12 @@ public:
   static vtkComputeVolume* New();
   vtkTypeMacro(vtkComputeVolume, vtkPolyDataAlgorithm)
 
+  /**
+   * Set the size of the leaf used to rasterize the pointcloud.
+   * It should be equivalent to or greater than the average resolution of the input pointcloud.
+   */
+  void SetGridResolution(double resolution);
+
 protected:
   vtkComputeVolume();
   ~vtkComputeVolume() = default;
