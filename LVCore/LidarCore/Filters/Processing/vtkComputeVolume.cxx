@@ -152,6 +152,22 @@ public:
       }
     }
   }
+
+  //----------------------------------------------------------------------------
+  double ComputeIntegralVolume()
+  {
+    if (this->Raster.empty())
+      return 0.;
+
+    // Sum the height values
+    double sumHeight = 0.;
+    for (const auto& binPt : this->Raster)
+      sumHeight += binPt.second.z();
+
+    // Multiply height values by the bin surface area to get the volume
+    double areaBin = std::pow(this->GridResolution, 2.0);
+    return areaBin * sumHeight;
+  }
 };
 
 constexpr unsigned int POINTS_INPUT_PORT = 0;
@@ -259,9 +275,8 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
   this->Internals->RasterizePointcloud(points);
 
   // Step 3: Compute integral volume
-  // TODO
+  double volume = this->Internals->ComputeIntegralVolume();
 
-  double volume = 0.;
   vtkWarningMacro("The volume of input pointcloud is estimated to " << volume);
 
   return 1;
