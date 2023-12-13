@@ -277,6 +277,30 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
   // Step 3: Compute integral volume
   double volume = this->Internals->ComputeIntegralVolume();
 
+  // Set output pointclouds
+  vtkIdType pointIndex = 0;
+  vtkIdType nbBins = this->Internals->Raster.size();
+  vtkNew<vtkPoints> rasterizedPoints;
+  rasterizedPoints->SetNumberOfPoints(nbBins);
+  rasterizedCloud->SetPoints(rasterizedPoints);
+
+  // Init and register cells
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(nbBins);
+  vtkNew<vtkCellArray> cellArray;
+  cellArray->SetData(1, connectivity);
+  rasterizedCloud->SetVerts(cellArray);
+
+  Eigen::Isometry3d transformInverse = this->Internals->InputPlane.GetReference();
+  for (const auto& bin : this->Internals->Raster)
+  {
+    connectivity->SetValue(pointIndex, pointIndex);
+
+    Eigen::Vector3d originPt = transformInverse * bin.second;
+    rasterizedPoints->SetPoint(pointIndex, originPt.data());
+    ++pointIndex;
+  }
+
   vtkWarningMacro("The volume of input pointcloud is estimated to " << volume);
 
   return 1;
