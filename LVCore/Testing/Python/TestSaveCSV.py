@@ -21,7 +21,7 @@ except:
   sys.stderr.write("Could not get baseline directory. Test failed.")
   exit(1)
 
-reader = lvsmp.OpenPCAP(f"{data_dir}/Slam/VLP-16_slam_test_data.pcap", "VLP-16.xml", "Velodyne Meta Interpreter")
+reader = lvsmp.OpenPCAP(f"{data_dir}/Slam/VLP-16_slam_test_data.pcap", "VLP-16.xml", "Velodyne Packet Interpreter")
 view = smp.GetRenderView()
 smp.Render()
 

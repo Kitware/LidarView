@@ -12,7 +12,7 @@ import paraview.simple as smp
 carloop_pcap = "/home/user/data/CarLoop_VLP16.pcap"
 calibration_file = "/path/to/lidarview/build/.../install/share/VLP-16.xml"
 default_filename = "/home/user/data/test.csv"
-interpreter = "Velodyne Meta Interpreter"
+interpreter = "Velodyne Packet Interpreter"
 ################################################################################
 
 def extractFromSelectMultipleQueries(queries = []):

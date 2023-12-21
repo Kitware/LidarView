@@ -8,7 +8,7 @@ import time
 ################################################################################
 outputfile = "C:/Demo/output.pcap"
 calibfile = "VLP-16.xml"
-interpreter = "Velodyne Meta Interpreter"
+interpreter = "Velodyne Packet Interpreter"
 listeningport = 2368 # UDP port where the data is transmitted, default is 2368
 ################################################################################
 

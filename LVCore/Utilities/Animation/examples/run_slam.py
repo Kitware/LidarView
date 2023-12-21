@@ -180,7 +180,7 @@ Hide(measurement_grid, render_view)
 
 # Load LiDAR frames
 lidar_reader = LidarReader(FileName=pcap_file, CalibrationFile=calib_file)
-lidar_reader.Interpreter = 'Velodyne Meta Interpreter'
+lidar_reader.Interpreter = 'Velodyne Packet Interpreter'
 lidar_reader.UpdatePipelineInformation()
 RenameSource('lidar_reader', lidar_reader)
 

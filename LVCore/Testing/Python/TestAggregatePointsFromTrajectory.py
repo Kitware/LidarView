@@ -20,7 +20,7 @@ except:
   sys.stderr.write("Could not get baseline directory. Test failed.")
   exit(1)
 
-pcap = lvsmp.OpenPCAP(f"{data_dir}/Slam/VLP-16_slam_test_data.pcap", "VLP-16.xml", "Velodyne Meta Interpreter")
+pcap = lvsmp.OpenPCAP(f"{data_dir}/Slam/VLP-16_slam_test_data.pcap", "VLP-16.xml", "Velodyne Packet Interpreter")
 poses = smp.TemporalTransformsReader(FileName=f"{data_dir}/Slam/trajectory.poses")
 smp.Hide(pcap)
 

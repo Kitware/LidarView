@@ -5,5 +5,5 @@
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.load_lidar_data import LoadLidarData" />
 
   <!-- Call LoadLidarData example -->
-  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="LoadLidarData('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', 'Velodyne Meta Interpreter')" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="LoadLidarData('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', 'Velodyne Packet Interpreter')" />
 </pqevents>

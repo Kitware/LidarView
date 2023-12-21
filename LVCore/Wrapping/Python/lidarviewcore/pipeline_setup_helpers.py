@@ -78,7 +78,7 @@ def load_trajectory(trajectory_filename):
 
 
 def load_lidar_frames(lidar_filename, calib_filename='',
-                      interpreter='Velodyne Meta Interpreter'):
+                      interpreter='Velodyne Packet Interpreter'):
     """
     Load lidar data either from
         - a pcap file
