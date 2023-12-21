@@ -19,6 +19,8 @@
 
 // VTK
 #include <vtkCenterOfMass.h>
+#include <vtkDoubleArray.h>
+#include <vtkFieldData.h>
 #include <vtkInformation.h>
 #include <vtkMath.h>
 #include <vtkMultiBlockDataSet.h>
@@ -300,6 +302,15 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
     rasterizedPoints->SetPoint(pointIndex, originPt.data());
     ++pointIndex;
   }
+
+  // Add volume into field data of outputs
+  vtkDoubleArray* volumeArray = vtkDoubleArray::New();
+  volumeArray->SetName("Volume");
+  volumeArray->SetNumberOfComponents(1);
+  volumeArray->SetNumberOfTuples(1);
+  volumeArray->InsertComponent(0, 0, volume);
+  rasterizedCloud->GetFieldData()->AddArray(volumeArray);
+  volumeArray->Delete();
 
   vtkWarningMacro("The volume of input pointcloud is estimated to " << volume);
 
