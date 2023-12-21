@@ -694,20 +694,26 @@ lqCalibrationDialog::lqCalibrationDialog(vtkSMProxy* lidarProxy, vtkSMProxy* GPS
   }
 
   // Set the Calibration file
-  QString lidarCalibrationFile =
-    vtkSMPropertyHelper(lidarProxy->GetProperty("CalibrationFileName")).GetAsString();
-  // If the calibration is "" that means that the calibration is live
-  if (lidarCalibrationFile.isEmpty())
+  vtkSMProperty* interpreterProp = lidarProxy->GetProperty("PacketInterpreter");
+
+  vtkSMProxy* interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
+  if (interpreterProxy)
   {
-    this->Internal->CalibrationFileListWidget->setCurrentRow(0);
-  }
-  for (int i = 1; i < this->Internal->CalibrationFileListWidget->count(); ++i)
-  {
-    QString currentFileName =
-      this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
-    if (lidarCalibrationFile.compare(currentFileName, Qt::CaseInsensitive) == 0)
+    QString lidarCalibrationFile =
+      vtkSMPropertyHelper(interpreterProxy->GetProperty("CalibrationFileName")).GetAsString();
+    // If the calibration is "" that means that the calibration is live
+    if (lidarCalibrationFile.isEmpty())
     {
-      this->Internal->CalibrationFileListWidget->setCurrentRow(i);
+      this->Internal->CalibrationFileListWidget->setCurrentRow(0);
+    }
+    for (int i = 1; i < this->Internal->CalibrationFileListWidget->count(); ++i)
+    {
+      QString currentFileName =
+        this->Internal->CalibrationFileListWidget->item(i)->data(Qt::UserRole).toString();
+      if (lidarCalibrationFile.compare(currentFileName, Qt::CaseInsensitive) == 0)
+      {
+        this->Internal->CalibrationFileListWidget->setCurrentRow(i);
+      }
     }
   }
 

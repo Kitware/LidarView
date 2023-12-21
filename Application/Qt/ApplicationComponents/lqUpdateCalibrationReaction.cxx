@@ -16,10 +16,10 @@
 #include <vtkSMProxyProperty.h>
 #include <vtkSMSessionProxyManager.h>
 
+#include "lqCalibrationDialog.h"
 #include "lqHelper.h"
 #include "lqLidarViewManager.h"
 #include "lqSensorListWidget.h"
-#include "lqCalibrationDialog.h"
 
 #include <cctype>
 //-----------------------------------------------------------------------------
@@ -120,9 +120,6 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
 {
   if (IsLidarProxy(proxy))
   {
-    // Set the calibration file
-    vtkSMPropertyHelper(proxy, "CalibrationFileName").Set(calibrationFile.toStdString().c_str());
-
     if (IsLidarReaderProxy(proxy))
     {
       // Set the show firsy and last frame advanced option
@@ -166,9 +163,8 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
     }
     else if (interpreter == vvCalibration::Plugin::VELODYNE)
     {
-      // Set Meta Interpreter as Default
       defaultProxy =
-        proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneMetaPacketInterpreter");
+        proxyListDomain->FindProxy("LidarPacketInterpreter", "VelodyneLegacyPacketInterpreter");
     }
     else
     {
@@ -177,6 +173,8 @@ void lqUpdateCalibrationReaction::setReaderCalibration(vtkSMProxy* proxy,
     }
 
     vtkSMPropertyHelper(defaultProxy, "Time Offset").Set(timeOffset);
+    vtkSMPropertyHelper(defaultProxy, "CalibrationFileName")
+      .Set(calibrationFile.toStdString().c_str());
 
     // Set the found proxy in the proxy list domain to the lidar property
     // This allows to update the "drop down" menu in the interpreter ui property
@@ -202,7 +200,7 @@ void lqUpdateCalibrationReaction::UpdateCalibration(pqPipelineSource*& lidarSour
     dialog.selectedInterpreter(),
     dialog.selectedCalibrationFile(),
     dialog.isShowFirstAndLastFrame(),
-    dialog.isUseRelativeStartTime(), 
+    dialog.isUseRelativeStartTime(),
     dialog.getLidarConfig().timeOffset);
 
   // Set the transform of the lidar Sensor
