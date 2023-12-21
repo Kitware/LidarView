@@ -19,7 +19,7 @@ import paraview.simple as smp
 from lidarviewcore.simple import *
 
 INTERPRETER_MAP = {
-    "Velodyne": "Velodyne Meta Interpreter",
+    "Velodyne": "Velodyne Packet Interpreter",
     "Hesai-pandarXT32": "Hesai General Packet Interpreter",
     "Hesai-pandar128": "Hesai Packet Interpreter"
 }
