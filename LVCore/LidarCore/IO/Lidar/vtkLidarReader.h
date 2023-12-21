@@ -53,11 +53,6 @@ public:
   virtual std::string GetSensorInformation(bool shortVersion = false);
 
   /**
-   * @copydoc vtkLidarPacketInterpreter::CalibrationFileName
-   */
-  virtual void SetCalibrationFileName(const std::string& filename);
-
-  /**
    * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually
    * only calls Modified, however for some obscure reason, doing the same from python does not have
    * the same effect
@@ -162,9 +157,6 @@ protected:
 
   //! Last Frame processed, this is important if we want to detect frame dropping
   int LastFrameProcessed = 0;
-
-  //! The calibrationFileName to used and set to the Interpreter once one has been set
-  std::string CalibrationFileName = "";
 
   //! Name of the pcap file to read
   std::string FileName = "";

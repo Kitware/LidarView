@@ -14,6 +14,7 @@
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
+#include <vtkSMProxyProperty.h>
 #include <vtkSMSourceProxy.h>
 
 #include "vtkLidarStream.h"
@@ -402,10 +403,16 @@ void lqSensorWidget::onUpdateUI()
 
   // Update UI with lidar information
   vtkSMProxy* lidarProxy = this->LidarSource->getProxy();
-  vtkSMProperty* lidarPropCalibName = lidarProxy->GetProperty("CalibrationFileName");
-  QString lidarCalibName =
-    QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
-
+  vtkSMProxyProperty* proxyProperty =
+    vtkSMProxyProperty::SafeDownCast(lidarProxy->GetProperty("PacketInterpreter"));
+  QString lidarCalibName = "";
+  vtkSMProxy* interpreterProxy = vtkSMPropertyHelper(proxyProperty).GetAsProxy();
+  if (interpreterProxy)
+  {
+    vtkSMProperty* lidarPropCalibName = interpreterProxy->GetProperty("CalibrationFileName");
+    QString lidarCalibName =
+      QString::fromStdString(vtkSMPropertyHelper(lidarPropCalibName).GetAsString());
+  }
   QString lidarName = this->LidarSource->getSMName();
   QString calibrationFileName = "Calibration Filename: " + lidarCalibName;
   this->UI->lidarName->setText(lidarName);

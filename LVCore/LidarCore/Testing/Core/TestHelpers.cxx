@@ -666,7 +666,7 @@ int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
 
   vtkSmartPointer<vtkLidarStream> LidarStream = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream->SetLidarInterpreter(interpreter);
-  LidarStream->SetCalibrationFileName(correctionFileName);
+  interpreter->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream->SetListeningPort(dataPort);
   LidarStream->SetIsCrashAnalysing(false);
   LidarStream->SetIsForwarding(false);
@@ -688,7 +688,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream1->SetLidarInterpreter(interpreter1);
-  LidarStream1->SetCalibrationFileName(correctionFileName);
+  interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
   LidarStream1->SetIsCrashAnalysing(false);
   LidarStream1->SetForwardedPort(dataPort + 1);
@@ -697,7 +697,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 
   vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream2->SetLidarInterpreter(interpreter2);
-  LidarStream2->SetCalibrationFileName(correctionFileName);
+  interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort + 1);
 
   int retVal = 0;
@@ -778,7 +778,7 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   // Test the original pcap and record it to a temporary file
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream1->SetLidarInterpreter(interpreter1);
-  LidarStream1->SetCalibrationFileName(correctionFileName);
+  interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
   LidarStream1->SetRecordingFilename(temporaryFile);
   LidarStream1->StartRecording();
@@ -788,7 +788,7 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   // Send and test the recorded pcap
   vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream2->SetLidarInterpreter(interpreter2);
-  LidarStream2->SetCalibrationFileName(correctionFileName);
+  interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort);
   retVal += testLidarStream(LidarStream2.Get(), temporaryFile, referenceFileName, shouldPreSend);
 

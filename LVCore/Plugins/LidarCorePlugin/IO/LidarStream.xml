@@ -40,20 +40,6 @@
 
       <!-- Please notice that this Property is duplicate so that:
           it can be place in a user friendly location in the generate GUI -->
-      <StringVectorProperty
-        name="CalibrationFileName"
-        label="Calibration File"
-        animateable="0"
-        command="SetCalibrationFileName"
-        number_of_elements="1">
-        <FileListDomain name="files"/>
-        <Documentation>
-          The sensor calibration file.
-        </Documentation>
-      </StringVectorProperty>
-
-      <!-- Please notice that this Property is duplicate so that:
-          it can be place in a user friendly location in the generate GUI -->
       <ProxyProperty
         name="PacketInterpreter"
         command="SetLidarInterpreter"
@@ -64,7 +50,6 @@
       </ProxyProperty>
 
       <PropertyGroup label="Lidar Stream Options">
-        <Property name="CalibrationFileName" />
         <Property name="PacketInterpreter" />
         <Property name="DetectFrameDropping" />
       </PropertyGroup>

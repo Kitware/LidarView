@@ -54,33 +54,6 @@ std::string vtkLidarStream::GetSensorInformation(bool shortVersion)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarStream::SetCalibrationFileName(const std::string& filename)
-{
-  if (filename == this->CalibrationFileName)
-  {
-    return;
-  }
-
-  if (!vtksys::SystemTools::FileExists(filename) || vtksys::SystemTools::FileIsDirectory(filename))
-  {
-    std::ostringstream errorMessage("Invalid sensor configuration file ");
-    errorMessage << filename << ": ";
-    if (!vtksys::SystemTools::FileExists(filename))
-    {
-      errorMessage << "File not found!";
-    }
-    else
-    {
-      errorMessage << "It is a directory!";
-    }
-    vtkErrorMacro(<< errorMessage.str());
-    return;
-  }
-  this->CalibrationFileName = filename;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
 void vtkLidarStream::SetDummyProperty(int)
 {
   return this->Modified();
@@ -98,23 +71,6 @@ vtkLidarStream::~vtkLidarStream()
 {
   // see the explanation about why this is needed in vtkStream::~vtkStream
   this->Stop();
-}
-
-//-----------------------------------------------------------------------------
-int vtkLidarStream::Calibrate()
-{
-  if (!this->GetLidarInterpreter())
-  {
-    vtkErrorMacro("No packet interpreter selected.");
-  }
-
-  // load the calibration file only now to allow to set it before the interpreter.
-  if (this->GetLidarInterpreter()->GetCalibrationFileName() != this->CalibrationFileName)
-  {
-    this->GetLidarInterpreter()->SetCalibrationFileName(this->CalibrationFileName);
-    this->GetLidarInterpreter()->LoadCalibration(this->CalibrationFileName);
-  }
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -157,7 +113,16 @@ int vtkLidarStream::RequestData(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkLidarStream::Start()
 {
-  this->Calibrate(); // Load calibration
+  if (!this->GetLidarInterpreter())
+  {
+    vtkErrorMacro("No packet interpreter selected.");
+    return;
+  }
+  if (!this->GetLidarInterpreter()->GetIsCalibrated())
+  {
+    this->GetLidarInterpreter()->LoadCalibration();
+  }
+
   vtkStream::Start();
 }
 

@@ -36,9 +36,6 @@ public:
   vtkSetMacro(NumberOfFileNameDigits, int)
 
   //! Not implemented
-  void SetCalibrationFileName(const std::string& vtkNotUsed(filename)) override {notImpementedBody}
-
-  //! Not implemented
   void Open(bool vtkNotUsed(reassemble)) override {notImpementedBody}
 
   //! Not implemented

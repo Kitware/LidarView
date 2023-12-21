@@ -551,11 +551,9 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("No packet interpreter selected.");
   }
 
-  // load the calibration file only now to allow to set it before the interpreter.
-  if (this->Interpreter->GetCalibrationFileName() != this->CalibrationFileName)
+  if (!this->Interpreter->GetIsCalibrated())
   {
-    this->Interpreter->SetCalibrationFileName(this->CalibrationFileName);
-    this->Interpreter->LoadCalibration(this->CalibrationFileName);
+    this->Interpreter->LoadCalibration();
   }
 
   if (this->Interpreter && !this->FileName.empty())
@@ -571,31 +569,4 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 void vtkLidarReader::SetInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
   this->Interpreter = interpreter;
-}
-
-//-----------------------------------------------------------------------------
-void vtkLidarReader::SetCalibrationFileName(const std::string& filename)
-{
-  if (filename == this->CalibrationFileName)
-  {
-    return;
-  }
-
-  if (!vtksys::SystemTools::FileExists(filename) || vtksys::SystemTools::FileIsDirectory(filename))
-  {
-    std::ostringstream errorMessage("Invalid sensor configuration file ");
-    errorMessage << filename << ": ";
-    if (!vtksys::SystemTools::FileExists(filename))
-    {
-      errorMessage << "File not found!";
-    }
-    else
-    {
-      errorMessage << "It is a directory!";
-    }
-    vtkErrorMacro(<< errorMessage.str());
-    return;
-  }
-  this->CalibrationFileName = filename;
-  this->Modified();
 }

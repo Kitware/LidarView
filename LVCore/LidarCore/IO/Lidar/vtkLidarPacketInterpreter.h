@@ -43,12 +43,10 @@ public:
   void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} // TODO
 
   /**
-   * @brief LoadCalibration read a provided calibration file to initialize the sensor's
-   * calibration parameters (angles corrections, distances corrections, ...) which will be
-   * used later on while processing the packet.
-   * @param filename should be garanty to exist, as no check will be perform.
+   * @brief LoadCalibration initialize the sensor's calibration parameters (angles corrections,
+   * distances corrections, ...) which will be used later on while processing the packet.
    */
-  virtual void LoadCalibration(const std::string& filename) = 0;
+  virtual void LoadCalibration() = 0;
 
   /**
    * @brief GetCalibrationTable return a table conttaining all information related to the sensor
@@ -176,8 +174,8 @@ public:
     unsigned int dataLength,
     double PacketNetworkTime) override;
 
-  vtkGetMacro(CalibrationFileName, std::string);
-  vtkSetMacro(CalibrationFileName, std::string);
+  void SetCalibrationFileName(const char* filename);
+  vtkGetFilePathMacro(CalibrationFileName);
 
   vtkGetMacro(IsCalibrated, bool);
 
@@ -226,7 +224,7 @@ protected:
   vtkSmartPointer<vtkPolyData> CurrentFrame;
 
   //! File containing all calibration information
-  std::string CalibrationFileName = "";
+  char* CalibrationFileName = nullptr;
 
   ///! Calibration data store in a table
   vtkNew<vtkTable> CalibrationData;

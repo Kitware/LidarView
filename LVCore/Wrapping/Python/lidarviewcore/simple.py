@@ -107,7 +107,8 @@ def OpenPCAP(filename, calibration, interpreter, **params):
     """
     calibrationFile = _SearchCalibrationFiles(calibration)
 
-    reader = smp.LidarReader(FileName=filename, CalibrationFile=calibrationFile, Interpreter=interpreter)
+    reader = smp.LidarReader(FileName=filename, Interpreter=interpreter)
+    reader.Interpreter.CalibrationFile = calibrationFile
     reader = _SetParamsOpenLidar(reader, **params)
 
     # Update animation scene based on data timesteps loaded in pcap

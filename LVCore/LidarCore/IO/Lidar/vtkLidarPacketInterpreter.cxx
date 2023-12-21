@@ -85,6 +85,13 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
 }
 
 //-----------------------------------------------------------------------------
+void vtkLidarPacketInterpreter::SetCalibrationFileName(const char* filename)
+{
+  vtkSetStringBodyMacro(CalibrationFileName, filename);
+  this->IsCalibrated = false;
+};
+
+//-----------------------------------------------------------------------------
 void vtkLidarPacketInterpreter::SetLaserSelection(int index, int value)
 {
   if ((index < 0) || (index >= this->LaserSelection->GetNumberOfTuples()))

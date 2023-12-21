@@ -172,8 +172,14 @@ std::string vtkExamplePacketInterpreter::GetSensorName()
   return "ExampleSensor" + std::to_string(this->GetNumberOfChannels());
 }
 
-void vtkExamplePacketInterpreter::LoadCalibration(const std::string& filename)
+void vtkExamplePacketInterpreter::LoadCalibration()
 {
+  std::string filename;
+  if (this->CalibrationFileName != nullptr)
+  {
+    filename = this->CalibrationFileName;
+  }
+
   const auto path = std::filesystem::path(filename);
   if (filename.empty() || path.extension() != ".csv")
   {

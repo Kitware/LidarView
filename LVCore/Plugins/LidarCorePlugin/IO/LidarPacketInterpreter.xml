@@ -9,10 +9,13 @@
       <StringVectorProperty
         name="CalibrationFileName"
         label="Calibration File"
-        command="GetCalibrationFileName"
-        panel_visibility="advanced"
-        information_only="1">
-        <SimpleStringInformationHelper />
+        animateable="0"
+        command="SetCalibrationFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          The sensor calibration file.
+        </Documentation>
       </StringVectorProperty>
 
       <IntVectorProperty

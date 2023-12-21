@@ -54,7 +54,7 @@ public:
 
   std::string GetSensorName();
 
-  void LoadCalibration(const std::string& filename) override;
+  void LoadCalibration() override;
 
 protected:
   vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType nbrOfPoints,
