@@ -7,28 +7,6 @@
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />
 
-      <IntVectorProperty name="DummyProperty"
-                         command="SetDummyProperty"
-                         default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <Documentation>
-          A dummy property to get the filter to refresh
-        </Documentation>
-      </IntVectorProperty>
-
-      <IntVectorProperty name="DetectFrameDropping"
-                         animateable="0"
-                         command="SetDetectFrameDropping"
-                         default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <BooleanDomain name="bool" />
-        <Documentation>
-          Throw a warning to the user each time a frame is dropped
-        </Documentation>
-      </IntVectorProperty>
-
       <StringVectorProperty name="FileName"
                             animateable="0"
                             command="SetFileName"
@@ -46,6 +24,18 @@
                          number_of_elements="1">
         <Documentation>
           Specify which packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="DetectFrameDropping"
+                         animateable="0"
+                         command="SetDetectFrameDropping"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Throw a warning to the user each time a frame is dropped
         </Documentation>
       </IntVectorProperty>
 
@@ -74,22 +64,6 @@
         </Documentation>
       </IntVectorProperty>
 
-      <!-- Please notice that this Property is duplicate so that:
-          it can be place in a user friendly location in the generate GUI -->
-      <ProxyProperty name="PacketInterpreter"
-                     command="SetInterpreter"
-                     label="Interpreter">
-        <ProxyListDomain name="proxy_list">
-          <Group name="LidarPacketInterpreter" />
-        </ProxyListDomain>
-      </ProxyProperty>
-
-      <PropertyGroup label="Generic">
-        <Property name="FileName" />
-        <Property name="ShowFirstAndLastFrame" />
-        <Property name="PacketInterpreter" />
-      </PropertyGroup>
-
       <DoubleVectorProperty name="TimestepValues"
                             repeatable="1"
                             information_only="1">
@@ -114,9 +88,13 @@
         </Documentation>
       </IntVectorProperty>
 
-      <Hints>
-        <ReaderFactory extensions="pcap" file_description="Lidar Data File" />
-      </Hints>
+      <PropertyGroup label="Reader Options">
+        <Property name="FileName" />
+        <Property name="LidarPort" />
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+        <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
+        <Property name="DisplayPacketTime" panel_visibility="advanced" />
+      </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

@@ -17,19 +17,6 @@
         </Documentation>
       </StringVectorProperty>
 
-      <ProxyProperty name="PacketInterpreter"
-                     command="SetInterpreter"
-                     label="Interpreter">
-        <ProxyListDomain name="proxy_list">
-          <Group name="PositionOrientationPacketInterpreter" />
-        </ProxyListDomain>
-      </ProxyProperty>
-
-      <PropertyGroup label="Generic">
-        <Property name="FileName" />
-        <Property name="PacketInterpreter" />
-      </PropertyGroup>
-
       <IntVectorProperty name="PositionOrientationPort"
                          command="SetPositionOrientationPort"
                          default_values="-1"
@@ -38,6 +25,11 @@
           Specify which position orientation packets are read. To read all packets set the value to -1
         </Documentation>
       </IntVectorProperty>
+
+      <PropertyGroup label="Reader Options">
+        <Property name="FileName" />
+        <Property name="PositionOrientationPort" />
+      </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

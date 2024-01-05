@@ -10,16 +10,6 @@
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />
 
-      <IntVectorProperty name="DummyProperty"
-                         command="SetDummyProperty"
-                         default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="never">
-        <Documentation>
-          A dummy property to get the filter to refresh
-        </Documentation>
-      </IntVectorProperty>
-
       <IntVectorProperty name="DetectFrameDropping"
                          animateable="0"
                          command="SetDetectFrameDropping"
@@ -32,24 +22,9 @@
         </Documentation>
       </IntVectorProperty>
 
-      <!-- Please notice that this Property is duplicate so that:
-          it can be place in a user friendly location in the generate GUI -->
-      <ProxyProperty name="PacketInterpreter"
-                     command="SetLidarInterpreter"
-                     label="Interpreter">
-        <ProxyListDomain name="proxy_list">
-          <Group name="LidarPacketInterpreter" />
-        </ProxyListDomain>
-      </ProxyProperty>
-
-      <PropertyGroup label="Lidar Stream Options">
-        <Property name="PacketInterpreter" />
-        <Property name="DetectFrameDropping" />
+      <PropertyGroup label="Stream Options">
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
       </PropertyGroup>
-
-      <Hints>
-        <LiveSource />
-      </Hints>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

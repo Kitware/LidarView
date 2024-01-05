@@ -23,12 +23,6 @@
           <Proxy group="extended_sources" name="Transform2" />
         </ProxyListDomain>
       </ProxyProperty>
-
-      <PropertyGroup label="Sensor Transform">
-        <Property name="ApplyTransform" />
-        <Property name="Sensor Transform" />
-      </PropertyGroup>
-
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
