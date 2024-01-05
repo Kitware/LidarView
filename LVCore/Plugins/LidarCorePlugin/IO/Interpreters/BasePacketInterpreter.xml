@@ -1,10 +1,8 @@
 <ServerManagerConfiguration>
-
-  <!-- Begin PacketInterpreter -->
-  <ProxyGroup name="base_PacketInterpreter_g">
-    <SourceProxy name="base_PacketInterpreter"
-                 class="vtkInterpreter"
-                 label="vtkInterpreter">
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Base packet interpreter -->
+    <SourceProxy name="BasePacketInterpreter" class="vtkInterpreter">
 
       <IntVectorProperty name="ApplyTransform"
                          animateable="0"

@@ -1,11 +1,8 @@
 <ServerManagerConfiguration>
-
-  <!-- Begin Stream -->
-  <ProxyGroup name="baseStream">
-    <SourceProxy name="Stream"
-                 class="vtkStream"
-                 label="Stream">
-      <Documentation short_help="Stream" long_help="Stream"></Documentation>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Base live source stream -->
+    <SourceProxy name="BaseStream" class="vtkStream">
 
       <!--
         224.0.0.0 could be a good default address,

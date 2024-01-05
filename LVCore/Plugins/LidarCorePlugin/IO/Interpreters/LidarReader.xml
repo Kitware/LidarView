@@ -1,13 +1,8 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="sources">
-    <SourceProxy name="LidarReader"
-                 class="vtkLidarReader"
-                 label="Lidar Reader"
-                 base_proxygroup="sources">
-
-      <Documentation short_help="Read Lidar data files." long_help="Read Lidar data files.">
-        Read Lidar data files.
-      </Documentation>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common lidar pcap reader -->
+    <SourceProxy name="CommonLidarReader" class="vtkLidarReader">
 
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />

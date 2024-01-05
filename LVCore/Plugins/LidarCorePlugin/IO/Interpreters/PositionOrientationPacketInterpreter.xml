@@ -1,9 +1,10 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="base_PositionOrientationPacketInterpreter_g">
-    <SourceProxy name="base_PositionOrientationPacketInterpreter"
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common position orientation packet interpreter -->
+    <SourceProxy name="CommonPositionOrientationPacketInterpreter"
                  class="vtkPositionOrientationPacketInterpreter"
-                 label="vtkPositionOrientationPacketInterpreter"
-                 base_proxygroup="base_PacketInterpreter_g"
-                 base_proxyname="base_PacketInterpreter" />
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BasePacketInterpreter" />
   </ProxyGroup>
 </ServerManagerConfiguration>

@@ -1,12 +1,8 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="sources">
-    <SourceProxy name="PositionOrientationReader"
-                 class="vtkPositionOrientationPacketReader"
-                 label="Position Orientation Reader"
-                 base_proxygroup="sources">
-      <Documentation short_help="Read Position Orientation data files." long_help="Read Position Orientation data files.">
-        Read Position Orientation data files.
-      </Documentation>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common position orientation pcap reader -->
+    <SourceProxy name="CommonPositionOrientationReader" class="vtkPositionOrientationPacketReader">
 
       <OutputPort name="Position Orientation " index="0" />
       <OutputPort name="Raw informations" index="1" />

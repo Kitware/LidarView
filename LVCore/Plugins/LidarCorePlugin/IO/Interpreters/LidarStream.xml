@@ -1,12 +1,11 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="sources">
-    <SourceProxy name="LidarStream"
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common lidar live source stream -->
+    <SourceProxy name="CommonLidarStream"
                  class="vtkLidarStream"
-                 label="Lidar Stream"
-                 base_proxygroup="baseStream"
-                 base_proxyname="Stream">
-
-      <Documentation short_help="Lidar Stream" long_help="Lidar Stream"></Documentation>
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BaseStream">
 
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />

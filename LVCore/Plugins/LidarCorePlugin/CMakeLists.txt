@@ -151,7 +151,7 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IONetwork
   XML_MODULE_FILES
-    IO/Interpreters/BaseInterpreter.xml
+    IO/Interpreters/BasePacketInterpreter.xml
     IO/Interpreters/BaseStream.xml
 )
 

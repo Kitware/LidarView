@@ -1,11 +1,11 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="sources">
-    <SourceProxy name="PositionOrientationStream"
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common position orientation live source stream -->
+    <SourceProxy name="CommonPositionOrientationStream"
                  class="vtkPositionOrientationStream"
-                 label="Position Orientation Stream"
-                 base_proxygroup="baseStream"
-                 base_proxyname="Stream">
-      <Documentation short_help="Position Orientation Stream" long_help="Position Orientation Stream"></Documentation>
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BaseStream">
 
       <OutputPort name="Position Orientation" index="0" />
       <OutputPort name="Raw informations" index="1" />
