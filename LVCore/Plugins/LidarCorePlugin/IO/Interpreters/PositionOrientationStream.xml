@@ -1,33 +1,29 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
     <SourceProxy name="PositionOrientationStream"
-      class="vtkPositionOrientationStream"
-      label="Position Orientation Stream"
-      base_proxygroup="baseStream"
-      base_proxyname="Stream">
-      <Documentation
-        short_help="Position Orientation Stream"
-        long_help="Position Orientation Stream">
-      </Documentation>
+                 class="vtkPositionOrientationStream"
+                 label="Position Orientation Stream"
+                 base_proxygroup="baseStream"
+                 base_proxyname="Stream">
+      <Documentation short_help="Position Orientation Stream" long_help="Position Orientation Stream"></Documentation>
 
-      <OutputPort name="Position Orientation " index="0" id="port0" />
-      <OutputPort name="Raw informations" index="1" id="port1" />
+      <OutputPort name="Position Orientation" index="0" />
+      <OutputPort name="Raw informations" index="1" />
 
       <!-- Please notice that this Property is duplicate so that:
           it can be place in a user friendly location in the generate GUI -->
-      <ProxyProperty
-        name="PacketInterpreter"
-        command="SetPosOrInterpreter"
-        label="Interpreter">
+      <ProxyProperty name="PacketInterpreter"
+                     command="SetPosOrInterpreter"
+                     label="Interpreter">
         <ProxyListDomain name="proxy_list">
-            <Group name="PositionOrientationPacketInterpreter"/>
+          <Group name="PositionOrientationPacketInterpreter" />
         </ProxyListDomain>
       </ProxyProperty>
 
       <Hints>
         <!-- Force the pipeline to try to update the stream every 10 millisecond in case new data are available.
             This enable to have Lidar up to 100hz -->
-        <LiveSource interval="10"/>
+        <LiveSource interval="10" />
       </Hints>
     </SourceProxy>
   </ProxyGroup>

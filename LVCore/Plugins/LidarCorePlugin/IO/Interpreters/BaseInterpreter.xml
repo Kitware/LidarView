@@ -1,40 +1,36 @@
 <ServerManagerConfiguration>
 
-<!-- Begin PacketInterpreter -->
-<ProxyGroup name="base_PacketInterpreter_g">
-  <SourceProxy name="base_PacketInterpreter"
-         class="vtkInterpreter"
-         label="vtkInterpreter">
+  <!-- Begin PacketInterpreter -->
+  <ProxyGroup name="base_PacketInterpreter_g">
+    <SourceProxy name="base_PacketInterpreter"
+                 class="vtkInterpreter"
+                 label="vtkInterpreter">
 
-  <IntVectorProperty
-      name="ApplyTransform"
-      animateable="0"
-      command="SetApplyTransform"
-      default_values="0"
-      number_of_elements="1"
-      panel_visibility="advanced">
-    <BooleanDomain name="bool" />
-    <Documentation>
+      <IntVectorProperty name="ApplyTransform"
+                         animateable="0"
+                         command="SetApplyTransform"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
       Apply geolocation data
-    </Documentation>
-  </IntVectorProperty>
+        </Documentation>
+      </IntVectorProperty>
 
-  <ProxyProperty command="SetSensorTransform"
-                  name="Sensor Transform"
-                  panel_visibility="advanced">
-    <ProxyListDomain name="proxy_list">
-      <Proxy group="extended_sources"
-             name="Transform2" />
-    </ProxyListDomain>
-  </ProxyProperty>
+      <ProxyProperty command="SetSensorTransform"
+                     name="SensorTransform"
+                     panel_visibility="advanced">
+        <ProxyListDomain name="proxy_list">
+          <Proxy group="extended_sources" name="Transform2" />
+        </ProxyListDomain>
+      </ProxyProperty>
 
-  <PropertyGroup label="Sensor Transform">
-    <Property name="ApplyTransform" />
-    <Property name="Sensor Transform" />
-  </PropertyGroup>
+      <PropertyGroup label="Sensor Transform">
+        <Property name="ApplyTransform" />
+        <Property name="Sensor Transform" />
+      </PropertyGroup>
 
-  </SourceProxy>
-</ProxyGroup>
-<!-- End PacketInterpreter -->
-
+    </SourceProxy>
+  </ProxyGroup>
 </ServerManagerConfiguration>
