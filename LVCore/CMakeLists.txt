@@ -13,9 +13,10 @@ set(lidarview_test_output_directory "${CMAKE_BINARY_DIR}/Testing/Temporary")
 
 # Retrieve default plugin and plugin directories
 # from LidarView based app if existing
-list(APPEND lidarview_default_plugins
+set(lidarview_default_plugins
+  LidarCorePlugin
   DatasetIOPlugin
-  LidarCorePlugin)
+  ${lidarview_available_interpreters_plugins})
 
 if (LIDARVIEW_USE_PCL)
   list(APPEND lidarview_default_plugins
@@ -31,8 +32,11 @@ if (BUILD_EXAMPLES)
     InterpreterExamplePlugin)
 endif ()
 
-list(APPEND lidarview_plugin_directories
-  "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/")
+# Ensure that the LidarCorePlugin is positioned at the first position,
+# interpreter plugins depend on LidarCorePlugin having its XML loaded.
+set(lidarview_plugin_directories
+  "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/"
+  ${lidarview_interpreters_plugin_directories})
 
 if (BUILD_EXAMPLES)
   list(APPEND lidarview_plugin_directories
