@@ -8,13 +8,13 @@
                  base_proxyname="BasePacketInterpreter">
 
       <StringVectorProperty name="CalibrationFileName"
-                            label="Calibration File"
+                            label="Custom Calibration File"
                             animateable="0"
                             command="SetCalibrationFileName"
                             number_of_elements="1">
         <FileListDomain name="files" />
         <Documentation>
-          The sensor calibration file.
+          If specified, replace the default sensor calibration file.
         </Documentation>
       </StringVectorProperty>
 
