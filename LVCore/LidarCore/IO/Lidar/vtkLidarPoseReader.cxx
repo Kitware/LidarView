@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkLidarPoseReader.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkLidarPoseReader.h"
 #include "vtkHelper.h"
 
@@ -20,14 +35,14 @@ vtkLidarPoseReader::vtkLidarPoseReader()
 //-----------------------------------------------------------------------------
 int vtkLidarPoseReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == 0 )
+  if (port == 0)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
-  if ( port == 1 )
+  if (port == 1)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
   return 0;
@@ -44,7 +59,7 @@ vtkMTimeType vtkLidarPoseReader::GetMTime()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::SetFileName(const std::string &filename)
+void vtkLidarPoseReader::SetFileName(const std::string& filename)
 {
   if (filename == this->FileName)
   {
@@ -70,7 +85,7 @@ void vtkLidarPoseReader::Open()
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                                                 << this->Reader->GetLastError());
+                  << this->Reader->GetLastError());
     this->Close();
   }
 }
@@ -83,8 +98,9 @@ void vtkLidarPoseReader::Close()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::ReadPositionOrientation(vtkSmartPointer<vtkPolyData> & positionOrientationInfo,
-                                                                 vtkSmartPointer<vtkTable> & rawInfo)
+void vtkLidarPoseReader::ReadPositionOrientation(
+  vtkSmartPointer<vtkPolyData>& positionOrientationInfo,
+  vtkSmartPointer<vtkTable>& rawInfo)
 {
   if (!this->Reader)
   {
@@ -110,12 +126,13 @@ void vtkLidarPoseReader::ReadPositionOrientation(vtkSmartPointer<vtkPolyData> & 
   }
 
   // Save positions and orientation information if packets contain them
-  if(this->Interpreter->HasPositionOrientationInformation())
+  if (this->Interpreter->HasPositionOrientationInformation())
   {
     positionOrientationInfo = this->Interpreter->GetPositionOrientation();
 
     // Set the polyline to the poly data to see the position orientation information
-    vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(positionOrientationInfo->GetPoints());
+    vtkSmartPointer<vtkPolyLine> polyLine =
+      CreatePolyLineFromPoints(positionOrientationInfo->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
     positionOrientationInfo->SetLines(cellArray);
@@ -124,17 +141,16 @@ void vtkLidarPoseReader::ReadPositionOrientation(vtkSmartPointer<vtkPolyData> & 
   }
 
   // Save raw information if packets contain them
-  if(this->Interpreter->HasRawInformation())
+  if (this->Interpreter->HasRawInformation())
   {
     rawInfo = this->Interpreter->GetRawInformation();
   }
-
 }
 
 //-----------------------------------------------------------------------------
-int vtkLidarPoseReader::RequestData(vtkInformation *vtkNotUsed(request),
-                                                    vtkInformationVector **vtkNotUsed(inputVector),
-                                                    vtkInformationVector *outputVector)
+int vtkLidarPoseReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
   vtkPolyData* outputPositionOrientation = vtkPolyData::GetData(outputVector);
   vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
@@ -156,11 +172,11 @@ int vtkLidarPoseReader::RequestData(vtkInformation *vtkNotUsed(request),
     vtkSmartPointer<vtkPolyData> polydata;
     vtkSmartPointer<vtkTable> table;
     this->ReadPositionOrientation(polydata, table);
-    if(polydata)
+    if (polydata)
     {
       outputPositionOrientation->ShallowCopy(polydata);
     }
-    if(table)
+    if (table)
     {
       outputRawInformation->ShallowCopy(table);
     }
