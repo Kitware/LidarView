@@ -14,8 +14,8 @@
 // limitations under the License.
 //=========================================================================
 
-#ifndef VTKPOSITIONORIENTATIONSTREAM_H
-#define VTKPOSITIONORIENTATIONSTREAM_H
+#ifndef vtkLidarPoseStream_h
+#define vtkLidarPoseStream_h
 
 #include <memory>
 
@@ -23,15 +23,15 @@
 #include <vtkTable.h>
 
 #include "vtkStream.h"
-#include "vtkPositionOrientationPacketInterpreter.h"
+#include "vtkLidarPosePacketInterpreter.h"
 
-#include "lvIOGeolocationModule.h"
+#include "lvIOLidarModule.h"
 
-class LVIOGEOLOCATION_EXPORT vtkPositionOrientationStream : public vtkStream
+class LVIOLIDAR_EXPORT vtkLidarPoseStream : public vtkStream
 {
 public:
-  static vtkPositionOrientationStream* New();
-  vtkTypeMacro(vtkPositionOrientationStream, vtkStream)
+  static vtkLidarPoseStream* New();
+  vtkTypeMacro(vtkLidarPoseStream, vtkStream)
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
@@ -41,20 +41,20 @@ public:
 
   int CheckForNewData() override;
 
-  vtkPositionOrientationPacketInterpreter* GetPosOrInterpreter();
-  void SetPosOrInterpreter(vtkPositionOrientationPacketInterpreter* interpreter);
+  vtkLidarPosePacketInterpreter* GetPoseInterpreter();
+  void SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter);
 
 protected:
-  vtkPositionOrientationStream();
-  ~vtkPositionOrientationStream() override;
+  vtkLidarPoseStream();
+  ~vtkLidarPoseStream() override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) override;
 
 private:
-  vtkPositionOrientationStream(const vtkPositionOrientationStream&) = delete;
-  void operator=(const vtkPositionOrientationStream&) = delete;
+  vtkLidarPoseStream(const vtkLidarPoseStream&) = delete;
+  void operator=(const vtkLidarPoseStream&) = delete;
 
   vtkSmartPointer<vtkPolyData> AllPositionsOrientation;
 
@@ -70,4 +70,4 @@ private:
 
 };
 
-#endif // VTKPOSITIONORIENTATIONSTREAM_H
+#endif

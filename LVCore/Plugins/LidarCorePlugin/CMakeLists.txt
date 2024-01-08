@@ -135,9 +135,6 @@ lidarcoreplugin_add_module_xml(
   XML_MODULE_FILES
     IO/ApplanixPositionReader.xml
     IO/ArduPilotDataFlashLogReader.xml
-    IO/Interpreters/PositionOrientationPacketInterpreter.xml
-    IO/Interpreters/PositionOrientationPacketReader.xml
-    IO/Interpreters/PositionOrientationStream.xml
 )
 
 lidarcoreplugin_add_module_xml(

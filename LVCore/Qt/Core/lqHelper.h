@@ -12,8 +12,8 @@
 
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
-#include "vtkPositionOrientationPacketReader.h"
-#include "vtkPositionOrientationStream.h"
+#include "vtkLidarPoseReader.h"
+#include "vtkLidarPoseStream.h"
 
 #include <vector>
 

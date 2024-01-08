@@ -241,7 +241,7 @@ void lqLidarCoreManager::onCloseAllData()
   // Remove lidars
   RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
   RemoveAllProxyTypeFromPipelineBrowser<vtkLidarStream>();
-  RemoveAllProxyTypeFromPipelineBrowser<vtkPositionOrientationPacketReader>();
+  RemoveAllProxyTypeFromPipelineBrowser<vtkLidarPoseReader>();
 
   // Reset Camera
   this->onResetCameraToForwardView();

@@ -1,4 +1,4 @@
-#include "vtkPositionOrientationPacketReader.h"
+#include "vtkLidarPoseReader.h"
 #include "vtkHelper.h"
 
 #include <vtkCellArray.h>
@@ -8,17 +8,17 @@
 #include <vtkPolyLine.h>
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPositionOrientationPacketReader)
+vtkStandardNewMacro(vtkLidarPoseReader)
 
 //-----------------------------------------------------------------------------
-vtkPositionOrientationPacketReader::vtkPositionOrientationPacketReader()
+vtkLidarPoseReader::vtkLidarPoseReader()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
 }
 
 //-----------------------------------------------------------------------------
-int vtkPositionOrientationPacketReader::FillOutputPortInformation(int port, vtkInformation* info)
+int vtkLidarPoseReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if ( port == 0 )
   {
@@ -34,7 +34,7 @@ int vtkPositionOrientationPacketReader::FillOutputPortInformation(int port, vtkI
 }
 
 //-----------------------------------------------------------------------------
-vtkMTimeType vtkPositionOrientationPacketReader::GetMTime()
+vtkMTimeType vtkLidarPoseReader::GetMTime()
 {
   if (this->Interpreter)
   {
@@ -44,7 +44,7 @@ vtkMTimeType vtkPositionOrientationPacketReader::GetMTime()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPositionOrientationPacketReader::SetFileName(const std::string &filename)
+void vtkLidarPoseReader::SetFileName(const std::string &filename)
 {
   if (filename == this->FileName)
   {
@@ -56,7 +56,7 @@ void vtkPositionOrientationPacketReader::SetFileName(const std::string &filename
 }
 
 //-----------------------------------------------------------------------------
-void vtkPositionOrientationPacketReader::Open()
+void vtkLidarPoseReader::Open()
 {
   this->Close();
   this->Reader = new vtkPacketFileReader;
@@ -76,14 +76,14 @@ void vtkPositionOrientationPacketReader::Open()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPositionOrientationPacketReader::Close()
+void vtkLidarPoseReader::Close()
 {
   delete this->Reader;
   this->Reader = nullptr;
 }
 
 //-----------------------------------------------------------------------------
-void vtkPositionOrientationPacketReader::ReadPositionOrientation(vtkSmartPointer<vtkPolyData> & positionOrientationInfo,
+void vtkLidarPoseReader::ReadPositionOrientation(vtkSmartPointer<vtkPolyData> & positionOrientationInfo,
                                                                  vtkSmartPointer<vtkTable> & rawInfo)
 {
   if (!this->Reader)
@@ -132,7 +132,7 @@ void vtkPositionOrientationPacketReader::ReadPositionOrientation(vtkSmartPointer
 }
 
 //-----------------------------------------------------------------------------
-int vtkPositionOrientationPacketReader::RequestData(vtkInformation *vtkNotUsed(request),
+int vtkLidarPoseReader::RequestData(vtkInformation *vtkNotUsed(request),
                                                     vtkInformationVector **vtkNotUsed(inputVector),
                                                     vtkInformationVector *outputVector)
 {

@@ -14,8 +14,8 @@
 // limitations under the License.
 //=========================================================================
 
-#ifndef VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
-#define VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
+#ifndef vtkLidarPosePacketInterpreter_h
+#define vtkLidarPosePacketInterpreter_h
 
 #include "vtkInterpreter.h"
 
@@ -23,12 +23,12 @@
 #include <vtkTable.h>
 #include <vtkPolyData.h>
 
-#include "lvIOGeolocationModule.h"
+#include "lvIOLidarModule.h"
 
-class LVIOGEOLOCATION_EXPORT vtkPositionOrientationPacketInterpreter : public vtkInterpreter
+class LVIOLIDAR_EXPORT vtkLidarPosePacketInterpreter : public vtkInterpreter
 {
 public:
-  vtkTypeMacro(vtkPositionOrientationPacketInterpreter, vtkInterpreter)
+  vtkTypeMacro(vtkLidarPosePacketInterpreter, vtkInterpreter)
 
   vtkSmartPointer<vtkTable> GetRawInformation(){return this->RawInformation;}
   vtkSmartPointer<vtkPolyData> GetPositionOrientation(){return this->PositionOrientation;}
@@ -50,7 +50,7 @@ public:
   virtual void FillInterpolatorFromPositionOrientation(){}
 
 protected:
-  vtkPositionOrientationPacketInterpreter() = default;
+  vtkLidarPosePacketInterpreter() = default;
 
   //! Buffer to store Raw informations
   vtkSmartPointer<vtkTable> RawInformation;
@@ -59,12 +59,12 @@ protected:
   vtkSmartPointer<vtkPolyData> PositionOrientation;
 
 private:
-  vtkPositionOrientationPacketInterpreter(const vtkPositionOrientationPacketInterpreter&) = delete;
-  void operator=(const vtkPositionOrientationPacketInterpreter&) = delete;
+  vtkLidarPosePacketInterpreter(const vtkLidarPosePacketInterpreter&) = delete;
+  void operator=(const vtkLidarPosePacketInterpreter&) = delete;
 
   int SizeRawInformationLastAsk = 0;
 
   int SizePositionOrientationInformationLastAsk = 0;
 };
 
-#endif // VTKPOSITIONORIENTATIONPACKETINTERPRETER_H
+#endif

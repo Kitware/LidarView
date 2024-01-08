@@ -1,4 +1,4 @@
-#include "vtkPositionOrientationStream.h"
+#include "vtkLidarPoseStream.h"
 #include "vtkHelper.h"
 
 #include <sstream>
@@ -44,10 +44,10 @@ void DeepReverseCopy(vtkTable* input, vtkTable* output)
 }
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPositionOrientationStream)
+vtkStandardNewMacro(vtkLidarPoseStream)
 
 //-----------------------------------------------------------------------------
-vtkPositionOrientationStream::vtkPositionOrientationStream()
+vtkLidarPoseStream::vtkLidarPoseStream()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
@@ -58,14 +58,14 @@ vtkPositionOrientationStream::vtkPositionOrientationStream()
 }
 
 //-----------------------------------------------------------------------------
-vtkPositionOrientationStream::~vtkPositionOrientationStream()
+vtkLidarPoseStream::~vtkLidarPoseStream()
 {
   // see the explanation about why this is needed in vtkStream::~vtkStream
   this->Stop();
 }
 
 //-----------------------------------------------------------------------------
-int vtkPositionOrientationStream::FillOutputPortInformation(int port, vtkInformation* info)
+int vtkLidarPoseStream::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if ( port == 0 )
   {
@@ -82,7 +82,7 @@ int vtkPositionOrientationStream::FillOutputPortInformation(int port, vtkInforma
 }
 
 //----------------------------------------------------------------------------
-int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkLidarPoseStream::RequestData(vtkInformation* vtkNotUsed(request),
                                 vtkInformationVector** vtkNotUsed(inputVector),
                                 vtkInformationVector* outputVector)
 {
@@ -103,17 +103,17 @@ int vtkPositionOrientationStream::RequestData(vtkInformation* vtkNotUsed(request
 }
 
 //----------------------------------------------------------------------------
-void vtkPositionOrientationStream::AddNewData()
+void vtkLidarPoseStream::AddNewData()
 {
-  if(this->GetPosOrInterpreter()->HasRawInformation())
+  if (this->GetPoseInterpreter()->HasRawInformation())
   {
     if(this->AllRawInformation->GetNumberOfRows() == 0)
     {
-      this->AllRawInformation->DeepCopy(this->GetPosOrInterpreter()->GetRawInformation());
+      this->AllRawInformation->DeepCopy(this->GetPoseInterpreter()->GetRawInformation());
       return;
     }
 
-    vtkSmartPointer<vtkTable> raw = this->GetPosOrInterpreter()->GetRawInformation();
+    vtkSmartPointer<vtkTable> raw = this->GetPoseInterpreter()->GetRawInformation();
 
     for(int i = 0; i < raw->GetNumberOfRows(); i++)
     {
@@ -122,16 +122,17 @@ void vtkPositionOrientationStream::AddNewData()
     }
   }
 
-  if(this->GetPosOrInterpreter()->HasPositionOrientationInformation())
+  if (this->GetPoseInterpreter()->HasPositionOrientationInformation())
   {
     if(this->AllPositionsOrientation->GetNumberOfPoints() == 0)
     {
-      this->AllPositionsOrientation->DeepCopy(this->GetPosOrInterpreter()->GetPositionOrientation());
+      this->AllPositionsOrientation->DeepCopy(
+        this->GetPoseInterpreter()->GetPositionOrientation());
       return;
     }
-    // Copying the new Position Orientation information (points, rows, ...) presents in the interpreter
-    // to the corresponding buffer
-    vtkSmartPointer<vtkPolyData> posOr = this->GetPosOrInterpreter()->GetPositionOrientation();
+    // Copying the new Position Orientation information (points, rows, ...) presents in the
+    // interpreter to the corresponding buffer
+    vtkSmartPointer<vtkPolyData> posOr = this->GetPoseInterpreter()->GetPositionOrientation();
     vtkPoints* points = this->AllPositionsOrientation->GetPoints();
     for(vtkIdType i = 0; i < posOr->GetNumberOfPoints(); i++)
     {
@@ -157,37 +158,37 @@ void vtkPositionOrientationStream::AddNewData()
 }
 
 //----------------------------------------------------------------------------
-void vtkPositionOrientationStream::ClearAllDataAvailable()
+void vtkLidarPoseStream::ClearAllDataAvailable()
 {
-  this->GetPosOrInterpreter()->ResetCurrentData();
+  this->GetPoseInterpreter()->ResetCurrentData();
 }
 
 //----------------------------------------------------------------------------
-int vtkPositionOrientationStream::CheckForNewData()
+int vtkLidarPoseStream::CheckForNewData()
 {
   return this->CheckNewDataPositionOrientation() + this->CheckForNewDataRawInformation();
 }
 
 //----------------------------------------------------------------------------
-int vtkPositionOrientationStream::CheckNewDataPositionOrientation()
+int vtkLidarPoseStream::CheckNewDataPositionOrientation()
 {
   return this->AllPositionsOrientation->GetNumberOfPoints() - this->LastNumberPositionOrientationInformation;
 }
 
 //----------------------------------------------------------------------------
-int vtkPositionOrientationStream::CheckForNewDataRawInformation()
+int vtkLidarPoseStream::CheckForNewDataRawInformation()
 {
   return this->AllRawInformation->GetNumberOfRows() - this->LastNumberRawInformation;
 }
 
 //----------------------------------------------------------------------------
-vtkPositionOrientationPacketInterpreter* vtkPositionOrientationStream::GetPosOrInterpreter()
+vtkLidarPosePacketInterpreter* vtkLidarPoseStream::GetPoseInterpreter()
 {
-  return vtkPositionOrientationPacketInterpreter::SafeDownCast(this->Interpreter);
+  return vtkLidarPosePacketInterpreter::SafeDownCast(this->Interpreter);
 }
 
 //----------------------------------------------------------------------------
-void vtkPositionOrientationStream::SetPosOrInterpreter(vtkPositionOrientationPacketInterpreter* interpreter)
+void vtkLidarPoseStream::SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter)
 {
   this->Interpreter = interpreter;
 }

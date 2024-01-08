@@ -111,5 +111,12 @@
         interpreter.GetProperty("LaserSelectionInformation") -->
       </IntVectorProperty>
     </SourceProxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common position orientation packet interpreter -->
+    <SourceProxy name="CommonLidarPosePacketInterpreter"
+                 class="vtkLidarPosePacketInterpreter"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BasePacketInterpreter" />
   </ProxyGroup>
 </ServerManagerConfiguration>

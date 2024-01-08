@@ -9,10 +9,7 @@ set(headers
 
 set(classes
   vtkApplanixPositionReader
-  vtkArduPilotDataFlashLogReader
-  vtkPositionOrientationPacketInterpreter
-  vtkPositionOrientationPacketReader
-  vtkPositionOrientationStream)
+  vtkArduPilotDataFlashLogReader)
 
 vtk_module_add_module(LidarView::IOGeolocation
   SOURCES ${sources}

@@ -14,30 +14,30 @@
 // limitations under the License.
 //=========================================================================
 
-#ifndef VTKPOSITIONORIENTATIONPACKETREADER_H
-#define VTKPOSITIONORIENTATIONPACKETREADER_H
+#ifndef vtkLidarPoseReader_h
+#define vtkLidarPoseReader_h
 
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
-#include "vtkPositionOrientationPacketInterpreter.h"
+#include "vtkLidarPosePacketInterpreter.h"
 #include "vtkPacketFileReader.h"
 
-#include "lvIOGeolocationModule.h"
+#include "lvIOLidarModule.h"
 
-class LVIOGEOLOCATION_EXPORT vtkPositionOrientationPacketReader : public vtkPolyDataAlgorithm
+class LVIOLIDAR_EXPORT vtkLidarPoseReader : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkPositionOrientationPacketReader* New();
-  vtkTypeMacro(vtkPositionOrientationPacketReader, vtkPolyDataAlgorithm)
+  static vtkLidarPoseReader* New();
+  vtkTypeMacro(vtkLidarPoseReader, vtkPolyDataAlgorithm)
 
   vtkGetMacro(FileName, std::string)
   void SetFileName(const std::string &filename);
 
-  vtkGetObjectMacro(Interpreter, vtkPositionOrientationPacketInterpreter)
-  vtkSetObjectMacro(Interpreter, vtkPositionOrientationPacketInterpreter)
+  vtkGetObjectMacro(Interpreter, vtkLidarPosePacketInterpreter)
+  vtkSetObjectMacro(Interpreter, vtkLidarPosePacketInterpreter)
 
   /**
    * @brief Open open the pcap file
@@ -61,11 +61,11 @@ public:
   vtkSetMacro(PositionOrientationPort, int)
 
 protected:
-  vtkPositionOrientationPacketReader();
-  ~vtkPositionOrientationPacketReader() = default;
+  vtkLidarPoseReader();
+  ~vtkLidarPoseReader() = default;
 
   //! Interpret for position orientation packet
-  vtkPositionOrientationPacketInterpreter* Interpreter = nullptr;
+  vtkLidarPosePacketInterpreter* Interpreter = nullptr;
 
   //! Name of the pcap file to read
   std::string FileName = "";
@@ -78,8 +78,8 @@ protected:
   int PositionOrientationPort = -1;
 
 private:
-  vtkPositionOrientationPacketReader(const vtkPositionOrientationPacketReader&) = delete;
-  void operator=(const vtkPositionOrientationPacketReader&) = delete;
+  vtkLidarPoseReader(const vtkLidarPoseReader&) = delete;
+  void operator=(const vtkLidarPoseReader&) = delete;
   /**
    * @brief ReadPositionOrientation returns all the positions contains in the pcap file
    */
@@ -87,4 +87,4 @@ private:
                                vtkSmartPointer<vtkTable> & RawInfos);
 };
 
-#endif // VTKPOSITIONORIENTATIONPACKETREADER_H
+#endif

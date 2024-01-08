@@ -26,5 +26,17 @@
         <Property name="DetectFrameDropping" panel_visibility="advanced" />
       </PropertyGroup>
     </SourceProxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common position orientation live source stream -->
+    <SourceProxy name="CommonLidarPoseStream"
+                 class="vtkLidarPoseStream"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BaseStream">
+
+      <OutputPort name="Position Orientation" index="0" />
+      <OutputPort name="Raw informations" index="1" />
+
+    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

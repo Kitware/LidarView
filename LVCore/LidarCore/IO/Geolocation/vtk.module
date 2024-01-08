@@ -2,16 +2,14 @@ NAME
   LidarView::IOGeolocation
 LIBRARY_NAME
   lvIOGeolocation
-CONDITION
-  LIDARVIEW_USE_PCAP
 DEPENDS
   LidarView::CommonCore
-  LidarView::IONetwork
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::libproj              # For GPSProjectionUtils
 PRIVATE_DEPENDS
+  Boost::system
   Eigen3::Eigen
   VTK::CommonTransforms
 TEST_DEPENDS

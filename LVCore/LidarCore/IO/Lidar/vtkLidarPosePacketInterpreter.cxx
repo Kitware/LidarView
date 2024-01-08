@@ -1,7 +1,7 @@
-#include "vtkPositionOrientationPacketInterpreter.h"
+#include "vtkLidarPosePacketInterpreter.h"
 
 //------------------------------------------------------------------------------
-void vtkPositionOrientationPacketInterpreter::ResetCurrentData()
+void vtkLidarPosePacketInterpreter::ResetCurrentData()
 {
   if(this->HasPositionOrientationInformation())
   {
@@ -16,7 +16,7 @@ void vtkPositionOrientationPacketInterpreter::ResetCurrentData()
 }
 
 //------------------------------------------------------------------------------
-bool vtkPositionOrientationPacketInterpreter::IsNewRawInformation()
+bool vtkLidarPosePacketInterpreter::IsNewRawInformation()
 {
   if(!this->HasRawInformation())
   {
@@ -28,7 +28,7 @@ bool vtkPositionOrientationPacketInterpreter::IsNewRawInformation()
 }
 
 //------------------------------------------------------------------------------
-bool vtkPositionOrientationPacketInterpreter::IsNewPositionOrientationInformation()
+bool vtkLidarPosePacketInterpreter::IsNewPositionOrientationInformation()
 {
   if(!this->HasPositionOrientationInformation())
   {
@@ -40,7 +40,7 @@ bool vtkPositionOrientationPacketInterpreter::IsNewPositionOrientationInformatio
 }
 
 //------------------------------------------------------------------------------
-bool vtkPositionOrientationPacketInterpreter::IsNewData()
+bool vtkLidarPosePacketInterpreter::IsNewData()
 {
    return (this->IsNewRawInformation() || this->IsNewPositionOrientationInformation());
 }

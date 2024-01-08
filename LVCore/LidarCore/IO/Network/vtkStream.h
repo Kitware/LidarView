@@ -70,7 +70,7 @@ public:
 
   vtkGetObjectMacro(Interpreter, vtkInterpreter);
   // [[deprecated("Please use specific setter : setLidarInterpreter() or "
-  //              "SetPosOrInterpreter()")]]
+  //              "SetPoseInterpreter()")]]
   vtkSetObjectMacro(Interpreter, vtkInterpreter);
 
   /**

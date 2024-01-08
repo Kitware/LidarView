@@ -96,5 +96,37 @@
         <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
     </SourceProxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common position orientation pcap reader -->
+    <SourceProxy name="CommonLidarPoseReader" class="vtkLidarPoseReader">
+
+      <OutputPort name="Position Orientation " index="0" />
+      <OutputPort name="Raw informations" index="1" />
+
+      <StringVectorProperty name="FileName"
+                            animateable="0"
+                            command="SetFileName"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          This property specifies the file name for the reader.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="PositionOrientationPort"
+                         command="SetPositionOrientationPort"
+                         default_values="-1"
+                         number_of_elements="1">
+        <Documentation>
+          Specify which position orientation packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Reader Options">
+        <Property name="FileName" />
+        <Property name="PositionOrientationPort" />
+      </PropertyGroup>
+    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
