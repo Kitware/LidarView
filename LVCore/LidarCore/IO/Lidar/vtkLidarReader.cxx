@@ -54,7 +54,7 @@ int vtkLidarReader::FillOutputPortInformation(int port, vtkInformation* info)
 //-----------------------------------------------------------------------------
 std::string vtkLidarReader::GetSensorInformation(bool shortVersion)
 {
-  return this->Interpreter->GetSensorInformation(shortVersion);
+  return this->LidarInterpreter->GetSensorInformation(shortVersion);
 }
 
 //-----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ void vtkLidarReader::SetDummyProperty(int)
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkLidarReader::GetMTime()
 {
-  if (this->Interpreter)
+  if (this->LidarInterpreter)
   {
-    return std::max(this->Superclass::GetMTime(), this->Interpreter->GetMTime());
+    return std::max(this->Superclass::GetMTime(), this->LidarInterpreter->GetMTime());
   }
   return this->Superclass::GetMTime();
 }
@@ -85,7 +85,7 @@ int vtkLidarReader::ReadFrameInformation()
   this->FrameCatalog.clear();
 
   // reset the interpreter parser meta data
-  this->Interpreter->ResetParserMetaData();
+  this->LidarInterpreter->ResetParserMetaData();
 
   if (!this->Reader)
   {
@@ -110,27 +110,27 @@ int vtkLidarReader::ReadFrameInformation()
 
     // If the current packet is not a lidar packet,
     // skip it and update the file position
-    if (!this->Interpreter->IsLidarPacket(data, dataLength))
+    if (!this->LidarInterpreter->IsLidarPacket(data, dataLength))
     {
       this->Reader->GetFilePosition(&lastFilePosition);
       continue;
     }
 
     // add an index for the first Lidar packet
-    if (firstIteration && this->GetInterpreter()->GetFramingMethod() == INTERPRETER_FRAMING)
+    if (firstIteration && this->GetLidarInterpreter()->GetFramingMethod() == INTERPRETER_FRAMING)
     {
       // it is possible that the first packet contains 2 frames
       // (end and start of one), and as we rely on the packet header time
       // this 2 frames will have the same timestep. So to avoid that we
       // artificatially move the first timeStep back by one.
-      this->FrameCatalog.push_back(this->Interpreter->GetParserMetaData());
+      this->FrameCatalog.push_back(this->LidarInterpreter->GetParserMetaData());
       this->FrameCatalog.back().FilePosition =
         lastFilePosition; // Ensure that the first index point on a real fileposition
       firstIteration = false;
     }
 
     // Get information about the current packet
-    this->Interpreter->PreProcessPacketWrapped(
+    this->LidarInterpreter->PreProcessPacketWrapped(
       data, dataLength, lastFilePosition, lastPacketNetworkTime, &this->FrameCatalog);
 
     this->Reader->GetFilePosition(&lastFilePosition);
@@ -170,7 +170,7 @@ void vtkLidarReader::SetTimestepInformation(vtkInformation* info)
   }
   size_t numberOfTimesteps = this->FrameCatalog.size();
   std::vector<double> timesteps(numberOfTimesteps);
-  double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  double timeOffset = this->GetLidarInterpreter()->GetTimeOffset();
   // Add a default offset when using UseRelativeStartTime to let the first frame to 0
   if (this->UseRelativeStartTime && timeOffset == 0.)
   {
@@ -241,15 +241,15 @@ void vtkLidarReader::SetFileName(const std::string& filename)
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
 {
-  this->Interpreter->ResetCurrentFrame();
-  this->Interpreter->ClearAllFramesAvailable();
+  this->LidarInterpreter->ResetCurrentFrame();
+  this->LidarInterpreter->ClearAllFramesAvailable();
 
   if (!this->Reader)
   {
     vtkErrorMacro("GetFrame() called but packet file reader is not open.");
     return 0;
   }
-  if (!this->Interpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsCalibrated())
   {
     vtkErrorMacro("Calibration data has not been loaded.");
     return 0;
@@ -261,29 +261,29 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
 
   // Update the interpreter meta data according to the requested frame
   FrameInformation currInfo = this->FrameCatalog[frameNumber];
-  this->Interpreter->SetParserMetaData(this->FrameCatalog[frameNumber]);
+  this->LidarInterpreter->SetParserMetaData(this->FrameCatalog[frameNumber]);
   this->Reader->SetFilePosition(&currInfo.FilePosition);
 
   while (this->Reader->NextPacket(data, dataLength, timeSinceStart))
   {
     // If the current packet is not a lidar packet,
     // skip it and update the file position
-    if (!this->Interpreter->IsLidarPacket(data, dataLength))
+    if (!this->LidarInterpreter->IsLidarPacket(data, dataLength))
     {
       continue;
     }
 
     // Process the lidar packet and check
     // if the required frame is ready
-    this->Interpreter->ProcessPacketWrapped(data, dataLength, timeSinceStart);
-    if (this->Interpreter->IsNewFrameReady())
+    this->LidarInterpreter->ProcessPacketWrapped(data, dataLength, timeSinceStart);
+    if (this->LidarInterpreter->IsNewFrameReady())
     {
-      return this->Interpreter->GetLastFrameAvailable();
+      return this->LidarInterpreter->GetLastFrameAvailable();
     }
   }
 
-  this->Interpreter->SplitFrame(true);
-  return this->Interpreter->GetLastFrameAvailable();
+  this->LidarInterpreter->SplitFrame(true);
+  return this->LidarInterpreter->GetLastFrameAvailable();
 }
 
 //-----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrameForDataTime(double dataTime
 //-----------------------------------------------------------------------------
 int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 {
-  double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  double timeOffset = this->GetLidarInterpreter()->GetTimeOffset();
   if (this->UseRelativeStartTime && this->FrameCatalog.size() >= 1)
   {
     if (timeOffset == 0.)
@@ -329,7 +329,7 @@ int vtkLidarReader::GetFrameIndexForPacketTime(double packetTime)
 //-----------------------------------------------------------------------------
 int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 {
-  double timeOffset = this->GetInterpreter()->GetTimeOffset();
+  double timeOffset = this->GetLidarInterpreter()->GetTimeOffset();
   if (this->UseRelativeStartTime && this->FrameCatalog.size() >= 1)
   {
     if (timeOffset == 0.)
@@ -406,7 +406,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
     return;
   }
 
-  if (this->GetInterpreter()->GetFramingMethod() != INTERPRETER_FRAMING)
+  if (this->GetLidarInterpreter()->GetFramingMethod() != INTERPRETER_FRAMING)
   {
     // not implemented yet, because not critical for the client
     vtkErrorMacro("SaveFrame() is only supported if the framing is provided by the interpreter.");
@@ -464,7 +464,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
   // Since the PreProcessPacket method of the interpreter can change
   // its internal state, we store and then restore the contained meta
   // data
-  FrameInformation storedMetaData = this->Interpreter->GetParserMetaData();
+  FrameInformation storedMetaData = this->LidarInterpreter->GetParserMetaData();
 
   // see explanation above for "+ 1"
   while (this->Reader->NextPacket(data, dataLength, timeSinceStart, &header, &dataHeaderLength) &&
@@ -473,12 +473,12 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
     // writing all packets, even those that do not contain lidar frames,
     // such as IMU data or GPS data
     writer.WritePacket(header, data - dataHeaderLength);
-    if (this->Interpreter->IsLidarPacket(data, dataLength))
+    if (this->LidarInterpreter->IsLidarPacket(data, dataLength))
     {
       // we need to count frames and some are split in multiple packets
       // we give timeSinceStart in case Framing Method is not the interpreter one
       bool isNewFrame =
-        this->Interpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(), timeSinceStart);
+        this->LidarInterpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(), timeSinceStart);
 
       currentFrame += static_cast<int>(isNewFrame);
       this->UpdateProgress(0.0);
@@ -486,7 +486,7 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
   }
   writer.Close();
   // restore the meta data
-  this->Interpreter->SetParserMetaData(storedMetaData);
+  this->LidarInterpreter->SetParserMetaData(storedMetaData);
 }
 
 //-----------------------------------------------------------------------------
@@ -516,19 +516,19 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->Interpreter)
+  if (!this->LidarInterpreter)
   {
     vtkErrorMacro("Interpreter has not been set.");
     return 0;
   }
 
-  if (!this->Interpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsCalibrated())
   {
     vtkErrorMacro("The calibration could not be determined from the pcap file!");
     return 0;
   }
 
-  calibration->ShallowCopy(this->Interpreter->GetCalibrationTable());
+  calibration->ShallowCopy(this->LidarInterpreter->GetCalibrationTable());
   // This mean that the reader did not manage to parser the pcap file
   if (this->FrameCatalog.size() <= 1)
   {
@@ -578,17 +578,18 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  if (!this->Interpreter)
+  if (!this->LidarInterpreter)
   {
     vtkErrorMacro("No packet interpreter selected.");
+    return 0;
   }
 
-  if (!this->Interpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsCalibrated())
   {
-    this->Interpreter->LoadCalibration();
+    this->LidarInterpreter->LoadCalibration();
   }
 
-  if (this->Interpreter && !this->FileName.empty())
+  if (this->LidarInterpreter && !this->FileName.empty())
   {
     this->ReadFrameInformation();
   }
@@ -598,7 +599,7 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetInterpreter(vtkLidarPacketInterpreter* interpreter)
+void vtkLidarReader::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
-  this->Interpreter = interpreter;
+  this->LidarInterpreter = interpreter;
 }

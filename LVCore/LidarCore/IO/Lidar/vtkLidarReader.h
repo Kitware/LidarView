@@ -64,8 +64,8 @@ public:
   /**
    * @copydoc vtkLidarPacketInterpreter
    */
-  vtkGetObjectMacro(Interpreter, vtkLidarPacketInterpreter);
-  void SetInterpreter(vtkLidarPacketInterpreter* interpreter);
+  vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);
+  void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
 
   /**
    * @copydoc NetworkTimeToDataTime
@@ -164,7 +164,7 @@ protected:
   std::string FileName = "";
 
   //! Interpret the packet to create a frame, all the magic happen here
-  vtkLidarPacketInterpreter* Interpreter = nullptr;
+  vtkLidarPacketInterpreter* LidarInterpreter = nullptr;
 
   //! Miscellaneous information about a frame that enable:
   //! - Quick jump to a frame index
