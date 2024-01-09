@@ -27,6 +27,9 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
+#include <vtkStringArray.h>
+#include <vtkTable.h>
+#include <vtkTableAlgorithm.h>
 #include <vtkTransform.h>
 
 // EIGEN
@@ -34,6 +37,7 @@
 
 // STD
 #include <climits>
+#include <string>
 
 class vtkComputeVolume::vtkInternals
 {
@@ -177,7 +181,8 @@ constexpr unsigned int PLANE_INPUT_PORT = 1;
 constexpr unsigned int INPUT_PORT_COUNT = 2;
 
 constexpr unsigned int RASTERIZED_POINTS_OUTPUT_PORT = 0;
-constexpr unsigned int OUTPUT_PORT_COUNT = 1;
+constexpr unsigned int VOLUME_OUTPUT_PORT = 1;
+constexpr unsigned int OUTPUT_PORT_COUNT = 2;
 
 vtkStandardNewMacro(vtkComputeVolume)
 
@@ -194,6 +199,22 @@ int vtkComputeVolume::FillInputPortInformation(int vtkNotUsed(port), vtkInformat
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkComputeVolume::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if (port == RASTERIZED_POINTS_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    return 1;
+  }
+  if (port == VOLUME_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -224,6 +245,7 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* inCloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT], 0);
   vtkPolyData* inPlane = vtkPolyData::GetData(inputVector[PLANE_INPUT_PORT], 0);
   vtkPolyData* rasterizedCloud = vtkPolyData::GetData(outputVector, RASTERIZED_POINTS_OUTPUT_PORT);
+  vtkTable* volumeOutput = vtkTable::GetData(outputVector, VOLUME_OUTPUT_PORT);
   // Check if input plane is a multiblock
   if (!inPlane)
   {
@@ -312,7 +334,15 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
   rasterizedCloud->GetFieldData()->AddArray(volumeArray);
   volumeArray->Delete();
 
-  vtkWarningMacro("The volume of input pointcloud is estimated to " << volume);
+  // Set output for displaying volume information
+  std::ostringstream oss;
+  oss << std::setprecision(6) << std::noshowpoint << volume << " m3";
+  std::string volumText = "The volume is estimated to " + oss.str();
+  vtkNew<vtkStringArray> data;
+  data->SetName("Volume Information");
+  data->SetNumberOfComponents(1);
+  data->InsertNextValue(volumText.c_str());
+  volumeOutput->AddColumn(data);
 
   return 1;
 }

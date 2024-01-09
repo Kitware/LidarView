@@ -34,7 +34,13 @@
       </Documentation>
     </InputProperty>
 
-    <OutputPort name="Rasterized point cloud" index="0" id="port0" />
+    <OutputPort name="Rasterized point cloud" index="0" />
+    <OutputPort name="Estimated volume" index="1" />
+
+    <Hints>
+      <OutputPort index="1" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="1" />
+    </Hints>
 
     <DoubleVectorProperty name="Grid resolution"
                           command="SetGridResolution"
