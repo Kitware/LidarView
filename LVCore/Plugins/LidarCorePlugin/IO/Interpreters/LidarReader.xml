@@ -99,33 +99,33 @@
 
     <!-- ==================================================================== -->
     <!-- Common position orientation pcap reader -->
-    <SourceProxy name="CommonLidarPoseReader" class="vtkLidarPoseReader">
+    <SourceProxy name="CommonLidarPoseReader"
+                 class="vtkLidarPoseReader"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="CommonLidarReader">
 
-      <OutputPort name="Position Orientation " index="0" />
-      <OutputPort name="Raw informations" index="1" />
+      <OutputPort name="Position Orientation " index="2" />
+      <OutputPort name="Raw informations" index="3" />
 
-      <StringVectorProperty name="FileName"
-                            animateable="0"
-                            command="SetFileName"
-                            number_of_elements="1">
-        <FileListDomain name="files" />
-        <Documentation>
-          This property specifies the file name for the reader.
-        </Documentation>
-      </StringVectorProperty>
-
-      <IntVectorProperty name="PositionOrientationPort"
-                         command="SetPositionOrientationPort"
-                         default_values="-1"
+      <IntVectorProperty name="LidarPosePort"
+                         command="SetLidarPosePort"
+                         default_values="8308"
                          number_of_elements="1">
         <Documentation>
-          Specify which position orientation packets are read. To read all packets set the value to -1
+          Specify which position orientation packets are read.
         </Documentation>
       </IntVectorProperty>
 
       <PropertyGroup label="Reader Options">
         <Property name="FileName" />
-        <Property name="PositionOrientationPort" />
+        <Property name="LidarPort" />
+        <Property name="LidarPosePort" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Reader Advanced Options">
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+        <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
+        <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>

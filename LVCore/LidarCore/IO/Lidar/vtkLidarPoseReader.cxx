@@ -15,12 +15,19 @@
 
 #include "vtkLidarPoseReader.h"
 #include "vtkHelper.h"
+#include "vtkPacketFileReader.h"
 
 #include <vtkCellArray.h>
 #include <vtkInformation.h>
 #include <vtkLine.h>
 #include <vtkNew.h>
 #include <vtkPolyLine.h>
+
+namespace
+{
+constexpr unsigned int POSITION_ORIENTATION_PORT = 2;
+constexpr unsigned int POSE_RAW_INFORMATION_PORT = 3;
+}
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarPoseReader)
@@ -29,79 +36,51 @@ vtkStandardNewMacro(vtkLidarPoseReader)
 vtkLidarPoseReader::vtkLidarPoseReader()
 {
   this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(2);
+  this->SetNumberOfOutputPorts(4);
 }
 
 //-----------------------------------------------------------------------------
 int vtkLidarPoseReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if (port == 0)
+  if (port == ::POSITION_ORIENTATION_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
-  if (port == 1)
+  if (port == ::POSE_RAW_INFORMATION_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
-  return 0;
+  return vtkLidarReader::FillOutputPortInformation(port, info);
 }
 
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkLidarPoseReader::GetMTime()
 {
-  if (this->Interpreter)
+  if (this->PoseInterpreter)
   {
-    return std::max(this->Superclass::GetMTime(), this->Interpreter->GetMTime());
+    return std::max(this->Superclass::GetMTime(), this->PoseInterpreter->GetMTime());
   }
   return this->Superclass::GetMTime();
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::SetFileName(const std::string& filename)
+void vtkLidarPoseReader::Open(bool reassemble)
 {
-  if (filename == this->FileName)
+  std::vector<int> ports;
+  if (this->LidarPort != -1)
   {
-    return;
+    ports.emplace_back(this->LidarPort);
+    ports.emplace_back(this->LidarPosePort);
   }
-
-  this->FileName = filename;
-  this->Modified();
+  Superclass::Open(ports, reassemble);
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::Open()
+void vtkLidarPoseReader::ReadPositionOrientation()
 {
-  this->Close();
-  this->Reader = new vtkPacketFileReader;
-
-  std::string filterPCAP = "udp";
-  if (this->PositionOrientationPort != -1)
-  {
-    filterPCAP += " port " + std::to_string(this->PositionOrientationPort);
-  }
-
-  if (!this->Reader->Open(this->FileName, filterPCAP.c_str()))
-  {
-    vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                  << this->Reader->GetLastError());
-    this->Close();
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkLidarPoseReader::Close()
-{
-  delete this->Reader;
-  this->Reader = nullptr;
-}
-
-//-----------------------------------------------------------------------------
-void vtkLidarPoseReader::ReadPositionOrientation(
-  vtkSmartPointer<vtkPolyData>& positionOrientationInfo,
-  vtkSmartPointer<vtkTable>& rawInfo)
-{
+  this->Open();
   if (!this->Reader)
   {
     vtkErrorMacro("ReadPositionOrientation() called but packet file reader is not open.");
@@ -116,44 +95,48 @@ void vtkLidarPoseReader::ReadPositionOrientation(
   {
     // If the current packet is not valid,
     // skip it and update the file position
-    if (!this->Interpreter->IsValidPacket(data, dataLength))
+    if (!this->PoseInterpreter->IsValidPacket(data, dataLength))
     {
       continue;
     }
 
     // Process the packet
-    this->Interpreter->ProcessPacket(data, dataLength);
+    this->PoseInterpreter->ProcessPacket(data, dataLength);
   }
+  this->Close();
 
   // Save positions and orientation information if packets contain them
-  if (this->Interpreter->HasPositionOrientationInformation())
+  if (this->PoseInterpreter->HasPositionOrientationInformation())
   {
-    positionOrientationInfo = this->Interpreter->GetPositionOrientation();
+    this->PositionOrientationInfos = this->PoseInterpreter->GetPositionOrientation();
 
     // Set the polyline to the poly data to see the position orientation information
     vtkSmartPointer<vtkPolyLine> polyLine =
-      CreatePolyLineFromPoints(positionOrientationInfo->GetPoints());
+      CreatePolyLineFromPoints(this->PositionOrientationInfos->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
-    positionOrientationInfo->SetLines(cellArray);
+    this->PositionOrientationInfos->SetLines(cellArray);
 
-    this->Interpreter->FillInterpolatorFromPositionOrientation();
+    this->PoseInterpreter->FillInterpolatorFromPositionOrientation();
   }
 
   // Save raw information if packets contain them
-  if (this->Interpreter->HasRawInformation())
+  if (this->PoseInterpreter->HasRawInformation())
   {
-    rawInfo = this->Interpreter->GetRawInformation();
+    this->RawInfos = this->PoseInterpreter->GetRawInformation();
   }
 }
 
 //-----------------------------------------------------------------------------
-int vtkLidarPoseReader::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
+int vtkLidarPoseReader::RequestInformation(vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkPolyData* outputPositionOrientation = vtkPolyData::GetData(outputVector);
-  vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
+  if (!this->PoseInterpreter)
+  {
+    vtkErrorMacro("No pose interpreter selected.");
+    return 0;
+  }
 
   if (this->FileName.empty())
   {
@@ -161,27 +144,34 @@ int vtkLidarPoseReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (this->Interpreter)
-  {
-    // We need to reset the interpreter data before filling it to avoid data stacking.
-    // For example, this can happen if the sensor transform is modified after a first instantiation
-    // The previous result needs to be erase to avoid having 2 trajectories
-    this->Interpreter->ResetCurrentData();
+  this->ReadLidarPoseData = true;
+  return vtkLidarReader::RequestInformation(request, inputVector, outputVector);
+}
 
-    this->Open();
-    vtkSmartPointer<vtkPolyData> polydata;
-    vtkSmartPointer<vtkTable> table;
-    this->ReadPositionOrientation(polydata, table);
-    if (polydata)
-    {
-      outputPositionOrientation->ShallowCopy(polydata);
-    }
-    if (table)
-    {
-      outputRawInformation->ShallowCopy(table);
-    }
-    this->Close();
+//-----------------------------------------------------------------------------
+int vtkLidarPoseReader::RequestData(vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  vtkPolyData* outputPositionOrientation =
+    vtkPolyData::GetData(outputVector, ::POSITION_ORIENTATION_PORT);
+  vtkTable* outputRawInformation = vtkTable::GetData(outputVector, ::POSE_RAW_INFORMATION_PORT);
+
+  if (this->ReadLidarPoseData)
+  {
+    this->PoseInterpreter->ResetCurrentData();
+    this->ReadPositionOrientation();
+    this->ReadLidarPoseData = false;
   }
 
-  return 1;
+  if (this->PositionOrientationInfos)
+  {
+    outputPositionOrientation->ShallowCopy(this->PositionOrientationInfos);
+  }
+  if (this->RawInfos)
+  {
+    outputRawInformation->ShallowCopy(this->RawInfos);
+  }
+
+  return vtkLidarReader::RequestData(request, inputVector, outputVector);
 }

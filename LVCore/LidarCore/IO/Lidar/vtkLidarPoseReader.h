@@ -22,31 +22,41 @@
 #include <vtkTable.h>
 
 #include "vtkLidarPosePacketInterpreter.h"
-#include "vtkPacketFileReader.h"
+#include "vtkLidarReader.h"
 
 #include "lvIOLidarModule.h"
 
-class LVIOLIDAR_EXPORT vtkLidarPoseReader : public vtkPolyDataAlgorithm
+class vtkLidarPosePacketInterpreter;
+
+/**
+ * The vtkLidarPoseReader reads both LiDAR data and position orientation data
+ * from a .pcap file.
+ *
+ * It's important to note that the pose data is aggregated (non-temporal) in
+ * comparison to the temporal LiDAR data.
+ */
+class LVIOLIDAR_EXPORT vtkLidarPoseReader : public vtkLidarReader
 {
 public:
   static vtkLidarPoseReader* New();
-  vtkTypeMacro(vtkLidarPoseReader, vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkLidarPoseReader, vtkLidarReader)
 
-  vtkGetMacro(FileName, std::string);
-  void SetFileName(const std::string& filename);
-
-  vtkGetObjectMacro(Interpreter, vtkLidarPosePacketInterpreter)
-  vtkSetObjectMacro(Interpreter, vtkLidarPosePacketInterpreter)
+  vtkGetObjectMacro(PoseInterpreter, vtkLidarPosePacketInterpreter)
+  vtkSetObjectMacro(PoseInterpreter, vtkLidarPosePacketInterpreter)
 
   /**
-   * @brief Open open the pcap file
+   * Call vtkLidarReader::Open with the addition of the pose port.
    */
-  void Open();
+  void Open(bool reassemble = true) override;
 
-  /**
-   * @brief Close close the pcap file
-   */
-  void Close();
+  vtkMTimeType GetMTime() override;
+
+  vtkGetMacro(LidarPosePort, int);
+  vtkSetMacro(LidarPosePort, int);
+
+protected:
+  vtkLidarPoseReader();
+  ~vtkLidarPoseReader() = default;
 
   int RequestData(vtkInformation* vtkNotUsed(request),
     vtkInformationVector** vtkNotUsed(inputVector),
@@ -54,36 +64,33 @@ public:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  vtkMTimeType GetMTime() override;
-
-  vtkGetMacro(PositionOrientationPort, int);
-  vtkSetMacro(PositionOrientationPort, int);
-
-protected:
-  vtkLidarPoseReader();
-  ~vtkLidarPoseReader() = default;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //! Interpret for position orientation packet
-  vtkLidarPosePacketInterpreter* Interpreter = nullptr;
-
-  //! Name of the pcap file to read
-  std::string FileName = "";
-
-  //! libpcap wrapped reader which enable to get the raw pcap packet from the pcap file
-  vtkPacketFileReader* Reader = nullptr;
+  vtkLidarPosePacketInterpreter* PoseInterpreter = nullptr;
 
   //! Filter the packet to only read the packet received on a specify port
   //! To read all packet use -1
-  int PositionOrientationPort = -1;
+  int LidarPosePort = -1;
 
 private:
   vtkLidarPoseReader(const vtkLidarPoseReader&) = delete;
   void operator=(const vtkLidarPoseReader&) = delete;
+
+  ///@{
   /**
-   * @brief ReadPositionOrientation returns all the positions contains in the pcap file
+   * Position orientation data are only read when Apply is called
+   * compared to LiDAR data which are read each time a new frame is requested.
    */
-  void ReadPositionOrientation(vtkSmartPointer<vtkPolyData>& PositionOrientationInfos,
-    vtkSmartPointer<vtkTable>& RawInfos);
+  bool ReadLidarPoseData = true;
+  vtkSmartPointer<vtkPolyData> PositionOrientationInfos;
+  vtkSmartPointer<vtkTable> RawInfos;
+  ///@}
+
+  /**
+   * Returns all the positions contains in the pcap file
+   */
+  void ReadPositionOrientation();
 };
 
 #endif
