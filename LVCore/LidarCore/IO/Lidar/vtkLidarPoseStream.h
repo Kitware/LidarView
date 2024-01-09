@@ -21,51 +21,72 @@
 #include <vtkPolyData.h>
 #include <vtkTable.h>
 
-#include "vtkLidarPosePacketInterpreter.h"
-#include "vtkStream.h"
+#include "vtkLidarStream.h"
 
 #include "lvIOLidarModule.h"
 
-class LVIOLIDAR_EXPORT vtkLidarPoseStream : public vtkStream
+class vtkLidarPosePacketInterpreter;
+
+/**
+ * vtkLidarPoseStream is composed by two different streams:
+ *  - The standard Lidar stream containing LiDAR data.
+ *  - Position and orientation data (GNSS + IMU), which are aggregated
+ *    into another output.
+ *
+ * The current class structure is suboptimal, as it opens two separate
+ * streams for the same host but on different ports.
+ */
+class LVIOLIDAR_EXPORT vtkLidarPoseStream : public vtkLidarStream
 {
 public:
   static vtkLidarPoseStream* New();
-  vtkTypeMacro(vtkLidarPoseStream, vtkStream)
-
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
-
-  void AddNewData() override;
-
-  void ClearAllDataAvailable() override;
-
-  int CheckForNewData() override;
+  vtkTypeMacro(vtkLidarPoseStream, vtkLidarStream)
 
   vtkLidarPosePacketInterpreter* GetPoseInterpreter();
   void SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter);
 
+  ///@{
+  /**
+   * Set / Get GNSS port and forward port for the internal stream object.
+   */
+  int GetGNSSPort();
+  void SetGNSSPort(int);
+  int GetGNSSForwardedPort();
+  void SetGNSSForwardedPort(int);
+  ///@}
+
+  ///@{
+  /**
+   * Overload of stream methods to set both the parent class and
+   * the internal stream objects.
+   */
+  void SetMulticastAddress(const std::string&) override;
+  void SetLocalListeningAddress(const std::string&) override;
+  void SetForwardedIpAddress(const std::string& ipAddress) override;
+  void SetIsForwarding(bool) override;
+  void SetIsCrashAnalysing(bool value) override;
+
+  virtual void Start() override;
+  virtual void Stop() override;
+  vtkMTimeType GetMTime() override;
+  ///@}
+
 protected:
   vtkLidarPoseStream();
-  ~vtkLidarPoseStream() override;
+  ~vtkLidarPoseStream() = default;
 
   int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+
 private:
   vtkLidarPoseStream(const vtkLidarPoseStream&) = delete;
   void operator=(const vtkLidarPoseStream&) = delete;
 
-  vtkSmartPointer<vtkPolyData> AllPositionsOrientation;
-
-  vtkSmartPointer<vtkTable> AllRawInformation;
-
-  unsigned int LastNumberPositionOrientationInformation;
-
-  unsigned int LastNumberRawInformation;
-
-  int CheckNewDataPositionOrientation();
-
-  int CheckForNewDataRawInformation();
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
 #endif

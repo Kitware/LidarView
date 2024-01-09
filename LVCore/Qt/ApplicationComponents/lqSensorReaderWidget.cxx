@@ -42,8 +42,8 @@ void lqSensorReaderWidget::onUpdateUI()
   {
     this->UI->posOrPort->setVisible(true);
     vtkSMProxy * posOrProxy = this->PositionOrientationSource->getProxy();
-    vtkSMProperty * posOrPropPort= posOrProxy->GetProperty("PositionOrientationPort");
-    QString posOrPort = "Port: " + QString::fromStdString(std::to_string(vtkSMPropertyHelper(posOrPropPort).GetAsInt()));
+    vtkSMProperty * posePropPort= posOrProxy->GetProperty("LidarPosePort");
+    QString posOrPort = "Port: " + QString::fromStdString(std::to_string(vtkSMPropertyHelper(posePropPort).GetAsInt()));
     this->UI->posOrPort->setText(posOrPort);
   }
   else

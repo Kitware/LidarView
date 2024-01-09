@@ -15,6 +15,7 @@
 
 #include "vtkLidarPoseStream.h"
 #include "vtkHelper.h"
+#include "vtkLidarPosePacketInterpreter.h"
 
 #include <sstream>
 
@@ -57,157 +58,274 @@ void DeepReverseCopy(vtkTable* input, vtkTable* output)
     output->AddColumn(array);
   }
 }
+
+constexpr unsigned int LIDAR_POSE_PORT = 2;
+constexpr unsigned int POSE_RAW_INFORMATION_PORT = 3;
 }
+
+// This is the "real" implementation of PoseLidarStream
+class vtkLidarPoseStream::vtkInternals : public vtkStream
+{
+public:
+  //-----------------------------------------------------------------------------
+  vtkInternals()
+  {
+    this->AllPoses = vtkSmartPointer<vtkPolyData>::New();
+    this->AllRawInformation = vtkSmartPointer<vtkTable>::New();
+    this->LastNumberPositionOrientationInformation = 0;
+    this->LastNumberRawInformation = 0;
+
+    this->SetListeningPort(8308);
+    this->SetForwardedPort(8308);
+  }
+
+  //-----------------------------------------------------------------------------
+  ~vtkInternals() override { this->Stop(); }
+
+  //-----------------------------------------------------------------------------
+  void AddNewData() override
+  {
+    if (this->GetPoseInterpreter()->HasRawInformation())
+    {
+      if (this->AllRawInformation->GetNumberOfRows() == 0)
+      {
+        this->AllRawInformation->DeepCopy(this->GetPoseInterpreter()->GetRawInformation());
+        return;
+      }
+
+      vtkSmartPointer<vtkTable> raw = this->GetPoseInterpreter()->GetRawInformation();
+
+      for (int i = 0; i < raw->GetNumberOfRows(); i++)
+      {
+        vtkVariantArray* array = raw->GetRow(i);
+        this->AllRawInformation->InsertNextRow(array);
+      }
+    }
+
+    if (this->GetPoseInterpreter()->HasPositionOrientationInformation())
+    {
+      if (this->AllPoses->GetNumberOfPoints() == 0)
+      {
+        this->AllPoses->DeepCopy(this->GetPoseInterpreter()->GetPositionOrientation());
+        return;
+      }
+      // Copying the new position orientation information (points, rows, ...)
+      // available in the interpreter to the corresponding buffer
+      vtkSmartPointer<vtkPolyData> pose = this->GetPoseInterpreter()->GetPositionOrientation();
+      vtkPoints* points = this->AllPoses->GetPoints();
+      for (vtkIdType i = 0; i < pose->GetNumberOfPoints(); i++)
+      {
+        for (vtkIdType j = 0; j < pose->GetPointData()->GetNumberOfArrays(); j++)
+        {
+          // Insert the i-th tuple of the current array (source) to the corresponding array of the
+          // bufferize vtkPolyData
+          vtkAbstractArray* source = pose->GetPointData()->GetAbstractArray(j);
+          this->AllPoses->GetPointData()->GetAbstractArray(j)->InsertNextTuple(i, source);
+        }
+        // Update points
+        double pointToAdd[3];
+        pose->GetPoint(i, pointToAdd);
+        points->InsertNextPoint(pointToAdd);
+        this->AllPoses->SetPoints(points);
+      }
+
+      // Set the polyline to the poly data to see the position orientation information
+      vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(this->AllPoses->GetPoints());
+      vtkNew<vtkCellArray> cellArray;
+      cellArray->InsertNextCell(polyLine);
+      this->AllPoses->SetLines(cellArray);
+    }
+  }
+
+  //-----------------------------------------------------------------------------
+  void ClearAllDataAvailable() override { this->GetPoseInterpreter()->ResetCurrentData(); }
+
+  //-----------------------------------------------------------------------------
+  int CheckForNewData() override
+  {
+    return this->CheckNewDataPositionOrientation() + this->CheckForNewDataRawInformation();
+  }
+
+  //-----------------------------------------------------------------------------
+  vtkLidarPosePacketInterpreter* GetPoseInterpreter()
+  {
+    return vtkLidarPosePacketInterpreter::SafeDownCast(this->Interpreter);
+  }
+
+  //-----------------------------------------------------------------------------
+  void SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter)
+  {
+    this->Interpreter = interpreter;
+  }
+
+  //-----------------------------------------------------------------------------
+  virtual int RequestData(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector),
+    vtkInformationVector* outputVector) override
+  {
+    {
+      std::lock_guard<std::mutex> lock(this->DataMutex);
+
+      vtkPolyData* outputPositionsOrientations =
+        vtkPolyData::GetData(outputVector, ::LIDAR_POSE_PORT);
+      outputPositionsOrientations->DeepCopy(this->AllPoses);
+      this->LastNumberPositionOrientationInformation = this->AllPoses->GetNumberOfPoints();
+
+      vtkTable* outputRawInformation = vtkTable::GetData(outputVector, ::POSE_RAW_INFORMATION_PORT);
+      ::DeepReverseCopy(this->AllRawInformation, outputRawInformation);
+      this->LastNumberRawInformation = this->AllRawInformation->GetNumberOfRows();
+    }
+    return 1;
+  };
+
+private:
+  vtkInternals(const vtkInternals&) = delete;
+  void operator=(const vtkInternals&) = delete;
+
+  //-----------------------------------------------------------------------------
+  int CheckNewDataPositionOrientation()
+  {
+    return this->AllPoses->GetNumberOfPoints() - this->LastNumberPositionOrientationInformation;
+  }
+
+  //-----------------------------------------------------------------------------
+  int CheckForNewDataRawInformation()
+  {
+    return this->AllRawInformation->GetNumberOfRows() - this->LastNumberRawInformation;
+  }
+
+public:
+  vtkSmartPointer<vtkPolyData> AllPoses;
+  vtkSmartPointer<vtkTable> AllRawInformation;
+
+  unsigned int LastNumberPositionOrientationInformation;
+  unsigned int LastNumberRawInformation;
+};
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarPoseStream)
 
 //-----------------------------------------------------------------------------
 vtkLidarPoseStream::vtkLidarPoseStream()
+  : Internals(new vtkLidarPoseStream::vtkInternals())
 {
   this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(2);
-  this->AllPositionsOrientation = vtkSmartPointer<vtkPolyData>::New();
-  this->AllRawInformation = vtkSmartPointer<vtkTable>::New();
-  this->LastNumberPositionOrientationInformation = 0;
-  this->LastNumberRawInformation = 0;
-}
-
-//-----------------------------------------------------------------------------
-vtkLidarPoseStream::~vtkLidarPoseStream()
-{
-  // see the explanation about why this is needed in vtkStream::~vtkStream
-  this->Stop();
+  this->SetNumberOfOutputPorts(4);
 }
 
 //-----------------------------------------------------------------------------
 int vtkLidarPoseStream::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if (port == 0)
+  if (port == ::LIDAR_POSE_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
 
-  if (port == 1)
+  if (port == ::POSE_RAW_INFORMATION_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
-  return 0;
+  return vtkLidarStream::FillOutputPortInformation(port, info);
 }
 
 //----------------------------------------------------------------------------
-int vtkLidarPoseStream::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
+int vtkLidarPoseStream::RequestData(vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  {
-    std::lock_guard<std::mutex> lock(this->DataMutex);
-
-    vtkPolyData* outputPositionsOrientations = vtkPolyData::GetData(outputVector, 0);
-    outputPositionsOrientations->DeepCopy(this->AllPositionsOrientation);
-    this->LastNumberPositionOrientationInformation =
-      this->AllPositionsOrientation->GetNumberOfPoints();
-
-    vtkTable* outputRawInformation = vtkTable::GetData(outputVector, 1);
-    DeepReverseCopy(this->AllRawInformation, outputRawInformation);
-    this->LastNumberRawInformation = this->AllRawInformation->GetNumberOfRows();
-  }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkLidarPoseStream::AddNewData()
-{
-  if (this->GetPoseInterpreter()->HasRawInformation())
-  {
-    if (this->AllRawInformation->GetNumberOfRows() == 0)
-    {
-      this->AllRawInformation->DeepCopy(this->GetPoseInterpreter()->GetRawInformation());
-      return;
-    }
-
-    vtkSmartPointer<vtkTable> raw = this->GetPoseInterpreter()->GetRawInformation();
-
-    for (int i = 0; i < raw->GetNumberOfRows(); i++)
-    {
-      vtkVariantArray* array = raw->GetRow(i);
-      this->AllRawInformation->InsertNextRow(array);
-    }
-  }
-
-  if (this->GetPoseInterpreter()->HasPositionOrientationInformation())
-  {
-    if (this->AllPositionsOrientation->GetNumberOfPoints() == 0)
-    {
-      this->AllPositionsOrientation->DeepCopy(
-        this->GetPoseInterpreter()->GetPositionOrientation());
-      return;
-    }
-    // Copying the new Position Orientation information (points, rows, ...) presents in the
-    // interpreter to the corresponding buffer
-    vtkSmartPointer<vtkPolyData> posOr = this->GetPoseInterpreter()->GetPositionOrientation();
-    vtkPoints* points = this->AllPositionsOrientation->GetPoints();
-    for (vtkIdType i = 0; i < posOr->GetNumberOfPoints(); i++)
-    {
-      for (vtkIdType j = 0; j < posOr->GetPointData()->GetNumberOfArrays(); j++)
-      {
-        // Insert the i-th tuple of the current array (source) to the corresponding array of the
-        // bufferize vtkPolyData
-        vtkAbstractArray* source = posOr->GetPointData()->GetAbstractArray(j);
-        this->AllPositionsOrientation->GetPointData()->GetAbstractArray(j)->InsertNextTuple(
-          i, source);
-      }
-      // Update points
-      double pointToAdd[3];
-      posOr->GetPoint(i, pointToAdd);
-      points->InsertNextPoint(pointToAdd);
-      this->AllPositionsOrientation->SetPoints(points);
-    }
-
-    // Set the polyline to the poly data to see the position orientation information
-    vtkSmartPointer<vtkPolyLine> polyLine =
-      CreatePolyLineFromPoints(this->AllPositionsOrientation->GetPoints());
-    vtkNew<vtkCellArray> cellArray;
-    cellArray->InsertNextCell(polyLine);
-    this->AllPositionsOrientation->SetLines(cellArray);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkLidarPoseStream::ClearAllDataAvailable()
-{
-  this->GetPoseInterpreter()->ResetCurrentData();
-}
-
-//----------------------------------------------------------------------------
-int vtkLidarPoseStream::CheckForNewData()
-{
-  return this->CheckNewDataPositionOrientation() + this->CheckForNewDataRawInformation();
-}
-
-//----------------------------------------------------------------------------
-int vtkLidarPoseStream::CheckNewDataPositionOrientation()
-{
-  return this->AllPositionsOrientation->GetNumberOfPoints() -
-    this->LastNumberPositionOrientationInformation;
-}
-
-//----------------------------------------------------------------------------
-int vtkLidarPoseStream::CheckForNewDataRawInformation()
-{
-  return this->AllRawInformation->GetNumberOfRows() - this->LastNumberRawInformation;
+  int ret = this->Internals->RequestData(request, inputVector, outputVector);
+  return ret && vtkLidarStream::RequestData(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 vtkLidarPosePacketInterpreter* vtkLidarPoseStream::GetPoseInterpreter()
 {
-  return vtkLidarPosePacketInterpreter::SafeDownCast(this->Interpreter);
+  return this->Internals->GetPoseInterpreter();
 }
 
 //----------------------------------------------------------------------------
 void vtkLidarPoseStream::SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter)
 {
-  this->Interpreter = interpreter;
+  this->Internals->SetPoseInterpreter(interpreter);
+}
+
+//----------------------------------------------------------------------------
+int vtkLidarPoseStream::GetGNSSPort()
+{
+  return this->Internals->GetListeningPort();
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetGNSSPort(int port)
+{
+  return this->Internals->SetListeningPort(port);
+}
+
+//----------------------------------------------------------------------------
+int vtkLidarPoseStream::GetGNSSForwardedPort()
+{
+  return this->Internals->GetForwardedPort();
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetGNSSForwardedPort(int port)
+{
+  return this->Internals->SetForwardedPort(port);
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetMulticastAddress(const std::string& value)
+{
+  this->Internals->SetMulticastAddress(value);
+  vtkLidarStream::SetMulticastAddress(value);
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetLocalListeningAddress(const std::string& value)
+{
+  this->Internals->SetLocalListeningAddress(value);
+  vtkLidarStream::SetLocalListeningAddress(value);
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetForwardedIpAddress(const std::string& value)
+{
+  this->Internals->SetForwardedIpAddress(value);
+  vtkLidarStream::SetForwardedIpAddress(value);
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetIsForwarding(bool value)
+{
+  this->Internals->SetIsForwarding(value);
+  vtkLidarStream::SetIsForwarding(value);
+}
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetIsCrashAnalysing(bool value)
+{
+  this->Internals->SetIsCrashAnalysing(value);
+  vtkLidarStream::SetIsCrashAnalysing(value);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarPoseStream::Start()
+{
+  vtkLidarStream::Start();
+  this->Internals->Start();
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarPoseStream::Stop()
+{
+  vtkLidarStream::Stop();
+  this->Internals->Stop();
+}
+
+//-----------------------------------------------------------------------------
+vtkMTimeType vtkLidarPoseStream::GetMTime()
+{
+  return std::max(this->vtkLidarStream::GetMTime(), this->Internals->GetMTime());
 }

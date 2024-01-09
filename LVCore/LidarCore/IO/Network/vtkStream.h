@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkStream, vtkDataObjectAlgorithm)
 
   virtual void Start();
-  void Stop();
+  virtual void Stop();
 
   vtkSetMacro(RecordingFilename, std::string);
   void StartRecording();
@@ -51,27 +51,24 @@ public:
   void SetListeningPort(int);
 
   vtkGetMacro(MulticastAddress, std::string);
-  void SetMulticastAddress(const std::string&);
+  virtual void SetMulticastAddress(const std::string&);
 
   vtkGetMacro(LocalListeningAddress, std::string);
-  void SetLocalListeningAddress(const std::string&);
+  virtual void SetLocalListeningAddress(const std::string&);
 
   vtkGetMacro(ForwardedIpAddress, std::string);
-  void SetForwardedIpAddress(const std::string& ipAddress);
+  virtual void SetForwardedIpAddress(const std::string& ipAddress);
 
   vtkGetMacro(ForwardedPort, int);
   void SetForwardedPort(int);
 
   vtkGetMacro(IsForwarding, bool);
-  void SetIsForwarding(bool);
+  virtual void SetIsForwarding(bool);
 
   vtkGetMacro(IsCrashAnalysing, bool);
-  void SetIsCrashAnalysing(bool value);
+  virtual void SetIsCrashAnalysing(bool value);
 
   vtkGetObjectMacro(Interpreter, vtkInterpreter);
-  // [[deprecated("Please use specific setter : setLidarInterpreter() or "
-  //              "SetPoseInterpreter()")]]
-  vtkSetObjectMacro(Interpreter, vtkInterpreter);
 
   /**
    * @brief GetNeedsUpdate
