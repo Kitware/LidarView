@@ -357,13 +357,30 @@ int vtkLidarReader::GetFrameIndexForDataTime(double dataTime)
 //-----------------------------------------------------------------------------
 void vtkLidarReader::Open(bool reassemble)
 {
+  std::vector<int> ports;
+  if (this->LidarPort != -1)
+  {
+    ports.emplace_back(this->LidarPort);
+  }
+  this->Open(ports, reassemble);
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarReader::Open(std::vector<int> ports, bool reassemble)
+{
   this->Close();
   this->Reader = new vtkPacketFileReader;
 
   std::string filterPCAP = "udp";
-  if (this->LidarPort != -1)
+  if (!ports.empty())
   {
-    filterPCAP += " port " + std::to_string(this->LidarPort);
+    std::string portsString = std::accumulate(ports.begin(),
+      ports.end(),
+      std::string(),
+      [](const std::string& acc, int port)
+      { return acc.empty() ? std::to_string(port) : acc + " or " + std::to_string(port); });
+
+    filterPCAP += " port " + portsString;
   }
   if (!this->Reader->Open(this->FileName, filterPCAP.c_str(), reassemble))
   {

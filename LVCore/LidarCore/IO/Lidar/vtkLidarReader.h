@@ -111,6 +111,7 @@ public:
    * @param reassemble Controls vtkPacketFileReader IP Reassembly
    */
   virtual void Open(bool reassemble = true);
+  void Open(std::vector<int> ports, bool reassemble = true);
 
   /**
    * @brief Close close the pcap file
