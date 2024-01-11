@@ -19,6 +19,8 @@
 
 #include <pqActiveObjects.h>
 #include <vtkSMProperty.h>
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMProxyProperty.h>
 #include <vtkSMSourceProxy.h>
 #include <vtkSMStringVectorProperty.h>
 #include <vtksys/SystemTools.hxx>
@@ -78,16 +80,13 @@ void lqStatusBar::onActiveSourceChanged(pqPipelineSource* activeSource)
       this->filenameLabel->clear();
     }
 
-    if (auto svp =
-          vtkSMStringVectorProperty::SafeDownCast(proxy->GetProperty("CalibrationFileName")))
+    vtkSMProxyProperty* interpreterProp =
+      vtkSMProxyProperty::SafeDownCast(proxy->GetProperty("PacketInterpreter"));
+    vtkSMProxy* interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
+    if (interpreterProxy)
     {
-      std::string filename = svp->GetElement(0);
-      if (!filename.empty())
-      {
-        filename = vtksys::SystemTools::GetFilenameWithoutExtension(filename);
-        std::string calibName = "Calibration: " + filename;
-        this->sensorInfoLabel->setText(calibName.c_str());
-      }
+      std::string selectedProxy = interpreterProxy->GetVTKClassName();
+      this->sensorInfoLabel->setText(selectedProxy.c_str());
     }
     else
     {
