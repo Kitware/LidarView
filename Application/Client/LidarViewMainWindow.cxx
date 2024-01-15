@@ -53,7 +53,6 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLidarViewManager.h"
 #include "lqLidarViewMenuBuilders.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
-#include "lqOpenPcapReaction.h"
 #include "lqWelcomeDialog.h"
 
 //-----------------------------------------------------------------------------
@@ -219,11 +218,7 @@ void LidarViewMainWindow::dropEvent(QDropEvent* evt)
     return;
   }
 
-  if (files[0].endsWith(".pcap"))
-  {
-    lqOpenPcapReaction::createSourceFromFile(files[0]);
-  }
-  else if (files[0].endsWith(".pcd"))
+  if (files[0].endsWith(".pcd"))
   {
     QMessageBox::warning(nullptr, tr(""), tr("Unsupported input format"));
     return;

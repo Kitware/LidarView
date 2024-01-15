@@ -1,7 +1,7 @@
 #include "lqOpenRecentFilesReaction.h"
 
 #include "lqHelper.h"
-#include "lqOpenPcapReaction.h"
+#include "lqOpenLidarReaction.h"
 
 #include <vtkSMPropertyHelper.h>
 
@@ -118,7 +118,7 @@ void lqOpenRecentFilesReaction::onOpenRecentFile(QString filename)
 {
   if (filename.endsWith(".pcap"))
   {
-    lqOpenPcapReaction::createSourceFromFile(filename);
+    lqOpenLidarReaction::openLidarPcap(filename);
   }
   else
   {

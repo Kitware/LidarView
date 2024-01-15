@@ -26,11 +26,10 @@
 #include <pqUndoRedoReaction.h>
 
 #include "lqEnableAdvancedArraysReaction.h"
-#include "lqOpenPcapReaction.h"
-#include "lqOpenSensorReaction.h"
+#include "lqOpenLidarReaction.h"
 #include "lqPythonShellReaction.h"
 #include "lqSavePcapReaction.h"
-#include "lqUpdateCalibrationReaction.h"
+#include "lqUpdateConfigurationReaction.h"
 #include "pqLoadPaletteReaction.h"
 
 //-----------------------------------------------------------------------------
@@ -39,11 +38,10 @@ void lqMainControlsToolbar::constructor()
   Ui::lqMainControlsToolbar ui;
   ui.setupUi(this);
 
-  new lqOpenPcapReaction(ui.actionOpenPcap);
+  new lqOpenLidarReaction(ui.actionOpenPcap, false);
   new lqSavePcapReaction(ui.actionSavePcap);
-  new lqOpenSensorReaction(ui.actionOpenSensorStream);
-  // Requires lqSensorListWidget init
-  new lqUpdateCalibrationReaction(ui.actionChooseCalibrationFile);
+  new lqOpenLidarReaction(ui.actionOpenSensorStream, true);
+  new lqUpdateConfigurationReaction(ui.actionUpdateConfiguration);
   new lqEnableAdvancedArraysReaction(ui.actionToggleAdvancedArrays);
   new pqLoadDataReaction(ui.actionOpenData);
   new pqSaveDataReaction(ui.actionSaveData);

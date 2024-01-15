@@ -41,14 +41,13 @@
 #include "lqMainControlsToolbar.h"
 #include "lqMeasurementGridReaction.h"
 #include "lqMenuSaveAsReaction.h"
-#include "lqOpenPcapReaction.h"
+#include "lqOpenLidarReaction.h"
 #include "lqOpenRecentFilesReaction.h"
-#include "lqOpenSensorReaction.h"
 #include "lqPlayerControlsToolbar.h"
 #include "lqRulersToolbar.h"
 #include "lqSavePcapReaction.h"
 #include "lqSensorListWidget.h"
-#include "lqUpdateCalibrationReaction.h"
+#include "lqUpdateConfigurationReaction.h"
 
 #include <QLayout>
 #include <QMainWindow>
@@ -67,8 +66,8 @@ void lqLidarViewMenuBuilders::buildFileMenu(QMenu& menu)
   // Since the UI file tends to change the name of the menu.
   menu.setObjectName(objectName);
 
-  new lqOpenPcapReaction(ui.actionOpenPcap);
-  new lqOpenSensorReaction(ui.actionOpenSensorStream);
+  new lqOpenLidarReaction(ui.actionOpenPcap, false);
+  new lqOpenLidarReaction(ui.actionOpenSensorStream, true);
   new lqOpenRecentFilesReaction(ui.menuRecentLidarFiles, ui.actionClearLidarRecentMenu);
   new lqSavePcapReaction(ui.actionSavePcap);
   new pqSaveDataReaction(ui.actionSaveData);
@@ -96,11 +95,7 @@ void lqLidarViewMenuBuilders::buildEditMenu(QMenu& menu, pqPropertiesPanel* prop
   // Since the UI file tends to change the name of the menu.
   menu.setObjectName(objectName);
 
-  // Requires lqSensorListWidget init
-  new lqUpdateCalibrationReaction(ui.actionChooseCalibrationFile);
-  // Following is required if intend to use the lqSensorListWidget
-  lqSensorListWidget::instance()->setCalibrationFunction(
-    &lqUpdateCalibrationReaction::UpdateExistingSource);
+  new lqUpdateConfigurationReaction(ui.actionUpdateConfiguration);
 
   auto* gridButton = new lqMeasurementGridReaction(ui.actionShowMeasurementGrid);
   QObject::connect(
