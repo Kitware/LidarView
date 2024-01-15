@@ -3,26 +3,15 @@
     <!-- ==================================================================== -->
     <!-- Base packet interpreter -->
     <SourceProxy name="BasePacketInterpreter" class="vtkInterpreter">
-
-      <IntVectorProperty name="ApplyTransform"
-                         animateable="0"
-                         command="SetApplyTransform"
-                         default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <BooleanDomain name="bool" />
-        <Documentation>
-      Apply geolocation data
-        </Documentation>
-      </IntVectorProperty>
-
-      <ProxyProperty command="SetSensorTransform"
-                     name="SensorTransform"
-                     panel_visibility="advanced">
-        <ProxyListDomain name="proxy_list">
-          <Proxy group="extended_sources" name="Transform2" />
-        </ProxyListDomain>
-      </ProxyProperty>
+      <SubProxy command="SetSensorTransform">
+        <Proxy name="SensorTransform"
+               proxygroup="extended_sources"
+               proxyname="Transform2" />
+        <ExposedProperties>
+          <Property name="Position" />
+          <Property name="Rotation" />
+        </ExposedProperties>
+      </SubProxy>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

@@ -65,9 +65,6 @@ public:
 
   virtual int64_t GetManufacturerMACAddress() { return 0xffffffffffff;}
 
-  vtkGetMacro(ApplyTransform, bool)
-  vtkSetMacro(ApplyTransform, bool)
-
   vtkGetObjectMacro(SensorTransform, vtkTransform)
   virtual void SetSensorTransform(vtkTransform *);
 
@@ -76,9 +73,6 @@ public:
 protected:
   vtkInterpreter() = default;
   virtual ~vtkInterpreter() = default;
-
-  //! Indicate if the vtkInterpreter::SensorTransform is apply
-  bool ApplyTransform = false;
 
   //! Fixed transform to apply to the Sensor output points.
   vtkTransform* SensorTransform = nullptr;
