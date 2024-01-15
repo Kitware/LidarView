@@ -11,6 +11,7 @@ set(classes
   lqLiveSourceScalarColoringBehavior
   lqLoadLidarStateReaction
   lqMeasurementGridReaction
+  lqOpenLidarReaction
   lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
   lqPythonShellReaction
@@ -24,6 +25,7 @@ set(classes
   lqSensorStreamWidget
   lqSensorWidget
   lqStreamRecordReaction
+  lqUpdateConfigurationReaction
   lqViewFrameActions)
 
 set(ui_files
