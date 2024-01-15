@@ -25,6 +25,8 @@
 #include <pqSaveDataReaction.h>
 #include <pqUndoRedoReaction.h>
 
+#include "vtkSMInterpretersManagerProxy.h"
+
 #include "lqEnableAdvancedArraysReaction.h"
 #include "lqOpenLidarReaction.h"
 #include "lqPythonShellReaction.h"
@@ -38,9 +40,9 @@ void lqMainControlsToolbar::constructor()
   Ui::lqMainControlsToolbar ui;
   ui.setupUi(this);
 
-  new lqOpenLidarReaction(ui.actionOpenPcap, false);
+  new lqOpenLidarReaction(ui.actionOpenPcap, vtkSMInterpretersManagerProxy::Mode::READER);
   new lqSavePcapReaction(ui.actionSavePcap);
-  new lqOpenLidarReaction(ui.actionOpenSensorStream, true);
+  new lqOpenLidarReaction(ui.actionOpenSensorStream, vtkSMInterpretersManagerProxy::Mode::STREAM);
   new lqUpdateConfigurationReaction(ui.actionUpdateConfiguration);
   new lqEnableAdvancedArraysReaction(ui.actionToggleAdvancedArrays);
   new pqLoadDataReaction(ui.actionOpenData);

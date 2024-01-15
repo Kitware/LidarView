@@ -34,6 +34,7 @@
 #include <pqSetName.h>
 
 #include "vtkLVVersion.h"
+#include "vtkSMInterpretersManagerProxy.h"
 
 #include "lqAboutDialogReaction.h"
 #include "lqColorToolbar.h"
@@ -66,8 +67,8 @@ void lqLidarViewMenuBuilders::buildFileMenu(QMenu& menu)
   // Since the UI file tends to change the name of the menu.
   menu.setObjectName(objectName);
 
-  new lqOpenLidarReaction(ui.actionOpenPcap, false);
-  new lqOpenLidarReaction(ui.actionOpenSensorStream, true);
+  new lqOpenLidarReaction(ui.actionOpenPcap, vtkSMInterpretersManagerProxy::Mode::READER);
+  new lqOpenLidarReaction(ui.actionOpenSensorStream, vtkSMInterpretersManagerProxy::Mode::STREAM);
   new lqOpenRecentFilesReaction(ui.menuRecentLidarFiles, ui.actionClearLidarRecentMenu);
   new lqSavePcapReaction(ui.actionSavePcap);
   new pqSaveDataReaction(ui.actionSaveData);

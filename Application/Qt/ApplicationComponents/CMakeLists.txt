@@ -7,11 +7,8 @@ set(classes
   lqLidarViewMenuBuilders
   lqMainControlsToolbar
   lqMenuSaveAsReaction
-  lqOpenPcapReaction
   lqOpenRecentFilesReaction
-  lqOpenSensorReaction
   lqStatusBar
-  lqUpdateCalibrationReaction
   lqWelcomeDialog
 )
 
