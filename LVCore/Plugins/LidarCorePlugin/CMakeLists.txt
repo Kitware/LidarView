@@ -171,9 +171,20 @@ lidarcoreplugin_add_module_xml(
 )
 
 set(interfaces)
+set(ui_files
+  Resources/UI/lqCalibrationFileWidget.ui)
 set(sources
+  lqCalibrationFilePropertyWidget.cxx
+  lqCalibrationFilePropertyWidget.h
   lqLidarCorePluginManager.cxx
   lqLidarCorePluginManager.h)
+
+paraview_plugin_add_property_widget(
+  KIND WIDGET
+  TYPE "calibration_file_widget"
+  CLASS_NAME lqCalibrationFilePropertyWidget
+  INTERFACES property_interfaces
+  SOURCES property_sources)
 
 paraview_plugin_add_auto_start(
   CLASS_NAME lqLidarCorePluginManager
@@ -181,14 +192,21 @@ paraview_plugin_add_auto_start(
   SHUTDOWN onShutdown
   INTERFACES autostart_interface
   SOURCES autostart_sources)
+
 list(APPEND interfaces
+  ${property_interfaces}
   ${autostart_interface})
 list(APPEND sources
+  ${property_sources}
   ${autostart_sources})
 
 set(qrc_files
   Resources/lqFilters.qrc
 )
+
+# As the ui files are not in the current source diectory
+list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/UI")
 
 paraview_add_plugin(LidarCorePlugin
   REQUIRED_ON_CLIENT
@@ -196,6 +214,7 @@ paraview_add_plugin(LidarCorePlugin
   VERSION "1.0"
   UI_RESOURCES ${qrc_files}
   UI_INTERFACES ${interfaces}
+  UI_FILES ${ui_files}
   SOURCES ${sources}
   MODULES ${required_modules}
 )
