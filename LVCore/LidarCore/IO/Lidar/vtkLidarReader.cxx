@@ -136,11 +136,6 @@ int vtkLidarReader::ReadFrameInformation()
     this->Reader->GetFilePosition(&lastFilePosition);
   }
 
-  if (this->FrameCatalog.size() == 1)
-  {
-    vtkErrorMacro("The reader could not parse the pcap file");
-  }
-
   this->NetworkTimeToDataTime = 0.0; // default value if no frames seen
   if (this->FrameCatalog.size() > 0)
   {
@@ -153,9 +148,10 @@ int vtkLidarReader::ReadFrameInformation()
     this->NetworkTimeToDataTime = ComputeMedian(diffs);
   }
 
-  if (this->FrameCatalog.size() == 1)
+  if (this->FrameCatalog.size() <= 1)
   {
-    vtkErrorMacro("The reader could not parse the pcap file");
+    vtkErrorMacro("The parsing of the pcap file failed. Consider attempting with another "
+                  "calibration file or a different lidar model.");
   }
 
   return this->GetNumberOfFrames();
@@ -524,7 +520,8 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!this->LidarInterpreter->GetIsCalibrated())
   {
-    vtkErrorMacro("The calibration could not be determined from the pcap file!");
+    vtkErrorMacro("The calibration could not be determined from the pcap file, and no valid "
+                  "calibration file was provided !");
     return 0;
   }
 
