@@ -114,10 +114,13 @@ void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource* src)
     }
     vtkSMProxy* proxy = lidarProxys[0];
 
-    // The Ui is updated, each time the Interpreter of the first Lidar Proxy is Modified
-    this->Connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-    this->Connection->Connect(
-      proxy->GetProperty("PacketInterpreter"), vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
+    vtkSMProperty* interpreter = proxy->GetProperty("PacketInterpreter");
+    if (interpreter)
+    {
+      // The Ui is updated, each time the Interpreter of the first Lidar Proxy is Modified
+      this->Connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+      this->Connection->Connect(interpreter, vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
+    }
 
     this->updateUI();
   }
