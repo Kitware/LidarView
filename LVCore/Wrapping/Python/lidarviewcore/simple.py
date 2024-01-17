@@ -18,6 +18,8 @@ import csv, os
 import importlib
 import paraview.simple as smp
 
+from lidarview.modules.lvRemotingServerManager import *
+
 import lidarviewcore.kiwiviewerExporter as kiwiviewerExporter
 
 # -----------------------------------------------------------------------------
@@ -52,11 +54,6 @@ def _SearchCalibrationFiles(calibration):
 # -----------------------------------------------------------------------------
 def _SetParamsOpenLidar(source, **params):
     """Internal method used by OpenPCAP and OpenSensorStream"""
-    for prop in ["Translate", "Rotate"]:
-        if prop in params:
-            source.Interpreter.SensorTransform.__setattr__(prop, params[prop])
-            del params[prop]
-
     properties = source.ListProperties()
     for prop in properties:
         if prop in params:
@@ -64,7 +61,65 @@ def _SetParamsOpenLidar(source, **params):
     return source
 
 # -----------------------------------------------------------------------------
-def OpenPCAP(filename, calibration, interpreter, **params):
+def GetAvailableInterpreterList(proxy=None):
+    """Using the interpreter manager, return a list of all interpreters available
+    """
+    if not proxy:
+      controller = smp.servermanager.ParaViewPipelineController()
+      proxy = smp.servermanager.misc.InterpretersManager()
+      controller.InitializeProxy(proxy)
+
+    nb = proxy.GetNumberOfInterpreters()
+    return [proxy.GetInterpreterName(i) for i in range(0, nb)]
+
+# -----------------------------------------------------------------------------
+def CreateInterpreterProxy(name, filename=None, mode=0, interpreterType=0):
+    """Create the appropriate proxy based on the provided parameters using the interpreter manager.
+
+    **Parameters**
+
+        name (str):
+            Name of the interpreter. Use GetAvailableInterpreterList() to get the list.
+
+        filename (str): (required if mode is stream)
+            Full path to the file to read in reader mode.
+
+        mode (int):
+            - if 0 == reader mode. (default)
+            - if 1 == stream mode.
+
+        interpreterType (int):
+            - if 0 == lidar only proxy. (default)
+            - if 1 == create a proxy with lidar + pose (GNSS/GPS) information.
+    """
+    if mode == 0 and not filename:
+        raise RuntimeError("A filename is needed in reader mode.")
+
+    if mode == 1 and filename:
+        raise RuntimeError("No filename is needed in stream mode.")
+
+    controller = smp.servermanager.ParaViewPipelineController()
+    proxy = smp.servermanager.misc.InterpretersManager()
+    controller.PreInitializeProxy(proxy)
+    proxy.Mode = mode
+    controller.PostInitializeProxy(proxy)
+
+    intrepreterList = GetAvailableInterpreterList(proxy)
+    if name not in intrepreterList:
+        raise RuntimeError(f"{name} is not a valid interpreter.")
+
+    proxyName = proxy.GetLidarProxyName(name, interpreterType)
+    if not proxyName or len(proxyName) == 0:
+        raise RuntimeError("No proxy with this configuration was found for this interpreter")
+
+    interpreterProxy = smp.servermanager.CreateProxy("sources", proxyName)
+    pyname = smp.servermanager._make_name_valid(interpreterProxy.GetXMLLabel())
+    if mode == 0:
+        return eval(f"smp.{pyname}(FileName=\"{filename}\")")
+    return eval(f"smp.{pyname}()")
+
+# -----------------------------------------------------------------------------
+def OpenPCAP(filename, lidarModel, interpreter, **params):
     """Open a .pcap file. Read the pcap data contained in the file located at filename.
 
     **Parameters**
@@ -72,10 +127,9 @@ def OpenPCAP(filename, calibration, interpreter, **params):
         filename (str):
           Full path of the pcap file to read.
 
-        calibration (str):
-          Full path to the corresponding calibration file or, if the calibration
-          is a default caibration, only the file name is required.
-          (Automatically search in share/ folder)
+        lidarModel (str):
+          Configure the lidar model if exist; otherwise, switch to legacy mode an
+          specify the complete path to the corresponding calibration file.
 
         interpreter (str):
           The interpreter to use. Note their availability depends
@@ -85,6 +139,9 @@ def OpenPCAP(filename, calibration, interpreter, **params):
 
         LidarPort (int):
           Specify on which port packets are read. By default all port are read.
+
+        CalibrationFile (str):
+          If specified, replace the default sensor calibration file.
 
         ShowFirstAndLastFrame (bool):
           Show first and last frame. It is common that the first and last frame
@@ -105,10 +162,13 @@ def OpenPCAP(filename, calibration, interpreter, **params):
         Rotate ([double, double, double]):
           Rotate point cloud with specified yaw, roll and pitch.
     """
-    calibrationFile = _SearchCalibrationFiles(calibration)
+    reader = CreateInterpreterProxy(interpreter, filename=filename, mode=0)
 
-    reader = smp.LidarReader(FileName=filename, Interpreter=interpreter)
-    reader.Interpreter.CalibrationFile = calibrationFile
+    if lidarModel in reader.LidarModel.Available:
+        reader.LidarModel = lidarModel
+    else:
+        reader.CalibrationFileName = _SearchCalibrationFiles(lidarModel)
+
     reader = _SetParamsOpenLidar(reader, **params)
 
     # Update animation scene based on data timesteps loaded in pcap
@@ -119,24 +179,25 @@ def OpenPCAP(filename, calibration, interpreter, **params):
     return reader
 
 # -----------------------------------------------------------------------------
-def OpenSensorStream(calibration, interpreter, port=2368, **params):
+def OpenSensorStream(lidarModel, interpreter, **params):
     """Open a lidar sensor stream on a port.
 
     **Parameters**
 
-        calibration (str):
-          Full path to the corresponding calibration file or, if the calibration
-          is a default caibration, only the file name is required.
-          (Automatically search in share/ folder)
+        lidarModel (str):
+          Configure the lidar model if it exists; otherwise, switch to legacy mode and
+          specify the complete path to the corresponding calibration file.
 
         interpreter (str):
           The interpreter to use. Note their availability depends
           of interpreter plugins built.
 
-        port (optional int):
-          Port on which to listen for packets. Default 2368.
-
     **Keyword Parameters (optional)**
+        ListeningPort (int):
+          Specify on which port packets are read.
+
+        CalibrationFile (str):
+          If specified, replace the default sensor calibration file.
 
         DetectFrameDropping (bool):
           Throw a warning to the user each time a frame is dropped
@@ -147,9 +208,13 @@ def OpenSensorStream(calibration, interpreter, port=2368, **params):
         Rotate ([double, double, double]):
           Rotate point cloud with specified yaw, roll and pitch.
     """
-    calibrationFile = _SearchCalibrationFiles(calibration)
+    stream = CreateInterpreterProxy(interpreter, mode=1)
 
-    stream = smp.LidarStream(CalibrationFile=calibrationFile, Interpreter=interpreter)
+    if lidarModel in stream.LidarModel.Available:
+        stream.LidarModel = lidarModel
+    else:
+        stream.CalibrationFileName = _SearchCalibrationFiles(lidarModel)
+
     stream = _SetParamsOpenLidar(stream, **params)
 
     smp.Show(stream)
