@@ -42,7 +42,7 @@ def saveCSVSelectionAndFrames(selection, filename, timesteps = default_timesteps
     scene = smp.GetAnimationScene()
 
     #get the lidar source for timestamp
-    lidarSource = smp.FindSource('LidarReader1')
+    lidarSource = smp.GetActiveSource()
 
     for i in timesteps:
         # Load each frame

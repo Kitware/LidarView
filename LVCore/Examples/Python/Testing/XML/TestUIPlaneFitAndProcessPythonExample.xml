@@ -5,7 +5,7 @@
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.plane_fit_and_process import PlaneFitAndProcess" />
 
   <!-- Call PlaneFitAndProcess example -->
-  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="PlaneFitAndProcess('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16.xml', '$PARAVIEW_TEST_ROOT/TestPlaneFitAndProcess.csv')" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="PlaneFitAndProcess('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16', '$PARAVIEW_TEST_ROOT/TestPlaneFitAndProcess.csv', '')" />
 
   <!-- Call zoom on planefit example -->
   <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,48,10,/0:0/2:0/0:0/1:0" />

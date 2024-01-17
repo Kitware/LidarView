@@ -10,9 +10,10 @@ import paraview.simple as smp
 
 ################################################################################
 carloop_pcap = "/home/user/data/CarLoop_VLP16.pcap"
+lidar_model = "VLP-16"
 calibration_file = "/path/to/lidarview/build/.../install/share/VLP-16.xml"
 default_filename = "/home/user/data/test.csv"
-interpreter = "Velodyne Packet Interpreter"
+interpreter = "Velodyne"
 ################################################################################
 
 def extractFromSelectMultipleQueries(queries = []):
@@ -77,10 +78,10 @@ def saveProgrammableFilterOutput(filename, prog_filter):
     smp.Delete(csvWriter)
 
 
-def PlaneFitAndProcess(pcapfile, calib, outputFilename):
+def PlaneFitAndProcess(pcapfile, model, outputFilename, calib):
     """ How to use this example """
     # Open pcap
-    lvsmp.OpenPCAP(pcapfile, calib, interpreter)
+    lvsmp.OpenPCAP(pcapfile, model, interpreter, CalibrationFileName=calib)
 
     # Select region on hardcoded requirement (in this case in front of lidar)
     selection = extractFromSelectMultipleQueries(["azimuth > 34500", "vertical_angle < -10"])
@@ -90,4 +91,4 @@ def PlaneFitAndProcess(pcapfile, calib, outputFilename):
     saveProgrammableFilterOutput(outputFilename, prog_filter)
 
 if __name__ == "__main__":
-    PlaneFitAndProcess(carloop_pcap, calibration_file, default_filename)
+    PlaneFitAndProcess(carloop_pcap, lidar_model, default_filename, calibration_file)

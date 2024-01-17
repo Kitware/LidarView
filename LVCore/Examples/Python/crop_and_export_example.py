@@ -6,8 +6,8 @@ import lidarview.simple as lvsmp
 ################################################################################
 inputfile = 'C:/Demo/Sample_VLP16.pcap'
 outputfile = 'C:/Demo/Sample_VLP16_export_timely.csv'
-calibfile = 'C:/Demo/VLP-16.xml'
-interpreter = "Velodyne Packet Interpreter"
+lidarModel = 'VLP-16'
+interpreter = "Velodyne"
 
 ################################################################################
 def CropAndSave(reader, filename, timesteps):
@@ -44,7 +44,7 @@ def CropAndSave(reader, filename, timesteps):
 
 if __name__ == "__main__":
 # open pcap file
-    reader = lvsmp.OpenPCAP(inputfile, calibfile, interpreter)
+    reader = lvsmp.OpenPCAP(inputfile, lidarModel, interpreter)
 
     # select frames 10 to 20
     timesteps = range(10, 20)

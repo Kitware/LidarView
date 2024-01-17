@@ -7,16 +7,16 @@ import time
 
 ################################################################################
 outputfile = "C:/Demo/output.pcap"
-calibfile = "VLP-16.xml"
-interpreter = "Velodyne Packet Interpreter"
+model = "VLP-16"
+interpreter = "Velodyne"
 listeningport = 2368 # UDP port where the data is transmitted, default is 2368
 ################################################################################
 
 # Open the stream - More info available in Wrapping/Python/simple.py
 # Setting the port and DetectFrameDropping are optional here
-stream = lvsmp.OpenSensorStream(calibfile,
+stream = lvsmp.OpenSensorStream(model,
                                 interpreter,
-                                listeningport,
+                                ListeningPort=listeningport,
                                 DetectFrameDropping=True)
 
 # Start recording after a few seconds

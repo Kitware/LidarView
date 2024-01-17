@@ -6,7 +6,7 @@ import paraview.simple as smp
 
 def SplitWindow():
     # Get sources
-    reader = smp.FindSource('LidarReader1')
+    reader = smp.GetActiveSource()
 
     # Get views
     renderView1 = smp.GetActiveView()

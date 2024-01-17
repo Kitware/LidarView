@@ -7,7 +7,7 @@ import lidarview.simple as lvsmp
 
 def ResetWindowViews():
     # Get sources
-    reader = smp.FindSource('LidarReader1')
+    reader = smp.GetActiveSource()
 
     # Get views
     views = smp.GetViews()
@@ -27,7 +27,7 @@ def ResetWindowViews():
 
     # Show reader
     if reader:
-        display = smp.Show(reader[0], renderView)
+        display = smp.Show(reader, renderView)
         smp.ColorBy(display, ('POINTS', 'intensity'))
 
     # Reset Camera
