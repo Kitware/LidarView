@@ -102,8 +102,6 @@ LidarViewMainWindow::LidarViewMainWindow()
   this->tabifyDockWidget(this->Internals->pythonShellDock, this->Internals->findDataDock);
   this->tabifyDockWidget(this->Internals->pythonShellDock, this->Internals->informationDock);
 
-  this->tabifyDockWidget(this->Internals->viewAnimationDock, this->Internals->outputWidgetDock);
-
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->viewPropertiesDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->displayPropertiesDock);
 

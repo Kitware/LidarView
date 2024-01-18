@@ -160,15 +160,6 @@
    </attribute>
    <widget class="pqPropertiesPanel" name="viewPropertiesPanel"/>
   </widget>
-  <widget class="QDockWidget" name="viewAnimationDock">
-   <property name="windowTitle">
-    <string>Animation</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="pqPVAnimationWidget" name="animationPanel"/>
-  </widget>
   <widget class="QDockWidget" name="outputWidgetDock">
    <property name="floating">
     <bool>false</bool>
@@ -307,12 +298,6 @@
    <class>pqMemoryInspectorPanel</class>
    <extends>QWidget</extends>
    <header>pqMemoryInspectorPanel.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>pqPVAnimationWidget</class>
-   <extends>QWidget</extends>
-   <header>pqPVAnimationWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
