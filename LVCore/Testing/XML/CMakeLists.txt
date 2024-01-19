@@ -5,6 +5,7 @@ set(tests_with_baselines
   TestCustomClipFilter.xml
   TestExtractPointSelection.xml
   TestSaveLAS.xml
+  TestSaveLoadTrace.xml
   TestSavePcap.xml
   TestVoxelGridFilter.xml
 )
