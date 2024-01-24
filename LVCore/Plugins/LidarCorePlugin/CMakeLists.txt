@@ -159,6 +159,12 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::RemotingServerManager
+  XML_MODULE_FILES
+    Remoting/InterpretersManager.xml
+)
+
+lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::RemotingViews
   XML_MODULE_FILES
     Remoting/LidarGridView.xml

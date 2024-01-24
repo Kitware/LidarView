@@ -1,0 +1,51 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <Proxy name="BaseInterpreter">
+      <StringVectorProperty name="LidarReader"
+                            number_of_elements="1"
+                            default_values=""
+                            information_only="1" />
+
+      <StringVectorProperty name="LidarPoseReader"
+                            number_of_elements="1"
+                            default_values=""
+                            information_only="1" />
+
+      <StringVectorProperty name="LidarStream"
+                            number_of_elements="1"
+                            default_values=""
+                            information_only="1" />
+
+      <StringVectorProperty name="LidarPoseStream"
+                            number_of_elements="1"
+                            default_values=""
+                            information_only="1" />
+    </Proxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="misc">
+    <InterpretersManagerProxy name="InterpretersManager" processes="client">
+
+      <ProxyProperty name="Interpreter">
+        <ProxyListDomain name="proxy_list">
+          <Group name="lidar_interpreters" />
+        </ProxyListDomain>
+        <Documentation>
+          List of available LiDAR interpreters loaded in plugins.
+        </Documentation>
+      </ProxyProperty>
+
+      <IntVectorProperty name="Mode"
+                         default_values="0"
+                         number_of_elements="1">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Reader"/>
+          <Entry value="1" text="Stream"/>
+        </EnumerationDomain>
+        <Documentation>
+          Specify if we read the LiDAR in reader pcap mode or via streaming.
+        </Documentation>
+      </IntVectorProperty>
+    </InterpretersManagerProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
