@@ -27,10 +27,8 @@ vtkStandardNewMacro(vtkLidarGridView);
 
 //----------------------------------------------------------------------------
 vtkLidarGridView::vtkLidarGridView()
-  : vtkPVRenderView()
 {
   this->SetCenterAxesVisibility(0);
-  return;
 }
 
 //----------------------------------------------------------------------------
