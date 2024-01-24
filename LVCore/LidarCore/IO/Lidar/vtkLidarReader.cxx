@@ -58,12 +58,6 @@ std::string vtkLidarReader::GetSensorInformation(bool shortVersion)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetDummyProperty(int)
-{
-  return this->Modified();
-}
-
-//-----------------------------------------------------------------------------
 vtkMTimeType vtkLidarReader::GetMTime()
 {
   if (this->LidarInterpreter)

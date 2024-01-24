@@ -182,12 +182,6 @@ public:
   vtkGetMacro(TimeOffset, double);
   vtkSetMacro(TimeOffset, double);
 
-  /**
-   * @copydoc LidarPacketInterpreter::LaserSelection
-   */
-  virtual vtkIntArray* GetLaserSelection();
-  virtual void SetLaserSelection(int index, int value);
-
   vtkGetMacro(DistanceResolutionM, double);
 
   vtkGetMacro(Frequency, double);
@@ -237,10 +231,6 @@ protected:
 
   //! TimeOffset in seconds relative to the system clock
   double TimeOffset = 0.;
-
-  //! Indicate for each laser if the points obtained by this specific laser
-  //! should process/display (true) or ignore (false)
-  vtkNew<vtkIntArray> LaserSelection;
 
   //! Laser distance resolution (quantum) which also correspond to the points precision
   double DistanceResolutionM = 0;

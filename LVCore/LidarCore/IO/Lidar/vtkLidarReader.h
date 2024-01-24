@@ -54,14 +54,6 @@ public:
   virtual std::string GetSensorInformation(bool shortVersion = false);
 
   /**
-   * @brief SetDummyProperty a trick to workaround failure to wrap LaserSelection, this actually
-   * only calls Modified, however for some obscure reason, doing the same from python does not have
-   * the same effect
-   * @todo set how to remove this methode as it is a workaround
-   */
-  void SetDummyProperty(int);
-
-  /**
    * @copydoc vtkLidarPacketInterpreter
    */
   vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);

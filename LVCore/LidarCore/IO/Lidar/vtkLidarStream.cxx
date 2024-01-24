@@ -52,12 +52,6 @@ std::string vtkLidarStream::GetSensorInformation(bool shortVersion)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarStream::SetDummyProperty(int)
-{
-  return this->Modified();
-}
-
-//-----------------------------------------------------------------------------
 vtkLidarStream::vtkLidarStream()
 {
   this->SetNumberOfInputPorts(0);

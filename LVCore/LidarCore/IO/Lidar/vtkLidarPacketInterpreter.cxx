@@ -92,24 +92,6 @@ void vtkLidarPacketInterpreter::SetCalibrationFileName(const char* filename)
 };
 
 //-----------------------------------------------------------------------------
-void vtkLidarPacketInterpreter::SetLaserSelection(int index, int value)
-{
-  if ((index < 0) || (index >= this->LaserSelection->GetNumberOfTuples()))
-  {
-    vtkErrorMacro(<< "Bad mode index: " << index);
-  }
-
-  this->LaserSelection->SetTuple1(index, value);
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-vtkIntArray* vtkLidarPacketInterpreter::GetLaserSelection()
-{
-  return this->LaserSelection.GetPointer();
-}
-
-//-----------------------------------------------------------------------------
 bool vtkLidarPacketInterpreter::IsNewData()
 {
   return this->IsNewFrameReady();
