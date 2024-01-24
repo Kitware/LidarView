@@ -27,11 +27,11 @@
 #include <vtkPVRenderView.h>
 #include <vtkSmartPointer.h> // needed for iVar
 
-#include "lvViewsModule.h" // for export macro
+#include "lvRemotingViewsModule.h" // for export macro
 
 class vtkLidarGridActor;
 
-class LVVIEWS_EXPORT vtkLidarGridView : public vtkPVRenderView
+class LVREMOTINGVIEWS_EXPORT vtkLidarGridView : public vtkPVRenderView
 {
 public:
   static vtkLidarGridView* New();

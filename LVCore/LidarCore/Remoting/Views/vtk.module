@@ -1,7 +1,7 @@
 NAME
-  LidarView::Views
+  LidarView::RemotingViews
 LIBRARY_NAME
-  lvViews
+  lvRemotingViews
 DEPENDS
   VTK::CommonCore
   VTK::RenderingCore

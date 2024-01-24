@@ -27,12 +27,12 @@
 #include <vtkOpenGLActor.h>
 #include <vtkSmartPointer.h> // needed for iVar
 
-#include "lvViewsModule.h" // needed for exports
+#include "lvRemotingViewsModule.h" // needed for exports
 
 class vtkGridSource;
 class vtkPolyDataMapper;
 
-class LVVIEWS_EXPORT vtkLidarGridActor : public vtkOpenGLActor
+class LVREMOTINGVIEWS_EXPORT vtkLidarGridActor : public vtkOpenGLActor
 {
 public:
   static vtkLidarGridActor* New();

@@ -7,7 +7,7 @@ DESCRIPTION
   depencencies for LidarCorePlugin.
 DEPENDS
   LidarView::CommonCore
-  LidarView::Views
+  LidarView::RemotingViews
 OPTIONAL_DEPENDS
   LidarView::FiltersCalibration
   LidarView::FiltersCamera

@@ -162,15 +162,15 @@ lidarcoreplugin_add_module_xml(
 )
 
 lidarcoreplugin_add_module_xml(
-  MODULE_TARGET LidarView::Sources
+  MODULE_TARGET LidarView::RemotingViews
   XML_MODULE_FILES
-    Sources/GridSource.xml
+    Remoting/LidarGridView.xml
 )
 
 lidarcoreplugin_add_module_xml(
-  MODULE_TARGET LidarView::Views
+  MODULE_TARGET LidarView::Sources
   XML_MODULE_FILES
-    Views/LidarGridView.xml
+    Sources/GridSource.xml
 )
 
 set(interfaces)
