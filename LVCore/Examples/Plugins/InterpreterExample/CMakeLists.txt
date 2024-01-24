@@ -10,6 +10,10 @@ paraview_add_plugin(InterpreterExamplePlugin
     InterpreterExamplePlugin::ExamplePacketInterpreters
   MODULE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/ExamplePacketInterpreters/vtk.module"
+  UI_INTERFACES ${interfaces}
+  SOURCES ${sources}
+  SERVER_MANAGER_XML
+    "${CMAKE_CURRENT_SOURCE_DIR}/ExampleProxies.xml"
 )
 
 # Copy the calibration to the build folder

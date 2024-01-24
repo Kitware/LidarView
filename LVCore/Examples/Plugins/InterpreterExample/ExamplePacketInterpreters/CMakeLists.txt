@@ -15,4 +15,6 @@ paraview_add_server_manager_xmls(
   MODULE InterpreterExamplePlugin::ExamplePacketInterpreters
   XMLS
     ExamplePacketInterpreter.xml
+    ExampleLidarReader.xml
+    ExampleLidarStream.xml
 )

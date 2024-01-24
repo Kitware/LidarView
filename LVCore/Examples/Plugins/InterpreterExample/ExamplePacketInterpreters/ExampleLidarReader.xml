@@ -1,0 +1,40 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <SourceProxy name="ExampleLidarReader"
+                 class="vtkLidarReader"
+                 label="Example LiDAR Reader"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="CommonLidarReader">
+
+      <Documentation short_help="Read Example LiDAR data files." long_help="Read Example LiDAR .pcap files.">
+        Read Example LiDAR (.pcap) data files.
+      </Documentation>
+
+      <IntVectorProperty name="LidarPort"
+                         command="SetLidarPort"
+                         override="1"
+                         default_values="2368"
+                         number_of_elements="1">
+        <Documentation>
+          Specify which packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <SubProxy command="SetLidarInterpreter">
+        <Proxy name="PacketInterpreter"
+               proxygroup="internal_interpreter"
+               proxyname="ExamplePacketInterpreter" />
+        <ExposedProperties>
+          <Property name="CalibrationFileName" />
+          <Property name="LidarModel" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <Hints>
+        <ReaderFactory extensions="pcap" file_description="Example LiDAR files" />
+        <View type="None" port="1" />
+        <PipelineIcon name="SpreadSheetView" port="1" />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
