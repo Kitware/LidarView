@@ -28,7 +28,7 @@ paraview_build () {
         -DPARAVIEW_USE_PYTHON=ON \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
-    cmake --build "$paraview_build_root" --target install --parallel 4
+    cmake --build "$paraview_build_root" --target install
 }
 
 paraview_build /usr
