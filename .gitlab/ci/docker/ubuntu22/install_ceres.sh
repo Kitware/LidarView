@@ -17,7 +17,7 @@ echo "$sha256sum  $tarball" > ceres.sha256sum
 curl -OL "http://ceres-solver.org/ceres-solver-$version.tar.gz"
 sha256sum --check ceres.sha256sum
 mkdir -p "$ceres_src"
-tar -xf "$tarball" -C "$ceres_src" --strip-components 1
+tar -xf "$tarball" -C "$ceres_src" --strip-components 1 --no-same-owner
 
 ceres_build () {
     local prefix="$1"
