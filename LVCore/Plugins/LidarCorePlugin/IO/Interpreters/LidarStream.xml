@@ -28,13 +28,13 @@
     </SourceProxy>
 
     <!-- ==================================================================== -->
-    <!-- Common position orientation live source stream -->
+    <!-- Common pose live source stream -->
     <SourceProxy name="CommonLidarPoseStream"
                  class="vtkLidarPoseStream"
                  base_proxygroup="internal_interpreter"
                  base_proxyname="CommonLidarStream">
 
-      <OutputPort name="Position Orientation" index="2" />
+      <OutputPort name="Pose" index="2" />
       <OutputPort name="Pose Raw informations" index="3" />
 
       <IntVectorProperty name="ListeningPort"

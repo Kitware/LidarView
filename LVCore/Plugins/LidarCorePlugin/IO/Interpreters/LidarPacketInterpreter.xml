@@ -113,7 +113,7 @@
     </SourceProxy>
 
     <!-- ==================================================================== -->
-    <!-- Common position orientation packet interpreter -->
+    <!-- Common pose packet interpreter -->
     <SourceProxy name="CommonLidarPosePacketInterpreter"
                  class="vtkLidarPosePacketInterpreter"
                  base_proxygroup="internal_interpreter"

@@ -30,13 +30,13 @@ public:
   vtkTypeMacro(vtkLidarPosePacketInterpreter, vtkInterpreter)
 
   vtkSmartPointer<vtkTable> GetRawInformation() { return this->RawInformation; }
-  vtkSmartPointer<vtkPolyData> GetPositionOrientation() { return this->PositionOrientation; }
+  vtkSmartPointer<vtkPolyData> GetPose() { return this->Pose; }
 
   bool IsNewRawInformation();
 
-  bool IsNewPositionOrientationInformation();
+  bool IsNewPoseInformation();
 
-  virtual bool HasPositionOrientationInformation() { return false; }
+  virtual bool HasPoseInformation() { return false; }
 
   virtual bool HasRawInformation() { return false; }
 
@@ -46,7 +46,7 @@ public:
 
   virtual void InitArrays() = 0;
 
-  virtual void FillInterpolatorFromPositionOrientation() {}
+  virtual void FillInterpolatorFromPose() {}
 
 protected:
   vtkLidarPosePacketInterpreter() = default;
@@ -55,7 +55,7 @@ protected:
   vtkSmartPointer<vtkTable> RawInformation;
 
   //! Buffer to store Position and orientation informations
-  vtkSmartPointer<vtkPolyData> PositionOrientation;
+  vtkSmartPointer<vtkPolyData> Pose;
 
 private:
   vtkLidarPosePacketInterpreter(const vtkLidarPosePacketInterpreter&) = delete;
@@ -63,7 +63,7 @@ private:
 
   int SizeRawInformationLastAsk = 0;
 
-  int SizePositionOrientationInformationLastAsk = 0;
+  int SizePoseInformationLastAsk = 0;
 };
 
 #endif

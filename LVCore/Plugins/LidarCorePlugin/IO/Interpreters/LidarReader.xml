@@ -98,13 +98,13 @@
     </SourceProxy>
 
     <!-- ==================================================================== -->
-    <!-- Common position orientation pcap reader -->
+    <!-- Common pose pcap reader -->
     <SourceProxy name="CommonLidarPoseReader"
                  class="vtkLidarPoseReader"
                  base_proxygroup="internal_interpreter"
                  base_proxyname="CommonLidarReader">
 
-      <OutputPort name="Position Orientation " index="2" />
+      <OutputPort name="Pose" index="2" />
       <OutputPort name="Raw informations" index="3" />
 
       <IntVectorProperty name="LidarPosePort"
@@ -112,7 +112,7 @@
                          default_values="8308"
                          number_of_elements="1">
         <Documentation>
-          Specify which position orientation packets are read.
+          Specify which pose port is read.
         </Documentation>
       </IntVectorProperty>
 

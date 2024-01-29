@@ -29,7 +29,7 @@
 class vtkLidarPosePacketInterpreter;
 
 /**
- * The vtkLidarPoseReader reads both LiDAR data and position orientation data
+ * The vtkLidarPoseReader reads both LiDAR data and pose data
  * from a .pcap file.
  *
  * It's important to note that the pose data is aggregated (non-temporal) in
@@ -66,7 +66,7 @@ protected:
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //! Interpret for position orientation packet
+  //! Interpret for pose packet
   vtkLidarPosePacketInterpreter* PoseInterpreter = nullptr;
 
   //! Filter the packet to only read the packet received on a specify port
@@ -79,18 +79,18 @@ private:
 
   ///@{
   /**
-   * Position orientation data are only read when Apply is called
+   * Pose data are only read when Apply is called
    * compared to LiDAR data which are read each time a new frame is requested.
    */
   bool ReadLidarPoseData = true;
-  vtkSmartPointer<vtkPolyData> PositionOrientationInfos;
+  vtkSmartPointer<vtkPolyData> PoseInfo;
   vtkSmartPointer<vtkTable> RawInfos;
   ///@}
 
   /**
-   * Returns all the positions contains in the pcap file
+   * Returns all the positions contained in the pcap file
    */
-  void ReadPositionOrientation();
+  void ReadPoses();
 };
 
 #endif

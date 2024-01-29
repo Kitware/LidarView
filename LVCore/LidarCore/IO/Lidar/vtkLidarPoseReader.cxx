@@ -78,12 +78,12 @@ void vtkLidarPoseReader::Open(bool reassemble)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::ReadPositionOrientation()
+void vtkLidarPoseReader::ReadPoses()
 {
   this->Open();
   if (!this->Reader)
   {
-    vtkErrorMacro("ReadPositionOrientation() called but packet file reader is not open.");
+    vtkErrorMacro("ReadPoses() called but packet file reader is not open.");
     return;
   }
 
@@ -106,18 +106,18 @@ void vtkLidarPoseReader::ReadPositionOrientation()
   this->Close();
 
   // Save positions and orientation information if packets contain them
-  if (this->PoseInterpreter->HasPositionOrientationInformation())
+  if (this->PoseInterpreter->HasPoseInformation())
   {
-    this->PositionOrientationInfos = this->PoseInterpreter->GetPositionOrientation();
+    this->PoseInfo = this->PoseInterpreter->GetPose();
 
-    // Set the polyline to the poly data to see the position orientation information
+    // Set the polyline to the poly data to see the pose information
     vtkSmartPointer<vtkPolyLine> polyLine =
-      CreatePolyLineFromPoints(this->PositionOrientationInfos->GetPoints());
+      CreatePolyLineFromPoints(this->PoseInfo->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
-    this->PositionOrientationInfos->SetLines(cellArray);
+    this->PoseInfo->SetLines(cellArray);
 
-    this->PoseInterpreter->FillInterpolatorFromPositionOrientation();
+    this->PoseInterpreter->FillInterpolatorFromPose();
   }
 
   // Save raw information if packets contain them
@@ -160,13 +160,13 @@ int vtkLidarPoseReader::RequestData(vtkInformation* request,
   if (this->ReadLidarPoseData)
   {
     this->PoseInterpreter->ResetCurrentData();
-    this->ReadPositionOrientation();
+    this->ReadPoses();
     this->ReadLidarPoseData = false;
   }
 
-  if (this->PositionOrientationInfos)
+  if (this->PoseInfo)
   {
-    outputPositionOrientation->ShallowCopy(this->PositionOrientationInfos);
+    outputPositionOrientation->ShallowCopy(this->PoseInfo);
   }
   if (this->RawInfos)
   {

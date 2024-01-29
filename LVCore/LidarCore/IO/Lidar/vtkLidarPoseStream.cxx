@@ -102,16 +102,16 @@ public:
       }
     }
 
-    if (this->GetPoseInterpreter()->HasPositionOrientationInformation())
+    if (this->GetPoseInterpreter()->HasPoseInformation())
     {
       if (this->AllPoses->GetNumberOfPoints() == 0)
       {
-        this->AllPoses->DeepCopy(this->GetPoseInterpreter()->GetPositionOrientation());
+        this->AllPoses->DeepCopy(this->GetPoseInterpreter()->GetPose());
         return;
       }
-      // Copying the new position orientation information (points, rows, ...)
+      // Copying the new pose information (points, rows, ...)
       // available in the interpreter to the corresponding buffer
-      vtkSmartPointer<vtkPolyData> pose = this->GetPoseInterpreter()->GetPositionOrientation();
+      vtkSmartPointer<vtkPolyData> pose = this->GetPoseInterpreter()->GetPose();
       vtkPoints* points = this->AllPoses->GetPoints();
       for (vtkIdType i = 0; i < pose->GetNumberOfPoints(); i++)
       {
@@ -129,7 +129,7 @@ public:
         this->AllPoses->SetPoints(points);
       }
 
-      // Set the polyline to the poly data to see the position orientation information
+      // Set the polyline to the poly data to see the pose information
       vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(this->AllPoses->GetPoints());
       vtkNew<vtkCellArray> cellArray;
       cellArray->InsertNextCell(polyLine);

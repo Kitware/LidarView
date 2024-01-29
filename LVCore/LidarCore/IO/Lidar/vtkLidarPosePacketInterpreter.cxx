@@ -18,9 +18,9 @@
 //------------------------------------------------------------------------------
 void vtkLidarPosePacketInterpreter::ResetCurrentData()
 {
-  if (this->HasPositionOrientationInformation())
+  if (this->HasPoseInformation())
   {
-    this->PositionOrientation = vtkSmartPointer<vtkPolyData>::New();
+    this->Pose = vtkSmartPointer<vtkPolyData>::New();
   }
 
   if (this->HasRawInformation())
@@ -43,20 +43,20 @@ bool vtkLidarPosePacketInterpreter::IsNewRawInformation()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLidarPosePacketInterpreter::IsNewPositionOrientationInformation()
+bool vtkLidarPosePacketInterpreter::IsNewPoseInformation()
 {
-  if (!this->HasPositionOrientationInformation())
+  if (!this->HasPoseInformation())
   {
     return false;
   }
-  bool isNewPos = this->SizePositionOrientationInformationLastAsk !=
-    this->PositionOrientation->GetNumberOfPoints();
-  this->SizePositionOrientationInformationLastAsk = this->PositionOrientation->GetNumberOfPoints();
+  bool isNewPos = this->SizePoseInformationLastAsk !=
+    this->Pose->GetNumberOfPoints();
+  this->SizePoseInformationLastAsk = this->Pose->GetNumberOfPoints();
   return isNewPos;
 }
 
 //------------------------------------------------------------------------------
 bool vtkLidarPosePacketInterpreter::IsNewData()
 {
-  return (this->IsNewRawInformation() || this->IsNewPositionOrientationInformation());
+  return (this->IsNewRawInformation() || this->IsNewPoseInformation());
 }
