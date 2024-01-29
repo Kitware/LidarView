@@ -81,7 +81,7 @@ struct KDTreeVectorOfVectorsAdaptor
 	{
 		nanoflann::KNNResultSet<num_t,IndexType> resultSet(num_closest);
 		resultSet.init(out_indices, out_distances_sq);
-		index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+		index->findNeighbors(resultSet, query_point, nanoflann::SearchParameters());
 	}
 
 	/** @name Interface expected by KDTreeSingleIndexAdaptor

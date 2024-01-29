@@ -90,8 +90,8 @@ void DBSCAN<T>::computeAdjacencyList()
   my_kd_tree_t mat_index(-1 /*dim*/, _points, 10 /* max leaf */ );
   mat_index.index->buildIndex();
 
-  std::vector<std::pair<size_t,double> > ret_matches;
-  nanoflann::SearchParams params;
+  std::vector<nanoflann::ResultItem<size_t,double> > ret_matches;
+  nanoflann::SearchParameters params;
   params.sorted = false;
 
   for (unsigned int i = 0; i < _points.size(); ++i)
