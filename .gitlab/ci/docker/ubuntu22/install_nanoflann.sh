@@ -3,7 +3,7 @@
 set -e
 
 readonly nanoflann_repo="https://github.com/jlblancoc/nanoflann.git"
-readonly nanoflann_commit="v1.4.3"
+readonly nanoflann_commit="v1.5.4"
 
 readonly nanoflann_root="$HOME/nanoflann"
 readonly nanoflann_src="$nanoflann_root/src"
