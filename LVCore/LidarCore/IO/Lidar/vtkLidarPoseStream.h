@@ -25,7 +25,7 @@
 
 #include "lvIOLidarModule.h"
 
-class vtkLidarPosePacketInterpreter;
+class vtkPosePacketInterpreter;
 
 /**
  * vtkLidarPoseStream is composed by two different streams:
@@ -42,8 +42,8 @@ public:
   static vtkLidarPoseStream* New();
   vtkTypeMacro(vtkLidarPoseStream, vtkLidarStream)
 
-  vtkLidarPosePacketInterpreter* GetPoseInterpreter();
-  void SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter);
+  vtkPosePacketInterpreter* GetPoseInterpreter();
+  void SetPoseInterpreter(vtkPosePacketInterpreter* interpreter);
 
   ///@{
   /**

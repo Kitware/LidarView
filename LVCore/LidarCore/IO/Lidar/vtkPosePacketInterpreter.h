@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: LidarView
-  Module:  vtkLidarPosePacketInterpreter.h
+  Module:  vtkPosePacketInterpreter.h
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkLidarPosePacketInterpreter_h
-#define vtkLidarPosePacketInterpreter_h
+#ifndef vtkPosePacketInterpreter_h
+#define vtkPosePacketInterpreter_h
 
 #include "vtkInterpreter.h"
 
@@ -24,10 +24,10 @@
 
 #include "lvIOLidarModule.h"
 
-class LVIOLIDAR_EXPORT vtkLidarPosePacketInterpreter : public vtkInterpreter
+class LVIOLIDAR_EXPORT vtkPosePacketInterpreter : public vtkInterpreter
 {
 public:
-  vtkTypeMacro(vtkLidarPosePacketInterpreter, vtkInterpreter)
+  vtkTypeMacro(vtkPosePacketInterpreter, vtkInterpreter)
 
   vtkSmartPointer<vtkTable> GetRawInformation() { return this->RawInformation; }
   vtkSmartPointer<vtkPolyData> GetPose() { return this->Pose; }
@@ -49,7 +49,7 @@ public:
   virtual void FillInterpolatorFromPose() {}
 
 protected:
-  vtkLidarPosePacketInterpreter() = default;
+  vtkPosePacketInterpreter() = default;
 
   //! Buffer to store Raw informations
   vtkSmartPointer<vtkTable> RawInformation;
@@ -58,8 +58,8 @@ protected:
   vtkSmartPointer<vtkPolyData> Pose;
 
 private:
-  vtkLidarPosePacketInterpreter(const vtkLidarPosePacketInterpreter&) = delete;
-  void operator=(const vtkLidarPosePacketInterpreter&) = delete;
+  vtkPosePacketInterpreter(const vtkPosePacketInterpreter&) = delete;
+  void operator=(const vtkPosePacketInterpreter&) = delete;
 
   int SizeRawInformationLastAsk = 0;
 

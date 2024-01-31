@@ -140,9 +140,9 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOLidar
   XML_MODULE_FILES
-    IO/Interpreters/LidarPacketInterpreter.xml
     IO/Interpreters/LidarReader.xml
     IO/Interpreters/LidarStream.xml
+    IO/Interpreters/PacketInterpreter.xml
 )
 
 lidarcoreplugin_add_module_xml(

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: LidarView
-  Module:  vtkLidarPosePacketInterpreter.cxx
+  Module:  vtkPosePacketInterpreter.cxx
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#include "vtkLidarPosePacketInterpreter.h"
+#include "vtkPosePacketInterpreter.h"
 
 //------------------------------------------------------------------------------
-void vtkLidarPosePacketInterpreter::ResetCurrentData()
+void vtkPosePacketInterpreter::ResetCurrentData()
 {
   if (this->HasPoseInformation())
   {
@@ -31,7 +31,7 @@ void vtkLidarPosePacketInterpreter::ResetCurrentData()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLidarPosePacketInterpreter::IsNewRawInformation()
+bool vtkPosePacketInterpreter::IsNewRawInformation()
 {
   if (!this->HasRawInformation())
   {
@@ -43,7 +43,7 @@ bool vtkLidarPosePacketInterpreter::IsNewRawInformation()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLidarPosePacketInterpreter::IsNewPoseInformation()
+bool vtkPosePacketInterpreter::IsNewPoseInformation()
 {
   if (!this->HasPoseInformation())
   {
@@ -56,7 +56,7 @@ bool vtkLidarPosePacketInterpreter::IsNewPoseInformation()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLidarPosePacketInterpreter::IsNewData()
+bool vtkPosePacketInterpreter::IsNewData()
 {
   return (this->IsNewRawInformation() || this->IsNewPoseInformation());
 }

@@ -21,12 +21,12 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
-#include "vtkLidarPosePacketInterpreter.h"
+#include "vtkPosePacketInterpreter.h"
 #include "vtkLidarReader.h"
 
 #include "lvIOLidarModule.h"
 
-class vtkLidarPosePacketInterpreter;
+class vtkPosePacketInterpreter;
 
 /**
  * The vtkLidarPoseReader reads both LiDAR data and pose data
@@ -41,8 +41,8 @@ public:
   static vtkLidarPoseReader* New();
   vtkTypeMacro(vtkLidarPoseReader, vtkLidarReader)
 
-  vtkGetObjectMacro(PoseInterpreter, vtkLidarPosePacketInterpreter)
-  vtkSetObjectMacro(PoseInterpreter, vtkLidarPosePacketInterpreter)
+  vtkGetObjectMacro(PoseInterpreter, vtkPosePacketInterpreter)
+  vtkSetObjectMacro(PoseInterpreter, vtkPosePacketInterpreter)
 
   /**
    * Call vtkLidarReader::Open with the addition of the pose port.
@@ -67,7 +67,7 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //! Interpret for pose packet
-  vtkLidarPosePacketInterpreter* PoseInterpreter = nullptr;
+  vtkPosePacketInterpreter* PoseInterpreter = nullptr;
 
   //! Filter the packet to only read the packet received on a specify port
   //! To read all packet use -1

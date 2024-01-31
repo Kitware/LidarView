@@ -15,7 +15,7 @@
 
 #include "vtkLidarPoseStream.h"
 #include "vtkHelper.h"
-#include "vtkLidarPosePacketInterpreter.h"
+#include "vtkPosePacketInterpreter.h"
 
 #include <sstream>
 
@@ -147,13 +147,13 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  vtkLidarPosePacketInterpreter* GetPoseInterpreter()
+  vtkPosePacketInterpreter* GetPoseInterpreter()
   {
-    return vtkLidarPosePacketInterpreter::SafeDownCast(this->Interpreter);
+    return vtkPosePacketInterpreter::SafeDownCast(this->Interpreter);
   }
 
   //-----------------------------------------------------------------------------
-  void SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter)
+  void SetPoseInterpreter(vtkPosePacketInterpreter* interpreter)
   {
     this->Interpreter = interpreter;
   }
@@ -240,13 +240,13 @@ int vtkLidarPoseStream::RequestData(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-vtkLidarPosePacketInterpreter* vtkLidarPoseStream::GetPoseInterpreter()
+vtkPosePacketInterpreter* vtkLidarPoseStream::GetPoseInterpreter()
 {
   return this->Internals->GetPoseInterpreter();
 }
 
 //----------------------------------------------------------------------------
-void vtkLidarPoseStream::SetPoseInterpreter(vtkLidarPosePacketInterpreter* interpreter)
+void vtkLidarPoseStream::SetPoseInterpreter(vtkPosePacketInterpreter* interpreter)
 {
   this->Internals->SetPoseInterpreter(interpreter);
 }

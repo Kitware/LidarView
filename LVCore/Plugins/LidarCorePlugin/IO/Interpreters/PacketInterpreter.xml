@@ -114,8 +114,8 @@
 
     <!-- ==================================================================== -->
     <!-- Common pose packet interpreter -->
-    <SourceProxy name="CommonLidarPosePacketInterpreter"
-                 class="vtkLidarPosePacketInterpreter"
+    <SourceProxy name="CommonPosePacketInterpreter"
+                 class="vtkPosePacketInterpreter"
                  base_proxygroup="internal_interpreter"
                  base_proxyname="BasePacketInterpreter" />
   </ProxyGroup>
