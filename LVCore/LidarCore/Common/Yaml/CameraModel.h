@@ -23,7 +23,7 @@
 // EIGEN
 #include <Eigen/Dense>
 
-#include "lvCommonCoreModule.h"
+#include "lvCommonYamlModule.h"
 
 enum ProjectionType
 {
@@ -39,7 +39,7 @@ enum ProjectionType
  *        2- Intrinsic parameters, representing the focal and pixel grid
  *        3- Optical parameters, representing the optical system distortions
  */
-class LVCOMMONCORE_EXPORT CameraModel
+class LVCOMMONYAML_EXPORT CameraModel
 {
 public:
   CameraModel() = default;

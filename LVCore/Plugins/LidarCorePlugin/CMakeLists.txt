@@ -119,7 +119,6 @@ lidarcoreplugin_add_module_xml(
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOCore
   XML_MODULE_FILES
-    IO/BoundingBoxReader.xml
     IO/TemporalTransformsReader.xml
     IO/TemporalTransformsWriter.xml
 )
@@ -156,6 +155,12 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOPDAL
   XML_MODULE_FILES
     IO/LASWriter.xml
+)
+
+lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::IOYaml
+  XML_MODULE_FILES
+    IO/BoundingBoxReader.xml
 )
 
 lidarcoreplugin_add_module_xml(

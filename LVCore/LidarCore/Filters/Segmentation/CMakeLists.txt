@@ -1,7 +1,9 @@
 set(sources
+  CategoriesConfig.cxx
   SegmentedCloudTransformations.cxx)
 
 set(headers
+  CategoriesConfig.h
   # DBSCAN.h
   KDTreeVectorOfVectorsAdaptor.h
   SegmentedCloudTransformations.h)

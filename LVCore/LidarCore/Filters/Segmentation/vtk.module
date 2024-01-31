@@ -3,13 +3,11 @@ NAME
 LIBRARY_NAME
   lvFiltersSegmentation
 CONDITION
-  LIDARVIEW_USE_NANOFLANN
+  LIDARVIEW_USE_NANOFLANN AND LIDARVIEW_USE_YAMLCPP
 DEPENDS
   Eigen3::Eigen
   LidarView::CommonCore
-  LidarView::IOCore
   nanoflann::nanoflann
   VTK::CommonCore
   VTK::CommonDataModel
-PRIVATE_DEPENDS
   YAML::yamlcpp

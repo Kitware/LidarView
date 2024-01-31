@@ -8,7 +8,7 @@
 
 #include <vtkObject.h>
 
-#include "lvIOCoreModule.h"
+#include "lvFiltersSegmentationModule.h"
 
 
 /**
@@ -34,7 +34,7 @@ categories:  # List of all the categories in a dataset
 
 
  */
-class LVIOCORE_EXPORT CategoriesConfig
+class LVFILTERSSEGMENTATION_EXPORT CategoriesConfig
 {
 public:
   CategoriesConfig() = default;

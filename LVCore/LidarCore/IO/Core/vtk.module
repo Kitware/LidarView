@@ -3,19 +3,13 @@ NAME
 LIBRARY_NAME
   lvIOCore
 DEPENDS
-  Eigen3::Eigen
   LidarView::CommonCore
   VTK::CommonCore
-  VTK::CommonDataModel
   VTK::CommonExecutionModel
-  VTK::IOLegacy             # Should it be removed? vtkPolyDataWriter in vtkTemporalTransformsWriter
-  VTK::jsoncpp              # For FramesSeriesUtils
-  YAML::yamlcpp
+  VTK::IOLegacy
 PRIVATE_DEPENDS
-  Boost::filesystem
+  Eigen3::Eigen
   VTK::CommonTransforms
-  VTK::FiltersGeneral
-  VTK::FiltersSources       # For vtkBoundingBoxReader
   VTK::IOInfovis            # vtkTemporalTransformsReader needs vtkDelimitedTextReader
 TEST_DEPENDS
   LidarView::TestingCore

@@ -80,14 +80,6 @@ check_depedency_target(Eigen3 Eigen3::Eigen)
 print_version(Eigen3)
 
 #--------------------------------------
-# Yaml dependency - required
-#--------------------------------------
-find_package(yaml-cpp REQUIRED)
-add_library(YAML::yamlcpp ALIAS yaml-cpp)
-check_depedency_target(yaml-cpp YAML::yamlcpp)
-print_version(yaml-cpp)
-
-#--------------------------------------
 # Boost dependency - required (note: boost is also found by ParaView)
 #--------------------------------------
 find_package(Boost REQUIRED COMPONENTS atomic filesystem program_options system thread)
@@ -124,9 +116,18 @@ if (LIDARVIEW_USE_OPENCV)
 endif ()
 
 #--------------------------------------
+# Yaml dependency - optional
+#--------------------------------------
+if (LIDARVIEW_USE_YAMLCPP)
+  find_package(yaml-cpp REQUIRED)
+  add_library(YAML::yamlcpp ALIAS yaml-cpp)
+  check_depedency_target(yaml-cpp YAML::yamlcpp)
+  print_version(yaml-cpp)
+endif ()
+
+#--------------------------------------
 # LidarSlam dependency - optional
 #--------------------------------------
-
 if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   find_package(LidarSlam REQUIRED QUIET)
   print_version(LidarSlam)

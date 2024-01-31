@@ -3,10 +3,11 @@ NAME
 LIBRARY_NAME
   lvFiltersCameraOpenCV
 CONDITION
-  LIDARVIEW_USE_OPENCV
+  LIDARVIEW_USE_OPENCV AND LIDARVIEW_USE_YAMLCPP
 DEPENDS
   opencv_core
   LidarView::CommonCore
+  LidarView::CommonYaml
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel

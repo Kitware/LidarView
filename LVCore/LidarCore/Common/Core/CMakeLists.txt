@@ -1,5 +1,4 @@
 set(sources
-  CameraModel.cxx
   CameraProjection.cxx
   LVTime.cxx
   vtkTimeCalibration.cxx # Could not be Python wrapped
@@ -7,7 +6,6 @@ set(sources
 
 set(headers
   # BoundingBox.h
-  CameraModel.h
   CameraProjection.h
   eigenFFTCorrelation.h
   interpolator1D.h

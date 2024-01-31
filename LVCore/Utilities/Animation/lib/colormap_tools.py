@@ -1,6 +1,6 @@
 """
 This module provides tools to set a lidarview colormap from a categories map
-such as the ones defined in LVCore/LidarPlugin/IO/CategoriesConfig.h
+such as the ones defined in LVCore/LidarCore/Filters/Segmentation/CategoriesConfig.h
 """
 import paraview.simple as ps
 import yaml

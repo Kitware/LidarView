@@ -1,0 +1,13 @@
+NAME
+  LidarView::CommonYaml
+LIBRARY_NAME
+  lvCommonYaml
+CONDITION
+  LIDARVIEW_USE_YAMLCPP
+DEPENDS
+  Eigen3::Eigen
+  VTK::CommonCore
+  VTK::CommonDataModel
+PRIVATE_DEPENDS
+  LidarView::CommonCore
+  YAML::yamlcpp
