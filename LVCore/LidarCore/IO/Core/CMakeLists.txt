@@ -1,12 +1,9 @@
 set(sources
   CategoriesConfig.cxx
-  # FramesSeriesUtils.cxx
   )
 
 set(headers
   CategoriesConfig.h
-  FileSystemUtils.h
-  # FramesSeriesUtils.h
   )
 
 set(classes
