@@ -5,13 +5,13 @@
   <property name="title">
    <string>&amp;Edit</string>
   </property>
-  <action name="actionChooseCalibrationFile">
+  <action name="actionUpdateConfiguration">
    <property name="icon">
     <iconset resource="../../../Components/Resources/lvComponents.qrc">
      <normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</iconset>
    </property>
    <property name="text">
-    <string>Choose &amp;Calibration File...</string>
+    <string>Change LiDAR &amp;Configuration...</string>
    </property>
   </action>
   <action name="actionShowMeasurementGrid">

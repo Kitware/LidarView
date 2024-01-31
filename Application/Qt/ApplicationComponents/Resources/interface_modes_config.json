@@ -22,7 +22,7 @@
         "actionFileExit"
       ],
       "menuEdit": [
-        "actionChooseCalibrationFile",
+        "actionUpdateConfiguration",
         "actionShowMeasurementGrid",
         "separator",
         "actionEditCameraUndo",
@@ -61,7 +61,7 @@
         "actionOpenPcap",
         "actionSavePcap",
         "actionOpenSensorStream",
-        "actionChooseCalibrationFile",
+        "actionUpdateConfiguration",
         "actionToggleAdvancedArrays",
         "actionLoadPalette",
         "actionDeleteAll"
@@ -210,7 +210,6 @@
         "actionFileExit"
       ],
       "menuEdit": [
-        "actionChooseCalibrationFile",
         "actionShowMeasurementGrid",
         "separator",
         "actionEditUndo",
@@ -263,6 +262,21 @@
         "customViewpointsToolbar",
         "playerControlToolbar",
         "ToolBar"
+      ],
+      "mainControlsToolbar": [
+        "actionOpenPcap",
+        "actionSavePcap",
+        "actionOpenSensorStream",
+        "actionToggleAdvancedArrays",
+        "actionOpenData",
+        "actionSaveData",
+        "actionUndo",
+        "actionRedo",
+        "actionLoadPalette",
+        "actionAutoApply",
+        "actionQuery",
+        "actionPythonShell",
+        "actionDeleteAll"
       ],
       "toolbarBreaks": [
         "cameraToolbar",

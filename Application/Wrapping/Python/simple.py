@@ -13,26 +13,5 @@
 #
 #==============================================================================
 
-import paraview.simple as smp
-
 # Import all lidarviewcore common functions
 from lidarviewcore.simple import *
-
-INTERPRETER_MAP = {
-    "Velodyne": "Velodyne Packet Interpreter",
-    "Hesai-pandarXT32": "Hesai General Packet Interpreter",
-    "Hesai-pandar128": "Hesai Packet Interpreter"
-}
-
-# -----------------------------------------------------------------------------
-# This function should disapear when we will refact interpreters and
-# set simpler names.
-def GetInterpreterName(interpreter):
-    """Utility method to help selecting the right interpreter.
-
-    Options are: `Velodyne`, `Hesai-pandarXT32` and `Hesai-pandar128`
-    """
-    interpreterName = INTERPRETER_MAP.get(interpreter, "")
-    if not interpreterName:
-        raise ValueError("A valid interpreter must be specified.")
-    return interpreterName

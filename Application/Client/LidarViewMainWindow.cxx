@@ -43,6 +43,7 @@
 typedef pqPythonDebugLeaksView DebugLeaksViewType;
 
 #include <QAction>
+#include <QDebug>
 #include <QDropEvent>
 #include <QList>
 #include <QMessageBox>
@@ -53,7 +54,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLidarViewManager.h"
 #include "lqLidarViewMenuBuilders.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
-#include "lqOpenPcapReaction.h"
+#include "lqOpenLidarReaction.h"
 #include "lqWelcomeDialog.h"
 
 //-----------------------------------------------------------------------------
@@ -218,10 +219,9 @@ void LidarViewMainWindow::dropEvent(QDropEvent* evt)
   {
     return;
   }
-
   if (files[0].endsWith(".pcap"))
   {
-    lqOpenPcapReaction::createSourceFromFile(files[0]);
+    lqOpenLidarReaction::openLidarPcap(files[0]);
   }
   else if (files[0].endsWith(".pcd"))
   {

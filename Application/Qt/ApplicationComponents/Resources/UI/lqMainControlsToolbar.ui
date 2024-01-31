@@ -58,13 +58,13 @@
     <string>Open Sensor Stream</string>
    </property>
   </action>
-  <action name="actionChooseCalibrationFile">
+  <action name="actionUpdateConfiguration">
    <property name="icon">
     <iconset resource="../../../Components/Resources/lvComponents.qrc">
      <normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</iconset>
    </property>
    <property name="text">
-    <string>Choose &amp;Calibration File...</string>
+    <string>Chaneg LiDAR &amp;Configuration...</string>
    </property>
   </action>
   <action name="actionToggleAdvancedArrays">
@@ -189,7 +189,7 @@
   <addaction name="actionOpenSensorStream"/>
   <addaction name="separator"/>
   <addaction name="actionToggleAdvancedArrays"/>
-  <addaction name="actionChooseCalibrationFile"/>
+  <addaction name="actionUpdateConfiguration"/>
   <addaction name="separator"/>
   <addaction name="actionOpenData"/>
   <addaction name="actionSaveData"/>
