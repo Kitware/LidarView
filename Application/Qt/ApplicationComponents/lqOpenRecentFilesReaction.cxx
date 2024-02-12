@@ -2,6 +2,7 @@
 
 #include "lqHelper.h"
 #include "lqOpenLidarReaction.h"
+#include "vtkSMLidarReaderProxy.h"
 
 #include <vtkSMPropertyHelper.h>
 
@@ -36,7 +37,8 @@ lqOpenRecentFilesReaction::lqOpenRecentFilesReaction(QMenu* recentFilesMenu,
 //-----------------------------------------------------------------------------
 void lqOpenRecentFilesReaction::onSourceAdded(pqPipelineSource* src)
 {
-  if (IsLidarReaderProxy(src->getProxy()))
+  bool isLidarReader = vtkSMLidarReaderProxy::SafeDownCast(src->getProxy()) != nullptr;
+  if (isLidarReader)
   {
     // Get the pcap Name
     vtkSMProperty* pcapProp = src->getProxy()->GetProperty("FileName");
