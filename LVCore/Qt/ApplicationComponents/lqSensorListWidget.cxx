@@ -5,6 +5,7 @@
 #include "lqHelper.h"
 #include "lqSensorReaderWidget.h"
 #include "lqSensorStreamWidget.h"
+#include "vtkSMLidarReaderProxy.h"
 #include "vtkTrailingFrame.h"
 
 // QT includes.
@@ -183,7 +184,7 @@ void lqSensorListWidget::onSourceAdded(pqPipelineSource* src)
   {
     // add a lqSensorReaderWidget to layout
     bool alreadyStream = isInLiveSensorMode();
-    bool isReader = IsLidarReaderProxy(src->getProxy());
+    bool isReader = vtkSMLidarReaderProxy::SafeDownCast(src->getProxy()) != nullptr;
     lqSensorWidget* sensorWidget = isReader
       ? static_cast<lqSensorWidget*>(new lqSensorReaderWidget(this))
       : static_cast<lqSensorWidget*>(new lqSensorStreamWidget(this));
@@ -480,7 +481,8 @@ vtkSMProxy* lqSensorListWidget::getLidar(int idx)
 vtkSMProxy* lqSensorListWidget::getReader(int idx)
 {
   auto proxy = this->getLidar(idx);
-  return IsLidarReaderProxy(proxy) ? proxy : nullptr;
+  bool isReader = vtkSMLidarReaderProxy::SafeDownCast(proxy) != nullptr;
+  return isReader ? proxy : nullptr;
 }
 
 vtkSMProxy* lqSensorListWidget::getSensor(int idx)

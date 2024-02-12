@@ -1,10 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="internal_interpreter">
-    <SourceProxy name="ExamplePacketInterpreter"
-                 class="vtkExamplePacketInterpreter"
-                 label="Example Interpreter"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="CommonLidarPacketInterpreter">
+    <Proxy name="ExamplePacketInterpreter"
+           class="vtkExamplePacketInterpreter"
+           label="Example Interpreter"
+           base_proxygroup="internal_interpreter"
+           base_proxyname="CommonLidarPacketInterpreter">
 
       <StringVectorProperty name="CalibrationFileName"
                             label="Calibration File"
@@ -35,6 +35,6 @@
           Process the data based on the chosen LiDAR model.
         </Documentation>
       </IntVectorProperty>
-    </SourceProxy>
+    </Proxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

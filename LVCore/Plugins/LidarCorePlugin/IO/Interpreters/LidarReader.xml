@@ -2,7 +2,7 @@
   <ProxyGroup name="internal_interpreter">
     <!-- ==================================================================== -->
     <!-- Common lidar pcap reader -->
-    <SourceProxy name="CommonLidarReader" class="vtkLidarReader">
+    <LidarReaderProxy name="CommonLidarReader" class="vtkLidarReader">
 
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />
@@ -95,14 +95,14 @@
         <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
         <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
-    </SourceProxy>
+    </LidarReaderProxy>
 
     <!-- ==================================================================== -->
     <!-- Common pose pcap reader -->
-    <SourceProxy name="CommonLidarPoseReader"
-                 class="vtkLidarPoseReader"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="CommonLidarReader">
+    <LidarReaderProxy name="CommonLidarPoseReader"
+                      class="vtkLidarPoseReader"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarReader">
 
       <OutputPort name="Pose" index="2" />
       <OutputPort name="Raw informations" index="3" />
@@ -127,6 +127,6 @@
         <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
         <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
-    </SourceProxy>
+    </LidarReaderProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

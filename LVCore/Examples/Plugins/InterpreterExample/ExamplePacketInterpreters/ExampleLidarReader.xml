@@ -1,10 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <SourceProxy name="ExampleLidarReader"
-                 class="vtkLidarReader"
-                 label="Example LiDAR Reader"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="CommonLidarReader">
+    <LidarReaderProxy name="ExampleLidarReader"
+                      class="vtkLidarReader"
+                      label="Example LiDAR Reader"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarReader">
 
       <Documentation short_help="Read Example LiDAR data files." long_help="Read Example LiDAR .pcap files.">
         Read Example LiDAR (.pcap) data files.
@@ -35,6 +35,6 @@
         <View type="None" port="1" />
         <PipelineIcon name="SpreadSheetView" port="1" />
       </Hints>
-    </SourceProxy>
+    </LidarReaderProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

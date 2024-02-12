@@ -40,6 +40,8 @@
 #include "lqSelectLidarFrameDialog.h"
 #include "lqSensorListWidget.h"
 
+#include "vtkSMLidarReaderProxy.h"
+
 //-----------------------------------------------------------------------------
 lqSaveLidarFrameReaction::lqSaveLidarFrameReaction(QAction* action,
   const QString& writerName,
@@ -101,7 +103,8 @@ pqPipelineSource* lqSaveLidarFrameReaction::getCorrectLidar()
   {
     Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     {
-      if (IsLidarReader(src))
+      bool isReader = vtkSMLidarReaderProxy::SafeDownCast(src->getSourceProxy()) != nullptr;
+      if (isReader)
       {
         lidar = src;
         break;

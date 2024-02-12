@@ -32,6 +32,7 @@
 
 #include "lqSelectLidarFrameDialog.h"
 #include "vtkLidarReader.h"
+#include "vtkSMLidarReaderProxy.h"
 
 //-----------------------------------------------------------------------------
 lqSavePcapReaction::lqSavePcapReaction(QAction* action, bool displaySettings)
@@ -51,12 +52,7 @@ void lqSavePcapReaction::updateEnableState()
   bool enableState = false;
   if (port)
   {
-    vtkSMSourceProxy* proxy = vtkSMSourceProxy::SafeDownCast(port->getSource()->getProxy());
-    char* name = proxy->GetVTKClassName();
-    if (name)
-    {
-      enableState = std::strcmp(name, "vtkLidarReader") == 0;
-    }
+    enableState = vtkSMLidarReaderProxy::SafeDownCast(port->getSource()->getProxy()) != nullptr;
   }
   this->parentAction()->setEnabled(enableState);
 }
