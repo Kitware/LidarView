@@ -27,3 +27,5 @@ vtk_module_link(LidarViewApp::lvComponents
   PRIVATE
     Qt5::Core
     Qt5::Widgets)
+
+target_compile_definitions(lvComponents PRIVATE QT_NO_KEYWORDS)
