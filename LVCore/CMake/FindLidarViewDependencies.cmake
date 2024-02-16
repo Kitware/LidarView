@@ -103,7 +103,7 @@ endif ()
 # nanoflann dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_NANOFLANN)
-  find_package(nanoflann REQUIRED VERSION 1.5)
+  find_package(nanoflann 1.5 REQUIRED)
   print_version(nanoflann)
 endif ()
 
