@@ -39,6 +39,10 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   list(APPEND plugins_targets LidarSlam::paraview_wrapping)
 endif ()
 
+if (LIDARVIEW_USE_ROS2IO_PLUGIN)
+  list(APPEND plugins_targets ros2io::paraview_plugin)
+endif ()
+
 paraview_client_add(
   NAME              ${SOFTWARE_NAME}
   NAMESPACE         "${SOFTWARE_NAME}"
