@@ -29,6 +29,8 @@
 
 #include "lvCommonCoreModule.h"
 
+class vtkPolyLine;
+
 template <typename T>
 vtkSmartPointer<T> createArray(const std::string& Name, int NumberOfComponents = 1, int NumberOfTuples = 0)
 {
