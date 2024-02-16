@@ -126,10 +126,19 @@ if (LIDARVIEW_USE_YAMLCPP)
 endif ()
 
 #--------------------------------------
-# LidarSlam dependency - optional
+# LidarSlam plugin dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   find_package(LidarSlam REQUIRED QUIET)
   print_version(LidarSlam)
   check_depedency_target("LidarSlam::paraview_wrapping" LidarSlam::paraview_wrapping)
+endif ()
+
+#--------------------------------------
+# Ros2IO plugin dependency - optional
+#--------------------------------------
+if (LIDARVIEW_USE_ROS2IO_PLUGIN)
+  find_package(ros2io REQUIRED QUIET)
+  print_version(ros2io)
+  check_depedency_target("ros2io::paraview_plugin" ros2io::paraview_plugin)
 endif ()

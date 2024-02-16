@@ -46,6 +46,8 @@ lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the
 lidarview_deprecated_setting(slam_default LIDARVIEW_USE_LIDARSLAM_PLUGIN PARAVIEW_PLUGIN_ENABLE_LidarSlam "OFF")
 option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_default}")
 
+option(LIDARVIEW_USE_ROS2IO_PLUGIN "Search for Ros2IO plugin." OFF)
+
 # The following libaries required for most LidarView functionnalities
 option(LIDARVIEW_USE_PCAP "PCAP is required for reading .pcap (from lidar)" ON)
 mark_as_advanced(LIDARVIEW_USE_PCAP)
