@@ -8,3 +8,6 @@
 [submodule "Plugins/HesaiPlugin"]
 	path = Plugins/HesaiPlugin
 	url = https://gitlab.kitware.com/LidarView/HesaiPlugin.git
+[submodule "Plugins/LivoxPlugin"]
+	path = Plugins/LivoxPlugin
+	url = https://gitlab.kitware.com/LidarView/livoxplugin.git

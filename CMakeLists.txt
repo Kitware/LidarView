@@ -22,6 +22,7 @@ include(SetupLidarviewProject)
 # Add plugins to be searched by default in LVCore CMakeLists.txt
 set(lidarview_available_interpreters_plugins
   VelodynePlugin
+  LivoxPlugin
   HesaiPlugin)
 set(lidarview_interpreters_plugin_directories "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
 add_subdirectory(LVCore)
