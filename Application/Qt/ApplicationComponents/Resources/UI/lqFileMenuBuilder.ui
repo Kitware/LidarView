@@ -32,22 +32,6 @@
     <string>Open Sensor &amp;Stream...</string>
    </property>
   </action>
-  <action name="actionClearLidarRecentMenu">
-   <property name="text">
-    <string>Clear Menu</string>
-   </property>
-  </action>
-  <widget class="QMenu" name="menuRecentLidarFiles">
-   <property name="icon">
-    <iconset resource="../../../Components/Resources/lvComponents.qrc">
-     <normaloff>:/lvComponents/Icons/lvMenuRecentPcap.svg</normaloff>:/lvComponents/Icons/lvMenuRecentPcap.svg</iconset>
-   </property>
-   <property name="title">
-    <string>&amp;Recent Pcap Files</string>
-   </property>
-   <addaction name="separator"/>
-   <addaction name="actionClearLidarRecentMenu"/>
-  </widget>
   <action name="actionSaveData">
    <property name="icon">
     <iconset>

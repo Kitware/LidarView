@@ -43,7 +43,6 @@
 #include "lqMeasurementGridReaction.h"
 #include "lqMenuSaveAsReaction.h"
 #include "lqOpenLidarReaction.h"
-#include "lqOpenRecentFilesReaction.h"
 #include "lqPlayerControlsToolbar.h"
 #include "lqRulersToolbar.h"
 #include "lqSavePcapReaction.h"
@@ -69,7 +68,6 @@ void lqLidarViewMenuBuilders::buildFileMenu(QMenu& menu)
 
   new lqOpenLidarReaction(ui.actionOpenPcap, vtkSMInterpretersManagerProxy::Mode::READER);
   new lqOpenLidarReaction(ui.actionOpenSensorStream, vtkSMInterpretersManagerProxy::Mode::STREAM);
-  new lqOpenRecentFilesReaction(ui.menuRecentLidarFiles, ui.actionClearLidarRecentMenu);
   new lqSavePcapReaction(ui.actionSavePcap);
   new pqSaveDataReaction(ui.actionSaveData);
   new lqMenuSaveAsReaction(ui.menuSaveAs);

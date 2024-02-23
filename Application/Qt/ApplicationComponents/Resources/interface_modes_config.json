@@ -11,7 +11,7 @@
       ],
       "menuFile": [
         "actionOpenPcap",
-        "menuRecentLidarFiles",
+        "menuRecentFiles",
         "separator",
         "actionOpenSensorStream",
         "separator",
@@ -197,7 +197,6 @@
       "menuFile": [
         "menuOpen",
         "menuRecentFiles",
-        "menuRecentLidarFiles",
         "separator",
         "actionSaveData",
         "actionSavePcap",

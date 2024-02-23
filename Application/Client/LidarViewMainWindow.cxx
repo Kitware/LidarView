@@ -25,6 +25,7 @@
 #include <pqAutoLoadPluginXMLBehavior.h>
 #include <pqAxesToolbar.h>
 #include <pqCoreUtilities.h>
+#include <pqInterfaceTracker.h>
 #include <pqLoadDataReaction.h>
 #include <pqMainControlsToolbar.h>
 #include <pqMainWindowEventManager.h>
@@ -55,6 +56,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLidarViewMenuBuilders.h"
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqOpenLidarReaction.h"
+#include "lqRecentlyUsedPcapLoader.h"
 #include "lqWelcomeDialog.h"
 
 //-----------------------------------------------------------------------------
@@ -173,12 +175,19 @@ LidarViewMainWindow::LidarViewMainWindow()
   pqParaViewBehaviors::setEnableCollaborationBehavior(false);
   pqParaViewBehaviors::setEnableViewStreamingBehavior(false);
   pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
+  pqParaViewBehaviors::setEnableStandardRecentlyUsedResourceLoader(true);
   // This must be delayed in lqCommandLineOptionsBehavior so tests can run with LidarGridView
   pqParaViewBehaviors::setEnableCommandLineOptionsBehavior(false);
   new pqParaViewBehaviors(this, this);
 
   new lqCommandLineOptionsBehavior(this);
   new lqLiveSourceScalarColoringBehavior(this);
+
+  // To register ParaView interfaces.
+  pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+
+  // Add recently used pcap interface
+  pgm->addInterface(new lqRecentlyUsedPcapLoader(pgm));
 
   // Restore last LidarView interface mode saved in settings
   lqLidarViewManager::instance()->restoreSavedInterfaceLayout();
