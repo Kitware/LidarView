@@ -5,6 +5,7 @@ set(tests_with_baselines
   # TestCameraProjector.xml # This test requires OpenCV which is missing in the pipeline
   TestCustomClipFilter.xml
   TestExtractPointSelection.xml
+  TestOpenRecentFiles.xml
   TestSaveLAS.xml
   TestSaveLoadTrace.xml
   TestSavePcap.xml
