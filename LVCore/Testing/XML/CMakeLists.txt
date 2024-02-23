@@ -1,6 +1,7 @@
 set(lidarview_test_client "$<TARGET_FILE:${SOFTWARE_TARGET}>")
 
 set(tests_with_baselines
+  TestAdvancedArrays.xml
   # TestCameraProjector.xml # This test requires OpenCV which is missing in the pipeline
   TestCustomClipFilter.xml
   TestExtractPointSelection.xml
