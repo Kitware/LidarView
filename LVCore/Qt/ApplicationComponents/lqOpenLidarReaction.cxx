@@ -27,6 +27,7 @@
 #include <vtkSMAnimationSceneProxy.h>
 #include <vtkSMParaViewPipelineControllerWithRendering.h>
 #include <vtkSMProxy.h>
+#include <vtkSMReaderFactory.h>
 #include <vtkSMSourceProxy.h>
 #include <vtkSMTrace.h>
 
@@ -43,6 +44,7 @@
 #include "lqHelper.h"
 #include "lqLidarConfigurationDialog.h"
 #include "lqLidarCoreManager.h"
+#include "lqRecentlyUsedPcapLoader.h"
 
 namespace
 {
@@ -117,11 +119,24 @@ bool lqOpenLidarReaction::openLidarPcap()
 }
 
 //-----------------------------------------------------------------------------
-bool lqOpenLidarReaction::openLidarPcap(QString filename)
+bool lqOpenLidarReaction::openLidarPcap(const QString& filename,
+  pqServer* server,
+  vtkSMProxy* defaultProxy)
 {
+  if (!server)
+  {
+    server = pqActiveObjects::instance().activeServer();
+  }
+
+  if (!vtkSMReaderFactory::TestFileReadability(filename.toUtf8().data(), server->session()))
+  {
+    qWarning() << "File '" << filename << "' cannot be read.";
+    return false;
+  }
+
   // Dialog to choose interpreter and configure LiDAR proxy
   lqLidarConfigurationDialog dialog(
-    pqCoreUtilities::mainWidget(), vtkSMInterpretersManagerProxy::Mode::READER);
+    pqCoreUtilities::mainWidget(), vtkSMInterpretersManagerProxy::Mode::READER, defaultProxy);
   if (!dialog.exec())
   {
     return false;
@@ -158,13 +173,13 @@ bool lqOpenLidarReaction::openLidarPcap(QString filename)
     RemoveAllProxyTypeFromPipelineBrowser<vtkLidarReader>();
   }
 
-  pqServer* server = pqActiveObjects::instance().activeServer();
   pqObjectBuilder* builder = pqApplicationCore::instance()->getObjectBuilder();
   pqPipelineSource* source =
     builder->createReader(prototype->GetXMLGroup(), prototype->GetXMLName(), { filename }, server);
   if (source)
   {
     ::InitAndDisplaySource(source, prototype, true);
+    lqRecentlyUsedPcapLoader::addPcapFileToRecentResources(server, filename, prototype);
   }
 
   handler->RemoveObserver(tag);

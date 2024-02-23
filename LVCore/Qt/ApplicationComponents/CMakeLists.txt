@@ -15,6 +15,7 @@ set(classes
   lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
   lqPythonShellReaction
+  lqRecentlyUsedPcapLoader
   lqRulerReaction
   lqRulersToolbar
   lqSaveLidarFrameReaction

@@ -182,7 +182,8 @@ public Q_SLOTS:
 
 //-----------------------------------------------------------------------------
 lqLidarConfigurationDialog::lqLidarConfigurationDialog(QWidget* parentObject,
-  vtkSMInterpretersManagerProxy::Mode mode)
+  vtkSMInterpretersManagerProxy::Mode mode,
+  vtkSMProxy* defaultProxy)
   : Superclass(parentObject)
   , Internals(new lqLidarConfigurationDialog::lqInternals(this))
 {
@@ -200,6 +201,7 @@ lqLidarConfigurationDialog::lqLidarConfigurationDialog(QWidget* parentObject,
   vtkSMPropertyHelper(imProxy, "Mode").Set(static_cast<vtkIdType>(mode));
   controller->PostInitializeProxy(imProxy);
 
+  int defaultInterpreter = -1;
   auto interpreters = imProxy->GetAvailableInterpreters();
   for (auto& interpreter : interpreters)
   {
@@ -224,9 +226,19 @@ lqLidarConfigurationDialog::lqLidarConfigurationDialog(QWidget* parentObject,
     }
     widget->setObjectName(interpreter);
     this->Internals->addInterpreterWidget(widget);
+
+    if (widget->trySetProxySettings(defaultProxy))
+    {
+      defaultInterpreter = this->Internals->Ui.InterpreterSelectionBox->count() - 1;
+    }
   }
   this->Internals->changeCurrentInterpreter(0);
   this->Internals->restoreDefaultDialogSettings();
+
+  if (defaultInterpreter != -1)
+  {
+    this->Internals->Ui.InterpreterSelectionBox->setCurrentIndex(defaultInterpreter);
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -38,7 +38,9 @@ class LQCOMPONENTS_EXPORT lqLidarConfigurationDialog : public pqDialog
   typedef pqDialog Superclass;
 
 public:
-  lqLidarConfigurationDialog(QWidget* Parent, vtkSMInterpretersManagerProxy::Mode mode);
+  lqLidarConfigurationDialog(QWidget* Parent,
+    vtkSMInterpretersManagerProxy::Mode mode,
+    vtkSMProxy* defaultProxy = nullptr);
   ~lqLidarConfigurationDialog() override;
 
   bool isMultiSensorsEnabled();

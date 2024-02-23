@@ -26,6 +26,7 @@
 #include <pqSettings.h>
 
 #include <vtkSMProperty.h>
+#include <vtkSMPropertyHelper.h>
 #include <vtkSMPropertyIterator.h>
 #include <vtkSMProxy.h>
 #include <vtkSMSessionProxyManager.h>
@@ -90,6 +91,23 @@ public:
     this->GNSSCheckbox->setChecked(value);
   }
 
+  //-----------------------------------------------------------------------------
+  static bool trySetProxySettings(pqProxyWidget* widget, vtkSMProxy* targetProxy)
+  {
+    if (!widget || !widget->proxy())
+    {
+      return false;
+    }
+    vtkSMProxy* widgetProxy = widget->proxy();
+    if (strcmp(widgetProxy->GetXMLGroup(), targetProxy->GetXMLGroup()) == 0 &&
+      strcmp(widgetProxy->GetXMLName(), targetProxy->GetXMLName()) == 0)
+    {
+      widgetProxy->Copy(targetProxy);
+      return true;
+    }
+    return false;
+  }
+
 public:
   pqProxyWidget* LidarProxyWidget;
   pqProxyWidget* PoseProxyWidget;
@@ -123,10 +141,8 @@ lqInterpreterWidget::lqInterpreterWidget(QWidget* parentW,
   internals->PoseProxyWidget = lqInterpreterWidget::createProxyWidget(this, poseProxyName);
 
   internals->PoseProxyWidget->setVisible(false);
-  QObject::connect(internals->GNSSCheckbox,
-    &QCheckBox::stateChanged,
-    this,
-    &lqInterpreterWidget::changeGNSSState);
+  QObject::connect(
+    internals->GNSSCheckbox, &QCheckBox::stateChanged, this, &lqInterpreterWidget::changeGNSSState);
   internals->loadPoseState();
 
   layout->addWidget(internals->GNSSCheckbox);
@@ -170,6 +186,31 @@ pqProxyWidget* lqInterpreterWidget::createProxyWidget(QWidget* parent, const cha
   pqProxyWidget* widgetProxy = new pqProxyWidget(proxy, parent);
   widgetProxy->setApplyChangesImmediately(true);
   return widgetProxy;
+}
+
+//-----------------------------------------------------------------------------
+bool lqInterpreterWidget::trySetProxySettings(vtkSMProxy* targetProxy)
+{
+  if (!targetProxy)
+  {
+    return false;
+  }
+
+  auto& internals = this->Internals;
+  if (lqInternals::trySetProxySettings(internals->LidarProxyWidget, targetProxy))
+  {
+    if (internals->GNSSCheckbox)
+    {
+      internals->GNSSCheckbox->setChecked(false);
+    }
+    return true;
+  }
+  if (lqInternals::trySetProxySettings(internals->PoseProxyWidget, targetProxy))
+  {
+    internals->GNSSCheckbox->setChecked(true);
+    return true;
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------

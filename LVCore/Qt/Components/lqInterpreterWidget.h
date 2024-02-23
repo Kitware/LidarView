@@ -51,6 +51,13 @@ public:
    */
   vtkSMProxy* getProxy();
 
+  /**
+   * Attempt to transfer the provided proxy values to the widget underlying proxies,
+   * ensuring compatibility with the proxy name and group.
+   * If successful, return true.
+   */
+  bool trySetProxySettings(vtkSMProxy* targetProxy);
+
 public Q_SLOTS:
   ///@{
   /**

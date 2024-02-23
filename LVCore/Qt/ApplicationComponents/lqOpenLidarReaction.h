@@ -22,6 +22,8 @@
 
 #include "vtkSMInterpretersManagerProxy.h"
 
+class pqServer;
+
 /**
  * @ingroup Reactions
  * Reaction that use lqLidarConfigurationDialog to open pcap or streams.
@@ -38,7 +40,9 @@ public:
   lqOpenLidarReaction(QAction* parent, vtkSMInterpretersManagerProxy::Mode mode);
 
   static bool openLidarPcap();
-  static bool openLidarPcap(QString filename);
+  static bool openLidarPcap(const QString& filename,
+    pqServer* server = nullptr,
+    vtkSMProxy* defaultProxy = nullptr);
   static bool openLidarStream();
 
 protected:
