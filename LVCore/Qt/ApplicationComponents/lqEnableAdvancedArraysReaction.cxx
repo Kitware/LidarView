@@ -78,10 +78,9 @@ void lqEnableAdvancedArraysReaction::onTriggered()
   std::vector<vtkSMProxy*> lidarProxys = GetLidarsProxy();
   for (vtkSMProxy* proxy : lidarProxys)
   {
-    vtkSMProxy* interp = SearchProxyByGroupName(proxy, "LidarPacketInterpreter");
-    if (interp != nullptr)
+    vtkSMProperty* property = proxy->GetProperty("EnableAdvancedArrays");
+    if (property != nullptr)
     {
-      vtkSMProperty* property = GetPropertyFromProxy(interp, "EnableAdvancedArrays");
       vtkSMPropertyHelper(property).Set(booleanToSet);
 
       // Update the proxy
@@ -114,13 +113,9 @@ void lqEnableAdvancedArraysReaction::onSourceAdded(pqPipelineSource* src)
     }
     vtkSMProxy* proxy = lidarProxys[0];
 
-    vtkSMProperty* interpreter = proxy->GetProperty("PacketInterpreter");
-    if (interpreter)
-    {
-      // The Ui is updated, each time the Interpreter of the first Lidar Proxy is Modified
-      this->Connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-      this->Connection->Connect(interpreter, vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
-    }
+    // The Ui is updated, each time the Interpreter of the first Lidar Proxy is Modified
+    this->Connection = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    this->Connection->Connect(proxy, vtkCommand::ModifiedEvent, this, SLOT(updateUI()));
 
     this->updateUI();
   }
@@ -137,10 +132,9 @@ void lqEnableAdvancedArraysReaction::updateUI()
   }
   vtkSMProxy* proxy = lidarProxys[0];
 
-  vtkSMProxy* interp = SearchProxyByGroupName(proxy, "LidarPacketInterpreter");
-  if (interp != nullptr)
+  vtkSMProperty* property = proxy->GetProperty("EnableAdvancedArrays");
+  if (property != nullptr)
   {
-    vtkSMProperty* property = GetPropertyFromProxy(interp, "EnableAdvancedArrays");
     bool enableAdvancedArrays = vtkSMPropertyHelper(property).GetAsInt();
 
     // The Ui should be updated to the next available action : "disable/enable..."
