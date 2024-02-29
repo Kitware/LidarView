@@ -661,7 +661,16 @@ std::vector<std::string> NMEAParser::SplitWords(const std::string& sentence)
 
   while (std::getline(sstr, token, ','))
   {
-    result.push_back(token);
+    auto found = token.find('*');
+    if (found != std::string::npos && found != 0)
+    {
+      result.push_back(token.substr(0, found));
+      result.push_back(token.substr(found + 1, token.size()));
+    }
+    else
+    {
+      result.push_back(token);
+    }
   }
 
   return result;
