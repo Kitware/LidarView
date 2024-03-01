@@ -7,7 +7,6 @@ set(classes
   lqLidarViewMenuBuilders
   lqMainControlsToolbar
   lqMenuSaveAsReaction
-  lqOpenRecentFilesReaction
   lqStatusBar
   lqWelcomeDialog
 )
