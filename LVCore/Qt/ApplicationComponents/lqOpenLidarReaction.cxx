@@ -105,7 +105,7 @@ bool lqOpenLidarReaction::openLidarPcap()
     pqCoreUtilities::mainWidget(),
     tr("Open LiDAR File"),
     QString(),
-    tr("Wireshark Capture (*.pcap)"),
+    tr("Wireshark Capture (*.pcap *.pcapng)"),
     false);
   dialog.setObjectName("lqLidarFileOpenDialog");
   dialog.setFileMode(pqFileDialog::ExistingFile);
