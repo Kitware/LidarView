@@ -1,0 +1,102 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="UDPPointSender"
+                 class="vtkUDPPointSender"
+                 label="UDPPointSender">
+      <Documentation short_help="Send data over network in UDP">
+        Send data over network in UDP.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <InputArrayDomain name="point_arrays" attribute_type="point" />
+      </InputProperty>
+
+      <IntVectorProperty name="EnableDataTransmission"
+                         command="SetEnabled"
+                         number_of_elements="1"
+                         default_values="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Enable/disable this filter. When disabled, this filter passes data object doing nothing more.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="IPAddress"
+                            command="SetIPAddress"
+                            number_of_elements="1"
+                            default_values="127.0.0.1">
+        <Documentation>
+          IP address to send data over. Can either be a IPv4 address string in dotted decimal form,
+          or an IPv6 address in hexadecimal notation.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="Port"
+                         command="SetPort"
+                         number_of_elements="1"
+                         default_values="8888">
+        <Documentation>
+          Port on which to send data.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="ArrayToSend"
+                            command="GetArraySelections"
+                            number_of_elements_per_command="1"
+                            repeat_command="1"
+                            si_class="vtkSIDataArraySelectionProperty">
+        <ArrayListDomain name="array_list" input_domain_name="point_arrays">
+          <RequiredProperties>
+            <Property name="Input" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point data arrays to send over udp. Note: points coordinates are always sent.
+        </Documentation>
+        <Hints>
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="OnlySendNewData"
+                         command="SetOnlySendNewData"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Enable this option to send data only when the value of Time Array Name exceeds all previous values.
+          Can be used for aggregated data with available time information.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="TimeArrayName"
+                            command="SetTimeArrayName"
+                            animateable="0"
+                            default_values="None"
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the time array used as the basis for the OnlySendNewData condition.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OnlySendNewData"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

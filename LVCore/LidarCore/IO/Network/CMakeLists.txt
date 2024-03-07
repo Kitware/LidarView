@@ -21,7 +21,9 @@ set(classes
   vtkInterpreter
   vtkPacketFileReader
   vtkPacketFileWriter
-  vtkStream)
+  vtkStream
+  vtkUDPPointSender
+)
 
 vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}
