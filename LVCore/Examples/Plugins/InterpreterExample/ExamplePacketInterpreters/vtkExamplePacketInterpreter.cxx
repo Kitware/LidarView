@@ -31,6 +31,8 @@ vtkStandardNewMacro(vtkExamplePacketInterpreter)
 //-----------------------------------------------------------------------------
 vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
 {
+  this->SetSensorVendor("Kitware");
+  this->SetSensorModel("Example");
   this->ParserMetaData.SpecificInformation = std::make_shared<ExampleSpecificFrameInformation>();
 
   this->ResetCurrentFrame();
@@ -161,17 +163,6 @@ bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkExamplePacketInterpreter::GetSensorInformation(bool vtkNotUsed(shortVersion))
-{
-  return std::string("Example Sensor");
-}
-
-//-----------------------------------------------------------------------------
-std::string vtkExamplePacketInterpreter::GetSensorName()
-{
-  return "ExampleSensor" + std::to_string(this->GetNumberOfChannels());
-}
-
 void vtkExamplePacketInterpreter::LoadCalibration()
 {
   std::string filename;

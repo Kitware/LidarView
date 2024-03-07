@@ -134,7 +134,7 @@ public:
    * @param shortVersion True to have a succinct version of the sensor information
    * @return
    */
-  virtual std::string GetSensorInformation(bool shortVersion = false) = 0;
+  virtual std::string GetSensorInformation(bool shortVersion = false);
 
   /**
    * @brief CreateNewFrameInformation create a new frame information
@@ -202,6 +202,15 @@ public:
   vtkSetMacro(FrameDuration_s, double);
   vtkGetMacro(FrameDuration_s, double);
 
+  ///@{
+  /**
+   * Get sensor string information such as vendor or model name,
+   * if available in the interpreter subclass.
+   */
+  vtkGetMacro(SensorVendor, std::string);
+  vtkGetMacro(SensorModelName, std::string);
+  ///@}
+
 protected:
   /**
    * @brief CreateNewEmptyFrame construct a empty polyData with the right DataArray and allocate
@@ -210,6 +219,15 @@ protected:
    */
   virtual vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType numberOfPoints,
     vtkIdType prereservedNumberOfPoints = 0) = 0;
+
+  ///@{
+  /**
+   * Set sensor information such as vendor or model name.
+   * This should be set by the interpreter subclass.
+   */
+  vtkSetMacro(SensorVendor, std::string);
+  vtkSetMacro(SensorModelName, std::string);
+  ///@}
 
   //! Buffer to store the frame once they are ready
   std::vector<vtkSmartPointer<vtkPolyData>> Frames;
@@ -264,6 +282,9 @@ protected:
   virtual ~vtkLidarPacketInterpreter() = default;
 
 private:
+  std::string SensorVendor;
+  std::string SensorModelName;
+
   vtkLidarPacketInterpreter(const vtkLidarPacketInterpreter&) = delete;
   void operator=(const vtkLidarPacketInterpreter&) = delete;
 };

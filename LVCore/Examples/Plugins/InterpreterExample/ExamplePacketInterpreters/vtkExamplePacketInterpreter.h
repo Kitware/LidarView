@@ -50,10 +50,6 @@ public:
     double packetNetworkTime = 0,
     std::vector<FrameInformation>* frameCatalog = nullptr) override;
 
-  std::string GetSensorInformation(bool shortVersion = false) override;
-
-  std::string GetSensorName();
-
   void LoadCalibration() override;
 
 protected:

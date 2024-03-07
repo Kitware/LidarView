@@ -17,12 +17,16 @@
 
 #include <vtkDoubleArray.h>
 #include <vtkFieldData.h>
+#include <vtkStringArray.h>
 
 #include <ctime>
 #include <sstream>
 
 namespace
 {
+constexpr const char* SPEED_FIELD_DATA_NAME[2] = { "RPM", "FPS" };
+constexpr const char* INFO_FIELD_DATA_NAME[2] = { "Vendor", "Model" };
+
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
 {
@@ -54,7 +58,6 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     }
 
     // Create a field data array with RPM info
-    const std::string fsNameArray[2] = { "RPM", "FPS" };
     double fsValues[2];
     fsValues[0] = this->GetRpm();
     fsValues[1] = this->GetFrequency();
@@ -62,13 +65,29 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     {
       if (fsValues[i] != 0)
       {
-        vtkDoubleArray* fsArray = vtkDoubleArray::New();
-        fsArray->SetName(fsNameArray[i].c_str());
+        vtkSmartPointer<vtkDoubleArray> fsArray = vtkDoubleArray::New();
+        fsArray->SetName(::SPEED_FIELD_DATA_NAME[i]);
         fsArray->SetNumberOfComponents(1);
         fsArray->SetNumberOfTuples(1);
         fsArray->InsertComponent(0, 0, fsValues[i]);
         this->CurrentFrame->GetFieldData()->AddArray(fsArray);
-        fsArray->Delete();
+      }
+    }
+
+    // Add sensor name and model if implemented in subclasses
+    std::string infoValues[2];
+    infoValues[0] = this->GetSensorVendor();
+    infoValues[1] = this->GetSensorModelName();
+    for (unsigned int idx = 0; idx < 2; idx++)
+    {
+      if (!infoValues[idx].empty())
+      {
+        vtkSmartPointer<vtkStringArray> strArray = vtkStringArray::New();
+        strArray->SetName(::INFO_FIELD_DATA_NAME[idx]);
+        strArray->SetNumberOfComponents(1);
+        strArray->SetNumberOfTuples(1);
+        strArray->InsertValue(0, infoValues[idx].c_str());
+        this->CurrentFrame->GetFieldData()->AddArray(strArray);
       }
     }
 
@@ -184,4 +203,10 @@ std::string vtkLidarPacketInterpreter::GetDefaultRecordFileName()
   defaultFileName << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S");
 
   return defaultFileName.str();
+}
+
+//-----------------------------------------------------------------------------
+std::string vtkLidarPacketInterpreter::GetSensorInformation(bool vtkNotUsed(shortVersion))
+{
+  return this->GetSensorVendor() + " - " + this->GetSensorModelName();
 }
