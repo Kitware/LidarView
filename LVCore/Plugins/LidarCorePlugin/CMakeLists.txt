@@ -187,6 +187,8 @@ set(ui_files
 set(sources
   lqCalibrationFilePropertyWidget.cxx
   lqCalibrationFilePropertyWidget.h
+  lqConditionalDefaultPropertyWidgetDecorator.cxx
+  lqConditionalDefaultPropertyWidgetDecorator.h
   lqLidarCorePluginManager.cxx
   lqLidarCorePluginManager.h)
 
@@ -194,8 +196,15 @@ paraview_plugin_add_property_widget(
   KIND WIDGET
   TYPE "calibration_file_widget"
   CLASS_NAME lqCalibrationFilePropertyWidget
-  INTERFACES property_interfaces
-  SOURCES property_sources)
+  INTERFACES calibration_file_widget_interfaces
+  SOURCES calibration_file_widget_sources)
+
+paraview_plugin_add_property_widget(
+  KIND WIDGET_DECORATOR
+  TYPE "ConditionalDefaultValueDecorator"
+  CLASS_NAME lqConditionalDefaultPropertyWidgetDecorator
+  INTERFACES conditional_default_decorator_interfaces
+  SOURCES conditional_default_decorator_sources)
 
 paraview_plugin_add_auto_start(
   CLASS_NAME lqLidarCorePluginManager
@@ -205,10 +214,12 @@ paraview_plugin_add_auto_start(
   SOURCES autostart_sources)
 
 list(APPEND interfaces
-  ${property_interfaces}
+  ${calibration_file_widget_interfaces}
+  ${conditional_default_decorator_interfaces}
   ${autostart_interface})
 list(APPEND sources
-  ${property_sources}
+  ${calibration_file_widget_sources}
+  ${conditional_default_decorator_sources}
   ${autostart_sources})
 
 set(qrc_files
