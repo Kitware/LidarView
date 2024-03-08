@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkExamplePacketInterpreter)
 vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
 {
   this->SetSensorVendor("Kitware");
-  this->SetSensorModel("Example");
+  this->SetSensorModelName("Example");
   this->ParserMetaData.SpecificInformation = std::make_shared<ExampleSpecificFrameInformation>();
 
   this->ResetCurrentFrame();
