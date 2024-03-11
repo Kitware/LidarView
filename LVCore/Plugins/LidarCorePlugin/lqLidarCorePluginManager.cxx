@@ -28,6 +28,7 @@
 #include <pqRenderView.h>
 #include <pqServer.h>
 #include <pqServerManagerModel.h>
+#include <pqSettings.h>
 #include <pqView.h>
 
 //-----------------------------------------------------------------------------
@@ -123,7 +124,6 @@ void lqLidarCorePluginManager::onViewAdded(pqView* view)
     const std::string viewName = view->getViewProxy()->GetVTKClassName();
     if (viewName == "vtkLidarGridView")
     {
-
       vtkSMProxy* proxy = renderView->getProxy();
       const double pos[3] = { 0, -72, 18.0 };
       const double focal_point[3] = { 0, 0, 0 };
@@ -131,6 +131,16 @@ void lqLidarCorePluginManager::onViewAdded(pqView* view)
       vtkSMPropertyHelper(proxy, "CameraPosition").Set(pos, 3);
       vtkSMPropertyHelper(proxy, "CameraFocalPoint").Set(focal_point, 3);
       vtkSMPropertyHelper(proxy, "CameraViewUp").Set(view_up, 3);
+
+      vtkSMProxy* lidarGridProxy = vtkSMPropertyHelper(proxy, "LidarGrid").GetAsProxy();
+      if (lidarGridProxy)
+      {
+        pqSettings* settings = pqApplicationCore::instance()->settings();
+        bool show = settings->value("MeasurementGridState", true).toBool();
+        vtkSMPropertyHelper(lidarGridProxy, "Visibility").Set(show);
+        lidarGridProxy->UpdateVTKObjects();
+      }
+
       proxy->UpdateVTKObjects();
 
       renderView->setCenterOfRotation(0, 0, 0);

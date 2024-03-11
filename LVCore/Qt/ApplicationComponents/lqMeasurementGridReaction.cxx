@@ -23,6 +23,7 @@
 
 #include <pqActiveObjects.h>
 #include <pqRenderView.h>
+#include <pqSettings.h>
 #include <pqView.h>
 
 #include "lqHelper.h"
@@ -92,6 +93,10 @@ void lqMeasurementGridReaction::updateGridVisibility(bool show)
         vtkSMPropertyHelper(lidarGridProxy, "Visibility").Set(show);
         lidarGridProxy->UpdateVTKObjects();
         view->render();
+
+        // Save current state
+        pqSettings* settings = pqApplicationCore::instance()->settings();
+        settings->setValue("MeasurementGridState", show);
       }
     }
   }
