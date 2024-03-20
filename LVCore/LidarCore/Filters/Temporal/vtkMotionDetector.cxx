@@ -14,7 +14,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStabilizationManager.cxx
+  Module:    vtkMotionDetector.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,9 +29,12 @@
 #include "vtkMotionDetector.h"
 
 // VTK
+#include <vtkAppendFilter.h>
+#include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
+#include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
@@ -42,20 +45,18 @@
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataWriter.h>
 #include <vtkPolyLine.h>
+#include <vtkQuaternion.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkQuaternion.h>
+#include <vtkTransform.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedShortArray.h>
-#include <vtkTransform.h>
-#include <vtkPoints.h>
-#include <vtkAppendFilter.h>
-#include <vtkAppendPolyData.h>
-#include <vtkQuaternion.h>
-#include <vtkDataSet.h>
 #include <vtkXMLPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
+
+// EIGEN
+#include <Eigen/Dense>
 
 // STD
 #include <iostream>
@@ -77,10 +78,7 @@ vtkMotionDetector::vtkMotionDetector()
 }
 
 //----------------------------------------------------------------------------
-vtkMotionDetector::~vtkMotionDetector()
-{
-
-}
+vtkMotionDetector::~vtkMotionDetector() = default;
 
 //----------------------------------------------------------------------------
 void vtkMotionDetector::ResetAlgorithm()
@@ -103,8 +101,9 @@ void vtkMotionDetector::AddFrame(vtkSmartPointer<vtkPolyData>& polydata)
 }
 
 //-----------------------------------------------------------------------------
-int vtkMotionDetector::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   std::cout << "Motion Detector asked" << std::endl;
   // Get input data

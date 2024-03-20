@@ -32,25 +32,17 @@
 // LOCAL
 #include "vtkSphericalMap.h"
 
-// STD
-#include <cstring>
-#include <iostream>
-#include <stdint.h>
-
 // VTK
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
-
-// EIGEN
-#include <Eigen/Dense>
 
 #include "lvFiltersTemporalModule.h"
 
 class LVFILTERSTEMPORAL_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkMotionDetector *New();
+  static vtkMotionDetector* New();
   vtkTypeMacro(vtkMotionDetector, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -65,7 +57,7 @@ protected:
   vtkMotionDetector();
   ~vtkMotionDetector();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   // copy operators
