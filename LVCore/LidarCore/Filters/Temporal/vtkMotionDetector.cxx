@@ -61,6 +61,92 @@
 // STD
 #include <iostream>
 
+class vtkMotionDetector::vtkInternals
+{
+public:
+  /**
+   * @brief The gaussian struct is used to compute the normal distribution:
+   * 1.0 / (sigma * sqrt(2 * pi)) * exp((x - mean) ^ 2) / (2.0 * sigma^2))
+   * When a new point is added, the sigma and the mean will be updated
+   * The weight parameter is to store the weight of each gaussian in GMM
+   */
+  struct Gaussian
+  {
+    // Constructor
+    Gaussian() = default;
+    Gaussian(double mean,
+      double sigma,
+      int maxTTL,
+      unsigned int nb = 1,
+      bool isMotion = false,
+      double weight = 1.0)
+      : Mean(mean)
+      , Sigma(sigma)
+      , MaxTTL(maxTTL)
+      , TTL(maxTTL)
+      , N(nb)
+      , IsMotion(isMotion)
+      , Weight(weight){};
+
+    // Mean of the gaussian
+    double Mean = 0.;
+
+    // Standard deviation of the gaussian
+    double Sigma = 0.2;
+
+    // Maximum number of frames for TTL
+    int MaxTTL = 50;
+
+    // Time to live of the gaussian
+    int TTL = 50;
+
+    // Number of samples added into gaussian
+    unsigned int N = 0;
+
+    // If or not the gaussian cluster represent a motion area
+    bool IsMotion = false;
+
+    // Weight of the distribution
+    double Weight = 1.0;
+
+    // Get gaussian value of point x
+    double operator()(double x)
+    {
+      return 1.0 / (this->Sigma * sqrt(2 * vtkMath::Pi())) *
+        exp(-std::pow(x - this->Mean, 2) / (2.0 * std::pow(this->Sigma, 2)));
+    }
+
+    // Update parameters using new value and the weight of this value
+    void UpdateParams(double x, double weightX)
+    {
+      // Update the weight
+      double oldWeight = this->Weight;
+      double sumWeight = static_cast<double>(this->N) * oldWeight;
+      this->Weight = (sumWeight + weightX) / (static_cast<double>(this->N + 1));
+
+      // Update the mean
+      double oldMean = this->Mean;
+      this->Mean = oldMean + weightX * (x - oldMean) / (sumWeight + weightX);
+
+      // Update the standard deviation using Welford's method
+      this->Sigma = std::sqrt(
+        (sumWeight * std::pow(this->Sigma, 2) + weightX * (x - oldMean) * (x - this->Mean)) /
+        (sumWeight + weightX));
+
+      // Update the number of sample
+      this->N += 1;
+    }
+
+    // Update the time to live
+    // Return false if TTL falls to zero value
+    bool UpdateTTL()
+    {
+      this->TTL -= 1;
+      return (this->TTL >= 0);
+    }
+  };
+};
+
 constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
 constexpr unsigned int INPUT_PORT_COUNT = 1;
 
