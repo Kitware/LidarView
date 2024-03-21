@@ -3,17 +3,17 @@
 
 #include "vtkLidarReader.h"
 
-#include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
 
 #include "vtkKittiIOModule.h" // for export macro
 
 #ifndef _WIN32
-#define notImpementedBody \
-std::cerr << typeid(this).name() << "::" << __func__ << " is not implemented" << std::endl;
+#define notImpementedBody                                                                          \
+  std::cerr << typeid(this).name() << "::" << __func__ << " is not implemented" << std::endl;
 #else
-#define notImpementedBody \
-std::cerr << typeid(this).name() << "::" << __FUNCTION__ << " is not implemented" << std::endl;
+#define notImpementedBody                                                                          \
+  std::cerr << typeid(this).name() << "::" << __FUNCTION__ << " is not implemented" << std::endl;
 #endif
 
 /**
@@ -28,35 +28,35 @@ public:
 
   vtkSmartPointer<vtkPolyData> GetFrame(int frameNumber) override;
 
-  vtkGetMacro(FileName, std::string)
-  void SetFileName(const std::string& filename) override;
+  vtkGetMacro(FileName, std::string) void SetFileName(const std::string& filename) override;
 
-  vtkGetMacro(NumberOfFrames, int)
+  vtkGetMacro(NumberOfFrames, int);
 
-  vtkSetMacro(NumberOfFileNameDigits, int)
-
-  //! Not implemented
-  void Open(bool vtkNotUsed(reassemble)) override {notImpementedBody}
+  vtkSetMacro(NumberOfFileNameDigits, int);
 
   //! Not implemented
-  void Close() override {notImpementedBody}
+  void Open(bool vtkNotUsed(reassemble)) override { notImpementedBody }
 
   //! Not implemented
-  void SaveFrame(int vtkNotUsed(startFrame), int vtkNotUsed(endFrame),
-                 const std::string& vtkNotUsed(filename)) override {notImpementedBody}
+  void Close() override { notImpementedBody }
+
+  //! Not implemented
+  void SaveFrame(int vtkNotUsed(startFrame),
+    int vtkNotUsed(endFrame),
+    const std::string& vtkNotUsed(filename)) override{ notImpementedBody }
 
   //! Not implemented
   std::string GetSensorInformation();
 
   // return the number of channels
-  vtkGetMacro(NbrLaser, int)
+  vtkGetMacro(NbrLaser, int);
 
 private:
   vtkLidarKITTIDataSetReader() = default;
 
   int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

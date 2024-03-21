@@ -41,15 +41,15 @@
  * The transformation from lidar coordinates to camera coodinates is:
  * x = P2 * R0_rect * Tr_velo_to_cam * y
  * "
- * The Px matrices project a point in the rectified referenced camera coordinate to the camera_x image.
- * camera_0 is the reference camera coordinate. R0_rect is the rectifying rotation for reference coordinate
- * ( rectification makes images of multiple cameras lie on the same plan). Tr_velo_to_cam maps a point in
- * point cloud coordinate to reference co-ordinate.
+ * The Px matrices project a point in the rectified referenced camera coordinate to the camera_x
+ * image. camera_0 is the reference camera coordinate. R0_rect is the rectifying rotation for
+ * reference coordinate ( rectification makes images of multiple cameras lie on the same plan).
+ * Tr_velo_to_cam maps a point in point cloud coordinate to reference co-ordinate.
  * "
  * (source: https://medium.com/test-ttile/kitti-3d-object-detection-dataset-d78a762b5a4)
  *
  * TODO Calibration between camera and lidar from calibration file
-*/
+ */
 
 class VTKKITTIIO_EXPORT vtkKITTIObjectLabelsReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -59,25 +59,25 @@ public:
 
   void GetLabelData(int frameIndex, vtkMultiBlockDataSet* output);
 
-  vtkGetMacro(FolderName, std::string)
+  vtkGetMacro(FolderName, std::string);
   void SetFolderName(const std::string& path);
 
-  vtkSetMacro(UseCalibration, bool)
-  vtkGetMacro(UseCalibration, bool)
+  vtkSetMacro(UseCalibration, bool);
+  vtkGetMacro(UseCalibration, bool);
 
-  vtkGetMacro(CalibFolderName, std::string)
+  vtkGetMacro(CalibFolderName, std::string);
   void SetCalibFolderName(const std::string& path);
 
-  vtkGetMacro(NumberOfFrames, int)
+  vtkGetMacro(NumberOfFrames, int);
 
-  vtkSetMacro(NumberOfFileNameDigits, int)
+  vtkSetMacro(NumberOfFileNameDigits, int);
 
 private:
-vtkKITTIObjectLabelsReader();
+  vtkKITTIObjectLabelsReader();
 
   int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -99,7 +99,6 @@ vtkKITTIObjectLabelsReader();
 
   vtkKITTIObjectLabelsReader(const vtkKITTIObjectLabelsReader&) = delete;
   void operator=(const vtkKITTIObjectLabelsReader&) = delete;
-
 };
 
-#endif  // VTKKITTIOBJECTLABELSREADER_H
+#endif // VTKKITTIOBJECTLABELSREADER_H

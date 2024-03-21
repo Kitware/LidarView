@@ -1,11 +1,10 @@
 #ifndef VTKLIDARKITTIDATASETWRITER_H
 #define VTKLIDARKITTIDATASETWRITER_H
 
-
-#include <vtkPolyDataAlgorithm.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkNew.h>
+#include <vtkPolyDataAlgorithm.h>
 
 #include <string>
 
@@ -31,17 +30,17 @@ public:
   vtkTypeMacro(vtkLidarKITTIDataSetWriter, vtkPolyDataAlgorithm)
   // void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkGetMacro(FolderName, const std::string&)
+  vtkGetMacro(FolderName, const std::string&);
   void SetFolderName(const std::string&);
 
-  vtkGetMacro(NumberOfFileNameDigits, unsigned int)
-  vtkSetMacro(NumberOfFileNameDigits, unsigned int)
+  vtkGetMacro(NumberOfFileNameDigits, unsigned int);
+  vtkSetMacro(NumberOfFileNameDigits, unsigned int);
 
-  vtkGetMacro(NormalizeIntensity, bool)
-  vtkSetMacro(NormalizeIntensity, bool)
+  vtkGetMacro(NormalizeIntensity, bool);
+  vtkSetMacro(NormalizeIntensity, bool);
 
-  vtkGetMacro(InputIntensityMaxValue, float)
-  vtkSetMacro(InputIntensityMaxValue, float)
+  vtkGetMacro(InputIntensityMaxValue, float);
+  vtkSetMacro(InputIntensityMaxValue, float);
 
 protected:
   vtkLidarKITTIDataSetWriter();
@@ -51,7 +50,7 @@ protected:
    * @brief UpdatePipelineIndex updates tHe pipeline index when requesting a new frame
    * (used in RequestUpdateExtent)
    **/
-  void UpdatePipelineIndex(vtkInformation *);
+  void UpdatePipelineIndex(vtkInformation*);
 
   /*
    * @brief ParseCloudData parses a point cloud vtkPolyData to retrieve information
@@ -60,9 +59,9 @@ protected:
    * */
   std::vector<float> ParseCloudData(vtkSmartPointer<vtkPolyData> cloud, vtkDataArray* intensity);
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Name of the folder to write the frames to
   std::string FolderName;
@@ -78,11 +77,9 @@ protected:
   bool NormalizeIntensity = 1;
   float InputIntensityMaxValue = 255.;
 
-
 private:
   vtkLidarKITTIDataSetWriter(const vtkLidarKITTIDataSetWriter&) = delete;
   void operator=(const vtkLidarKITTIDataSetWriter&) = delete;
 };
-
 
 #endif // VTKLIDARKITTIDATASETWRITER_H
