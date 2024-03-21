@@ -239,7 +239,7 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
     vtkErrorMacro("GetFrame() called but packet file reader is not open.");
     return 0;
   }
-  if (!this->LidarInterpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsInitialized())
   {
     vtkErrorMacro("Calibration data has not been loaded.");
     return 0;
@@ -512,7 +512,7 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->LidarInterpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsInitialized())
   {
     vtkErrorMacro("The calibration could not be determined from the pcap file, and no valid "
                   "calibration file was provided !");
@@ -575,9 +575,9 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->LidarInterpreter->GetIsCalibrated())
+  if (!this->LidarInterpreter->GetIsInitialized())
   {
-    this->LidarInterpreter->LoadCalibration();
+    this->LidarInterpreter->Initialize();
   }
 
   if (this->LidarInterpreter && !this->FileName.empty())

@@ -30,6 +30,22 @@
 
 #include "lvIOLidarModule.h"
 
+/**
+ * This macro should be used when the interpreter must reindex all
+ * the frames. (Can be time-consuming if big pcap.)
+ */
+#define vtkSetAndResetInitializeMacro(name, type)                                                  \
+  virtual void Set##name(type _arg)                                                                \
+  {                                                                                                \
+    vtkDebugMacro(<< " setting " #name " to " << _arg);                                            \
+    if (this->name != _arg)                                                                        \
+    {                                                                                              \
+      this->name = _arg;                                                                           \
+      this->Modified();                                                                            \
+      this->ResetInitializedState();                                                               \
+    }                                                                                              \
+  }
+
 enum FramingMethod_t
 {
   INTERPRETER_FRAMING = 0,        // the interpreter in charge of the framing
@@ -42,11 +58,14 @@ public:
   vtkTypeMacro(vtkLidarPacketInterpreter, vtkInterpreter)
   void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override {} // TODO
 
+  ///@{
   /**
-   * @brief LoadCalibration initialize the sensor's calibration parameters (angles corrections,
-   * distances corrections, ...) which will be used later on while processing the packet.
+   * Initialize the sensor interpreter.
+   * Can be overriden by the subclass, for example to change calibration parameter.
    */
-  virtual void LoadCalibration() = 0;
+  virtual void Initialize();
+  vtkGetMacro(IsInitialized, bool);
+  ///@}
 
   /**
    * @brief GetCalibrationTable return a table conttaining all information related to the sensor
@@ -177,8 +196,6 @@ public:
   void SetCalibrationFileName(const char* filename);
   vtkGetFilePathMacro(CalibrationFileName);
 
-  vtkGetMacro(IsCalibrated, bool);
-
   vtkGetMacro(TimeOffset, double);
   vtkSetMacro(TimeOffset, double);
 
@@ -191,16 +208,16 @@ public:
   vtkSetMacro(IgnoreZeroDistances, bool);
 
   vtkGetMacro(IgnoreEmptyFrames, bool);
-  vtkSetMacro(IgnoreEmptyFrames, bool);
+  vtkSetAndResetInitializeMacro(IgnoreEmptyFrames, bool);
 
   vtkGetMacro(EnableAdvancedArrays, bool);
   vtkSetMacro(EnableAdvancedArrays, bool);
 
-  vtkSetMacro(FramingMethod, int);
   vtkGetMacro(FramingMethod, int);
+  vtkSetAndResetInitializeMacro(FramingMethod, int);
 
-  vtkSetMacro(FrameDuration_s, double);
   vtkGetMacro(FrameDuration_s, double);
+  vtkSetAndResetInitializeMacro(FrameDuration_s, double);
 
   ///@{
   /**
@@ -229,6 +246,11 @@ protected:
   vtkSetMacro(SensorModelName, std::string);
   ///@}
 
+  /**
+   * Reset the initialize state. (Change IsInitialized to false)
+   */
+  void ResetInitializedState();
+
   //! Buffer to store the frame once they are ready
   std::vector<vtkSmartPointer<vtkPolyData>> Frames;
 
@@ -243,9 +265,6 @@ protected:
 
   //! Number of laser which can be shoot at the same time or at least in dt < epsilon
   int CalibrationReportedNumLasers = -1;
-
-  //! Indicate if the sensor is calibrated or has been succesfully calibrated
-  bool IsCalibrated = false;
 
   //! TimeOffset in seconds relative to the system clock
   double TimeOffset = 0.;
@@ -284,6 +303,7 @@ protected:
 private:
   std::string SensorVendor;
   std::string SensorModelName;
+  bool IsInitialized = false;
 
   vtkLidarPacketInterpreter(const vtkLidarPacketInterpreter&) = delete;
   void operator=(const vtkLidarPacketInterpreter&) = delete;

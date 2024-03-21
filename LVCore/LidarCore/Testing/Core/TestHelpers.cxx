@@ -574,7 +574,7 @@ int testLidarStream(vtkLidarStream* stream,
   }
 
   stream->Start();
-  if (interpreter->GetIsCalibrated())
+  if (interpreter->GetIsInitialized())
   {
     retVal += SendAndTestAllFrames(
       stream, interpreter, referenceFilesList, pcapFileName, destinationIp, dataPort);
@@ -739,7 +739,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   LidarStream1->Start();
   LidarStream2->Start();
 
-  if (interpreter2->GetIsCalibrated())
+  if (interpreter2->GetIsInitialized())
   {
     // Send all data on DataPort (listen by LidarStream1) and check the result of lidarStream2
     retVal += SendAndTestAllFrames(

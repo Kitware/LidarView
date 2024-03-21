@@ -110,9 +110,9 @@ void vtkLidarStream::Start()
     vtkErrorMacro("No packet interpreter selected.");
     return;
   }
-  if (!this->GetLidarInterpreter()->GetIsCalibrated())
+  if (!this->GetLidarInterpreter()->GetIsInitialized())
   {
-    this->GetLidarInterpreter()->LoadCalibration();
+    this->GetLidarInterpreter()->Initialize();
   }
 
   vtkStream::Start();

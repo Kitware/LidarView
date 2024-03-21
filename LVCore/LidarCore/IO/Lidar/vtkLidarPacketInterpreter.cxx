@@ -46,6 +46,18 @@ vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
 }
 
 //-----------------------------------------------------------------------------
+void vtkLidarPacketInterpreter::Initialize()
+{
+  this->IsInitialized = true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkLidarPacketInterpreter::ResetInitializedState()
+{
+  this->IsInitialized = false;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkLidarPacketInterpreter::SplitFrame(bool force,
   FramingMethod_t framingMethodAskingForSplitFrame)
 {
@@ -106,8 +118,11 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
 //-----------------------------------------------------------------------------
 void vtkLidarPacketInterpreter::SetCalibrationFileName(const char* filename)
 {
+  if (this->CalibrationFileName && filename && strcmp(this->CalibrationFileName, filename) != 0)
+  {
+    this->ResetInitializedState();
+  }
   vtkSetStringBodyMacro(CalibrationFileName, filename);
-  this->IsCalibrated = false;
 };
 
 //-----------------------------------------------------------------------------
