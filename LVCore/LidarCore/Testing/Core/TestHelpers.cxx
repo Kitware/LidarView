@@ -570,7 +570,6 @@ int testLidarStream(vtkLidarStream* stream,
       return 1;
     }
     interpreter->ClearAllFramesAvailable();
-    interpreter->ResetParserMetaData();
   }
 
   stream->Start();
@@ -731,9 +730,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
       return 1;
     }
     interpreter1->ClearAllFramesAvailable();
-    interpreter1->ResetParserMetaData();
     interpreter2->ClearAllFramesAvailable();
-    interpreter2->ResetParserMetaData();
   }
 
   LidarStream1->Start();

@@ -17,15 +17,11 @@
 #ifndef VTKLIDARPROVIDERINTERNAL_H
 #define VTKLIDARPROVIDERINTERNAL_H
 
-// Compliance with vtk's fpos_t policy, needs to be included before any libc header
-#include <vtkSystemIncludes.h>
-
 #include <vtkNew.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
-#include "FrameInformation.h"
 #include "vtkInterpreter.h"
 
 #include "lvIOLidarModule.h"
@@ -95,9 +91,7 @@ public:
    */
   virtual bool PreProcessPacket(unsigned char const* data,
     unsigned int dataLength,
-    fpos_t filePosition = fpos_t(),
-    double packetNetworkTime = 0,
-    std::vector<FrameInformation>* frameCatalog = nullptr) = 0;
+    double& outLidarDataTime) = 0;
 
   /**
    * @brief PreProcessPacketWrapped is used to construct the frame index
@@ -109,9 +103,8 @@ public:
    */
   virtual bool PreProcessPacketWrapped(unsigned char const* data,
     unsigned int dataLength,
-    fpos_t filePosition = fpos_t(),
-    double packetNetworkTime = 0,
-    std::vector<FrameInformation>* frameCatalog = nullptr);
+    double packetNetworkTime,
+    double& outLidarDataTime);
 
   /**
    * @brief IsLidarPacket check if the given packet is really a lidar packet
@@ -154,32 +147,6 @@ public:
    * @return
    */
   virtual std::string GetSensorInformation(bool shortVersion = false);
-
-  /**
-   * @brief CreateNewFrameInformation create a new frame information
-   * @return
-   */
-  virtual FrameInformation GetParserMetaData() { return this->ParserMetaData; }
-
-  /**
-   * @brief ResetParserMetaData reset the metadata used by the
-   *        interpreter during the parsing of the udp packets
-   *        within the function ProcessPacket
-   * @return
-   */
-  virtual void ResetParserMetaData() { this->ParserMetaData.Reset(); }
-
-  /**
-   * @brief SetParserMetaData set the metadata
-   *        used by the interpreter during the parsing
-   *        of the udp packets within the function
-   *        ProcessPacket
-   * @return
-   */
-  virtual void SetParserMetaData(const FrameInformation& metaData)
-  {
-    this->ParserMetaData = metaData;
-  }
 
   virtual int GetNumberOfChannels() { return this->CalibrationReportedNumLasers; }
 
@@ -284,10 +251,6 @@ protected:
 
   //! Proccess/skip frame with 0 points
   bool IgnoreEmptyFrames = false;
-
-  //! Meta data required to correctly parse the
-  //! data contained within the udp packets
-  FrameInformation ParserMetaData;
 
   bool EnableAdvancedArrays = false;
 

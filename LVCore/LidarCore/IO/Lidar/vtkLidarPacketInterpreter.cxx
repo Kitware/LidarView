@@ -170,39 +170,32 @@ void vtkLidarPacketInterpreter::ProcessPacketWrapped(unsigned char const* data,
 //-----------------------------------------------------------------------------
 bool vtkLidarPacketInterpreter::PreProcessPacketWrapped(unsigned char const* data,
   unsigned int dataLength,
-  fpos_t filePosition,
-  double packetNetworkTime_s,
-  std::vector<FrameInformation>* frameCatalog)
+  double packetNetworkTime,
+  double& outLidarDataTime)
 {
-  // If the framing method is the interpreter one
-  // frameCatalog is filled with the PreProcessPacket function
-  if (this->FramingMethod == FramingMethod_t::INTERPRETER_FRAMING)
+  switch (this->FramingMethod)
   {
-    return this->PreProcessPacket(
-      data, dataLength, filePosition, packetNetworkTime_s, frameCatalog);
-  }
-
-  // If the framing method is the network time packet one,
-  // frameCatalog is filled every frameDuration time.
-  if (this->FramingMethod == FramingMethod_t::NETWORK_PACKET_TIME_FRAMING)
-  {
-    unsigned long long currentFrameNumber =
-      static_cast<unsigned long long>(packetNetworkTime_s / this->FrameDuration_s);
-    if (currentFrameNumber != this->previousFrameNumber)
+    case FramingMethod_t::NETWORK_PACKET_TIME_FRAMING:
     {
-      FrameInformation information;
-      information.FilePosition = filePosition;
-      information.FirstPacketNetworkTime = packetNetworkTime_s;
-      // FirstPacketDataTime is not well-defined, because we do not parse
-      // the data and thus cannot get data time, however providing a
-      // plausible value can help prevent breaking some algorithms.
-      // Possible improvement: first pass using INTERPRETER_FRAMING to
-      // compute the timeshift, then apply it to FirstPacketNetworkTime
-      information.FirstPacketDataTime = packetNetworkTime_s;
-      frameCatalog->push_back(information);
-      this->previousFrameNumber = currentFrameNumber;
-      return true;
+      unsigned long long currentFrameNumber =
+        static_cast<unsigned long long>(packetNetworkTime / this->FrameDuration_s);
+      if (currentFrameNumber != this->previousFrameNumber)
+      {
+        // FirstPacketDataTime is not well-defined, because we do not parse
+        // the data and thus cannot get data time, however providing a
+        // plausible value can help prevent breaking some algorithms.
+        // Possible improvement: first pass using INTERPRETER_FRAMING to
+        // compute the time shift, then apply it to packetNetworkTime
+        outLidarDataTime = packetNetworkTime;
+        this->previousFrameNumber = currentFrameNumber;
+        return true;
+      }
+      break;
     }
+
+    default:
+    case FramingMethod_t::INTERPRETER_FRAMING:
+      return this->PreProcessPacket(data, dataLength, outLidarDataTime);
   }
   return false;
 }

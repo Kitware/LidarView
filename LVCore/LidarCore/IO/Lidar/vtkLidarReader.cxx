@@ -73,13 +73,9 @@ int vtkLidarReader::ReadFrameInformation()
   this->Open();
   const unsigned char* data = 0;
   unsigned int dataLength = 0;
-  bool firstIteration = true;
 
   // reset the frame catalog to build a new one
   this->FrameCatalog.clear();
-
-  // reset the interpreter parser meta data
-  this->LidarInterpreter->ResetParserMetaData();
 
   if (!this->Reader)
   {
@@ -93,6 +89,9 @@ int vtkLidarReader::ReadFrameInformation()
   fpos_t lastFilePosition;
   double lastPacketNetworkTime = 0;
   this->Reader->GetFilePosition(&lastFilePosition);
+
+  bool isFirstFrame = true;
+  FrameInformation currentFrame;
 
   while (this->Reader->NextPacket(data, dataLength, lastPacketNetworkTime))
   {
@@ -110,23 +109,22 @@ int vtkLidarReader::ReadFrameInformation()
       continue;
     }
 
-    // add an index for the first Lidar packet
-    if (firstIteration && this->GetLidarInterpreter()->GetFramingMethod() == INTERPRETER_FRAMING)
-    {
-      // it is possible that the first packet contains 2 frames
-      // (end and start of one), and as we rely on the packet header time
-      // this 2 frames will have the same timestep. So to avoid that we
-      // artificatially move the first timeStep back by one.
-      this->FrameCatalog.push_back(this->LidarInterpreter->GetParserMetaData());
-      this->FrameCatalog.back().FilePosition =
-        lastFilePosition; // Ensure that the first index point on a real fileposition
-      firstIteration = false;
-    }
-
     // Get information about the current packet
-    this->LidarInterpreter->PreProcessPacketWrapped(
-      data, dataLength, lastFilePosition, lastPacketNetworkTime, &this->FrameCatalog);
+    double lidarDataTime = 0.;
+    bool splitFrame = this->LidarInterpreter->PreProcessPacketWrapped(
+      data, dataLength, lastPacketNetworkTime, lidarDataTime);
 
+    if (splitFrame || isFirstFrame)
+    {
+      if (splitFrame && !isFirstFrame)
+      {
+        this->FrameCatalog.emplace_back(currentFrame);
+      }
+      currentFrame.FilePosition = lastFilePosition;
+      currentFrame.FirstPacketNetworkTime = lastPacketNetworkTime;
+      currentFrame.FirstPacketDataTime = lidarDataTime;
+      isFirstFrame = false;
+    }
     this->Reader->GetFilePosition(&lastFilePosition);
   }
 
@@ -251,7 +249,6 @@ vtkSmartPointer<vtkPolyData> vtkLidarReader::GetFrame(int frameNumber)
 
   // Update the interpreter meta data according to the requested frame
   FrameInformation currInfo = this->FrameCatalog[frameNumber];
-  this->LidarInterpreter->SetParserMetaData(this->FrameCatalog[frameNumber]);
   this->Reader->SetFilePosition(&currInfo.FilePosition);
 
   while (this->Reader->NextPacket(data, dataLength, timeSinceStart))
@@ -451,11 +448,6 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
 
   this->Reader->SetFilePosition(&this->FrameCatalog[startFrame].FilePosition);
 
-  // Since the PreProcessPacket method of the interpreter can change
-  // its internal state, we store and then restore the contained meta
-  // data
-  FrameInformation storedMetaData = this->LidarInterpreter->GetParserMetaData();
-
   // see explanation above for "+ 1"
   while (this->Reader->NextPacket(data, dataLength, timeSinceStart, &header, &dataHeaderLength) &&
     currentFrame <= endFrame + 1)
@@ -467,16 +459,15 @@ void vtkLidarReader::SaveFrame(int startFrame, int endFrame, const std::string& 
     {
       // we need to count frames and some are split in multiple packets
       // we give timeSinceStart in case Framing Method is not the interpreter one
-      bool isNewFrame =
-        this->LidarInterpreter->PreProcessPacketWrapped(data, dataLength, fpos_t(), timeSinceStart);
+      double lidarDataTime = 0.;
+      bool isNewFrame = this->LidarInterpreter->PreProcessPacketWrapped(
+        data, dataLength, timeSinceStart, lidarDataTime);
 
       currentFrame += static_cast<int>(isNewFrame);
       this->UpdateProgress(0.0);
     }
   }
   writer.Close();
-  // restore the meta data
-  this->LidarInterpreter->SetParserMetaData(storedMetaData);
 }
 
 //-----------------------------------------------------------------------------
