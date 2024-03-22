@@ -54,6 +54,16 @@ typedef struct point
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarKITTIDataSetReader)
 
+//-----------------------------------------------------------------------------
+vtkLidarKITTIDataSetReader::vtkLidarKITTIDataSetReader()
+{
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
+}
+
+//------------------------------------------------------------------------------
+vtkLidarKITTIDataSetReader::~vtkLidarKITTIDataSetReader() = default;
+
 //----------------------------------------------------------------------------
 void vtkLidarKITTIDataSetReader::SetFileName(const std::string& filename)
 {
@@ -83,15 +93,7 @@ void vtkLidarKITTIDataSetReader::SetFileName(const std::string& filename)
   this->Modified();
 }
 
-//-----------------------------------------------------------------------------
-std::string vtkLidarKITTIDataSetReader::GetSensorInformation()
-{
-  return "Velodyne HDL64 sensor playing back data from the KITTI dataset\n \
-          The data are the .bin file contain in following folder: " +
-    this->FileName;
-}
-
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkPolyData> vtkLidarKITTIDataSetReader::GetFrame(int frameNumber)
 {
   // create a new empty frame

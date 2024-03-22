@@ -1,58 +1,38 @@
 #ifndef VTKLIDARKITTIDATASETREADER_H
 #define VTKLIDARKITTIDATASETREADER_H
 
-#include "vtkLidarReader.h"
+#include <vtkPolyDataAlgorithm.h>
 
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
 #include "vtkKittiIOModule.h" // for export macro
 
-#ifndef _WIN32
-#define notImpementedBody                                                                          \
-  std::cerr << typeid(this).name() << "::" << __func__ << " is not implemented" << std::endl;
-#else
-#define notImpementedBody                                                                          \
-  std::cerr << typeid(this).name() << "::" << __FUNCTION__ << " is not implemented" << std::endl;
-#endif
-
 /**
  * @brief The vtkLidarKITTIDataSetReader class
  * @warning Only a small subset of method are implemented
  */
-class VTKKITTIIO_EXPORT vtkLidarKITTIDataSetReader : public vtkLidarReader
+class VTKKITTIIO_EXPORT vtkLidarKITTIDataSetReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarKITTIDataSetReader* New();
-  vtkTypeMacro(vtkLidarKITTIDataSetReader, vtkLidarReader)
+  vtkTypeMacro(vtkLidarKITTIDataSetReader, vtkPolyDataAlgorithm)
 
-  vtkSmartPointer<vtkPolyData> GetFrame(int frameNumber) override;
+  vtkSmartPointer<vtkPolyData> GetFrame(int frameNumber);
 
-  vtkGetMacro(FileName, std::string) void SetFileName(const std::string& filename) override;
+  vtkGetMacro(FileName, std::string);
+  void SetFileName(const std::string& filename);
 
   vtkGetMacro(NumberOfFrames, int);
 
   vtkSetMacro(NumberOfFileNameDigits, int);
 
-  //! Not implemented
-  void Open(bool vtkNotUsed(reassemble)) override { notImpementedBody }
-
-  //! Not implemented
-  void Close() override { notImpementedBody }
-
-  //! Not implemented
-  void SaveFrame(int vtkNotUsed(startFrame),
-    int vtkNotUsed(endFrame),
-    const std::string& vtkNotUsed(filename)) override{ notImpementedBody }
-
-  //! Not implemented
-  std::string GetSensorInformation();
-
   // return the number of channels
   vtkGetMacro(NbrLaser, int);
 
 private:
-  vtkLidarKITTIDataSetReader() = default;
+  vtkLidarKITTIDataSetReader();
+  ~vtkLidarKITTIDataSetReader();
 
   int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
