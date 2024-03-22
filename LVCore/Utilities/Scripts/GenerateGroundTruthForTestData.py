@@ -47,7 +47,7 @@ if UPDATE_interpreterName != "":
 reader.Interpreter.IgnoreZeroDistances = 1
 reader.Interpreter.IgnoreEmptyFrames = 1
 reader.Interpreter.EnableAdvancedArrays = 1
-reader.ShowFirstAndLastFrame = 1
+reader.ShowPartialFrames = 1
 sp.Show(reader)
 reader.UpdatePipeline()
 reader.UpdatePipelineInformation()

@@ -34,6 +34,28 @@
 #include <sstream>
 #include <algorithm>
 
+namespace
+{
+constexpr double PARTIAL_FRAME_TOLERANCE = 0.95;
+constexpr size_t SAMPLE_SIZE = 10;
+
+//-----------------------------------------------------------------------------
+bool IsPartialFrame(double frameDuration, double reference)
+{
+  return frameDuration < (reference * ::PARTIAL_FRAME_TOLERANCE);
+}
+
+//-----------------------------------------------------------------------------
+double ComputeDurationMean(std::vector<double>::const_iterator start, size_t size)
+{
+  std::vector<double>::const_iterator end = start + size;
+  std::vector<double> duration(size - 1);
+  auto diff = [](double first, double second) { return second - first; };
+  std::transform(start, end - 1, start + 1, duration.begin(), diff);
+  return std::accumulate(duration.cbegin(), duration.cend(), 0.) / (size - 1);
+}
+}
+
 //-----------------------------------------------------------------------------
 class vtkLidarReader::vtkInternals
 {
@@ -97,6 +119,38 @@ public:
     std::transform(
       this->FramesIndex.cbegin(), this->FramesIndex.cend(), timesteps.begin(), extractor);
     return timesteps;
+  }
+
+  //----------------------------------------------------------------------------
+  /**
+   * Remove any partial first or last frame.
+   * A frame is deemed partial if its duration falls below the reference duration
+   * by a tolerance of 5%.
+   * The reference duration is determined as the average duration of the 10
+   * succeeding or preceding frames.
+   */
+  void HidePartialFrames(double lastNetworkTime)
+  {
+    std::vector<double> timesteps = this->GetFramesTimeSteps(TimeType::USE_NETWORK_TIME);
+    if (timesteps.size() <= 3)
+    {
+      return;
+    }
+    const size_t sampleSize = std::min(timesteps.size() - 1, ::SAMPLE_SIZE);
+    const double firstFrameDuration = timesteps[1] - timesteps[0];
+    const double lastFrameDuration = lastNetworkTime - timesteps.back();
+
+    const double meanFirstFrames = ::ComputeDurationMean(timesteps.cbegin() + 1, sampleSize);
+    const double meanLastFrames = ::ComputeDurationMean(timesteps.cend() - sampleSize, sampleSize);
+
+    if (::IsPartialFrame(firstFrameDuration, meanFirstFrames))
+    {
+      this->FramesIndex.erase(this->FramesIndex.begin());
+    }
+    if (::IsPartialFrame(lastFrameDuration, meanLastFrames))
+    {
+      this->FramesIndex.pop_back();
+    }
   }
 };
 
@@ -205,10 +259,9 @@ bool vtkLidarReader::BuildFramesIndex()
   }
   this->Internals->FramesIndex.emplace_back(currentFrame);
 
-  if (!this->ShowFirstAndLastFrame && this->Internals->FramesIndex.size() >= 3)
+  if (!this->ShowPartialFrames && this->Internals->FramesIndex.size() >= 3)
   {
-    this->Internals->FramesIndex.erase(this->Internals->FramesIndex.begin());
-    this->Internals->FramesIndex.pop_back();
+    this->Internals->HidePartialFrames(networkPacketTime);
   }
 
   if (this->Internals->FramesIndex.empty())
@@ -522,11 +575,11 @@ void vtkLidarReader::SetLidarPort(int port)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarReader::SetShowFirstAndLastFrame(bool show)
+void vtkLidarReader::SetShowPartialFrames(bool show)
 {
-  if (this->ShowFirstAndLastFrame != show)
+  if (this->ShowPartialFrames != show)
   {
-    this->ShowFirstAndLastFrame = show;
+    this->ShowPartialFrames = show;
     this->Modified();
     this->Internals->NeedsReIndexing = true;
   }

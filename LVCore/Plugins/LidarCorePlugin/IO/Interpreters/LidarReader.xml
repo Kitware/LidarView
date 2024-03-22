@@ -39,9 +39,9 @@
         </Documentation>
       </IntVectorProperty>
 
-      <IntVectorProperty name="ShowFirstAndLastFrame"
+      <IntVectorProperty name="ShowPartialFrames"
                          animateable="0"
-                         command="SetShowFirstAndLastFrame"
+                         command="SetShowPartialFrames"
                          default_values="0"
                          number_of_elements="1"
                          panel_visibility="advanced">
@@ -87,7 +87,7 @@
         <Property name="FileName" />
         <Property name="LidarPort" />
         <Property name="DetectFrameDropping" panel_visibility="advanced" />
-        <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
+        <Property name="ShowPartialFrames" panel_visibility="advanced" />
         <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
     </LidarReaderProxy>
@@ -119,7 +119,7 @@
 
       <PropertyGroup label="Reader Advanced Options">
         <Property name="DetectFrameDropping" panel_visibility="advanced" />
-        <Property name="ShowFirstAndLastFrame" panel_visibility="advanced" />
+        <Property name="ShowPartialFrames" panel_visibility="advanced" />
         <Property name="DisplayPacketTime" panel_visibility="advanced" />
       </PropertyGroup>
     </LidarReaderProxy>

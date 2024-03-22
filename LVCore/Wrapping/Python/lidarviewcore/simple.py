@@ -143,7 +143,7 @@ def OpenPCAP(filename, lidarModel, interpreter, **params):
         CalibrationFile (str):
           If specified, replace the default sensor calibration file.
 
-        ShowFirstAndLastFrame (bool):
+        ShowPartialFrames (bool):
           Show first and last frame. It is common that the first and last frame
           are incomplete (not a full rotation or not a full sweep), thus it is more
           esthetically pleasing (and less unsettling) to hide them.

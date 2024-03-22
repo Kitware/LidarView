@@ -77,8 +77,8 @@ public:
    * It is common that theses frame are incomplete.
    * Default to false.
    */
-  vtkGetMacro(ShowFirstAndLastFrame, bool);
-  void SetShowFirstAndLastFrame(bool show);
+  vtkGetMacro(ShowPartialFrames, bool);
+  void SetShowPartialFrames(bool show);
   ///@}
 
   ///@{
@@ -168,7 +168,7 @@ private:
   std::string FileName;
   int LidarPort = -1;
   bool DetectFrameDropping = false;
-  bool ShowFirstAndLastFrame = false;
+  bool ShowPartialFrames = false;
   int DisplayTimeType = USE_NETWORK_TIME;
   vtkLidarPacketInterpreter* LidarInterpreter = nullptr;
 
