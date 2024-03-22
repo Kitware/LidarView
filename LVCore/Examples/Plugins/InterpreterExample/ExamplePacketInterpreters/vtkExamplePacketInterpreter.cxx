@@ -25,18 +25,26 @@
 
 #include <filesystem>
 
+namespace
+{
+constexpr const char* MODEL_NAME[2] = { "ExampleModel16", "ExampleModel32" };
+}
+
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExamplePacketInterpreter)
 
 //-----------------------------------------------------------------------------
 vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
 {
+  // Theses information will be stored in point cloud field data
   this->SetSensorVendor("Kitware");
   this->SetSensorModelName("Example");
-  this->ParserMetaData.SpecificInformation = std::make_shared<ExampleSpecificFrameInformation>();
 
   this->ResetCurrentFrame();
 }
+
+//-----------------------------------------------------------------------------
+vtkExamplePacketInterpreter::~vtkExamplePacketInterpreter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsigned int dataLength)
@@ -46,15 +54,12 @@ void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsig
     return;
   }
 
-  ExampleSpecificFrameInformation* frameInfo = reinterpret_cast<ExampleSpecificFrameInformation*>(
-    this->ParserMetaData.SpecificInformation.get());
-
   const LidarPacket* dataPacket = reinterpret_cast<const LidarPacket*>(data);
 
   // Detection of a new frame
-  // In this example ...
-
-  if (dataPacket->header.GetFrameID() != frameInfo->frameID)
+  bool isNewFrame = (dataPacket->header.GetFrameID() != this->LastFrameID);
+  this->LastFrameID = dataPacket->header.GetFrameID();
+  if (isNewFrame)
   {
     this->SplitFrame();
     this->LastTimestamp = std::numeric_limits<unsigned int>::max();
@@ -137,33 +142,21 @@ vtkSmartPointer<vtkPolyData> vtkExamplePacketInterpreter::CreateNewEmptyFrame(vt
 //-----------------------------------------------------------------------------
 bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
   unsigned int vtkNotUsed(dataLength),
-  fpos_t filePosition,
-  double packetNetworkTime,
-  std::vector<FrameInformation>* vtkNotUsed(frameCatalog))
+  double& outLidarDataTime)
 {
   const LidarPacket* dataPacket = reinterpret_cast<const LidarPacket*>(data);
 
-  ExampleSpecificFrameInformation* frameInfo = reinterpret_cast<ExampleSpecificFrameInformation*>(
-    this->ParserMetaData.SpecificInformation.get());
-
+  outLidarDataTime = dataPacket->header.GetTimestamp();
   // Detection of a new frame
   // In this example a frame is detected thanks to a fiel "frame id" in the header of the packet.
   // This means that in this example there is no new frame detected inside a unique packet.
-  bool isNewFrame = (dataPacket->header.GetFrameID() != frameInfo->frameID);
-  if (isNewFrame)
-  {
-    // Update the information for the new frame
-    // You need to set the file position to determine the beginning of a frame
-    this->ParserMetaData.FilePosition = filePosition;
-    this->ParserMetaData.FirstPacketDataTime = this->ParserMetaData.FirstPacketNetworkTime =
-      packetNetworkTime;
-  }
-
+  bool isNewFrame = (dataPacket->header.GetFrameID() != this->LastFrameID);
+  this->LastFrameID = dataPacket->header.GetFrameID();
   return isNewFrame;
 }
 
 //-----------------------------------------------------------------------------
-void vtkExamplePacketInterpreter::LoadCalibration()
+void vtkExamplePacketInterpreter::Initialize()
 {
   std::string filename;
   if (this->CalibrationFileName != nullptr)
@@ -174,7 +167,21 @@ void vtkExamplePacketInterpreter::LoadCalibration()
   const auto path = std::filesystem::path(filename);
   if (filename.empty() || path.extension() != ".csv")
   {
-    this->IsCalibrated = false;
     return;
   }
+  Superclass::Initialize();
+}
+
+//-----------------------------------------------------------------------------
+void vtkExamplePacketInterpreter::SetLidarModel(int model)
+{
+  if (this->LidarModel == model)
+  {
+    return;
+  }
+
+  this->LidarModel = model;
+  this->SetSensorModelName(::MODEL_NAME[model]);
+  this->Modified();
+  this->ResetInitializedState();
 }

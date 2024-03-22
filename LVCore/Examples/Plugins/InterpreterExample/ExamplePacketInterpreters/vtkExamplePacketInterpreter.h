@@ -16,9 +16,6 @@
 #ifndef vtkExamplePacketInterpreter_h
 #define vtkExamplePacketInterpreter_h
 
-// This needs to be included first because vtkSystemIncludes.h is included
-// instead of stdio.h so the CMake variable __USE_LARGEFILE64 must be consistent.
-// Otherwise fpos_t has 2 differents definition _G_fpos_t and _G_fpos64_t
 #include <vtkLidarPacketInterpreter.h>
 
 #include <vtkStringArray.h>
@@ -40,21 +37,59 @@ public:
   vtkTypeMacro(vtkExamplePacketInterpreter, vtkLidarPacketInterpreter);
   void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override{};
 
-  void ProcessPacket(unsigned char const* data, unsigned int dataLength) override;
+  /**
+   * Initializes the lidar calibration or configuration.
+   * This method is called during interpreter initialization, whenever the address/port is changed,
+   * or when ResetInitializedState() is called.
+   */
+  void Initialize() override;
 
+  /**
+   * Checks if the current packet is valid for the selected lidar model.
+   * Return false when invalid. Invalid packets will be skipped.
+   */
   bool IsLidarPacket(unsigned char const* data, unsigned int dataLength) override;
 
+  /**
+   * Builds a frame index for random access when reading a pcap file.
+   * Returns true when a new frame is detected.
+   *
+   * You should assigns time step information from the lidar packet to the outLidarDataTime
+   * variable, if available.
+   */
   bool PreProcessPacket(unsigned char const* data,
     unsigned int dataLength,
-    fpos_t filePosition = fpos_t(),
-    double packetNetworkTime = 0,
-    std::vector<FrameInformation>* frameCatalog = nullptr) override;
+    double& outLidarDataTime) override;
 
-  void LoadCalibration() override;
+  /**
+   * Processes the packet, filling point information using packet data,
+   * and calling SplitFrame when necessary.
+   */
+  void ProcessPacket(unsigned char const* data, unsigned int dataLength) override;
+
+  ///@{
+  /**
+   * Set/Get the current LiDAR model.
+   * If configuration changes are required, the interpreter needs to be uninitialized using
+   * ResetInitializedState().
+   */
+  void SetLidarModel(int type);
+  vtkGetMacro(LidarModel, int);
+  ///@}
 
 protected:
+  /**
+   * Creates a new empty frame object, which will be filled by ProcessPacket.
+   */
   vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType nbrOfPoints,
     vtkIdType prereservedNbrOfPoints = 60000) override;
+
+  vtkExamplePacketInterpreter();
+  ~vtkExamplePacketInterpreter();
+
+private:
+  vtkExamplePacketInterpreter(const vtkExamplePacketInterpreter&) = delete;
+  void operator=(const vtkExamplePacketInterpreter&) = delete;
 
   vtkSmartPointer<vtkPoints> Points;
   vtkSmartPointer<vtkDoubleArray> PointsX;
@@ -66,25 +101,8 @@ protected:
   vtkSmartPointer<vtkTypeInt64Array> Timestamp;
 
   unsigned int LastTimestamp = 0;
-
-  vtkExamplePacketInterpreter();
-  ~vtkExamplePacketInterpreter() = default;
-
-private:
-  vtkExamplePacketInterpreter(const vtkExamplePacketInterpreter&) = delete;
-  void operator=(const vtkExamplePacketInterpreter&) = delete;
-};
-
-struct ExampleSpecificFrameInformation : public SpecificFrameInformation
-{
-  // Keep the frame id
-  unsigned int frameID = 0;
-
-  void reset() override { *this = ExampleSpecificFrameInformation(); }
-  std::unique_ptr<SpecificFrameInformation> clone() override
-  {
-    return std::make_unique<ExampleSpecificFrameInformation>(*this);
-  }
+  unsigned int LastFrameID = 0;
+  int LidarModel = 0;
 };
 
 #endif // vtkExamplePacketInterpreter_h
