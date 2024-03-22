@@ -14,195 +14,166 @@
 
 =========================================================================*/
 
-#ifndef VTKLIDARREADER_H
-#define VTKLIDARREADER_H
-
-#include "FrameInformation.h"
+#ifndef vtkLidarReader_h
+#define vtkLidarReader_h
 
 #include <vtkPolyDataAlgorithm.h>
 
+#include <memory>
+
 #include "lvIOLidarModule.h"
 
-class vtkPacketFileReader;
 class vtkLidarPacketInterpreter;
+class vtkPolyData;
 
-//! @todo a decition should be made if the opening/closing of the pcap should be handle by
-//! the class itself of the class user. Currently this is not clear
+/**
+ * @class vtkLidarReader
+ *
+ * Reads pcap files using vtkLidarPacketInterpreter implementations.
+ */
 class LVIOLIDAR_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLidarReader* New();
-  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm)
-
-  int GetNumberOfFrames() { return this->FrameCatalog.size(); }
+  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * @copydoc FileName
+   * Override MTime with interpreter one. So when the interpreter is updated
+   * the LidarReader is also considered updated.
    */
-  vtkGetMacro(FileName, std::string);
-  virtual void SetFileName(const std::string& filename);
-
-  vtkGetMacro(DetectFrameDropping, bool);
-  vtkSetMacro(DetectFrameDropping, bool);
-
   vtkMTimeType GetMTime() override;
 
+  ///@{
   /**
-   * @brief GetSensorInformation return some sensor information used for display purposes
-   * @param shortVersion True to have a succinct version of the sensor information
+   * Set/Get pcap filename
    */
-  virtual std::string GetSensorInformation(bool shortVersion = false);
+  vtkGetMacro(FileName, std::string);
+  void SetFileName(const std::string& filename);
+  ///@}
 
+  ///@{
   /**
-   * @copydoc vtkLidarPacketInterpreter
+   * Set/Get lidar port.
+   * Filter the packet to only read the packet received on a specify port.
+   * To read all packet use -1. Default to -1
+   */
+  vtkGetMacro(LidarPort, int);
+  void SetLidarPort(int port);
+  ///@}
+
+  ///@{
+  /**
+   * When enabled, warn user about frames dropped.
+   * Default to false.
+   */
+  vtkGetMacro(DetectFrameDropping, bool);
+  vtkSetMacro(DetectFrameDropping, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When enabled, show partial frames, such as the first and last frames.
+   * It is common that theses frame are incomplete.
+   * Default to false.
+   */
+  vtkGetMacro(ShowFirstAndLastFrame, bool);
+  void SetShowFirstAndLastFrame(bool show);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the time type given to vtk pipeline and therefore displayed in UI.
+   * - USE_NETWORK_TIME: Uses time available in network packets (unrelated to packet content)
+   * - USE_LIDAR_TIME: Uses time given by LiDAR interpreter (e.g seconds since LiDAR started)
+   *
+   * Default to USE_NETWORK_TIME.
+   */
+  enum TimeType
+  {
+    USE_NETWORK_TIME = 0,
+    USE_LIDAR_TIME,
+
+    Size
+  };
+  vtkSetClampMacro(DisplayTimeType, int, 0, TimeType::Size);
+  vtkGetMacro(DisplayTimeType, int);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the interpreter, which should be inheriting from base class vtkLidarPacketInterpreter.
+   * It is then used to parse the pcap file and create a frame catalog.
    */
   vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);
-  void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
+  void SetLidarInterpreter(vtkLidarPacketInterpreter*);
+  ///@}
 
   /**
-   * @copydoc NetworkTimeToDataTime
-   */
-  vtkGetMacro(NetworkTimeToDataTime, double);
-
-  /**
-   * @brief GetFrame returns the requested frame
-   * @param frameNumber beteween 0 and vtkLidarReader::GetNumberOfFrames()
-   */
-  virtual vtkSmartPointer<vtkPolyData> GetFrame(int frameNumber);
-
-  /**
-   * @brief GetFrameForPacketTime returns the requested frame
-   * @param packetTime udp packet time requested
-   */
-  virtual vtkSmartPointer<vtkPolyData> GetFrameForPacketTime(double packetTime);
-
-  /**
-   * @brief GetFrameForDataTime returns the requested frame
-   * @param dataTime data time requested
-   */
-  virtual vtkSmartPointer<vtkPolyData> GetFrameForDataTime(double dataTime);
-
-  /**
-   * @brief GetFrameIndexForPacketTime returns the frame index
-   *        corresponding to the packet time asked
-   * @param packetTime udp packet time requested
-   */
-  virtual int GetFrameIndexForPacketTime(double packetTime);
-
-  /**
-   * @brief GetFrameIndexForDataTime returns the frame index
-   *        corresponding to the packet time asked
-   * @param packetTime udp packet time requested
-   */
-  virtual int GetFrameIndexForDataTime(double dataTime);
-
-  /**
-   * @brief Open open the pcap file
-   * @todo a decition should be made if the opening/closing of the pcap should be handle by
-   * the class itself of the class user. Currently this is not clear
-   * @param reassemble Controls vtkPacketFileReader IP Reassembly
-   */
-  virtual void Open(bool reassemble = true);
-  void Open(std::vector<int> ports, bool reassemble = true);
-
-  /**
-   * @brief Close close the pcap file
-   * @todo a decition should be made if the opening/closing of the pcap should be handle by
-   * the class itself of the class user. Currently this is not clear
-   */
-  virtual void Close();
-
-  /**
-   * @brief SaveFrame save the packet corresponding to the desired frames in a pcap file.
+   * Save the packet corresponding to the desired frames in a pcap file.
    * Because we are saving network packet, part of previous and/or next frames could be included in
-   * generated the pcap
-   * @param startFrame first frame to record
-   * @param endFrame last frame to record, this frame is included
-   * @param filename where to save the generate pcap file
+   * generated the pcap.
    */
-  virtual void SaveFrame(int startFrame, int endFrame, const std::string& filename);
+  void SaveFrames(unsigned int startFrame, unsigned int endFrame, const std::string& filename);
 
-  vtkGetMacro(ShowFirstAndLastFrame, bool);
-  vtkSetMacro(ShowFirstAndLastFrame, bool);
+  /**
+   * Compute the median difference on all frames between network time,
+   * and the LiDAR data time (first lidar point time).
+   */
+  double GetNetworkTimeToDataTime();
 
-  vtkGetMacro(UseRelativeStartTime, bool);
-  vtkSetMacro(UseRelativeStartTime, bool);
-
-  vtkGetMacro(UsePacketTimeForDisplayTime, bool);
-  vtkSetMacro(UsePacketTimeForDisplayTime, bool);
-
-  int GetLidarPort() { return this->LidarPort; }
-  void SetLidarPort(int _arg);
+  /**
+   * Return sensor information given by the underlying interpreter.
+   */
+  std::string GetSensorInformation(bool shortVersion = false);
 
 protected:
   vtkLidarReader();
-  ~vtkLidarReader() = default;
+  ~vtkLidarReader() override;
+
+  int RequestInformation(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  //! Indicate if we should detect that some frames are dropped
-  bool DetectFrameDropping = false;
-
-  //! Last Frame processed, this is important if we want to detect frame dropping
-  int LastFrameProcessed = 0;
-
-  //! Name of the pcap file to read
-  std::string FileName = "";
-
-  //! Interpret the packet to create a frame, all the magic happen here
-  vtkLidarPacketInterpreter* LidarInterpreter = nullptr;
-
-  //! Miscellaneous information about a frame that enable:
-  //! - Quick jump to a frame index
-  //! - Computation of an adjustedtimestamp
-  //! - ...
-  std::vector<FrameInformation> FrameCatalog;
-
-  //! Show/Hide the first and last frame that most of the time are partial frames
-  bool ShowFirstAndLastFrame = false;
-
-  //! If activated, set first frame timestamp to 0. It can be used to synchronize multiple pcap
-  bool UseRelativeStartTime = false;
-
-  //! libpcap wrapped reader which enable to get the raw pcap packet from the pcap file
-  vtkPacketFileReader* Reader = nullptr;
-
-  //! Filter the packet to only read the packet received on a specify port
-  //! To read all packet use -1
-  int LidarPort = -1;
-
-  //! True to display the packet time in the UI pipeline
-  //! False to display the network time in the UI pipeline
-  bool UsePacketTimeForDisplayTime = false;
+  ///@{
+  /**
+   * Open/Close the pcap file.
+   */
+  virtual bool Open(bool reassemble = true);
+  bool Open(std::vector<int> ports, bool reassemble = true);
+  bool ReadNextPacket(const unsigned char*& data, unsigned int& dataLength, double& timeSinceStart);
+  void Close();
+  ///@}
 
 private:
-  /**
-   * @brief ReadFrameInformation read the whole pcap and create a frame index.
-   * In case the calibration is contained in the pcap file, this will also read it
-   */
-  int ReadFrameInformation();
-  /**
-   * @brief SetTimestepInformation Set the timestep available
-   * @param info
-   */
-  void SetTimestepInformation(vtkInformation* info);
-
   vtkLidarReader(const vtkLidarReader&) = delete;
   void operator=(const vtkLidarReader&) = delete;
 
   /**
-   * @brief The timeshift between these two times.
-   * When added to "network time" it gives "data time".
-   * Example of "network time": the pipeline time (in general)
-   * Example of "data time": the time of the lidar points.
+   * Read the whole pcap to create frame index.
    */
-  double NetworkTimeToDataTime = 0.0;
+  bool BuildFramesIndex();
+
+  /**
+   * Read the pcap frame for a specific index.
+   */
+  bool ReadFrame(size_t index, vtkPolyData* output);
+
+  std::string FileName;
+  int LidarPort = -1;
+  bool DetectFrameDropping = false;
+  bool ShowFirstAndLastFrame = false;
+  int DisplayTimeType = USE_NETWORK_TIME;
+  vtkLidarPacketInterpreter* LidarInterpreter = nullptr;
+
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
-#endif // VTKLIDARREADER_H
+#endif

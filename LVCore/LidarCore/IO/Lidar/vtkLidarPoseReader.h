@@ -47,7 +47,7 @@ public:
   /**
    * Call vtkLidarReader::Open with the addition of the pose port.
    */
-  void Open(bool reassemble = true) override;
+  bool Open(bool reassemble = true) override;
 
   vtkMTimeType GetMTime() override;
 

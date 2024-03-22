@@ -119,8 +119,6 @@ bool lqSavePcapReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
 
   QString filename = this->FolderPath + "/" + this->BaseName + "." + this->Extension;
 
-  reader->Open();
-  reader->SaveFrame(start, stop, filename.toStdString());
-  reader->Close();
+  reader->SaveFrames(start, stop, filename.toStdString());
   return true;
 }

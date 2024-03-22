@@ -79,9 +79,20 @@ int GetNumberOfTimesteps(vtkLidarStream* HDLSource)
 //-----------------------------------------------------------------------------
 vtkPolyData* GetCurrentFrame(vtkLidarReader* HDLreader, int index)
 {
-  HDLreader->Open();
-  vtkPolyData* currentFrame = HDLreader->GetFrame(index);
-  HDLreader->Close();
+  HDLreader->UpdateInformation();
+
+  vtkInformation* outInfo = HDLreader->GetExecutive()->GetOutputInformation(0);
+
+  double* timeSteps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  double updateTime = timeSteps[index];
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
+
+  HDLreader->Update();
+
+  HDLreader->GetOutput()->Register(NULL);
+
+  vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(HDLreader->GetOutput());
 
   return currentFrame;
 }
@@ -432,8 +443,15 @@ int testLidarReader(vtkLidarReader* reader,
 
   std::vector<std::chrono::nanoseconds> durations;
 
+  int frameNumber = 0;
+  vtkInformation* info = reader->GetOutputInformation(0);
+  if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    frameNumber = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  }
+
   // Check if we can read the PCAP file
-  if (reader->GetNumberOfFrames() == 0)
+  if (frameNumber == 0)
   {
     std::cout << "ERROR, the reader ouput 0 frame!!" << std::endl
               << "PLEASE CHECK YOUR PCAP FILE OR FILEPATH" << std::endl;
@@ -442,7 +460,7 @@ int testLidarReader(vtkLidarReader* reader,
 
   // Checks frame count
   int retVal = 0;
-  retVal += TestFrameCount(reader->GetNumberOfFrames(), referenceFilesList.size());
+  retVal += TestFrameCount(frameNumber, referenceFilesList.size());
 
   // Check properties frame by frame
   int nbReferences = referenceFilesList.size();

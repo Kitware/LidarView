@@ -148,11 +148,6 @@ def OpenPCAP(filename, lidarModel, interpreter, **params):
           are incomplete (not a full rotation or not a full sweep), thus it is more
           esthetically pleasing (and less unsettling) to hide them.
 
-        UseRelativeStartTime (bool):
-          This option interprets the pcap file considering its first time stamp
-          to be zero. It can be used for instance when opening multiple sensors to have
-          them starting at the same time.
-
         DetectFrameDropping (bool):
           Throw a warning to the user each time a frame is dropped
 

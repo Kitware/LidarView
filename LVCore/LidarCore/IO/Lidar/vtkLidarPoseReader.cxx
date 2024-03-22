@@ -15,7 +15,6 @@
 
 #include "vtkLidarPoseReader.h"
 #include "vtkHelper.h"
-#include "vtkPacketFileReader.h"
 
 #include <vtkCellArray.h>
 #include <vtkInformation.h>
@@ -66,22 +65,21 @@ vtkMTimeType vtkLidarPoseReader::GetMTime()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLidarPoseReader::Open(bool reassemble)
+bool vtkLidarPoseReader::Open(bool reassemble)
 {
   std::vector<int> ports;
-  if (this->LidarPort != -1)
+  if (this->GetLidarPort() != -1)
   {
-    ports.emplace_back(this->LidarPort);
+    ports.emplace_back(this->GetLidarPort());
     ports.emplace_back(this->LidarPosePort);
   }
-  Superclass::Open(ports, reassemble);
+  return Superclass::Open(ports, reassemble);
 }
 
 //-----------------------------------------------------------------------------
 void vtkLidarPoseReader::ReadPoses()
 {
-  this->Open();
-  if (!this->Reader)
+  if (!this->Open())
   {
     vtkErrorMacro("ReadPoses() called but packet file reader is not open.");
     return;
@@ -91,7 +89,7 @@ void vtkLidarPoseReader::ReadPoses()
   unsigned int dataLength = 0;
   double timeSinceStart;
 
-  while (this->Reader->NextPacket(data, dataLength, timeSinceStart))
+  while (this->ReadNextPacket(data, dataLength, timeSinceStart))
   {
     // If the current packet is not valid,
     // skip it and update the file position
@@ -111,8 +109,7 @@ void vtkLidarPoseReader::ReadPoses()
     this->PoseInfo = this->PoseInterpreter->GetPose();
 
     // Set the polyline to the poly data to see the pose information
-    vtkSmartPointer<vtkPolyLine> polyLine =
-      CreatePolyLineFromPoints(this->PoseInfo->GetPoints());
+    vtkSmartPointer<vtkPolyLine> polyLine = CreatePolyLineFromPoints(this->PoseInfo->GetPoints());
     vtkNew<vtkCellArray> cellArray;
     cellArray->InsertNextCell(polyLine);
     this->PoseInfo->SetLines(cellArray);
@@ -138,7 +135,7 @@ int vtkLidarPoseReader::RequestInformation(vtkInformation* request,
     return 0;
   }
 
-  if (this->FileName.empty())
+  if (this->GetFileName().empty())
   {
     vtkErrorMacro("FileName has not been set.");
     return 0;
