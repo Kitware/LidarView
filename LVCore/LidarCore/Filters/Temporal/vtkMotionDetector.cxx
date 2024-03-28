@@ -679,11 +679,94 @@ void vtkMotionDetector::SetWindowSize(int windowSize)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
+{
+  vtkSmartPointer<vtkDoubleArray> motionLabel = vtkSmartPointer<vtkDoubleArray>::New();
+  motionLabel->SetName("Motion_label");
+
+  double point[3];
+  Eigen::Matrix<double, 3, 1> sphericalPoint;
+  this->NbMotionPoints = 0;
+  for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  {
+    // Get point and compute its spherical coordinates
+    polydata->GetPoint(id, point);
+    switch (this->Internals->Lidar)
+    {
+      case vtkInternals::LidarVendor::VELODYNE:
+      {
+        double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
+        double theta = polydata->GetPointData()->GetArray("azimuth")->GetTuple1(id);
+        double phi = polydata->GetPointData()->GetArray("vertical_angle")->GetTuple1(id);
+        theta = theta / 100.;
+        sphericalPoint << r, theta, phi;
+        break;
+      }
+      case vtkInternals::LidarVendor::LIVOX:
+      case vtkInternals::LidarVendor::HESAI:
+      {
+        double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
+        double theta = vtkMath::DegreesFromRadians(std::atan2(point[1], point[0]));
+        double phi = vtkMath::DegreesFromRadians(std::acos(point[2] / r));
+        sphericalPoint << r, theta, phi;
+        break;
+      }
+      default:
+      {
+        Eigen::Matrix<double, 3, 1> cartesianPoint{ point[0], point[1], point[2] };
+        sphericalPoint = this->Internals->GetSphericalCoordinates(cartesianPoint);
+        break;
+      }
+    }
+
+    int isMotion = 0;
+    // Check if or not the point is in the detection range
+    if (sphericalPoint(0) <= this->DetectionRange)
+    {
+      // Convert spherical coordinates to spherical map coordinates
+      unsigned int idxVertical =
+        static_cast<int>(std::floor((sphericalPoint(2) - this->Internals->VerticalBounds[0]) /
+          this->Internals->VerticalResolution));
+      unsigned int idxAzimuth =
+        static_cast<int>(std::floor((sphericalPoint(1) - this->Internals->AzimuthBounds[0]) /
+          this->Internals->AzimuthResolution));
+      idxVertical = std::min(idxVertical, this->Internals->NbVertical - 1);
+      idxAzimuth = std::min(idxAzimuth, this->Internals->NbAzimuth - 1);
+
+      bool isInitStep = this->NbProcessedFrames < this->InitializationTime ? true : false;
+      // Evaluate the mixture model on the current data
+      // It returns the motion probability of the point
+      // and stores the iterator of the cluster which give the max proba
+      std::vector<double> probas;
+      bool motionEstim = false;
+      this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].Evaluate(
+        sphericalPoint(0), isInitStep, probas, motionEstim);
+      isMotion = motionEstim ? 1 : 0;
+      this->NbMotionPoints += isMotion;
+
+      // Add the depth to the correct "pixel" and update parameters of the model
+      this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].AddPoint(
+        sphericalPoint(0), motionEstim, probas);
+    }
+
+    motionLabel->InsertNextTuple1(isMotion);
+  }
+
+  // Update time to live of the gaussians
+  this->Internals->UpdateTTL();
+
+  // Add motion label field to pointcloud
+  polydata->GetPointData()->AddArray(motionLabel);
+}
+
 //-----------------------------------------------------------------------------
 int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  vtkLog(INFO, "Processing frame #" << this->NbProcessedFrames << "\n");
+
   // Get input data
   vtkPolyData* input =
     vtkPolyData::GetData(inputVector[LIDAR_FRAME_INPUT_PORT]->GetInformationObject(0));
@@ -709,15 +792,16 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Get the output
-  vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
-  output->ShallowCopy(input);
+  vtkPolyData* motionPointsOutput = vtkPolyData::GetData(outputVector, MOTION_POINTS_OUTPUT_PORT);
+  motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds
   if (this->NbProcessedFrames == 0)
     this->Internals->ComputeBounds(input);
 
-  // Add the new points into the Gaussian Map
-  this->AddFrame(output);
+  // Estimate probability of a point and update GMM
+  this->EstimateMotion(motionPointsOutput);
+
   ++this->NbProcessedFrames;
 
   return 1;

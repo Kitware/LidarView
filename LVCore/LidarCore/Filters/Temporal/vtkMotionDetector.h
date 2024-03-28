@@ -61,6 +61,12 @@ public:
   // Set duration of gaussian model
   void SetWindowSize(int windowSize);
 
+  // Set Max distance to apply motion detection
+  vtkSetMacro(DetectionRange, double);
+
+  // Set number of frames to wait for initialization
+  vtkSetMacro(InitializationTime, int);
+
 protected:
   // constructor / destructor
   vtkMotionDetector();
@@ -78,6 +84,18 @@ private:
 
   // Number of processed frames
   int NbProcessedFrames = 0;
+
+  // Time for initialization (frames)
+  int InitializationTime = 100;
+
+  // Max distance to apply motion detection
+  double DetectionRange = 50.;
+
+  // Total number of points estimated to be motion object
+  unsigned int NbMotionPoints = 0;
+
+  // Add a frame to the spherical map and estimate motion probability
+  void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
 
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);

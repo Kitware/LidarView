@@ -18,6 +18,16 @@
       </DataTypeDomain>
     </InputProperty>
 
+    <DoubleVectorProperty name="Detection Range"
+                       command="SetDetectionRange"
+                       number_of_elements="1"
+                       default_values="50">
+      <Documentation>
+       To define the detection range. The motion detection is only applied on points that their distance from lidar is
+       less than the detection range.
+      </Documentation>
+    </DoubleVectorProperty>
+
     <DoubleVectorProperty name="Azimuth resolution"
                        command="SetAzimuthResolution"
                        number_of_elements="1"
@@ -35,6 +45,15 @@
        Vertical angle resolution should be coherent with lidar resolution.
       </Documentation>
     </DoubleVectorProperty>
+
+    <IntVectorProperty name="Initialization time"
+                       command="SetInitializationTime"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+      The number of frames to wait for the initialization of motion detector.
+      </Documentation>
+    </IntVectorProperty>
 
     <IntVectorProperty name="Window size"
                        command="SetWindowSize"
