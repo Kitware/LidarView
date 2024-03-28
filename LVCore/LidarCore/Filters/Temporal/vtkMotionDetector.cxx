@@ -36,6 +36,7 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
+#include <vtkEuclideanClusterExtraction.h>
 #include <vtkFieldData.h>
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
@@ -50,6 +51,7 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkPolyLine.h>
 #include <vtkQuaternion.h>
+#include <vtkRadiusOutlierRemoval.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkStringArray.h>
@@ -772,6 +774,80 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
 }
 
 //-----------------------------------------------------------------------------
+void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
+  vtkSmartPointer<vtkPolyData> output)
+{
+  // Get motion points
+  if (this->NbMotionPoints == 0)
+  {
+    return;
+  }
+  vtkNew<vtkPoints> motionPoints;
+  motionPoints->SetNumberOfPoints(this->NbMotionPoints);
+  vtkNew<vtkPolyData> motionPolyData;
+  motionPolyData->SetPoints(motionPoints);
+  vtkIdType pointIndex = 0;
+  for (vtkIdType k = 0; k < input->GetNumberOfPoints(); ++k)
+  {
+    if (input->GetPointData()->GetArray("Motion_label")->GetTuple1(k))
+    {
+      double point[3];
+      input->GetPoint(k, point);
+      motionPoints->SetPoint(pointIndex, point);
+      ++pointIndex;
+    }
+  }
+
+  // Copy frame infomation from input
+  for (vtkIdType idxArray = 0; idxArray < input->GetPointData()->GetNumberOfArrays(); ++idxArray)
+  {
+    char* fieldName = input->GetPointData()->GetArray(idxArray)->GetName();
+    auto arrayTmp = input->GetPointData()->GetArray(idxArray)->NewInstance();
+    arrayTmp->Resize(motionPolyData->GetNumberOfPoints());
+    arrayTmp->SetName(fieldName);
+    for (vtkIdType idx = 0; idx < input->GetNumberOfPoints(); ++idx)
+    {
+      if (input->GetPointData()->GetArray("Motion_label")->GetTuple1(idx) == 0)
+        continue;
+      double* value = input->GetPointData()->GetArray(idxArray)->GetTuple(idx);
+      arrayTmp->InsertNextTuple(value);
+    }
+    motionPolyData->GetPointData()->AddArray(arrayTmp);
+  }
+
+  // Remove outlier
+  vtkNew<vtkRadiusOutlierRemoval> removal;
+  removal->SetInputData(motionPolyData);
+  removal->SetRadius(this->RemovalOutlierRadius);
+  removal->SetNumberOfNeighbors(this->RemovalOutlierNeighbors);
+  removal->Update();
+  if (removal->GetOutput()->GetNumberOfPoints() == 0)
+    return;
+
+  // Extract cluster
+  vtkNew<vtkEuclideanClusterExtraction> cluster;
+  cluster->SetInputConnection(removal->GetOutputPort());
+  cluster->SetExtractionModeToAllClusters();
+  cluster->SetRadius(this->ClusterRadius);
+  cluster->ColorClustersOn();
+  cluster->Update();
+
+  // To do compute cluster size and label it as human, animal...
+
+  // Create output with vertices
+  output->ShallowCopy(cluster->GetOutput());
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(output->GetNumberOfPoints());
+  vtkNew<vtkCellArray> cellArray;
+  cellArray->SetData(1, connectivity);
+  output->SetVerts(cellArray);
+  for (vtkIdType k = 0; k < output->GetNumberOfPoints(); ++k)
+  {
+    connectivity->SetValue(k, k);
+  }
+}
+
+//-----------------------------------------------------------------------------
 int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -804,6 +880,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Get the output
   vtkPolyData* motionPointsOutput = vtkPolyData::GetData(outputVector, MOTION_POINTS_OUTPUT_PORT);
+  vtkPolyData* clustersOutput = vtkPolyData::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds
@@ -812,6 +889,9 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Estimate probability of a point and update GMM
   this->EstimateMotion(motionPointsOutput);
+
+  // Extract clusters on the motion points
+  this->ExtractClusters(motionPointsOutput, clustersOutput);
 
   ++this->NbProcessedFrames;
 

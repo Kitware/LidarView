@@ -70,6 +70,13 @@ public:
   // Set number of frames to wait for initialization
   vtkSetMacro(InitializationTime, int);
 
+  // Set radius and neighbor value to remove isolated motion points
+  vtkSetMacro(RemovalOutlierRadius, double);
+  vtkSetMacro(RemovalOutlierNeighbors, int);
+
+  // Set radius to extract clusters
+  vtkSetMacro(ClusterRadius, double);
+
 protected:
   // constructor / destructor
   vtkMotionDetector();
@@ -97,8 +104,18 @@ private:
   // Total number of points estimated to be motion object
   unsigned int NbMotionPoints = 0;
 
+  // Parameters to remove isomated motion points
+  double RemovalOutlierRadius = 0.1;
+  int RemovalOutlierNeighbors = 10;
+
+  // Radius to extract clusters
+  double ClusterRadius = 0.4;
+
   // Add a frame to the spherical map and estimate motion probability
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
+
+  // Extract clusters of motion points
+  void ExtractClusters(vtkSmartPointer<vtkPolyData> input, vtkSmartPointer<vtkPolyData> output);
 
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);

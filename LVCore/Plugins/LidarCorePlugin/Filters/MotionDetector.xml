@@ -75,6 +75,33 @@
       </Documentation>
     </IntVectorProperty>
 
+    <DoubleVectorProperty name="Removal outlier radius"
+                       command="SetRemovalOutlierRadius"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Documentation>
+      The search radius to remove outlier.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Removal outlier neighbors"
+                       command="SetRemovalOutlierNeighbors"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+      The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Cluster radius"
+                       command="SetClusterRadius"
+                       number_of_elements="1"
+                       default_values="0.4">
+      <Documentation>
+      The search radius to find cluster.
+      </Documentation>
+    </DoubleVectorProperty>
+
     <OutputPort name="Motion detection" index="0" />
     <OutputPort name="Clusters" index="1" />
     </SourceProxy>
