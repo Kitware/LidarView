@@ -60,6 +60,8 @@
 
 // STD
 #include <iostream>
+#include <list>
+#include <numeric>
 
 class vtkMotionDetector::vtkInternals
 {
@@ -144,6 +146,227 @@ public:
       this->TTL -= 1;
       return (this->TTL >= 0);
     }
+  };
+  /**
+   * @brief The GaussianMixture class constructs a gaussian mixture mode
+   * to evaluate the probability that a new point is belong to background
+   * Each gaussian distribution represents a cluster with a weight
+   * The background is the cluster which has a large value of weight / sigma
+   */
+  class GaussianMixture
+  {
+  public:
+    // Default constructor
+    GaussianMixture() = default;
+
+    void Reset() { this->Gaussians.clear(); }
+
+    void SetMaxTTL(int windowSize)
+    {
+      if (this->MaxTTL != windowSize)
+      {
+        this->MaxTTL = windowSize;
+        for (auto& gaussian : this->Gaussians)
+          gaussian.MaxTTL = this->MaxTTL;
+      }
+    }
+
+    /**
+     * @brief Evaluate the closest cluster of a point and store the iterator of the cluster
+     * Estimate if the point is a motion point by checking the motion label of its closest cluster
+     * Estimate the probability that the point is a motion point
+     * @return The motion proba of the point
+     * probas: probabilities that the point belongs to each cluster
+     * motionEstim: estimated motion label of the point
+     */
+    double Evaluate(double x, bool isInitStep, std::vector<double>& probas, bool& motionEstim)
+    {
+      double motionProba = 0.;
+      // No cluster has been added, can not look for the closest cluster
+      // All points are considered as background point at the initialization step
+      // After initialization step, a new point is considered as motion point by defaut
+      if (this->Gaussians.empty())
+      {
+        motionEstim = isInitStep ? false : true;
+        motionProba = motionEstim ? 1. : 0.;
+        return motionProba;
+      }
+
+      // If the cluster is not empty, find the closest cluster for the point
+      // Store the iterator in ItMaxProba
+      probas.clear();
+      double maxProba = 0.;
+      this->ItMaxProba = this->Gaussians.begin();
+      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+           ++it)
+      {
+        probas.emplace_back(it->Weight * (*it)(x));
+        if (probas.back() > maxProba)
+        {
+          maxProba = probas.back();
+          this->ItMaxProba = it;
+        }
+      }
+      double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+
+      // During initialization, all points are considered as background
+      // No need to check the motion label of the closest cluster
+      if (isInitStep)
+      {
+        motionEstim = false;
+        return 0.;
+      }
+
+      // After initialization step
+      // If the new point is far from existing clusters, it is considered as motion point
+      if (std::fabs(x - this->ItMaxProba->Mean) > 3 * this->ItMaxProba->Sigma)
+      {
+        motionEstim = true;
+        return 1.;
+      }
+
+      // The closest cluster is a background cluster, the point is labeled as background
+      if (!this->ItMaxProba->IsMotion)
+      {
+        motionEstim = false;
+        motionProba = sumProba < 1e-6 ? 0. : (1 - maxProba / sumProba);
+        return motionProba;
+      }
+
+      // The closest cluster is a motion cluster
+      // Check if or not the closest cluster becomes a background cluster
+      // Suppose background points appear more often than motion points, so
+      // the gaussian which represents a background cluster should have a large
+      // weight and small sigma. The weight / sigma value is used to evaluate background
+      motionProba = sumProba < 1e-6 ? 0. : maxProba / sumProba;
+      double evalBackground = this->ItMaxProba->Weight / this->ItMaxProba->Sigma;
+      if (evalBackground > 5.)
+      {
+        this->ItMaxProba->IsMotion = false;
+        motionProba = 1 - motionProba;
+        return motionProba;
+      }
+      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+           ++it)
+      {
+        if (it != this->ItMaxProba && !it->IsMotion && evalBackground > (it->Weight / it->Sigma))
+        {
+          this->ItMaxProba->IsMotion = false;
+          motionProba = 1 - motionProba;
+        }
+      }
+      motionEstim = this->ItMaxProba->IsMotion;
+      return motionProba;
+    }
+    /**
+     * @brief Add the new point into gaussian mixture model
+     * If the model is empty, add a new cluster with weight = 1
+     * If the point is too far from existing clusters, add a new cluster with appropriate weight
+     * Otherwise, add the point into model and update parameters
+     */
+    void AddPoint(double x, bool motionEstim, std::vector<double>& probas)
+    {
+      // Create a new gaussian if the gaussian mixture model is empty
+      if (this->Gaussians.empty())
+      {
+        Gaussian newGaussian(x, 0.2, this->MaxTTL, 1, motionEstim);
+        this->Gaussians.push_back(newGaussian);
+        this->ItMaxProba = this->Gaussians.begin();
+        return;
+      }
+
+      // Update current gaussian mixture model if the new point is close to a gaussian cluster,
+      if (std::fabs(x - this->ItMaxProba->Mean) < (3. * this->ItMaxProba->Sigma))
+      {
+        double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+        int idProba = 0;
+        for (auto& gaussian : this->Gaussians)
+        {
+          gaussian.UpdateParams(x, probas[idProba] / sumProba);
+          ++idProba;
+        }
+        this->ResetTTL();
+        return;
+      }
+
+      // Create a new gaussian if the new point is far from existing distributions
+      Gaussian newGaussian(x, 0.2, this->MaxTTL, this->ItMaxProba->N + 1, motionEstim);
+      probas.clear();
+      for (auto gaussian : this->Gaussians)
+      {
+        probas.emplace_back(gaussian(x));
+      }
+      probas.emplace_back(newGaussian(x));
+      double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+      int idProba = 0;
+      // Update existing gaussians with new weights
+      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+           ++it)
+      {
+        it->UpdateParams(x, probas[idProba] / sumProba);
+        ++idProba;
+      }
+      // Set weight for new gaussian and add it to the model
+      double newGaussianWeight =
+        (probas.back() / sumProba) / static_cast<double>(this->ItMaxProba->N + 1);
+      newGaussian.Weight = newGaussianWeight;
+      this->Gaussians.push_back(newGaussian);
+      this->ItMaxProba = std::prev(this->Gaussians.end());
+    }
+
+    /**
+     * @brief Update the time to live of the each gaussian in the model
+     * If a gaussian is dead, erase it. Then the weight of the remains
+     * gaussians need to be normalized and the motion labels need to be updated
+     */
+    void UpdateTTL()
+    {
+      if (this->Gaussians.empty())
+        return;
+      std::list<Gaussian>::iterator it = this->Gaussians.begin();
+      double sumWeights = 0;
+      while (it != this->Gaussians.end())
+      {
+        // Check if or not the gaussian is still alive
+        bool stillAlive = it->UpdateTTL();
+
+        // Erase the gaussian if it is not alive
+        if (!stillAlive)
+        {
+          // erase current iterator and get next on
+          it = this->Gaussians.erase(it);
+          // no need to increment iterator here
+        }
+        else
+        {
+          sumWeights += it->Weight;
+          it++; // increment iterator here
+        }
+      }
+      // Normalise weights and update motion label
+      for (auto& gaussian : this->Gaussians)
+      {
+        gaussian.Weight /= sumWeights;
+        if (gaussian.Weight / gaussian.Sigma > 10.)
+          gaussian.IsMotion = false;
+      }
+    }
+
+    /**
+     * @brief Reset time to live value to its maximum when a new
+     * point is added to a gaussian distribution
+     */
+    void ResetTTL() { this->ItMaxProba->TTL = this->MaxTTL; }
+
+  private:
+    // Maximum number of frames for TTL
+    int MaxTTL = 50;
+
+    // Iterator to the cluster which the point has a max proba
+    std::list<Gaussian>::iterator ItMaxProba;
+
+    // Gaussian distributions
+    std::list<Gaussian> Gaussians;
   };
 };
 
