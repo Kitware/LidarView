@@ -368,6 +368,138 @@ public:
     // Gaussian distributions
     std::list<Gaussian> Gaussians;
   };
+
+  // The spherical depth map with gaussian mixture model
+  std::vector<GaussianMixture> Map;
+
+  /**
+   * Spherical map bounds in degrees. They depend on lidar model
+   * VLP-16 :      Vertical ~[-15, 15]  Azimuth ~[0, 360]
+   * VLP-32c:      Vertical ~[-25, 15]  Azimuth ~[0, 360]
+   * Livox HAP   : Vertical ~[70, 105] Azimuth ~[-60, 60]
+   * Livox MID360: Vertical ~[30, 100] Azimuth ~[-180, 180]
+   * */
+  double VerticalBounds[2] = { -90., 90. };
+  double AzimuthBounds[2] = { 0., 360. };
+
+  /*
+   * Resolution in degrees. Depend on lidar resolution
+   */
+  double VerticalResolution = 1.25;
+  double AzimuthResolution = 0.1;
+
+  /**
+   * Number of sample points along vertical angle and azimuth angle
+   * They are computed by Bounds and Resolution parameters
+   */
+  unsigned int NbAzimuth;
+  unsigned int NbVertical;
+
+  /**
+   * Window size to define time to live of a gaussian distribution
+   */
+  int WindowSize = 50;
+
+  // Init the Spehrical map
+  void InitMap()
+  {
+    // Phi Bounds
+    this->VerticalBounds[0] = -90;
+    this->VerticalBounds[1] = 90;
+
+    // Theta Bounds
+    this->AzimuthBounds[0] = -180;
+    this->AzimuthBounds[1] = 180;
+
+    // Default VerticalResolution / AzimuthResolution values
+    this->VerticalResolution = 1.0;
+    this->AzimuthResolution = 0.1;
+
+    // reset internal parameters
+    this->ResetMap();
+  }
+
+  /**
+   *Reset the Spehrical map using the current parameters
+   */
+  void ResetMap()
+  {
+    // Update quantum
+    this->NbVertical = static_cast<unsigned int>(
+      (this->VerticalBounds[1] - this->VerticalBounds[0]) / this->VerticalResolution);
+    this->NbAzimuth = static_cast<unsigned int>(
+      (this->AzimuthBounds[1] - this->AzimuthBounds[0]) / this->AzimuthResolution);
+
+    // Reset the map
+    for (auto& mixture : this->Map)
+    {
+      mixture.Reset();
+    }
+    this->Map.clear();
+    this->Map.resize(this->NbVertical * this->NbAzimuth);
+    for (auto& mixture : this->Map)
+    {
+      mixture.SetMaxTTL(this->WindowSize);
+    }
+  }
+
+  /*
+   * Convert cartesian coordinates of point x into its spherical coordinates
+   */
+  Eigen::Matrix<double, 3, 1> GetSphericalCoordinates(const Eigen::Matrix<double, 3, 1>& x)
+  {
+    // Base of R3 used. In some case it can be changed
+    Eigen::Matrix<double, 3, 1> ez{ 0, 0, 1 };
+    Eigen::Matrix<double, 3, 1> ey{ 0, 1, 0 };
+    Eigen::Matrix<double, 3, 1> ex{ 1, 0, 0 };
+
+    // Center of the coordinate system using the ex, ey, ez base
+    Eigen::Matrix<double, 3, 1> origin{ 0, 0, 0 };
+
+    // Express the current point in the local reference frame
+    // designed by the internal base and origin
+    Eigen::Matrix<double, 3, 3> transR;
+    transR << ex(0), ey(0), ez(0), ex(1), ey(1), ez(1), (2), ey(2), ez(2);
+    Eigen::Matrix<double, 3, 1> xLocal = transR.transpose() * (x - origin);
+
+    // Compute the vector length
+    double r = xLocal.norm();
+
+    // Normalize the vector if it is not null
+    if (r > 1e-4)
+    {
+      xLocal.normalize();
+    }
+
+    // Project CX onto the (ex, ey) plane
+    Eigen::Matrix<double, 3, 1> projX = xLocal.dot(ex) * ex + xLocal.dot(ey) * ey;
+    projX.normalize();
+
+    // Compute Phi angle (vertical direction)
+    double cosPhi = xLocal.dot(ez);
+    double sinPhi = xLocal.cross(ez).transpose() * xLocal.cross(ez).normalized();
+    double phi = vtkMath::DegreesFromRadians(std::atan2(sinPhi, cosPhi));
+
+    // Compute theta angle (azimuth direction)
+    double cosTheta = projX.dot(ex);
+    double sinTheta = projX.cross(ex).dot(ey.cross(ex).normalized());
+    double theta = vtkMath::DegreesFromRadians(std::atan2(sinTheta, cosTheta));
+
+    Eigen::Matrix<double, 3, 1> sphericalCoords;
+    sphericalCoords << r, theta, phi;
+    return sphericalCoords;
+  }
+
+  /*
+   * Update the TTL of the gaussian mixture model
+   */
+  void UpdateTTL()
+  {
+    for (unsigned int k = 0; k < this->Map.size(); ++k)
+    {
+      this->Map[k].UpdateTTL();
+    }
+  }
 };
 
 constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
@@ -389,6 +521,9 @@ vtkMotionDetector::vtkMotionDetector()
 
   // The accumulation of stabilized frames
   this->SetNumberOfOutputPorts(OUTPUT_PORT_COUNT);
+
+  // Initialize the internal parameters
+  this->Internals->InitMap();
 }
 
 //----------------------------------------------------------------------------
@@ -422,6 +557,39 @@ int vtkMotionDetector::FillOutputPortInformation(int port, vtkInformation* info)
 void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetVerticalResolution(double verticalReso)
+{
+  if (this->Internals->VerticalResolution != verticalReso)
+  {
+    this->Internals->VerticalResolution = verticalReso;
+    this->Internals->ResetMap();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetAzimuthResolution(double azimuthReso)
+{
+  if (this->Internals->AzimuthResolution != azimuthReso)
+  {
+    this->Internals->AzimuthResolution = azimuthReso;
+    this->Internals->ResetMap();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetWindowSize(int windowSize)
+{
+  if (this->Internals->WindowSize != windowSize)
+  {
+    this->Internals->WindowSize = windowSize;
+    for (auto& gaussians : this->Internals->Map)
+    {
+      gaussians.SetMaxTTL(this->Internals->WindowSize);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -18,6 +18,34 @@
       </DataTypeDomain>
     </InputProperty>
 
+    <DoubleVectorProperty name="Azimuth resolution"
+                       command="SetAzimuthResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Documentation>
+       Azimuth resolution should be coherent with lidar resolution.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Vertical resolution"
+                       command="SetVerticalResolution"
+                       number_of_elements="1"
+                       default_values="1">
+      <Documentation>
+       Vertical angle resolution should be coherent with lidar resolution.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Window size"
+                       command="SetWindowSize"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+        It determines the duration (number of frames) a particular Gaussian component will contribute to the overall mixture model.
+        A shorter window size leads to more rapid adaptation to changes in the underlying data distribution, making the model more sensitive to recent observations.
+        A longer window size results in a smoother temporal evolution of the model, making it less responsive to short-term fluctuations.
+      </Documentation>
+    </IntVectorProperty>
 
     <OutputPort name="Motion detection" index="0" />
     <OutputPort name="Clusters" index="1" />

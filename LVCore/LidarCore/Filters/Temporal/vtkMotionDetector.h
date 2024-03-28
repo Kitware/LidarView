@@ -54,6 +54,13 @@ public:
   vtkTypeMacro(vtkMotionDetector, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // Set resolution of spherical map
+  void SetVerticalResolution(double verticalReso);
+  void SetAzimuthResolution(double azimuthReso);
+
+  // Set duration of gaussian model
+  void SetWindowSize(int windowSize);
+
 protected:
   // constructor / destructor
   vtkMotionDetector();
