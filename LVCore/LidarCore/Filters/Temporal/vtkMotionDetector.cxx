@@ -36,9 +36,11 @@
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
+#include <vtkFieldData.h>
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLogger.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -50,6 +52,7 @@
 #include <vtkQuaternion.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkStringArray.h>
 #include <vtkTransform.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedShortArray.h>
@@ -62,6 +65,14 @@
 #include <iostream>
 #include <list>
 #include <numeric>
+
+namespace
+{
+constexpr const char* HESAI_NAME = "Hesai";
+constexpr const char* LIVOX_NAME = "Livox";
+constexpr const char* VELODYNE_NAME = "Velodyne";
+constexpr const char* UNKNOWN_NAME = "Unknown";
+}
 
 class vtkMotionDetector::vtkInternals
 {
@@ -400,6 +411,82 @@ public:
    */
   int WindowSize = 50;
 
+  /**
+   * Enum of lidar vendor
+   */
+  enum LidarVendor
+  {
+    UNKNOWN = 0,
+    LIVOX = 1,
+    VELODYNE = 2,
+    HESAI = 3,
+  };
+  const std::map<std::string, LidarVendor> LidarVendors = { { LIVOX_NAME, LidarVendor::LIVOX },
+    { VELODYNE_NAME, LidarVendor::VELODYNE },
+    { HESAI_NAME, LidarVendor::HESAI },
+    { UNKNOWN_NAME, LidarVendor::UNKNOWN } };
+  LidarVendor Lidar = LidarVendor::UNKNOWN;
+
+  /**
+   * Compute bounds from first frame of lidar data
+   * Azimuth bounds and Vertical bounds
+   */
+  void ComputeBounds(vtkPolyData* polydata)
+  {
+    // Get bounds of azimuth angle and vertical angle
+    switch (this->Lidar)
+    {
+      case LidarVendor::VELODYNE:
+      {
+        polydata->GetPointData()->GetArray("azimuth")->GetRange(this->AzimuthBounds);
+        polydata->GetPointData()->GetArray("vertical_angle")->GetRange(this->VerticalBounds);
+        this->AzimuthBounds[0] = std::floor(this->AzimuthBounds[0] / 100.);
+        this->AzimuthBounds[1] = std::ceil(this->AzimuthBounds[1] / 100.);
+        this->VerticalBounds[0] = std::floor(this->VerticalBounds[0]);
+        this->VerticalBounds[1] = std::ceil(this->VerticalBounds[1]);
+        break;
+      }
+      case LidarVendor::LIVOX:
+      case LidarVendor::HESAI:
+      {
+        double point[3];
+        this->AzimuthBounds[0] = DBL_MAX;
+        this->AzimuthBounds[1] = -DBL_MAX;
+        this->VerticalBounds[0] = DBL_MAX;
+        this->VerticalBounds[1] = -DBL_MAX;
+        for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
+        {
+          polydata->GetPoint(id, point);
+          double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
+          double azimuth = vtkMath::DegreesFromRadians(std::atan2(point[1], point[0]));
+          double vertical = vtkMath::DegreesFromRadians(std::acos(point[2] / r));
+          this->AzimuthBounds[0] = std::min(azimuth, this->AzimuthBounds[0]);
+          this->AzimuthBounds[1] = std::max(azimuth, this->AzimuthBounds[1]);
+          this->VerticalBounds[0] = std::min(vertical, this->VerticalBounds[0]);
+          this->VerticalBounds[1] = std::max(vertical, this->VerticalBounds[1]);
+        }
+        this->AzimuthBounds[0] = std::floor(this->AzimuthBounds[0]);
+        this->AzimuthBounds[1] = std::ceil(this->AzimuthBounds[1]);
+        this->VerticalBounds[0] = std::floor(this->VerticalBounds[0]);
+        this->VerticalBounds[1] = std::ceil(this->VerticalBounds[1]);
+        break;
+      }
+      default:
+      {
+        this->AzimuthBounds[0] = 0;
+        this->AzimuthBounds[1] = 360;
+        this->VerticalBounds[0] = -90;
+        this->VerticalBounds[1] = 90;
+      }
+    }
+    this->ResetMap();
+    vtkLog(INFO,
+      "The azimuth  angle range is [ "
+        << this->AzimuthBounds[0] << ", " << this->AzimuthBounds[1] << "]\n"
+        << "The vertical angle range is [ " << this->VerticalBounds[0] << ", "
+        << this->VerticalBounds[1] << "]\n");
+  }
+
   // Init the Spehrical map
   void InitMap()
   {
@@ -615,12 +702,69 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  if (!this->IdentifyInputArrays(input))
+  {
+    vtkErrorMacro(<< "Unable to identify LiDAR arrays to use.");
+    return 0;
+  }
+
   // Get the output
   vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   output->ShallowCopy(input);
 
+  // Compute azimuth and vertical angles bounds
+  if (this->NbProcessedFrames == 0)
+    this->Internals->ComputeBounds(input);
+
   // Add the new points into the Gaussian Map
   this->AddFrame(output);
+  ++this->NbProcessedFrames;
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMotionDetector::IdentifyInputArrays(vtkPolyData* polydata)
+{
+  // Get lidar vendor if first frame
+  bool valid = true;
+  if (this->NbProcessedFrames == 0)
+  {
+    std::string vendorName = UNKNOWN_NAME;
+    if (polydata->GetFieldData()->HasArray("Vendor"))
+    {
+      auto vendorArray =
+        dynamic_cast<vtkStringArray*>(polydata->GetFieldData()->GetAbstractArray("Vendor"));
+      vendorName = vendorArray->GetValue(0);
+      if (vendorName != LIVOX_NAME && vendorName != VELODYNE_NAME && vendorName != HESAI_NAME)
+      {
+        vendorName = UNKNOWN_NAME;
+      }
+    }
+    this->Internals->Lidar = this->Internals->LidarVendors.at(vendorName);
+    vtkLog(INFO, "Lidar vendor is identified as " << vendorName << "\n");
+  }
+
+  // Check if the requested arrays exist or not
+  switch (this->Internals->Lidar)
+  {
+    case vtkInternals::LidarVendor::VELODYNE:
+    {
+      valid = polydata->GetPointData()->HasArray("azimuth") &&
+        polydata->GetPointData()->HasArray("vertical_angle") &&
+        polydata->GetPointData()->HasArray("distance_m");
+      break;
+    }
+    case vtkInternals::LidarVendor::LIVOX:
+    case vtkInternals::LidarVendor::HESAI:
+    {
+      valid = polydata->GetPointData()->HasArray("distance_m");
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+  return valid;
 }

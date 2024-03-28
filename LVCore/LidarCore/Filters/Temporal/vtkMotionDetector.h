@@ -76,6 +76,12 @@ private:
   vtkMotionDetector(const vtkMotionDetector&);
   void operator=(const vtkMotionDetector&);
 
+  // Number of processed frames
+  int NbProcessedFrames = 0;
+
+  // Identify input arrays to use
+  bool IdentifyInputArrays(vtkPolyData* polydata);
+
   /**
    * Internals parameters and functions of motion detector
    * Gaussian
