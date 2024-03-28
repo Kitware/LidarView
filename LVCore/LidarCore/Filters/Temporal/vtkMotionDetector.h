@@ -29,9 +29,6 @@
 #ifndef VTK_MOTION_DETECTOR_H
 #define VTK_MOTION_DETECTOR_H
 
-// LOCAL
-#include "vtkSphericalMap.h"
-
 // VTK
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
@@ -39,6 +36,17 @@
 
 #include "lvFiltersTemporalModule.h"
 
+#include <memory> // for std::unique_ptr
+
+/**
+ * @brief The MotionDetector class constructs a spherical map of depth along the
+ * vertical angle and the azimuth angle. A gaussian mixture model is built
+ * at each pixel and it is updated when a new point arrived. The probability
+ * that a point is belong to background can be evaluated by GMM.
+ * Input: Lidar frame
+ * Output1: Lidar frame with motion probability
+ * Output2: Pointcloud of motion objects labeled with cluster id
+ */
 class LVFILTERSTEMPORAL_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
 {
 public:
@@ -46,16 +54,13 @@ public:
   vtkTypeMacro(vtkMotionDetector, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Add a frame to update the motion estimator
-  void AddFrame(vtkSmartPointer<vtkPolyData>& polydata);
-
-  // Reset the vtkMotionDetector algorithm
-  void ResetAlgorithm();
-
 protected:
   // constructor / destructor
   vtkMotionDetector();
   ~vtkMotionDetector();
+
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
@@ -64,13 +69,14 @@ private:
   vtkMotionDetector(const vtkMotionDetector&);
   void operator=(const vtkMotionDetector&);
 
-  // Each points that have been add to
-  // the motion detector is map into a
-  // Spherical Map and add to a distribution
-  // modelized by a gaussian distribution. The
-  // Gaussian map correspond to the map of gaussian
-  // distributions along the vertical and azimuth angles
-  vtkSphericalMap GaussianMap;
+  /**
+   * Internals parameters and functions of motion detector
+   * Gaussian
+   * Gaussian mixture
+   * Spherical depth map
+   */
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
 #endif // VTK_MOTION_DETECTOR_H

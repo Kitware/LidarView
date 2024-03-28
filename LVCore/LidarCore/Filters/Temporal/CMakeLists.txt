@@ -3,7 +3,6 @@ set(classes
   vtkAggregatePointsFromTrajectoryOnline
   vtkMLSPosesSmoothing
   vtkMotionDetector
-  vtkSphericalMap
   vtkTemporalTransformsApplier
   vtkTrailingFrame)
 

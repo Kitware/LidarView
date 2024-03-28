@@ -61,30 +61,52 @@
 // STD
 #include <iostream>
 
+constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
+constexpr unsigned int INPUT_PORT_COUNT = 1;
+
+constexpr unsigned int MOTION_POINTS_OUTPUT_PORT = 0;
+constexpr unsigned int CLUSTERS_OUTPUT_PORT = 1;
+constexpr unsigned int OUTPUT_PORT_COUNT = 2;
+
 // Implementation of the New function
 vtkStandardNewMacro(vtkMotionDetector)
 
 //----------------------------------------------------------------------------
 vtkMotionDetector::vtkMotionDetector()
+  : Internals(new vtkMotionDetector::vtkInternals())
 {
   // One input port
-  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfInputPorts(INPUT_PORT_COUNT);
 
   // The accumulation of stabilized frames
-  this->SetNumberOfOutputPorts(1);
-
-  // Initialize the intern parameters
-  this->ResetAlgorithm();
+  this->SetNumberOfOutputPorts(OUTPUT_PORT_COUNT);
 }
 
 //----------------------------------------------------------------------------
 vtkMotionDetector::~vtkMotionDetector() = default;
 
-//----------------------------------------------------------------------------
-void vtkMotionDetector::ResetAlgorithm()
+//-----------------------------------------------------------------------------
+int vtkMotionDetector::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  // reset the spherical map
-  this->GaussianMap.ResetMap();
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMotionDetector::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if (port == MOTION_POINTS_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    return 1;
+  }
+  if (port == CLUSTERS_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    return 1;
+  }
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -94,27 +116,34 @@ void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkMotionDetector::AddFrame(vtkSmartPointer<vtkPolyData>& polydata)
-{
-  // Add the new points into the Gaussian Map
-  this->GaussianMap.AddFrame(polydata);
-}
-
-//-----------------------------------------------------------------------------
 int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  std::cout << "Motion Detector asked" << std::endl;
   // Get input data
-  vtkPolyData* input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* input =
+    vtkPolyData::GetData(inputVector[LIDAR_FRAME_INPUT_PORT]->GetInformationObject(0));
+  // Check if input is a multiblock
+  if (!input)
+  {
+    vtkMultiBlockDataSet* mb =
+      vtkMultiBlockDataSet::GetData(inputVector[LIDAR_FRAME_INPUT_PORT], 0);
+    // Extract first block if it is a vtkPolyData
+    input = vtkPolyData::SafeDownCast(mb->GetBlock(0));
+  }
+  // If the input could not be cast, return
+  if (!input)
+  {
+    vtkErrorMacro(<< "Unable to cast input into a vtkPolyData");
+    return 0;
+  }
 
   // Get the output
   vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   output->ShallowCopy(input);
 
   // Add the new points into the Gaussian Map
-  this->GaussianMap.AddFrame(output);
+  this->AddFrame(output);
 
   return 1;
 }

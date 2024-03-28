@@ -1,21 +1,26 @@
 <ServerManagerConfiguration>
   <!-- Begin MotionDetector -->
   <ProxyGroup name="filters">
-    <SourceProxy name="MotionDetector" class="vtkMotionDetector" label="MotionDetector">
+    <SourceProxy name="MotionDetector" class="vtkMotionDetector" label="Motion Detector">
       <Documentation
-        short_help="Class that is responsible to collect point clouds and transforms to create a stabilized dense point cloud"
-        long_help="Class that is responsible to collect point clouds and transforms to create a stabilized dense point cloud">
-        Class that is responsible to collect point clouds and transforms to create a stabilized dense point cloud
+        short_help="Detect motion points in lidar frame"
+        long_help="Motion detector to estimate motion probability of each points in frame and to extract clusters on motion points">
+        Motion detector filter estimates motion probability of points in lidar frame by building a spherical depth map with gaussian mixture model.
+        It also extracts clusters on motion points and gives the information of each cluster.
       </Documentation>
 
     <InputProperty
       name="Input"
+      port_index = "0"
       command="SetInputConnection">
       <DataTypeDomain name="input_type">
         <DataType value="vtkPolyData"/>
       </DataTypeDomain>
     </InputProperty>
 
+
+    <OutputPort name="Motion detection" index="0" />
+    <OutputPort name="Clusters" index="1" />
     </SourceProxy>
   </ProxyGroup>
   <!-- End MotionDetector -->
