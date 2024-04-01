@@ -75,6 +75,22 @@
       </Documentation>
     </IntVectorProperty>
 
+    <IntVectorProperty name="Debug vertical id"
+                       command="SetDebugVertical"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Debug azimuth id"
+                       command="SetDebugAzimuth"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+      </Documentation>
+    </IntVectorProperty>
+
     <DoubleVectorProperty name="Removal outlier radius"
                        command="SetRemovalOutlierRadius"
                        number_of_elements="1"

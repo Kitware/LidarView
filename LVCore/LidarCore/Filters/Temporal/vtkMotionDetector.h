@@ -81,6 +81,9 @@ public:
   // Set radius to extract clusters
   vtkSetMacro(ClusterRadius, double);
 
+  vtkSetMacro(DebugVertical, unsigned int);
+  vtkSetMacro(DebugAzimuth, unsigned int);
+
 protected:
   // constructor / destructor
   vtkMotionDetector();
@@ -133,6 +136,9 @@ private:
     double BoxSize[3] = { 0, 0, 0 };
   };
   std::vector<ClusterStats> Clusters;
+
+  unsigned int DebugVertical = 0;
+  unsigned int DebugAzimuth = 0;
 
   // Add a frame to the spherical map and estimate motion probability
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
