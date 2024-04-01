@@ -62,6 +62,7 @@
 #include <Eigen/Dense>
 
 // STD
+#include <climits>
 #include <iostream>
 #include <list>
 #include <numeric>
@@ -204,18 +205,21 @@ public:
       }
 
       // If the cluster is not empty, find the closest cluster for the point
-      // Store the iterator in ItMaxProba
+      // Store the iterator in ItClosest
       probas.clear();
-      double maxProba = 0.;
-      this->ItMaxProba = this->Gaussians.begin();
+      double closestProba = 0.;
+      double minDistance = FLT_MAX;
+      this->ItClosest = this->Gaussians.begin();
       for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
            ++it)
       {
         probas.emplace_back(it->Weight * (*it)(x));
-        if (probas.back() > maxProba)
+        double dist = std::fabs(x - it->Mean);
+        if (dist < minDistance)
         {
-          maxProba = probas.back();
-          this->ItMaxProba = it;
+          minDistance = dist;
+          closestProba = probas.back();
+          this->ItClosest = it;
         }
       }
       double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
@@ -230,17 +234,17 @@ public:
 
       // After initialization step
       // If the new point is far from existing clusters, it is considered as motion point
-      if (std::fabs(x - this->ItMaxProba->Mean) > 3 * this->ItMaxProba->Sigma)
+      if (std::fabs(x - this->ItClosest->Mean) > 3 * this->ItClosest->Sigma)
       {
         motionEstim = true;
         return 1.;
       }
 
       // The closest cluster is a background cluster, the point is labeled as background
-      if (!this->ItMaxProba->IsMotion)
+      if (!this->ItClosest->IsMotion)
       {
         motionEstim = false;
-        motionProba = sumProba < 1e-6 ? 0. : (1 - maxProba / sumProba);
+        motionProba = sumProba < 1e-6 ? 0. : (1 - closestProba / sumProba);
         return motionProba;
       }
 
@@ -249,24 +253,24 @@ public:
       // Suppose background points appear more often than motion points, so
       // the gaussian which represents a background cluster should have a large
       // weight and small sigma. The weight / sigma value is used to evaluate background
-      motionProba = sumProba < 1e-6 ? 0. : maxProba / sumProba;
-      double evalBackground = this->ItMaxProba->Weight / this->ItMaxProba->Sigma;
+      motionProba = sumProba < 1e-6 ? 0. : closestProba / sumProba;
+      double evalBackground = this->ItClosest->Weight / this->ItClosest->Sigma;
       if (evalBackground > 5.)
       {
-        this->ItMaxProba->IsMotion = false;
+        this->ItClosest->IsMotion = false;
         motionProba = 1 - motionProba;
         return motionProba;
       }
       for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
            ++it)
       {
-        if (it != this->ItMaxProba && !it->IsMotion && evalBackground > (it->Weight / it->Sigma))
+        if (it != this->ItClosest && !it->IsMotion && evalBackground > (it->Weight / it->Sigma))
         {
-          this->ItMaxProba->IsMotion = false;
+          this->ItClosest->IsMotion = false;
           motionProba = 1 - motionProba;
         }
       }
-      motionEstim = this->ItMaxProba->IsMotion;
+      motionEstim = this->ItClosest->IsMotion;
       return motionProba;
     }
     /**
@@ -282,12 +286,12 @@ public:
       {
         Gaussian newGaussian(x, 0.2, this->MaxTTL, 1, motionEstim);
         this->Gaussians.push_back(newGaussian);
-        this->ItMaxProba = this->Gaussians.begin();
+        this->ItClosest = this->Gaussians.begin();
         return;
       }
 
       // Update current gaussian mixture model if the new point is close to a gaussian cluster,
-      if (std::fabs(x - this->ItMaxProba->Mean) < (3. * this->ItMaxProba->Sigma))
+      if (std::fabs(x - this->ItClosest->Mean) < (3. * this->ItClosest->Sigma))
       {
         double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
         int idProba = 0;
@@ -301,7 +305,7 @@ public:
       }
 
       // Create a new gaussian if the new point is far from existing distributions
-      Gaussian newGaussian(x, 0.2, this->MaxTTL, this->ItMaxProba->N + 1, motionEstim);
+      Gaussian newGaussian(x, 0.2, this->MaxTTL, this->ItClosest->N + 1, motionEstim);
       probas.clear();
       for (auto gaussian : this->Gaussians)
       {
@@ -319,10 +323,10 @@ public:
       }
       // Set weight for new gaussian and add it to the model
       double newGaussianWeight =
-        (probas.back() / sumProba) / static_cast<double>(this->ItMaxProba->N + 1);
+        (probas.back() / sumProba) / static_cast<double>(this->ItClosest->N + 1);
       newGaussian.Weight = newGaussianWeight;
       this->Gaussians.push_back(newGaussian);
-      this->ItMaxProba = std::prev(this->Gaussians.end());
+      this->ItClosest = std::prev(this->Gaussians.end());
     }
 
     /**
@@ -367,14 +371,14 @@ public:
      * @brief Reset time to live value to its maximum when a new
      * point is added to a gaussian distribution
      */
-    void ResetTTL() { this->ItMaxProba->TTL = this->MaxTTL; }
+    void ResetTTL() { this->ItClosest->TTL = this->MaxTTL; }
 
   private:
     // Maximum number of frames for TTL
     int MaxTTL = 50;
 
-    // Iterator to the cluster which the point has a max proba
-    std::list<Gaussian>::iterator ItMaxProba;
+    // Iterator to the cluster which the mean value is the closest to the point
+    std::list<Gaussian>::iterator ItClosest;
 
     // Gaussian distributions
     std::list<Gaussian> Gaussians;
