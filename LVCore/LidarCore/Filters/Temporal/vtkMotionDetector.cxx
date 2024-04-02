@@ -64,7 +64,6 @@
 #include <Eigen/Dense>
 
 // STD
-#include <climits>
 #include <iostream>
 #include <list>
 #include <numeric>
@@ -832,8 +831,6 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   cluster->ColorClustersOn();
   cluster->Update();
 
-  // To do compute cluster size and label it as human, animal...
-
   // Create output with vertices
   output->ShallowCopy(cluster->GetOutput());
   vtkNew<vtkIdTypeArray> connectivity;
@@ -845,6 +842,78 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   {
     connectivity->SetValue(k, k);
   }
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  this->Clusters.clear();
+  int numClusters = cluster->GetNumberOfExtractedClusters();
+  for (int clusterId = 0; clusterId < numClusters; ++clusterId)
+  {
+    ClusterStats clusterInfo;
+    clusterInfo.ClusterId = clusterId;
+    // Calculate the average depth value and bounding box for this cluster
+    double depth = 0.0;
+    double intensity = 0.0;
+    int nbClusterPoints = 0;
+    for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+    {
+      auto currClusterId = output->GetPointData()->GetArray("ClusterId")->GetTuple1(pointId);
+      if (currClusterId != clusterId)
+        continue;
+      // Accumulate depth value and intensity value
+      // todo: add sanity check
+      depth += output->GetPointData()->GetArray("distance_m")->GetTuple1(pointId);
+      intensity += output->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
+      ++nbClusterPoints;
+      // Compute boundingbox {xmin, xmax, ymin, ymax, zmin, zmax}
+      double point[3];
+      output->GetPoint(pointId, point);
+      for (int dim = 0; dim < 3; ++dim)
+      {
+        // Update min
+        if (point[dim] < clusterInfo.BoundingBox[2 * dim])
+          clusterInfo.BoundingBox[2 * dim] = point[dim];
+        // Updat max
+        if (point[dim] > clusterInfo.BoundingBox[2 * dim + 1])
+          clusterInfo.BoundingBox[2 * dim + 1] = point[dim];
+      }
+    }
+    depth /= static_cast<double>(nbClusterPoints);
+    intensity /= static_cast<double>(nbClusterPoints);
+    clusterInfo.MeanDepth = depth;
+    clusterInfo.MeanIntensity = intensity;
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      clusterInfo.BoxSize[dim] =
+        clusterInfo.BoundingBox[2 * dim + 1] - clusterInfo.BoundingBox[2 * dim];
+      clusterInfo.BoxCenter[dim] = clusterInfo.BoxSize[dim] / 2 + clusterInfo.BoundingBox[2 * dim];
+    }
+    this->Clusters.emplace_back(clusterInfo);
+  }
+  // Sort clusters based on their average depth values
+  std::sort(Clusters.begin(),
+    Clusters.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.MeanDepth < cluster2.MeanDepth; });
+  // Assign new cluster IDs based on the sorted order
+  std::vector<int> newClusterIds(numClusters);
+  for (int i = 0; i < numClusters; ++i)
+  {
+    newClusterIds[this->Clusters[i].ClusterId] = i;
+  }
+  for (int i = 0; i < numClusters; ++i)
+  {
+    this->Clusters[i].ClusterId = i;
+  }
+  // Reset cluster id
+  auto clusterIdArray = output->GetPointData()->GetArray("ClusterId");
+  for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+  {
+    auto clusterId = clusterIdArray->GetTuple1(pointId);
+    output->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, newClusterIds[clusterId]);
+  }
+
+  // Label cluster by geometry metric
+  // Print clusters info
 }
 
 //-----------------------------------------------------------------------------

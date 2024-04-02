@@ -36,6 +36,7 @@
 
 #include "lvFiltersTemporalModule.h"
 
+#include <climits>
 #include <memory> // for std::unique_ptr
 
 /**
@@ -110,6 +111,23 @@ private:
 
   // Radius to extract clusters
   double ClusterRadius = 0.4;
+
+  enum Label
+  {
+    HUMAN = 0,
+    OTHERS = 1,
+  };
+  struct ClusterStats
+  {
+    Label ClusterLabel = Label::HUMAN;
+    int ClusterId = 0;
+    double MeanDepth = 0.;
+    double MeanIntensity = 0;
+    double BoundingBox[6] = { DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX };
+    double BoxCenter[3] = { 0, 0, 0 };
+    double BoxSize[3] = { 0, 0, 0 };
+  };
+  std::vector<ClusterStats> Clusters;
 
   // Add a frame to the spherical map and estimate motion probability
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
