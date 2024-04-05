@@ -52,6 +52,7 @@
         "cameraToolbar",
         "axesToolbar",
         "rulersToolbar",
+        "sqSlamToolbar",
         "playerControlToolbar"
       ],
       "toolbarBreaks": [
@@ -265,6 +266,7 @@
         "axesToolbar",
         "rulersToolbar",
         "customViewpointsToolbar",
+        "sqSlamToolbar",
         "playerControlToolbar",
         "ToolBar"
       ],
