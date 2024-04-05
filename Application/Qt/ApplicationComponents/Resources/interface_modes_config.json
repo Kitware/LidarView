@@ -107,6 +107,9 @@
         "actionExport",
         "actionAnimatedExport",
         "separator",
+        "actionFileLoadServerState",
+        "actionFileSaveServerState",
+        "separator",
         "actionFileExit"
       ],
       "menuEdit": [
@@ -205,6 +208,9 @@
         "separator",
         "actionExport",
         "actionAnimatedExport",
+        "separator",
+        "actionFileLoadServerState",
+        "actionFileSaveServerState",
         "separator",
         "actionFileExit"
       ],
