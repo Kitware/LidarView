@@ -23,21 +23,21 @@
             "repeat": {"mode": "until-pass", "count": 3},
             "timeout": 120,
             "noTestsAction": "error"
-        },
-        "filter": {
-            "exclude": {"name": "lv|Python"}
         }
       },
       {
         "name": "ci_ubuntu22_debug",
         "inherits": ["ci_common"],
         "filter": {
-            "exclude": {"name": "TestVelodyneHDLPositionReader"}
+          "exclude": {"name": "TestVelodyneHDLPositionReader"}
         }
       },
       {
         "name": "ci_windows_vs2019",
-        "inherits": ["ci_common"]
+        "inherits": ["ci_common"],
+        "filter": {
+          "exclude": {"name": "lv|Python|TestVelodyneLidarStream_HDL_64"}
+        }
       }
     ]
   }
