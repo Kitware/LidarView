@@ -18,6 +18,15 @@
       </DataTypeDomain>
     </InputProperty>
 
+    <Property name="Reset detection"
+              command="Reset">
+      <Documentation>
+        Reset motion detector. The gaussian mixture model map is clear and parameters are reset to current state. The number of
+        processed frames returns to zero.
+      </Documentation>
+    </Property>
+
+
     <DoubleVectorProperty name="Detection Range"
                        command="SetDetectionRange"
                        number_of_elements="1"

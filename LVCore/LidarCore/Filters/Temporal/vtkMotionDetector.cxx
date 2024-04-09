@@ -650,6 +650,13 @@ void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//-----------------------------------------------------------------------------
+void vtkMotionDetector::Reset()
+{
+  this->Internals->ResetMap();
+  this->NbProcessedFrames = 0;
+}
+
 //----------------------------------------------------------------------------
 void vtkMotionDetector::SetVerticalResolution(double verticalReso)
 {

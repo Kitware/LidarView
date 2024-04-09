@@ -54,6 +54,9 @@ public:
   vtkTypeMacro(vtkMotionDetector, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // Reset detection
+  void Reset();
+
   // Set resolution of spherical map
   void SetVerticalResolution(double verticalReso);
   void SetAzimuthResolution(double azimuthReso);
