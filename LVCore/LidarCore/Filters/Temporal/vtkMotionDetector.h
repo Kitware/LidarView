@@ -34,6 +34,8 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
+#include <vtkTable.h>
+#include <vtkTableAlgorithm.h>
 
 #include "lvFiltersTemporalModule.h"
 
@@ -134,7 +136,9 @@ private:
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
 
   // Extract clusters of motion points
-  void ExtractClusters(vtkSmartPointer<vtkPolyData> input, vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput);
+  void ExtractClusters(vtkSmartPointer<vtkPolyData> input,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);

@@ -104,9 +104,12 @@
 
     <OutputPort name="Motion detection" index="0" />
     <OutputPort name="Clusters" index="1" />
+    <OutputPort name="Clusters information" index="2" />
 
     <Hints>
       <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      <OutputPort index="2" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="2" />
     </Hints>
 
     </SourceProxy>

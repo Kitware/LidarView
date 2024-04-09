@@ -65,6 +65,7 @@
 #include <Eigen/Dense>
 
 // STD
+#include <iomanip>
 #include <iostream>
 #include <list>
 #include <numeric>
@@ -600,7 +601,8 @@ constexpr unsigned int INPUT_PORT_COUNT = 1;
 
 constexpr unsigned int MOTION_POINTS_OUTPUT_PORT = 0;
 constexpr unsigned int CLUSTERS_OUTPUT_PORT = 1;
-constexpr unsigned int OUTPUT_PORT_COUNT = 2;
+constexpr unsigned int CLUSTERS_TEXT_OUTPUT_PORT = 2;
+constexpr unsigned int OUTPUT_PORT_COUNT = 3;
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkMotionDetector)
@@ -640,6 +642,11 @@ int vtkMotionDetector::FillOutputPortInformation(int port, vtkInformation* info)
   if (port == CLUSTERS_OUTPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+    return 1;
+  }
+  if (port == CLUSTERS_TEXT_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
 
@@ -775,7 +782,8 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
 
 //-----------------------------------------------------------------------------
 void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
-  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput)
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
 {
   // Get motion points
   if (this->NbMotionPoints == 0)
@@ -946,6 +954,21 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   }
 
   // Print clusters info
+  // Set output for displaying clusters information
+  vtkNew<vtkStringArray> data;
+  data->SetName("Clusters Information");
+  data->SetNumberOfComponents(1);
+  std::ostringstream oss;
+  for (const auto& cluster : this->Clusters)
+  {
+    oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
+        << ": distance = " << std::setw(7) << cluster.MeanDepth << "m  size = [ " << std::setw(8)
+        << cluster.BoxSize[0] << ", " << std::setw(8) << cluster.BoxSize[1] << ", " << std::setw(8)
+        << cluster.BoxSize[2] << " ]\n";
+  }
+  std::string clusterInfo = oss.str();
+  data->InsertNextValue(clusterInfo.c_str());
+  infoOutput->AddColumn(data);
 }
 
 //-----------------------------------------------------------------------------
@@ -983,6 +1006,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* motionPointsOutput = vtkPolyData::GetData(outputVector, MOTION_POINTS_OUTPUT_PORT);
   vtkMultiBlockDataSet* clustersOutput =
     vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
+  vtkTable* clusterInfoOutput = vtkTable::GetData(outputVector, CLUSTERS_TEXT_OUTPUT_PORT);
   motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds
@@ -993,7 +1017,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   this->EstimateMotion(motionPointsOutput);
 
   // Extract clusters on the motion points
-  this->ExtractClusters(motionPointsOutput, clustersOutput);
+  this->ExtractClusters(motionPointsOutput, clustersOutput, clusterInfoOutput);
 
   ++this->NbProcessedFrames;
 
