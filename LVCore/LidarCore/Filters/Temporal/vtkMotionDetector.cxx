@@ -33,6 +33,7 @@
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkCubeSource.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
@@ -638,7 +639,7 @@ int vtkMotionDetector::FillOutputPortInformation(int port, vtkInformation* info)
   }
   if (port == CLUSTERS_OUTPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   }
 
@@ -774,7 +775,7 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
 
 //-----------------------------------------------------------------------------
 void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
-  vtkSmartPointer<vtkPolyData> output)
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput)
 {
   // Get motion points
   if (this->NbMotionPoints == 0)
@@ -832,6 +833,7 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   cluster->Update();
 
   // Create output with vertices
+  vtkNew<vtkPolyData> output;
   output->ShallowCopy(cluster->GetOutput());
   vtkNew<vtkIdTypeArray> connectivity;
   connectivity->SetNumberOfValues(output->GetNumberOfPoints());
@@ -927,6 +929,22 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     }
   }
 
+  // Add bounding box for each cluster into output
+  int blockId = 0;
+  for (const auto& cluster : this->Clusters)
+  {
+    vtkNew<vtkCubeSource> cubeSource;
+    vtkNew<vtkPolyData> source;
+    cubeSource->SetBounds(cluster.BoundingBox);
+    cubeSource->SetCenter(cluster.BoxCenter);
+    cubeSource->Update();
+    source->ShallowCopy(cubeSource->GetOutput());
+    std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
+    clustersOutput->SetBlock(blockId, source);
+    clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
+    ++blockId;
+  }
+
   // Print clusters info
 }
 
@@ -963,7 +981,8 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Get the output
   vtkPolyData* motionPointsOutput = vtkPolyData::GetData(outputVector, MOTION_POINTS_OUTPUT_PORT);
-  vtkPolyData* clustersOutput = vtkPolyData::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
+  vtkMultiBlockDataSet* clustersOutput =
+    vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds

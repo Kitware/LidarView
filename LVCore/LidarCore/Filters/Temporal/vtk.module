@@ -12,6 +12,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::FiltersCore
+  VTK::FiltersSources
   VTK::FiltersPoints
   VTK::IOImage
   VTK::IOLegacy

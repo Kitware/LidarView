@@ -104,6 +104,11 @@
 
     <OutputPort name="Motion detection" index="0" />
     <OutputPort name="Clusters" index="1" />
+
+    <Hints>
+      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+    </Hints>
+
     </SourceProxy>
   </ProxyGroup>
   <!-- End MotionDetector -->

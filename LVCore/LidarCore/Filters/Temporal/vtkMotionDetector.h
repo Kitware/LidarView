@@ -30,6 +30,7 @@
 #define VTK_MOTION_DETECTOR_H
 
 // VTK
+#include <vtkMultiBlockDataSet.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
@@ -133,7 +134,7 @@ private:
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
 
   // Extract clusters of motion points
-  void ExtractClusters(vtkSmartPointer<vtkPolyData> input, vtkSmartPointer<vtkPolyData> output);
+  void ExtractClusters(vtkSmartPointer<vtkPolyData> input, vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput);
 
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);
