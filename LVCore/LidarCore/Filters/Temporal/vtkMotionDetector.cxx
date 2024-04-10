@@ -912,7 +912,21 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     output->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, newClusterIds[clusterId]);
   }
 
-  // Label cluster by geometry metric
+  // Label cluster by geometry dimension
+  for (auto& cluster : this->Clusters)
+  {
+    if (cluster.BoxSize[2] >= 0.8 && cluster.BoxSize[2] <= 2.2 &&
+      ((cluster.BoxSize[0] >= 0.2 && cluster.BoxSize[0] <= 0.7) ||
+        (cluster.BoxSize[1] >= 0.2 && cluster.BoxSize[1] <= 0.7)))
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::HUMAN;
+    }
+    else
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::OTHERS;
+    }
+  }
+
   // Print clusters info
 }
 
