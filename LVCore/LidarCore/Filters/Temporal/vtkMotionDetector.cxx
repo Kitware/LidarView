@@ -707,29 +707,6 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
   vtkSmartPointer<vtkDoubleArray> motionLabel = vtkSmartPointer<vtkDoubleArray>::New();
   motionLabel->SetName("Motion_label");
 
-  vtkSmartPointer<vtkDoubleArray> Phi = vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkDoubleArray> Theta = vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkDoubleArray> Motion = vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkIntArray> idPhi = vtkSmartPointer<vtkIntArray>::New();
-  vtkSmartPointer<vtkIntArray> idTheta = vtkSmartPointer<vtkIntArray>::New();
-  vtkSmartPointer<vtkIntArray> Cluster = vtkSmartPointer<vtkIntArray>::New();
-  vtkSmartPointer<vtkDoubleArray> Mean = vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkDoubleArray> Sigma = vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkDoubleArray> Debug = vtkSmartPointer<vtkDoubleArray>::New();
-  Phi->SetName("Phi");
-  Theta->SetName("Theta");
-  Motion->SetName("Motion_Probability");
-  idPhi->SetName("id_Phi");
-  idTheta->SetName("id_Theta");
-  Cluster->SetName("cluster");
-  Sigma->SetName("sigma");
-  Mean->SetName("mean");
-  Debug->SetName("debug");
-
-  int debug = 0;
-  std::cout << "--------------Processed frame numbers = " << this->NbProcessedFrames
-            << "--------------------------------------\n";
-
   double point[3];
   Eigen::Matrix<double, 3, 1> sphericalPoint;
   this->NbMotionPoints = 0;
@@ -766,7 +743,6 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
     }
 
     int isMotion = 0;
-    double probaMotion = 0.;
     // Check if or not the point is in the detection range
     if (sphericalPoint(0) <= this->DetectionRange)
     {
@@ -780,22 +756,13 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
       idxVertical = std::min(idxVertical, this->Internals->NbVertical - 1);
       idxAzimuth = std::min(idxAzimuth, this->Internals->NbAzimuth - 1);
 
-      if (idxVertical == this->DebugVertical && idxAzimuth == this->DebugAzimuth)
-        debug = 1;
-      else if (idxVertical != this->DebugVertical && idxAzimuth == this->DebugAzimuth)
-        debug = 2;
-      else if (idxVertical == this->DebugVertical && idxAzimuth != this->DebugAzimuth)
-        debug = 4;
-      else
-        debug = 0;
-
       bool isInitStep = this->NbProcessedFrames < this->InitializationTime ? true : false;
       // Evaluate the mixture model on the current data
       // It returns the motion probability of the point
       // and stores the iterator of the cluster which give the max proba
       std::vector<double> probas;
       bool motionEstim = false;
-      probaMotion = this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].Evaluate(
+      this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].Evaluate(
         sphericalPoint(0), isInitStep, probas, motionEstim);
       isMotion = motionEstim ? 1 : 0;
       this->NbMotionPoints += isMotion;
@@ -803,60 +770,9 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
       // Add the depth to the correct "pixel" and update parameters of the model
       this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].AddPoint(
         sphericalPoint(0), motionEstim, probas);
-
-      idPhi->InsertNextTuple1(idxVertical);
-      idTheta->InsertNextTuple1(idxAzimuth);
-      Cluster->InsertNextTuple1(
-        this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical]
-          .Gaussians.size());
-      Mean->InsertNextTuple1(
-        this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical]
-          .ItClosest->Mean);
-      Sigma->InsertNextTuple1(
-        this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical]
-          .ItClosest->Sigma);
     }
 
     motionLabel->InsertNextTuple1(isMotion);
-
-    Theta->InsertNextTuple1(sphericalPoint(1));
-    Phi->InsertNextTuple1(sphericalPoint(2));
-    Motion->InsertNextTuple1(probaMotion);
-    Debug->InsertNextTuple1(debug);
-    if (sphericalPoint(0) > this->DetectionRange)
-    {
-      idPhi->InsertNextTuple1(0);
-      idTheta->InsertNextTuple1(0);
-      Cluster->InsertNextTuple1(0);
-      Mean->InsertNextTuple1(0);
-      Sigma->InsertNextTuple1(0);
-    }
-  }
-  if (!this->Internals->Map[this->DebugAzimuth + this->Internals->NbAzimuth * this->DebugVertical]
-         .Gaussians.empty())
-  {
-    int csize =
-      this->Internals->Map[this->DebugAzimuth + this->Internals->NbAzimuth * this->DebugVertical]
-        .Gaussians.size();
-    std::cout << " ************Debug info**************\n";
-    std::cout << " cluster = " << csize << " maxMean = "
-              << this->Internals
-                   ->Map[this->DebugAzimuth + this->Internals->NbAzimuth * this->DebugVertical]
-                   .ItClosest->Mean
-              << "\n";
-    int clusterId = 0;
-    for (auto gaussian :
-      this->Internals->Map[this->DebugAzimuth + this->Internals->NbAzimuth * this->DebugVertical]
-        .Gaussians)
-    {
-      std::cout << "*****clusterId_" << clusterId << " : idxTheta = " << this->DebugAzimuth
-                << " idxPhi = " << this->DebugVertical << "\n";
-      std::cout << " weight = " << gaussian.Weight << " mean = " << gaussian.Mean
-                << " sigma = " << gaussian.Sigma << "\n";
-      std::cout << " isMotion = " << gaussian.IsMotion << " N = " << gaussian.N
-                << " ttl = " << gaussian.TTL << "\n";
-      clusterId++;
-    }
   }
 
   // Update time to live of the gaussians
@@ -864,16 +780,6 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
 
   // Add motion label field to pointcloud
   polydata->GetPointData()->AddArray(motionLabel);
-
-  polydata->GetPointData()->AddArray(Phi);
-  polydata->GetPointData()->AddArray(Theta);
-  polydata->GetPointData()->AddArray(Motion);
-  polydata->GetPointData()->AddArray(idPhi);
-  polydata->GetPointData()->AddArray(idTheta);
-  polydata->GetPointData()->AddArray(Cluster);
-  polydata->GetPointData()->AddArray(Mean);
-  polydata->GetPointData()->AddArray(Sigma);
-  polydata->GetPointData()->AddArray(Debug);
 }
 
 //-----------------------------------------------------------------------------
