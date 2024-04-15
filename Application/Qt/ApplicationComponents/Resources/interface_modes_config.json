@@ -52,6 +52,7 @@
         "cameraToolbar",
         "axesToolbar",
         "rulersToolbar",
+        "sqSlamToolbar",
         "playerControlToolbar"
       ],
       "toolbarBreaks": [
@@ -106,6 +107,9 @@
         "separator",
         "actionExport",
         "actionAnimatedExport",
+        "separator",
+        "actionFileLoadServerState",
+        "actionFileSaveServerState",
         "separator",
         "actionFileExit"
       ],
@@ -206,6 +210,9 @@
         "actionExport",
         "actionAnimatedExport",
         "separator",
+        "actionFileLoadServerState",
+        "actionFileSaveServerState",
+        "separator",
         "actionFileExit"
       ],
       "menuEdit": [
@@ -259,6 +266,7 @@
         "axesToolbar",
         "rulersToolbar",
         "customViewpointsToolbar",
+        "sqSlamToolbar",
         "playerControlToolbar",
         "ToolBar"
       ],
