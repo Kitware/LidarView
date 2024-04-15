@@ -7,6 +7,7 @@ set(tests_with_baselines
   TestExtractPointSelection.xml
   TestOpenRecentFiles.xml
   TestSaveLAS.xml
+  TestSaveLoadState.xml
   TestSaveLoadTrace.xml
   TestSavePcap.xml
   TestVoxelGridFilter.xml
