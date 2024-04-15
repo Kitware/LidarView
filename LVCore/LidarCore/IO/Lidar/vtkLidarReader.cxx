@@ -527,6 +527,12 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   double realRequestedTime = requestedTime - this->GetLidarInterpreter()->GetTimeOffset();
   std::vector<double> timesteps = this->Internals->GetFramesTimeSteps(this->DisplayTimeType);
+
+  // Hide output if requested timestep falls outside the available range of timesteps.
+  if (realRequestedTime < timesteps.front() || realRequestedTime > timesteps.back())
+  {
+    return 1;
+  }
   auto indexRequested = std::distance(
     timesteps.begin(), std::lower_bound(timesteps.begin(), timesteps.end(), realRequestedTime));
 
