@@ -471,7 +471,7 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     if (timeOffset != 0)
     {
       auto addOffset = [&timeOffset](double time) { return time + timeOffset; };
-      std::for_each(timesteps.begin(), timesteps.end(), addOffset);
+      std::transform(timesteps.cbegin(), timesteps.cend(), timesteps.begin(), addOffset);
     }
 
     double timeRange[2];
@@ -525,10 +525,10 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
     requestedTime = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   }
 
-  double timeOffset = this->GetLidarInterpreter()->GetTimeOffset();
+  double realRequestedTime = requestedTime - this->GetLidarInterpreter()->GetTimeOffset();
   std::vector<double> timesteps = this->Internals->GetFramesTimeSteps(this->DisplayTimeType);
-  auto indexRequested = std::distance(timesteps.begin(),
-    std::lower_bound(timesteps.begin(), timesteps.end(), requestedTime + timeOffset));
+  auto indexRequested = std::distance(
+    timesteps.begin(), std::lower_bound(timesteps.begin(), timesteps.end(), realRequestedTime));
 
   if (this->DetectFrameDropping)
   {
