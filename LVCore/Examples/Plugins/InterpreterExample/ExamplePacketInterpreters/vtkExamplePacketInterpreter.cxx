@@ -21,7 +21,6 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
-#include <vtkTransform.h>
 
 #include <filesystem>
 
@@ -65,21 +64,9 @@ void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsig
     this->LastTimestamp = std::numeric_limits<unsigned int>::max();
   }
 
-  // Update the transforms here and then call internal transform
-  if (this->SensorTransform)
-  {
-    this->SensorTransform->Update();
-  }
-
   for (unsigned int i = 0; i < numberOfChannels; i++)
   {
     double pos[3] = { 0, 0, 0 };
-
-    // Apply sensor transform
-    if (this->SensorTransform)
-    {
-      this->SensorTransform->InternalTransformPoint(pos, pos);
-    }
 
     this->Points->InsertNextPoint(pos);
     InsertNextValueIfNotNull(this->PointsX, pos[0]);

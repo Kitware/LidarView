@@ -17,6 +17,10 @@
         <ExposedProperties>
           <Property name="CalibrationFileName" />
           <Property name="LidarModel" />
+          <PropertyGroup label="LiDAR Transform">
+            <Property name="Position" panel_visibility="advanced" />
+            <Property name="Rotation" panel_visibility="advanced" />
+          </PropertyGroup>
         </ExposedProperties>
       </SubProxy>
 

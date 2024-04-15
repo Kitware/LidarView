@@ -18,6 +18,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkFieldData.h>
 #include <vtkStringArray.h>
+#include <vtkTransform.h>
 
 #include <ctime>
 #include <sstream>
@@ -103,8 +104,18 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
       }
     }
 
+    // Apply transform on all points
+    if (this->GetSensorTransform())
+    {
+      vtkSmartPointer<vtkPoints> newPts = vtkPoints::New();
+      newPts->Allocate(this->CurrentFrame->GetNumberOfPoints());
+      newPts->GetData()->SetName(this->CurrentFrame->GetPoints()->GetData()->GetName());
+      this->GetSensorTransform()->TransformPoints(this->CurrentFrame->GetPoints(), newPts);
+      this->CurrentFrame->SetPoints(newPts);
+    }
+
     // add vertex to the polydata
-    this->CurrentFrame->SetVerts(NewVertexCells(this->CurrentFrame->GetNumberOfPoints()));
+    this->CurrentFrame->SetVerts(::NewVertexCells(this->CurrentFrame->GetNumberOfPoints()));
     // split the frame
     this->Frames.push_back(this->CurrentFrame);
     // create a new frame
