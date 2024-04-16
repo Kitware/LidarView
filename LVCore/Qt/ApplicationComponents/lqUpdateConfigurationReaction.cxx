@@ -36,11 +36,14 @@ lqUpdateConfigurationReaction::lqUpdateConfigurationReaction(QAction* parent)
 void lqUpdateConfigurationReaction::onTriggered()
 {
   pqPipelineSource* source = pqActiveObjects::instance().activeSource();
-  vtkSMProxy* proxy = source->getProxy();
-  pqProxyWidgetDialog dialog(proxy);
-  dialog.setWindowTitle(tr("Change Configuration"));
-  dialog.setObjectName("UpdateConfigurationDialog");
-  dialog.exec();
+  if (source && source->getProxy())
+  {
+    vtkSMProxy* proxy = source->getProxy();
+    pqProxyWidgetDialog dialog(proxy);
+    dialog.setWindowTitle(tr("Change Configuration"));
+    dialog.setObjectName("UpdateConfigurationDialog");
+    dialog.exec();
+  }
 }
 
 //-----------------------------------------------------------------------------
