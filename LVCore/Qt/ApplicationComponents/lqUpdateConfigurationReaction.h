@@ -41,6 +41,11 @@ protected:
    */
   void onTriggered() override;
 
+  /**
+   * Update enabled state
+   */
+  void updateEnableState() override;
+
 private:
   Q_DISABLE_COPY(lqUpdateConfigurationReaction)
 };

@@ -25,6 +25,11 @@
 lqUpdateConfigurationReaction::lqUpdateConfigurationReaction(QAction* parent)
   : Superclass(parent)
 {
+  pqActiveObjects* activeObjects = &pqActiveObjects::instance();
+  QObject::connect(
+    activeObjects, SIGNAL(portChanged(pqOutputPort*)), this, SLOT(updateEnableState()));
+
+  this->updateEnableState();
 }
 
 //-----------------------------------------------------------------------------
@@ -36,4 +41,17 @@ void lqUpdateConfigurationReaction::onTriggered()
   dialog.setWindowTitle(tr("Change Configuration"));
   dialog.setObjectName("UpdateConfigurationDialog");
   dialog.exec();
+}
+
+//-----------------------------------------------------------------------------
+void lqUpdateConfigurationReaction::updateEnableState()
+{
+  bool enabled = false;
+  pqPipelineSource* source = pqActiveObjects::instance().activeSource();
+  if (source)
+  {
+    vtkSMProxy* proxy = source->getProxy();
+    enabled = !!proxy;
+  }
+  this->parentAction()->setEnabled(enabled);
 }
