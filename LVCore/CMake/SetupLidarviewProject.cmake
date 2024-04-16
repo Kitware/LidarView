@@ -50,31 +50,4 @@ if (BUILD_DEVELOPER_DOCUMENTATION)
   include(SetupDoxygenDocumentation)
 endif ()
 
-#-------------------------------------------------------------------------------
-# Set Absolute Variables
-
 vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
-
-#-----------------------------------------------------------------------------
-# RPATH HANDLING
-#-----------------------------------------------------------------------------
-# ParaviewPLugin.cmake set CMAKE_INSTALL_RPATH RAPH to relpath between LIBRARY_DIR and plugin's LIBRARY_SUBDIR
-# This will not for the execs, not inside /lib/plugins`
-# We need to Set RPATHS ourselves here ParaViewClient.cmake Style
-
-# RPATH Legacy notes
-# This is not necessarry anymore thanks to the behavior of PV Client macros
-# Setting this globally will pollute Plugins, because of PVPlugin.cmake 'saved_rpath' mechanisms
-# Optionally set this on a local basis for libraries, and sometimes recommend as the package fixup-bundle script
-# will assume that it relies only on system-libs and the binary will wrongly link on undesried system libs (See Project/PythonQt)
-# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# Very Important for packaging to be able-to reverse associate Libraries at the end
-if (APPLE)
-  # Set BLANK RPATHS, make sure no @rpath in -rpath remain in libs
-  #set(CMAKE_INSTALL_NAME_DIR "")
-  set(CMAKE_MACOSX_RPATH TRUE)
-  set(CMAKE_INSTALL_NAME_DIR "@executable_path/../Libraries")
-  #set(CMAKE_INSTALL_NAME_DIR "@loader_path/../Libraries") #setting this will replace @rpath which is bad ??
-  #@rpath does not work, but it says it is  "more flexible
-endif()
