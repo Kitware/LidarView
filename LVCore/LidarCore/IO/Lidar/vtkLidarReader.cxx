@@ -31,8 +31,8 @@
 #include "vtkPacketFileReader.h"
 #include "vtkPacketFileWriter.h"
 
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 namespace
 {
@@ -453,7 +453,7 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!this->LidarInterpreter->GetIsInitialized())
   {
     this->LidarInterpreter->Initialize();
-    this->Internals->NeedsReIndexing = true;
+    this->ResetFrameIndexes();
   }
 
   if (this->Internals->NeedsReIndexing && !this->FileName.empty())
@@ -553,13 +553,19 @@ double vtkLidarReader::GetNetworkTimeToDataTime()
 }
 
 //-----------------------------------------------------------------------------
+void vtkLidarReader::ResetFrameIndexes()
+{
+  this->Internals->NeedsReIndexing = true;
+}
+
+//-----------------------------------------------------------------------------
 void vtkLidarReader::SetFileName(const std::string& filename)
 {
   if (filename != this->FileName)
   {
     this->FileName = filename;
     this->Modified();
-    this->Internals->NeedsReIndexing = true;
+    this->ResetFrameIndexes();
   }
 }
 
@@ -570,7 +576,7 @@ void vtkLidarReader::SetLidarPort(int port)
   {
     this->LidarPort = port;
     this->Modified();
-    this->Internals->NeedsReIndexing = true;
+    this->ResetFrameIndexes();
   }
 }
 
@@ -581,7 +587,7 @@ void vtkLidarReader::SetShowPartialFrames(bool show)
   {
     this->ShowPartialFrames = show;
     this->Modified();
-    this->Internals->NeedsReIndexing = true;
+    this->ResetFrameIndexes();
   }
 }
 

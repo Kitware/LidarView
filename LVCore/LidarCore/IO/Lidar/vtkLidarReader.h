@@ -151,6 +151,12 @@ protected:
   void Close();
   ///@}
 
+  /**
+   * Reset the indexing of pcap frames on the next request information.
+   * (May add significant time overhead depending of pcap size)
+   */
+  void ResetFrameIndexes();
+
 private:
   vtkLidarReader(const vtkLidarReader&) = delete;
   void operator=(const vtkLidarReader&) = delete;
