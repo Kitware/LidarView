@@ -53,6 +53,7 @@
 #include <vtkPolyLine.h>
 #include <vtkQuaternion.h>
 #include <vtkRadiusOutlierRemoval.h>
+#include <vtkRemovePolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkStringArray.h>
@@ -887,6 +888,7 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
           clusterInfo.BoundingBox[2 * dim + 1] = point[dim];
       }
     }
+    clusterInfo.NbPoints = nbClusterPoints;
     depth /= static_cast<double>(nbClusterPoints);
     intensity /= static_cast<double>(nbClusterPoints);
     clusterInfo.MeanDepth = depth;
@@ -904,22 +906,55 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     Clusters.end(),
     [](const ClusterStats& cluster1, const ClusterStats& cluster2)
     { return cluster1.MeanDepth < cluster2.MeanDepth; });
-  // Assign new cluster IDs based on the sorted order
+  // Assign new cluster IDs based on the sorted order and label small cluster id as -1
   std::vector<int> newClusterIds(numClusters);
+  int newClusterId = 0;
   for (int i = 0; i < numClusters; ++i)
   {
-    newClusterIds[this->Clusters[i].ClusterId] = i;
+    if (this->Clusters[i].NbPoints < this->ClusterMinNbPoints)
+    {
+      newClusterIds[this->Clusters[i].ClusterId] = -1;
+    }
+    else
+    {
+      newClusterIds[this->Clusters[i].ClusterId] = newClusterId;
+      ++newClusterId;
+    }
   }
-  for (int i = 0; i < numClusters; ++i)
-  {
-    this->Clusters[i].ClusterId = i;
-  }
-  // Reset cluster id
+
+  // Reset cluster id and remove points of small clusters
   auto clusterIdArray = output->GetPointData()->GetArray("ClusterId");
-  for (vtkIdType pointId = 0; pointId < output->GetNumberOfPoints(); ++pointId)
+  vtkSmartPointer<vtkIdTypeArray> pointsToRemove = vtkSmartPointer<vtkIdTypeArray>::New();
+  for (vtkIdType pointId = output->GetNumberOfPoints() - 1; pointId >= 0; --pointId)
   {
     auto clusterId = clusterIdArray->GetTuple1(pointId);
+    if (newClusterIds[clusterId] < 0)
+    {
+      pointsToRemove->InsertNextTuple1(pointId);
+      continue;
+    }
     output->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, newClusterIds[clusterId]);
+  }
+  vtkSmartPointer<vtkRemovePolyData> removeFilter = vtkSmartPointer<vtkRemovePolyData>::New();
+  removeFilter->SetInputData(output);
+  removeFilter->SetPointIds(pointsToRemove);
+  removeFilter->Update();
+  output->ShallowCopy(removeFilter->GetOutput());
+  // Remove small clusters
+  newClusterId = 0;
+  auto it = this->Clusters.begin();
+  while (it != Clusters.end())
+  {
+    if (it->NbPoints < this->ClusterMinNbPoints)
+    {
+      it = this->Clusters.erase(it);
+    }
+    else
+    {
+      it->ClusterId = newClusterId;
+      ++newClusterId;
+      ++it;
+    }
   }
 
   // Label cluster by geometry dimension

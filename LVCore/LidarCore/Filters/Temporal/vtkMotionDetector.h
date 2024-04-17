@@ -114,6 +114,7 @@ private:
 
   // Radius to extract clusters
   double ClusterRadius = 0.4;
+  int ClusterMinNbPoints = 5;
 
   enum Label
   {
@@ -124,6 +125,7 @@ private:
   {
     Label ClusterLabel = Label::HUMAN;
     int ClusterId = 0;
+    int NbPoints = 0;
     double MeanDepth = 0.;
     double MeanIntensity = 0;
     double BoundingBox[6] = { DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX };
