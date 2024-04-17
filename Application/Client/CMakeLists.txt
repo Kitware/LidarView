@@ -10,6 +10,16 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if (APPLE)
+  # Enable high resolution when using Qt5
+  set(high_resolution_capable "true")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/MacOSXBundleInfo.plist.in.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
+    @ONLY)
+  unset(high_resolution_capable)
+endif ()
+
 set(sources
   LidarViewMainWindow.h
   LidarViewMainWindow.cxx
@@ -39,6 +49,7 @@ paraview_client_add(
   TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
   SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.jpg"
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.icns"
+  BUNDLE_PLIST      "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.ico"
 
   PLUGINS_TARGETS   ${plugins_targets}
