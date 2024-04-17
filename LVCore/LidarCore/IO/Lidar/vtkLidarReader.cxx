@@ -207,7 +207,7 @@ bool vtkLidarReader::BuildFramesIndex()
   {
     return false;
   }
-  const unsigned char* data = 0;
+  const unsigned char* data = nullptr;
   unsigned int dataLength = 0;
 
   // reset the frame catalog to build a new one
@@ -291,7 +291,7 @@ bool vtkLidarReader::ReadFrame(size_t index, vtkPolyData* output)
     return 0;
   }
 
-  const unsigned char* data = 0;
+  const unsigned char* data = nullptr;
   unsigned int dataLength = 0;
   double timeSinceStart = 0;
 
@@ -356,7 +356,7 @@ bool vtkLidarReader::Open(std::vector<int> ports, bool reassemble)
 
     filterPCAP += " port " + portsString;
   }
-  if (!this->Internals->Reader.Open(this->FileName, filterPCAP.c_str(), reassemble))
+  if (!this->Internals->Reader.Open(this->FileName, filterPCAP, reassemble))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
                   << this->Internals->Reader.GetLastError());
@@ -414,8 +414,8 @@ void vtkLidarReader::SaveFrames(unsigned int startFrame,
     return;
   }
 
-  pcap_pkthdr* header = 0;
-  const unsigned char* data = 0;
+  pcap_pkthdr* header = nullptr;
+  const unsigned char* data = nullptr;
   unsigned int dataLength = 0;
   unsigned int headerLength = 0;
   double networkTime = 0;
