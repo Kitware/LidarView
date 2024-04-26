@@ -45,8 +45,11 @@ class vtkFieldData;
  *     end_of_header_bytes: 0x28 0x2a
  *
  *   ===== PAYLOAD DATA =====
- *     |   point: 3 * float
- *     |   point_data_array: n * float
+ *     # For each point (number_of_points):
+ *     |   point (x, y, z): 3 * float
+ *     |   # For each array (number_of_arrays):
+ *     |   |    # For each array component (array_number_of_components):
+ *     |   |    |    point_data_array: float
  *
  *   ===== PAYLOAD FOOTER =====
  *     packet_size: uint16_t
