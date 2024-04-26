@@ -301,10 +301,10 @@ void vtkUDPPointSender::SendData(vtkDataSet* dataset)
       (currentPoint == dataset->GetNumberOfPoints() - 1))
     {
       // Write footer
-      const uint8_t footerEndSize = sizeof(uint8_t) * 2;
-      const uint16_t packetRealSize = currentIdx + footerEndSize;
+      const uint8_t footerSize = sizeof(uint16_t) * 2;
+      const uint16_t packetRealSize = currentIdx + footerSize;
       currentIdx = internals.CopyData(currentIdx, &packetRealSize, sizeof(uint16_t));
-      internals.CopyData(currentIdx, &::PACKET_END, footerEndSize);
+      internals.CopyData(currentIdx, &::PACKET_END, sizeof(uint16_t));
 
       internals.Socket.send_to(
         boost::asio::buffer(internals.DataBuffer, ::PACKET_SIZE), internals.Endpoint);
