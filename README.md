@@ -32,7 +32,6 @@ As a [Paraview](https://www.paraview.org/) based application, LidarView can effo
 ![LidarView](Application/Client/Resources/Images/LidarViewExample.png)
     Lidar data processed by [Kitware's SLAM](#slam) within LidarView
 
-
 # Features
 
 - Input from live sensor stream or recorded `.pcap` file
@@ -50,21 +49,13 @@ Many other features can be added using Plugins, some can be found on [this page]
 
 Feel free to reach out at kitware@kitware.com for support or new features development.
 
-![LidarView](Application/Client/Resources/Images/LidarViewLayout.svg)
-
-# How to get
-
-Lidarview is maintained on the following platforms:
-
-* Ubuntu 18, Ubuntu 20, Ubuntu 22
-* Windows x64
-* MacOS 12
-
-See detailed general installation instructions on the [`LVCore/Documentation/INSTALLATION.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/INSTALLATION.md) page.
-
-See the Detailed installation instructions for the current and older releases on the [RELEASES.md](RELEASES.md) page.
+# How to install
 
 See associated download links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
+
+Nightly (master) packages are available [here](https://gitlab.kitware.com/LidarView/lidarview-superbuild/-/pipelines?scope=all&ref=master). (click on `Download artifacts`)
+
+More detailed installation instructions are available on the [`LVCore/Documentation/INSTALLATION.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/INSTALLATION.md) page.
 
 ## Build from source
 
