@@ -4,11 +4,15 @@
 
 LidarView performs real-time reception, recording, visualization and processing of 3D LiDAR data.
 
-LidarView's open source codebase developed by Kitware is used by many different applications to display live LiDAR data from
-Velodyne, Ouster, Opsys, Lumotive, RoboSense, Hesai, LeiShen LS Lidar, and more.
+LidarView currently supports a variety of LiDAR models from multiple manufacturers, including:
+- `Velodyne`: VLP-16, VLP-32, HDL-32, HDL-64, Puck LITE, Puck Hi-Res and Alpha Prime (VLS-128).
+- `Hesai`: Pandar40P, Pandar40M, Pandar64, Pandar20A, Pandar20B, PandarQT, PandarXT-16, PandarXT-32, PandarXTM and Pandar128.
+- `Livox`: Mid-360 and HAP.
+- `Leishen`: C16, C32 and MS_C16.
 
-This open-source declination only supports Velodyne's open-source interpreters: VLP-16, VLP-32, HDL-32, HDL-64, Alpha Prime.
-An Experimental Hesai sensor support also exists.
+Additional sensor models may be supported upon request, provided that the drivers or specifications are publicly available.
+
+This open-source codebase, developed by Kitware, is widely adopted by many LiDAR vendors, often rebranded under different names, to display their live LiDAR data.
 
 Many of these LiDAR sensors sweep an array of lasers (often 8 to 128) 360&deg;
 with a vertical field of view of tens of degrees at a 5-20Hz spinning frequency,
