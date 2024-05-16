@@ -11,3 +11,6 @@
 [submodule "Plugins/LivoxPlugin"]
 	path = Plugins/LivoxPlugin
 	url = https://gitlab.kitware.com/LidarView/livoxplugin.git
+[submodule "Plugins/LeishenPlugin"]
+	path = Plugins/LeishenPlugin
+	url = https://gitlab.kitware.com/LidarView/leishenplugin.git
