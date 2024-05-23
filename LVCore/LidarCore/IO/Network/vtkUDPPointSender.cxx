@@ -162,7 +162,7 @@ int vtkUDPPointSender::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  internals.Endpoint = boost::asio::ip::udp::endpoint(address, this->Port);
+  internals.Endpoint = boost::asio::ip::udp::endpoint(address, this->DestinationPort);
 
   internals.LastValue = std::numeric_limits<double>::min();
 
@@ -330,7 +330,7 @@ void vtkUDPPointSender::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "IPAddress: " << this->IPAddress << endl;
-  os << indent << "Port: " << this->Port << endl;
+  os << indent << "DestinationPort: " << this->DestinationPort << endl;
 }
 
 VTK_ABI_NAMESPACE_END

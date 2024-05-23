@@ -100,8 +100,8 @@ public:
   /**
    * Port on which to send data.
    */
-  vtkGetMacro(Port, int);
-  vtkSetMacro(Port, int);
+  vtkGetMacro(DestinationPort, int);
+  vtkSetMacro(DestinationPort, int);
   ///@}
 
   ///@{
@@ -145,7 +145,7 @@ private:
   void SendData(vtkDataSet* dataset);
 
   bool Enabled;
-  int Port;
+  int DestinationPort;
   std::string IPAddress;
   vtkSmartPointer<vtkDataArraySelection> ArraySelections;
   bool OnlySendNewData;
