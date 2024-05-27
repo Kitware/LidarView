@@ -5,6 +5,7 @@
   <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/TimeOffset/DoubleLineEdit0" command="set_string" arguments="187058912.54" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
 
   <!-- Load LAS -->
@@ -58,4 +59,12 @@
   <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777220:0:1:0:1" />
   <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777220:0:1:0:1" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Change color map -->
+  <pqevent object="LidarViewMainWindow/colorToolBar/actionEditColorMap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/1QColorDialog0" command="setChosenColor" arguments="170,0,0" />
+  <pqevent object="LidarViewMainWindow/0QColorDialog0" command="done" arguments="1" />
+
+  <!-- Go to next frame -->
+  <pqevent object="LidarViewMainWindow/playerControlToolbar/actionVCRNextFrame" command="activate" arguments="" />
 </pqevents>
