@@ -42,6 +42,7 @@
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkIntArray.h>
 #include <vtkLogger.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
@@ -985,6 +986,33 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
     clustersOutput->SetBlock(blockId, source);
     clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
+
+    // Create field datga and add information to it
+    vtkSmartPointer<vtkDoubleArray> bboxDistances = vtkSmartPointer<vtkDoubleArray>::New();
+    bboxDistances->SetName("Distance");
+    bboxDistances->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkDoubleArray> bboxSizes = vtkSmartPointer<vtkDoubleArray>::New();
+    bboxSizes->SetName("Size");
+    bboxSizes->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkDoubleArray> bboxCenters = vtkSmartPointer<vtkDoubleArray>::New();
+    bboxCenters->SetName("Center");
+    bboxCenters->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkIntArray> bboxLabels = vtkSmartPointer<vtkIntArray>::New();
+    bboxLabels->SetName("Label");
+    bboxLabels->SetNumberOfComponents(1);
+
+    vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxDistances);
+    fieldData->AddArray(bboxSizes);
+    fieldData->AddArray(bboxCenters);
+    fieldData->AddArray(bboxLabels);
+    bboxDistances->InsertNextTuple1(cluster.MeanDepth);
+    bboxSizes->InsertNextTuple(cluster.BoxSize);
+    bboxCenters->InsertNextTuple(cluster.BoxCenter);
+    bboxLabels->InsertNextTuple1(static_cast<int>(cluster.ClusterLabel));
+
+    clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
+
     ++blockId;
   }
 
