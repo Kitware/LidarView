@@ -8,6 +8,7 @@ lidarview_add_test_python(
     NO_RT
     TestAggregatePointsFromTrajectory.py
     TestImportPythonModules.py
+    TestMotionDetector.py
     TestResetCamera.py
     TestRPMText.py
     TestSaveCSV.py
