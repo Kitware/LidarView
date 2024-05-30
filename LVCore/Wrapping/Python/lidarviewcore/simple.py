@@ -159,10 +159,11 @@ def OpenPCAP(filename, lidarModel, interpreter, **params):
     """
     reader = CreateInterpreterProxy(interpreter, filename=filename, mode=0)
 
-    if lidarModel in reader.LidarModel.Available:
-        reader.LidarModel = lidarModel
-    else:
-        reader.CalibrationFileName = _SearchCalibrationFiles(lidarModel)
+    if hasattr(reader, 'LidarModel'):
+      if lidarModel in reader.LidarModel.Available:
+          reader.LidarModel = lidarModel
+      else:
+          reader.CalibrationFileName = _SearchCalibrationFiles(lidarModel)
 
     reader = _SetParamsOpenLidar(reader, **params)
 
