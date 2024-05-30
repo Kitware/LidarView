@@ -135,25 +135,7 @@ int SendAndTestAllFrames(vtkLidarStream* stream,
   int dataPort);
 
 /**
- * @brief testLidarStream comapre the the stream output to prerecorded frames
- * @param stream
- * @param preSend should all packets be sent in a pre-test pass first
- * @param preSendSpeed number of packets to send per second in pre-test pass
- * @param speed number of packets to send per second
- * @param pcapFileName file to replay
- * @param referenceFileName the file containing the vtp to compare with
- * @return nb of error
- */
-[[deprecated("Use the simplier signature instead.")]] int testLidarStream(vtkLidarStream* stream,
-  bool preSend,
-  double preSendSpeed,
-  double speed,
-  const std::string& pcapFileName,
-  const std::string& referenceFileName,
-  bool testLastFrame = false);
-
-/**
- * @brief testLidarStream comapre the the stream output to prerecorded frames
+ * @brief testLidarStream compare the the stream output to prerecorded frames
  * @param stream
  * @param pcapFileName file to replay
  * @param referenceFileName the file containing the vtp to compare with

@@ -467,7 +467,7 @@ int testLidarReader(vtkLidarReader* reader,
 
   // All frames are tested (even the first and the last one)
   // Don't forget to ShowPartialFrames to generate new test data
-  for (int idFrame = 0; idFrame < nbReferences; ++idFrame)
+  for (int idFrame = 0; idFrame < nbReferences && idFrame < frameNumber; ++idFrame)
   {
     std::cout << "---------------------" << std::endl
               << "FRAME " << idFrame << " ..." << std::endl
@@ -522,18 +522,6 @@ int testLidarReader(vtkLidarReader* reader,
 
   retVal += TestNetworkTimeToLidarTime(reader, referenceNetworkTimeToDataTime);
   return retVal;
-}
-
-//-----------------------------------------------------------------------------
-int testLidarStream(vtkLidarStream* stream,
-  bool preSend,
-  double vtkNotUsed(preSendSpeed),
-  double vtkNotUsed(speed),
-  const std::string& pcapFileName,
-  const std::string& referenceFileName,
-  bool vtkNotUsed(testLastFrame))
-{
-  return testLidarStream(stream, pcapFileName, referenceFileName, preSend);
 }
 
 //-----------------------------------------------------------------------------
