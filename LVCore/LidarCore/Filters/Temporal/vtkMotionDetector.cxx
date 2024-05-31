@@ -577,6 +577,11 @@ public:
   }
 };
 
+class vtkMotionDetector::vtkClustering
+{
+public:
+};
+
 constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
 constexpr unsigned int INPUT_PORT_COUNT = 1;
 
@@ -591,6 +596,7 @@ vtkStandardNewMacro(vtkMotionDetector)
 //----------------------------------------------------------------------------
 vtkMotionDetector::vtkMotionDetector()
   : Internals(new vtkMotionDetector::vtkInternals())
+  , Clustering(new vtkMotionDetector::vtkClustering())
 {
   // One input port
   this->SetNumberOfInputPorts(INPUT_PORT_COUNT);

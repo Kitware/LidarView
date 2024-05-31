@@ -153,6 +153,8 @@ private:
    */
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
+  class vtkClustering;
+  std::unique_ptr<vtkClustering> Clustering;
 };
 
 #endif // VTK_MOTION_DETECTOR_H
