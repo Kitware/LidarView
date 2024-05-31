@@ -129,7 +129,7 @@ public:
     double Weight = 1.0;
 
     // Get gaussian value of point x
-    double operator()(double x)
+    double operator()(double x) const
     {
       return 1.0 / (this->Sigma * sqrt(2 * vtkMath::Pi())) *
         exp(-std::pow(x - this->Mean, 2) / (2.0 * std::pow(this->Sigma, 2)));
@@ -814,7 +814,7 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     }
   }
 
-  // Copy frame infomation from input
+  // Copy frame information from input
   for (vtkIdType idxArray = 0; idxArray < input->GetPointData()->GetNumberOfArrays(); ++idxArray)
   {
     char* fieldName = input->GetPointData()->GetArray(idxArray)->GetName();
@@ -1123,13 +1123,15 @@ bool vtkMotionDetector::IdentifyInputArrays(vtkPolyData* polydata)
     {
       valid = polydata->GetPointData()->HasArray("azimuth") &&
         polydata->GetPointData()->HasArray("vertical_angle") &&
-        polydata->GetPointData()->HasArray("distance_m");
+        polydata->GetPointData()->HasArray("distance_m") &&
+        polydata->GetPointData()->HasArray("intensity");
       break;
     }
     case vtkInternals::LidarVendor::LIVOX:
     case vtkInternals::LidarVendor::HESAI:
     {
-      valid = polydata->GetPointData()->HasArray("distance_m");
+      valid = polydata->GetPointData()->HasArray("distance_m") &&
+        polydata->GetPointData()->HasArray("intensity");
       break;
     }
     default:
