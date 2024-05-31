@@ -90,7 +90,7 @@ vtkPolyData* GetCurrentFrame(vtkLidarReader* HDLreader, int index)
 
   HDLreader->Update();
 
-  HDLreader->GetOutput()->Register(NULL);
+  HDLreader->GetOutput()->Register(nullptr);
 
   vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(HDLreader->GetOutput());
 
@@ -111,7 +111,7 @@ vtkPolyData* GetCurrentFrame(vtkLidarStream* HDLsource, int index)
 
   HDLsource->Update();
 
-  HDLsource->GetOutput()->Register(NULL);
+  HDLsource->GetOutput()->Register(nullptr);
 
   vtkPolyData* currentFrame = vtkPolyData::SafeDownCast(HDLsource->GetOutput());
 
@@ -132,7 +132,7 @@ std::vector<std::string> GenerateFileList(const std::string& metaFileName)
   {
     while (metaFile >> line)
     {
-      if (line.size() > 0)
+      if (!line.empty())
       {
         std::string fullPath = dir + "/" + line;
         filenameList.push_back(fullPath);
@@ -150,7 +150,7 @@ vtkPolyData* GetCurrentReference(const std::vector<std::string>& referenceFilesL
   reader->SetFileName(referenceFilesList[index].c_str());
   reader->Update();
 
-  reader->GetOutput()->Register(NULL);
+  reader->GetOutput()->Register(nullptr);
 
   return reader->GetOutput();
 }
@@ -280,7 +280,7 @@ int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* refer
       return CompareAbstractArray(currentValueAsAbstractArray, referenceValueAsAbstractArray);
     }
 
-    else if (currentValue.IsString() && referenceValue.IsString())
+    if (currentValue.IsString() && referenceValue.IsString())
     {
       vtkStdString currentValueAsString = currentValue.ToString();
       vtkStdString referenceValueAsString = referenceValue.ToString();
@@ -487,7 +487,7 @@ int testLidarReader(vtkLidarReader* reader,
   }
 
   // Check the frequency of the processing of a frame
-  if (durations.size() > 0)
+  if (!durations.empty())
   {
     std::cout << "Frequency : \t";
 
@@ -544,7 +544,7 @@ int testLidarStream(vtkLidarStream* stream,
   // Set the value for sending packets
   std::string destinationIp = "127.0.0.1";
   // If the stream listen in multicast, packets should be sent to the right multicast adress
-  if (stream->GetMulticastAddress() != "")
+  if (!stream->GetMulticastAddress().empty())
   {
     destinationIp = stream->GetMulticastAddress();
   }
@@ -774,7 +774,7 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   int retVal = 0;
 
   // Create temporary file to test the recording (will be deleted)
-  size_t extentionIndex = pcapFileName.find_last_of(".");
+  size_t extentionIndex = pcapFileName.find_last_of('.');
   std::string pcapName = pcapFileName.substr(0, extentionIndex);
   std::string temporaryFile = pcapName + "-record.pcap"; // ! will be deleted
 
