@@ -580,6 +580,97 @@ public:
 class vtkMotionDetector::vtkClustering
 {
 public:
+  /**
+   * @brief This gaussian struct is used to compute the multivariate gaussian distribution:
+   * 1.0 / sqrt(2 * pi^k) * cov.determinant) * exp(- 1 / 2 * (pt - mean) * cov.inverse * (pt -
+   * mean).transpose) When a new point is added, the covariance and the mean are updated
+   */
+  struct Gaussian3D
+  {
+    // Constructor
+    Gaussian3D() = default;
+    Gaussian3D(Eigen::Vector3d mean,
+      Eigen::Matrix3d cov,
+      int maxTTL,
+      int id = 0,
+      unsigned int nb = 1,
+      double weight = 1.0)
+      : Mean(mean)
+      , Cov(cov)
+      , MaxTTL(maxTTL)
+      , TTL(maxTTL)
+      , Id(id)
+      , NbInliers(nb)
+      , Weight(weight){};
+
+    // Mean of the gaussian
+    Eigen::Vector3d Mean = { 0., 0., 0. };
+
+    // Standard deviation of the gaussian
+    Eigen::Matrix3d Cov = Eigen::Matrix3d::Identity();
+
+    // Maximum number of frames for TTL
+    int MaxTTL = 50;
+
+    // Time to live of the gaussian
+    int TTL = 50;
+
+    // Index of the cluster in current frame
+    int Id = 0;
+
+    // Number of samples added into gaussian
+    unsigned int NbInliers = 0;
+
+    // Weight of the distribution
+    double Weight = 1.0;
+
+    std::vector<int> PointsId;
+
+    // Get normal proba of point pt
+    double operator()(const Eigen::Vector3d& pt) const
+    {
+      return 1.0 / std::sqrt(this->Cov.determinant() * std::pow(2 * vtkMath::Pi(), 3)) *
+        exp(-0.5 * (pt - this->Mean).transpose() * this->Cov.inverse() * (pt - this->Mean));
+    }
+
+    // Get weighted proba of point pt
+    double ComputeWeightedProba(const Eigen::Vector3d& pt) const
+    {
+      return this->Weight / std::sqrt(this->Cov.determinant() * std::pow(2 * vtkMath::Pi(), 3)) *
+        exp(-0.5 * (pt - this->Mean).transpose() * this->Cov.inverse() * (pt - this->Mean));
+    }
+
+    // Update parameters using new value and the weight of this value
+    void UpdateParams(const Eigen::Vector3d& pt, double weightX)
+    {
+      // Update the weight
+      double oldWeight = this->Weight;
+      double sumWeight = this->NbInliers * oldWeight;
+      this->Weight = (sumWeight + weightX) / (this->NbInliers + 1);
+
+      // Update the mean
+      Eigen::Vector3d oldMean = this->Mean;
+      this->Mean = oldMean + weightX * (pt - oldMean) / (sumWeight + weightX);
+
+      // Update the covariance using Welford's method
+      // For the moment, do not update covariance for the clustering and tracking
+      // to keep the cluster size
+      // this->Cov =
+      //   (sumWeight * this->Cov + weightX * (pt - oldMean) * (pt - this->Mean).transpose()) /
+      //   (sumWeight + weightX);
+
+      // Update the number of sample
+      ++NbInliers;
+    }
+
+    // Update the time to live
+    // Return false if TTL falls to zero value
+    bool UpdateTTL()
+    {
+      this->TTL -= 1;
+      return (this->TTL >= 0);
+    }
+  };
 };
 
 constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
