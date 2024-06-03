@@ -1,0 +1,10 @@
+NAME
+  MotionDetectorToolbox::IO
+LIBRARY_NAME
+  MotionDetectorToolboxIO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Boost::system
+  Boost::thread

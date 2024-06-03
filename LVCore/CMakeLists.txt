@@ -26,6 +26,10 @@ endif ()
 # Ignore following default plugins in autoload default.
 set(lidarview_default_autoload_plugins ${lidarview_default_plugins})
 
+list(APPEND lidarview_default_plugins
+  MotionDetectorToolbox
+)
+
 if (BUILD_EXAMPLES)
   list(APPEND lidarview_default_plugins
     ProcessingSamplePlugin
