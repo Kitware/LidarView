@@ -705,7 +705,8 @@ void vtkMotionDetector::SetWindowSize(int windowSize)
 //----------------------------------------------------------------------------
 void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
 {
-  vtkSmartPointer<vtkDoubleArray> motionLabel = vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkUnsignedShortArray> motionLabel =
+    vtkSmartPointer<vtkUnsignedShortArray>::New();
   motionLabel->SetName("Motion_label");
 
   double point[3];
@@ -998,7 +999,8 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     vtkSmartPointer<vtkDoubleArray> bboxCenters = vtkSmartPointer<vtkDoubleArray>::New();
     bboxCenters->SetName("Center");
     bboxCenters->SetNumberOfComponents(3);
-    vtkSmartPointer<vtkIntArray> bboxLabels = vtkSmartPointer<vtkIntArray>::New();
+    vtkSmartPointer<vtkUnsignedShortArray> bboxLabels =
+      vtkSmartPointer<vtkUnsignedShortArray>::New();
     bboxLabels->SetName("Label");
     bboxLabels->SetNumberOfComponents(1);
 
@@ -1010,7 +1012,7 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoxSize);
     bboxCenters->InsertNextTuple(cluster.BoxCenter);
-    bboxLabels->InsertNextTuple1(static_cast<int>(cluster.ClusterLabel));
+    bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
 
     clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
 
