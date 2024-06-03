@@ -490,10 +490,11 @@ public:
     }
     this->ResetMap();
     vtkLog(INFO,
-      "The azimuth  angle range is [ "
-        << this->AzimuthBounds[0] << ", " << this->AzimuthBounds[1] << "]\n"
-        << "The vertical angle range is [ " << this->VerticalBounds[0] << ", "
-        << this->VerticalBounds[1] << "]\n");
+      "The azimuth  angle range is [ " << this->AzimuthBounds[0] << ", " << this->AzimuthBounds[1]
+                                       << "]");
+    vtkLog(INFO,
+      "The vertical angle range is [ " << this->VerticalBounds[0] << ", " << this->VerticalBounds[1]
+                                       << "]");
   }
 
   // Init the Spehrical map
@@ -1039,7 +1040,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkLog(INFO, "Processing frame #" << this->NbProcessedFrames << "\n");
+  vtkLog(INFO, "Processing frame #" << this->NbProcessedFrames);
 
   // Get input data
   vtkPolyData* input =
@@ -1106,7 +1107,7 @@ bool vtkMotionDetector::IdentifyInputArrays(vtkPolyData* polydata)
       }
     }
     this->Internals->Lidar = this->Internals->LidarVendors.at(vendorName);
-    vtkLog(INFO, "Lidar vendor is identified as " << vendorName << "\n");
+    vtkLog(INFO, "Lidar vendor is identified as " << vendorName);
   }
 
   // Check if the requested arrays exist or not
