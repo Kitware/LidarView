@@ -1,5 +1,12 @@
 # LidarView Interpreter Example
 
-This plugin show case how to implement a Lidar Interpreter.
+This plugin showcase how to implement a Lidar Interpreter.
 
-It is still under construction.
+All necessary implementations are illustrated in this example, which
+should be kept updated as development progresses.
+
+### Testing
+
+To test a new interpreter, one could use `vtkLidarTestTools::TestPacketInterpreter`.
+This method performs sanity checks on how LidarView (and its tools such as SLAM)
+expect the interpreter to behave.
