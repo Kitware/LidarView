@@ -990,13 +990,13 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
     clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
 
     // Create field datga and add information to it
-    vtkSmartPointer<vtkDoubleArray> bboxDistances = vtkSmartPointer<vtkDoubleArray>::New();
+    vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
     bboxDistances->SetName("Distance");
     bboxDistances->SetNumberOfComponents(1);
-    vtkSmartPointer<vtkDoubleArray> bboxSizes = vtkSmartPointer<vtkDoubleArray>::New();
+    vtkSmartPointer<vtkFloatArray> bboxSizes = vtkSmartPointer<vtkFloatArray>::New();
     bboxSizes->SetName("Size");
     bboxSizes->SetNumberOfComponents(3);
-    vtkSmartPointer<vtkDoubleArray> bboxCenters = vtkSmartPointer<vtkDoubleArray>::New();
+    vtkSmartPointer<vtkFloatArray> bboxCenters = vtkSmartPointer<vtkFloatArray>::New();
     bboxCenters->SetName("Center");
     bboxCenters->SetNumberOfComponents(3);
     vtkSmartPointer<vtkUnsignedShortArray> bboxLabels =
