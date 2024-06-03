@@ -84,6 +84,9 @@ public:
   vtkSetMacro(ClusterRadius, double);
   vtkSetMacro(ClusterMinNbPoints, double);
 
+  // Set duration of gaussian model
+  void SetTrackingWindowSizes(int trackingWindowSizes);
+
 protected:
   // constructor / destructor
   vtkMotionDetector();

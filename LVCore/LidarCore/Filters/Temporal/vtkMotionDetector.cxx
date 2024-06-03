@@ -671,6 +671,212 @@ public:
       return (this->TTL >= 0);
     }
   };
+
+  /**
+   * @brief The GaussianMixture class in vtkClustering class constructs a gaussian mixture model
+   * to extract cluster of detected motion points and track cluster frame by frame
+   * Each gaussian distribution represents a cluster with a weight and a cluster id label
+   */
+  class GaussianMixture3D
+  {
+  public:
+    // Default constructor
+    GaussianMixture3D() = default;
+
+    // Clear all gaussians distribution in GMM
+    void Reset()
+    {
+      this->Gaussians.clear();
+      this->UniqueID = 0;
+    };
+
+    void SetMaxTTL(int maxTTL)
+    {
+      if (this->MaxTTL != maxTTL)
+      {
+        this->MaxTTL = maxTTL;
+        for (auto& gaussian : this->Gaussians)
+          gaussian.MaxTTL = this->MaxTTL;
+      }
+    }
+
+    int GetMaxTTL() const { return this->MaxTTL; }
+
+    // Set value to intialiaze covariance with the required cluster size
+    void SetCovCoeff(double clusterSize) { this->CovCoeff = std::pow(clusterSize, 2.); }
+
+    void SetClusterRadius(double clusterSize) { this->ClusterRadius = clusterSize; }
+    void SetMinClusterPoints(int minNumber) { this->MinClusterPoints = minNumber; }
+
+    // Increment Unique ID Counter
+    int GetNewUniqueID()
+    {
+      ++this->UniqueID;
+      return this->UniqueID - 1;
+    }
+
+    // Getter to obtain points indices and cluster id label of extracted clusters for a frame
+    void GetClusters(std::vector<std::vector<int>>& clusters, std::vector<int>& clusterId)
+    {
+      for (auto& gaussian : this->Gaussians)
+      {
+        if (gaussian.PointsId.empty())
+          continue;
+        clusters.emplace_back(gaussian.PointsId);
+        clusterId.emplace_back(gaussian.Id);
+      }
+    }
+
+    // Reset cluster PointsId to store new clusters for next frame
+    void ClearClusters()
+    {
+      for (auto& gaussian : this->Gaussians)
+      {
+        gaussian.PointsId.clear();
+      }
+    }
+
+    /**
+     * @brief Add the new point into gaussian mixture model
+     * If the model is empty, add a new cluster with weight = 1
+     * If the point is too far from existing clusters, add a new cluster with appropriate weight
+     * Otherwise, add the point into model and update parameters
+     */
+    void AddPoint(const Eigen::Vector3d& pt, int ptId)
+    {
+      // Create a new gaussian if the gaussian mixture model is empty
+      if (this->Gaussians.empty())
+      {
+        Eigen::Matrix3d covInit = this->CovCoeff * Eigen::Matrix3d::Identity();
+        Gaussian3D newGaussian(pt, covInit, this->MaxTTL, this->GetNewUniqueID());
+        newGaussian.PointsId.emplace_back(ptId);
+        this->Gaussians.push_back(newGaussian);
+        this->ItClosest = this->Gaussians.begin();
+        return;
+      }
+      // Find the closest gaussian for the new point
+      std::vector<double> probas;
+      double minDistance = FLT_MAX;
+      this->ItClosest = this->Gaussians.begin();
+      for (auto it = this->Gaussians.begin(); it != this->Gaussians.end(); ++it)
+      {
+        probas.emplace_back(it->ComputeWeightedProba(pt));
+        double dist = (pt - it->Mean).norm();
+        if (dist < minDistance)
+        {
+          minDistance = dist;
+          this->ItClosest = it;
+        }
+      }
+
+      // Update current gaussian mixture model if the new point is close to a gaussian cluster
+      Eigen::Vector3d distance = pt - this->ItClosest->Mean;
+      if (distance.norm() < 3. * this->ClusterRadius)
+      {
+        this->ItClosest->PointsId.emplace_back(ptId);
+        int idProba = 0;
+        double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+        for (auto& gaussian : this->Gaussians)
+        {
+          gaussian.UpdateParams(pt, probas[idProba] / sumProba);
+          ++idProba;
+        }
+        this->ResetTTL();
+        return;
+      }
+
+      // Create a new gaussian if the new point is far from existing distributions
+      Eigen::Matrix3d covInit = this->CovCoeff * Eigen::Matrix3d::Identity();
+      Gaussian3D newGaussian(
+        pt, covInit, this->MaxTTL, this->GetNewUniqueID(), this->ItClosest->NbInliers + 1);
+      newGaussian.PointsId.emplace_back(ptId);
+      probas.clear();
+      for (auto gaussian : this->Gaussians)
+      {
+        probas.emplace_back(gaussian(pt));
+      }
+      probas.emplace_back(newGaussian(pt));
+      double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+      int idProba = 0;
+      // Update existing gaussians with new weights
+      for (auto& gaussian : this->Gaussians)
+      {
+        gaussian.UpdateParams(pt, probas[idProba] / sumProba);
+        ++idProba;
+      }
+      // Set weight for new gaussian and add it to the model
+      double newGaussianWeight = (probas.back() / sumProba) / (this->ItClosest->NbInliers + 1);
+      newGaussian.Weight = newGaussianWeight;
+      this->Gaussians.push_back(newGaussian);
+      this->ItClosest = std::prev(this->Gaussians.end());
+    }
+
+    /**
+     * @brief Update the time to live of the each gaussian in the model
+     * If a gaussian is dead, erase it. Then the weight of the remains
+     * gaussians need to be normalized and the motion labels need to be updated
+     */
+    void UpdateClusters()
+    {
+      if (this->Gaussians.empty())
+        return;
+      auto it = this->Gaussians.begin();
+      while (it != this->Gaussians.end())
+      {
+        // Check if or not the gaussian is still alive
+        bool stillAlive = it->UpdateTTL();
+
+        // Erase the gaussian if it is not alive
+        if (!stillAlive || int(it->PointsId.size()) < this->MinClusterPoints)
+        {
+          // erase current iterator and get next on
+          it = this->Gaussians.erase(it);
+          // no need to increment iterator here
+        }
+        else
+        {
+          ++it; // increment iterator here
+        }
+      }
+      // Normalise weights and clear points id
+      int nbGaussians = this->Gaussians.size();
+      for (auto& gaussian : this->Gaussians)
+      {
+        gaussian.NbInliers = 1;
+        gaussian.Weight = 1. / double(nbGaussians);
+      }
+    }
+
+    /**
+     * @brief Reset time to live value to its maximum when a new
+     * point is added to a gaussian distribution
+     */
+    void ResetTTL() { this->ItClosest->TTL = this->MaxTTL; }
+
+  private:
+    // counter for a new cluster ID
+    int UniqueID = 0;
+
+    // Maximum number of frames for TTL
+    int MaxTTL = 10;
+
+    // To initialiaze covariance with 0.2 research radius
+    double CovCoeff = 0.04;
+
+    // Minimum points to form a cluster
+    int MinClusterPoints = 10;
+
+    // Radius to search for cluster
+    double ClusterRadius = 0.5;
+
+    // Iterator to the cluster whose mean value is the closest to the point
+    std::list<Gaussian3D>::iterator ItClosest;
+
+    // Gaussian distributions
+    std::list<Gaussian3D> Gaussians;
+  };
+
+  GaussianMixture3D Clusters;
 };
 
 constexpr unsigned int LIDAR_FRAME_INPUT_PORT = 0;
@@ -783,6 +989,15 @@ void vtkMotionDetector::SetDetectionRange(double minDist, double maxDist)
   {
     this->DetectionRange[0] = minDist;
     this->DetectionRange[1] = maxDist;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetTrackingWindowSizes(int trackingWindowSizes)
+{
+  if (this->Clustering->Clusters.GetMaxTTL() != trackingWindowSizes)
+  {
+    this->Clustering->Clusters.SetMaxTTL(trackingWindowSizes);
   }
 }
 

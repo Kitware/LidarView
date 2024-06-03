@@ -153,9 +153,19 @@
       </Documentation>
     </IntVectorProperty>
 
+    <IntVectorProperty name="Set tracking window sizes"
+                       command="SetTrackingWindowSizes"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+
+      </Documentation>
+    </IntVectorProperty>
+
     <PropertyGroup label="Clustering and tracking Parameters">
       <Property name="Cluster radius" />
       <Property name="Cluster minimum point number" />
+      <Property name="Set tracking window sizes" />
     </PropertyGroup>
 
     </SourceProxy>
