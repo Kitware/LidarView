@@ -96,9 +96,6 @@ private:
   vtkMotionDetector(const vtkMotionDetector&);
   void operator=(const vtkMotionDetector&);
 
-  // Number of processed frames
-  int NbProcessedFrames = 0;
-
   // Time for initialization (frames)
   int InitializationTime = 100;
 

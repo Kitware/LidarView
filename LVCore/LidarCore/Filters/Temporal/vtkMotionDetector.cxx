@@ -420,6 +420,9 @@ public:
    */
   int WindowSize = 50;
 
+  // Number of processed frames
+  int NbProcessedFrames = 0;
+
   /**
    * Enum of lidar vendor
    */
@@ -538,6 +541,7 @@ public:
     {
       mixture.SetMaxTTL(this->WindowSize);
     }
+    this->NbProcessedFrames = 0;
   }
 
   /*
@@ -666,7 +670,6 @@ void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMotionDetector::Reset()
 {
   this->Internals->ResetMap();
-  this->NbProcessedFrames = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -758,7 +761,8 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
       idxVertical = std::min(idxVertical, this->Internals->NbVertical - 1);
       idxAzimuth = std::min(idxAzimuth, this->Internals->NbAzimuth - 1);
 
-      bool isInitStep = this->NbProcessedFrames < this->InitializationTime ? true : false;
+      bool isInitStep =
+        this->Internals->NbProcessedFrames < this->InitializationTime ? true : false;
       // Evaluate the mixture model on the current data
       // It returns the motion probability of the point
       // and stores the iterator of the cluster which give the max proba
@@ -1042,7 +1046,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkLog(INFO, "Processing frame #" << this->NbProcessedFrames);
+  vtkLog(INFO, "Processing frame #" << this->Internals->NbProcessedFrames);
 
   // Get input data
   vtkPolyData* input =
@@ -1076,7 +1080,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds
-  if (this->NbProcessedFrames == 0)
+  if (this->Internals->NbProcessedFrames == 0)
     this->Internals->ComputeBounds(input);
 
   // Estimate probability of a point and update GMM
@@ -1085,7 +1089,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   // Extract clusters on the motion points
   this->ExtractClusters(motionPointsOutput, clustersOutput, clusterInfoOutput);
 
-  ++this->NbProcessedFrames;
+  ++this->Internals->NbProcessedFrames;
 
   return 1;
 }
@@ -1095,7 +1099,7 @@ bool vtkMotionDetector::IdentifyInputArrays(vtkPolyData* polydata)
 {
   // Get lidar vendor if first frame
   bool valid = true;
-  if (this->NbProcessedFrames == 0)
+  if (this->Internals->NbProcessedFrames == 0)
   {
     std::string vendorName = UNKNOWN_NAME;
     if (polydata->GetFieldData()->HasArray("Vendor"))
