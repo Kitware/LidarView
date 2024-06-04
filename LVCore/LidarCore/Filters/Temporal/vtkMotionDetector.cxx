@@ -1060,7 +1060,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
     input = vtkPolyData::SafeDownCast(mb->GetBlock(0));
   }
   // If the input could not be cast, return
-  if (!input)
+  if (!input || input->GetNumberOfPoints() < 1)
   {
     vtkErrorMacro(<< "Unable to cast input into a vtkPolyData");
     return 0;
