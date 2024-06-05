@@ -36,6 +36,7 @@
 
 namespace
 {
+constexpr double SHOW_FRAME_TOLERANCE = 0.01; // 10ms
 constexpr double PARTIAL_FRAME_TOLERANCE = 0.95;
 constexpr size_t SAMPLE_SIZE = 10;
 
@@ -529,7 +530,9 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<double> timesteps = this->Internals->GetFramesTimeSteps(this->DisplayTimeType);
 
   // Hide output if requested timestep falls outside the available range of timesteps.
-  if (realRequestedTime < timesteps.front() || realRequestedTime > timesteps.back())
+  // Note that the max precision of realRequestedTime is 0.01s
+  if (realRequestedTime < timesteps.front() - ::SHOW_FRAME_TOLERANCE ||
+    realRequestedTime > timesteps.back() + ::SHOW_FRAME_TOLERANCE)
   {
     return 1;
   }
