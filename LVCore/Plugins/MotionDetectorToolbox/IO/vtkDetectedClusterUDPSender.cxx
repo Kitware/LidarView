@@ -22,6 +22,7 @@
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkUnsignedShortArray.h>
 
 #include <boost/asio.hpp>
@@ -87,12 +88,13 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  uint16_t ResetPayload()
+  uint16_t ResetPayload(double timestamp)
   {
     std::fill(this->DataBuffer, this->DataBuffer + ::PACKET_SIZE, 0);
 
     uint16_t currentIdx = 0;
     currentIdx = this->CopyData(currentIdx, &DATA_START, sizeof(::DATA_START));
+    currentIdx = this->CopyData(currentIdx, &timestamp, sizeof(timestamp));
     // Reserve a byte for block number
     return currentIdx + 2;
   }
@@ -109,7 +111,8 @@ public:
   //-----------------------------------------------------------------------------
   void SendPacket(uint16_t nbOfBlocks, uint16_t currentIdx)
   {
-    this->CopyData(2, &nbOfBlocks, sizeof(uint16_t));
+    uint16_t nbOfBlocksIdx = sizeof(::DATA_START) + sizeof(double);
+    this->CopyData(nbOfBlocksIdx, &nbOfBlocks, sizeof(uint16_t));
 
     const uint16_t packetRealSize = currentIdx + ::FOOTER_SIZE;
     currentIdx = this->CopyData(currentIdx, &packetRealSize, sizeof(uint16_t));
@@ -118,10 +121,9 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  void SendData(vtkCompositeDataSet* blocks)
+  void SendData(vtkCompositeDataSet* blocks, double timestamp)
   {
-    this->ResetPayload();
-    uint16_t currentIdx = this->ResetPayload();
+    uint16_t currentIdx = this->ResetPayload(timestamp);
     uint16_t nbOfBlocks = 0;
 
     vtkCompositeDataIterator* iter = blocks->NewIterator();
@@ -142,7 +144,7 @@ public:
       if (currentIdx + ::FOOTER_SIZE + ::FIELD_DATA_BLOCK_SIZE > ::PACKET_SIZE)
       {
         this->SendPacket(nbOfBlocks, currentIdx);
-        currentIdx = this->ResetPayload();
+        currentIdx = this->ResetPayload(timestamp);
         nbOfBlocks = 0;
       }
       this->FillBlock(fieldData, currentIdx);
@@ -220,7 +222,13 @@ int vtkDetectedClusterUDPSender::RequestData(vtkInformation* vtkNotUsed(request)
   internals.Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
   internals.Socket.set_option(boost::asio::ip::multicast::enable_loopback(true));
 
-  internals.SendData(input);
+  double requestedTime = 0.0;
+  if (inInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  {
+    requestedTime = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  }
+
+  internals.SendData(input, requestedTime);
 
   internals.Socket.close();
   return 1;

@@ -31,9 +31,10 @@ def receive_packet(q):
 
     clusters = []
     if list(data[0:2]) != PACKET_START:
-        return clusters
-    blockNb = struct.unpack("<H", data[2:4])[0]
-    idx = 4
+        q.put("Did not find PACKET_START")
+    timestamp = struct.unpack("<d", data[2:10])[0]
+    blockNb = struct.unpack("<H", data[10:12])[0]
+    idx = 12
     for blockId in range(0, blockNb):
         idxEnd = idx + BLOCK_SIZE
         blockInfo = struct.unpack("<Hfffffff", data[idx:idxEnd])
@@ -48,7 +49,7 @@ def receive_packet(q):
 
     totalSize = struct.unpack("<H", data[idx:idx+2])[0]
     if list(data[idx+2:idx+4]) != PACKET_END:
-        return clusters
+        q.put("Did not ended by PACKET_END")
     q.put(clusters)
 
 def use_cluster_sender():
@@ -105,6 +106,9 @@ thread_sender.join()
 thread_receiver.join(timeout=15)
 
 result = receiver_queue.get()
+
+print(f"\nResult:\n\t{result}\n")
+
 assert(len(result) == 1)
 cluster = result[0]
 assert(cluster["id"] == 0)

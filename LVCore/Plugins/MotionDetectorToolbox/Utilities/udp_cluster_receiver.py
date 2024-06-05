@@ -13,11 +13,13 @@ LABELS = ["Humans", "Others"]
 
 def parse_packet(data):
     clusters = []
+    timestamp = 0
     if list(data[0:2]) != PACKET_START:
         print("Invalid packet")
-        return clusters
-    blockNb = struct.unpack("<H", data[2:4])[0]
-    idx = 4
+        return clusters, timestamp
+    timestamp = struct.unpack("<d", data[2:10])[0]
+    blockNb = struct.unpack("<H", data[10:12])[0]
+    idx = 12
     for blockId in range(0, blockNb):
         idxEnd = idx + BLOCK_SIZE
         blockInfo = struct.unpack("<Hfffffff", data[idx:idxEnd])
@@ -33,7 +35,7 @@ def parse_packet(data):
     totalSize = struct.unpack("<H", data[idx:idx+2])[0]
     if list(data[idx+2:idx+4]) != PACKET_END:
         print("Packet might not be valid")
-    return clusters
+    return clusters, timestamp
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
@@ -41,6 +43,6 @@ sock.bind((UDP_IP, UDP_PORT))
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
 
-    clusters = parse_packet(data)
-    print(clusters)
+    clusters, timestamp = parse_packet(data)
+    print(clusters, timestamp)
 

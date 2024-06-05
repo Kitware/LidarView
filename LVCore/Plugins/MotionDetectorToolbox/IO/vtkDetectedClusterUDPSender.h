@@ -34,6 +34,7 @@ class vtkFieldData;
  *
  *   ===== PAYLOAD HEADER =====
  *     payload_start: 0x28 0x2a
+ *     timestamp: double
  *     number_of_cluster: uint16_t
  *
  *   ===== PAYLOAD DATA =====
