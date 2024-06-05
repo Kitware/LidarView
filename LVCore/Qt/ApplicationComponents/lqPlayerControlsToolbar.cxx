@@ -121,7 +121,8 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   QObject::connect(
     this->Controller, SIGNAL(frameRanges(int, int)), this, SLOT(setFrameRanges(int, int)));
   QObject::connect(this->Controller, SIGNAL(loop(bool)), ui.actionVCRLoop, SLOT(setChecked(bool)));
-  QObject::connect(this->Controller, SIGNAL(playing(bool, bool)), this, SLOT(onPlaying(bool, bool)));
+  QObject::connect(
+    this->Controller, SIGNAL(playing(bool, bool)), this, SLOT(onPlaying(bool, bool)));
 
   // CUSTOM
   QObject::connect(
@@ -221,7 +222,11 @@ void lqPlayerControlsToolbar::setTimeRanges(double start, double end)
 
   // Time Spinbox
   this->UI->timeSpinBox->setMinimum(start);
-  this->UI->timeSpinBox->setMaximum(end);
+  this->UI->timeSpinBox->setValue(start);
+  if (end > start)
+  {
+    this->UI->timeSpinBox->setMaximum(end);
+  }
 }
 
 //-----------------------------------------------------------------------------

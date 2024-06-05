@@ -40,8 +40,4 @@
   <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="actionFileLoadServerState" />
   <pqevent object="LidarViewMainWindow/FileLoadServerStateDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLoadState.pvsm" />
   <pqevent object="LoadStateOptionsDialog/widget/OKButton" command="activate" arguments="" />
-
-  <!-- Refresh frame -->
-  <pqevent object="LidarViewMainWindow/playerControlToolbar/actionVCRNextFrame" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/playerControlToolbar/actionVCRNextFrame" command="activate" arguments="" />
 </pqevents>
