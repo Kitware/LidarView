@@ -22,6 +22,9 @@ set(classes
   vtkTemporalTransforms
   vtkVoxelGridProcessor)
 
+set(template_classes
+  vtkLiveSourceAlgorithm)
+
 # set(templates
 #   BoundingBox)
 
@@ -29,4 +32,5 @@ vtk_module_add_module(LidarView::CommonCore
   SOURCES ${sources}
   CLASSES ${classes}
   # TEMPLATES ${templates}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  TEMPLATE_CLASSES ${template_classes})
