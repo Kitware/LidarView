@@ -17,6 +17,7 @@
 #define vtkDetectedClusterUDPSender_h
 
 #include "MotionDetectorToolboxIOModule.h" // For export macro
+#include <vtkLiveSourceAlgorithm.h>
 #include <vtkPassInputTypeAlgorithm.h>
 #include <vtkSmartPointer.h> // for ivar
 
@@ -26,6 +27,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkFieldData;
+
+#ifndef __VTK_WRAP__
+#define vtkPassInputTypeAlgorithm vtkLiveSourceAlgorithm<vtkPassInputTypeAlgorithm>
+#endif
 
 /**
  * vtkDetectedClusterUDPSender sends cluster information (vtkMotionDetector output)
@@ -113,6 +118,10 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
+
+#ifndef __VTK_WRAP__
+#undef vtkPassInputTypeAlgorithm
+#endif
 
 VTK_ABI_NAMESPACE_END
 #endif

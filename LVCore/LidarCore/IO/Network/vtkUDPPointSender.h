@@ -18,6 +18,7 @@
 
 #include "lvIONetworkModule.h" // For export macro
 #include <vtkDataArraySelection.h>
+#include <vtkLiveSourceAlgorithm.h>
 #include <vtkPassInputTypeAlgorithm.h>
 #include <vtkSmartPointer.h> // for ivar
 
@@ -27,6 +28,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkFieldData;
+
+#ifndef __VTK_WRAP__
+#define vtkPassInputTypeAlgorithm vtkLiveSourceAlgorithm<vtkPassInputTypeAlgorithm>
+#endif
 
 /**
  * @brief vtkUDPPointSender sends point and point data information over UDP.
@@ -154,6 +159,10 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
+
+#ifndef __VTK_WRAP__
+#undef vtkPassInputTypeAlgorithm
+#endif
 
 VTK_ABI_NAMESPACE_END
 #endif
