@@ -8,7 +8,7 @@ from vtkmodules.vtkFiltersSources import vtkCubeSource
 from vtkmodules.vtkCommonCore import (vtkFloatArray, vtkUnsignedShortArray)
 from vtkmodules.vtkCommonExecutionModel import vtkPassInputTypeAlgorithm
 
-from lidarviewplugins.modules.MotionDetectorToolboxIO import vtkDetectedClusterUDPSender
+from lidarview.modules.MotionDetectorToolboxIO import vtkDetectedClusterUDPSender
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 8888

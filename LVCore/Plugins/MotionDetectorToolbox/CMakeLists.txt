@@ -15,7 +15,7 @@ vtk_module_wrap_python(
   CMAKE_DESTINATION   "${lidarview_cmake_destination}"
   LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/lidarview/lvpythonmodules"
-  PYTHON_PACKAGE      "lidarviewplugins.modules"
+  PYTHON_PACKAGE      "lidarview.modules"
   MODULE_DESTINATION  "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}"
   TARGET              MotionDetectorToolbox::pythonmodules
   DEPENDS             VTK::vtkpythonmodules
