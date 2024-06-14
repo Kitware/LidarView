@@ -24,7 +24,6 @@
 #include <memory>
 #include <string>
 
-VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkFieldData;
 
@@ -123,5 +122,4 @@ private:
 #undef vtkPassInputTypeAlgorithm
 #endif
 
-VTK_ABI_NAMESPACE_END
 #endif

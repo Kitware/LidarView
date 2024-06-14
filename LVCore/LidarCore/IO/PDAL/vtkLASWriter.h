@@ -36,7 +36,6 @@
 
 #include <string> // For string parameter
 
-VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
 class LVIOPDAL_EXPORT vtkLASWriter : public vtkWriter
@@ -105,5 +104,4 @@ private:
   void operator=(const vtkLASWriter&) = delete;
 };
 
-VTK_ABI_NAMESPACE_END
 #endif

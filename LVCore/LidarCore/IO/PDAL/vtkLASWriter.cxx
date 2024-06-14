@@ -29,7 +29,6 @@
 #include <pdal/StageFactory.hpp>
 #include <pdal/io/BufferReader.hpp>
 
-VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLASWriter);
 
 namespace
@@ -259,4 +258,3 @@ int vtkLASWriter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
-VTK_ABI_NAMESPACE_END

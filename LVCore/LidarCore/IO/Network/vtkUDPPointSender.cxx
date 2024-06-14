@@ -29,7 +29,6 @@
 #include <algorithm>
 #include <limits>
 
-VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUDPPointSender);
 
 namespace
@@ -332,5 +331,3 @@ void vtkUDPPointSender::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IPAddress: " << this->IPAddress << endl;
   os << indent << "DestinationPort: " << this->DestinationPort << endl;
 }
-
-VTK_ABI_NAMESPACE_END
