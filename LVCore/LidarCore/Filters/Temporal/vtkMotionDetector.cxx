@@ -1374,6 +1374,171 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
 }
 
 //-----------------------------------------------------------------------------
+void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> input,
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  if (input->GetNumberOfPoints() == 0)
+  {
+    vtkLog(INFO, "Not enough motion points: clusters not extracted");
+    return;
+  }
+
+  // Extract clusters with gaussian mixture model
+  Eigen::Vector3d point;
+  for (int id = 0; id < input->GetNumberOfPoints(); ++id)
+  {
+    input->GetPoint(id, point.data());
+    this->Clustering->Clusters.AddPoint(point, id);
+  }
+  this->Clustering->Clusters.UpdateClusters();
+
+  // Add array to store cluster Id
+  // The array name is ClusterId to be same as the vtkEuclideanClusterExtraction filter
+  vtkSmartPointer<vtkIntArray> pointLabel = vtkSmartPointer<vtkIntArray>::New();
+  pointLabel->SetName("ClusterId");
+  for (auto id = 0; id < input->GetNumberOfPoints(); ++id)
+  {
+    pointLabel->InsertNextTuple1(-1);
+  }
+  input->GetPointData()->AddArray(pointLabel);
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  std::vector<std::vector<int>> clusters;
+  std::vector<int> clusterUUID;
+  this->Clustering->Clusters.GetClusters(clusters, clusterUUID);
+  this->Clusters.clear();
+  for (unsigned int id = 0; id < clusters.size(); ++id)
+  {
+    int nbClusterPoints = clusters[id].size();
+    if (nbClusterPoints < this->ClusterMinNbPoints)
+      continue;
+
+    ClusterStats clusterInfo;
+    // Calculate the average depth value and bounding box for this cluster
+    double depth = 0.0;
+    double intensity = 0.0;
+    for (const auto& pointId : clusters[id])
+    {
+      depth += input->GetPointData()->GetArray("distance_m")->GetTuple1(pointId);
+      intensity += input->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
+      input->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, clusterUUID[id]);
+      // Compute boundingbox {xmin, xmax, ymin, ymax, zmin, zmax}
+      Eigen::Vector3d point;
+      input->GetPoint(pointId, point.data());
+
+      for (int dim = 0; dim < 3; ++dim)
+      {
+        // Update min
+        if (point(dim) < clusterInfo.BoundingBox[2 * dim])
+          clusterInfo.BoundingBox[2 * dim] = point(dim);
+        // Updat max
+        if (point(dim) > clusterInfo.BoundingBox[2 * dim + 1])
+          clusterInfo.BoundingBox[2 * dim + 1] = point(dim);
+      }
+    }
+    clusterInfo.ClusterId = clusterUUID[id];
+    clusterInfo.NbPoints = nbClusterPoints;
+    depth /= nbClusterPoints;
+    intensity /= nbClusterPoints;
+    clusterInfo.MeanDepth = depth;
+    clusterInfo.MeanIntensity = intensity;
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      clusterInfo.BoxSize[dim] =
+        clusterInfo.BoundingBox[2 * dim + 1] - clusterInfo.BoundingBox[2 * dim];
+      clusterInfo.BoxCenter[dim] = clusterInfo.BoxSize[dim] / 2 + clusterInfo.BoundingBox[2 * dim];
+    }
+    this->Clusters.emplace_back(clusterInfo);
+  }
+  this->Clustering->Clusters.ClearClusters();
+
+  // Label cluster by geometry dimension
+  for (auto& cluster : this->Clusters)
+  {
+    if (cluster.BoxSize[2] >= 0.8 && cluster.BoxSize[2] <= 2.2 &&
+      ((cluster.BoxSize[0] >= 0.2 && cluster.BoxSize[0] <= 0.7) ||
+        (cluster.BoxSize[1] >= 0.2 && cluster.BoxSize[1] <= 0.7)))
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::HUMAN;
+    }
+    else
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::OTHERS;
+    }
+  }
+
+  // Add bounding box for each cluster into output
+  int blockId = 0;
+  for (const auto& cluster : this->Clusters)
+  {
+    vtkNew<vtkCubeSource> cubeSource;
+    vtkNew<vtkPolyData> source;
+    cubeSource->SetBounds(cluster.BoundingBox);
+    cubeSource->SetCenter(cluster.BoxCenter);
+    cubeSource->Update();
+    source->ShallowCopy(cubeSource->GetOutput());
+    vtkSmartPointer<vtkIntArray> clusterId = vtkSmartPointer<vtkIntArray>::New();
+    clusterId->SetName("clusterId");
+    for (auto id = 0; id < source->GetNumberOfPoints(); ++id)
+    {
+      clusterId->InsertNextTuple1(cluster.ClusterId);
+    }
+    source->GetPointData()->AddArray(clusterId);
+
+    std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
+    clustersOutput->SetBlock(blockId, source);
+    clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
+
+    // Create field data and add information to it
+    vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
+    bboxDistances->SetName("Distance");
+    bboxDistances->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxSizes = vtkSmartPointer<vtkFloatArray>::New();
+    bboxSizes->SetName("Size");
+    bboxSizes->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkFloatArray> bboxCenters = vtkSmartPointer<vtkFloatArray>::New();
+    bboxCenters->SetName("Center");
+    bboxCenters->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkUnsignedShortArray> bboxLabels =
+      vtkSmartPointer<vtkUnsignedShortArray>::New();
+    bboxLabels->SetName("Label");
+    bboxLabels->SetNumberOfComponents(1);
+
+    vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxDistances);
+    fieldData->AddArray(bboxSizes);
+    fieldData->AddArray(bboxCenters);
+    fieldData->AddArray(bboxLabels);
+    bboxDistances->InsertNextTuple1(cluster.MeanDepth);
+    bboxSizes->InsertNextTuple(cluster.BoxSize);
+    bboxCenters->InsertNextTuple(cluster.BoxCenter);
+    bboxLabels->InsertNextTuple1(static_cast<int>(cluster.ClusterLabel));
+
+    clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
+
+    ++blockId;
+  }
+
+  // Print clusters info
+  // Set output for displaying clusters information
+  vtkNew<vtkStringArray> data;
+  data->SetName("Clusters Information");
+  data->SetNumberOfComponents(1);
+  std::ostringstream oss;
+  for (const auto& cluster : this->Clusters)
+  {
+    oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
+        << ": distance = " << std::setw(7) << cluster.MeanDepth << "m  size = [ " << std::setw(8)
+        << cluster.BoxSize[0] << ", " << std::setw(8) << cluster.BoxSize[1] << ", " << std::setw(8)
+        << cluster.BoxSize[2] << " ]\n";
+  }
+  std::string clusterInfo = oss.str();
+  data->InsertNextValue(clusterInfo.c_str());
+  infoOutput->AddColumn(data);
+}
+
+//-----------------------------------------------------------------------------
 int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

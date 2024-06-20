@@ -145,6 +145,10 @@ private:
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
 
+  void ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);
 
