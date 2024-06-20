@@ -18,6 +18,17 @@
       </DataTypeDomain>
     </InputProperty>
 
+    <OutputPort name="Motion detection" index="0" />
+    <OutputPort name="Clusters" index="1" />
+    <OutputPort name="Clusters information" index="2" />
+    <Hints>
+      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      <OutputPort index="2" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="2" />
+    </Hints>
+
+    <!-- ============================ General ============================ -->
+
     <Property name="Reset detection"
               command="Reset">
       <Documentation>
@@ -26,7 +37,7 @@
       </Documentation>
     </Property>
 
-
+    <!-- ============================ Motion estimation ============================ -->
     <DoubleVectorProperty name="Detection Range"
                        command="SetDetectionRange"
                        number_of_elements="2"
@@ -75,6 +86,24 @@
       </Documentation>
     </IntVectorProperty>
 
+    <DoubleVectorProperty name="Subsample range"
+                       command="SetSubsampleRange"
+                       number_of_elements="1"
+                       default_values="0.">
+      <Documentation>
+      Subsample points.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Subsample resolution"
+                       command="SetSubsampleResolution"
+                       number_of_elements="1"
+                       default_values="-1.">
+      <Documentation>
+      Subsample points.
+      </Documentation>
+    </DoubleVectorProperty>
+
     <DoubleVectorProperty name="Removal outlier radius"
                        command="SetRemovalOutlierRadius"
                        number_of_elements="1"
@@ -93,6 +122,19 @@
       </Documentation>
     </IntVectorProperty>
 
+    <PropertyGroup label="Motion estimation Parameters">
+      <Property name="Detection Range" />
+      <Property name="Azimuth resolution" />
+      <Property name="Vertical resolution" />
+      <Property name="Initialization time"/>
+      <Property name="Window size" />
+      <Property name="Subsample range" />
+      <Property name="Subsample resolution" />
+      <Property name="Removal outlier radius" />
+      <Property name="Removal outlier neighbors" />
+    </PropertyGroup>
+
+    <!-- ============================ Clustering and tracking ============================ -->
     <DoubleVectorProperty name="Cluster radius"
                        command="SetClusterRadius"
                        number_of_elements="1"
@@ -102,15 +144,19 @@
       </Documentation>
     </DoubleVectorProperty>
 
-    <OutputPort name="Motion detection" index="0" />
-    <OutputPort name="Clusters" index="1" />
-    <OutputPort name="Clusters information" index="2" />
+    <IntVectorProperty name="Cluster minimum point number"
+                       command="SetClusterMinNbPoints"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+      The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
 
-    <Hints>
-      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
-      <OutputPort index="2" type="text" />
-      <PipelineIcon name="SpreadSheetView" port="2" />
-    </Hints>
+    <PropertyGroup label="Clustering and tracking Parameters">
+      <Property name="Cluster radius" />
+      <Property name="Cluster minimum point number" />
+    </PropertyGroup>
 
     </SourceProxy>
   </ProxyGroup>

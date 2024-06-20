@@ -82,6 +82,7 @@ public:
 
   // Set radius to extract clusters
   vtkSetMacro(ClusterRadius, double);
+  vtkSetMacro(ClusterMinNbPoints, double);
 
 protected:
   // constructor / destructor
