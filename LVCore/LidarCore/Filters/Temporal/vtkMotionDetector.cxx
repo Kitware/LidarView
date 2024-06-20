@@ -853,56 +853,15 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
   vtkSmartPointer<vtkTable> infoOutput)
 {
-  // Get motion points
   if (input->GetNumberOfPoints() == 0)
   {
+    vtkLog(INFO, "Not enough motion points: clusters not extracted");
     return;
   }
-  vtkNew<vtkPoints> motionPoints;
-  motionPoints->SetNumberOfPoints(input->GetNumberOfPoints());
-  vtkNew<vtkPolyData> motionPolyData;
-  motionPolyData->SetPoints(motionPoints);
-  vtkIdType pointIndex = 0;
-  for (vtkIdType k = 0; k < input->GetNumberOfPoints(); ++k)
-  {
-    if (input->GetPointData()->GetArray("Motion_label")->GetTuple1(k))
-    {
-      double point[3];
-      input->GetPoint(k, point);
-      motionPoints->SetPoint(pointIndex, point);
-      ++pointIndex;
-    }
-  }
-
-  // Copy frame information from input
-  for (vtkIdType idxArray = 0; idxArray < input->GetPointData()->GetNumberOfArrays(); ++idxArray)
-  {
-    char* fieldName = input->GetPointData()->GetArray(idxArray)->GetName();
-    auto arrayTmp = input->GetPointData()->GetArray(idxArray)->NewInstance();
-    arrayTmp->Resize(motionPolyData->GetNumberOfPoints());
-    arrayTmp->SetName(fieldName);
-    for (vtkIdType idx = 0; idx < input->GetNumberOfPoints(); ++idx)
-    {
-      if (input->GetPointData()->GetArray("Motion_label")->GetTuple1(idx) == 0)
-        continue;
-      double* value = input->GetPointData()->GetArray(idxArray)->GetTuple(idx);
-      arrayTmp->InsertNextTuple(value);
-    }
-    motionPolyData->GetPointData()->AddArray(arrayTmp);
-  }
-
-  // Remove outlier
-  vtkNew<vtkRadiusOutlierRemoval> removal;
-  removal->SetInputData(motionPolyData);
-  removal->SetRadius(this->RemovalOutlierRadius);
-  removal->SetNumberOfNeighbors(this->RemovalOutlierNeighbors);
-  removal->Update();
-  if (removal->GetOutput()->GetNumberOfPoints() == 0)
-    return;
 
   // Extract cluster
   vtkNew<vtkEuclideanClusterExtraction> cluster;
-  cluster->SetInputConnection(removal->GetOutputPort());
+  cluster->SetInputData(input);
   cluster->SetExtractionModeToAllClusters();
   cluster->SetRadius(this->ClusterRadius);
   cluster->ColorClustersOn();
@@ -911,15 +870,6 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   // Create output with vertices
   vtkNew<vtkPolyData> output;
   output->ShallowCopy(cluster->GetOutput());
-  vtkNew<vtkIdTypeArray> connectivity;
-  connectivity->SetNumberOfValues(output->GetNumberOfPoints());
-  vtkNew<vtkCellArray> cellArray;
-  cellArray->SetData(1, connectivity);
-  output->SetVerts(cellArray);
-  for (vtkIdType k = 0; k < output->GetNumberOfPoints(); ++k)
-  {
-    connectivity->SetValue(k, k);
-  }
 
   // Compute cluster stats: size, mean depth, mean intensity etc
   this->Clusters.clear();
@@ -1147,7 +1097,10 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   this->EstimateMotion(input, motionPolydata);
 
   // Extract clusters on the motion points
-  this->ExtractClusters(motionPointsOutput, clustersOutput, clusterInfoOutput);
+  if (this->Internals->NbProcessedFrames >= this->InitializationTime)
+  {
+    this->ExtractClusters(motionPolydata, clustersOutput, clusterInfoOutput);
+  }
 
   motionPointsOutput->ShallowCopy(motionPolydata);
 
