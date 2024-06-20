@@ -33,6 +33,7 @@
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkCleanPolyData.h>
 #include <vtkCubeSource.h>
 #include <vtkDataArray.h>
 #include <vtkDataSet.h>
@@ -679,16 +680,32 @@ void vtkMotionDetector::SetWindowSize(int windowSize)
 }
 
 //----------------------------------------------------------------------------
-void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
+void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
+  vtkSmartPointer<vtkPolyData> motionPolydata)
 {
-  vtkSmartPointer<vtkUnsignedShortArray> motionLabel =
-    vtkSmartPointer<vtkUnsignedShortArray>::New();
-  motionLabel->SetName("Motion_label");
+  vtkNew<vtkPoints> motionPoints;
+  motionPolydata->SetPoints(motionPoints);
+  // Useful array for motionPolydata
+  vtkSmartPointer<vtkDoubleArray> motionDistance = vtkSmartPointer<vtkDoubleArray>::New();
+  motionDistance->SetName("distance_m");
+  vtkSmartPointer<vtkDoubleArray> motionIntensity = vtkSmartPointer<vtkDoubleArray>::New();
+  motionIntensity->SetName("intensity");
+
+  // If subsample resolution is not 0, storage motion points near to lidar to another motion
+  // polydata and subsample the near motion points
+  vtkNew<vtkAppendPolyData> appendPoints;
+  // Motion points near to lidar
+  vtkNew<vtkPolyData> motionPolydataNear;
+  vtkNew<vtkPoints> motionPointsNear;
+  motionPolydataNear->SetPoints(motionPointsNear);
+  vtkSmartPointer<vtkDoubleArray> motionDistanceNear = vtkSmartPointer<vtkDoubleArray>::New();
+  motionDistanceNear->SetName("distance_m");
+  vtkSmartPointer<vtkDoubleArray> motionIntensityNear = vtkSmartPointer<vtkDoubleArray>::New();
+  motionIntensityNear->SetName("intensity");
 
   Eigen::Vector3d point;
   Eigen::Vector3d sphericalPoint;
-  this->NbMotionPoints = 0;
-  for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  for (vtkIdType id = 0; id < polydata->GetNumberOfPoints(); ++id)
   {
     // Get point and compute its spherical coordinates
     polydata->GetPoint(id, point.data());
@@ -716,45 +733,119 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
       }
     }
 
-    int isMotion = 0;
-    // Check if or not the point is in the detection range
-    if (sphericalPoint(0) <= this->DetectionRange)
+    // Check whether or not the point is in the detection range
+    if (sphericalPoint(0) > this->DetectionRange)
     {
-      // Convert spherical coordinates to spherical map coordinates
-      unsigned int idxVertical =
-        static_cast<int>(std::floor((sphericalPoint(2) - this->Internals->VerticalBounds[0]) /
-          this->Internals->VerticalResolution));
-      unsigned int idxAzimuth =
-        static_cast<int>(std::floor((sphericalPoint(1) - this->Internals->AzimuthBounds[0]) /
-          this->Internals->AzimuthResolution));
-      idxVertical = std::min(idxVertical, this->Internals->NbVertical - 1);
-      idxAzimuth = std::min(idxAzimuth, this->Internals->NbAzimuth - 1);
-
-      bool isInitStep =
-        this->Internals->NbProcessedFrames < this->InitializationTime ? true : false;
-      // Evaluate the mixture model on the current data
-      // It returns the motion probability of the point
-      // and stores the iterator of the cluster which give the max proba
-      std::vector<double> probas;
-      bool motionEstim = false;
-      this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].Evaluate(
-        sphericalPoint(0), isInitStep, probas, motionEstim);
-      isMotion = motionEstim ? 1 : 0;
-      this->NbMotionPoints += isMotion;
-
-      // Add the depth to the correct "pixel" and update parameters of the model
-      this->Internals->Map[idxAzimuth + this->Internals->NbAzimuth * idxVertical].AddPoint(
-        sphericalPoint(0), motionEstim, probas);
+      continue;
     }
 
-    motionLabel->InsertNextTuple1(isMotion);
+    bool hasMoved = false;
+    // Convert spherical coordinates to spherical map coordinates
+    unsigned int idxVertical = (sphericalPoint(2) - this->Internals->VerticalBounds[0]) /
+      this->Internals->VerticalResolution;
+    unsigned int idxAzimuth =
+      (sphericalPoint(1) - this->Internals->AzimuthBounds[0]) / this->Internals->AzimuthResolution;
+    idxVertical = std::min(idxVertical, this->Internals->NbVertical - 1);
+    idxAzimuth = std::min(idxAzimuth, this->Internals->NbAzimuth - 1);
+
+    // Evaluate the mixture model on the current data
+    // It returns the motion probability of the point
+    // and stores the iterator of the cluster which give the max proba
+    std::vector<double> probas;
+    int idx1d = idxAzimuth + this->Internals->NbAzimuth * idxVertical;
+    this->Internals->Map[idx1d].Evaluate(sphericalPoint(0),
+      this->Internals->NbProcessedFrames < this->InitializationTime,
+      probas,
+      hasMoved);
+
+    // Add the depth to the correct "pixel" and update parameters of the model
+    this->Internals->Map[idx1d].AddPoint(sphericalPoint(0), hasMoved, probas);
+    if (hasMoved)
+    {
+      // If subsample near motion points is required, put near motion points into motionPolydataNear
+      if (this->SubsampleResolution > 0 && sphericalPoint(0) < this->SubsampleRange)
+      {
+        motionPointsNear->InsertNextPoint(point.data());
+        motionDistanceNear->InsertNextTuple1(sphericalPoint(0));
+        motionIntensityNear->InsertNextTuple1(
+          polydata->GetPointData()->GetArray("intensity")->GetTuple1(id));
+      }
+      else
+      {
+        motionPoints->InsertNextPoint(point.data());
+        motionDistance->InsertNextTuple1(sphericalPoint(0));
+        motionIntensity->InsertNextTuple1(
+          polydata->GetPointData()->GetArray("intensity")->GetTuple1(id));
+      }
+    }
   }
 
   // Update time to live of the gaussians
   this->Internals->UpdateTTL();
 
-  // Add motion label field to pointcloud
-  polydata->GetPointData()->AddArray(motionLabel);
+  if (motionPolydata->GetNumberOfPoints() == 0 && motionPolydataNear->GetNumberOfPoints() == 0)
+    return;
+
+  // Subsample motion points and remove outliers
+  // Add arrays and generate vertices for motion polydata
+  motionPolydata->GetPointData()->AddArray(motionDistance);
+  motionPolydata->GetPointData()->AddArray(motionIntensity);
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(motionPolydata->GetNumberOfPoints());
+  vtkNew<vtkCellArray> cellArray;
+  cellArray->SetData(1, connectivity);
+  motionPolydata->SetVerts(cellArray);
+  for (vtkIdType k = 0; k < motionPolydata->GetNumberOfPoints(); ++k)
+  {
+    connectivity->SetValue(k, k);
+  }
+  // Subsample motion points if required
+  if (this->SubsampleResolution > 0 && motionPolydataNear->GetNumberOfPoints() > 0)
+  {
+    // Add arrays and generate vertices for motion polydata
+    motionPolydataNear->GetPointData()->AddArray(motionDistanceNear);
+    motionPolydataNear->GetPointData()->AddArray(motionIntensityNear);
+    vtkNew<vtkIdTypeArray> connectivityNear;
+    connectivityNear->SetNumberOfValues(motionPolydataNear->GetNumberOfPoints());
+    vtkNew<vtkCellArray> cellArrayNear;
+    cellArrayNear->SetData(1, connectivityNear);
+    motionPolydataNear->SetVerts(cellArrayNear);
+    for (vtkIdType k = 0; k < motionPolydataNear->GetNumberOfPoints(); ++k)
+    {
+      connectivityNear->SetValue(k, k);
+    }
+    // Subsample near motion points
+    vtkNew<vtkCleanPolyData> cleanPolyData;
+    cleanPolyData->SetInputData(motionPolydataNear);
+    cleanPolyData->SetAbsoluteTolerance(this->SubsampleResolution);
+    cleanPolyData->SetToleranceIsAbsolute(true);
+    cleanPolyData->Update();
+    motionPolydataNear->ShallowCopy(cleanPolyData->GetOutput());
+  }
+
+  // Append near and far motion points
+  if (motionPolydataNear->GetNumberOfPoints() > 0)
+  {
+    appendPoints->AddInputData(motionPolydataNear);
+    appendPoints->AddInputData(motionPolydata);
+    appendPoints->Update();
+    motionPolydata->ShallowCopy(appendPoints->GetOutput());
+  }
+
+  if (motionPolydata->GetNumberOfPoints() == 0)
+  {
+    return;
+  }
+
+  // Remove outlier
+  vtkNew<vtkRadiusOutlierRemoval> removal;
+  removal->SetInputData(motionPolydata);
+  removal->SetRadius(this->RemovalOutlierRadius);
+  removal->SetNumberOfNeighbors(this->RemovalOutlierNeighbors);
+  removal->GenerateVerticesOn();
+  removal->Update();
+  // Update output motion polydata with filtered motion points
+  motionPolydata->ShallowCopy(removal->GetOutput());
 }
 
 //-----------------------------------------------------------------------------
@@ -1046,17 +1137,19 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* clustersOutput =
     vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   vtkTable* clusterInfoOutput = vtkTable::GetData(outputVector, CLUSTERS_TEXT_OUTPUT_PORT);
-  motionPointsOutput->ShallowCopy(input);
 
   // Compute azimuth and vertical angles bounds
   if (this->Internals->NbProcessedFrames == 0)
     this->Internals->ComputeBounds(input);
 
   // Estimate probability of a point and update GMM
-  this->EstimateMotion(motionPointsOutput);
+  vtkSmartPointer<vtkPolyData> motionPolydata = vtkSmartPointer<vtkPolyData>::New();
+  this->EstimateMotion(input, motionPolydata);
 
   // Extract clusters on the motion points
   this->ExtractClusters(motionPointsOutput, clustersOutput, clusterInfoOutput);
+
+  motionPointsOutput->ShallowCopy(motionPolydata);
 
   ++this->Internals->NbProcessedFrames;
 

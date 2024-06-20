@@ -75,6 +75,8 @@ public:
   vtkSetMacro(InitializationTime, int);
 
   // Set radius and neighbor value to remove isolated motion points
+  vtkSetMacro(SubsampleRange, double);
+  vtkSetMacro(SubsampleResolution, double);
   vtkSetMacro(RemovalOutlierRadius, double);
   vtkSetMacro(RemovalOutlierNeighbors, int);
 
@@ -105,7 +107,9 @@ private:
   // Total number of points estimated to be motion object
   unsigned int NbMotionPoints = 0;
 
-  // Parameters to remove isomated motion points
+  // Parameters to subsample motion points and remove isolated motion points
+  double SubsampleRange = 6.;
+  double SubsampleResolution = -1.;
   double RemovalOutlierRadius = 0.1;
   int RemovalOutlierNeighbors = 10;
 
@@ -132,7 +136,8 @@ private:
   std::vector<ClusterStats> Clusters;
 
   // Add a frame to the spherical map and estimate motion probability
-  void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata);
+  void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
+    vtkSmartPointer<vtkPolyData> motionPolydata);
 
   // Extract clusters of motion points
   void ExtractClusters(vtkSmartPointer<vtkPolyData> input,
