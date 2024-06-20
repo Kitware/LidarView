@@ -1,7 +1,7 @@
 /*=========================================================================
 
    Program: LidarView
-   Module:  lqPlayerControlsController.h
+   Module:  lqLiveVCRController.h
 
    Copyright (c) Kitware Inc.
    All rights reserved.
@@ -29,7 +29,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#include "lqPlayerControlsController.h"
+#include "lqLiveVCRController.h"
 
 #include <QApplication>
 #include <QPointer>
@@ -85,14 +85,14 @@ void debugScene(pqAnimationScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-lqPlayerControlsController::lqPlayerControlsController(QObject* _parent)
+lqLiveVCRController::lqLiveVCRController(QObject* _parent)
   : pqVCRController(_parent)
   , speed(1.0)
 {
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
+void lqLiveVCRController::setAnimationScene(pqAnimationScene* scene)
 {
   // This hardly happens if ever, aside from beginning of app
   // Regular VCR controller slot
@@ -119,7 +119,7 @@ void lqPlayerControlsController::setAnimationScene(pqAnimationScene* scene)
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onTimeRangesChanged()
+void lqLiveVCRController::onTimeRangesChanged()
 {
   if (!this->getAnimationScene())
     return;
@@ -129,7 +129,7 @@ void lqPlayerControlsController::onTimeRangesChanged()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onTimeStepsChanged()
+void lqLiveVCRController::onTimeStepsChanged()
 {
   if (this->getAnimationScene())
   {
@@ -141,7 +141,7 @@ void lqPlayerControlsController::onTimeStepsChanged()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onPause()
+void lqLiveVCRController::onPause()
 {
   if (!lqSensorListWidget::instance()->isInLiveSensorMode())
   {
@@ -172,7 +172,7 @@ void lqPlayerControlsController::onPause()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onPlay()
+void lqLiveVCRController::onPlay()
 {
   if (!lqSensorListWidget::instance()->isInLiveSensorMode())
   {
@@ -206,7 +206,7 @@ void lqPlayerControlsController::onPlay()
   }
 }
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onSpeedChange(double speed)
+void lqLiveVCRController::onSpeedChange(double speed)
 {
   if (!this->getAnimationScene())
     return;
@@ -228,7 +228,7 @@ void lqPlayerControlsController::onSpeedChange(double speed)
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onSeekFrame(int index)
+void lqLiveVCRController::onSeekFrame(int index)
 {
   if (!this->getAnimationScene())
     return;
@@ -242,7 +242,7 @@ void lqPlayerControlsController::onSeekFrame(int index)
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onSeekTime(double time)
+void lqLiveVCRController::onSeekTime(double time)
 {
   if (!this->getAnimationScene())
     return;
@@ -255,7 +255,7 @@ void lqPlayerControlsController::onSeekTime(double time)
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::setSceneTime(double time)
+void lqLiveVCRController::setSceneTime(double time)
 {
   // This is safer, simpler for users and we have been unable to make it work without it too
   this->onPause();
@@ -263,7 +263,7 @@ void lqPlayerControlsController::setSceneTime(double time)
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onNextFrame()
+void lqLiveVCRController::onNextFrame()
 {
   // need to change the mode as in realtime next frame is actually t = t+1s
   SetProperty(
@@ -272,7 +272,7 @@ void lqPlayerControlsController::onNextFrame()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::onPreviousFrame()
+void lqLiveVCRController::onPreviousFrame()
 {
   // need to change the mode as in realtime previous frame is actually t = t-1s
   SetProperty(
@@ -281,7 +281,7 @@ void lqPlayerControlsController::onPreviousFrame()
 }
 
 //-----------------------------------------------------------------------------
-void lqPlayerControlsController::setPlayMode(double speed)
+void lqLiveVCRController::setPlayMode(double speed)
 {
   if (!this->getAnimationScene())
     return;

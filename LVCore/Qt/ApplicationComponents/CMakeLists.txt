@@ -9,10 +9,10 @@ set(classes
   lqLidarCoreManager
   lqLidarStreamColorByInitBehavior
   lqLiveSourceScalarColoringBehavior
+  lqLiveVCRController # Should be in Components but has a dependency on lqSensorListWidget
   lqLoadLidarStateReaction
   lqMeasurementGridReaction
   lqOpenLidarReaction
-  lqPlayerControlsController # Should be in Components but has a dependency on lqSensorListWidget
   lqPlayerControlsToolbar
   lqPythonShellReaction
   lqRecentlyUsedPcapLoader

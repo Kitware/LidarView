@@ -53,7 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pqTimeKeeper.h"
 #include "pqUndoStack.h"
 
-#include "lqPlayerControlsController.h"
+#include "lqLiveVCRController.h"
 #include "lqSensorListWidget.h"
 #include "lqStreamRecordReaction.h"
 
@@ -88,7 +88,7 @@ lqPlayerControlsToolbar::lqPlayerControlsToolbar(QWidget* parentObject,
   ui.setupUi(this);
 
   // ParaView VCR Controller code
-  this->Controller = new lqPlayerControlsController(this);
+  this->Controller = new lqLiveVCRController(this);
 
   QObject::connect(ui.actionVCRPlay, SIGNAL(triggered()), this->Controller, SLOT(onPlay()));
   QObject::connect(
@@ -355,7 +355,7 @@ void lqPlayerControlsToolbar::onTimestepChanged()
 }
 
 //-----------------------------------------------------------------------------
-lqPlayerControlsController* lqPlayerControlsToolbar::getController() const
+lqLiveVCRController* lqPlayerControlsToolbar::getController() const
 {
   return this->Controller;
 }

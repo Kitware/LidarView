@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lqApplicationComponentsModule.h"
 
-class lqPlayerControlsController;
+class lqLiveVCRController;
 class lqStreamRecordReaction;
 
 /// This class is a mixed of pqVCRToolbar and pqTimAnimationWidget
@@ -51,7 +51,7 @@ public:
   ~lqPlayerControlsToolbar();
 
   // For Python binding
-  lqPlayerControlsController* getController() const;
+  lqLiveVCRController* getController() const;
   lqStreamRecordReaction* getRecordController() const;
 
 protected Q_SLOTS:
@@ -74,7 +74,7 @@ Q_SIGNALS:
   void speedChange(double); // Requests controller to change speed
 
 protected:
-  lqPlayerControlsController* Controller;
+  lqLiveVCRController* Controller;
   lqStreamRecordReaction* RecordController;
 
 private:

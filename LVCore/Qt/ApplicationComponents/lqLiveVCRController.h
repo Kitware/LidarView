@@ -1,7 +1,7 @@
 /*=========================================================================
 
    Program: LidarView
-   Module:  lqPlayerControlsController.h
+   Module:  lqLiveVCRController.h
 
    Copyright (c) Kitware Inc.
    All rights reserved.
@@ -29,8 +29,8 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================*/
-#ifndef LQPLAYERCONTROLSCONTROLLER_H
-#define LQPLAYERCONTROLSCONTROLLER_H
+#ifndef lqLiveVCRController_h
+#define lqLiveVCRController_h
 
 #include "pqComponentsModule.h"
 
@@ -42,19 +42,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqApplicationComponentsModule.h"
 
 /**
- * lqPlayerControlsController is an upgrade of pqVCRController
+ * lqLiveVCRController is an upgrade of pqVCRController
  *  - RT Speed / Snap-To-Timesteps Management
  *  - Adds a Layer to pqAnimationManager with LiveSources
  *  - Helper pqAnimationScene's 'onTimeStepsChanged' sister connection to 'onTimeRangesChanged'
  *  - Seek Frame / Time features
  */
-class LQAPPLICATIONCOMPONENTS_EXPORT lqPlayerControlsController : public pqVCRController
+class LQAPPLICATIONCOMPONENTS_EXPORT lqLiveVCRController : public pqVCRController
 {
   Q_OBJECT
   typedef pqVCRController Superclass;
 
 public:
-  lqPlayerControlsController(QObject* parent = 0);
+  lqLiveVCRController(QObject* parent = 0);
 
 public Q_SLOTS:
   // Controls
@@ -85,7 +85,7 @@ protected:
   void setPlayMode(double speed);
 
 private:
-  Q_DISABLE_COPY(lqPlayerControlsController)
+  Q_DISABLE_COPY(lqLiveVCRController)
 };
 
-#endif // LQPLAYERCONTROLSCONTROLLER_H
+#endif // lqLiveVCRController_H
