@@ -80,9 +80,10 @@ public:
   vtkSetMacro(RemovalOutlierRadius, double);
   vtkSetMacro(RemovalOutlierNeighbors, int);
 
-  // Set radius to extract clusters
-  vtkSetMacro(ClusterRadius, double);
-  vtkSetMacro(ClusterMinNbPoints, double);
+  // Set parameters to extract clusters
+  void SetClusterRadius(double radius);
+  void SetClusterMinNbPoints(int minNbPoints);
+  vtkSetMacro(ClusterExtractor, int);
 
   // Set duration of gaussian model
   void SetTrackingWindowSizes(int trackingWindowSizes);
@@ -114,7 +115,14 @@ private:
   double RemovalOutlierRadius = 0.1;
   int RemovalOutlierNeighbors = 10;
 
-  // Radius to extract clusters
+  // Parameters to extract clusters
+  enum Extractor
+  {
+    NOEXTRACTION = 0,
+    EUCLIDEAN = 1,
+    GMM = 2,
+  };
+  int ClusterExtractor = 0;
   double ClusterRadius = 0.4;
   int ClusterMinNbPoints = 5;
 
@@ -141,7 +149,7 @@ private:
     vtkSmartPointer<vtkPolyData> motionPolydata);
 
   // Extract clusters of motion points
-  void ExtractClusters(vtkSmartPointer<vtkPolyData> input,
+  void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> input,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
 

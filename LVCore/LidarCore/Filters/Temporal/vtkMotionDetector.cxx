@@ -947,6 +947,10 @@ void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMotionDetector::Reset()
 {
   this->Internals->ResetMap();
+  if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
+  {
+    this->Clustering->Clusters.Reset();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -989,6 +993,33 @@ void vtkMotionDetector::SetDetectionRange(double minDist, double maxDist)
   {
     this->DetectionRange[0] = minDist;
     this->DetectionRange[1] = maxDist;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetClusterRadius(double radius)
+{
+  if (this->ClusterRadius != radius)
+  {
+    this->ClusterRadius = radius;
+  }
+  if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
+  {
+    this->Clustering->Clusters.SetClusterRadius(radius);
+    this->Clustering->Clusters.SetCovCoeff(radius);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkMotionDetector::SetClusterMinNbPoints(int minNbPoints)
+{
+  if (this->ClusterMinNbPoints != minNbPoints)
+  {
+    this->ClusterMinNbPoints = minNbPoints;
+  }
+  if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
+  {
+    this->Clustering->Clusters.SetMinClusterPoints(minNbPoints);
   }
 }
 
@@ -1171,7 +1202,7 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
 }
 
 //-----------------------------------------------------------------------------
-void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
+void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> input,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
   vtkSmartPointer<vtkTable> infoOutput)
 {
@@ -1584,9 +1615,17 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   this->EstimateMotion(input, motionPolydata);
 
   // Extract clusters on the motion points
-  if (this->Internals->NbProcessedFrames >= this->InitializationTime)
+  if (this->Internals->NbProcessedFrames >= this->InitializationTime &&
+    this->ClusterExtractor != static_cast<int>(vtkMotionDetector::Extractor::NOEXTRACTION))
   {
-    this->ExtractClusters(motionPolydata, clustersOutput, clusterInfoOutput);
+    if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::EUCLIDEAN))
+    {
+      this->ExtractClustersWithEuclidean(motionPolydata, clustersOutput, clusterInfoOutput);
+    }
+    else if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
+    {
+      this->ExtractClustersWithGMM(motionPolydata, clustersOutput, clusterInfoOutput);
+    }
   }
 
   motionPointsOutput->ShallowCopy(motionPolydata);
