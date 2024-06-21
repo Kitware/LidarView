@@ -119,6 +119,8 @@ LidarViewMainWindow::LidarViewMainWindow()
     "COLOR_EDITOR_PANEL", this->Internals->colorMapEditorDock);
   pqApplicationCore::instance()->registerManager(
     "PYTHON_SHELL_PANEL", this->Internals->pythonShellDock);
+  pqApplicationCore::instance()->registerManager(
+    "LIDAR_PLAYER_PANEL", this->Internals->lidarPlayerDock);
 
   QStringList preamble = { "from paraview.simple import *", "from lidarview.simple import *" };
   // Create pythonshell

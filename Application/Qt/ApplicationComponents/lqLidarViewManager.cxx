@@ -15,6 +15,8 @@
 
 #include "lqLidarViewManager.h"
 
+#include "lqLivePlayerWidget.h"
+
 #include <vtkNew.h>
 #include <vtkPVGeneralSettings.h>
 #include <vtkRemotingCoreConfiguration.h>
@@ -323,6 +325,24 @@ public:
   }
 
   //-----------------------------------------------------------------------------
+  void updateLidarPlayerSpeedMode(InterfaceModes interfaceMode)
+  {
+    QDockWidget* lidarPlayer =
+      qobject_cast<QDockWidget*>(pqApplicationCore::instance()->manager("LIDAR_PLAYER_PANEL"));
+    if (lidarPlayer)
+    {
+      lqLivePlayerWidget* widget = qobject_cast<lqLivePlayerWidget*>(lidarPlayer->widget());
+      if (widget)
+      {
+        auto playMode = interfaceMode == lqLidarViewManager::LIDAR_VIEWER
+          ? lqLiveVCRController::EMULATED_TIME
+          : lqLiveVCRController::ALL_FRAMES;
+        widget->changeReaderMode(playMode);
+      }
+    }
+  }
+
+  //-----------------------------------------------------------------------------
   void saveModeState()
   {
     ModeSettingsType& settings = this->modesSettings[this->currentMode];
@@ -436,6 +456,7 @@ void lqLidarViewManager::updateInterfaceLayout(InterfaceModes mode)
   intern.updateDockWidgetsLayout();
   intern.updateMultiViewWidgetVisibility();
   intern.updateShowScalarsBarsSettings();
+  intern.updateLidarPlayerSpeedMode(mode);
 
   // Restore layout for the current mode
   intern.restoreModeState();
