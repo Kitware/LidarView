@@ -42,12 +42,11 @@ vtkTypeBool vtkLiveSourceAlgorithm<AlgorithmT>::ProcessRequest(vtkInformation* r
 {
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
-    if (this->NeedInitialization)
+    if (!this->NeedInitialization)
     {
-      this->NeedInitialization = false;
-      return this->RequestInformation(request, inputVector, outputVector);
+      return 1;
     }
-    return 1;
+    this->NeedInitialization = false;
   }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
