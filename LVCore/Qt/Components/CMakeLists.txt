@@ -4,7 +4,9 @@ set(classes
   lqLidarConfigurationDialog
   lqLidarStateDialog
   lqSelectLidarFrameDialog
-  lqStreamRecordDialog)
+  lqStreamRecordDialog
+  lqTimestampLineEdit
+)
 
 set(ui_files
   Resources/UI/lqChooseLidarDialog.ui
