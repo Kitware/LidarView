@@ -37,8 +37,14 @@
 namespace
 {
 constexpr const char* FILENAME_PROPERTY = "FileName";
-constexpr const char* IGNORED_PANEL_WIDGET = "command_button";
+constexpr const char* IGNORED_PANEL_WIDGET[2] = { "command_button", "pause_livesource" };
 constexpr const char* CHECKED_KEY = "GNSSCheckbox";
+
+void HideProperty(vtkSMProperty* property)
+{
+  property->SetNoCustomDefault(1);
+  property->SetIsInternal(true);
+}
 }
 
 //-----------------------------------------------------------------------------
@@ -164,18 +170,22 @@ pqProxyWidget* lqInterpreterWidget::createProxyWidget(QWidget* parent, const cha
   proxy.TakeReference(pxm->NewProxy("sources", proxyName));
 
   // Set FileName property ignore default and internal (in case of Lidar Reader)
-  // as we already choosed filename in previous step
+  // as we already choose filename in previous step
   vtkSmartPointer<vtkSMPropertyIterator> propIter;
   propIter.TakeReference(proxy->NewPropertyIterator());
   for (propIter->Begin(); !propIter->IsAtEnd(); propIter->Next())
   {
-    const char* panelWidget = propIter->GetProperty()->GetPanelWidget();
-    if (strcmp(propIter->GetKey(), ::FILENAME_PROPERTY) == 0 ||
-      (panelWidget && strcmp(panelWidget, ::IGNORED_PANEL_WIDGET) == 0))
+    if (strcmp(propIter->GetKey(), ::FILENAME_PROPERTY) == 0)
     {
-      vtkSMProperty* property = propIter->GetProperty();
-      property->SetNoCustomDefault(1);
-      property->SetIsInternal(true);
+      ::HideProperty(propIter->GetProperty());
+    }
+    const char* panelWidget = propIter->GetProperty()->GetPanelWidget();
+    for (unsigned int idx = 0; idx < 2; idx++)
+    {
+      if (panelWidget && strcmp(panelWidget, ::IGNORED_PANEL_WIDGET[idx]) == 0)
+      {
+        ::HideProperty(propIter->GetProperty());
+      }
     }
   }
 
