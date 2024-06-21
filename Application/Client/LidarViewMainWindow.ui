@@ -103,6 +103,18 @@
    </attribute>
    <widget class="pqColorMapEditor" name="colorMapEditorPanel"/>
   </widget>
+  <widget class="QDockWidget" name="lidarPlayerDock">
+   <property name="allowedAreas">
+    <set>Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>LiDAR Player</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="lqLivePlayerWidget" name="livePlayerPanel"/>
+  </widget>
   <widget class="QDockWidget" name="pipelineBrowserDock">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
@@ -269,6 +281,12 @@
    <class>pqColorMapEditor</class>
    <extends>QWidget</extends>
    <header>pqColorMapEditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>lqLivePlayerWidget</class>
+   <extends>QWidget</extends>
+   <header>lqLivePlayerWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -412,11 +412,6 @@ void lqLidarViewManager::setLidarViewDefaultSettings()
     ::setSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.IndexedLookup", 1);
     ::setSetting(settings, "array_lookup_tables." + name + ".PVLookupTable.NumberOfTableValues", 3);
   }
-
-  // Remove warning windows "real time" mode deprecated.
-  // Should be remove once LidarView has figured out how to replace it.
-  pqSettings* appSettings = pqApplicationCore::instance()->settings();
-  appSettings->setValue("pqAnimationViewWidget::updatePlayMode", true);
 }
 
 //-----------------------------------------------------------------------------
