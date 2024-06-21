@@ -1,10 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <SourceProxy name="ExampleLidarStream"
-                 class="vtkLidarStream"
-                 label="Example LiDAR Stream"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="CommonLidarStream">
+    <LidarStreamProxy name="ExampleLidarStream"
+                      class="vtkLidarStream"
+                      label="Example LiDAR Stream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarStream">
 
       <Documentation short_help="Example LiDAR data stream." long_help="Example LiDAR live source stream.">
         Example LiDAR live source stream.
@@ -29,6 +29,6 @@
         <View type="None" port="1" />
         <PipelineIcon name="SpreadSheetView" port="1" />
       </Hints>
-    </SourceProxy>
+    </LidarStreamProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

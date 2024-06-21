@@ -2,10 +2,10 @@
   <ProxyGroup name="internal_interpreter">
     <!-- ==================================================================== -->
     <!-- Common lidar live source stream -->
-    <SourceProxy name="CommonLidarStream"
-                 class="vtkLidarStream"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="BaseStream">
+    <LidarStreamProxy name="CommonLidarStream"
+                      class="vtkLidarStream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="BaseStream">
 
       <OutputPort name="Frame" index="0" />
       <OutputPort name="Calibration" index="1" />
@@ -25,14 +25,14 @@
       <PropertyGroup label="Stream Options">
         <Property name="DetectFrameDropping" panel_visibility="advanced" />
       </PropertyGroup>
-    </SourceProxy>
+    </LidarStreamProxy>
 
     <!-- ==================================================================== -->
     <!-- Common pose live source stream -->
-    <SourceProxy name="CommonLidarPoseStream"
-                 class="vtkLidarPoseStream"
-                 base_proxygroup="internal_interpreter"
-                 base_proxyname="CommonLidarStream">
+    <LidarStreamProxy name="CommonLidarPoseStream"
+                      class="vtkLidarPoseStream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarStream">
 
       <OutputPort name="Pose" index="2" />
       <OutputPort name="Pose Raw informations" index="3" />
@@ -111,6 +111,6 @@
         <Property name="ForwardedPort" panel_visibility="advanced" />
         <Property name="GNSSForwardedPort" panel_visibility="advanced" />
       </PropertyGroup>
-    </SourceProxy>
+    </LidarStreamProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

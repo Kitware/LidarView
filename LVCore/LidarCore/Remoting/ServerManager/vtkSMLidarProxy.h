@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program: LidarView
-  Module:  vtkSMLidarReaderProxy.h
+  Module:  vtkSMLidarProxy.h
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,35 +13,35 @@
 
 =========================================================================*/
 
-#ifndef vtkSMLidarReaderProxy_h
-#define vtkSMLidarReaderProxy_h
+#ifndef vtkSMLidarProxy_h
+#define vtkSMLidarProxy_h
 
 #include "lvRemotingServerManagerModule.h" // for export macro
 
-#include "vtkSMLidarProxy.h"
+#include <vtkSMSourceProxy.h>
 
 /**
- * @class vtkSMLidarReaderProxy
+ * @class vtkSMLidarProxy
  * @brief proxy to create lidar readers
  *
- * vtkSMLidarReaderProxy is a proxy which handle vtkLidarReader and
- * subclasses.
+ * vtkSMLidarProxy is a proxy which handle both vtkLidarReader and
+ * vtkLidarStream.
  *
  */
-class LVREMOTINGSERVERMANAGER_EXPORT vtkSMLidarReaderProxy : public vtkSMLidarProxy
+class LVREMOTINGSERVERMANAGER_EXPORT vtkSMLidarProxy : public vtkSMSourceProxy
 {
 public:
-  static vtkSMLidarReaderProxy* New();
-  vtkTypeMacro(vtkSMLidarReaderProxy, vtkSMLidarProxy);
+  static vtkSMLidarProxy* New();
+  vtkTypeMacro(vtkSMLidarProxy, vtkSMSourceProxy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkSMLidarReaderProxy();
-  ~vtkSMLidarReaderProxy() override;
+  vtkSMLidarProxy();
+  ~vtkSMLidarProxy() override;
 
 private:
-  vtkSMLidarReaderProxy(const vtkSMLidarReaderProxy&) = delete;
-  void operator=(const vtkSMLidarReaderProxy&) = delete;
+  vtkSMLidarProxy(const vtkSMLidarProxy&) = delete;
+  void operator=(const vtkSMLidarProxy&) = delete;
 };
 
-#endif // vtkSMLidarReaderProxy_h
+#endif // vtkSMLidarProxy_h
