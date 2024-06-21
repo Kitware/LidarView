@@ -11,3 +11,4 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  ParaView::VTKExtensionsCore

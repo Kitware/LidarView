@@ -35,6 +35,7 @@
       </SubProxy>
 
       <Hints>
+        <LiveSource emulated_time="1" />
         <ReaderFactory extensions="pcap" file_description="Example LiDAR files" />
         <View type="None" port="1" />
         <PipelineIcon name="SpreadSheetView" port="1" />

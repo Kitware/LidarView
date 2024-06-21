@@ -17,7 +17,7 @@
 #ifndef vtkLidarReader_h
 #define vtkLidarReader_h
 
-#include <vtkPolyDataAlgorithm.h>
+#include <vtkEmulatedTimeAlgorithm.h>
 
 #include <memory>
 
@@ -31,11 +31,11 @@ class vtkPolyData;
  *
  * Reads pcap files using vtkLidarPacketInterpreter implementations.
  */
-class LVIOLIDAR_EXPORT vtkLidarReader : public vtkPolyDataAlgorithm
+class LVIOLIDAR_EXPORT vtkLidarReader : public vtkEmulatedTimeAlgorithm
 {
 public:
   static vtkLidarReader* New();
-  vtkTypeMacro(vtkLidarReader, vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkLidarReader, vtkEmulatedTimeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -126,6 +126,14 @@ public:
    * Return sensor information given by the underlying interpreter.
    */
   std::string GetSensorInformation(bool shortVersion = false);
+
+  ///@{
+  /**
+   * Get the lidar output point cloud.
+   */
+  vtkPolyData* GetOutput();
+  vtkPolyData* GetOutput(int);
+  ///@}
 
 protected:
   vtkLidarReader();

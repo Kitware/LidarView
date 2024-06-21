@@ -194,9 +194,9 @@ std::string vtkLidarReader::GetSensorInformation(bool shortVersion)
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkLidarReader::GetMTime()
 {
-  if (this->LidarInterpreter)
+  if (this->LidarInterpreter && this->Superclass::GetMTime() < this->LidarInterpreter->GetMTime())
   {
-    return std::max(this->Superclass::GetMTime(), this->LidarInterpreter->GetMTime());
+    this->Modified();
   }
   return this->Superclass::GetMTime();
 }
@@ -604,6 +604,18 @@ void vtkLidarReader::SetShowPartialFrames(bool show)
 void vtkLidarReader::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
   this->LidarInterpreter = interpreter;
+}
+
+//------------------------------------------------------------------------------
+vtkPolyData* vtkLidarReader::GetOutput()
+{
+  return this->GetOutput(0);
+}
+
+//------------------------------------------------------------------------------
+vtkPolyData* vtkLidarReader::GetOutput(int port)
+{
+  return vtkPolyData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
 //------------------------------------------------------------------------------
