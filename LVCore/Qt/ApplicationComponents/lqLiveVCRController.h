@@ -1,38 +1,20 @@
 /*=========================================================================
 
-   Program: LidarView
-   Module:  lqLiveVCRController.h
+  Program: LidarView
+  Module:  lqLiveVCRController.h
 
-   Copyright (c) Kitware Inc.
-   All rights reserved.
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-   LidarView is a free software; you can redistribute it and/or modify it
-   under the terms of the LidarView license.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-   See LICENSE for the full LidarView license.
-   A copy of this license can be obtained by contacting
-   Kitware Inc.
-   28 Corporate Drive
-   Clifton Park, NY 12065
-   USA
+=========================================================================*/
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-========================================================================*/
 #ifndef lqLiveVCRController_h
 #define lqLiveVCRController_h
-
-#include "pqComponentsModule.h"
 
 #include <QObject>
 #include <QPointer>
@@ -42,11 +24,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqApplicationComponentsModule.h"
 
 /**
- * lqLiveVCRController is an upgrade of pqVCRController
- *  - RT Speed / Snap-To-Timesteps Management
- *  - Adds a Layer to pqAnimationManager with LiveSources
- *  - Helper pqAnimationScene's 'onTimeStepsChanged' sister connection to 'onTimeRangesChanged'
- *  - Seek Frame / Time features
+ * lqLiveVCRController extends the functionality of pqVCRController by supporting multiple
+ * playback modes that are used in LidarView applications:
+ *  - `ALL_FRAMES`: Standard playback mode from `pqVCRController`, every frame is played
+ *     sequentially.
+ *  - `EMULATED_TIME`: Playback simulates real-time speed. @sa vtkEmulatedTimeAlgorithm
+ *  - `STREAM`: Continuously processes incoming data from LiveSource as it becomes available.
  */
 class LQAPPLICATIONCOMPONENTS_EXPORT lqLiveVCRController : public pqVCRController
 {
@@ -54,38 +37,99 @@ class LQAPPLICATIONCOMPONENTS_EXPORT lqLiveVCRController : public pqVCRControlle
   typedef pqVCRController Superclass;
 
 public:
-  lqLiveVCRController(QObject* parent = 0);
+  lqLiveVCRController(QObject* parent = nullptr);
+
+  enum PlayMode
+  {
+    DISABLED = 0,
+    ALL_FRAMES,
+    EMULATED_TIME,
+    STREAM
+  };
+
+  /**
+   * Change reader mode, can either be ALL_FRAMES (frame priority)
+   * or EMULATED_TIME (time priority).
+   */
+  void setReaderMode(PlayMode mode);
+
+  /**
+   * Get EMULATED_TIME mode current speed.
+   */
+  static double getCurrentSpeed();
+
+  /**
+   * Get current scene time.
+   * Note: the underlying implementation depends on the selected mode.
+   * Return 0 for PlayMode::DISABLED and PlayMode::STREAM.
+   */
+  double getSceneTime();
 
 public Q_SLOTS:
-  // Controls
-  virtual void setAnimationScene(pqAnimationScene*) Q_DECL_OVERRIDE;
-  virtual void onTimeRangesChanged() Q_DECL_OVERRIDE;
-  void onTimeStepsChanged(); // Received alongside 'onTimeRangesChanged'
-  virtual void onPause() Q_DECL_OVERRIDE;
-  virtual void onPlay() Q_DECL_OVERRIDE;
+  /**
+   * Set the animation scene. If null, the VCR control is disabled.
+   */
+  void setAnimationScene(pqAnimationScene*) override;
 
+  ///@{
+  /**
+   * Slots inherited from pqVCRController should be connected to appropriate VCR buttons.
+   *
+   * Note: In `EMULATED_TIME` mode, the `onPreviousFrame()` and `onNextFrame()` slots will
+   * advance or rewind the time by an amount that is determined by the current playback speed.
+   */
+  void onPlay() override;
+  void onPause() override;
+  void onFirstFrame() override;
+  void onPreviousFrame() override;
+  void onNextFrame() override;
+  void onLastFrame() override;
+  ///@}
+
+  /**
+   * Change EmulatedTime live source speed.
+   */
   void onSpeedChange(double speed);
 
+  ///@{
+  /**
+   * Change scene time by frame index or scene time.
+   *
+   * @sa setSceneTime
+   */
   void onSeekFrame(int index);
   void onSeekTime(double time);
-
-  void onPreviousFrame() Q_DECL_OVERRIDE;
-  void onNextFrame() Q_DECL_OVERRIDE;
+  ///@}
 
 Q_SIGNALS:
-  void speedChange(double);   // Signal speed has changed
-  void frameRanges(int, int); // Tirggered alongside VCR original 'TimeRanges'
+  /**
+   * Emitted for each data updated.
+   * Should be used instead of pqVCRController::timestepChanged, as it does not
+   * emit for LiveSource updates.
+   */
+  void timeChanged(double time);
 
-protected:
-  double speed; // Store animation Speed
+  /**
+   * Emitted when the frame ranges is updated.
+   * @sa pqVCRController::timeRanges()
+   */
+  void frameRanges(int first, int last);
 
-  // Helpers
-  void setSceneTime(double time);
-  void setSceneSpeed();
-  void setPlayMode(double speed);
+  /**
+   * Emitted when a the reader mode is changed, a LiveSource (stream) is detected
+   * or VCR controls are disabled.
+   */
+  void modeChanged(PlayMode mode);
 
 private:
   Q_DISABLE_COPY(lqLiveVCRController)
+
+  PlayMode getCurrentMode();
+  void setSceneTime(double time);
+
+private:
+  PlayMode ReaderMode = PlayMode::ALL_FRAMES;
+  double LastSceneTime = 0.;
 };
 
 #endif // lqLiveVCRController_H

@@ -1,34 +1,18 @@
 /*=========================================================================
 
-   Program: LidarView
-   Module:  lqLiveVCRController.h
+  Program: LidarView
+  Module:  lqLiveVCRController.cxx
 
-   Copyright (c) Kitware Inc.
-   All rights reserved.
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-   LidarView is a free software; you can redistribute it and/or modify it
-   under the terms of the LidarView license.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-   See LICENSE for the full LidarView license.
-   A copy of this license can be obtained by contacting
-   Kitware Inc.
-   28 Corporate Drive
-   Clifton Park, NY 12065
-   USA
+=========================================================================*/
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-========================================================================*/
 #include "lqLiveVCRController.h"
 
 #include <QApplication>
@@ -38,264 +22,370 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <lqSensorListWidget.h>
 
 #include <pqAnimationScene.h>
-#include <pqLiveSourceBehavior.h>
+#include <pqApplicationCore.h>
+#include <pqLiveSourceItem.h>
+#include <pqLiveSourceManager.h>
+#include <pqPVApplicationCore.h>
+#include <pqPipelineSource.h>
+#include <pqProxy.h>
 #include <pqSMAdaptor.h>
+#include <pqServer.h>
+#include <pqServerManagerModel.h>
+#include <pqTimeKeeper.h>
 
 #include <vtkCompositeAnimationPlayer.h>
+#include <vtkPVDataInformation.h>
 #include <vtkSMIntVectorProperty.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
+#include <vtkSMSourceProxy.h>
 
-// Scene Property Helpers
+#include <QList>
+
 namespace
 {
-void SetProperty(QPointer<pqAnimationScene> scene, const char* property, int value)
+void UpdateEmulatedCurrentTime(double timestamp)
 {
-  vtkSMIntVectorProperty::SafeDownCast(scene->getProxy()->GetProperty(property))
-    ->SetElements1(value);
-  scene->getProxy()->UpdateProperty(property);
-}
-
-// int GetProperty(QPointer<pqAnimationScene> scene, const char* property)
-// {
-//   return pqSMAdaptor::getElementProperty(scene->getProxy()->GetProperty(property)).toInt();
-// }
-}
-
-// Debugging helper
-void debugScene(pqAnimationScene* scene)
-{
-  if (scene)
+  pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+  pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
+  auto range = tk->getTimeRange();
+  timestamp = std::clamp(timestamp, range.first, range.second);
+  lsm->setEmulatedCurrentTime(timestamp);
+  // If the emulated time algorithm is paused, live sources must be refreshed manually
+  if (lsm->isEmulatedTimePaused())
   {
-    QPair<double, double> range = scene->getClockTimeRange();
-    std::cout << "Range: " << range.first << " to " << range.second << std::endl;
-    std::cout << "Time : " << scene->getAnimationTime() << std::endl;
-    auto timesteps =
-      scene->getTimeSteps(); // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
-    double min = *std::min_element(timesteps.begin(), timesteps.end());
-    double max = *std::max_element(timesteps.begin(), timesteps.end());
-    std::cout << "Timesteps : "
-              << "0-" << timesteps.size() << ", mM: " << min << " to " << max << std::endl;
+    pqServerManagerModel* model = pqApplicationCore::instance()->getServerManagerModel();
+    QList<pqProxy*> proxies = model->findItems<pqProxy*>();
+    for (auto& proxy : proxies)
+    {
+      pqLiveSourceItem* lsItem = lsm->getLiveSourceItem(proxy->getProxy());
+      if (lsItem)
+      {
+        Q_EMIT lsItem->refreshSource();
+      }
+    }
   }
-  else
-  {
-    std::cout << "Scene is NULL " << std::endl;
-  }
+}
 }
 
 //-----------------------------------------------------------------------------
 lqLiveVCRController::lqLiveVCRController(QObject* _parent)
   : pqVCRController(_parent)
-  , speed(1.0)
 {
+  auto forwardEnabled = [this](bool enabled)
+  { Q_EMIT this->modeChanged(enabled ? this->getCurrentMode() : PlayMode::DISABLED); };
+  this->connect(this, &pqVCRController::enabled, forwardEnabled);
+
+  // If a stream is started change the current mode.
+  auto streamModeChanged = [this]()
+  {
+    Q_EMIT this->modeChanged(this->getCurrentMode());
+    if (this->getCurrentMode() == PlayMode::STREAM)
+    {
+      // We want the stream to start automatically.
+      this->onPlay();
+    }
+  };
+  this->connect(
+    lqSensorListWidget::instance(), &lqSensorListWidget::lidarStreamModeChanged, streamModeChanged);
+
+  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+
+  // Emit timeChanged signal when data is updated.
+  auto onSourceTimeUpdated = [this]()
+  {
+    double currentTime = this->getSceneTime();
+    if (this->LastSceneTime != currentTime)
+    {
+      this->LastSceneTime = currentTime;
+      Q_EMIT this->timeChanged(currentTime);
+    }
+  };
+  this->connect(smmodel, &pqServerManagerModel::dataUpdated, this, onSourceTimeUpdated);
+
+  // Automatically stop the player if no frames left.
+  auto stopEmulatedTime = [this]()
+  {
+    if (this->getCurrentMode() == PlayMode::EMULATED_TIME)
+    {
+      double currentTime = this->getSceneTime();
+      pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
+      auto range = tk->getTimeRange();
+      if (currentTime >= range.second)
+      {
+        this->setSceneTime(range.second);
+        this->onPause();
+      }
+    }
+  };
+  this->connect(smmodel, &pqServerManagerModel::dataUpdated, this, stopEmulatedTime);
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::setReaderMode(PlayMode mode)
+{
+  if (mode == this->ReaderMode || (mode != PlayMode::ALL_FRAMES && mode != PlayMode::EMULATED_TIME))
+  {
+    return;
+  }
+  this->onPause();
+  double currentTime = this->getSceneTime();
+  this->ReaderMode = mode;
+  Q_EMIT this->modeChanged(mode);
+  this->setSceneTime(currentTime);
+  this->onPause();
+}
+
+//-----------------------------------------------------------------------------
+lqLiveVCRController::PlayMode lqLiveVCRController::getCurrentMode()
+{
+  if (!this->getAnimationScene())
+  {
+    return PlayMode::DISABLED;
+  }
+  return lqSensorListWidget::instance()->isInLiveSensorMode() ? PlayMode::STREAM : this->ReaderMode;
+}
+
+//-----------------------------------------------------------------------------
+double lqLiveVCRController::getCurrentSpeed()
+{
+  pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+  return lsm->getEmulatedSpeedMultiplier();
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::setAnimationScene(pqAnimationScene* scene)
 {
-  // This hardly happens if ever, aside from beginning of app
-  // Regular VCR controller slot
+  if (this->getAnimationScene() == scene)
+  {
+    return;
+  }
   Superclass::setAnimationScene(scene);
-  // Connects the following signals
-  // QObject::connect(this->Scene, SIGNAL(tick(int))               , this, SLOT(onTick()));
-  // QObject::connect(this->Scene, SIGNAL(loopChanged())           , this,
-  // SLOT(onLoopPropertyChanged())); QObject::connect(this->Scene, SIGNAL(clockTimeRangesChanged()),
-  // this, SLOT(onTimeRangesChanged())); QObject::connect(this->Scene, SIGNAL(beginPlay()) , this,
-  // SLOT(onBeginPlay())); QObject::connect(this->Scene, SIGNAL(endPlay())               , this,
-  // SLOT(onEndPlay()));
-
-  // Connect additional Signals:
   if (scene)
   {
-    QObject::connect(
-      this->getAnimationScene(), SIGNAL(timeStepsChanged()), this, SLOT(onTimeStepsChanged()));
-    // frameCountChanged // Not necessary, timeStepsChanged() cover this case
-    // cues
-    // playModeChanged()
-    // animationTime (double time)
-    // timeLabelChanged()
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::onTimeRangesChanged()
-{
-  if (!this->getAnimationScene())
-    return;
-
-  // Regular VCR controller onTimeRangesChanged
-  Superclass::onTimeRangesChanged();
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::onTimeStepsChanged()
-{
-  if (this->getAnimationScene())
-  {
-    // LITERALLY this->getServer()->getTimeKeeper()->getTimeSteps();
-    auto timesteps = this->getAnimationScene()->getTimeSteps();
-    int nframes = timesteps.size() ? timesteps.size() - 1 : 0;
-    Q_EMIT this->frameRanges(0, nframes);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::onPause()
-{
-  if (!lqSensorListWidget::instance()->isInLiveSensorMode())
-  {
-    // Prevent Noisy warnings
-    if (!this->getAnimationScene())
+    auto onTimeStepsChanged = [this]()
     {
-      return;
-    }
-    // Regular VCR controller Play
-    Superclass::onPause();
-  }
-  else
-  {
-    // Do not Notify Animation scene in LivestreamMode
-    // Call pqLiveSourceBehavior
-    bool paused = pqLiveSourceBehavior::isPaused();
-    if (paused)
-    {
-      pqLiveSourceBehavior::resume();
-    }
-    else
-    {
-      pqLiveSourceBehavior::pause();
-    }
-    // Manually notify toolbar
-    Q_EMIT this->playing(paused, false);
+      auto timesteps = this->getAnimationScene()->getTimeSteps();
+      int nframes = timesteps.size() ? timesteps.size() - 1 : 0;
+      Q_EMIT this->frameRanges(0, nframes);
+    };
+    this->connect(scene, &pqAnimationScene::timeStepsChanged, onTimeStepsChanged);
   }
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onPlay()
 {
-  if (!lqSensorListWidget::instance()->isInLiveSensorMode())
+  pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+
+  // If no more frame left - restart the emulated time.
+  if (this->getCurrentMode() == PlayMode::EMULATED_TIME)
   {
-    // Prevent Noisy warnings
-    if (!this->getAnimationScene())
+    double currentTime = this->getSceneTime();
+    pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
+    auto range = tk->getTimeRange();
+    if (currentTime >= range.second)
     {
-      return;
+      ::UpdateEmulatedCurrentTime(range.first);
     }
-
-    // Set the right play mode
-    this->setPlayMode(this->speed);
-
-    // Regular VCR controller Play
-    Superclass::onPlay();
   }
-  else
+
+  switch (this->getCurrentMode())
   {
-    // Do not Notify Animation scene in LivestreamMode
-    // Call pqLiveSourceBehavior
-    bool paused = pqLiveSourceBehavior::isPaused();
-    if (paused)
+    case PlayMode::ALL_FRAMES:
+      // Regular VCR controller Play
+      Superclass::onPlay();
+      break;
+
+    case PlayMode::EMULATED_TIME:
+    case PlayMode::STREAM:
+      lsm->resume();
+      // Manually notify toolbar
+      Q_EMIT this->playing(true, false);
+      break;
+
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onPause()
+{
+  pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+
+  switch (this->getCurrentMode())
+  {
+    case PlayMode::ALL_FRAMES:
+      // Regular VCR controller Pause
+      Superclass::onPause();
+      break;
+
+    case PlayMode::EMULATED_TIME:
+    case PlayMode::STREAM:
+      lsm->pause();
+      // Manually notify toolbar
+      Q_EMIT this->playing(false, false);
+      break;
+
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onFirstFrame()
+{
+  switch (this->getCurrentMode())
+  {
+    case PlayMode::ALL_FRAMES:
+      Superclass::onFirstFrame();
+      break;
+
+    case PlayMode::EMULATED_TIME:
     {
-      pqLiveSourceBehavior::resume();
+      auto timesteps = this->getAnimationScene()->getTimeSteps();
+      if (!timesteps.isEmpty())
+      {
+        ::UpdateEmulatedCurrentTime(timesteps.front());
+      }
+      break;
     }
-    else
-    {
-      pqLiveSourceBehavior::pause();
-    }
-    // Manually notify toolbar
-    Q_EMIT this->playing(paused, false);
+
+    default:
+      break;
   }
 }
 //-----------------------------------------------------------------------------
+void lqLiveVCRController::onPreviousFrame()
+{
+  switch (this->getCurrentMode())
+  {
+    case PlayMode::ALL_FRAMES:
+      Superclass::onPreviousFrame();
+      break;
+
+    case PlayMode::EMULATED_TIME:
+      ::UpdateEmulatedCurrentTime(this->getSceneTime() - lqLiveVCRController::getCurrentSpeed());
+      break;
+
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onNextFrame()
+{
+  switch (this->getCurrentMode())
+  {
+    case PlayMode::ALL_FRAMES:
+      Superclass::onNextFrame();
+      break;
+
+    case PlayMode::EMULATED_TIME:
+      ::UpdateEmulatedCurrentTime(this->getSceneTime() + lqLiveVCRController::getCurrentSpeed());
+      break;
+
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onLastFrame()
+{
+  switch (this->getCurrentMode())
+  {
+    case PlayMode::ALL_FRAMES:
+      Superclass::onLastFrame();
+      break;
+
+    case PlayMode::EMULATED_TIME:
+    {
+      auto timesteps = this->getAnimationScene()->getTimeSteps();
+      if (!timesteps.isEmpty())
+      {
+        ::UpdateEmulatedCurrentTime(timesteps.back());
+      }
+      break;
+    }
+
+    default:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
 void lqLiveVCRController::onSpeedChange(double speed)
 {
-  if (!this->getAnimationScene())
+  if (this->getCurrentMode() != PlayMode::EMULATED_TIME)
+  {
     return;
-  // Update speed value
-  this->speed = speed;
-
-  // It's a bit useless to set the PlayMode here, as it is overriden each time
-  // a new source with timestamps is added.
-  // The override is performed in vtkSMAnimationSceneProxy::UpdateAnimationUsingDataTimeSteps
-  // where the PlayMode is set to SNAP_TO_TIMESTEPS. This function is called by
-  // pqApplyBehavior::applied
-  this->setPlayMode(this->speed);
+  }
 
   // Pause for user safety
   this->onPause();
-
-  // Signal Speed has changed
-  Q_EMIT speedChange(this->speed);
+  pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+  lsm->setEmulatedSpeedMultiplier(speed);
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onSeekFrame(int index)
 {
   if (!this->getAnimationScene())
+  {
     return;
+  }
 
   const auto& timesteps = this->getAnimationScene()->getTimeSteps();
-  if (index >= timesteps.size())
-    return;
-
-  // Set Scene Time
-  this->setSceneTime(timesteps[index]);
+  if (index < timesteps.size())
+  {
+    this->setSceneTime(timesteps[index]);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onSeekTime(double time)
 {
-  if (!this->getAnimationScene())
-    return;
-
-  if (time < 0)
-    return;
-
-  // Set Scene Time
-  this->setSceneTime(time);
+  if (time >= 0)
+  {
+    this->setSceneTime(time);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::setSceneTime(double time)
 {
-  // This is safer, simpler for users and we have been unable to make it work without it too
   this->onPause();
-  this->getAnimationScene()->setAnimationTime(time);
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::onNextFrame()
-{
-  // need to change the mode as in realtime next frame is actually t = t+1s
-  SetProperty(
-    this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
-  this->getAnimationScene()->getProxy()->InvokeCommand("GoToNext");
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::onPreviousFrame()
-{
-  // need to change the mode as in realtime previous frame is actually t = t-1s
-  SetProperty(
-    this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
-  this->getAnimationScene()->getProxy()->InvokeCommand("GoToPrevious");
-}
-
-//-----------------------------------------------------------------------------
-void lqLiveVCRController::setPlayMode(double speed)
-{
-  if (!this->getAnimationScene())
-    return;
-
-  if (speed <= 0)
+  switch (this->getCurrentMode())
   {
-    // There is no enum for
-    SetProperty(
-      this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::SNAP_TO_TIMESTEPS);
+    case PlayMode::ALL_FRAMES:
+      this->getAnimationScene()->setAnimationTime(time);
+      break;
+
+    case PlayMode::EMULATED_TIME:
+      ::UpdateEmulatedCurrentTime(time);
+      break;
+
+    default:
+      break;
   }
-  else
+}
+
+//-----------------------------------------------------------------------------
+double lqLiveVCRController::getSceneTime()
+{
+  if (this->getCurrentMode() == PlayMode::EMULATED_TIME)
   {
-    QPair<double, double> range = this->getAnimationScene()->getClockTimeRange();
-    SetProperty(this->getAnimationScene(), "Duration", (range.second - range.first) / this->speed);
-    SetProperty(this->getAnimationScene(), "PlayMode", vtkCompositeAnimationPlayer::REAL_TIME);
+    pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+    return lsm->getEmulatedCurrentTime();
   }
+  else if (this->getCurrentMode() == PlayMode::ALL_FRAMES)
+  {
+    pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
+    return tk->getTime();
+  }
+  return 0.;
 }

@@ -8,12 +8,12 @@ set(classes
   lqLidarCameraToolbar
   lqLidarCoreManager
   lqLidarStreamColorByInitBehavior
+  lqLivePlayerWidget
   lqLiveSourceScalarColoringBehavior
   lqLiveVCRController # Should be in Components but has a dependency on lqSensorListWidget
   lqLoadLidarStateReaction
   lqMeasurementGridReaction
   lqOpenLidarReaction
-  lqPlayerControlsToolbar
   lqPythonShellReaction
   lqRecentlyUsedPcapLoader
   lqRulerReaction
@@ -32,7 +32,7 @@ set(classes
 set(ui_files
   Resources/UI/lqColorToolbar.ui
   Resources/UI/lqLidarCameraToolbar.ui
-  Resources/UI/lqPlayerControlsToolbar.ui
+  Resources/UI/lqLivePlayerWidget.ui
   Resources/UI/lqRulersToolbar.ui
   Resources/UI/lqSensorWidget.ui)
 
