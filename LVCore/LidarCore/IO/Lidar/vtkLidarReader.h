@@ -39,6 +39,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * As vtkLidarReader needs to hide its data when the global time is
+   * out of its timesteps bound, we need to change behavior of
+   * vtkEmulatedTimeAlgorithm::GetNeedsUpdate()
+   *
+   * @sa RequestUpdateExtent
+   */
+  bool GetNeedsUpdate(double time) override;
+
+  /**
    * Override MTime with interpreter one. So when the interpreter is updated
    * the LidarReader is also considered updated.
    */
@@ -139,13 +148,22 @@ protected:
   vtkLidarReader();
   ~vtkLidarReader() override;
 
-  int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+  /**
+   * Open pcap, parse all timesteps and build a frame index.
+   */
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+  /**
+   * Change current timesteps to an "out of bound" one when EmptyFrameUpdate is true.
+   *
+   * @sa GetNeedsUpdate()
+   */
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Read pcap data for a specific frame / timestep.
+   */
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 

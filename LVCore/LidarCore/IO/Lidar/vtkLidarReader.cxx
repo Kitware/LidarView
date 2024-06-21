@@ -85,6 +85,9 @@ public:
   vtkPacketFileReader Reader;
   bool NeedsReIndexing = true;
   double LastFrameRequested = 0;
+  // The following are for EmulatedTime hiding frames
+  bool EmptyFrameUpdate = false;
+  bool ShouldRefreshEmptyFrame = false;
 
   //----------------------------------------------------------------------------
   double ComputeNetworkTimeToDataTime()
@@ -189,6 +192,29 @@ int vtkLidarReader::FillOutputPortInformation(int port, vtkInformation* info)
 std::string vtkLidarReader::GetSensorInformation(bool shortVersion)
 {
   return this->LidarInterpreter->GetSensorInformation(shortVersion);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarReader::GetNeedsUpdate(double time)
+{
+  bool needUpdate = false;
+  double* ranges = this->Superclass::GetTimeRange();
+  if (ranges[0] - ::SHOW_FRAME_TOLERANCE <= time && time <= ranges[1] + ::SHOW_FRAME_TOLERANCE)
+  {
+    needUpdate = this->Superclass::GetNeedsUpdate(time);
+    this->Internals->ShouldRefreshEmptyFrame = true;
+  }
+  else
+  {
+    // Avoid refreshing empty frame for each update
+    if (this->Internals->ShouldRefreshEmptyFrame)
+    {
+      this->vtkAlgorithm::Modified();
+      this->Internals->EmptyFrameUpdate = true;
+      this->Internals->ShouldRefreshEmptyFrame = false;
+    }
+  }
+  return needUpdate || this->Internals->EmptyFrameUpdate;
 }
 
 //-----------------------------------------------------------------------------
@@ -488,6 +514,23 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkLidarReader::RequestUpdateExtent(vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  int ret = this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
+  if (this->Internals->EmptyFrameUpdate)
+  {
+    double* ranges = this->Superclass::GetTimeRange();
+    double backFrame = ranges[1] + ::SHOW_FRAME_TOLERANCE * 2;
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), backFrame);
+    this->Internals->EmptyFrameUpdate = false;
+  }
+  return ret;
 }
 
 //-----------------------------------------------------------------------------
