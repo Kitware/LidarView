@@ -854,12 +854,12 @@ void vtkMotionDetector::ExtractClusters(vtkSmartPointer<vtkPolyData> input,
   vtkSmartPointer<vtkTable> infoOutput)
 {
   // Get motion points
-  if (this->NbMotionPoints == 0)
+  if (input->GetNumberOfPoints() == 0)
   {
     return;
   }
   vtkNew<vtkPoints> motionPoints;
-  motionPoints->SetNumberOfPoints(this->NbMotionPoints);
+  motionPoints->SetNumberOfPoints(input->GetNumberOfPoints());
   vtkNew<vtkPolyData> motionPolyData;
   motionPolyData->SetPoints(motionPoints);
   vtkIdType pointIndex = 0;

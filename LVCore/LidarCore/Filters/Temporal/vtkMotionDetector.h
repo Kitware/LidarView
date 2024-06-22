@@ -104,9 +104,6 @@ private:
   // Max distance to apply motion detection
   double DetectionRange = 50.;
 
-  // Total number of points estimated to be motion object
-  unsigned int NbMotionPoints = 0;
-
   // Parameters to subsample motion points and remove isolated motion points
   double SubsampleRange = 6.;
   double SubsampleResolution = -1.;
