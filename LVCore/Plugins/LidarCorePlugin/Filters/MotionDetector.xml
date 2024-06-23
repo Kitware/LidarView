@@ -29,11 +29,11 @@
 
     <DoubleVectorProperty name="Detection Range"
                        command="SetDetectionRange"
-                       number_of_elements="1"
-                       default_values="50">
+                       number_of_elements="2"
+                       default_values="0. 50.">
       <Documentation>
        To define the detection range. The motion detection is only applied on points that their distance from lidar is
-       less than the detection range.
+       in the detection range [min, max].
       </Documentation>
     </DoubleVectorProperty>
 

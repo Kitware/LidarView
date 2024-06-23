@@ -69,7 +69,7 @@ public:
   void SetWindowSize(int windowSize);
 
   // Set Max distance to apply motion detection
-  vtkSetMacro(DetectionRange, double);
+  void SetDetectionRange(double minDist, double maxDist);
 
   // Set number of frames to wait for initialization
   vtkSetMacro(InitializationTime, int);
@@ -102,7 +102,7 @@ private:
   int InitializationTime = 100;
 
   // Max distance to apply motion detection
-  double DetectionRange = 50.;
+  double DetectionRange[2] = { 0., 50. };
 
   // Parameters to subsample motion points and remove isolated motion points
   double SubsampleRange = 6.;

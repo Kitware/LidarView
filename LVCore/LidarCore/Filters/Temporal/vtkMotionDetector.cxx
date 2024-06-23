@@ -680,6 +680,16 @@ void vtkMotionDetector::SetWindowSize(int windowSize)
 }
 
 //----------------------------------------------------------------------------
+void vtkMotionDetector::SetDetectionRange(double minDist, double maxDist)
+{
+  if (this->DetectionRange[0] != minDist || this->DetectionRange[1] != maxDist)
+  {
+    this->DetectionRange[0] = minDist;
+    this->DetectionRange[1] = maxDist;
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkPolyData> motionPolydata)
 {
@@ -734,7 +744,7 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
     }
 
     // Check whether or not the point is in the detection range
-    if (sphericalPoint(0) > this->DetectionRange)
+    if (sphericalPoint(0) < this->DetectionRange[0] || sphericalPoint(0) > this->DetectionRange[1])
     {
       continue;
     }
