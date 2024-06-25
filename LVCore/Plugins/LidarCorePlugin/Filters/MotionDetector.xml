@@ -53,7 +53,8 @@
                        number_of_elements="1"
                        default_values="0.1">
       <Documentation>
-       Azimuth resolution should be coherent with lidar resolution.
+       Resolution of the map to detect movement. For better results, this should be coherent with lidar resolution.
+	   But this may be increased for performance improvements at the cost of minimal object size detected. 
       </Documentation>
     </DoubleVectorProperty>
 
@@ -62,8 +63,9 @@
                        number_of_elements="1"
                        default_values="1">
       <Documentation>
-       Vertical angle resolution should be coherent with lidar resolution.
-      </Documentation>
+       Resolution of the map to detect movement. For better results, this should be coherent with lidar resolution.
+       But this may be increased for performance improvements at the cost of minimal object size detected.
+	  </Documentation>
     </DoubleVectorProperty>
 
     <IntVectorProperty name="Initialization time"
@@ -91,8 +93,8 @@
                        number_of_elements="1"
                        default_values="0.">
       <Documentation>
-      Subsample points.
-      </Documentation>
+		  Distance below which the subsampling of points will be activated
+	  </Documentation>
     </DoubleVectorProperty>
 
     <DoubleVectorProperty name="Subsample resolution"
@@ -100,7 +102,8 @@
                        number_of_elements="1"
                        default_values="-1.">
       <Documentation>
-      Subsample points.
+      If positive, resolution (in m) for close points subsampling (to avoid treating more points that necessary in high density scenarii) 
+      If negative, subsampling is disabled
       </Documentation>
     </DoubleVectorProperty>
 
@@ -109,7 +112,7 @@
                        number_of_elements="1"
                        default_values="0.1">
       <Documentation>
-      The search radius to remove outlier.
+      Radius used to remove isolated moving points for noise filtering
       </Documentation>
     </DoubleVectorProperty>
 
@@ -145,7 +148,7 @@
           <Entry value="2" text="Gaussian mixture model"/>
         </EnumerationDomain>
         <Documentation>
-          Choose a extractor for clustering:
+          Choose an extractor for clustering:
 
            (0) Do not extract clusters;
 
@@ -184,7 +187,7 @@
                        number_of_elements="1"
                        default_values="10">
       <Documentation>
-
+      Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
       </Documentation>
       <Hints>
         <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
