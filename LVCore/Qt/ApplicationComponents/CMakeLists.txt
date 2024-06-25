@@ -25,7 +25,6 @@ set(classes
   lqSensorReaderWidget
   lqSensorStreamWidget
   lqSensorWidget
-  lqStreamRecordReaction
   lqUpdateConfigurationReaction
   lqViewFrameActions)
 

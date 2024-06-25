@@ -17,6 +17,7 @@
 #include "ui_lqLivePlayerWidget.h"
 
 #include "lqLiveVCRController.h"
+#include "lqStreamRecordController.h"
 #include "lqTimestampLineEdit.h"
 
 #include <pqAnimationManager.h>
@@ -53,9 +54,11 @@ struct lqLivePlayerWidget::pqInternals
 {
   Ui::LivePlayerWidget Ui;
   lqLiveVCRController* Controller;
+  lqStreamRecordController* Recorder;
 
   pqInternals(lqLivePlayerWidget* self)
     : Controller(new lqLiveVCRController(self))
+    , Recorder(new lqStreamRecordController(self))
   {
     this->Ui.setupUi(self);
     for (const auto& it : ::SpeedOptions)
@@ -74,15 +77,18 @@ lqLivePlayerWidget::lqLivePlayerWidget(QWidget* parent)
   , Internals(new lqLivePlayerWidget::pqInternals(this))
 {
   auto& controller = this->Internals->Controller;
+  auto& recorder = this->Internals->Recorder;
   auto& ui = this->Internals->Ui;
 
   using lqVCR = lqLiveVCRController;
+  using lqRec = lqStreamRecordController;
   QObject::connect(ui.VCRFirstFrame, &QToolButton::pressed, controller, &lqVCR::onFirstFrame);
   QObject::connect(ui.VCRPreviousFrame, &QToolButton::pressed, controller, &lqVCR::onPreviousFrame);
   QObject::connect(ui.VCRPlay, &QToolButton::clicked, controller, &lqVCR::onPlay);
   QObject::connect(ui.VCRNextFrame, &QToolButton::pressed, controller, &lqVCR::onNextFrame);
   QObject::connect(ui.VCRLastFrame, &QToolButton::pressed, controller, &lqVCR::onLastFrame);
   QObject::connect(ui.VCRLoop, &QToolButton::clicked, controller, &lqVCR::onLoop);
+  QObject::connect(ui.VCRRecord, &QToolButton::clicked, recorder, &lqRec::onRecordStream);
 
   QObject::connect(ui.FrameSlider, &QSlider::valueChanged, controller, &lqVCR::onSeekFrame);
   QObject::connect(
@@ -101,6 +107,7 @@ lqLivePlayerWidget::lqLivePlayerWidget(QWidget* parent)
   QObject::connect(controller, &lqVCR::playing, this, &lqLivePlayerWidget::onPlaying);
   QObject::connect(controller, &lqVCR::loop, ui.VCRLoop, &QToolButton::setChecked);
   QObject::connect(controller, &lqVCR::timeChanged, this, &lqLivePlayerWidget::onTimestepChanged);
+  QObject::connect(recorder, &lqRec::recording, ui.VCRRecord, &QToolButton::setChecked);
   this->updateState(lqLiveVCRController::DISABLED);
 
   pqAnimationManager* mgr = pqPVApplicationCore::instance()->animationManager();
