@@ -136,12 +136,6 @@ public:
   virtual void ClearAllFramesAvailable() { this->Frames.clear(); }
 
   /**
-   * @brief GetDefaultRecordFileName return the default file name when recording a stream
-   * @return
-   */
-  virtual std::string GetDefaultRecordFileName();
-
-  /**
    * @brief GetSensorInformation return information to display to the user
    * @param shortVersion True to have a succinct version of the sensor information
    * @return

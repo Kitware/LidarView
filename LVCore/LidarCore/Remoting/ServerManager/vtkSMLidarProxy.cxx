@@ -16,6 +16,10 @@
 #include "vtkSMLidarProxy.h"
 
 #include <vtkObjectFactory.h>
+#include <vtkSMPropertyHelper.h>
+#include <vtkSMProxyProperty.h>
+
+#include <cstring>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSMLidarProxy);
@@ -25,6 +29,23 @@ vtkSMLidarProxy::vtkSMLidarProxy() = default;
 
 //----------------------------------------------------------------------------
 vtkSMLidarProxy::~vtkSMLidarProxy() = default;
+
+//----------------------------------------------------------------------------
+std::string vtkSMLidarProxy::GetLidarInformation()
+{
+  auto vendor = vtkSMPropertyHelper(this->GetProperty("Vendor"));
+  auto modelName = vtkSMPropertyHelper(this->GetProperty("ModelName"));
+  if (!vendor.GetAsString())
+  {
+    return "";
+  }
+  std::string info = vendor.GetAsString();
+  if (!modelName.GetAsString() || std::strlen(modelName.GetAsString()) == 0)
+  {
+    return info;
+  }
+  return info + "-" + modelName.GetAsString();
+}
 
 //----------------------------------------------------------------------------
 void vtkSMLidarProxy::PrintSelf(ostream& os, vtkIndent indent)

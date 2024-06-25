@@ -67,8 +67,13 @@
         <BooleanDomain name="bool" />
       </IntVectorProperty>
 
-      <StringVectorProperty name="DefaultRecordFileName"
-                            command="GetDefaultRecordFileName"
+      <StringVectorProperty name="Vendor"
+                            command="GetSensorVendor"
+                            panel_visibility="never"
+                            information_only="1" />
+
+      <StringVectorProperty name="ModelName"
+                            command="GetSensorModelName"
                             panel_visibility="never"
                             information_only="1" />
 

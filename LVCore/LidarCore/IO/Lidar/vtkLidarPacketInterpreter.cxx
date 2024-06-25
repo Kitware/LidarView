@@ -212,19 +212,6 @@ bool vtkLidarPacketInterpreter::PreProcessPacketWrapped(unsigned char const* dat
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkLidarPacketInterpreter::GetDefaultRecordFileName()
-{
-  std::stringstream defaultFileName;
-
-  // Add time string YYYY-mm-dd-HH-MM-SS
-  std::time_t t = std::time(nullptr);
-  std::tm tm = *std::localtime(&t);
-  defaultFileName << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S");
-
-  return defaultFileName.str();
-}
-
-//-----------------------------------------------------------------------------
 std::string vtkLidarPacketInterpreter::GetSensorInformation(bool vtkNotUsed(shortVersion))
 {
   return this->GetSensorVendor() + " - " + this->GetSensorModelName();

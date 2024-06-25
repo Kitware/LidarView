@@ -35,6 +35,12 @@ public:
   vtkTypeMacro(vtkSMLidarProxy, vtkSMSourceProxy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * If theses informations are known/accessible, return a string
+   * with `Vendor`-`ModelName`, otherwise return an empty string.
+   */
+  std::string GetLidarInformation();
+
 protected:
   vtkSMLidarProxy();
   ~vtkSMLidarProxy() override;
