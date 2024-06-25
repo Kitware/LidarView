@@ -94,6 +94,7 @@
    <addaction name="menuMacros"/>
    <addaction name="menuHelp"/>
   </widget>
+  <widget class="lqStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="colorMapEditorDock">
    <property name="windowTitle">
     <string>Color Map Editor</string>
