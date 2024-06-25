@@ -97,7 +97,7 @@ private:
 
   // Tracked State
   pqRenderView* view;                          // Current active View
-  vtkSMProxy* dwr;                             // Current active View's distanceWidgetRepresentation
+  vtkSmartPointer<vtkSMProxy> dwr;             // Current active View's distanceWidgetRepresentation
   vtkSmartPointer<vtkCallbackCommand> mouseCC; // Mouse Callback command
   bool started = false;                        // Set to true when ruler has been clicked once
 };

@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkInterpreter() = default;
-  virtual ~vtkInterpreter() = default;
+  ~vtkInterpreter() override;
 
   //! Fixed transform to apply to the Sensor output points.
   vtkTransform* SensorTransform = nullptr;

@@ -226,7 +226,7 @@ void lqRulerReaction::setView(pqRenderView* rview)
   this->view = rview;
 
   // Set Mouse callback
-  mouseCC = vtkCallbackCommand::New(); // Mouse press callback
+  mouseCC.TakeReference(vtkCallbackCommand::New()); // Mouse press callback
   mouseCC->SetClientData(this);
   mouseCC->SetCallback(lqRulerReaction::mousePressCallback);
   vtkSMViewProxy::SafeDownCast(this->view->getProxy())
@@ -239,7 +239,8 @@ void lqRulerReaction::setView(pqRenderView* rview)
 void lqRulerReaction::createDWR()
 {
   vtkSMProxyManager* proxyManager = vtkSMProxyManager::GetProxyManager();
-  this->dwr = proxyManager->NewProxy("representations", "DistanceWidgetRepresentation");
+  this->dwr.TakeReference(
+    proxyManager->NewProxy("representations", "DistanceWidgetRepresentation"));
   vtkSMProxyProperty::SafeDownCast(this->view->getProxy()->GetProperty("Representations"))
     ->AddProxy(this->dwr);
 }
@@ -252,8 +253,7 @@ void lqRulerReaction::destroyState()
   {
     vtkSMProxyProperty::SafeDownCast(this->view->getProxy()->GetProperty("Representations"))
       ->RemoveProxy(this->dwr);
-    this->dwr->Delete();
-    this->dwr = nullptr; // TODO USE smarpointer ? e.g Catalyst/vtkCPProcessor.cxx NewProxy
+    this->dwr = nullptr;
 
     this->view->getProxy()->UpdateVTKObjects();
     this->view->render();
@@ -265,7 +265,6 @@ void lqRulerReaction::destroyState()
   {
     mouseCC->SetClientData(nullptr);
     mouseCC->SetCallback(nullptr);
-    mouseCC->Delete();
     mouseCC = nullptr;
   }
 

@@ -78,7 +78,7 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     {
       if (fsValues[i] != 0)
       {
-        vtkSmartPointer<vtkDoubleArray> fsArray = vtkDoubleArray::New();
+        vtkSmartPointer<vtkDoubleArray> fsArray = vtkSmartPointer<vtkDoubleArray>::New();
         fsArray->SetName(::SPEED_FIELD_DATA_NAME[i]);
         fsArray->SetNumberOfComponents(1);
         fsArray->SetNumberOfTuples(1);
@@ -95,7 +95,7 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     {
       if (!infoValues[idx].empty())
       {
-        vtkSmartPointer<vtkStringArray> strArray = vtkStringArray::New();
+        vtkSmartPointer<vtkStringArray> strArray = vtkSmartPointer<vtkStringArray>::New();
         strArray->SetName(::INFO_FIELD_DATA_NAME[idx]);
         strArray->SetNumberOfComponents(1);
         strArray->SetNumberOfTuples(1);
@@ -107,7 +107,7 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
     // Apply transform on all points
     if (this->GetSensorTransform())
     {
-      vtkSmartPointer<vtkPoints> newPts = vtkPoints::New();
+      vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
       newPts->Allocate(this->CurrentFrame->GetNumberOfPoints());
       newPts->GetData()->SetName(this->CurrentFrame->GetPoints()->GetData()->GetName());
       this->GetSensorTransform()->TransformPoints(this->CurrentFrame->GetPoints(), newPts);

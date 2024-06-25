@@ -1,13 +1,20 @@
 // This file is needed to the python wrapping for vtk :
 // The CMake mechanism of VTK needs it to generate some dependency graphs
 
-#include <vtkTransform.h>
-#include <algorithm>
-
 #include "vtkInterpreter.h"
 
+#include <vtkTransform.h>
+
+#include <algorithm>
+
 //-----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkInterpreter, SensorTransform, vtkTransform)
+vtkCxxSetObjectMacro(vtkInterpreter, SensorTransform, vtkTransform);
+
+//-----------------------------------------------------------------------------
+vtkInterpreter::~vtkInterpreter()
+{
+  this->SetSensorTransform(nullptr);
+}
 
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkInterpreter::GetMTime()
