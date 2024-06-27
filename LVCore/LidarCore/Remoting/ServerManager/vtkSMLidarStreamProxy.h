@@ -35,6 +35,14 @@ public:
   vtkTypeMacro(vtkSMLidarStreamProxy, vtkSMLidarProxy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * Calls the `GetNeedsUpdate` method on the underlying LiveSource implementation.
+   *
+   * This function is intended for use in Python when the client does not have
+   * the Qt LiveSource behavior running.
+   */
+  bool DoesNeedsUpdate();
+
 protected:
   vtkSMLidarStreamProxy();
   ~vtkSMLidarStreamProxy() override;

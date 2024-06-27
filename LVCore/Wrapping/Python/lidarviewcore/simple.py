@@ -13,7 +13,7 @@
 #
 #==============================================================================
 
-import csv, os
+import csv, os, sys
 
 import importlib
 import paraview.simple as smp
@@ -216,6 +216,26 @@ def OpenSensorStream(lidarModel, interpreter, **params):
     smp.Show(stream)
     stream.Start()
     return stream
+
+# -----------------------------------------------------------------------------
+def RefreshStream(stream):
+    """ Check if the stream needs to be refreshed and update it if necessary.
+    Return True if the live source was refreshed, otherwise False.
+
+    **Parameters**
+
+        stream (vtkSMLidarStreamProxy):
+          Stream to refresh, this should be an instance of `vtkSMLidarStreamProxy`.
+    """
+    if not stream:
+        print("RefreshStream requires a valid stream.", file=sys.stderr)
+        return False
+
+    needUpdate = stream.SMProxy.DoesNeedsUpdate()
+    if needUpdate:
+      stream.SMProxy.MarkModified(stream.SMProxy)
+      smp.RenderAllViews()
+    return needUpdate
 
 # -----------------------------------------------------------------------------
 def RotateCSVFile(filename, nbOfColumns=3):
