@@ -66,5 +66,5 @@
   <pqevent object="LidarViewMainWindow/0QColorDialog0" command="done" arguments="1" />
 
   <!-- Go to next frame -->
-  <pqevent object="LidarViewMainWindow/playerControlToolbar/actionVCRNextFrame" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/VCRNextFrame" command="activate" arguments="" />
 </pqevents>

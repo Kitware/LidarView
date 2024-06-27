@@ -13,7 +13,7 @@
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StartFrameSpinBox" command="set_int" arguments="5" />
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StopFrameSpinBox" command="set_int" arguments="20" />
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/pqFileDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20" />
+  <pqevent object="LidarViewMainWindow/1pqFileDialog0/tabWidget/qt_tabwidget_stackedwidget/pqFileDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20" />
 
   <!-- Reset session -->
   <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionDeleteAll" command="activate" arguments="" />
@@ -24,5 +24,5 @@
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="VLP-16" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/playerControlToolbar/actionVCRPlay" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/VCRPlay" command="activate" arguments="" />
 </pqevents>

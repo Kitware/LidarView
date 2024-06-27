@@ -43,7 +43,8 @@
   <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionPythonShell" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/runScriptButton" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/PythonShellRunScriptDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestTrace.py" />
-  <pqevent object="LidarViewMainWindow/playerControlToolbar/1QSpinBox0" command="set_int" arguments="30" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/FrameSpinBox" command="set_int" arguments="30" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/FrameSpinBox" command="key" arguments="16777220" />
   <pqevent object="LidarViewMainWindow/cameraToolbar/actionNegativeX" command="activate" arguments="" />
   <pqevent object="LidarViewMainWindow/cameraToolbar/actionZoomClosestToData" command="activate" arguments="" />
 </pqevents>

@@ -6,7 +6,7 @@
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
 
   <!-- Add a Clip Point Filter -->
-  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Common" command="activate" arguments="ClipPoints" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/pqProxyGroupMenuManager0/ClipPoints" command="activate" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/comboBox" command="activated" arguments="Sphere" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/centerX" command="set_string" arguments="0" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/centerY" command="set_string" arguments="0" />
