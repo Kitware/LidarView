@@ -16,13 +16,13 @@
 #include "lqColorToolbar.h"
 #include "ui_lqColorToolbar.h"
 
-#include <QWidget>
 #include <QToolButton>
+#include <QWidget>
 
 #include <pqActiveObjects.h>
 #include <pqDisplayColorWidget.h>
 #include <pqEditColorMapReaction.h>
-#include <pqResetScalarRangeReaction.h>
+#include <pqRescaleScalarRangeReaction.h>
 #include <pqScalarBarVisibilityReaction.h>
 #include <pqSetName.h>
 
@@ -37,13 +37,13 @@ void lqColorToolbar::constructor()
   new pqScalarBarVisibilityReaction(ui.actionScalarBarVisibility);
   new lqChangeColorPresetReaction(ui.actionChangeColorPreset);
   new pqEditColorMapReaction(ui.actionEditColorMap);
-  new pqResetScalarRangeReaction(ui.actionResetRange, true, pqResetScalarRangeReaction::DATA);
-  new pqResetScalarRangeReaction(
-    ui.actionRescaleCustomRange, true, pqResetScalarRangeReaction::CUSTOM);
-  new pqResetScalarRangeReaction(
-    ui.actionRescaleTemporalRange, true, pqResetScalarRangeReaction::TEMPORAL);
-  new pqResetScalarRangeReaction(
-    ui.actionRescaleVisibleRange, true, pqResetScalarRangeReaction::VISIBLE);
+  new pqRescaleScalarRangeReaction(ui.actionResetRange, true, pqRescaleScalarRangeReaction::DATA);
+  new pqRescaleScalarRangeReaction(
+    ui.actionRescaleCustomRange, true, pqRescaleScalarRangeReaction::CUSTOM);
+  new pqRescaleScalarRangeReaction(
+    ui.actionRescaleTemporalRange, true, pqRescaleScalarRangeReaction::TEMPORAL);
+  new pqRescaleScalarRangeReaction(
+    ui.actionRescaleVisibleRange, true, pqRescaleScalarRangeReaction::VISIBLE);
 
   pqDisplayColorWidget* display_color = new pqDisplayColorWidget(this) << pqSetName("displayColor");
   // Hide "Components" QComboBox has it is limited used in LidarView

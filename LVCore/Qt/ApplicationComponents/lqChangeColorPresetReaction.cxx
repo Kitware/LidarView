@@ -15,7 +15,7 @@
 
 #include "lqChangeColorPresetReaction.h"
 
-#include <vtkSMPVRepresentationProxy.h>
+#include <vtkSMColorMapEditorHelper.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 #include <vtkSMTransferFunctionPresets.h>
@@ -85,7 +85,7 @@ void lqChangeColorPresetReaction::setRepresentation(pqDataRepresentation* repr)
 void lqChangeColorPresetReaction::updateEnableState()
 {
   vtkSMProxy* reprProxy = this->Representation ? this->Representation->getProxy() : nullptr;
-  bool enabled = reprProxy && vtkSMPVRepresentationProxy::GetUsingScalarColoring(reprProxy);
+  bool enabled = reprProxy && vtkSMColorMapEditorHelper::GetUsingScalarColoring(reprProxy);
   this->parentAction()->setEnabled(enabled);
 }
 
