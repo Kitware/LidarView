@@ -53,7 +53,7 @@ Feel free to reach out at kitware@kitware.com for support or new features develo
 
 See associated download links in the [Release](https://gitlab.kitware.com/LidarView/lidarview/-/releases) page of this repository.
 
-Nightly (master) packages are available [here](https://gitlab.kitware.com/LidarView/lidarview-superbuild/-/pipelines?scope=all&ref=master). (click on `Download artifacts`)
+Nightly (master) packages are available [here](https://gitlab.kitware.com/LidarView/lidarview-superbuild/-/pipelines?scope=all&source=schedule&ref=master). (click on `Download artifacts`)
 
 More detailed installation instructions are available on the [`LVCore/Documentation/INSTALLATION.md`](https://gitlab.kitware.com/LidarView/lidarview-core/-/blob/master/Documentation/INSTALLATION.md) page.
 
