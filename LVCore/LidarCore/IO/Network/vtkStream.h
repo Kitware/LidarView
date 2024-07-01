@@ -24,6 +24,7 @@
 #include <vtkSmartPointer.h>
 
 #include "vtkInterpreter.h"
+#include "vtkLiveSourceAlgorithm.h"
 
 #include "lvIONetworkModule.h"
 
@@ -32,6 +33,10 @@ class PacketConsumer;
 class PacketFileWriter;
 class PacketReceiver;
 class vtkInterpreter;
+
+#ifndef __VTK_WRAP__
+#define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
+#endif
 
 class LVIONETWORK_EXPORT vtkStream : public vtkDataObjectAlgorithm
 {
@@ -119,6 +124,10 @@ protected:
   // resulting in a pure virtual function call at runtime.
   virtual ~vtkStream() = 0;
 
+  int RequestInformation(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
   virtual int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override = 0;
@@ -167,5 +176,9 @@ private:
   template <class T>
   void SetAttributeAndRestartIfRunning(T& attribute, const T& value);
 };
+
+#ifndef __VTK_WRAP__
+#undef vtkDataObjectAlgorithm
+#endif
 
 #endif // VTKSTREAM_H

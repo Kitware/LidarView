@@ -106,10 +106,19 @@ bool vtkStream::GetNeedsUpdate()
 {
   if (this->CheckForNewData())
   {
-    this->Modified();
+    this->UpdateLiveSource();
     return true;
   }
   return false;
+}
+
+//----------------------------------------------------------------------------
+int vtkStream::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
+{
+  this->Start();
+  return 1;
 }
 
 //----------------------------------------------------------------------------

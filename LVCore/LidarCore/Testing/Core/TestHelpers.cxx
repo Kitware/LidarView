@@ -699,11 +699,15 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   LidarStream1->SetForwardedPort(dataPort + 1);
   LidarStream1->SetForwardedIpAddress("127.0.0.1");
   LidarStream1->SetIsForwarding(true);
+  LidarStream1->Update();
+  LidarStream1->Stop();
 
   vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
   LidarStream2->SetLidarInterpreter(interpreter2);
   interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort + 1);
+  LidarStream2->Update();
+  LidarStream2->Stop();
 
   int retVal = 0;
   // get VTP file name from the reference file
@@ -784,6 +788,9 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
   LidarStream1->SetRecordingFilename(temporaryFile);
+  LidarStream1->Update();
+  LidarStream1->Stop();
+
   LidarStream1->StartRecording();
   retVal += testLidarStream(LidarStream1.Get(), pcapFileName, referenceFileName, shouldPreSend);
   LidarStream1->StopRecording();
@@ -793,6 +800,8 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   LidarStream2->SetLidarInterpreter(interpreter2);
   interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort);
+  LidarStream2->Update();
+  LidarStream2->Stop();
   retVal += testLidarStream(LidarStream2.Get(), temporaryFile, referenceFileName, shouldPreSend);
 
   std::remove(temporaryFile.c_str());

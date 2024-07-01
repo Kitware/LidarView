@@ -221,12 +221,6 @@ bool lqOpenLidarReaction::openLidarStream()
     return false;
   }
   ::InitAndDisplaySource(source, prototype, true);
-
-  // "Start" of the lidar Source have to be called
-  vtkSMProxy* proxy = source->getSourceProxy();
-  SM_SCOPED_TRACE(CallMethod).arg(proxy).arg("Start");
-  proxy->InvokeCommand("Start");
-
   return true;
 }
 

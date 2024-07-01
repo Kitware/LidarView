@@ -17,6 +17,7 @@
 #include "TestHelpers.h"
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkLidarReader.h"
+#include "vtkLidarStream.h"
 
 #include <vtkAbstractArray.h>
 #include <vtkDoubleArray.h>
@@ -110,6 +111,10 @@ int vtkLidarTestTools::TestLidarStreamWithBaseline(vtkLidarStream* stream,
   const std::string& referenceDataFileName,
   bool shouldPreSend)
 {
+  // Auto stop stream
+  stream->Update();
+  stream->Stop();
+
   std::string baselineFilePath;
   double outRefTime;
 
