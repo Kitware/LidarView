@@ -58,7 +58,12 @@ void CopyArray(vtkFieldData* fieldData, const char* name, uint8_t* dataBuffer, u
   typename Type::ValueType data[N] = { 0 };
 
   auto array = Type::SafeDownCast(fieldData->GetAbstractArray(name));
-  if (array && array->GetNumberOfComponents() == N && array->GetNumberOfTuples() == 1)
+  if (!array)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Could not find array: " << name << " in data.");
+    return;
+  }
+  if (array->GetNumberOfComponents() == N && array->GetNumberOfTuples() == 1)
   {
     array->GetTypedTuple(0, data);
   }
