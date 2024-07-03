@@ -27,7 +27,7 @@
       </SubProxy>
 
       <Hints>
-        <LiveSource />
+        <LiveSource refresh_on_interaction="1" />
         <View type="None" port="1" />
         <PipelineIcon name="SpreadSheetView" port="1" />
       </Hints>
