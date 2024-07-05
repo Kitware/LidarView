@@ -1,6 +1,8 @@
 {
   "lidarViewer": {
-    "dockWidgets": [],
+    "dockWidgets": [
+      "lidarPlayerDock"
+    ],
     "menus": {
       "hide": [
         "menuView",
@@ -52,12 +54,9 @@
         "cameraToolbar",
         "axesToolbar",
         "rulersToolbar",
-        "sqSlamToolbar",
-        "playerControlToolbar"
+        "sqSlamToolbar"
       ],
-      "toolbarBreaks": [
-        "playerControlToolbar"
-      ],
+      "toolbarBreaks": [],
       "mainControlsToolbar": [
         "actionOpenPcap",
         "actionSavePcap",
@@ -192,6 +191,7 @@
   },
   "advancedMode": {
     "dockWidgets": [
+      "lidarPlayerDock",
       "pipelineBrowserDock",
       "propertiesDock",
       "displayPropertiesDock"
@@ -267,7 +267,6 @@
         "rulersToolbar",
         "customViewpointsToolbar",
         "sqSlamToolbar",
-        "playerControlToolbar",
         "ToolBar"
       ],
       "mainControlsToolbar": [
@@ -286,8 +285,7 @@
         "actionDeleteAll"
       ],
       "toolbarBreaks": [
-        "cameraToolbar",
-        "playerControlToolbar"
+        "cameraToolbar"
       ]
     },
     "automaticallyShowScalarBars": true,

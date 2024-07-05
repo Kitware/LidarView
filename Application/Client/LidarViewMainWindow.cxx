@@ -119,6 +119,8 @@ LidarViewMainWindow::LidarViewMainWindow()
     "COLOR_EDITOR_PANEL", this->Internals->colorMapEditorDock);
   pqApplicationCore::instance()->registerManager(
     "PYTHON_SHELL_PANEL", this->Internals->pythonShellDock);
+  pqApplicationCore::instance()->registerManager(
+    "LIDAR_PLAYER_PANEL", this->Internals->lidarPlayerDock);
 
   QStringList preamble = { "from paraview.simple import *", "from lidarview.simple import *" };
   // Create pythonshell
@@ -140,9 +142,9 @@ LidarViewMainWindow::LidarViewMainWindow()
   this->connect(&this->Internals->UpdateFontSizeTimer, SIGNAL(timeout()), SLOT(updateFontSize()));
 
   // Set up the dock window corners to give the vertical docks more room.
-  this->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
+  this->setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
   this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-  this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
   this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
   // Populate application menus with actions.

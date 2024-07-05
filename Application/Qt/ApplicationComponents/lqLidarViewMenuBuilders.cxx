@@ -43,7 +43,6 @@
 #include "lqMeasurementGridReaction.h"
 #include "lqMenuSaveAsReaction.h"
 #include "lqOpenLidarReaction.h"
-#include "lqPlayerControlsToolbar.h"
 #include "lqRulersToolbar.h"
 #include "lqSavePcapReaction.h"
 #include "lqSensorListWidget.h"
@@ -201,9 +200,4 @@ void lqLidarViewMenuBuilders::buildToolbars(QMainWindow& mainWindow)
     << pqSetName("customViewpointsToolbar");
   customViewpointsToolbar->layout()->setSpacing(0);
   mainWindow.addToolBar(Qt::TopToolBarArea, customViewpointsToolbar);
-
-  QToolBar* vcrToolbar = new lqPlayerControlsToolbar(&mainWindow)
-    << pqSetName("playerControlToolbar");
-  vcrToolbar->layout()->setSpacing(0);
-  mainWindow.addToolBar(Qt::TopToolBarArea, vcrToolbar);
 }

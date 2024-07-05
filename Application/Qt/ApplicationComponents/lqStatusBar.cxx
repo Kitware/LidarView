@@ -16,6 +16,8 @@
 #include "lqStatusBar.h"
 
 #include "lqSensorListWidget.h"
+#include "vtkSMLidarProxy.h"
+#include "vtkSMLidarStreamProxy.h"
 
 #include <pqActiveObjects.h>
 #include <vtkSMProperty.h>
@@ -25,6 +27,7 @@
 #include <vtkSMStringVectorProperty.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <QFileInfo>
 #include <QLabel>
 #include <QString>
 
@@ -66,12 +69,8 @@ void lqStatusBar::onActiveSourceChanged(pqPipelineSource* activeSource)
       std::string filename = svp->GetElement(0);
       if (!filename.empty())
       {
-        int hidden = filename.size() - 60;
-        if (hidden >= 0)
-        {
-          filename = "... " + filename.substr(hidden, filename.size());
-        }
-        std::string message = " File: " + filename;
+        QFileInfo fileInfo(QString::fromStdString(filename));
+        std::string message = "File: " + fileInfo.fileName().toStdString();
         this->filenameLabel->setText(message.c_str());
       }
     }
@@ -80,13 +79,11 @@ void lqStatusBar::onActiveSourceChanged(pqPipelineSource* activeSource)
       this->filenameLabel->clear();
     }
 
-    vtkSMProxyProperty* interpreterProp =
-      vtkSMProxyProperty::SafeDownCast(proxy->GetProperty("PacketInterpreter"));
-    vtkSMProxy* interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
-    if (interpreterProxy)
+    vtkSMLidarProxy* lidarProxy = vtkSMLidarProxy::SafeDownCast(proxy);
+    if (lidarProxy && !lidarProxy->GetLidarInformation().empty())
     {
-      std::string selectedProxy = interpreterProxy->GetVTKClassName();
-      this->sensorInfoLabel->setText(selectedProxy.c_str());
+      std::string message = "Interpreter: " + lidarProxy->GetLidarInformation();
+      this->sensorInfoLabel->setText(message.c_str());
     }
     else
     {
