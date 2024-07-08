@@ -24,6 +24,7 @@ set(lidarview_available_interpreters_plugins
   VelodynePlugin
   LeishenPlugin
   LivoxPlugin
+  RobosensePlugin
   HesaiPlugin)
 set(lidarview_interpreters_plugin_directories "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
 add_subdirectory(LVCore)
