@@ -217,6 +217,7 @@ void lqLivePlayerWidget::onPlaying(bool isPlaying, bool vtkNotUsed(reverse))
     ui.VCRPlay->setText("&Play");
     ui.VCRPlay->setToolTip("Play");
   }
+  ui.VCRPlay->setShortcut(QKeySequence("Space"));
 }
 
 //-----------------------------------------------------------------------------
