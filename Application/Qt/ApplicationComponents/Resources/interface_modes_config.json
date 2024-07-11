@@ -204,6 +204,7 @@
         "separator",
         "actionSaveData",
         "actionSavePcap",
+        "menuSaveAs",
         "actionFileSaveScreenshot",
         "actionFileSaveAnimation",
         "separator",
