@@ -138,7 +138,6 @@ endif ()
 # Ros2IO plugin dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_ROS2IO_PLUGIN)
-  find_package(ros2io REQUIRED QUIET)
-  print_version(ros2io)
-  check_depedency_target("ros2io::paraview_plugin" ros2io::paraview_plugin)
+  find_package(Ros2IO REQUIRED QUIET)
+  check_depedency_target("Ros2IO::paraview_plugin" Ros2IO::paraview_plugin)
 endif ()
