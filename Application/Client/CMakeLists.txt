@@ -40,7 +40,7 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
 endif ()
 
 if (LIDARVIEW_USE_ROS2IO_PLUGIN)
-  list(APPEND plugins_targets ros2io::paraview_plugin)
+  list(APPEND plugins_targets Ros2IO::paraview_plugin)
 endif ()
 
 paraview_client_add(
