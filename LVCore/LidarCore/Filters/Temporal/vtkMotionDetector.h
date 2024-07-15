@@ -72,7 +72,7 @@ public:
   void SetDetectionRange(double minDist, double maxDist);
 
   // Set number of frames to wait for initialization
-  vtkSetMacro(InitializationTime, int);
+  vtkSetMacro(InitNbFrames, int);
 
   // Set radius and neighbor value to remove isolated motion points
   vtkSetMacro(SubsampleRange, double);
@@ -104,7 +104,7 @@ private:
   void operator=(const vtkMotionDetector&);
 
   // Time for initialization (frames)
-  int InitializationTime = 100;
+  int InitNbFrames = 100;
 
   // Max distance to apply motion detection
   double DetectionRange[2] = { 0., 50. };

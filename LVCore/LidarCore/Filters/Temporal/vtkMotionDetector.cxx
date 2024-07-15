@@ -90,11 +90,11 @@ public:
    * When a new point is added, the sigma and the mean will be updated
    * The weight parameter is to store the weight of each gaussian in GMM
    */
-  struct Gaussian
+  struct Gaussian1D
   {
     // Constructor
-    Gaussian() = default;
-    Gaussian(double mean,
+    Gaussian1D() = default;
+    Gaussian1D(double mean,
       double sigma,
       int maxTTL,
       unsigned int nb = 1,
@@ -104,7 +104,7 @@ public:
       , Sigma(sigma)
       , MaxTTL(maxTTL)
       , TTL(maxTTL)
-      , N(nb)
+      , NbInliers(nb)
       , IsMotion(isMotion)
       , Weight(weight){};
 
@@ -121,7 +121,7 @@ public:
     int TTL = 50;
 
     // Number of samples added into gaussian
-    unsigned int N = 0;
+    unsigned int NbInliers = 0;
 
     // If or not the gaussian cluster represent a motion area
     bool IsMotion = false;
@@ -141,8 +141,8 @@ public:
     {
       // Update the weight
       double oldWeight = this->Weight;
-      double sumWeight = static_cast<double>(this->N) * oldWeight;
-      this->Weight = (sumWeight + weightX) / (static_cast<double>(this->N + 1));
+      double sumWeight = static_cast<double>(this->NbInliers) * oldWeight;
+      this->Weight = (sumWeight + weightX) / (static_cast<double>(this->NbInliers + 1));
 
       // Update the mean
       double oldMean = this->Mean;
@@ -154,7 +154,7 @@ public:
         (sumWeight + weightX));
 
       // Update the number of sample
-      this->N += 1;
+      ++this->NbInliers;
     }
 
     // Update the time to live
@@ -171,11 +171,11 @@ public:
    * Each gaussian distribution represents a cluster with a weight
    * The background is the cluster which has a large value of weight / sigma
    */
-  class GaussianMixture
+  class GaussianMixture1D
   {
   public:
     // Default constructor
-    GaussianMixture() = default;
+    GaussianMixture1D() = default;
 
     void Reset() { this->Gaussians.clear(); }
 
@@ -216,7 +216,8 @@ public:
       double closestProba = 0.;
       double minDistance = FLT_MAX;
       this->ItClosest = this->Gaussians.begin();
-      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
+           it != this->Gaussians.end();
            ++it)
       {
         probas.emplace_back(it->Weight * (*it)(x));
@@ -267,7 +268,8 @@ public:
         motionProba = 1 - motionProba;
         return motionProba;
       }
-      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
+           it != this->Gaussians.end();
            ++it)
       {
         if (it != this->ItClosest && !it->IsMotion && evalBackground > (it->Weight / it->Sigma))
@@ -290,7 +292,7 @@ public:
       // Create a new gaussian if the gaussian mixture model is empty
       if (this->Gaussians.empty())
       {
-        Gaussian newGaussian(x, 0.2, this->MaxTTL, 1, motionEstim);
+        Gaussian1D newGaussian(x, 0.2, this->MaxTTL, 1, motionEstim);
         this->Gaussians.push_back(newGaussian);
         this->ItClosest = this->Gaussians.begin();
         return;
@@ -311,9 +313,9 @@ public:
       }
 
       // Create a new gaussian if the new point is far from existing distributions
-      Gaussian newGaussian(x, 0.2, this->MaxTTL, this->ItClosest->N + 1, motionEstim);
+      Gaussian1D newGaussian(x, 0.2, this->MaxTTL, this->ItClosest->NbInliers + 1, motionEstim);
       probas.clear();
-      for (auto gaussian : this->Gaussians)
+      for (auto& gaussian : this->Gaussians)
       {
         probas.emplace_back(gaussian(x));
       }
@@ -321,7 +323,8 @@ public:
       double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
       int idProba = 0;
       // Update existing gaussians with new weights
-      for (std::list<Gaussian>::iterator it = this->Gaussians.begin(); it != this->Gaussians.end();
+      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
+           it != this->Gaussians.end();
            ++it)
       {
         it->UpdateParams(x, probas[idProba] / sumProba);
@@ -329,7 +332,7 @@ public:
       }
       // Set weight for new gaussian and add it to the model
       double newGaussianWeight =
-        (probas.back() / sumProba) / static_cast<double>(this->ItClosest->N + 1);
+        (probas.back() / sumProba) / static_cast<double>(this->ItClosest->NbInliers + 1);
       newGaussian.Weight = newGaussianWeight;
       this->Gaussians.push_back(newGaussian);
       this->ItClosest = std::prev(this->Gaussians.end());
@@ -344,7 +347,7 @@ public:
     {
       if (this->Gaussians.empty())
         return;
-      std::list<Gaussian>::iterator it = this->Gaussians.begin();
+      auto it = this->Gaussians.begin();
       double sumWeights = 0;
       while (it != this->Gaussians.end())
       {
@@ -384,14 +387,14 @@ public:
     int MaxTTL = 50;
 
     // Iterator to the cluster which the mean value is the closest to the point
-    std::list<Gaussian>::iterator ItClosest;
+    std::list<Gaussian1D>::iterator ItClosest;
 
     // Gaussian distributions
-    std::list<Gaussian> Gaussians;
+    std::list<Gaussian1D> Gaussians;
   };
 
   // The spherical depth map with gaussian mixture model
-  std::vector<GaussianMixture> Map;
+  std::vector<GaussianMixture1D> Map;
 
   /**
    * Spherical map bounds in degrees. They depend on lidar model
@@ -1106,10 +1109,8 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
     // and stores the iterator of the cluster which give the max proba
     std::vector<double> probas;
     int idx1d = idxAzimuth + this->Internals->NbAzimuth * idxVertical;
-    this->Internals->Map[idx1d].Evaluate(sphericalPoint(0),
-      this->Internals->NbProcessedFrames < this->InitializationTime,
-      probas,
-      hasMoved);
+    this->Internals->Map[idx1d].Evaluate(
+      sphericalPoint(0), this->Internals->NbProcessedFrames < this->InitNbFrames, probas, hasMoved);
 
     // Add the depth to the correct "pixel" and update parameters of the model
     this->Internals->Map[idx1d].AddPoint(sphericalPoint(0), hasMoved, probas);
@@ -1615,7 +1616,7 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   this->EstimateMotion(input, motionPolydata);
 
   // Extract clusters on the motion points
-  if (this->Internals->NbProcessedFrames >= this->InitializationTime &&
+  if (this->Internals->NbProcessedFrames >= this->InitNbFrames &&
     this->ClusterExtractor != static_cast<int>(vtkMotionDetector::Extractor::NOEXTRACTION))
   {
     if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::EUCLIDEAN))
