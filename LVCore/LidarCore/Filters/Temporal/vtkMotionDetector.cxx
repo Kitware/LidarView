@@ -141,8 +141,8 @@ public:
     {
       // Update the weight
       double oldWeight = this->Weight;
-      double sumWeight = static_cast<double>(this->NbInliers) * oldWeight;
-      this->Weight = (sumWeight + weightX) / (static_cast<double>(this->NbInliers + 1));
+      double sumWeight = this->NbInliers * oldWeight;
+      this->Weight = (sumWeight + weightX) / (this->NbInliers + 1);
 
       // Update the mean
       double oldMean = this->Mean;
@@ -331,8 +331,7 @@ public:
         ++idProba;
       }
       // Set weight for new gaussian and add it to the model
-      double newGaussianWeight =
-        (probas.back() / sumProba) / static_cast<double>(this->ItClosest->NbInliers + 1);
+      double newGaussianWeight = (probas.back() / sumProba) / (this->ItClosest->NbInliers + 1);
       newGaussian.Weight = newGaussianWeight;
       this->Gaussians.push_back(newGaussian);
       this->ItClosest = std::prev(this->Gaussians.end());
@@ -1260,8 +1259,8 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
       }
     }
     clusterInfo.NbPoints = nbClusterPoints;
-    depth /= static_cast<double>(nbClusterPoints);
-    intensity /= static_cast<double>(nbClusterPoints);
+    depth /= nbClusterPoints;
+    intensity /= nbClusterPoints;
     clusterInfo.MeanDepth = depth;
     clusterInfo.MeanIntensity = intensity;
     for (int dim = 0; dim < 3; ++dim)
