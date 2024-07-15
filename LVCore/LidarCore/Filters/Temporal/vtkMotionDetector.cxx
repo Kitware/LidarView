@@ -404,12 +404,12 @@ public:
    * Livox MID360: Vertical ~[30, 100] Azimuth ~[-180, 180]
    * */
   double VerticalBounds[2] = { -90., 90. };
-  double AzimuthBounds[2] = { 0., 360. };
+  double AzimuthBounds[2] = { -180., 180. };
 
   /*
    * Resolution in degrees. Depend on lidar resolution
    */
-  double VerticalResolution = 1.25;
+  double VerticalResolution = 1.;
   double AzimuthResolution = 0.1;
 
   /**
@@ -502,25 +502,6 @@ public:
     vtkLog(INFO,
       "The vertical angle range is [ " << this->VerticalBounds[0] << ", " << this->VerticalBounds[1]
                                        << "]");
-  }
-
-  // Init the Spehrical map
-  void InitMap()
-  {
-    // Phi Bounds
-    this->VerticalBounds[0] = -90;
-    this->VerticalBounds[1] = 90;
-
-    // Theta Bounds
-    this->AzimuthBounds[0] = -180;
-    this->AzimuthBounds[1] = 180;
-
-    // Default VerticalResolution / AzimuthResolution values
-    this->VerticalResolution = 1.0;
-    this->AzimuthResolution = 0.1;
-
-    // reset internal parameters
-    this->ResetMap();
   }
 
   /**
@@ -905,7 +886,7 @@ vtkMotionDetector::vtkMotionDetector()
   this->SetNumberOfOutputPorts(OUTPUT_PORT_COUNT);
 
   // Initialize the internal parameters
-  this->Internals->InitMap();
+  this->Internals->ResetMap();
 }
 
 //----------------------------------------------------------------------------
