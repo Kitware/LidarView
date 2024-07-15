@@ -547,47 +547,20 @@ public:
   /*
    * Convert cartesian coordinates of point x into its spherical coordinates
    */
-  Eigen::Matrix<double, 3, 1> GetSphericalCoordinates(const Eigen::Matrix<double, 3, 1>& x)
+  Eigen::Vector3d ToSpherical(const Eigen::Vector3d& pt)
   {
-    // Base of R3 used. In some case it can be changed
-    Eigen::Matrix<double, 3, 1> ez{ 0, 0, 1 };
-    Eigen::Matrix<double, 3, 1> ey{ 0, 1, 0 };
-    Eigen::Matrix<double, 3, 1> ex{ 1, 0, 0 };
-
-    // Center of the coordinate system using the ex, ey, ez base
-    Eigen::Matrix<double, 3, 1> origin{ 0, 0, 0 };
-
-    // Express the current point in the local reference frame
-    // designed by the internal base and origin
-    Eigen::Matrix<double, 3, 3> transR;
-    transR << ex(0), ey(0), ez(0), ex(1), ey(1), ez(1), (2), ey(2), ez(2);
-    Eigen::Matrix<double, 3, 1> xLocal = transR.transpose() * (x - origin);
-
-    // Compute the vector length
-    double r = xLocal.norm();
-
-    // Normalize the vector if it is not null
-    if (r > 1e-4)
+    if (pt.norm() <= 1e-6)
     {
-      xLocal.normalize();
+      return { 0., 0., 0. };
     }
 
-    // Project CX onto the (ex, ey) plane
-    Eigen::Matrix<double, 3, 1> projX = xLocal.dot(ex) * ex + xLocal.dot(ey) * ey;
-    projX.normalize();
-
-    // Compute Phi angle (vertical direction)
-    double cosPhi = xLocal.dot(ez);
-    double sinPhi = xLocal.cross(ez).transpose() * xLocal.cross(ez).normalized();
-    double phi = vtkMath::DegreesFromRadians(std::atan2(sinPhi, cosPhi));
-
-    // Compute theta angle (azimuth direction)
-    double cosTheta = projX.dot(ex);
-    double sinTheta = projX.cross(ex).dot(ey.cross(ex).normalized());
-    double theta = vtkMath::DegreesFromRadians(std::atan2(sinTheta, cosTheta));
-
-    Eigen::Matrix<double, 3, 1> sphericalCoords;
-    sphericalCoords << r, theta, phi;
+    Eigen::Vector3d sphericalCoords;
+    // Compute the radius
+    sphericalCoords(0) = pt.norm();
+    // Compute the vertical angle
+    sphericalCoords(1) = vtkMath::DegreesFromRadians(std::acos(std::min(1., pt.z() / pt.norm())));
+    // Compute the horizontal angle (azimuth)
+    sphericalCoords(2) = vtkMath::DegreesFromRadians(std::atan2(pt.y(), pt.x()));
     return sphericalCoords;
   }
 
@@ -712,37 +685,33 @@ void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata)
     vtkSmartPointer<vtkUnsignedShortArray>::New();
   motionLabel->SetName("Motion_label");
 
-  double point[3];
-  Eigen::Matrix<double, 3, 1> sphericalPoint;
+  Eigen::Vector3d point;
+  Eigen::Vector3d sphericalPoint;
   this->NbMotionPoints = 0;
   for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
   {
     // Get point and compute its spherical coordinates
-    polydata->GetPoint(id, point);
+    polydata->GetPoint(id, point.data());
     switch (this->Internals->Lidar)
     {
       case vtkInternals::LidarVendor::VELODYNE:
       {
-        double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
-        double theta = polydata->GetPointData()->GetArray("azimuth")->GetTuple1(id);
-        double phi = polydata->GetPointData()->GetArray("vertical_angle")->GetTuple1(id);
-        theta = theta / 100.;
-        sphericalPoint << r, theta, phi;
+        sphericalPoint(0) = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
+        sphericalPoint(1) = polydata->GetPointData()->GetArray("azimuth")->GetTuple1(id) / 100.;
+        sphericalPoint(2) = polydata->GetPointData()->GetArray("vertical_angle")->GetTuple1(id);
         break;
       }
       case vtkInternals::LidarVendor::LIVOX:
       case vtkInternals::LidarVendor::HESAI:
       {
-        double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
-        double theta = vtkMath::DegreesFromRadians(std::atan2(point[1], point[0]));
-        double phi = vtkMath::DegreesFromRadians(std::acos(point[2] / r));
-        sphericalPoint << r, theta, phi;
+        sphericalPoint(0) = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
+        sphericalPoint(1) = vtkMath::DegreesFromRadians(std::atan2(point.y(), point.x()));
+        sphericalPoint(2) = vtkMath::DegreesFromRadians(std::acos(point.z() / sphericalPoint(0)));
         break;
       }
       default:
       {
-        Eigen::Matrix<double, 3, 1> cartesianPoint{ point[0], point[1], point[2] };
-        sphericalPoint = this->Internals->GetSphericalCoordinates(cartesianPoint);
+        sphericalPoint = this->Internals->ToSpherical(point);
         break;
       }
     }
