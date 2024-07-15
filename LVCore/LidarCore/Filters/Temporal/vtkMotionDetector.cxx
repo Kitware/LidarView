@@ -87,8 +87,7 @@ public:
   /**
    * @brief The gaussian struct is used to compute the normal distribution:
    * 1.0 / (sigma * sqrt(2 * pi)) * exp((x - mean) ^ 2) / (2.0 * sigma^2))
-   * When a new point is added, the sigma and the mean will be updated
-   * The weight parameter is to store the weight of each gaussian in GMM
+   * When a new point is added, the sigma and the mean are updated
    */
   struct Gaussian1D
   {
@@ -143,7 +142,7 @@ public:
         exp(-std::pow(x - this->Mean, 2) / (2.0 * std::pow(this->Sigma, 2)));
     }
 
-    // Update parameters using new value and the weight of this value
+    // Update Gaussian parameters using new value and its associated weight
     void UpdateParams(double x, double weightX)
     {
       // Update the weight

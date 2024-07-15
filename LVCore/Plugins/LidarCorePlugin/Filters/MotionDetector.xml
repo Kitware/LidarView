@@ -43,8 +43,8 @@
                        number_of_elements="2"
                        default_values="0. 50.">
       <Documentation>
-       To define the detection range. The motion detection is only applied on points that their distance from lidar is
-       in the detection range [min, max].
+        To define the detection range. The motion detection is only applied on points that their distance from lidar is
+        in the detection range [min, max].
       </Documentation>
     </DoubleVectorProperty>
 
@@ -53,8 +53,8 @@
                        number_of_elements="1"
                        default_values="0.1">
       <Documentation>
-       Resolution of the map to detect movement. For better results, this should be coherent with lidar resolution.
-	   But this may be increased for performance improvements at the cost of minimal object size detected. 
+        Resolution (in degrees) of the map to detect motion. For better results, this should be consistent with the LiDAR sensor resolution.
+	      But this may be increased for performance improvements at the cost of minimal object size detected.
       </Documentation>
     </DoubleVectorProperty>
 
@@ -63,9 +63,9 @@
                        number_of_elements="1"
                        default_values="1">
       <Documentation>
-       Resolution of the map to detect movement. For better results, this should be coherent with lidar resolution.
-       But this may be increased for performance improvements at the cost of minimal object size detected.
-	  </Documentation>
+        Resolution (in degrees) of the map to detect motion. For better results, this should be consistent with the LiDAR sensor resolution.
+        But this may be increased for performance improvements at the cost of minimal object size detected.
+	    </Documentation>
     </DoubleVectorProperty>
 
     <IntVectorProperty name="Initialization time"
@@ -73,7 +73,7 @@
                        number_of_elements="1"
                        default_values="100">
       <Documentation>
-      The number of frames to wait for the initialization of motion detector.
+        The number of frames to wait for the initialization of motion detector.
       </Documentation>
     </IntVectorProperty>
 
@@ -82,8 +82,8 @@
                        number_of_elements="1"
                        default_values="100">
       <Documentation>
-        It determines the duration (number of frames) a particular Gaussian component will contribute to the overall mixture model.
-        A shorter window size leads to more rapid adaptation to changes in the underlying data distribution, making the model more sensitive to recent observations.
+        Duration (number of frames) during which a Gaussian will contribute to the overall mixture model.
+        A shorter window size leads to a faster adaptation to changes in the underlying data distribution, making the model more sensitive to recent observations and noise.
         A longer window size results in a smoother temporal evolution of the model, making it less responsive to short-term fluctuations.
       </Documentation>
     </IntVectorProperty>
@@ -93,8 +93,8 @@
                        number_of_elements="1"
                        default_values="0.">
       <Documentation>
-		  Distance below which the subsampling of points will be activated
-	  </Documentation>
+		    Distance below which the subsampling of points will be activated
+	    </Documentation>
     </DoubleVectorProperty>
 
     <DoubleVectorProperty name="Subsample resolution"
@@ -102,8 +102,8 @@
                        number_of_elements="1"
                        default_values="-1.">
       <Documentation>
-      If positive, resolution (in m) for close points subsampling (to avoid treating more points that necessary in high density scenarii) 
-      If negative, subsampling is disabled
+        If positive, resolution (in m) for close points subsampling (to avoid processing more points that necessary in high density scenarii)
+        If negative, subsampling is disabled
       </Documentation>
     </DoubleVectorProperty>
 
@@ -112,7 +112,7 @@
                        number_of_elements="1"
                        default_values="0.1">
       <Documentation>
-      Radius used to remove isolated moving points for noise filtering
+        Radius used to remove isolated moving points for noise filtering
       </Documentation>
     </DoubleVectorProperty>
 
@@ -121,7 +121,7 @@
                        number_of_elements="1"
                        default_values="10">
       <Documentation>
-      The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
       </Documentation>
     </IntVectorProperty>
 
@@ -141,7 +141,7 @@
       <IntVectorProperty name="Cluster extractor"
                          command="SetClusterExtractor"
                          number_of_elements="1"
-                         default_values="0">
+                         default_values="2">
         <EnumerationDomain name="enum">
           <Entry value="0" text="No extraction"/>
           <Entry value="1" text="Euclidean clustering"/>
@@ -166,7 +166,7 @@
         <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
       </Hints>
       <Documentation>
-      The search radius to find cluster.
+        The search radius to find cluster.
       </Documentation>
     </DoubleVectorProperty>
 
@@ -178,7 +178,7 @@
         <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
       </Hints>
       <Documentation>
-      The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
       </Documentation>
     </IntVectorProperty>
 
@@ -187,7 +187,7 @@
                        number_of_elements="1"
                        default_values="10">
       <Documentation>
-      Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
+        Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
       </Documentation>
       <Hints>
         <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
