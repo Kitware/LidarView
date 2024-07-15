@@ -216,9 +216,7 @@ public:
       double closestProba = 0.;
       double minDistance = FLT_MAX;
       this->ItClosest = this->Gaussians.begin();
-      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
-           it != this->Gaussians.end();
-           ++it)
+      for (auto it = this->Gaussians.begin(); it != this->Gaussians.end(); ++it)
       {
         probas.emplace_back(it->Weight * (*it)(x));
         double dist = std::fabs(x - it->Mean);
@@ -268,9 +266,7 @@ public:
         motionProba = 1 - motionProba;
         return motionProba;
       }
-      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
-           it != this->Gaussians.end();
-           ++it)
+      for (auto it = this->Gaussians.begin(); it != this->Gaussians.end(); ++it)
       {
         if (it != this->ItClosest && !it->IsMotion && evalBackground > (it->Weight / it->Sigma))
         {
@@ -323,11 +319,9 @@ public:
       double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
       int idProba = 0;
       // Update existing gaussians with new weights
-      for (std::list<Gaussian1D>::iterator it = this->Gaussians.begin();
-           it != this->Gaussians.end();
-           ++it)
+      for (auto& gaussian : this->Gaussians)
       {
-        it->UpdateParams(x, probas[idProba] / sumProba);
+        gaussian.UpdateParams(x, probas[idProba] / sumProba);
         ++idProba;
       }
       // Set weight for new gaussian and add it to the model
@@ -572,9 +566,9 @@ public:
    */
   void UpdateTTL()
   {
-    for (unsigned int k = 0; k < this->Map.size(); ++k)
+    for (auto& mixture : this->Map)
     {
-      this->Map[k].UpdateTTL();
+      mixture.UpdateTTL();
     }
   }
 };
@@ -1279,15 +1273,15 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
   // Assign new cluster IDs based on the sorted order and label small cluster id as -1
   std::vector<int> newClusterIds(numClusters);
   int newClusterId = 0;
-  for (int i = 0; i < numClusters; ++i)
+  for (auto& cluster : this->Clusters)
   {
-    if (this->Clusters[i].NbPoints < this->ClusterMinNbPoints)
+    if (cluster.NbPoints < this->ClusterMinNbPoints)
     {
-      newClusterIds[this->Clusters[i].ClusterId] = -1;
+      newClusterIds[cluster.ClusterId] = -1;
     }
     else
     {
-      newClusterIds[this->Clusters[i].ClusterId] = newClusterId;
+      newClusterIds[cluster.ClusterId] = newClusterId;
       ++newClusterId;
     }
   }
