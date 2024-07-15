@@ -464,17 +464,17 @@ public:
       case LidarVendor::LIVOX:
       case LidarVendor::HESAI:
       {
-        double point[3];
+        Eigen::Vector3d point;
         this->AzimuthBounds[0] = DBL_MAX;
         this->AzimuthBounds[1] = -DBL_MAX;
         this->VerticalBounds[0] = DBL_MAX;
         this->VerticalBounds[1] = -DBL_MAX;
         for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
         {
-          polydata->GetPoint(id, point);
+          polydata->GetPoint(id, point.data());
           double r = polydata->GetPointData()->GetArray("distance_m")->GetTuple1(id);
-          double azimuth = vtkMath::DegreesFromRadians(std::atan2(point[1], point[0]));
-          double vertical = vtkMath::DegreesFromRadians(std::acos(point[2] / r));
+          double azimuth = vtkMath::DegreesFromRadians(std::atan2(point.y(), point.x()));
+          double vertical = vtkMath::DegreesFromRadians(std::acos(point.z() / r));
           this->AzimuthBounds[0] = std::min(azimuth, this->AzimuthBounds[0]);
           this->AzimuthBounds[1] = std::max(azimuth, this->AzimuthBounds[1]);
           this->VerticalBounds[0] = std::min(vertical, this->VerticalBounds[0]);
@@ -1246,16 +1246,16 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
       intensity += output->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
       ++nbClusterPoints;
       // Compute boundingbox {xmin, xmax, ymin, ymax, zmin, zmax}
-      double point[3];
-      output->GetPoint(pointId, point);
+      Eigen::Vector3d point;
+      output->GetPoint(pointId, point.data());
       for (int dim = 0; dim < 3; ++dim)
       {
         // Update min
-        if (point[dim] < clusterInfo.BoundingBox[2 * dim])
-          clusterInfo.BoundingBox[2 * dim] = point[dim];
+        if (point(dim) < clusterInfo.BoundingBox[2 * dim])
+          clusterInfo.BoundingBox[2 * dim] = point(dim);
         // Updat max
-        if (point[dim] > clusterInfo.BoundingBox[2 * dim + 1])
-          clusterInfo.BoundingBox[2 * dim + 1] = point[dim];
+        if (point(dim) > clusterInfo.BoundingBox[2 * dim + 1])
+          clusterInfo.BoundingBox[2 * dim + 1] = point(dim);
       }
     }
     clusterInfo.NbPoints = nbClusterPoints;
