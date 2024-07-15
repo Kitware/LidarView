@@ -37,6 +37,9 @@
 #include <vtkTable.h>
 #include <vtkTableAlgorithm.h>
 
+// EIGEN
+#include <Eigen/Dense>
+
 #include "lvFiltersTemporalModule.h"
 
 #include <climits>
@@ -131,16 +134,43 @@ private:
     HUMAN = 0,
     OTHERS = 1,
   };
+
+  class Bbox
+  {
+  public:
+    void SetVertices(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
+    {
+      this->Vertices = { xmin, xmax, ymin, ymax, zmin, zmax };
+      this->Center = { (xmax + xmin) / 2., (ymax + ymin) / 2, (zmax + zmin) / 2 };
+      this->Size = { xmax - xmin, ymax - ymin, zmax - zmin };
+    };
+    void SetTransform(double trans[16])
+    {
+      this->Transform.resize(16);
+      for (int i = 0; i < 16; i++)
+        this->Transform[i] = trans[i];
+    };
+
+    Eigen::Matrix<double, 6, 1> GetVertices() const { return this->Vertices; }
+    Eigen::Vector3d GetSize() const { return this->Size; }
+    Eigen::Vector3d GetCenter() const { return this->Center; }
+    std::vector<double> GetTransform() const { return this->Transform; }
+
+  private:
+    std::vector<double> Transform;
+    Eigen::Matrix<double, 6, 1> Vertices = { 0., 0., 0., 0., 0., 0. };
+    Eigen::Vector3d Center = { 0, 0, 0 };
+    Eigen::Vector3d Size = { 0, 0, 0 };
+  };
   struct ClusterStats
   {
+    ClusterStats() = default;
     Label ClusterLabel = Label::HUMAN;
     int ClusterId = 0;
     int NbPoints = 0;
     double MeanDepth = 0.;
     double MeanIntensity = 0;
-    double BoundingBox[6] = { DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX, DBL_MAX, -DBL_MAX };
-    double BoxCenter[3] = { 0, 0, 0 };
-    double BoxSize[3] = { 0, 0, 0 };
+    Bbox BoundingBox;
   };
   std::vector<ClusterStats> Clusters;
 
