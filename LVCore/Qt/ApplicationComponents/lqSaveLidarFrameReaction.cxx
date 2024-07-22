@@ -209,6 +209,11 @@ bool lqSaveLidarFrameReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
     }
   }
 
+  // Set precision (especially for csv writer) to write timestamp
+  // this value is ignored if the writer does not have the precision property.
+  vtkSMPropertyHelper(writer, "Precision", true).Set(13);
+  writer->UpdateVTKObjects();
+
   // 3 iterate over the frame
   pqAnimationManager* mgr = pqPVApplicationCore::instance()->animationManager();
   pqAnimationScene* scene = mgr->getActiveScene();
