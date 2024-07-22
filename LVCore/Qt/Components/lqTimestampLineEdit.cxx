@@ -68,6 +68,13 @@ void lqTimestampLineEdit::validateChanges()
 {
   double timestamp =
     std::clamp(this->text().toDouble(), this->ValidatorRange[0], this->ValidatorRange[1]);
+
+  // Ignore minor timestamp differences (<= 1ms) due to line edit truncation.
+  if (std::abs(this->timestampValue - timestamp) <= 1e-3)
+  {
+    return;
+  }
+
   this->setTimestamp(timestamp);
   Q_EMIT this->timestampUpdated(this->timestampValue);
 }
