@@ -86,6 +86,13 @@ lqLiveVCRController::lqLiveVCRController(QObject* _parent)
       // We want the stream to start automatically.
       this->onPlay();
     }
+    else
+    {
+      // Pause potentially running stream / avoid conflict with emulated time source
+      pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
+      lsm->pause();
+      Q_EMIT this->playing(false, false);
+    }
   };
   this->connect(
     lqSensorListWidget::instance(), &lqSensorListWidget::lidarStreamModeChanged, streamModeChanged);
