@@ -55,6 +55,27 @@
       </Documentation>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="Enable interpolation"
+                       command="SetEnableInterpolation"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Enable the interpolation for empty bins when scan resolution is less than the grid resolution
+        to ensure the accuracy of the volume estimation.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Interpolation threshold"
+                       command="SetInterpolationThreshold"
+                       number_of_elements="1"
+                       default_values="4">
+      <Documentation>
+        The maximum consecutive empty bins allowed for the interpolation. If the number of consecutive empty bins is
+        larger than the threshold, the area is considered as an empty area.
+      </Documentation>
+    </IntVectorProperty>
+
     </SourceProxy>
   </ProxyGroup>
   <!-- End ComputeVolume -->

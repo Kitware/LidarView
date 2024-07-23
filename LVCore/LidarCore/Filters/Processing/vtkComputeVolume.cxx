@@ -160,6 +160,104 @@ public:
   }
 
   //----------------------------------------------------------------------------
+  std::pair<int, int> FindBoundPoint(int col, int row, bool searchInRow)
+  {
+    // Given a bin at position (row, col), find the first bins which are not empty
+    // at the left and at the right of the scan line
+    // If the row = 0 when searchInRow is true, this function returns the first and the last
+    // non-empty points at this column. If the col = 0 when searchInRow is false, this function
+    // returns the first and the last non-empty points at this row
+    int MaxSize = searchInRow ? this->GridSize[1] : this->GridSize[0];
+    int rightBound = searchInRow ? row + 1 : col + 1;
+    int rightBound1D =
+      searchInRow ? this->ToOneDimension(col, rightBound) : this->ToOneDimension(rightBound, row);
+    while (this->Raster.count(rightBound1D) == 0 && rightBound < (MaxSize - 1))
+    {
+      rightBound++;
+      rightBound1D =
+        searchInRow ? this->ToOneDimension(col, rightBound) : this->ToOneDimension(rightBound, row);
+    }
+
+    int leftBound = searchInRow ? row - 1 : col - 1;
+    leftBound = leftBound < 0 ? (MaxSize - 1) : leftBound;
+    int leftBound1D =
+      searchInRow ? this->ToOneDimension(col, leftBound) : this->ToOneDimension(leftBound, row);
+    while (this->Raster.count(leftBound1D) == 0 && leftBound > 0)
+    {
+      leftBound--;
+      leftBound1D =
+        searchInRow ? this->ToOneDimension(col, leftBound) : this->ToOneDimension(leftBound, row);
+    }
+    return std::make_pair(std::min(leftBound, rightBound), std::max(leftBound, rightBound));
+  }
+
+  //----------------------------------------------------------------------------
+  void InterpolateGrid(int interpoThreshold)
+  {
+    // Interpolation for each column
+    for (int col = 0; col < this->GridSize[0]; col++)
+    {
+      // Find the first and the last points for the column
+      auto bound = this->FindBoundPoint(col, 0, true);
+      // Interpolate the empty area in the column
+      for (int row = bound.first; row <= bound.second; row++)
+      {
+        int id1D = this->ToOneDimension(col, row);
+        if (this->Raster.count(id1D) == 0)
+        {
+          auto interpoBound = this->FindBoundPoint(col, row, true);
+          int interval = interpoBound.second - interpoBound.first;
+          if (interval < interpoThreshold)
+          {
+            Eigen::Vector3d leftPoint =
+              this->Raster.at(this->ToOneDimension(col, interpoBound.first));
+            Eigen::Vector3d interpolationVector =
+              this->Raster.at(this->ToOneDimension(col, interpoBound.second)) - leftPoint;
+            for (int i = 1; i < interval; i++)
+            {
+              this->Raster[this->ToOneDimension(col, interpoBound.first + i)] =
+                leftPoint + (double(i) / double(interval) * interpolationVector);
+            }
+          }
+          // Update row id for the next check
+          row = interpoBound.second;
+        }
+      }
+    }
+
+    // Interpolation for each row
+    for (int row = 0; row < this->GridSize[1]; row++)
+    {
+      // Find the first and the last points for the row
+      auto bound = this->FindBoundPoint(0, row, false);
+      // Interpolate the empty area in the row
+      for (int col = bound.first; col <= bound.second; col++)
+      {
+        int id1D = this->ToOneDimension(col, row);
+        if (this->Raster.count(id1D) == 0)
+        {
+          auto interpoBound = this->FindBoundPoint(col, row, false);
+          int interval = interpoBound.second - interpoBound.first;
+          if (interval < interpoThreshold)
+          {
+            Eigen::Vector3d leftPoint =
+              this->Raster.at(this->ToOneDimension(interpoBound.first, row));
+            Eigen::Vector3d interpolationVector =
+              this->Raster.at(this->ToOneDimension(interpoBound.second, row)) - leftPoint;
+            for (int i = 1; i < interval; i++)
+            {
+              this->Raster[this->ToOneDimension(interpoBound.first + i, row)] =
+                leftPoint + (double(i) / double(interval) * interpolationVector);
+            }
+          }
+          // Update column id for the next check
+          col = interpoBound.second;
+        }
+      }
+    }
+  }
+
+  //----------------------------------------------------------------------------
   double ComputeIntegralVolume()
   {
     if (this->Raster.empty())
@@ -297,6 +395,9 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Step 2: Rasterize pointcloud
   this->Internals->RasterizePointcloud(points);
+  // Interpolate empty bins to improve the estimation
+  if (this->EnableInterpolation)
+    this->Internals->InterpolateGrid(this->InterpolationThreshold);
 
   // Step 3: Compute integral volume
   double volume = this->Internals->ComputeIntegralVolume();

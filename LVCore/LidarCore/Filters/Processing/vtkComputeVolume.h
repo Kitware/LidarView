@@ -46,6 +46,14 @@ public:
    */
   void SetGridResolution(double resolution);
 
+  /**
+   * Set to enable the interpolation between empty bin when scan resolution is less than the grid
+   * resolution InterpolationThreshold indique the max consecutive empty bin allowed for the
+   * interpolation
+   */
+  vtkSetMacro(EnableInterpolation, bool);
+  vtkSetMacro(InterpolationThreshold, int);
+
 protected:
   vtkComputeVolume();
   ~vtkComputeVolume() = default;
@@ -57,6 +65,9 @@ protected:
 private:
   vtkComputeVolume(const vtkComputeVolume&) = delete;
   void operator=(const vtkComputeVolume&) = delete;
+
+  bool EnableInterpolation = false;
+  int InterpolationThreshold = 4;
 
   /**
    * Internals parameters and functions to compute volume
