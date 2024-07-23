@@ -174,7 +174,7 @@ void lqLiveVCRController::setAnimationScene(pqAnimationScene* scene)
     auto onTimeStepsChanged = [this]()
     {
       auto timesteps = this->getAnimationScene()->getTimeSteps();
-      int nframes = timesteps.size() ? timesteps.size() - 1 : 0;
+      int nframes = timesteps.empty() ? 0 : timesteps.size() - 1;
       Q_EMIT this->frameRanges(0, nframes);
     };
     this->connect(scene, &pqAnimationScene::timeStepsChanged, onTimeStepsChanged);
@@ -389,7 +389,7 @@ double lqLiveVCRController::getSceneTime()
     pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
     return lsm->getEmulatedCurrentTime();
   }
-  else if (this->getCurrentMode() == PlayMode::ALL_FRAMES)
+  if (this->getCurrentMode() == PlayMode::ALL_FRAMES)
   {
     pqTimeKeeper* tk = pqApplicationCore::instance()->getActiveServer()->getTimeKeeper();
     return tk->getTime();
