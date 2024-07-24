@@ -2,8 +2,6 @@ NAME
   LidarView::IONetwork
 LIBRARY_NAME
   lvIONetwork
-CONDITION
-  LIDARVIEW_USE_PCAP
 DEPENDS
   Boost::system
   Boost::thread

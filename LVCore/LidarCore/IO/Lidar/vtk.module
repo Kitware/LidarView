@@ -2,8 +2,6 @@ NAME
   LidarView::IOLidar
 LIBRARY_NAME
   lvIOLidar
-CONDITION
-  LIDARVIEW_USE_PCAP
 DEPENDS
   LidarView::CommonCore
   LidarView::IOCore
