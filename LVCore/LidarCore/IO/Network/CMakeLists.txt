@@ -1,33 +1,40 @@
 set(sources
   CrashAnalysing.cxx
   NetworkPacket.cxx
-  PacketConsumer.cxx
-  PacketFileWriter.cxx
-  PacketReceiver.cxx
-  PacketSender.cxx)
+  PacketSender.cxx
+)
 
 set(headers
   CrashAnalysing.h
   FrameInformation.h
   InterpreterHelper.h
   NetworkPacket.h
-  PacketConsumer.h
-  PacketFileWriter.h
-  PacketReceiver.h
   PacketSender.h
-  SynchronizedQueue.h)
+)
 
 set(classes
   vtkInterpreter
   vtkPacketFileReader
   vtkPacketFileWriter
   vtkStream
+  vtkUDPPacketReceiver
   vtkUDPPing
   vtkUDPPointSender
   vtkUDPSenderAlgorithm
 )
 
+set(private_headers
+  vtkSynchronizedQueue.h
+)
+
+set(private_template
+  vtkSynchronizedQueue.txx
+)
+
 vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}
   CLASSES ${classes}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers}
+  PRIVATE_TEMPLATES ${private_template}
+)

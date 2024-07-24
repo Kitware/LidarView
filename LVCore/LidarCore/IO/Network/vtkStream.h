@@ -29,11 +29,8 @@
 
 #include "lvIONetworkModule.h"
 
-class NetworkPacket;
-class PacketConsumer;
-class PacketFileWriter;
-class PacketReceiver;
 class vtkInterpreter;
+class vtkUDPPacketReceiver;
 
 #ifndef __VTK_WRAP__
 #define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
@@ -49,32 +46,29 @@ public:
 
   vtkSetMacro(RecordingFilename, std::string);
   void StartRecording();
-  void StartRecording(std::shared_ptr<PacketFileWriter> writer);
   void StopRecording();
   bool IsRecording();
 
   vtkGetMacro(ListeningPort, int);
-  void SetListeningPort(int);
+  vtkSetMacro(ListeningPort, int);
 
   vtkGetMacro(MulticastAddress, std::string);
-  virtual void SetMulticastAddress(const std::string&);
+  vtkSetMacro(MulticastAddress, std::string);
 
   vtkGetMacro(LocalListeningAddress, std::string);
-  virtual void SetLocalListeningAddress(const std::string&);
+  vtkSetMacro(LocalListeningAddress, std::string);
 
   vtkGetMacro(ForwardedIpAddress, std::string);
-  virtual void SetForwardedIpAddress(const std::string& ipAddress);
+  vtkSetMacro(ForwardedIpAddress, std::string);
 
   vtkGetMacro(ForwardedPort, int);
-  void SetForwardedPort(int);
+  vtkSetMacro(ForwardedPort, int);
 
   vtkGetMacro(IsForwarding, bool);
-  virtual void SetIsForwarding(bool);
+  vtkSetMacro(IsForwarding, bool);
 
   vtkGetMacro(IsCrashAnalysing, bool);
-  virtual void SetIsCrashAnalysing(bool value);
-
-  vtkGetObjectMacro(Interpreter, vtkInterpreter);
+  vtkSetMacro(IsCrashAnalysing, bool);
 
   /**
    * @brief GetNeedsUpdate
@@ -113,28 +107,20 @@ public:
    */
   std::mutex DataMutex;
 
-  vtkMTimeType GetMTime() override;
-
 protected:
   vtkStream();
-  // WARNING: inheriting classes destructors must call Stop() on this base class
-  // because this base Stream class holds (and starts) the callback thread that
-  // call the packet consumer of the derived class.
-  // Forgetting to do so might let the callback thread "ConsumerThread" call
-  // the consumer function "AddNewData" after actual inherited class destruction,
-  // resulting in a pure virtual function call at runtime.
-  virtual ~vtkStream() = 0;
+  virtual ~vtkStream();
 
-  int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+  /**
+   * Used to start the stream automatically.
+   */
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override = 0;
-
-  //! Generic Interpreter
-  vtkSmartPointer<vtkInterpreter> Interpreter;
+  /**
+   * This function is called for each packet received.
+   * Should be implemented by subclasses.
+   */
+  virtual void ConsumePacket(const std::vector<uint8_t>& pkt, double timestamp) = 0;
 
 private:
   vtkStream(const vtkStream&) = delete;
@@ -159,23 +145,7 @@ private:
 
   bool IsCrashAnalysing = false;
 
-  //! Thread that will listen on the network to get the packets
-  std::unique_ptr<PacketReceiver> ReceiverThread;
-  //! Thread that will consume the packets
-  std::unique_ptr<PacketConsumer> ConsumerThread;
-
-  //! Thread that will write the packets if recording, provided at the time of writing
-  std::shared_ptr<PacketFileWriter> WriterThread;
-
-  //! Callback function used by the ReceiverThread once a new NetworkPacket is ready
-  //! The given packet will be queue in the Consumer and Writer thread queue.
-  void EnqueuePacket(NetworkPacket* packet);
-
-  bool IsRunning();
-
-  //! helper function
-  template <class T>
-  void SetAttributeAndRestartIfRunning(T& attribute, const T& value);
+  vtkSmartPointer<vtkUDPPacketReceiver> PacketHandler;
 };
 
 #ifndef __VTK_WRAP__

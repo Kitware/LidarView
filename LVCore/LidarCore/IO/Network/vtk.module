@@ -11,3 +11,4 @@ DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   LidarView::Versioning
+  Tins::tins
