@@ -12,3 +12,6 @@ RUN sh /root/install_ceres.sh
 
 COPY install_nanoflann.sh /root/install_nanoflann.sh
 RUN sh /root/install_nanoflann.sh
+
+COPY install_tins.sh /root/install_tins.sh
+RUN sh /root/install_tins.sh
