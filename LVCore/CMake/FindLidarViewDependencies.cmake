@@ -1,3 +1,5 @@
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}/Modules")
+
 #--------------------------------------
 # Miscellaneous helper cmake macros
 #--------------------------------------
@@ -52,25 +54,10 @@ endif ()
 print_version(Qt5)
 
 #--------------------------------------
-# PCAP dependency - required
+# Tins dependency - required
 #--------------------------------------
-if (LIDARVIEW_USE_PCAP)
-  if (WIN32)
-    find_library(PCAP_LIBRARY wpcap DOC "pcap library")
-  else ()
-    find_library(PCAP_LIBRARY pcap DOC "pcap library")
-  endif ()
-  find_path(PCAP_INCLUDE_DIR pcap.h DOC "pcap include directory")
-  if (PCAP_LIBRARY AND PCAP_INCLUDE_DIR)
-    add_library(PCAP::pcap UNKNOWN IMPORTED)
-    set_target_properties(PCAP::pcap
-      PROPERTIES
-        IMPORTED_LOCATION "${PCAP_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIR}")
-  endif ()
-  check_depedency_target(pcap PCAP::pcap)
-  message(STATUS "Found PCAP library")
-endif ()
+find_package(Tins REQUIRED QUIET)
+print_version(Tins)
 
 #--------------------------------------
 # Eigen dependency - required
