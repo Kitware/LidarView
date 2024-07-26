@@ -24,6 +24,8 @@
 //! @brief Simple getter that handles conversion to native unsigned integer types.
 #define GET_NATIVE_UINT(n, attr) uint ## n ##_t Get ## attr() const { return this->attr; }
 #define SET_NATIVE_UINT(n, attr) void Set ## attr(uint ## n ##_t x) { this->attr = x; }
+#define GET_NATIVE_INT(n, attr) int ## n ##_t Get ## attr() const { return this->attr; }
+#define SET_NATIVE_INT(n, attr) void Set ## attr(int ## n ##_t x) { this->attr = x; }
 
 #define BIT(n)                  ( 1<<(n) )
 //! Create a bitmask of length \a len.
