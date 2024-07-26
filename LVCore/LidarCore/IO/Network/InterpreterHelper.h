@@ -43,6 +43,30 @@
 // clang-format on
 
 //------------------------------------------------------------------------------
+template <typename T, typename RangeType>
+T CombinedBytesBigEndian(const RangeType* range, uint8_t size)
+{
+  T result = 0;
+  for (uint8_t idx = 0; idx < size; idx++)
+  {
+    result |= static_cast<T>(range[size - (idx + 1)]) << (idx * 8);
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+template <typename T, typename RangeType>
+T CombinedBytesLittleEndian(const RangeType* range, uint8_t size)
+{
+  T result = 0;
+  for (uint8_t idx = 0; idx < size; idx++)
+  {
+    result |= static_cast<T>(range[idx]) << (idx * 8);
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
 /*!
  * @brief         Initialize an array for datapoint attributes and add it to the
  *                polyData.
