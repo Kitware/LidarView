@@ -192,7 +192,7 @@ public:
   }
 
   //----------------------------------------------------------------------------
-  void InterpolateGrid(int interpoThreshold)
+  void Interpolate1DGrid(int interpoThreshold)
   {
     // Interpolation for each column
     for (int col = 0; col < this->GridSize[0]; col++)
@@ -253,6 +253,67 @@ public:
           // Update column id for the next check
           col = interpoBound.second;
         }
+      }
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  void Interpolate2DGrid(int interpoRadius)
+  {
+    // Interpolation for each column
+    std::vector<int> occupancyMap(this->GridSize[0] * this->GridSize[1], -1);
+
+    for (const auto& binPt : this->Raster)
+    {
+      int id1D = binPt.first;
+      occupancyMap[id1D] = 1;
+      Eigen::Vector2i id2D = this->ToTwoDimensions(id1D);
+      // Do dilatation to define the pixels to interpolate
+      for (int col = id2D[0] - interpoRadius; col <= id2D[0] + interpoRadius; col++)
+      {
+        for (int row = id2D[1] - interpoRadius; row <= id2D[1] + interpoRadius; row++)
+        {
+          if (col < 0 || col >= this->GridSize[0] || row < 0 || row >= this->GridSize[1] ||
+            (col == id2D[0] && row == id2D[1]))
+            continue;
+          int checkId = this->ToOneDimension(col, row);
+          if (this->Raster.count(checkId) == 0)
+          {
+            occupancyMap[checkId] = 0;
+          }
+        }
+      }
+    }
+    // Compute value for points to interpolate
+    for (std::vector<int>::size_type id = 0; id < occupancyMap.size(); id++)
+    {
+      if (occupancyMap[id] != 0)
+        continue;
+      Eigen::Vector3d interpoPt = { 0., 0., 0. };
+      double sumWeight = 0;
+      Eigen::Vector2i id2D = this->ToTwoDimensions(id);
+      for (int col = id2D[0] - interpoRadius; col <= id2D[0] + interpoRadius; col++)
+      {
+        for (int row = id2D[1] - interpoRadius; row <= id2D[1] + interpoRadius; row++)
+        {
+          if (col < 0 || col >= this->GridSize[0] || row < 0 || row >= this->GridSize[1] ||
+            (col == id2D[0] && row == id2D[1]))
+            continue;
+          int checkId = this->ToOneDimension(col, row);
+          if (occupancyMap[checkId] == 1)
+          {
+            double weight = exp(-0.5 *
+              (std::pow(double(col - id2D[0]), 2.0) + std::pow(double(row - id2D[1]), 2.0)) /
+              std::pow(double(interpoRadius / 2.5), 2.0));
+            interpoPt += weight * this->Raster.at(checkId);
+            sumWeight += weight;
+          }
+        }
+      }
+      if (sumWeight > 0)
+      {
+        interpoPt /= sumWeight;
+        this->Raster[id] = interpoPt;
       }
     }
   }
@@ -397,7 +458,7 @@ int vtkComputeVolume::RequestData(vtkInformation* vtkNotUsed(request),
   this->Internals->RasterizePointcloud(points);
   // Interpolate empty bins to improve the estimation
   if (this->EnableInterpolation)
-    this->Internals->InterpolateGrid(this->InterpolationThreshold);
+    this->Internals->Interpolate2DGrid(this->InterpolationThreshold);
 
   // Step 3: Compute integral volume
   double volume = this->Internals->ComputeIntegralVolume();
