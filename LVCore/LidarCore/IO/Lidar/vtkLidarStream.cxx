@@ -30,6 +30,16 @@
 vtkStandardNewMacro(vtkLidarStream)
 
 //-----------------------------------------------------------------------------
+vtkMTimeType vtkLidarStream::GetMTime()
+{
+  if (this->GetLidarInterpreter())
+  {
+    return std::max(this->Superclass::GetMTime(), this->GetLidarInterpreter()->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
+
+//-----------------------------------------------------------------------------
 int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -119,6 +129,32 @@ void vtkLidarStream::Start()
 }
 
 //----------------------------------------------------------------------------
+void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double timestamp)
+{
+  if (!this->GetLidarInterpreter())
+  {
+    vtkErrorMacro("No packet interpreter selected.");
+    return;
+  }
+
+  auto interp = this->GetLidarInterpreter();
+  if (!interp->IsValidPacket(pkt.data(), pkt.size()))
+  {
+    return;
+  }
+
+  interp->ProcessPacketWrapped(pkt.data(), pkt.size(), timestamp);
+  if (interp->IsNewData())
+  {
+    {
+      std::lock_guard<std::mutex> lock(this->DataMutex);
+      this->AddNewData();
+    }
+    this->ClearAllDataAvailable();
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkLidarStream::AddNewData()
 {
   vtkSmartPointer<vtkPolyData> LastFrame = this->GetLidarInterpreter()->GetLastFrameAvailable();
@@ -151,13 +187,7 @@ int vtkLidarStream::CheckForNewData()
 }
 
 //----------------------------------------------------------------------------
-vtkLidarPacketInterpreter* vtkLidarStream::GetLidarInterpreter()
-{
-  return vtkLidarPacketInterpreter::SafeDownCast(this->Interpreter);
-}
-
-//----------------------------------------------------------------------------
 void vtkLidarStream::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
-  this->Interpreter = interpreter;
+  this->LidarInterpreter = interpreter;
 }

@@ -26,11 +26,11 @@
 
 #include "vtkInterpreter.h"
 #include "vtkLiveSourceAlgorithm.h"
+#include "vtkUDPPacketReceiver.h"
 
 #include "lvIONetworkModule.h"
 
 class vtkInterpreter;
-class vtkUDPPacketReceiver;
 
 #ifndef __VTK_WRAP__
 #define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
@@ -115,6 +115,11 @@ protected:
    * Used to start the stream automatically.
    */
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Can be used by subclasses to start the stream with specifics parameters
+   */
+  void Start(vtkUDPPacketReceiver::Parameters& params);
 
   /**
    * This function is called for each packet received.

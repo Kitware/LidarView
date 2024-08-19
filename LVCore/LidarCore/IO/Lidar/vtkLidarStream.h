@@ -20,6 +20,7 @@
 #include <deque>
 #include <memory>
 
+#include "vtkLidarPacketInterpreter.h"
 #include "vtkStream.h"
 
 #include <vtkPolyData.h>
@@ -33,6 +34,10 @@ class LVIOLIDAR_EXPORT vtkLidarStream : public vtkStream
 public:
   static vtkLidarStream* New();
   vtkTypeMacro(vtkLidarStream, vtkStream)
+
+  vtkMTimeType GetMTime() override;
+
+  void Start() override;
 
   /**
    * @brief GetSensorInformation return some sensor information used for display purposes
@@ -49,9 +54,7 @@ public:
 
   int CheckForNewData() override;
 
-  void Start() override;
-
-  vtkLidarPacketInterpreter* GetLidarInterpreter();
+  vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);
   void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
 
 protected:
@@ -64,6 +67,8 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
+  void ConsumePacket(const std::vector<uint8_t>& pkt, double timestamp) override;
+
   //! Indicate if we should detect that some frames are dropped
   bool DetectFrameDropping = false;
 
@@ -73,6 +78,8 @@ protected:
 private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
+
+  vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter;
 
   std::deque<vtkSmartPointer<vtkPolyData>> Frames;
 };

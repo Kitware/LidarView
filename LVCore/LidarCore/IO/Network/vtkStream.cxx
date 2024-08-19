@@ -56,12 +56,18 @@ void vtkStream::Start()
   if (this->IsForwarding)
   {
     params.forwardAddress = this->ForwardedIpAddress;
-    params.forwardPort = this->ForwardedPort;
+    params.forwardPorts.emplace_back(this->ForwardedPort);
   }
   params.listeningAddress = this->LocalListeningAddress;
-  params.listeningPort = this->ListeningPort;
   params.multicastAddress = this->MulticastAddress;
+  params.listeningPorts.emplace_back(this->ListeningPort);
 
+  this->Start(params);
+}
+
+//----------------------------------------------------------------------------
+void vtkStream::Start(vtkUDPPacketReceiver::Parameters& params)
+{
   auto consumeCallback = [this](const std::vector<uint8_t>& pkt, double timestamp)
   { this->ConsumePacket(pkt, timestamp); };
   this->PacketHandler->StartListening(params, consumeCallback);

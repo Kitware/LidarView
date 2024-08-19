@@ -552,7 +552,7 @@ int testLidarStream(vtkLidarStream* stream,
   // Set the dataPort where the packets are sent to the same port the stream listen to
   const int dataPort = stream->GetListeningPort();
 
-  auto interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetInterpreter());
+  auto interpreter = vtkLidarPacketInterpreter::SafeDownCast(stream->GetLidarInterpreter());
 
   if (!interpreter)
   {

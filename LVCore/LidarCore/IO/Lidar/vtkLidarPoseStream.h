@@ -22,6 +22,7 @@
 #include <vtkTable.h>
 
 #include "vtkLidarStream.h"
+#include "vtkPosePacketInterpreter.h"
 
 #include "lvIOLidarModule.h"
 
@@ -42,34 +43,28 @@ public:
   static vtkLidarPoseStream* New();
   vtkTypeMacro(vtkLidarPoseStream, vtkLidarStream)
 
-  vtkPosePacketInterpreter* GetPoseInterpreter();
+  vtkMTimeType GetMTime() override;
+
+  void Start() override;
+
+  vtkGetObjectMacro(PoseInterpreter, vtkPosePacketInterpreter);
   void SetPoseInterpreter(vtkPosePacketInterpreter* interpreter);
 
   ///@{
   /**
    * Set / Get GNSS port and forward port for the internal stream object.
    */
-  int GetGNSSPort();
-  void SetGNSSPort(int);
-  int GetGNSSForwardedPort();
-  void SetGNSSForwardedPort(int);
+  vtkGetMacro(GNSSPort, int);
+  vtkSetMacro(GNSSPort, int);
+  vtkGetMacro(GNSSForwardedPort, int);
+  vtkSetMacro(GNSSForwardedPort, int);
   ///@}
 
-  ///@{
-  /**
-   * Overload of stream methods to set both the parent class and
-   * the internal stream objects.
-   */
-  void SetMulticastAddress(const std::string&) override;
-  void SetLocalListeningAddress(const std::string&) override;
-  void SetForwardedIpAddress(const std::string& ipAddress) override;
-  void SetIsForwarding(bool) override;
-  void SetIsCrashAnalysing(bool value) override;
+  void AddNewData() override;
 
-  virtual void Start() override;
-  virtual void Stop() override;
-  vtkMTimeType GetMTime() override;
-  ///@}
+  void ClearAllDataAvailable() override;
+
+  int CheckForNewData() override;
 
 protected:
   vtkLidarPoseStream();
@@ -81,9 +76,18 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
+  void ConsumePacket(const std::vector<uint8_t>& pkt, double timestamp) override;
+
 private:
   vtkLidarPoseStream(const vtkLidarPoseStream&) = delete;
   void operator=(const vtkLidarPoseStream&) = delete;
+
+  /*!< The port to receive information*/
+  int GNSSPort = 8308;
+  /*!< The port to send forwarded packets*/
+  int GNSSForwardedPort = 8308;
+
+  vtkSmartPointer<vtkPosePacketInterpreter> PoseInterpreter;
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;

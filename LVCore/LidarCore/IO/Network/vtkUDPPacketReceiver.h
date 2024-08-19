@@ -20,7 +20,6 @@
 #include <vtkObject.h>
 #include <vtkSetGet.h>
 
-#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -39,10 +38,10 @@ public:
 
   struct Parameters
   {
-    uint16_t listeningPort;
+    std::vector<uint16_t> listeningPorts;
     std::string listeningAddress;
     std::string multicastAddress;
-    uint16_t forwardPort;
+    std::vector<uint16_t> forwardPorts;
     std::string forwardAddress;
   };
   using ConsumeCallback = std::function<void(const std::vector<uint8_t>&, double)>;
