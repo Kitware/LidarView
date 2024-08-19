@@ -234,11 +234,6 @@ void LidarViewMainWindow::dropEvent(QDropEvent* evt)
   {
     lqOpenLidarReaction::openLidarPcap(files[0]);
   }
-  else if (files[0].endsWith(".pcd"))
-  {
-    QMessageBox::warning(nullptr, tr(""), tr("Unsupported input format"));
-    return;
-  }
   else
   {
     pqLoadDataReaction::loadData(files);
