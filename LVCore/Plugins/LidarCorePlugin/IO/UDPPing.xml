@@ -1,0 +1,29 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="UDPPing"
+                 class="vtkUDPPing"
+                 label="UDP Ping"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="UDPSenderAlgorithm">
+      <Documentation short_help="Send a small packet at each pipeline update.">
+        Send a small packet with number of points at each pipeline update.
+        Can be used to know if the pipeline is still alive.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <IntVectorProperty name="MinimalDelay"
+                         command="SetMinimalDelay"
+                         number_of_elements="1"
+                         default_values="1000">
+        <Documentation>
+          Minimal delay between two consecutive ping in milliseconds. Default to 1000ms.
+        </Documentation>
+      </IntVectorProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

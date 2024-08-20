@@ -22,6 +22,7 @@ set(classes
   vtkPacketFileReader
   vtkPacketFileWriter
   vtkStream
+  vtkUDPPing
   vtkUDPPointSender
   vtkUDPSenderAlgorithm
 )
