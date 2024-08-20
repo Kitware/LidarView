@@ -18,19 +18,14 @@
 
 #include "lvIONetworkModule.h" // For export macro
 #include <vtkDataArraySelection.h>
-#include <vtkLiveSourceAlgorithm.h>
-#include <vtkPassInputTypeAlgorithm.h>
 #include <vtkSmartPointer.h> // for ivar
+#include <vtkUDPSenderAlgorithm.h>
 
 #include <memory>
 #include <string>
 
 class vtkDataSet;
 class vtkFieldData;
-
-#ifndef __VTK_WRAP__
-#define vtkPassInputTypeAlgorithm vtkLiveSourceAlgorithm<vtkPassInputTypeAlgorithm>
-#endif
 
 /**
  * @brief vtkUDPPointSender sends point and point data information over UDP.
@@ -69,44 +64,17 @@ class vtkFieldData;
  *  - After the end of the footer, the packet will be filled with null bytes to reach the maximum
  *    packet size.
  */
-class LVIONETWORK_EXPORT vtkUDPPointSender : public vtkPassInputTypeAlgorithm
+class LVIONETWORK_EXPORT vtkUDPPointSender : public vtkUDPSenderAlgorithm
 {
 public:
   static vtkUDPPointSender* New();
-  vtkTypeMacro(vtkUDPPointSender, vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkUDPPointSender, vtkUDPSenderAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Enable/disable this filter. When disabled, this filter passes data object
-   * doing nothing more.
-   */
-  vtkSetMacro(Enabled, bool);
-  vtkGetMacro(Enabled, bool);
-  vtkBooleanMacro(Enabled, bool);
-  ///@}
 
   /**
    * Can be used to select a subset of data point arrays to send.
    */
   vtkGetObjectMacro(ArraySelections, vtkDataArraySelection);
-
-  ///@{
-  /**
-   * IP address to send data over. Can either be a IPv4 address string in dotted decimal form,
-   * or an IPv6 address in hexadecimal notation.
-   */
-  vtkGetMacro(IPAddress, std::string);
-  vtkSetMacro(IPAddress, std::string);
-  ///@}
-
-  ///@{
-  /**
-   * Port on which to send data.
-   */
-  vtkGetMacro(DestinationPort, int);
-  vtkSetMacro(DestinationPort, int);
-  ///@}
 
   ///@{
   /**
@@ -148,9 +116,6 @@ private:
 
   void SendData(vtkDataSet* dataset);
 
-  bool Enabled;
-  int DestinationPort;
-  std::string IPAddress;
   vtkSmartPointer<vtkDataArraySelection> ArraySelections;
   bool OnlySendNewData;
   std::string TimeArrayName;
@@ -158,9 +123,5 @@ private:
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
-
-#ifndef __VTK_WRAP__
-#undef vtkPassInputTypeAlgorithm
-#endif
 
 #endif

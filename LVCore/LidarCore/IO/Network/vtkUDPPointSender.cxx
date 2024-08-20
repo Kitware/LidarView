@@ -23,9 +23,6 @@
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
 
-#include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
-
 #include <algorithm>
 #include <limits>
 
@@ -44,26 +41,16 @@ constexpr uint8_t SCALAR_NAME_MAX_SIZE = 24U;
 class vtkUDPPointSender::vtkInternals
 {
 public:
-  boost::asio::io_service IOService;
-  boost::asio::ip::udp::socket Socket;
-  boost::asio::ip::udp::endpoint Endpoint;
-
   uint8_t DataBuffer[::PACKET_SIZE];
   uint8_t MaxPointNb = 0;
   double LastValue;
 
   uint16_t HeaderSize;
 
-  vtkInternals()
-    : Socket(IOService)
-  {
-  }
-
   //-----------------------------------------------------------------------------
-  uint16_t CopyData(uint16_t dataIndex, const void* fromData, size_t fromDataSize)
+  uint16_t CopyData(uint16_t index, const void* data, size_t dataSize)
   {
-    memcpy(this->DataBuffer + dataIndex, fromData, fromDataSize);
-    return dataIndex + fromDataSize;
+    return vtkUDPSenderAlgorithm::CopyData(this->DataBuffer, index, data, dataSize);
   }
 
   //-----------------------------------------------------------------------------
@@ -142,26 +129,21 @@ vtkUDPPointSender::vtkUDPPointSender()
 vtkUDPPointSender::~vtkUDPPointSender() = default;
 
 //-----------------------------------------------------------------------------
-int vtkUDPPointSender::RequestInformation(vtkInformation* vtkNotUsed(request),
+int vtkUDPPointSender::RequestInformation(vtkInformation* request,
   vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector* outputVector)
 {
-  if (!this->Enabled)
+  if (!Superclass::GetEnabled())
   {
     return 1;
   }
 
-  auto& internals = *(this->Internals);
-
-  boost::system::error_code error;
-  auto address = boost::asio::ip::make_address(this->IPAddress, error);
-  if (error)
+  if (!Superclass::RequestInformation(request, inputVector, outputVector))
   {
-    vtkErrorMacro("Could not determine a valid address from input string.");
     return 0;
   }
 
-  internals.Endpoint = boost::asio::ip::udp::endpoint(address, this->DestinationPort);
+  auto& internals = *(this->Internals);
 
   internals.LastValue = std::numeric_limits<double>::min();
 
@@ -219,27 +201,19 @@ int vtkUDPPointSender::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* output = vtkDataSet::GetData(outputVector->GetInformationObject(0));
   output->ShallowCopy(input);
 
-  auto& internals = *(this->Internals);
-
-  if (!this->Enabled)
+  if (!Superclass::GetEnabled())
   {
     return 1;
   }
 
-  boost::system::error_code error;
-  internals.Socket.open(internals.Endpoint.protocol(), error);
-
-  if (error)
+  if (!Superclass::OpenSocket())
   {
-    vtkErrorMacro("Could not open socket.");
     return 0;
   }
-  internals.Socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-  internals.Socket.set_option(boost::asio::ip::multicast::enable_loopback(true));
 
   this->SendData(input);
 
-  internals.Socket.close();
+  Superclass::CloseSocket();
   return 1;
 }
 
@@ -305,8 +279,7 @@ void vtkUDPPointSender::SendData(vtkDataSet* dataset)
       currentIdx = internals.CopyData(currentIdx, &packetRealSize, sizeof(uint16_t));
       internals.CopyData(currentIdx, &::PACKET_END, sizeof(uint16_t));
 
-      internals.Socket.send_to(
-        boost::asio::buffer(internals.DataBuffer, ::PACKET_SIZE), internals.Endpoint);
+      Superclass::SendData(internals.DataBuffer, ::PACKET_SIZE);
 
       std::fill(
         internals.DataBuffer + internals.HeaderSize, internals.DataBuffer + ::PACKET_SIZE, 0);
@@ -328,6 +301,6 @@ int vtkUDPPointSender::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
 void vtkUDPPointSender::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "IPAddress: " << this->IPAddress << endl;
-  os << indent << "DestinationPort: " << this->DestinationPort << endl;
+  os << indent << "OnlySendNewData: " << this->OnlySendNewData << endl;
+  os << indent << "TimeArrayName: " << this->TimeArrayName << endl;
 }

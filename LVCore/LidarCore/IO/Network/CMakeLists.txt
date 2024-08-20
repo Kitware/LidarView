@@ -23,6 +23,7 @@ set(classes
   vtkPacketFileWriter
   vtkStream
   vtkUDPPointSender
+  vtkUDPSenderAlgorithm
 )
 
 vtk_module_add_module(LidarView::IONetwork

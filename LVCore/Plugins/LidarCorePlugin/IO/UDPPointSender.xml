@@ -2,7 +2,9 @@
   <ProxyGroup name="filters">
     <SourceProxy name="UDPPointSender"
                  class="vtkUDPPointSender"
-                 label="UDPPointSender">
+                 label="UDP Point Sender"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="UDPSenderAlgorithm">
       <Documentation short_help="Send data over network in UDP">
         Send data over network in UDP.
       </Documentation>
@@ -13,36 +15,6 @@
         </DataTypeDomain>
         <InputArrayDomain name="point_arrays" attribute_type="point" />
       </InputProperty>
-
-      <IntVectorProperty name="EnableDataTransmission"
-                         command="SetEnabled"
-                         number_of_elements="1"
-                         default_values="1"
-                         panel_visibility="advanced">
-        <BooleanDomain name="bool" />
-        <Documentation>
-          Enable/disable this filter. When disabled, this filter passes data object doing nothing more.
-        </Documentation>
-      </IntVectorProperty>
-
-      <StringVectorProperty name="IPAddress"
-                            command="SetIPAddress"
-                            number_of_elements="1"
-                            default_values="127.0.0.1">
-        <Documentation>
-          IP address to send data over. Can either be a IPv4 address string in dotted decimal form,
-          or an IPv6 address in hexadecimal notation.
-        </Documentation>
-      </StringVectorProperty>
-
-      <IntVectorProperty name="DestinationPort"
-                         command="SetDestinationPort"
-                         number_of_elements="1"
-                         default_values="8888">
-        <Documentation>
-          Port on which to send data.
-        </Documentation>
-      </IntVectorProperty>
 
       <StringVectorProperty name="ArrayToSend"
                             command="GetArraySelections"

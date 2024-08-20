@@ -151,6 +151,7 @@ lidarcoreplugin_add_module_xml(
     IO/Interpreters/BasePacketInterpreter.xml
     IO/Interpreters/BaseStream.xml
     IO/UDPPointSender.xml
+    IO/UDPSenderAlgorithm.xml
 )
 
 lidarcoreplugin_add_module_xml(
