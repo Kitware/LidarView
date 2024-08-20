@@ -136,7 +136,7 @@ public:
     }
 
     // Get weighted proba of point x
-    double ComputeWeightedProba(double x) const
+    [[nodiscard]] double ComputeWeightedProba(double x) const
     {
       return this->Weight / (this->Sigma * sqrt(2 * vtkMath::Pi())) *
         exp(-std::pow(x - this->Mean, 2) / (2.0 * std::pow(this->Sigma, 2)));
@@ -617,7 +617,7 @@ public:
     }
 
     // Get weighted proba of point pt
-    double ComputeWeightedProba(const Eigen::Vector3d& pt) const
+    [[nodiscard]] double ComputeWeightedProba(const Eigen::Vector3d& pt) const
     {
       return this->Weight / std::sqrt(this->Cov.determinant() * std::pow(2 * vtkMath::Pi(), 3)) *
         exp(-0.5 * (pt - this->Mean).transpose() * this->Cov.inverse() * (pt - this->Mean));
@@ -683,7 +683,7 @@ public:
       }
     }
 
-    int GetMaxTTL() const { return this->MaxTTL; }
+    [[nodiscard]] int GetMaxTTL() const { return this->MaxTTL; }
 
     // Set value to intialiaze covariance with the required cluster size
     void SetCovCoeff(double clusterSize) { this->CovCoeff = std::pow(clusterSize, 2.); }
