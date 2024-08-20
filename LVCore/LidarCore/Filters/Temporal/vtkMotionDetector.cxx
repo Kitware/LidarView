@@ -1644,6 +1644,9 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Internals->NbProcessedFrames == 0)
     this->Internals->ComputeBounds(input);
 
+  if (this->Internals->NbProcessedFrames < this->InitNbFrames)
+    vtkLog(INFO, "Waiting for the initialization");
+
   // Estimate probability of a point and update GMM
   vtkSmartPointer<vtkPolyData> motionPolydata = vtkSmartPointer<vtkPolyData>::New();
   this->EstimateMotion(input, motionPolydata);
