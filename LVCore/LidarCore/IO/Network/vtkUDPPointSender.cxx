@@ -42,7 +42,7 @@ class vtkUDPPointSender::vtkInternals
 {
 public:
   uint8_t DataBuffer[::PACKET_SIZE];
-  uint8_t MaxPointNb = 0;
+  uint16_t MaxPointNb = 0;
   double LastValue;
 
   uint16_t HeaderSize;
@@ -63,17 +63,14 @@ public:
     const uint8_t dataType = sizeof(float);
     currentIdx = this->CopyData(currentIdx, &dataType, sizeof(uint8_t));
 
-    const int numberOfArrays = fieldData->GetNumberOfArrays();
-    if (numberOfArrays > std::numeric_limits<uint8_t>::max())
-    {
-      vtkGenericWarningMacro("Too many arrays in input dataset.");
-      return false;
-    }
-    currentIdx = this->CopyData(currentIdx, &numberOfArrays, sizeof(uint8_t));
+    // Skip - placeholder for number of associated array
+    const uint16_t numberOfArraysIndex = currentIdx;
+    currentIdx += sizeof(uint8_t);
 
     // Init point coordinates size
+    int numberOfArrays = 0;
     uint16_t pointDataSize = 3 * dataType;
-    for (int idx = 0; idx < numberOfArrays; ++idx)
+    for (int idx = 0; idx < fieldData->GetNumberOfArrays(); ++idx)
     {
       auto array = vtkDataArray::SafeDownCast(fieldData->GetAbstractArray(idx));
       if (array && array->GetName())
@@ -100,16 +97,25 @@ public:
           }
           currentIdx = this->CopyData(currentIdx, &nbComponents, sizeof(uint8_t));
           pointDataSize += nbComponents * dataType;
+          numberOfArrays++;
         }
       }
     }
-    const uint8_t headerEndSize = sizeof(uint8_t) * 2;
-    this->MaxPointNb =
-      (::PACKET_SIZE - ::FOOTER_SIZE - (currentIdx + headerEndSize)) / pointDataSize;
 
-    currentIdx = this->CopyData(currentIdx, &this->MaxPointNb, sizeof(uint8_t));
-    currentIdx = this->CopyData(currentIdx, &::HEADER_END, headerEndSize);
+    if (numberOfArrays > std::numeric_limits<uint8_t>::max())
+    {
+      vtkGenericWarningMacro("Too many arrays in input dataset.");
+      return false;
+    }
+    this->CopyData(numberOfArraysIndex, &numberOfArrays, sizeof(uint8_t));
+
+    // Skip - placeholder for number of point
+    currentIdx += sizeof(uint16_t);
+
+    currentIdx = this->CopyData(currentIdx, &::HEADER_END, sizeof(uint8_t) * 2);
     this->HeaderSize = currentIdx;
+
+    this->MaxPointNb = (::PACKET_SIZE - ::FOOTER_SIZE - this->HeaderSize) / pointDataSize;
 
     // Fill header size at first position
     this->CopyData(0, &this->HeaderSize, sizeof(uint16_t));
@@ -227,7 +233,7 @@ void vtkUDPPointSender::SendData(vtkDataSet* dataset)
   std::fill(internals.DataBuffer + internals.HeaderSize, internals.DataBuffer + ::PACKET_SIZE, 0);
   uint16_t currentIdx = internals.HeaderSize;
 
-  uint8_t nbOfPacketPoint = 0;
+  uint16_t nbOfPacketPoint = 0;
   double currentValue = std::numeric_limits<double>::min();
   for (vtkIdType currentPoint = 0; currentPoint < dataset->GetNumberOfPoints(); ++currentPoint)
   {
@@ -273,8 +279,12 @@ void vtkUDPPointSender::SendData(vtkDataSet* dataset)
     if ((nbOfPacketPoint == internals.MaxPointNb) ||
       (currentPoint == dataset->GetNumberOfPoints() - 1))
     {
+      // Write number of points in header
+      const uint16_t nbOfPointOffset = internals.HeaderSize - sizeof(uint8_t) * 4;
+      internals.CopyData(nbOfPointOffset, &nbOfPacketPoint, sizeof(uint16_t));
+
       // Write footer
-      const uint8_t footerSize = sizeof(uint16_t) * 2;
+      const uint16_t footerSize = sizeof(uint16_t) * 2;
       const uint16_t packetRealSize = currentIdx + footerSize;
       currentIdx = internals.CopyData(currentIdx, &packetRealSize, sizeof(uint16_t));
       internals.CopyData(currentIdx, &::PACKET_END, sizeof(uint16_t));

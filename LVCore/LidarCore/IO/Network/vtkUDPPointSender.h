@@ -40,7 +40,7 @@ class vtkFieldData;
  *     |   array_name_size: uint8_t
  *     |   array_name: string
  *     |   array_number_of_components: uint8_t
- *     number_of_points: uint8_t
+ *     number_of_points: uint16_t
  *     end_of_header_bytes: 0x28 0x2a
  *
  *   ===== PAYLOAD DATA =====
@@ -117,7 +117,7 @@ private:
   void SendData(vtkDataSet* dataset);
 
   vtkSmartPointer<vtkDataArraySelection> ArraySelections;
-  bool OnlySendNewData;
+  bool OnlySendNewData = false;
   std::string TimeArrayName;
 
   class vtkInternals;
