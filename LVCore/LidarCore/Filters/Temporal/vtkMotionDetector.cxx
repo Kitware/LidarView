@@ -73,8 +73,6 @@
 #include <list>
 #include <numeric>
 
-#include <chrono>
-
 namespace
 {
 constexpr const char* HESAI_NAME = "Hesai";
@@ -1706,21 +1704,14 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Internals->NbProcessedFrames < this->InitNbFrames)
     vtkLog(INFO, "Waiting for the initialization");
 
-  std::chrono::time_point<std::chrono::system_clock> start, end;
-  start = std::chrono::system_clock::now();
   // Estimate probability of a point and update GMM
   vtkSmartPointer<vtkPolyData> motionPolydata = vtkSmartPointer<vtkPolyData>::New();
   this->EstimateMotion(input, motionPolydata);
-  end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = end - start;
-  this->TimeMotionEstimation += elapsed_seconds.count();
-  std::cout << "Motion estimation average time: " << (this->TimeMotionEstimation / this->Internals->NbProcessedFrames) << "s\n";
 
   // Extract clusters on the motion points
   if (this->Internals->NbProcessedFrames >= this->InitNbFrames &&
     this->ClusterExtractor != static_cast<int>(vtkMotionDetector::Extractor::NOEXTRACTION))
   {
-    start = std::chrono::system_clock::now();
     if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::EUCLIDEAN))
     {
       this->ExtractClustersWithEuclidean(motionPolydata, clustersOutput, clusterInfoOutput);
@@ -1729,10 +1720,6 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
     {
       this->ExtractClustersWithGMM(motionPolydata, clustersOutput, clusterInfoOutput);
     }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds = end - start;
-    this->TimeClustering += elapsed_seconds.count();
-    std::cout << "Clustering average time: " << (this->TimeClustering / (this->Internals->NbProcessedFrames - this->InitNbFrames)) << "s\n";
   }
 
   motionPointsOutput->ShallowCopy(motionPolydata);

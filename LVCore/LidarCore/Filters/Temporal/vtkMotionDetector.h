@@ -174,9 +174,6 @@ private:
   };
   std::vector<ClusterStats> ClustersStats;
 
-  double TimeMotionEstimation;
-  double TimeClustering;
-
   // Add a frame to the spherical map and estimate motion probability
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkPolyData> motionPolydata);
