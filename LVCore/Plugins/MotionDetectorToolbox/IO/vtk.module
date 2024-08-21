@@ -9,3 +9,4 @@ DEPENDS
 PRIVATE_DEPENDS
   Boost::system
   Boost::thread
+  VTK::FiltersCore
