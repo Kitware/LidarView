@@ -1408,6 +1408,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     bboxLabels->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxId);
     fieldData->AddArray(bboxDistances);
     fieldData->AddArray(bboxSizes);
     fieldData->AddArray(bboxCenters);
@@ -1622,6 +1623,7 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
     bboxLabels->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxId);
     fieldData->AddArray(bboxDistances);
     fieldData->AddArray(bboxSizes);
     fieldData->AddArray(bboxCenters);
