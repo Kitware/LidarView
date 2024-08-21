@@ -5,7 +5,7 @@ LIBRARY_NAME
 DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
-  LidarView::CommonCore
+  LidarView::IONetwork
 PRIVATE_DEPENDS
   Boost::system
   Boost::thread

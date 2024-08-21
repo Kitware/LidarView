@@ -17,19 +17,14 @@
 #define vtkDetectedClusterUDPSender_h
 
 #include "MotionDetectorToolboxIOModule.h" // For export macro
-#include <vtkLiveSourceAlgorithm.h>
-#include <vtkPassInputTypeAlgorithm.h>
-#include <vtkSmartPointer.h> // for ivar
+#include <vtkSmartPointer.h>               // for ivar
+#include <vtkUDPSenderAlgorithm.h>
 
 #include <memory>
 #include <string>
 
 class vtkCompositeDataSet;
 class vtkFieldData;
-
-#ifndef __VTK_WRAP__
-#define vtkPassInputTypeAlgorithm vtkLiveSourceAlgorithm<vtkPassInputTypeAlgorithm>
-#endif
 
 /**
  * vtkDetectedClusterUDPSender sends cluster information (vtkMotionDetector output)
@@ -56,47 +51,15 @@ class vtkFieldData;
  *
  * @sa vtkMotionDetector
  */
-class MOTIONDETECTORTOOLBOXIO_EXPORT vtkDetectedClusterUDPSender : public vtkPassInputTypeAlgorithm
+class MOTIONDETECTORTOOLBOXIO_EXPORT vtkDetectedClusterUDPSender : public vtkUDPSenderAlgorithm
 {
 public:
   static vtkDetectedClusterUDPSender* New();
-  vtkTypeMacro(vtkDetectedClusterUDPSender, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Enable/disable this filter. When disabled, this filter passes data object
-   * doing nothing more.
-   */
-  vtkSetMacro(Enabled, bool);
-  vtkGetMacro(Enabled, bool);
-  vtkBooleanMacro(Enabled, bool);
-  ///@}
-
-  ///@{
-  /**
-   * IP address to send data over. Can either be a IPv4 address string in dotted decimal form,
-   * or an IPv6 address in hexadecimal notation.
-   */
-  vtkGetMacro(IPAddress, std::string);
-  vtkSetMacro(IPAddress, std::string);
-  ///@}
-
-  ///@{
-  /**
-   * Port on which to send data.
-   */
-  vtkGetMacro(DestinationPort, int);
-  vtkSetMacro(DestinationPort, int);
-  ///@}
+  vtkTypeMacro(vtkDetectedClusterUDPSender, vtkUDPSenderAlgorithm);
 
 protected:
   vtkDetectedClusterUDPSender();
   ~vtkDetectedClusterUDPSender() override;
-
-  int RequestInformation(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
@@ -108,18 +71,11 @@ private:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void SendData(vtkCompositeDataSet* dataset);
-
-  bool Enabled = true;
-  int DestinationPort;
-  std::string IPAddress;
+  void SendPacket(uint16_t nbOfBlocks, uint16_t currentIdx);
+  void SendData(vtkCompositeDataSet* blocks, double timestamp);
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
 };
-
-#ifndef __VTK_WRAP__
-#undef vtkPassInputTypeAlgorithm
-#endif
 
 #endif
