@@ -1227,7 +1227,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
   }
 
   // Compute cluster stats: size, mean depth, mean intensity etc
-  this->Clusters.clear();
+  this->ClustersStats.clear();
   for (const auto& clus : clusters)
   {
     auto& clusterId = clus.first;  // shortcut for clusterId
@@ -1321,16 +1321,16 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     clusterInfo.BoundingBox.SetTransform(matrix);
     clusterInfo.BoundingBox.SetVertices(
       bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-    this->Clusters.emplace_back(clusterInfo);
+    this->ClustersStats.emplace_back(clusterInfo);
   }
   // Sort clusters based on their average depth values
-  std::sort(this->Clusters.begin(),
-    this->Clusters.end(),
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
     [](const ClusterStats& cluster1, const ClusterStats& cluster2)
     { return cluster1.MeanDepth < cluster2.MeanDepth; });
   std::vector<int> newClusterIds(numClusters);
   int newClusterId = 0;
-  for (auto& cluster : this->Clusters)
+  for (auto& cluster : this->ClustersStats)
   {
     newClusterIds[cluster.ClusterId] = newClusterId;
     ++newClusterId;
@@ -1338,7 +1338,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
 
   // Reset cluster id for points and cluster stats
   newClusterId = 0;
-  for (auto& cluster : this->Clusters)
+  for (auto& cluster : this->ClustersStats)
   {
     cluster.ClusterId = newClusterId;
     ++newClusterId;
@@ -1353,7 +1353,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
   }
 
   // Label cluster by geometry dimension
-  for (auto& cluster : this->Clusters)
+  for (auto& cluster : this->ClustersStats)
   {
     if (cluster.BoundingBox.GetSize().z() >= 0.8 && cluster.BoundingBox.GetSize().z() <= 2.2 &&
       ((cluster.BoundingBox.GetSize().x() >= 0.2 && cluster.BoundingBox.GetSize().x() <= 0.7) ||
@@ -1369,7 +1369,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
 
   // Add bounding box for each cluster into output
   int blockId = 0;
-  for (const auto& cluster : this->Clusters)
+  for (const auto& cluster : this->ClustersStats)
   {
     vtkNew<vtkCubeSource> cubeSource;
     vtkNew<vtkPolyData> source;
@@ -1432,7 +1432,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
   data->SetName("Clusters Information");
   data->SetNumberOfComponents(1);
   std::ostringstream oss;
-  for (const auto& cluster : this->Clusters)
+  for (const auto& cluster : this->ClustersStats)
   {
     oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
         << ": distance = " << std::setw(7) << cluster.MeanDepth << "m  "
@@ -1477,7 +1477,7 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
   std::vector<std::vector<int>> clusters;
   std::vector<int> clusterUUID;
   this->Clustering->Clusters.GetClusters(clusters, clusterUUID);
-  this->Clusters.clear();
+  this->ClustersStats.clear();
   for (unsigned int id = 0; id < clusters.size(); ++id)
   {
     int nbClusterPoints = clusters[id].size();
@@ -1565,12 +1565,12 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
     clusterInfo.BoundingBox.SetTransform(matrix);
     clusterInfo.BoundingBox.SetVertices(
       bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-    this->Clusters.emplace_back(clusterInfo);
+    this->ClustersStats.emplace_back(clusterInfo);
   }
   this->Clustering->Clusters.ClearClusters();
 
   // Label cluster by geometry dimension
-  for (auto& cluster : this->Clusters)
+  for (auto& cluster : this->ClustersStats)
   {
     if (cluster.BoundingBox.GetSize().z() >= 0.8 && cluster.BoundingBox.GetSize().z() <= 2.2 &&
       ((cluster.BoundingBox.GetSize().x() >= 0.2 && cluster.BoundingBox.GetSize().x() <= 0.7) ||
@@ -1586,7 +1586,7 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
 
   // Add bounding box for each cluster into output
   int blockId = 0;
-  for (const auto& cluster : this->Clusters)
+  for (const auto& cluster : this->ClustersStats)
   {
     vtkNew<vtkCubeSource> cubeSource;
     vtkNew<vtkPolyData> source;
@@ -1649,7 +1649,7 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
   data->SetName("Clusters Information");
   data->SetNumberOfComponents(1);
   std::ostringstream oss;
-  for (const auto& cluster : this->Clusters)
+  for (const auto& cluster : this->ClustersStats)
   {
     oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
         << " : distance = " << std::setw(7) << cluster.MeanDepth << "m  "

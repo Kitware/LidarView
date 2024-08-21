@@ -172,7 +172,7 @@ private:
     double MeanIntensity = 0;
     Bbox BoundingBox;
   };
-  std::vector<ClusterStats> Clusters;
+  std::vector<ClusterStats> ClustersStats;
 
   // Add a frame to the spherical map and estimate motion probability
   void EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
