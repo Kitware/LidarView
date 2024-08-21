@@ -38,6 +38,7 @@ class vtkFieldData;
  *
  *   ===== PAYLOAD DATA =====
  *     # For each cluster (number_of_cluster):
+ *     |   cluster_id: int
  *     |   label: unsigned short
  *     |   center: 3 * float
  *     |   distance: float

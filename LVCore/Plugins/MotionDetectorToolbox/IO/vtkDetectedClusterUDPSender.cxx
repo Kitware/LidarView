@@ -22,6 +22,7 @@
 #include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkIntArray.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkUnsignedShortArray.h>
 
@@ -85,6 +86,7 @@ public:
   //-----------------------------------------------------------------------------
   void FillBlock(vtkFieldData* fieldData, uint16_t& currentIdx)
   {
+    ::CopyArray<vtkIntArray, 1>(fieldData, "ClusterId", this->DataBuffer, currentIdx);
     ::CopyArray<vtkUnsignedShortArray, 1>(fieldData, "Label", this->DataBuffer, currentIdx);
     ::CopyArray<vtkFloatArray, 3>(fieldData, "Center", this->DataBuffer, currentIdx);
     ::CopyArray<vtkFloatArray, 1>(fieldData, "Distance", this->DataBuffer, currentIdx);

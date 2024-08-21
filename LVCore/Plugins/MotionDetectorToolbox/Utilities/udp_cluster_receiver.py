@@ -20,16 +20,16 @@ def parse_packet(data):
     timestamp = struct.unpack("<d", data[2:10])[0]
     blockNb = struct.unpack("<H", data[10:12])[0]
     idx = 12
-    for blockId in range(0, blockNb):
+    for _ in range(0, blockNb):
         idxEnd = idx + BLOCK_SIZE
-        blockInfo = struct.unpack("<Hfffffff", data[idx:idxEnd])
+        blockInfo = struct.unpack("<iHfffffff", data[idx:idxEnd])
         idx = idxEnd
         clusters.append({
-            "id": blockId,
-            "label": LABELS[blockInfo[0]] if blockInfo[0] < len(LABELS) else LABELS[1],
-            "center": [round(block, 4) for block in blockInfo[1:4]],
-            "distance": round(blockInfo[4], 4),
-            "size": [round(block, 4) for block in blockInfo[5:8]],
+            "id": blockInfo[0],
+            "label": LABELS[blockInfo[1]] if blockInfo[1] < len(LABELS) else LABELS[1],
+            "center": [round(block, 4) for block in blockInfo[2:5]],
+            "distance": round(blockInfo[4], 5),
+            "size": [round(block, 4) for block in blockInfo[6:9]],
         })
 
     totalSize = struct.unpack("<H", data[idx:idx+2])[0]

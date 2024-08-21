@@ -1384,19 +1384,15 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     transformFilter->SetInputConnection(cubeSource->GetOutputPort());
     transformFilter->Update();
     source->ShallowCopy(transformFilter->GetOutput());
-    vtkSmartPointer<vtkIntArray> clusterId = vtkSmartPointer<vtkIntArray>::New();
-    clusterId->SetName("clusterId");
-    for (auto id = 0; id < source->GetNumberOfPoints(); ++id)
-    {
-      clusterId->InsertNextTuple1(cluster.ClusterId);
-    }
-    source->GetPointData()->AddArray(clusterId);
 
     std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
     clustersOutput->SetBlock(blockId, source);
     clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
 
     // Create field datga and add information to it
+    vtkSmartPointer<vtkIntArray> bboxId = vtkSmartPointer<vtkIntArray>::New();
+    bboxId->SetName("ClusterId");
+    bboxId->SetNumberOfComponents(1);
     vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
     bboxDistances->SetName("Distance");
     bboxDistances->SetNumberOfComponents(1);
@@ -1416,6 +1412,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     fieldData->AddArray(bboxSizes);
     fieldData->AddArray(bboxCenters);
     fieldData->AddArray(bboxLabels);
+    bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
     bboxCenters->InsertNextTuple(cluster.BoundingBox.GetCenter().data());
@@ -1601,19 +1598,15 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
     transformFilter->SetInputConnection(cubeSource->GetOutputPort());
     transformFilter->Update();
     source->ShallowCopy(transformFilter->GetOutput());
-    vtkSmartPointer<vtkIntArray> clusterId = vtkSmartPointer<vtkIntArray>::New();
-    clusterId->SetName("clusterId");
-    for (auto id = 0; id < source->GetNumberOfPoints(); ++id)
-    {
-      clusterId->InsertNextTuple1(cluster.ClusterId);
-    }
-    source->GetPointData()->AddArray(clusterId);
 
     std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
     clustersOutput->SetBlock(blockId, source);
     clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
 
     // Create field data and add information to it
+    vtkSmartPointer<vtkIntArray> bboxId = vtkSmartPointer<vtkIntArray>::New();
+    bboxId->SetName("ClusterId");
+    bboxId->SetNumberOfComponents(1);
     vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
     bboxDistances->SetName("Distance");
     bboxDistances->SetNumberOfComponents(1);
@@ -1633,10 +1626,11 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
     fieldData->AddArray(bboxSizes);
     fieldData->AddArray(bboxCenters);
     fieldData->AddArray(bboxLabels);
+    bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
     bboxCenters->InsertNextTuple(cluster.BoundingBox.GetCenter().data());
-    bboxLabels->InsertNextTuple1(static_cast<int>(cluster.ClusterLabel));
+    bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
 
     clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
 
