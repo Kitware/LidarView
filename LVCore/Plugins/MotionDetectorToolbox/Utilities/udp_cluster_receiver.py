@@ -4,7 +4,7 @@ import struct
 UDP_IP = "127.0.0.1"
 UDP_PORT = 8888
 BUFFER_SIZE = 508
-BLOCK_SIZE = 30
+BLOCK_SIZE = 34
 
 PACKET_START = [0x28, 0x2a]
 PACKET_END = [0x2a, 0x2c]
@@ -45,4 +45,3 @@ while True:
 
     clusters, timestamp = parse_packet(data)
     print(clusters, timestamp)
-
