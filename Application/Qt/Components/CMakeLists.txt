@@ -1,15 +1,9 @@
 set(classes
   lqAboutDialog
-  lqCalibrationDialog
-)
-
-set(headers
-  lqCalibrationStructs.h
 )
 
 set(ui_files
   Resources/UI/lqAboutDialog.ui
-  Resources/UI/lqCalibrationDialog.ui
 )
 
 set(resource_files
@@ -27,16 +21,11 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/UI")
 
 vtk_module_add_module(LidarViewApp::lvComponents
   CLASSES ${classes}
-  HEADERS ${headers}
   SOURCES ${ui_files}
           ${resource_files})
 vtk_module_link(LidarViewApp::lvComponents
   PRIVATE
     Qt5::Core
     Qt5::Widgets)
-vtk_module_definitions(LidarViewApp::lvComponents
-  PRIVATE
-    QT_NO_KEYWORDS
-    "LIDARVIEW_BUILD_VELODYNE=$<BOOL:${PARAVIEW_PLUGIN_ENABLE_VelodynePlugin}>"
-    "LIDARVIEW_BUILD_HESAI=$<BOOL:${PARAVIEW_PLUGIN_ENABLE_HesaiPlugin}>"
-)
+
+target_compile_definitions(lvComponents PRIVATE QT_NO_KEYWORDS)

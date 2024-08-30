@@ -43,6 +43,6 @@ apt install -y --no-install-recommends \
     python3-twisted python3-autobahn python3 python3-dev python3-numpy \
     python3-pandas python3-sphinx python3-pip python3-matplotlib
 
-python3 -m pip install wslink cftime
+python3 -m pip install wslink cftime json-spec
 
 apt clean all

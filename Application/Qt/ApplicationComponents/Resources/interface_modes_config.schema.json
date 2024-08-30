@@ -1,0 +1,70 @@
+{
+  "title": "LidarView interface modes config schema.",
+  "$defs": {
+    "widgets": {
+      "type": "object",
+      "properties": {
+        "show": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hide": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "interfaceMode": {
+      "type": "object",
+      "properties": {
+        "dockWidgets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "menus": {
+          "$ref": "#/$defs/widgets"
+        },
+        "toolbars": {
+          "$ref": "#/$defs/widgets"
+        },
+        "automaticallyShowScalarBars": {
+          "type": "boolean"
+        },
+        "showFrameDecoration": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dockWidgets",
+        "menus",
+        "toolbars",
+        "showFrameDecoration"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "lidarViewer": {
+      "$ref": "#/$defs/interfaceMode"
+    },
+    "pointCloudTool": {
+      "$ref": "#/$defs/interfaceMode"
+    },
+    "advancedMode": {
+      "$ref": "#/$defs/interfaceMode"
+    }
+  },
+  "required": [
+    "lidarViewer",
+    "pointCloudTool",
+    "advancedMode"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiBox-root css-uqopch"
+   focusable="false"
+   aria-hidden="true"
+   viewBox="0 0 24 24"
+   data-testid="SettingsInputAntennaIcon"
+   version="1.1"
+   id="svg1"
+   width="576"
+   height="576"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <path
+     d="M 12,1 C 5.93,1 1,5.93 1,12 h 2 c 0,-4.97 4.03,-9 9,-9 4.97,0 9,4.03 9,9 h 2 C 23,5.93 18.07,1 12,1 Z"
+     id="path3"
+     style="fill:#de4130;fill-opacity:1;stroke:#4c4c4c;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" />
+  <path
+     d="M 12,5 C 8.13,5 5,8.13 5,12 h 2 c 0,-2.76 2.24,-5 5,-5 2.76,0 5,2.24 5,5 h 2 C 19,8.13 15.87,5 12,5 Z"
+     id="path1"
+     style="fill:#de4130;fill-opacity:1;stroke:#4c4c4c;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" />
+  <g
+     id="g5">
+    <g
+       id="g4">
+      <path
+         id="rect3"
+         style="fill:#787878;stroke:#4c4c4c;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+         d="M 9.2556534,9.981396 H 14.779001 V 14.29 H 9.2556534 Z M 13,14.29 h -2 v 3.3 L 7.59,21 9,22.41 l 3,-3 3,3 L 16.41,21 13,17.59 Z" />
+    </g>
+    <path
+       id="rect3-8"
+       style="fill:#cdcece;fill-opacity:1;stroke:#4c4c4c;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 9.2556083,10.930309 v 2.410778 h 5.5234377 v -2.410778 z" />
+  </g>
+</svg>

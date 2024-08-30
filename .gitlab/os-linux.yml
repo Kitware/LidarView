@@ -8,7 +8,7 @@
 
 .ubuntu22:
     extends: .linux
-    image: "gitlab.kitware.com:4567/lidarview/lidarview:ci-ubuntu22-20231004"
+    image: "gitlab.kitware.com:4567/lidarview/lidarview:ci-ubuntu22-20240724"
 
 .ubuntu22_debug:
     extends: .ubuntu22
@@ -76,6 +76,7 @@
         - *before_script_linux
         - git fetch --all
         - .gitlab/ci/clang_format_check.sh
+        - .gitlab/ci/json_schema_check.sh
     allow_failure:
         exit_codes: 1
 

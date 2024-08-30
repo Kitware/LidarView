@@ -1,40 +1,26 @@
 /*=========================================================================
 
-   Program: LidarView
-   Module:  lqLidarViewManager.h
+  Program:   LidarView
+  Module:    lqLidarViewManager.h
 
-   Copyright (c) Kitware Inc.
-   All rights reserved.
+  Copyright (c) Kitware, Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
 
-   LidarView is a free software; you can redistribute it and/or modify it
-   under the terms of the LidarView license.
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
 
-   See LICENSE for the full LidarView license.
-   A copy of this license can be obtained by contacting
-   Kitware Inc.
-   28 Corporate Drive
-   Clifton Park, NY 12065
-   USA
+=========================================================================*/
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-========================================================================*/
-#ifndef LQLIDARVIEWMANAGER_H
-#define LQLIDARVIEWMANAGER_H
+#ifndef lqLidarViewManager_h
+#define lqLidarViewManager_h
 
 #include <lqLidarCoreManager.h>
 
 #include "lvApplicationComponentsModule.h"
+
+#include <QScopedPointer>
 
 class LVAPPLICATIONCOMPONENTS_EXPORT lqLidarViewManager : public lqLidarCoreManager
 {
@@ -43,11 +29,18 @@ class LVAPPLICATIONCOMPONENTS_EXPORT lqLidarViewManager : public lqLidarCoreMana
   typedef lqLidarCoreManager Superclass;
 
 public:
+  enum InterfaceModes
+  {
+    LIDAR_VIEWER = 0,
+    POINT_CLOUD_TOOL,
+    ADVANCED_MODE
+  };
+
   lqLidarViewManager(QObject* parent = nullptr);
   ~lqLidarViewManager() override;
 
   /**
-   * Returns the pqPVApplicationCore instance. If no pqPVApplicationCore has been
+   * Returns the lqLidarViewManager instance. If no lqLidarViewManager has been
    * created then return nullptr.
    */
   static lqLidarViewManager* instance()
@@ -55,14 +48,39 @@ public:
     return qobject_cast<lqLidarViewManager*>(Superclass::instance());
   }
 
-  // LidarView specific
-  void pythonStartup() override;
-
   /**
    * Change ParaView default settings value such as background color
    * and LUT for lidar scalars.
    */
-  static void SetLidarViewDefaultSettings();
+  static void setLidarViewDefaultSettings();
+
+  /**
+   * Switch to a new interface layout defined by InterfaceModes.
+   * The modes are defined in json config files. Mode layout configurations
+   * are stored in memory, which means that when you switch modes while
+   * LidarView is running, any changes to the layout will be preserved.
+   *
+   * Note that a signal interfaceLayoutUpdated will be emitted with the
+   * new mode, and it will be saved in GeneralSettings.InterfaceMode
+   */
+  void updateInterfaceLayout(InterfaceModes mode);
+
+  /**
+   * Restore last interface layout used.
+   */
+  void restoreSavedInterfaceLayout();
+
+Q_SIGNALS:
+  /**
+   * Signal emitted when a new interface mode is changed.
+   */
+  void interfaceLayoutUpdated(InterfaceModes mode);
+
+private:
+  Q_DISABLE_COPY(lqLidarViewManager)
+
+  struct lqInternals;
+  QScopedPointer<lqInternals> Internals;
 };
 
-#endif // LQLIDARVIEWMANAGER_H
+#endif

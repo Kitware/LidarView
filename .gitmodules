@@ -8,3 +8,12 @@
 [submodule "Plugins/HesaiPlugin"]
 	path = Plugins/HesaiPlugin
 	url = https://gitlab.kitware.com/LidarView/HesaiPlugin.git
+[submodule "Plugins/LivoxPlugin"]
+	path = Plugins/LivoxPlugin
+	url = https://gitlab.kitware.com/LidarView/livoxplugin.git
+[submodule "Plugins/LeishenPlugin"]
+	path = Plugins/LeishenPlugin
+	url = https://gitlab.kitware.com/LidarView/leishenplugin.git
+[submodule "Plugins/RobosensePlugin"]
+	path = Plugins/RobosensePlugin
+	url = https://gitlab.kitware.com/LidarView/robosenseplugin.git

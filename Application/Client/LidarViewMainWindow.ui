@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="5.0">
  <class>LidarViewMainWindow</class>
  <widget class="QMainWindow" name="LidarViewMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1070</width>
-    <height>645</height>
+    <width>1200</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="acceptDrops">
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>LidarView</string>
   </property>
   <property name="windowIcon">
    <iconset resource="Resources/lvResources.qrc">
@@ -24,190 +24,77 @@
    <property name="acceptDrops">
     <bool>true</bool>
    </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="pqViewManager" name="MultiViewManager" native="true"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1070</width>
-     <height>22</height>
+     <width>1200</width>
+     <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuFileBase"/>
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="menuRecent_Files">
-     <property name="title">
-      <string>&amp;Recent Files</string>
-     </property>
-     <addaction name="separator"/>
-     <addaction name="actionClear_Menu"/>
-    </widget>
-    <widget class="QMenu" name="menuSaveAs">
-     <property name="title">
-      <string>Save &amp;As</string>
-     </property>
-     <addaction name="actionSavePcap"/>
-     <addaction name="actionSaveCSV"/>
-     <addaction name="actionSavePCD"/>
-     <addaction name="actionSavePLY"/>
-     <addaction name="actionSaveLAS"/>
-    </widget>
-    <widget class="QMenu" name="menu_Open">
-     <property name="title">
-      <string>&amp;Open</string>
-     </property>
-     <addaction name="actionOpenPcap"/>
-     <addaction name="actionOpen_Sensor_Stream"/>
-     <addaction name="actionOpenFile"/>
-     <addaction name="separator"/>
-     <addaction name="actionChoose_Calibration_File"/>
-    </widget>
-    <addaction name="menu_Open"/>
-    <addaction name="menuRecent_Files"/>
-    <addaction name="separator"/>
-    <addaction name="menuSaveAs"/>
-    <addaction name="actionSaveScreenshot"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose"/>
-    <addaction name="separator"/>
-    <addaction name="actionE_xit"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
+   <widget class="QMenu" name="menuEditBase"/>
+   <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionSpreadsheet"/>
-    <addaction name="actionMeasurement_Grid"/>
-    <addaction name="actionGrid_Properties"/>
-    <addaction name="separator"/>
-    <addaction name="actionChoose_Calibration_File"/>
-    <addaction name="separator"/>
-    <addaction name="actionPython_Console"/>
-    <addaction name="actionShowErrorDialog"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <action name="actionResetDefaultSettings">
-     <property name="text">
-      <string>Reset LidarView settings</string>
-     </property>
-     <property name="iconText">
-      <string>This will reset all LidarView settings by default</string>
-     </property>
-    </action>
-    <addaction name="actionAbout_LidarView"/>
-    <addaction name="actionHelpSupport"/>
-    <addaction name="actionHelpSlam"/>
-    <addaction name="separator"/>
-    <addaction name="actionResetDefaultSettings"/>
-    <addaction name="actionAdvanceFeature"/>
-   </widget>
-   <widget class="QMenu" name="menuViews">
-    <property name="title">
-     <string>Views</string>
+     <string>&amp;Edit</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuFilters">
+   <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>Filters</string>
+     <string>&amp;View</string>
     </property>
    </widget>
    <widget class="QMenu" name="menuSources">
     <property name="title">
-     <string>Sources</string>
+     <string>&amp;Sources</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuAdvance">
+   <widget class="QMenu" name="menuFilters">
     <property name="title">
-     <string>Advance</string>
+     <string>&amp;Filters</string>
     </property>
    </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menuTools"/>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuMacros">
+    <property name="title">
+     <string>&amp;Macros</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelpBase"/>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuSources"/>
    <addaction name="menuFilters"/>
-   <addaction name="menuViews"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuMacros"/>
    <addaction name="menuHelp"/>
-   <addaction name="menuAdvance"/>
   </widget>
   <widget class="lqStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>Basic Controls</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionOpenPcap"/>
-   <addaction name="actionOpen_Sensor_Stream"/>
-   <addaction name="actionOpenFile"/>
-   <addaction name="actionSaveLidarState"/>
-   <addaction name="actionLoadLidarState"/>
-   <addaction name="actionChoose_Calibration_File"/>
-   <addaction name="separator"/>
-   <addaction name="actionSelect_Points"/>
-   <addaction name="actionSpreadsheet"/>
-   <addaction name="actionPython_Console"/>
-   <addaction name="actionShowErrorDialog"/>
-   <addaction name="actionEnableAdvancedArrays"/>
-  </widget>
-  <widget class="lqColorToolbar" name="colorToolBar">
-   <property name="windowTitle">
-    <string>Color Controls</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="pqCustomViewpointsToolbar" name="Custom Viewpoints Toolbar">
-   <property name="windowTitle">
-    <string>Custom Viewpoints</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QToolBar" name="viewSettings">
-   <property name="windowTitle">
-    <string>View Controls</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionToggleProjection"/>
-   <addaction name="actionMeasure"/>
-   <addaction name="actionPlaneFit"/>
-   <addaction name="separator"/>
-  </widget>
-  <widget class="QToolBar" name="geolocationToolbar">
-   <property name="windowTitle">
-    <string>Geolocation Controls</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionShowPosition"/>
-  </widget>
   <widget class="QDockWidget" name="colorMapEditorDock">
    <property name="windowTitle">
     <string>Color Map Editor</string>
@@ -217,9 +104,21 @@
    </attribute>
    <widget class="pqColorMapEditor" name="colorMapEditorPanel"/>
   </widget>
+  <widget class="QDockWidget" name="lidarPlayerDock">
+   <property name="allowedAreas">
+    <set>Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>LiDAR Player</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="lqLivePlayerWidget" name="livePlayerPanel"/>
+  </widget>
   <widget class="QDockWidget" name="pipelineBrowserDock">
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Pipeline Browser</string>
@@ -230,9 +129,6 @@
    <widget class="pqPipelineBrowserWidget" name="pipelineBrowser"/>
   </widget>
   <widget class="QDockWidget" name="propertiesDock">
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
    <property name="windowTitle">
     <string>Properties</string>
    </property>
@@ -246,7 +142,7 @@
     <string>Memory Inspector</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>1</number>
    </attribute>
    <widget class="pqMemoryInspectorPanel" name="memoryInspectorPanel"/>
   </widget>
@@ -277,15 +173,6 @@
    </attribute>
    <widget class="pqPropertiesPanel" name="viewPropertiesPanel"/>
   </widget>
-  <widget class="QDockWidget" name="viewAnimationDock">
-   <property name="windowTitle">
-    <string>Animation</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="pqPVAnimationWidget" name="animationPanel"/>
-  </widget>
   <widget class="QDockWidget" name="outputWidgetDock">
    <property name="floating">
     <bool>false</bool>
@@ -302,6 +189,50 @@
     </property>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="findDataDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Find Data</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="findDataScrollArea">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="pqFindDataWidget" name="findDataWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>300</width>
+          <height>68</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <widget class="QDockWidget" name="pythonShellDock">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -316,7 +247,7 @@
     <string>Python Shell</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>8</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="pythonShellDummy">
     <property name="sizePolicy">
@@ -339,434 +270,24 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionE_xit">
-   <property name="text">
-    <string>E&amp;xit</string>
-   </property>
-   <property name="statusTip">
-    <string>Exit Application</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="actionOpenPcap">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/WiresharkDoc-128.png</normaloff>:/lvResources/Icons/WiresharkDoc-128.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Capture File...</string>
-   </property>
-   <property name="toolTip">
-    <string>Open a Wireshark-format capture file with data collected from a lidar sensor</string>
-   </property>
-   <property name="statusTip">
-    <string>Open Data File</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
-   </property>
-  </action>
-  <action name="actionOpenFile">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/pqWidgets/Icons/pqOpen.svg</normaloff>:/pqWidgets/Icons/pqOpen.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Open a file</string>
-   </property>
-   <property name="statusTip">
-    <string>Open Data File</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="actionSelect_Points">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/pqFrustumSelectionPoint24.png</normaloff>:/lvResources/Icons/pqFrustumSelectionPoint24.png</iconset>
-   </property>
-   <property name="text">
-    <string>Select Points</string>
-   </property>
-   <property name="toolTip">
-    <string>Select Points</string>
-   </property>
-  </action>
-  <action name="actionSpreadsheet">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/pqSpreadsheet16.png</normaloff>:/lvResources/Icons/pqSpreadsheet16.png</iconset>
-   </property>
-   <property name="text">
-    <string>Spreadsheet</string>
-   </property>
-   <property name="toolTip">
-    <string>Spreadsheet</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
-   </property>
-  </action>
-  <action name="actionOpen_Sensor_Stream">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lvResources/Icons/lidar.png</normaloff>:/lvResources/Icons/lidar.png</iconset>
-   </property>
-   <property name="text">
-    <string>Sensor &amp;Stream...</string>
-   </property>
-  </action>
-  <action name="actionSaveLidarState">
-   <property name="icon">
-    <iconset resource="../../LVCore/Qt/ApplicationComponents/lqResources.qrc">
-     <normaloff>:/lqResources/Icons/pqSaveState.png</normaloff>:/lqResources/Icons/pqSaveState.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save Lidar state</string>
-   </property>
-  </action>
-  <action name="actionLoadLidarState">
-   <property name="icon">
-    <iconset resource="../../LVCore/Qt/ApplicationComponents/lqResources.qrc">
-     <normaloff>:/lqResources/Icons/pqLoadState.png</normaloff>:/lqResources/Icons/pqLoadState.png</iconset>
-   </property>
-   <property name="text">
-    <string>Load Lidar state</string>
-   </property>
-  </action>
-  <action name="actionChoose_Calibration_File">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lvResources/Icons/calibrate.png</normaloff>:/lvResources/Icons/calibrate.png</iconset>
-   </property>
-   <property name="text">
-    <string>Choose &amp;Calibration File...</string>
-   </property>
-  </action>
-  <action name="actionPause">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lvResources/Icons/media-playback-pause.png</normaloff>:/lvResources/Icons/media-playback-pause.png</iconset>
-   </property>
-   <property name="text">
-    <string>Pause</string>
-   </property>
-   <property name="shortcut">
-    <string>Space</string>
-   </property>
-  </action>
-  <action name="actionPython_Console">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/python_logo_124.png</normaloff>:/lvResources/Icons/python_logo_124.png</iconset>
-   </property>
-   <property name="text">
-    <string>Python Console</string>
-   </property>
-   <property name="shortcut">
-    <string>F8</string>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="text">
-    <string>&amp;Close Data</string>
-   </property>
-   <property name="toolTip">
-    <string>Close Data</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="actionMeasurement_Grid">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Measurement Grid</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+G</string>
-   </property>
-  </action>
-  <action name="actionSaveScreenshot">
-   <property name="text">
-    <string>Save &amp;Screenshot...</string>
-   </property>
-  </action>
-  <action name="actionSaveCSV">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lvResources/Icons/csv.png</normaloff>:/lvResources/Icons/csv.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save &amp;CSV...</string>
-   </property>
-  </action>
-  <action name="actionGrid_Properties">
-   <property name="text">
-    <string>Grid Properties</string>
-   </property>
-  </action>
-  <action name="actionSavePcap">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lvResources/Icons/WiresharkDoc-128.png</normaloff>:/lvResources/Icons/WiresharkDoc-128.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save PCAP...</string>
-   </property>
-   <property name="iconText">
-    <string>Save PCAP</string>
-   </property>
-   <property name="toolTip">
-    <string>Save PCAP</string>
-   </property>
-  </action>
-  <action name="actionSavePCD">
-   <property name="text">
-    <string>Save PCD...</string>
-   </property>
-   <property name="iconText">
-    <string>Save PCD</string>
-   </property>
-   <property name="toolTip">
-    <string>Save PCD</string>
-   </property>
-  </action>
-  <action name="actionSavePLY">
-   <property name="text">
-    <string>Save PLY...</string>
-   </property>
-   <property name="iconText">
-    <string>Save PLY</string>
-   </property>
-   <property name="toolTip">
-    <string>Save PLY</string>
-   </property>
-  </action>
-  <action name="actionSaveLAS">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/las.png</normaloff>:/lvResources/Icons/las.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save LAS...</string>
-   </property>
-   <property name="iconText">
-    <string>Save LAS</string>
-   </property>
-   <property name="toolTip">
-    <string>Save LAS</string>
-   </property>
-  </action>
-  <action name="actionAbout_LidarView">
-   <property name="text">
-    <string>About ...</string>
-   </property>
-  </action>
-  <action name="actionHelpSupport">
-   <property name="text">
-    <string>Professional Support</string>
-   </property>
-  </action>
-  <action name="actionHelpSlam">
-   <property name="text">
-    <string>How to SLAM</string>
-   </property>
-  </action>
-  <action name="actionRecent_file1">
-   <property name="text">
-    <string>recent_file1</string>
-   </property>
-  </action>
-  <action name="actionRecent_file2">
-   <property name="text">
-    <string>recent_file2</string>
-   </property>
-  </action>
-  <action name="actionRecent_file3">
-   <property name="text">
-    <string>recent_file3</string>
-   </property>
-  </action>
-  <action name="actionRecent_file4">
-   <property name="text">
-    <string>recent_file4</string>
-   </property>
-  </action>
-  <action name="actionRecent_file5">
-   <property name="text">
-    <string>recent_file5</string>
-   </property>
-  </action>
-  <action name="actionClear_Menu">
-   <property name="text">
-    <string>Clear Menu</string>
-   </property>
-  </action>
-  <action name="actionToggleProjection">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/ViewOrtho.png</normaloff>
-     <normalon>:/lvResources/Icons/ViewPerspective.png</normalon>:/lvResources/Icons/ViewOrtho.png</iconset>
-   </property>
-   <property name="text">
-    <string>toggleProjection</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle between projective and orthogonal view</string>
-   </property>
-  </action>
-  <action name="actionMeasure">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/Measurements.png</normaloff>:/lvResources/Icons/Measurements.png</iconset>
-   </property>
-   <property name="text">
-    <string>Advanced Selection and Measurement options</string>
-   </property>
-   <property name="toolTip">
-    <string>Advanced Selection and Measurement options</string>
-   </property>
-  </action>
-  <action name="actionPlaneFit">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/planefit.png</normaloff>:/lvResources/Icons/planefit.png</iconset>
-   </property>
-   <property name="text">
-    <string>Plane Fit</string>
-   </property>
-   <property name="toolTip">
-    <string>Plane Fit to selection</string>
-   </property>
-  </action>
-  <action name="actionGPSApply">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/location.png</normaloff>:/lvResources/Icons/location.png</iconset>
-   </property>
-   <property name="text">
-    <string>GPSApply</string>
-   </property>
-   <property name="toolTip">
-    <string>Apply geolocation</string>
-   </property>
-  </action>
-  <action name="actionAbsolute">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/absolute.png</normaloff>:/lvResources/Icons/absolute.png</iconset>
-   </property>
-   <property name="text">
-    <string>absolute</string>
-   </property>
-   <property name="toolTip">
-    <string>Geolocation in absolute coordinates</string>
-   </property>
-  </action>
-  <action name="actionPersisting_Grid_Properties">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Persisting Grid Properties</string>
-   </property>
-  </action>
-  <action name="actionShowErrorDialog">
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/errorConsole.png</normaloff>:/lvResources/Icons/errorConsole.png</iconset>
-   </property>
-   <property name="text">
-    <string>Error Console</string>
-   </property>
-   <property name="toolTip">
-    <string>Show the error console.</string>
-   </property>
-  </action>
-  <action name="actionEnableAdvancedArrays">
-   <property name="icon">
-    <iconset resource="../../LVCore/Qt/ApplicationComponents/lqResources.qrc">
-     <normaloff>:/lqResources/Icons/EnableAdvancedArrays.png</normaloff>:/lqResources/Icons/EnableAdvancedArrays.png</iconset>
-   </property>
-   <property name="text">
-    <string>Enable Advanced Arrays</string>
-   </property>
-   <property name="toolTip">
-    <string>Enable the interpreter's advanced arrays.</string>
-   </property>
-  </action>
-  <action name="actionAdvanceFeature">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Advance Feature</string>
-   </property>
-  </action>
-  <action name="actionShowPosition">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="Resources/lvResources.qrc">
-     <normaloff>:/lvResources/Icons/map.png</normaloff>:/lvResources/Icons/map.png</iconset>
-   </property>
-   <property name="text">
-    <string>actionShowPosition</string>
-   </property>
-   <property name="toolTip">
-    <string>Show the GPS Track</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>pqCustomViewpointsToolbar</class>
-   <extends>QToolBar</extends>
-   <header>pqCustomViewpointsToolbar.h</header>
-  </customwidget>
-  <customwidget>
-   <class>lqColorToolbar</class>
-   <extends>QToolBar</extends>
-   <header>lqColorToolbar.h</header>
+   <class>pqViewManager</class>
+   <extends>QWidget</extends>
+   <header>pqViewManager.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>pqColorMapEditor</class>
    <extends>QWidget</extends>
    <header>pqColorMapEditor.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>lqLivePlayerWidget</class>
+   <extends>QWidget</extends>
+   <header>lqLivePlayerWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -799,9 +320,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>pqPVAnimationWidget</class>
+   <class>pqFindDataWidget</class>
    <extends>QWidget</extends>
-   <header>pqPVAnimationWidget.h</header>
+   <header>pqFindDataWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -814,22 +335,5 @@
   <include location="Resources/lvResources.qrc"/>
   <include location="../../LVCore/Qt/ApplicationComponents/lqResources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>actionE_xit</sender>
-   <signal>triggered()</signal>
-   <receiver>LidarViewMainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

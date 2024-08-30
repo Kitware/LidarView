@@ -4,7 +4,7 @@
 .windows:
     variables:
         GIT_CLONE_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\$CI_PROJECT_ID"
-        LVSB_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\LVSB-DEPS"
+        LVSB_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\DEPS-240724"
         GIT_SUBMODULE_DEPTH: 1
 
         # Force "desktop" OpenGL support. Qt seems to want to use EGL when run

@@ -3,7 +3,7 @@
 set -e
 
 readonly paraview_repo="https://gitlab.kitware.com/paraview/paraview.git"
-readonly paraview_commit="b5bd6d8beff4d9acdce5b44e0da951710809e4ca" # Waiting for new release
+readonly paraview_commit="34f97b6cb38c60bfa1c370b774d6aa1081be9c8e"
 
 readonly paraview_root="$HOME/paraview"
 readonly paraview_src="$paraview_root/src"
@@ -26,11 +26,9 @@ paraview_build () {
         -DPARAVIEW_USE_VTKM=OFF \
         -DPARAVIEW_USE_QT=ON \
         -DPARAVIEW_USE_PYTHON=ON \
-        -DPARAVIEW_PLUGIN_ENABLE_PythonQtPlugin=ON \
-        -DPARAVIEW_PLUGIN_AUTOLOAD_PythonQtPlugin=ON \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
-    cmake --build "$paraview_build_root" --target install --parallel 4
+    cmake --build "$paraview_build_root" --target install
 }
 
 paraview_build /usr

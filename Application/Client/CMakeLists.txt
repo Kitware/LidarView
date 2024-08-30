@@ -10,6 +10,16 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if (APPLE)
+  # Enable high resolution when using Qt5
+  set(high_resolution_capable "true")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/MacOSXBundleInfo.plist.in.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
+    @ONLY)
+  unset(high_resolution_capable)
+endif ()
+
 set(sources
   LidarViewMainWindow.h
   LidarViewMainWindow.cxx
@@ -25,24 +35,29 @@ set(plugins_targets
   LidarView::lidarview_plugins
 )
 
-if (PARAVIEW_PLUGIN_ENABLE_LidarSlam)
+if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   list(APPEND plugins_targets LidarSlam::paraview_wrapping)
 endif ()
 
+if (LIDARVIEW_USE_ROS2IO_PLUGIN)
+  list(APPEND plugins_targets Ros2IO::paraview_plugin)
+endif ()
+
 paraview_client_add(
-  NAME              LidarView
-  NAMESPACE         "LidarView"
+  NAME              ${SOFTWARE_NAME}
+  NAMESPACE         "${SOFTWARE_NAME}"
   EXPORT            "LidarViewClient"
   VERSION           ${LIDARVIEW_VERSION_FULL}
-  APPLICATION_NAME  "LidarView"
+  APPLICATION_NAME  "${SOFTWARE_NAME}"
   ORGANIZATION      "${SOFTWARE_VENDOR}"
   TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
   SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.jpg"
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.icns"
+  BUNDLE_PLIST      "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.ico"
 
   PLUGINS_TARGETS   ${plugins_targets}
-  REQUIRED_PLUGINS  PythonQtPlugin LidarCorePlugin
+  REQUIRED_PLUGINS  LidarCorePlugin
 
   MAIN_WINDOW_CLASS LidarViewMainWindow
   MAIN_WINDOW_INCLUDE LidarViewMainWindow.h
@@ -66,7 +81,3 @@ target_link_libraries(${SOFTWARE_NAME}
     LidarView::lqApplicationComponents # Common LVCore code base
     LidarViewApp::lvApplicationComponents # Specific LidarView code base
 )
-
-target_compile_definitions(${SOFTWARE_NAME}
-  PRIVATE
-    "LIDARVIEW_USE_PDAL=$<BOOL:${LIDARVIEW_USE_PDAL}>")

@@ -17,6 +17,9 @@
             # Python packages go here
             - build/lib64/
 
+            # Test-data fetched at config time
+            - build/_data/
+
             # Needed for installation.
             - build/CMakeCache.txt
             - build/build.ninja

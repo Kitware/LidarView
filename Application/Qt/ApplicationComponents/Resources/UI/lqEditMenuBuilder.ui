@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqEditMenuBuilder</class>
+ <widget class="QMenu" name="lqEditMenuBuilder">
+  <property name="title">
+   <string>&amp;Edit</string>
+  </property>
+  <action name="actionUpdateConfiguration">
+   <property name="icon">
+    <iconset resource="../../../Components/Resources/lvComponents.qrc">
+     <normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</normaloff>:/lvComponents/Icons/lvCalibrationFile.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Change LiDAR &amp;Configuration...</string>
+   </property>
+  </action>
+  <action name="actionShowMeasurementGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Measurement Grid</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../Components/Resources/pqComponents.qrc"/>
+ </resources>
+ <connections/>
+</ui>

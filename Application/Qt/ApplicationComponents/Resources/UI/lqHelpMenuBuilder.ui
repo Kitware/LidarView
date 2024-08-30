@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqHelpMenuBuilder</class>
+ <widget class="QMenu" name="lqHelpMenuBuilder">
+  <property name="title">
+   <string>&amp;Help</string>
+  </property>
+  <action name="actionHowToSLAM">
+   <property name="text">
+    <string>How To SLAM</string>
+   </property>
+  </action>
+  <action name="actionProfessionalSupport">
+   <property name="text">
+    <string>Professional Support</string>
+   </property>
+  </action>
+  <action name="actionWebSite">
+   <property name="text">
+    <string>LidarView Web Site</string>
+   </property>
+  </action>
+  <action name="actionReleaseNotes">
+   <property name="text">
+    <string>LidarView Release Notes</string>
+   </property>
+  </action>
+  <action name="actionCommunitySupport">
+   <property name="text">
+    <string>LidarView / ParaView Community Support</string>
+   </property>
+  </action>
+  <action name="actionParaViewGuide">
+   <property name="text">
+    <string>ParaView Guide</string>
+   </property>
+  </action>
+  <action name="actionParaViewTutorial">
+   <property name="text">
+    <string>ParaView Online Tutorials</string>
+   </property>
+  </action>
+  <action name="actionParaViewWebSite">
+   <property name="text">
+    <string>ParaView Web Site</string>
+   </property>
+  </action>
+  <action name="actionBugReport">
+   <property name="text">
+    <string>Report a bug</string>
+   </property>
+  </action>
+  <action name="actionAboutLidarView">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuAboutParaView">
+    <property name="title">
+      <string>&amp;More About ParaView...</string>
+    </property>
+    <addaction name="actionParaViewGuide"/>
+    <addaction name="actionParaViewTutorial"/>
+    <addaction name="separator"/>
+    <addaction name="actionParaViewWebSite"/>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../../Components/Resources/lvComponents.qrc"/>
+ </resources>
+ <connections/>
+</ui>
