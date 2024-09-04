@@ -131,6 +131,9 @@ private:
   double ClusterRadius = 0.4;
   int ClusterMinNbPoints = 5;
 
+  // Parameters for tracking
+  int TrackingWindowSizes = 10;
+
   struct Voxel
   {
     // Cluster id

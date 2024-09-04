@@ -1009,9 +1009,13 @@ void vtkMotionDetector::SetClusterMinNbPoints(int minNbPoints)
 //----------------------------------------------------------------------------
 void vtkMotionDetector::SetTrackingWindowSizes(int trackingWindowSizes)
 {
-  if (this->Clustering->Clusters.GetMaxTTL() != trackingWindowSizes)
+  if (this->TrackingWindowSizes != trackingWindowSizes)
   {
-    this->Clustering->Clusters.SetMaxTTL(trackingWindowSizes);
+    this->TrackingWindowSizes = trackingWindowSizes;
+    if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
+    {
+      this->Clustering->Clusters.SetMaxTTL(trackingWindowSizes);
+    }
   }
 }
 

@@ -199,7 +199,12 @@
         Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
       </Documentation>
       <Hints>
-        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
+        <PropertyWidgetDecorator type="CompositeDecorator">
+          <Expression type="or">
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+          </Expression>
+        </PropertyWidgetDecorator>
       </Hints>
     </IntVectorProperty>
 
