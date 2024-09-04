@@ -208,11 +208,24 @@
       </Hints>
     </IntVectorProperty>
 
+    <DoubleVectorProperty name="Clustering grid resolution"
+                       command="SetClusterGridResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+      <Documentation>
+        The size of the voxel grid (in meters) which is used to extract clusters.
+      </Documentation>
+    </DoubleVectorProperty>
+
     <PropertyGroup label="Clustering and tracking Parameters">
       <Property name="Cluster extractor" />
       <Property name="Cluster radius" />
       <Property name="Cluster minimum point number" />
       <Property name="Set tracking window sizes" />
+      <Property name="Clustering grid resolution" />
     </PropertyGroup>
 
     </SourceProxy>

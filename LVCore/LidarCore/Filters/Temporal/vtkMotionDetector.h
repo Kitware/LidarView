@@ -88,6 +88,7 @@ public:
   void SetClusterRadius(double radius);
   void SetClusterMinNbPoints(int minNbPoints);
   vtkSetMacro(ClusterExtractor, int);
+  void SetClusterGridResolution(float resolution);
 
   // Set duration of gaussian model
   void SetTrackingWindowSizes(int trackingWindowSizes);
@@ -130,6 +131,7 @@ private:
   int ClusterExtractor = 0;
   double ClusterRadius = 0.4;
   int ClusterMinNbPoints = 5;
+  float ClusterGridResolution = 0.1;
 
   // Parameters for tracking
   int TrackingWindowSizes = 10;

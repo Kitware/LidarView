@@ -1020,6 +1020,27 @@ void vtkMotionDetector::SetTrackingWindowSizes(int trackingWindowSizes)
 }
 
 //----------------------------------------------------------------------------
+void vtkMotionDetector::SetClusterGridResolution(float resolution)
+{
+  if (resolution <= 0)
+  {
+    vtkWarningMacro(<< "Clustering grid resolution can not be 0 or negative!");
+    return;
+  }
+  if (this->ClusterGridResolution != resolution)
+  {
+    this->ClusterGridResolution = resolution;
+    this->ClustersGrid.VoxelMap.clear();
+    for (int i = 0; i < 3; i++)
+    {
+      this->ClustersGrid.GridSize[i] = this->ClustersGrid.GridSize[i] *
+        this->ClustersGrid.Resolution / this->ClusterGridResolution;
+    }
+    this->ClustersGrid.Resolution = this->ClusterGridResolution;
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkMotionDetector::EstimateMotion(vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkPolyData> motionPolydata)
 {
