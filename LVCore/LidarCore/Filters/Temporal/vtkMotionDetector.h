@@ -125,10 +125,70 @@ private:
     NOEXTRACTION = 0,
     EUCLIDEAN = 1,
     GMM = 2,
+    REGION_GROWING = 3,
   };
   int ClusterExtractor = 0;
   double ClusterRadius = 0.4;
   int ClusterMinNbPoints = 5;
+
+  struct Voxel
+  {
+    // Cluster id
+    int ClusterIdx = -1;
+
+    // Point indices for current frame
+    std::vector<int> CurrentPtIndices;
+    int NbCurrentPts = 0;
+    int SeenTimes = 0;
+    int Time = -1;
+  };
+  struct ClusteringGrid
+  {
+    // Grid of voxels
+    std::unordered_map<int, Voxel> VoxelMap;
+    std::unordered_map<int, Voxel> BackgroudMap;
+    Eigen::Vector3d Origin = { 0., 0., 0. };
+    Eigen::Array3i GridSize = { 100, 100, 100 };
+    float Resolution = 0.1;
+
+    bool IsInBounds(const Eigen::Array3i& voxelId3d)
+    {
+      if (voxelId3d.x() >= this->GridSize.x() || voxelId3d.y() >= this->GridSize.y() ||
+        voxelId3d.z() >= this->GridSize.z())
+        return false;
+      else
+        return true;
+    }
+
+    bool Check(const Eigen::Array3i& voxelId3d)
+    {
+      int idx = this->To1d(voxelId3d);
+      return this->VoxelMap.count(idx);
+    }
+
+    Voxel& operator()(const Eigen::Array3i& voxelId3d)
+    {
+      int idx = this->To1d(voxelId3d);
+      return this->VoxelMap[idx];
+    }
+
+    int To1d(const Eigen::Array3i& voxelId3d) const
+    {
+      int id =
+        voxelId3d.z() * GridSize[0] * GridSize[1] + voxelId3d.y() * GridSize[0] + voxelId3d.x();
+      return id;
+    }
+
+    Eigen::Array3i To3d(int voxelId1d) const
+    {
+      int x = voxelId1d % this->GridSize[0];
+      int y = (voxelId1d / this->GridSize[0]) % this->GridSize[1];
+      int z = voxelId1d / (this->GridSize[0] * this->GridSize[1]);
+      return { x, y, z };
+    }
+  };
+  ClusteringGrid ClustersGrid;
+  int NewClusterIdx = 0;
 
   enum Label
   {
