@@ -254,6 +254,9 @@ private:
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);
 
+  // Initialize clustering grid for region growing method
+  void InitClusteringGrid(vtkPolyData* polydata);
+
   /**
    * Internals parameters and functions of motion detector
    * Gaussian

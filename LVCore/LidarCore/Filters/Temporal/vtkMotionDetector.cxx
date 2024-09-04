@@ -1701,6 +1701,9 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Internals->NbProcessedFrames == 0)
     this->Internals->ComputeBounds(input);
 
+  if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::REGION_GROWING))
+    this->InitClusteringGrid(input);
+
   if (this->Internals->NbProcessedFrames < this->InitNbFrames)
     vtkLog(INFO, "Waiting for the initialization");
 
@@ -1727,6 +1730,61 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   ++this->Internals->NbProcessedFrames;
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkMotionDetector::InitClusteringGrid(vtkPolyData* polydata)
+{
+  if (this->Internals->NbProcessedFrames > this->InitNbFrames)
+    return;
+  // Initialize parameters of clustering grid
+  if (this->Internals->NbProcessedFrames == 0)
+  {
+    double bounds[6];
+    polydata->GetBounds(bounds);
+    this->ClustersGrid.Origin = { bounds[0], bounds[2], bounds[4] };
+    this->ClustersGrid.Resolution = this->ClusterGridResolution;
+    for (int i = 0; i < 3; i++)
+    {
+      this->ClustersGrid.GridSize[i] =
+        std::ceil((bounds[2 * i + 1] - bounds[2 * i]) / this->ClustersGrid.Resolution);
+    }
+  }
+  // Update background grid
+  Eigen::Vector3d point;
+  for (vtkIdType id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  {
+    // Count number of points for each voxel
+    polydata->GetPoint(id, point.data());
+    Eigen::Array3i coords =
+      ((point - this->ClustersGrid.Origin) / this->ClustersGrid.Resolution).cast<int>();
+    if (this->ClustersGrid.IsInBounds(coords))
+      ++this->ClustersGrid.BackgroudMap[this->ClustersGrid.To1d(coords)].NbCurrentPts;
+  }
+  for (auto& el : this->ClustersGrid.BackgroudMap)
+  {
+    auto& vox = el.second;
+    if (vox.NbCurrentPts > 0)
+      ++vox.SeenTimes;
+    vox.NbCurrentPts = 0;
+  }
+  // Remove voxels which are not considered as part of the background
+  // at the end of initialization phase
+  if (this->Internals->NbProcessedFrames == this->InitNbFrames)
+  {
+    for (auto it = this->ClustersGrid.BackgroudMap.begin();
+         it != this->ClustersGrid.BackgroudMap.end();)
+    {
+      Voxel& vox = it->second; // shortcut
+      // A voxel is not background if it has been seen less than 5% of initial time
+      if (vox.SeenTimes < 0.05 * this->InitNbFrames)
+      {
+        it = this->ClustersGrid.BackgroudMap.erase(it);
+        continue;
+      }
+      ++it;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
