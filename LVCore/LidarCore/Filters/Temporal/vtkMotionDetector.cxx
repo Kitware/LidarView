@@ -930,9 +930,16 @@ void vtkMotionDetector::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMotionDetector::Reset()
 {
   this->Internals->ResetMap();
+  this->Internals->NbProcessedFrames = 0;
   if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
   {
     this->Clustering->Clusters.Reset();
+  }
+  if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::REGION_GROWING))
+  {
+    this->ClustersGrid.VoxelMap.clear();
+    this->ClustersGrid.BackgroudMap.clear();
+    this->NewClusterIdx = 0;
   }
 }
 
