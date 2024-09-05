@@ -1682,6 +1682,439 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
 }
 
 //-----------------------------------------------------------------------------
+void vtkMotionDetector::ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  if (input->GetNumberOfPoints() == 0)
+  {
+    vtkLog(INFO, "Not enough motion points: clusters not extracted");
+    return;
+  }
+  // Add array to store cluster Id
+  // The array name is ClusterId to be same as the vtkEuclideanClusterExtraction filter
+  vtkSmartPointer<vtkIntArray> pointLabel = vtkSmartPointer<vtkIntArray>::New();
+  pointLabel->SetName("ClusterId");
+  for (auto id = 0; id < input->GetNumberOfPoints(); ++id)
+  {
+    pointLabel->InsertNextTuple1(-1);
+  }
+  input->GetPointData()->AddArray(pointLabel);
+
+  // Add point into voxel grid to extract cluster
+  Eigen::Vector3d point;
+  for (int id = 0; id < input->GetNumberOfPoints(); ++id)
+  {
+    input->GetPoint(id, point.data());
+    // Compute 3D coordinates
+    Eigen::Array3i coords =
+      ((point - this->ClustersGrid.Origin) / this->ClustersGrid.Resolution).cast<int>();
+    if (!this->ClustersGrid.IsInBounds(coords))
+      continue;
+    // Store point indices of each voxel
+    this->ClustersGrid(coords).CurrentPtIndices.emplace_back(id);
+  }
+
+  int currentFrame = this->Internals->NbProcessedFrames;
+  int unknownLabel = -1;
+  // Label time for voxels
+  for (auto& el : this->ClustersGrid.VoxelMap)
+  {
+    Voxel& vox = el.second; // shortcut
+    if (!vox.CurrentPtIndices.empty())
+    {
+      vox.ClusterIdx = unknownLabel;
+      vox.Time = currentFrame;
+    }
+  }
+
+  // Link cluster idx to grid indices to speed up search
+  std::unordered_map<int, std::vector<int>> clus2gridIndices;
+  for (auto& el : this->ClustersGrid.VoxelMap)
+  {
+    int voxelIdx = el.first;  // shortcut
+    Voxel& voxel = el.second; // shortcut
+    if (voxel.ClusterIdx < 0)
+      continue;
+    clus2gridIndices[voxel.ClusterIdx].push_back(voxelIdx);
+  }
+  // Compute centroids of clusters voxel
+  std::unordered_map<int, Eigen::Vector3d> clusCentroid;
+  clusCentroid.reserve(clus2gridIndices.size());
+  for (auto& el : clus2gridIndices)
+  {
+    auto& clusIdx = el.first;  // shortcut
+    auto& indices = el.second; // shortcut
+    Eigen::Vector3d centroid(0., 0., 0.);
+    for (auto& idx : indices)
+    {
+      centroid += this->ClustersGrid.To3d(idx).cast<double>().matrix();
+    }
+    centroid *= this->ClustersGrid.Resolution;
+    centroid /= clus2gridIndices[clusIdx].size();
+    clusCentroid[clusIdx] = centroid;
+  }
+
+  // clang-format off
+  const std::vector<Eigen::Array3i> radii = {{ 1,  1, 1}, { 1,  1, 0}, { 1,  1, -1},
+                                             { 1,  0, 1}, { 1,  0, 0}, { 1,  0, -1},
+                                             { 1, -1, 1}, { 1, -1, 0}, { 1, -1, -1},
+                                             { 0,  1, 1}, { 0,  1, 0}, { 0,  1, -1},
+                                             { 0,  0, 1},              { 0,  0, -1},
+                                             { 0, -1, 1}, { 0, -1, 0}, { 0, -1, -1},
+                                             {-1,  1, 1}, {-1,  1, 0}, {-1,  1, -1},
+                                             {-1,  0, 1}, {-1,  0, 0}, {-1,  0, -1},
+                                             {-1, -1, 1}, {-1, -1, 0}, {-1, -1, -1}};
+  // clang-format on
+  // Grow existing regions
+  for (auto& el : clus2gridIndices)
+  {
+    auto& clusIdx = el.first;  // shortcut
+    auto& indices = el.second; // shortcut
+
+    std::vector<Eigen::Array3i> clusterVoxels;
+    clusterVoxels.reserve(indices.size());
+    // Fill region with existing pixels
+    for (int idx : indices)
+      clusterVoxels.push_back(this->ClustersGrid.To3d(idx));
+
+    // Grow region
+    int idxVox = 0;
+    while (idxVox < int(clusterVoxels.size()))
+    {
+      // Add neighbors
+      for (const Eigen::Array3i& r : radii)
+      {
+        Eigen::Array3i neigh = clusterVoxels[idxVox] + r;
+        if (!this->ClustersGrid.IsInBounds(neigh))
+          continue;
+        // Check neighbor validity
+        if (!this->ClustersGrid.Check(neigh))
+          continue;
+
+        // If neighbor is occupied, add it to current cluster
+        int neighClusIdx = this->ClustersGrid(neigh).ClusterIdx;
+
+        if (neighClusIdx == unknownLabel)
+        {
+          // Add neighbor to cluster
+          clusterVoxels.push_back(neigh);
+          // Update label
+          this->ClustersGrid(neigh).ClusterIdx = clusIdx;
+          continue;
+        }
+
+        // If the neighbor belongs to another existing cluster
+        // Check the distance between their centroids
+        if (neighClusIdx != clusIdx)
+        {
+          auto& neighCentroid = clusCentroid[neighClusIdx];
+          auto& currCentroid = clusCentroid[clusIdx];
+          // Merge clusters if they are close
+          if ((neighCentroid - currCentroid).norm() < this->ClusterRadius)
+          {
+            // Merge the new cluster to the current one
+            for (int idx : clus2gridIndices[neighClusIdx])
+            {
+              // Add to cluster
+              clusterVoxels.emplace_back(this->ClustersGrid.To3d(idx));
+              // Update label
+              this->ClustersGrid.VoxelMap[idx].ClusterIdx = clusIdx;
+            }
+            // Remove neighbor cluster from clus2gridIndices
+            // to not process it afterwards
+            clus2gridIndices.erase(neighClusIdx);
+          }
+        }
+      }
+      ++idxVox;
+    }
+  }
+
+  // Fill the potential seeds with remaining unknown pixels
+  std::vector<Eigen::Array3i> potentialSeeds;
+  for (auto& el : this->ClustersGrid.VoxelMap)
+  {
+    int idx = el.first;     // shortcut
+    Voxel& vox = el.second; // shortcut
+    if (vox.ClusterIdx == unknownLabel)
+      potentialSeeds.push_back(this->ClustersGrid.To3d(idx));
+  }
+  // Grow new regions
+  for (const auto& seed : potentialSeeds)
+  {
+    // Check seed is still unknown
+    if (this->ClustersGrid(seed).ClusterIdx >= 0)
+      continue;
+
+    this->ClustersGrid(seed).ClusterIdx = this->NewClusterIdx;
+
+    std::vector<Eigen::Array3i> clusterVoxels;
+    clusterVoxels.reserve(this->ClustersGrid.VoxelMap.size());
+    clusterVoxels.emplace_back(seed);
+    int idxVox = 0;
+    while (idxVox < int(clusterVoxels.size()))
+    {
+      // Check neighbors
+      for (const Eigen::Array3i& r : radii)
+      {
+        Eigen::Array3i neigh = clusterVoxels[idxVox] + r;
+        if (!this->ClustersGrid.IsInBounds(neigh))
+          continue;
+        // If neighbor is occupied, add it to current cluster
+        if (this->ClustersGrid.Check(neigh) && this->ClustersGrid(neigh).ClusterIdx == unknownLabel)
+        {
+          // Add neighbor to cluster
+          clusterVoxels.push_back(neigh);
+          // Update cluster label of pixel
+          this->ClustersGrid(neigh).ClusterIdx = this->NewClusterIdx;
+        }
+      }
+      ++idxVox;
+    }
+    ++this->NewClusterIdx;
+  }
+
+  // Check the validity of clusters
+  std::unordered_map<int, int> clusBackground;
+  std::unordered_map<int, int> counter;
+  for (auto& el : this->ClustersGrid.VoxelMap)
+  {
+    auto& mapId = el.first;
+    Voxel& vox = el.second; // shortcut
+    if (vox.ClusterIdx < 0)
+      continue;
+    if (!clusBackground.count(vox.ClusterIdx))
+      clusBackground[vox.ClusterIdx] = 0;
+    if (this->ClustersGrid.BackgroudMap.count(mapId))
+    {
+      ++clusBackground[vox.ClusterIdx];
+    }
+    ++counter[vox.ClusterIdx];
+  }
+  std::unordered_map<int, bool> clusValidity;
+  for (auto& [clusIdx, back] : clusBackground)
+  {
+    clusValidity[clusIdx] = (float(back) / float(counter[clusIdx]) > 0.5) ? false : true;
+  }
+
+  // Remove old and non-valid voxels
+  for (auto it = this->ClustersGrid.VoxelMap.begin(); it != this->ClustersGrid.VoxelMap.end();)
+  {
+    Voxel& vox = it->second; // shortcut
+    if (currentFrame - vox.Time > this->TrackingWindowSizes || !clusValidity[vox.ClusterIdx])
+    {
+      // Erase and return the iterator to the next element
+      it = this->ClustersGrid.VoxelMap.erase(it);
+      continue;
+    }
+    // Only increment if not erasing
+    ++it;
+  }
+
+  // Store point indices for each cluster
+  std::unordered_map<int, std::vector<int>> clus2Points;
+  for (auto& el : this->ClustersGrid.VoxelMap)
+  {
+    Voxel& voxel = el.second; // shortcut
+    if (voxel.ClusterIdx < 0)
+    {
+      voxel.CurrentPtIndices.clear();
+      continue;
+    }
+    for (const auto& ptId : voxel.CurrentPtIndices)
+    {
+      clus2Points[voxel.ClusterIdx].emplace_back(ptId);
+    }
+    // Clear current points of each pixel for next fill
+    voxel.CurrentPtIndices.clear();
+  }
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  this->ClustersStats.clear();
+  for (const auto& clusPts : clus2Points)
+  {
+    auto& clusId = clusPts.first;
+    auto& clusPtsId = clusPts.second;
+
+    int nbClusterPoints = clusPtsId.size();
+    if (nbClusterPoints < this->ClusterMinNbPoints)
+      continue;
+
+    // Prepare data for PCA
+    vtkNew<vtkPoints> clusterPoints;
+    vtkNew<vtkPolyData> clusterPointsPolydata;
+    clusterPointsPolydata->SetPoints(clusterPoints);
+    vtkNew<vtkDoubleArray> xArray;
+    xArray->SetNumberOfComponents(1);
+    xArray->SetName("x");
+    vtkNew<vtkDoubleArray> yArray;
+    yArray->SetNumberOfComponents(1);
+    yArray->SetName("y");
+    vtkNew<vtkDoubleArray> zArray;
+    zArray->SetNumberOfComponents(1);
+    zArray->SetName("z");
+
+    ClusterStats clusterInfo;
+    // Calculate the average depth value and bounding box for this cluster
+    double depth = 0.0;
+    double intensity = 0.0;
+    for (const auto& pointId : clusPtsId)
+    {
+      depth += input->GetPointData()->GetArray("distance_m")->GetTuple1(pointId);
+      intensity += input->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
+      input->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, clusId);
+      Eigen::Vector3d point;
+      input->GetPoint(pointId, point.data());
+      xArray->InsertNextValue(point.x());
+      yArray->InsertNextValue(point.y());
+      zArray->InsertNextValue(point.z());
+      clusterPoints->InsertNextPoint(point.data());
+    }
+
+    // For PCA
+    vtkNew<vtkTable> datasetTable;
+    datasetTable->AddColumn(xArray);
+    datasetTable->AddColumn(yArray);
+    datasetTable->AddColumn(zArray);
+    vtkNew<vtkPCAStatistics> pcaStatistics;
+    pcaStatistics->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable);
+    pcaStatistics->SetColumnStatus("x", 1);
+    pcaStatistics->SetColumnStatus("y", 1);
+    pcaStatistics->SetColumnStatus("z", 1);
+    pcaStatistics->RequestSelectedColumns();
+    pcaStatistics->SetDeriveOption(true);
+    pcaStatistics->Update();
+    vtkNew<vtkDoubleArray> eigenvectors;
+    pcaStatistics->GetEigenvectors(eigenvectors);
+
+    Eigen::Vector3d pointcloudCentroid;
+    vtkSmartPointer<vtkCenterOfMass> centerOfMassFilter = vtkSmartPointer<vtkCenterOfMass>::New();
+    centerOfMassFilter->SetInputData(clusterPointsPolydata);
+    centerOfMassFilter->SetUseScalarsAsWeights(false);
+    centerOfMassFilter->Update();
+    centerOfMassFilter->GetCenter(pointcloudCentroid.data());
+
+    // clang-format off
+    double matrix[16] = {
+      eigenvectors->GetValue(6), eigenvectors->GetValue(3), eigenvectors->GetValue(0), pointcloudCentroid.x(),
+      eigenvectors->GetValue(7), eigenvectors->GetValue(4), eigenvectors->GetValue(1), pointcloudCentroid.y(),
+      eigenvectors->GetValue(8), eigenvectors->GetValue(5), eigenvectors->GetValue(2), pointcloudCentroid.z(),
+      0., 0., 0., 1. };
+    // clang-format on
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->SetMatrix(matrix);
+
+    // Transform cluster point cloud
+    vtkNew<vtkTransformPolyDataFilter> transformFilter;
+    transformFilter->SetTransform(transform->GetInverse());
+    transformFilter->SetInputData(clusterPointsPolydata);
+    transformFilter->Update();
+    double bounds[6];
+    transformFilter->GetOutput()->GetBounds(bounds);
+
+    clusterInfo.ClusterId = clusId;
+    clusterInfo.NbPoints = nbClusterPoints;
+    depth /= nbClusterPoints;
+    intensity /= nbClusterPoints;
+    clusterInfo.MeanDepth = depth;
+    clusterInfo.MeanIntensity = intensity;
+    clusterInfo.BoundingBox.SetTransform(matrix);
+    clusterInfo.BoundingBox.SetVertices(
+      bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+    this->ClustersStats.emplace_back(clusterInfo);
+  }
+
+  // Label cluster by geometry dimension
+  for (auto& cluster : this->ClustersStats)
+  {
+    if (cluster.BoundingBox.GetSize().z() >= 0.8 && cluster.BoundingBox.GetSize().z() <= 2.2 &&
+      ((cluster.BoundingBox.GetSize().x() >= 0.2 && cluster.BoundingBox.GetSize().x() <= 0.7) ||
+        (cluster.BoundingBox.GetSize().y() >= 0.2 && cluster.BoundingBox.GetSize().y() <= 0.7)))
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::HUMAN;
+    }
+    else
+    {
+      cluster.ClusterLabel = vtkMotionDetector::Label::OTHERS;
+    }
+  }
+
+  // Add bounding box for each cluster into output
+  int blockId = 0;
+  for (const auto& cluster : this->ClustersStats)
+  {
+    vtkNew<vtkCubeSource> cubeSource;
+    vtkNew<vtkPolyData> source;
+    cubeSource->SetBounds(cluster.BoundingBox.GetVertices().data());
+    cubeSource->SetCenter(cluster.BoundingBox.GetCenter().data());
+    // Transform bounding box
+    vtkNew<vtkTransformPolyDataFilter> transformFilter;
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->SetMatrix(cluster.BoundingBox.GetTransform().data());
+    transformFilter->SetTransform(transform);
+    transformFilter->SetInputData(source);
+    transformFilter->SetInputConnection(cubeSource->GetOutputPort());
+    transformFilter->Update();
+    source->ShallowCopy(transformFilter->GetOutput());
+
+    std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
+    clustersOutput->SetBlock(blockId, source);
+    clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
+
+    // Create field data and add information to it
+    vtkSmartPointer<vtkIntArray> bboxId = vtkSmartPointer<vtkIntArray>::New();
+    bboxId->SetName("ClusterId");
+    bboxId->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
+    bboxDistances->SetName("Distance");
+    bboxDistances->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxSizes = vtkSmartPointer<vtkFloatArray>::New();
+    bboxSizes->SetName("Size");
+    bboxSizes->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkFloatArray> bboxCenters = vtkSmartPointer<vtkFloatArray>::New();
+    bboxCenters->SetName("Center");
+    bboxCenters->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkUnsignedShortArray> bboxLabels =
+      vtkSmartPointer<vtkUnsignedShortArray>::New();
+    bboxLabels->SetName("Label");
+    bboxLabels->SetNumberOfComponents(1);
+
+    vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxId);
+    fieldData->AddArray(bboxDistances);
+    fieldData->AddArray(bboxSizes);
+    fieldData->AddArray(bboxCenters);
+    fieldData->AddArray(bboxLabels);
+    bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
+    bboxDistances->InsertNextTuple1(cluster.MeanDepth);
+    bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
+    bboxCenters->InsertNextTuple(cluster.BoundingBox.GetCenter().data());
+    bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
+
+    clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
+
+    ++blockId;
+  }
+
+  // Print clusters info
+  // Set output for displaying clusters information
+  vtkNew<vtkStringArray> data;
+  data->SetName("Clusters Information");
+  data->SetNumberOfComponents(1);
+  std::ostringstream oss;
+  for (const auto& cluster : this->ClustersStats)
+  {
+    oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
+        << " : distance = " << std::setw(7) << cluster.MeanDepth << "m  "
+        << "size = " << cluster.BoundingBox.GetSize().transpose() << "\n";
+  }
+  std::string clusterInfo = oss.str();
+  data->InsertNextValue(clusterInfo.c_str());
+  infoOutput->AddColumn(data);
+}
+
+//-----------------------------------------------------------------------------
 int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -1736,13 +2169,23 @@ int vtkMotionDetector::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->Internals->NbProcessedFrames >= this->InitNbFrames &&
     this->ClusterExtractor != static_cast<int>(vtkMotionDetector::Extractor::NOEXTRACTION))
   {
-    if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::EUCLIDEAN))
+    switch (this->ClusterExtractor)
     {
-      this->ExtractClustersWithEuclidean(motionPolydata, clustersOutput, clusterInfoOutput);
-    }
-    else if (this->ClusterExtractor == static_cast<int>(vtkMotionDetector::Extractor::GMM))
-    {
-      this->ExtractClustersWithGMM(motionPolydata, clustersOutput, clusterInfoOutput);
+      case static_cast<int>(vtkMotionDetector::Extractor::EUCLIDEAN):
+      {
+        this->ExtractClustersWithEuclidean(motionPolydata, clustersOutput, clusterInfoOutput);
+        break;
+      }
+      case static_cast<int>(vtkMotionDetector::Extractor::GMM):
+      {
+        this->ExtractClustersWithGMM(motionPolydata, clustersOutput, clusterInfoOutput);
+        break;
+      }
+      case static_cast<int>(vtkMotionDetector::Extractor::REGION_GROWING):
+      {
+        this->ExtractClustersWithRegionGrowing(motionPolydata, clustersOutput, clusterInfoOutput);
+        break;
+      }
     }
   }
 

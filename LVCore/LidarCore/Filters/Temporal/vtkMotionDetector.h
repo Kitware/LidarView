@@ -253,6 +253,10 @@ private:
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
 
+  void ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
   // Identify input arrays to use
   bool IdentifyInputArrays(vtkPolyData* polydata);
 
