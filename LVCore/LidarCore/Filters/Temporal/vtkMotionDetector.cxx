@@ -1613,6 +1613,11 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
       cluster.ClusterLabel = vtkMotionDetector::Label::OTHERS;
     }
   }
+  // Sort clusters based on their clusterId
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.ClusterId < cluster2.ClusterId; });
 
   // Add bounding box for each cluster into output
   int blockId = 0;
@@ -2046,6 +2051,11 @@ void vtkMotionDetector::ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPoly
       cluster.ClusterLabel = vtkMotionDetector::Label::OTHERS;
     }
   }
+  // Sort clusters based on their clusterId
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.ClusterId < cluster2.ClusterId; });
 
   // Add bounding box for each cluster into output
   int blockId = 0;
