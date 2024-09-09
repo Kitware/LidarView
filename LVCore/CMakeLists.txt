@@ -18,11 +18,6 @@ set(lidarview_default_plugins
   DatasetIOPlugin
   ${lidarview_available_interpreters_plugins})
 
-if (LIDARVIEW_USE_PCL)
-  list(APPEND lidarview_default_plugins
-    PCLPlugin)
-endif ()
-
 # Ignore following default plugins in autoload default.
 set(lidarview_default_autoload_plugins ${lidarview_default_plugins})
 

@@ -72,14 +72,6 @@ print_version(Eigen3)
 find_package(Boost REQUIRED COMPONENTS atomic filesystem program_options system thread)
 
 #--------------------------------------
-# PCL dependency - optional
-#--------------------------------------
-if (LIDARVIEW_USE_PCL)
-  find_package(PCL 1.11 QUIET REQUIRED COMPONENTS common io)
-  print_version(PCL)
-endif ()
-
-#--------------------------------------
 # Ceres dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_CERES)

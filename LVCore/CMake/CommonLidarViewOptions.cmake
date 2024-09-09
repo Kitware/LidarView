@@ -26,9 +26,6 @@ mark_as_advanced(BUILD_TESTING)
 #========================================================================
 # OPTIONNAL EXTERN LIBRARY OPTIONS
 #========================================================================
-lidarview_deprecated_setting(pcl_default LIDARVIEW_USE_PCL ENABLE_pcl OFF)
-option(LIDARVIEW_USE_PCL "PCL is required for some filters (e.g SLAM, PCLRansacFilter)" "${pcl_default}")
-
 lidarview_deprecated_setting(ceres_default LIDARVIEW_USE_CERES ENABLE_ceres OFF)
 option(LIDARVIEW_USE_CERES "Ceres is required for filters using non-linear least square optimization (e.g SLAM, autocalibration)" "${ceres_default}")
 
