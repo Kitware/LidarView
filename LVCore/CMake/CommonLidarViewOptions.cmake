@@ -44,6 +44,7 @@ lidarview_deprecated_setting(slam_default LIDARVIEW_USE_LIDARSLAM_PLUGIN PARAVIE
 option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_default}")
 
 option(LIDARVIEW_USE_ROS2IO_PLUGIN "Search for Ros2IO plugin." OFF)
+option(LIDARVIEW_USE_PCLPLUGIN_PLUGIN "Search for PCL plugin wrapping." OFF)
 
 lidarview_obsolete_setting(LIDARVIEW_USE_PCAP)
 lidarview_obsolete_setting(LIDARVIEW_USE_LIBLAS)

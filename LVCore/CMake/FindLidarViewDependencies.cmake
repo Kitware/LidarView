@@ -124,3 +124,11 @@ if (LIDARVIEW_USE_ROS2IO_PLUGIN)
   find_package(Ros2IO REQUIRED QUIET)
   check_depedency_target("Ros2IO::paraview_plugin" Ros2IO::paraview_plugin)
 endif ()
+
+#--------------------------------------
+# PCLPlugin plugin dependency - optional
+#--------------------------------------
+if (LIDARVIEW_USE_PCLPLUGIN_PLUGIN)
+  find_package(PCLPlugin REQUIRED QUIET)
+  check_depedency_target("PCLPlugin::paraview_plugin" PCLPlugin::paraview_plugin)
+endif ()
