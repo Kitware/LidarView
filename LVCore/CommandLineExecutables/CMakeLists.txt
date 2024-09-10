@@ -51,6 +51,13 @@ function (lidarview_add_executable name)
     EXPORT      LidarViewTools)
 endfunction ()
 
-foreach (exe IN ITEMS lvpython)
+foreach (exe IN ITEMS lvserver)
   lidarview_add_executable("${exe}" "${exe}.cxx")
 endforeach ()
+
+if (PARAVIEW_USE_PYTHON)
+  foreach (exe IN ITEMS lvbatch lvpython)
+    lidarview_add_executable("${exe}" "${exe}.cxx")
+  endforeach ()
+endif ()
+
