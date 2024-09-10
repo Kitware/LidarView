@@ -12,7 +12,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-// This classe is greatly inspired from paraview lvpython
+// This classe is greatly inspired from paraview pvpython
 
 extern "C"
 {
@@ -35,6 +35,8 @@ extern "C"
 
 #include <vector>
 #include <vtksys/SystemTools.hxx>
+
+#include "ParaView_paraview_plugins.h"
 
 namespace LidarViewPython
 {
@@ -99,16 +101,27 @@ inline int Run(int processType, int argc, char* argv[])
 
   // Append lidarview modules path to python path
   vtkLVPython::PrependLVModulesPythonPath();
+  vtkProcessModule* pm = vtkProcessModule::GetProcessModule();
 
   // Setup python options
   std::vector<char*> pythonArgs;
   ProcessArgsForPython(pythonArgs, options->GetExtraArguments(), argc, argv);
   pythonArgs.push_back(nullptr);
+
+  const char* programName = nullptr;
+
+  // Apple has a specific folder hierarchy that prevent to
+  // set the correct programName to pvpython
+  // https://gitlab.kitware.com/paraview/paraview/-/issues/20652
+#if !defined(__APPLE__)
+  programName = pm->GetProgramPath().c_str();
+#endif
+
   vtkPythonInterpreter::InitializeWithArgs(
-    1, static_cast<int>(pythonArgs.size()) - 1, &pythonArgs.front());
+    1, static_cast<int>(pythonArgs.size()) - 1, &pythonArgs.front(), programName);
 
   // Do the rest of the initialization
-  status = vtkInitializationHelper::InitializeSettings(processType, /* defaultCoreConfig */ false);
+  status = vtkInitializationHelper::InitializeSettings(processType, /*defaultCoreConfig*/ true);
   status &= vtkInitializationHelper::InitializeOthers();
   if (!status)
   {
@@ -121,7 +134,8 @@ inline int Run(int processType, int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkProcessModule* pm = vtkProcessModule::GetProcessModule();
+  // register static plugins
+  ParaView_paraview_plugins_initialize();
 
   vtkPVPluginTracker::GetInstance()->LoadPluginConfigurationXMLs("LidarView");
 
