@@ -216,6 +216,7 @@ private:
       for (int i = 0; i < 16; i++)
         this->Transform[i] = trans[i];
     };
+    Eigen::Vector3d GetTrueCenter() const { return this->GetEigenTransform() * this->Center; };
     Eigen::Vector4d GetOrientation() const
     {
       Eigen::Isometry3d transform = this->GetEigenTransform();

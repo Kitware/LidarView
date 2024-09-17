@@ -1421,7 +1421,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     clustersOutput->SetBlock(blockId, source);
     clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
 
-    // Create field datga and add information to it
+    // Create field data and add information to it
     vtkSmartPointer<vtkIntArray> bboxId = vtkSmartPointer<vtkIntArray>::New();
     bboxId->SetName("ClusterId");
     bboxId->SetNumberOfComponents(1);
@@ -1452,6 +1452,7 @@ void vtkMotionDetector::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData
     bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
+    bboxCenters->InsertNextTuple(cluster.BoundingBox.GetTrueCenter().data());
     bboxOrientations->InsertNextTuple(cluster.BoundingBox.GetOrientation().data());
     bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
 
@@ -1676,6 +1677,7 @@ void vtkMotionDetector::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> inpu
     bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
+    bboxCenters->InsertNextTuple(cluster.BoundingBox.GetTrueCenter().data());
     bboxOrientations->InsertNextTuple(cluster.BoundingBox.GetOrientation().data());
     bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
 
@@ -2118,6 +2120,7 @@ void vtkMotionDetector::ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPoly
     bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
+    bboxCenters->InsertNextTuple(cluster.BoundingBox.GetTrueCenter().data());
     bboxOrientations->InsertNextTuple(cluster.BoundingBox.GetOrientation().data());
     bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
 
