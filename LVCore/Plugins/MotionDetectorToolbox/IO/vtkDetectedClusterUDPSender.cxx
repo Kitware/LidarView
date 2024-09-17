@@ -37,7 +37,7 @@ constexpr uint16_t PACKET_SIZE = 508;
 constexpr uint8_t FOOTER_SIZE = sizeof(uint16_t) * 2;
 constexpr uint8_t DATA_START[2] = { 0x28, 0x2a };
 constexpr uint8_t PACKET_END[2] = { 0x2a, 0x2c };
-constexpr uint16_t FIELD_DATA_BLOCK_SIZE = 30;
+constexpr uint16_t FIELD_DATA_BLOCK_SIZE = 50;
 
 //-----------------------------------------------------------------------------
 template <typename Type, uint8_t N>
@@ -91,6 +91,7 @@ public:
     ::CopyArray<vtkFloatArray, 3>(fieldData, "Center", this->DataBuffer, currentIdx);
     ::CopyArray<vtkFloatArray, 1>(fieldData, "Distance", this->DataBuffer, currentIdx);
     ::CopyArray<vtkFloatArray, 3>(fieldData, "Size", this->DataBuffer, currentIdx);
+    ::CopyArray<vtkFloatArray, 4>(fieldData, "Orientation", this->DataBuffer, currentIdx);
   }
 };
 

@@ -216,6 +216,15 @@ private:
       for (int i = 0; i < 16; i++)
         this->Transform[i] = trans[i];
     };
+    Eigen::Vector4d GetOrientation() const
+    {
+      Eigen::Isometry3d transform = this->GetEigenTransform();
+      Eigen::Quaterniond quat(transform.linear());
+      Eigen::Vector4d out;
+      out.tail(4) << quat.x(), quat.y(), quat.z(), quat.w();
+      out.tail(4).normalize();
+      return out;
+    };
 
     Eigen::Matrix<double, 6, 1> GetVertices() const { return this->Vertices; }
     Eigen::Vector3d GetSize() const { return this->Size; }
@@ -223,6 +232,19 @@ private:
     std::vector<double> GetTransform() const { return this->Transform; }
 
   private:
+    Eigen::Isometry3d GetEigenTransform() const
+    {
+      Eigen::Isometry3d transform = Eigen::Isometry3d::Identity();
+      transform.linear().col(0) =
+        Eigen::Vector3d(this->Transform[0], this->Transform[4], this->Transform[8]);
+      transform.linear().col(1) =
+        Eigen::Vector3d(this->Transform[1], this->Transform[5], this->Transform[9]);
+      transform.linear().col(2) =
+        Eigen::Vector3d(this->Transform[2], this->Transform[6], this->Transform[10]);
+      transform.translation() =
+        Eigen::Vector3d(this->Transform[3], this->Transform[7], this->Transform[11]);
+      return transform;
+    }
     std::vector<double> Transform;
     Eigen::Matrix<double, 6, 1> Vertices = { 0., 0., 0., 0., 0., 0. };
     Eigen::Vector3d Center = { 0, 0, 0 };

@@ -4,7 +4,7 @@ import struct
 UDP_IP = "127.0.0.1"
 UDP_PORT = 8888
 BUFFER_SIZE = 508
-BLOCK_SIZE = 34
+BLOCK_SIZE = 50
 
 PACKET_START = [0x28, 0x2a]
 PACKET_END = [0x2a, 0x2c]
@@ -22,14 +22,15 @@ def parse_packet(data):
     idx = 12
     for _ in range(0, blockNb):
         idxEnd = idx + BLOCK_SIZE
-        blockInfo = struct.unpack("<iHfffffff", data[idx:idxEnd])
+        blockInfo = struct.unpack("<iHfffffffffff", data[idx:idxEnd])
         idx = idxEnd
         clusters.append({
             "id": blockInfo[0],
             "label": LABELS[blockInfo[1]] if blockInfo[1] < len(LABELS) else LABELS[1],
             "center": [round(block, 4) for block in blockInfo[2:5]],
-            "distance": round(blockInfo[4], 5),
+            "distance": round(blockInfo[5], 5),
             "size": [round(block, 4) for block in blockInfo[6:9]],
+            "orientation": [round(block, 4) for block in blockInfo[9:13]],
         })
 
     totalSize = struct.unpack("<H", data[idx:idx+2])[0]

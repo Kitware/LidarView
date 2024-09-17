@@ -43,6 +43,7 @@ class vtkFieldData;
  *     |   center: 3 * float
  *     |   distance: float
  *     |   size: 3 * float
+ *     |   orientation: 4 * float
  *
  *   ===== PAYLOAD FOOTER =====
  *     packet_size: uint16_t
