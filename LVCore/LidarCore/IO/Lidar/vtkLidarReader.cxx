@@ -133,9 +133,9 @@ public:
    * The reference duration is determined as the average duration of the 10
    * succeeding or preceding frames.
    */
-  void HidePartialFrames(double lastNetworkTime)
+  void HidePartialFrames(double lastNetworkTime, int timeType)
   {
-    std::vector<double> timesteps = this->GetFramesTimeSteps(TimeType::USE_NETWORK_TIME);
+    std::vector<double> timesteps = this->GetFramesTimeSteps(timeType);
     if (timesteps.size() <= 3)
     {
       return;
@@ -288,7 +288,7 @@ bool vtkLidarReader::BuildFramesIndex()
 
   if (!this->ShowPartialFrames && this->Internals->FramesIndex.size() >= 3)
   {
-    this->Internals->HidePartialFrames(networkPacketTime);
+    this->Internals->HidePartialFrames(networkPacketTime, this->DisplayTimeType);
   }
 
   if (this->Internals->FramesIndex.empty())
@@ -493,6 +493,24 @@ int vtkLidarReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!this->Internals->FramesIndex.empty())
   {
     std::vector<double> timesteps = this->Internals->GetFramesTimeSteps(this->DisplayTimeType);
+    bool isSorted = std::is_sorted(timesteps.cbegin(), timesteps.cend());
+    if (!isSorted)
+    {
+      unsigned int oldSize = timesteps.size();
+      double prev = timesteps.front();
+      auto toRemove = [&prev](double value)
+      {
+        bool remove = value < prev;
+        prev = std::max(prev, value);
+        return remove;
+      };
+      auto newEnd = std::remove_if(timesteps.begin(), timesteps.end(), toRemove);
+      timesteps.erase(newEnd, timesteps.end());
+      vtkWarningMacro(<< "The pcap timestamps are not sorted in ascending order, "
+                      << oldSize - timesteps.size()
+                      << " frames were removed but frame indexing could still be incorrect."
+                      << " Changing \"Display Packet Time\" parameter might solve that issue.");
+    }
 
     double timeOffset = this->GetLidarInterpreter()->GetTimeOffset();
     if (timeOffset != 0)
