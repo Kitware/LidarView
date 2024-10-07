@@ -16,6 +16,8 @@
 #include "lqCalibrationFilePropertyWidget.h"
 #include "ui_lqCalibrationFileWidget.h"
 
+#include <vtkPVXMLElement.h>
+
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
 #include <pqFileDialog.h>
@@ -195,15 +197,24 @@ lqCalibrationFilePropertyWidget::lqCalibrationFilePropertyWidget(vtkSMProxy* smp
     this,
     &lqCalibrationFilePropertyWidget::filenameChanged);
 
-  internals.UI.GroupBox->setVisible(false);
-  QObject::connect(internals.UI.UseCustomCalibrationFile,
-    &QCheckBox::stateChanged,
-    [this](int state)
-    {
-      bool isChecked = state == Qt::Checked;
-      this->Internals->UI.GroupBox->setVisible(isChecked);
-      Q_EMIT this->filenameChanged();
-    });
+  vtkPVXMLElement* hints = smproperty->GetHints();
+  if (hints && hints->FindNestedElementByName("NoDefaultCalibration"))
+  {
+    internals.UI.UseCustomCalibrationFile->setChecked(true);
+    internals.UI.UseCustomCalibrationFile->setVisible(false);
+  }
+  else
+  {
+    internals.UI.GroupBox->setVisible(false);
+    QObject::connect(internals.UI.UseCustomCalibrationFile,
+      &QCheckBox::stateChanged,
+      [this](int state)
+      {
+        bool isChecked = state == Qt::Checked;
+        this->Internals->UI.GroupBox->setVisible(isChecked);
+        Q_EMIT this->filenameChanged();
+      });
+  }
 
   auto addButtonReaction = [&internals, this, smproxy, smproperty]()
   {
