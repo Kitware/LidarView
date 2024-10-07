@@ -154,8 +154,8 @@ bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const do
           addPoint = true;
           newPoint = true;
           // Set the point coordinates to the voxel center
-          Eigen::Vector3d voxelCenter = this->VoxelIdToPosition(voxelId);
-          pointCoord = voxelCenter.data();
+          position = this->VoxelIdToPosition(voxelId);
+          pointCoord = position.data();
           break;
         }
         default:
