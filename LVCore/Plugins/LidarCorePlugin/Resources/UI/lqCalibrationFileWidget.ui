@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>CalibrationFileWidget</class>
  <widget class="QWidget" name="CalibrationFileWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>338</width>
+    <height>154</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="CalibrationLayout">
    <property name="leftMargin">
     <number>0</number>
@@ -35,29 +43,15 @@
        <layout class="QVBoxLayout" name="ButtonLayout">
         <item>
          <widget class="QToolButton" name="AddButton">
-          <property name="text">
-           <string>Add</string>
-          </property>
           <property name="icon">
-           <iconset theme="list-add">
-            <normaloff>.</normaloff>.</iconset>
-          </property>
-          <property name="toolButtonStyle">
-           <enum>Qt::ToolButtonTextBesideIcon</enum>
+           <iconset theme="list-add"/>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QToolButton" name="RemoveButton">
-          <property name="text">
-           <string>Remove</string>
-          </property>
           <property name="icon">
-           <iconset theme="list-remove">
-            <normaloff>.</normaloff>.</iconset>
-          </property>
-          <property name="toolButtonStyle">
-           <enum>Qt::ToolButtonTextBesideIcon</enum>
+           <iconset theme="list-remove"/>
           </property>
          </widget>
         </item>
