@@ -1,0 +1,81 @@
+#[==[.md
+# lidarview-config.cmake
+
+This file is used by CMake when finding LidarView.
+
+The following variables are provided by this module:
+
+  * `LidarView_VERSION`: The full version of LidarView found.
+  * `LidarView_VERSION_SIMPLE`: The simple version of LidarView found (eg: 5.9.1).
+  * `LidarView_VERSION_MAJOR`: The major version of LidarView found.
+  * `LidarView_VERSION_MINOR`: The minor version of LidarView found.
+  * `LidarView_VERSION_PATCH`: The patch version of LidarView found.
+  * `LidarView_PREFIX_PATH`: Install prefix for LidarView.
+  * `LIDARVIEW_PYTHONPATH`: Where LidarView's Python modules live under the
+    install prefix. Unset if Python is not available.
+  * `LIDARVIEW_PLUGIN_SUBDIR`: The subdirectory under the library directory for
+    plugins.
+  * `LIDARVIEW_USE_CERES`: Does LidarView use Ceres.
+  * `LIDARVIEW_USE_NANOFLANN`: Does LidarView use NanoFlann.
+  * `LIDARVIEW_USE_OPENCV`: Does LidarView use OpenCV.
+  * `LIDARVIEW_USE_YAMLCPP`: Does LidarView use YamlCPP.
+#]==]
+
+if (CMAKE_VERSION VERSION_LESS "3.12")
+  set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 0)
+  set("${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE"
+    "LidarView requires CMake 3.12 in order to reliably be used.")
+  return ()
+endif ()
+
+cmake_policy(PUSH)
+cmake_policy(VERSION 3.12)
+
+set(${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save "${CMAKE_MODULE_PATH}")
+list(INSERT CMAKE_MODULE_PATH 0
+  "${CMAKE_CURRENT_LIST_DIR}")
+
+set("${CMAKE_FIND_PACKAGE_NAME}_CMAKE_PREFIX_PATH_save" "${CMAKE_PREFIX_PATH}")
+include("${CMAKE_CURRENT_LIST_DIR}/lidarview-prefix.cmake")
+set("${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH"
+  "${_vtk_module_import_prefix}")
+unset(_vtk_module_import_prefix)
+list(INSERT CMAKE_PREFIX_PATH 0
+  "${${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH}")
+
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION" "@LIDARVIEW_VERSION_FULL@")
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION_SIMPLE" "@LIDARVIEW_VERSION@")
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION_MAJOR" "@LIDARVIEW_VERSION_MAJOR@")
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION_MINOR" "@LIDARVIEW_VERSION_MINOR@")
+set("${CMAKE_FIND_PACKAGE_NAME}_VERSION_PATCH" "@LIDARVIEW_VERSION_PATCH@")
+
+set("LIDARVIEW_PYTHONPATH" "@LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX@")
+
+unset("${CMAKE_FIND_PACKAGE_NAME}_FOUND")
+
+set(LIDARVIEW_PLUGIN_SUBDIR "lidarview/plugins")
+
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
+
+include("${CMAKE_CURRENT_LIST_DIR}/paraview-find-package-helpers.cmake" OPTIONAL)
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-packages.cmake")
+
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}Plugins-lidarview_plugins-targets-depends.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}Plugins-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}Plugins-paraview-plugin-properties.cmake")
+
+# Find other dependencies
+set("$LIDARVIEW_USE_CERES" "@LIDARVIEW_USE_CERES@")
+set("$LIDARVIEW_USE_NANOFLANN" "@LIDARVIEW_USE_NANOFLANN@")
+set("$LIDARVIEW_USE_OPENCV" "@LIDARVIEW_USE_OPENCV@")
+set("$LIDARVIEW_USE_YAMLCPP" "@LIDARVIEW_USE_YAMLCPP@")
+include("${CMAKE_CURRENT_LIST_DIR}/FindLidarViewDependencies.cmake")
+
+set(CMAKE_PREFIX_PATH "${${CMAKE_FIND_PACKAGE_NAME}_CMAKE_PREFIX_PATH_save}")
+unset("${CMAKE_FIND_PACKAGE_NAME}_CMAKE_PREFIX_PATH_save")
+
+set(CMAKE_MODULE_PATH "${${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save}")
+unset(${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save)
+
+cmake_policy(POP)
