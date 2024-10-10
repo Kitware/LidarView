@@ -12,8 +12,8 @@ vtk_module_add_module(LidarView::lqCore
 
 vtk_module_link(LidarView::lqCore
   PRIVATE
-    Qt5::Core
-    Qt5::Widgets
+    "Qt${PARAVIEW_QT_MAJOR_VERSION}::Core"
+    "Qt${PARAVIEW_QT_MAJOR_VERSION}::Widgets"
 )
 vtk_module_definitions(LidarView::lqCore
   PRIVATE

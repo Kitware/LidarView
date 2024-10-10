@@ -39,19 +39,16 @@ print_version(ParaView)
 if (NOT VTK_FOUND OR NOT VTK_VERSION)
   message(FATAL_ERROR "VTK not found")
 endif ()
-if (NOT VTK_QT_VERSION VERSION_EQUAL "5")
-  message(FATAL_ERROR "Qt5 was not used to build VTK")
-endif ()
 print_version(VTK)
 
 #--------------------------------------
-# Qt5 dependency - required
+# Qt dependency - required
 #--------------------------------------
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Help PrintSupport UiTools Svg Widgets)
-if (NOT Qt5_FOUND)
-  message(FATAL_ERROR "Qt5 not found")
+if (NOT DEFINED PARAVIEW_QT_MAJOR_VERSION)
+  message(FATAL_ERROR "ParaView should provide PARAVIEW_QT_MAJOR_VERSION variable.")
 endif ()
-print_version(Qt5)
+find_package("Qt${PARAVIEW_QT_MAJOR_VERSION}" REQUIRED COMPONENTS Core Widgets)
+print_version("Qt${PARAVIEW_QT_MAJOR_VERSION}")
 
 #--------------------------------------
 # Tins dependency - required
