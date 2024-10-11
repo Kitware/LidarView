@@ -19,6 +19,7 @@ set(classes
   vtkHelper
   vtkMergePointsToPolyDataHelper
   vtkPipelineTools
+  vtkPointsPCA
   vtkTemporalTransforms
   vtkVoxelGridProcessor)
 
