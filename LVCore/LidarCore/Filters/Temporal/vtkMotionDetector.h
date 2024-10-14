@@ -286,6 +286,10 @@ private:
   // Initialize clustering grid for region growing method
   void InitClusteringGrid(vtkPolyData* polydata);
 
+  // Create output
+  void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
   /**
    * Internals parameters and functions of motion detector
    * Gaussian
