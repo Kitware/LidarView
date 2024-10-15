@@ -51,8 +51,9 @@
  * at each pixel and it is updated when a new point arrived. The probability
  * that a point is belong to background can be evaluated by GMM.
  * Input: Lidar frame
- * Output1: Lidar frame with motion probability
- * Output2: Pointcloud of motion objects labeled with cluster id
+ * Output1: Detected motion points
+ * Output2: Clusters statistics
+ * Output3: Text of clusters information for display purpose
  */
 class LVFILTERSTEMPORAL_EXPORT vtkMotionDetector : public vtkPolyDataAlgorithm
 {
