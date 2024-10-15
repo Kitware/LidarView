@@ -23,7 +23,7 @@ message(STATUS "Using Python ${lidarview_python_version}")
 #--------------------------------------
 # ParaView dependency - required
 #--------------------------------------
-find_package(ParaView 5.12 REQUIRED)
+find_package(ParaView 5.13 REQUIRED)
 set(paraview_version "${ParaView_VERSION_MAJOR}.${ParaView_VERSION_MINOR}")
 if (NOT PARAVIEW_USE_QT)
   message(FATAL_ERROR "PARAVIEW_USE_QT is OFF, Paraview must be built with Qt")
