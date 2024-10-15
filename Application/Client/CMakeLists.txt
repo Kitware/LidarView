@@ -43,6 +43,10 @@ if (LIDARVIEW_USE_ROS2IO_PLUGIN)
   list(APPEND plugins_targets Ros2IO::paraview_plugin)
 endif ()
 
+if (LIDARVIEW_USE_PCLPLUGIN_PLUGIN)
+  list(APPEND plugins_targets PCLPlugin::paraview_plugin)
+endif ()
+
 paraview_client_add(
   NAME              ${SOFTWARE_NAME}
   NAMESPACE         "${SOFTWARE_NAME}"

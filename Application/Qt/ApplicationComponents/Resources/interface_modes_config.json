@@ -214,6 +214,9 @@
         "actionFileLoadServerState",
         "actionFileSaveServerState",
         "separator",
+        "actionServerConnect",
+        "actionServerDisconnect",
+        "separator",
         "actionFileExit"
       ],
       "menuEdit": [

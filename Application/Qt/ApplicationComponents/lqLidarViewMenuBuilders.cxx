@@ -78,6 +78,15 @@ void lqLidarViewMenuBuilders::buildFileMenu(QMenu& menu)
     {
       ui.menuOpen->addAction(action);
     }
+    if (action->objectName() == "actionServerConnect")
+    {
+      action->setText("Connect to lvserver...");
+      action->setStatusTip("Connect to server (ParaView client / server mode)");
+    }
+    if (action->objectName() == "actionServerDisconnect")
+    {
+      action->setText("Disconnect from lvserver");
+    }
   }
 }
 

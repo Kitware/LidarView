@@ -8,7 +8,7 @@
 
 .ubuntu22:
     extends: .linux
-    image: "gitlab.kitware.com:4567/lidarview/lidarview:ci-ubuntu22-20240724"
+    image: "gitlab.kitware.com:4567/lidarview/lidarview:ci-ubuntu22-20241015"
 
 .ubuntu22_debug:
     extends: .ubuntu22
