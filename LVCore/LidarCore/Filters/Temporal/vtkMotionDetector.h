@@ -286,6 +286,11 @@ private:
   // Initialize clustering grid for region growing method
   void InitClusteringGrid(vtkPolyData* polydata);
 
+  // Compute stats of a cluster
+  ClusterStats ComputeClusterStats(vtkSmartPointer<vtkPolyData> input,
+    const std::vector<int>& clusterPtIndices,
+    const int clusterId);
+
   // Create output
   void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
