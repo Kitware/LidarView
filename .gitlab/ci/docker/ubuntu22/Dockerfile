@@ -1,5 +1,5 @@
 FROM ubuntu:22.04
-MAINTAINER Timothée Couble <timothee.couble@kitware.com>
+LABEL maintainer="Timothée Couble <timothee.couble@kitware.com>"
 
 COPY install_deps.sh /root/install_deps.sh
 RUN sh /root/install_deps.sh

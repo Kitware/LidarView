@@ -3,7 +3,7 @@
 set -e
 
 readonly paraview_repo="https://gitlab.kitware.com/paraview/paraview.git"
-readonly paraview_commit="34f97b6cb38c60bfa1c370b774d6aa1081be9c8e"
+readonly paraview_commit="v5.13.1"
 
 readonly paraview_root="$HOME/paraview"
 readonly paraview_src="$paraview_root/src"
