@@ -8,4 +8,3 @@
 ## ci-ubuntu22-debug
 
 - `TestVelodyneHDLPositionReader` -> doesn't find proj.db, gdal issue?
-- `TestUICropAndExportPythonExample` and `TestSaveCSV` -> needs paraview!6916 fix
