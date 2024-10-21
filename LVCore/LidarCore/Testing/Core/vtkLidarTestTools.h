@@ -43,10 +43,17 @@ struct LVTESTINGCORE_EXPORT vtkLidarTestTools
     bool shouldPreSend = false);
 
   /**
-   * testing suite for packet interpreter. Check scalars names,
+   * Testing suite for packet interpreter. Check scalars names,
    * point timestamps sanity and transform.
    */
   static int TestPacketInterpreter(vtkLidarReader* reader);
+
+private:
+  /**
+   * Internal test specific for packet interpreter timestamp coherency.
+   * Used in TestPacketInterpreter.
+   */
+  static int TestPacketInterpreterTimeFrames(vtkLidarReader* reader, int type);
 };
 
 VTK_ABI_NAMESPACE_END

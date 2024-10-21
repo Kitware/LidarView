@@ -127,8 +127,9 @@ int vtkLidarTestTools::TestLidarStreamWithBaseline(vtkLidarStream* stream,
 }
 
 //----------------------------------------------------------------------------
-int vtkLidarTestTools::TestPacketInterpreter(vtkLidarReader* reader)
+int vtkLidarTestTools::TestPacketInterpreterTimeFrames(vtkLidarReader* reader, int type)
 {
+  reader->SetDisplayTimeType(type);
   reader->Update();
 
   vtkInformation* info = reader->GetOutputInformation(0);
@@ -139,26 +140,24 @@ int vtkLidarTestTools::TestPacketInterpreter(vtkLidarReader* reader)
   }
   if (frameNb < 2)
   {
-    std::cerr << "ERROR: Must have at least 2 frames." << std::endl;
+    std::cerr << "Error: Must have at least 2 frames." << std::endl;
     return EXIT_FAILURE;
   }
-  double frameDuration_s = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 1) -
-    info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0);
+  unsigned int midFrameIdx = frameNb / 2;
+  double frameDuration_s = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), midFrameIdx) -
+    info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), midFrameIdx - 1);
+
+  // Test that duration between two frames is between 5s and 5ms.
+  if (frameDuration_s > 5. || frameDuration_s < 0.005)
+  {
+    std::cerr << "Error: The frames should be in seconds. The duration between two frames is not "
+              << "between 5s and 5ms. Got: " << frameDuration_s << "s" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   vtkNew<vtkPolyData> baseline;
   baseline->DeepCopy(GetCurrentFrame(reader, 0));
-
-  // Test for "mandatory" array names used in LV filters & in SLAM
   vtkPointData* pData = baseline->GetPointData();
-  for (unsigned int idx = 0; idx < ::ARRAYS_NB; idx++)
-  {
-    vtkAbstractArray* array = pData->GetAbstractArray(::MANDATORY_ARRAYS[idx]);
-    if (!array)
-    {
-      std::cerr << "Error: Missing mandatory array: " << ::MANDATORY_ARRAYS[idx] << std::endl;
-      return EXIT_FAILURE;
-    }
-  }
 
   // Test that timestamp array is different for all points
   vtkDoubleArray* array = vtkDoubleArray::SafeDownCast(pData->GetAbstractArray("timestamp"));
@@ -211,6 +210,36 @@ int vtkLidarTestTools::TestPacketInterpreter(vtkLidarReader* reader)
       std::cerr << "Note: it might be standard for some future interpreters, in this case please "
                    "change the test."
                 << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+int vtkLidarTestTools::TestPacketInterpreter(vtkLidarReader* reader)
+{
+  // Test for time issues
+  if (TestPacketInterpreterTimeFrames(reader, vtkLidarReader::USE_LIDAR_TIME))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestPacketInterpreterTimeFrames(reader, vtkLidarReader::USE_NETWORK_TIME))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkPolyData> baseline;
+  baseline->DeepCopy(GetCurrentFrame(reader, 0));
+
+  // Test for "mandatory" array names used in LV filters & in SLAM
+  vtkPointData* pData = baseline->GetPointData();
+  for (unsigned int idx = 0; idx < ::ARRAYS_NB; idx++)
+  {
+    vtkAbstractArray* array = pData->GetAbstractArray(::MANDATORY_ARRAYS[idx]);
+    if (!array)
+    {
+      std::cerr << "Error: Missing mandatory array: " << ::MANDATORY_ARRAYS[idx] << std::endl;
       return EXIT_FAILURE;
     }
   }
