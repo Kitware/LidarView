@@ -31,7 +31,6 @@ function (lidarview_fetch_test_data)
   FetchContent_Declare(${fetch_content_name}
       GIT_REPOSITORY "https://gitlab.kitware.com/LidarView/lidarview-test-data.git"
       GIT_TAG        ${git_tag}
-      GIT_SHALLOW    ON
       SOURCE_DIR     "${CMAKE_BINARY_DIR}/_data/${fetch_content_name}"
       BINARY_DIR     "${CMAKE_BINARY_DIR}/_data/.${fetch_content_name}-cache/build"
       SUBBUILD_DIR   "${CMAKE_BINARY_DIR}/_data/.${fetch_content_name}-cache/subbuild"
