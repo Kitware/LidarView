@@ -15,6 +15,7 @@
 
 #include "lqViewFrameActions.h"
 
+#include <QActionGroup>
 #include <QList>
 
 #include <pqRenderView.h>

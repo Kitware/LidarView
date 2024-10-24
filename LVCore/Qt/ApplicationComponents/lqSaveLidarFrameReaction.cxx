@@ -134,7 +134,7 @@ void lqSaveLidarFrameReaction::onTriggered()
 
   // Set BaseName and FolderPath
   std::string pcapName = vtkSMPropertyHelper(lidar->getProxy(), "FileName").GetAsString();
-  QFileInfo fileInfo = QFile(QString::fromStdString(pcapName));
+  QFileInfo fileInfo(QString::fromStdString(pcapName));
   this->FolderPath = fileInfo.path();
   this->BaseName = fileInfo.baseName();
 
@@ -163,7 +163,7 @@ bool lqSaveLidarFrameReaction::GetFolderAndBaseNameFromUser()
     return false;
   }
 
-  QFileInfo fileInfo = QFile(saveFileName);
+  QFileInfo fileInfo(saveFileName);
   this->FolderPath = fileInfo.path();
   this->BaseName = fileInfo.baseName();
   return true;
