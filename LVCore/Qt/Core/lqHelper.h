@@ -190,12 +190,6 @@ bool GetInterpreterTransform(vtkSMProxy* proxy,
   std::vector<double>& rotate);
 
 /**
- * @brief DisplayDialogOnActiveWindow Display the dialog on the active window
- * @param dialog dialog to display
- */
-void DisplayDialogOnActiveWindow(QDialog& dialog);
-
-/**
  * @brief GetAllLinkedSources add recursively all consumers
  *        (sources that are directly linked to a sources) of originSource
  * @param originSource the source we want to list recursively all consumers

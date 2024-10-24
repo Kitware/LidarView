@@ -20,7 +20,6 @@
 #include <pqPVApplicationCore.h>
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QObject>
@@ -376,35 +375,6 @@ bool GetInterpreterTransform(vtkSMProxy* proxy,
   rotate = vtkSMPropertyHelper(rotateProp).GetDoubleArray();
 
   return true;
-}
-
-//-----------------------------------------------------------------------------
-void DisplayDialogOnActiveWindow(QDialog& dialog)
-{
-  // If there is multiple screen, we need to ensure that the dialog pop up on the active screen
-  if (QGuiApplication::screens().size() > 1)
-  {
-    QRect oldGeometry = dialog.geometry();
-    if (QApplication::activeWindow() != nullptr)
-    {
-      QRect availableScreenGeometry =
-        QApplication::desktop()->availableGeometry(QApplication::activeWindow());
-
-      // If the top left corner of the oldGeometry is outside of the active window screen geometry
-      // rectangle We move the dialog to the new active window Screen of the active window is
-      // defined by the center of the application window
-      if (!(availableScreenGeometry.x() < oldGeometry.x() &&
-            oldGeometry.x() < availableScreenGeometry.x() + availableScreenGeometry.width() &&
-            availableScreenGeometry.y() < oldGeometry.y() &&
-            oldGeometry.y() < availableScreenGeometry.y() + availableScreenGeometry.height()))
-      {
-        dialog.setGeometry(availableScreenGeometry.x() + 100,
-          availableScreenGeometry.y() + 100,
-          oldGeometry.width(),
-          oldGeometry.height());
-      }
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------
