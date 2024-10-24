@@ -25,7 +25,7 @@ vtk_module_add_module(LidarViewApp::lvComponents
           ${resource_files})
 vtk_module_link(LidarViewApp::lvComponents
   PRIVATE
-    Qt5::Core
-    Qt5::Widgets)
+    "Qt${PARAVIEW_QT_MAJOR_VERSION}::Core"
+    "Qt${PARAVIEW_QT_MAJOR_VERSION}::Widgets")
 
 target_compile_definitions(lvComponents PRIVATE QT_NO_KEYWORDS)
