@@ -1,24 +1,38 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  lqHelper.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "lqHelper.h"
 
-#include <pqPVApplicationCore.h>
 #include <pqAnimationManager.h>
 #include <pqAnimationScene.h>
+#include <pqPVApplicationCore.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QGuiApplication>
 #include <QMessageBox>
+#include <QObject>
 #include <QRect>
 #include <QString>
-#include <QObject>
-#include <QGuiApplication>
 
-#include <vtkSMSessionProxyManager.h>
+#include <vtkPVProxyDefinitionIterator.h>
 #include <vtkSMBooleanDomain.h>
-#include <vtkSMPropertyIterator.h>
 #include <vtkSMPropertyHelper.h>
+#include <vtkSMPropertyIterator.h>
 #include <vtkSMProxyDefinitionManager.h>
 #include <vtkSMSessionProxyManager.h>
-#include <vtkPVProxyDefinitionIterator.h>
 
 #include <cstring>
 #include <iostream>
@@ -26,60 +40,59 @@
 //-----------------------------------------------------------------------------
 bool IsPositionOrientationStream(pqPipelineSource* src)
 {
-  return ( src != nullptr && IsPositionOrientationStreamProxy(src->getProxy()));
+  return (src != nullptr && IsPositionOrientationStreamProxy(src->getProxy()));
 }
 
 //-----------------------------------------------------------------------------
 bool IsLidarStream(pqPipelineSource* src)
 {
-  return ( src != nullptr && IsLidarStreamProxy(src->getProxy()));
+  return (src != nullptr && IsLidarStreamProxy(src->getProxy()));
 }
 
 //-----------------------------------------------------------------------------
 bool IsLidarReader(pqPipelineSource* src)
 {
-  return ( src != nullptr && IsLidarReaderProxy(src->getProxy()));
+  return (src != nullptr && IsLidarReaderProxy(src->getProxy()));
 }
 
 //-----------------------------------------------------------------------------
-bool IsStreamProxy(vtkSMProxy * proxy)
+bool IsStreamProxy(vtkSMProxy* proxy)
 {
   return IsLidarStreamProxy(proxy) || IsPositionOrientationStreamProxy(proxy);
 }
 
 //-----------------------------------------------------------------------------
-bool IsLidarProxy(vtkSMProxy * proxy)
+bool IsLidarProxy(vtkSMProxy* proxy)
 {
   return IsLidarReaderProxy(proxy) || IsLidarStreamProxy(proxy);
 }
 
 //-----------------------------------------------------------------------------
-bool IsPositionOrientationProxy(vtkSMProxy * proxy)
+bool IsPositionOrientationProxy(vtkSMProxy* proxy)
 {
   return IsPositionOrientationReaderProxy(proxy) || IsPositionOrientationStreamProxy(proxy);
 }
 
-
 //-----------------------------------------------------------------------------
-bool IsLidarReaderProxy(vtkSMProxy * proxy)
+bool IsLidarReaderProxy(vtkSMProxy* proxy)
 {
   return IsProxy<vtkLidarReader>(proxy);
 }
 
 //-----------------------------------------------------------------------------
-bool IsLidarStreamProxy(vtkSMProxy * proxy)
+bool IsLidarStreamProxy(vtkSMProxy* proxy)
 {
   return IsProxy<vtkLidarStream>(proxy);
 }
 
 //-----------------------------------------------------------------------------
-bool IsPositionOrientationReaderProxy(vtkSMProxy * proxy)
+bool IsPositionOrientationReaderProxy(vtkSMProxy* proxy)
 {
   return IsProxy<vtkLidarPoseReader>(proxy);
 }
 
 //-----------------------------------------------------------------------------
-bool IsPositionOrientationStreamProxy(vtkSMProxy * proxy)
+bool IsPositionOrientationStreamProxy(vtkSMProxy* proxy)
 {
   return IsProxy<vtkLidarPoseStream>(proxy);
 }
@@ -99,16 +112,16 @@ bool HasLidarProxy()
 }
 
 //-----------------------------------------------------------------------------
-pqPipelineSource* GetPipelineSourceFromProxy(vtkSMProxy * proxy)
+pqPipelineSource* GetPipelineSourceFromProxy(vtkSMProxy* proxy)
 {
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  if(smmodel)
+  if (smmodel)
   {
     Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
     {
-      if(src->getProxy()->GetGlobalID() == proxy->GetGlobalID())
+      if (src->getProxy()->GetGlobalID() == proxy->GetGlobalID())
       {
-         return src;
+        return src;
       }
     }
   }
@@ -116,10 +129,10 @@ pqPipelineSource* GetPipelineSourceFromProxy(vtkSMProxy * proxy)
 }
 
 //-----------------------------------------------------------------------------
-vtkSMProxy* SearchProxyByName(vtkSMProxy * base_proxy, const std::string &proxyName)
+vtkSMProxy* SearchProxyByName(vtkSMProxy* base_proxy, const std::string& proxyName)
 {
-  if(std::strcmp(base_proxy->GetXMLName(), proxyName.c_str()) == 0 ||
-     std::strcmp(base_proxy->GetXMLLabel(), proxyName.c_str()) == 0)
+  if (std::strcmp(base_proxy->GetXMLName(), proxyName.c_str()) == 0 ||
+    std::strcmp(base_proxy->GetXMLLabel(), proxyName.c_str()) == 0)
   {
     return base_proxy;
   }
@@ -129,7 +142,7 @@ vtkSMProxy* SearchProxyByName(vtkSMProxy * base_proxy, const std::string &proxyN
   for (propIter->Begin(); !propIter->IsAtEnd(); propIter->Next())
   {
     vtkSMProperty* prop = propIter->GetProperty();
-    if(strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
+    if (strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
     {
       // If the property is a simple "vtkSMProperty" (ex: "Start" for Stream proxy)
       // "GetAsProxy" function will generate a warning
@@ -138,10 +151,10 @@ vtkSMProxy* SearchProxyByName(vtkSMProxy * base_proxy, const std::string &proxyN
 
     // Search the proxy in the subProxy if its valid
     vtkSMProxy* propertyAsProxy = vtkSMPropertyHelper(prop).GetAsProxy();
-    if(propertyAsProxy)
+    if (propertyAsProxy)
     {
       vtkSMProxy* subProxy = SearchProxyByName(propertyAsProxy, proxyName);
-      if(subProxy)
+      if (subProxy)
       {
         return subProxy;
       }
@@ -151,9 +164,9 @@ vtkSMProxy* SearchProxyByName(vtkSMProxy * base_proxy, const std::string &proxyN
 }
 
 //-----------------------------------------------------------------------------
-vtkSMProxy* SearchProxyByGroupName(vtkSMProxy * base_proxy, const std::string &proxyGroupName)
+vtkSMProxy* SearchProxyByGroupName(vtkSMProxy* base_proxy, const std::string& proxyGroupName)
 {
-  if(std::strcmp(base_proxy->GetXMLGroup(), proxyGroupName.c_str()) == 0)
+  if (std::strcmp(base_proxy->GetXMLGroup(), proxyGroupName.c_str()) == 0)
   {
     return base_proxy;
   }
@@ -163,7 +176,7 @@ vtkSMProxy* SearchProxyByGroupName(vtkSMProxy * base_proxy, const std::string &p
   for (propIter->Begin(); !propIter->IsAtEnd(); propIter->Next())
   {
     vtkSMProperty* prop = propIter->GetProperty();
-    if(strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
+    if (strcmp(prop->GetClassName(), "vtkSMProperty") == 0)
     {
       // If the property is a simple "vtkSMProperty" (ex: "Start" for Stream proxy)
       // "GetAsProxy" function will generate a warning
@@ -172,10 +185,10 @@ vtkSMProxy* SearchProxyByGroupName(vtkSMProxy * base_proxy, const std::string &p
 
     // Search the proxy in the subProxy if its valid
     vtkSMProxy* propertyAsProxy = vtkSMPropertyHelper(prop).GetAsProxy();
-    if(propertyAsProxy)
+    if (propertyAsProxy)
     {
       vtkSMProxy* subProxy = SearchProxyByGroupName(propertyAsProxy, proxyGroupName);
-      if(subProxy)
+      if (subProxy)
       {
         return subProxy;
       }
@@ -189,13 +202,13 @@ std::vector<vtkSMProxy*> GetLidarsProxy()
 {
   std::vector<vtkSMProxy*> lidarProxys;
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  if(smmodel == nullptr)
+  if (smmodel == nullptr)
   {
     return lidarProxys;
   }
   Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
   {
-    if(IsLidarProxy(src->getProxy()))
+    if (IsLidarProxy(src->getProxy()))
     {
       lidarProxys.push_back(src->getProxy());
     }
@@ -204,7 +217,7 @@ std::vector<vtkSMProxy*> GetLidarsProxy()
 }
 
 //-----------------------------------------------------------------------------
-vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propNameToFind)
+vtkSMProperty* GetPropertyFromProxy(vtkSMProxy* proxy, const std::string& propNameToFind)
 {
   vtkSmartPointer<vtkSMPropertyIterator> propIter;
   propIter.TakeReference(proxy->NewPropertyIterator());
@@ -214,7 +227,7 @@ vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propN
     const char* propName = propIter->GetKey();
 
     // If the name does not match we skip the property
-    if(std::strcmp(propName, propNameToFind.c_str()) == 0)
+    if (std::strcmp(propName, propNameToFind.c_str()) == 0)
     {
       return prop;
     }
@@ -224,7 +237,9 @@ vtkSMProperty* GetPropertyFromProxy(vtkSMProxy * proxy, const std::string &propN
 }
 
 //-----------------------------------------------------------------------------
-int UpdateProxyProperty(vtkSMProxy* proxy, const std::string& propNameToFind, const std::vector<std::string>& values)
+int UpdateProxyProperty(vtkSMProxy* proxy,
+  const std::string& propNameToFind,
+  const std::vector<std::string>& values)
 {
   // If there is no value to set, the request is skipped
   if (values.empty())
@@ -292,11 +307,11 @@ int UpdateProxyProperty(vtkSMProxy* proxy, const std::string& propNameToFind, co
   return 0;
 }
 
-std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyToFindName)
+std::string GetGroupName(vtkSMProxy* existingProxy, const std::string& proxyToFindName)
 {
   vtkSMSessionProxyManager* pxm = existingProxy->GetSessionProxyManager();
 
-  if(!pxm)
+  if (!pxm)
   {
     std::cout << "Couldn't get the SM Session Proxy Manager" << std::endl;
     return "";
@@ -304,7 +319,7 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
 
   vtkSMProxyDefinitionManager* pxdm = pxm->GetProxyDefinitionManager();
 
-  if(!pxdm)
+  if (!pxdm)
   {
     std::cout << "Couldn't get the SM Proxy Definition Manager" << std::endl;
     return "";
@@ -313,45 +328,46 @@ std::string GetGroupName(vtkSMProxy * existingProxy, const std::string & proxyTo
   vtkPVProxyDefinitionIterator* iter = pxdm->NewIterator();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-     if(strcmp(iter->GetProxyName(), proxyToFindName.c_str()) == 0)
-     {
-       return iter->GetGroupName();
-     }
+    if (strcmp(iter->GetProxyName(), proxyToFindName.c_str()) == 0)
+    {
+      return iter->GetGroupName();
+    }
   }
   return "";
 }
 
 //-----------------------------------------------------------------------------
-bool GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
-                             std::vector<double>& rotate)
+bool GetInterpreterTransform(vtkSMProxy* proxy,
+  std::vector<double>& translate,
+  std::vector<double>& rotate)
 {
-  vtkSMProperty * interpreterProp = proxy->GetProperty("PacketInterpreter");
-  if(!interpreterProp)
+  vtkSMProperty* interpreterProp = proxy->GetProperty("PacketInterpreter");
+  if (!interpreterProp)
   {
     return false;
   }
 
-  vtkSMProxy * interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
-  if(!interpreterProxy)
+  vtkSMProxy* interpreterProxy = vtkSMPropertyHelper(interpreterProp).GetAsProxy();
+  if (!interpreterProxy)
   {
     return false;
   }
 
-  vtkSMProperty * transformProp = interpreterProxy->GetProperty("Sensor Transform");
-  if(!transformProp)
+  vtkSMProperty* transformProp = interpreterProxy->GetProperty("Sensor Transform");
+  if (!transformProp)
   {
     return false;
   }
 
-  vtkSMProxy * transormProxy = vtkSMPropertyHelper(transformProp).GetAsProxy();
-  if(!transormProxy)
+  vtkSMProxy* transormProxy = vtkSMPropertyHelper(transformProp).GetAsProxy();
+  if (!transormProxy)
   {
     return false;
   }
 
-  vtkSMProperty * translateProp = transormProxy->GetProperty("Position");
-  vtkSMProperty * rotateProp = transormProxy->GetProperty("Rotation");
-  if(!rotateProp || !translateProp)
+  vtkSMProperty* translateProp = transormProxy->GetProperty("Position");
+  vtkSMProperty* rotateProp = transormProxy->GetProperty("Rotation");
+  if (!rotateProp || !translateProp)
   {
     return false;
   }
@@ -363,7 +379,7 @@ bool GetInterpreterTransform(vtkSMProxy * proxy, std::vector<double>& translate,
 }
 
 //-----------------------------------------------------------------------------
-void DisplayDialogOnActiveWindow(QDialog & dialog)
+void DisplayDialogOnActiveWindow(QDialog& dialog)
 {
   // If there is multiple screen, we need to ensure that the dialog pop up on the active screen
   if (QGuiApplication::screens().size() > 1)
@@ -392,8 +408,8 @@ void DisplayDialogOnActiveWindow(QDialog & dialog)
 }
 
 //-----------------------------------------------------------------------------
-void GetAllLinkedSources(pqPipelineSource * originSource,
-                         QSet<pqPipelineSource*>& consumerListSources)
+void GetAllLinkedSources(pqPipelineSource* originSource,
+  QSet<pqPipelineSource*>& consumerListSources)
 {
   // Get all consumers: sources that are directly link to the originSource output
   QList<pqPipelineSource*> subSources = originSource->getAllConsumers();
@@ -420,10 +436,9 @@ int GetFrameIndexOfTimestamp(double timestamp)
   // frame 1 is from 1.18 to 1.27
   // frame 2 "starts" at time 1.28
   int indexFrame = 0;
-  while(allTimes.size() > 0 &&
-        indexFrame != allTimes.size() -1 &&
-        timestamp > allTimes[indexFrame] &&
-        timestamp >= ((allTimes[indexFrame] + allTimes[indexFrame+1]) / 2) )
+  while (allTimes.size() > 0 && indexFrame != allTimes.size() - 1 &&
+    timestamp > allTimes[indexFrame] &&
+    timestamp >= ((allTimes[indexFrame] + allTimes[indexFrame + 1]) / 2))
   {
     indexFrame++;
   }
