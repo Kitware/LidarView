@@ -36,7 +36,7 @@ lqViewFrameActions::lqViewFrameActions(QObject* parent)
 //-----------------------------------------------------------------------------
 void lqViewFrameActions::frameConnected(pqViewFrame* frame, pqView* view)
 {
-  Q_ASSERT(frame != NULL);
+  Q_ASSERT(frame);
   pqStandardViewFrameActionsImplementation::frameConnected(frame, view);
   frame->addTitleBarSeparator();
   if (pqRenderView* const render_view = qobject_cast<pqRenderView*>(view))

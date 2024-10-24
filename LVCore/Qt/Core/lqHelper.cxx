@@ -271,37 +271,35 @@ int UpdateProxyProperty(vtkSMProxy* proxy,
     proxy->UpdateProperty(propNameToFind.c_str());
     return 1;
   }
-  else
+
+  // If the property is a valid variant we display it to the user
+  vtkVariant propertyAsVariant = vtkSMPropertyHelper(prop).GetAsVariant(0);
+  if (propertyAsVariant.IsValid())
   {
-    // If the property is a valid variant we display it to the user
-    vtkVariant propertyAsVariant = vtkSMPropertyHelper(prop).GetAsVariant(0);
-    if (propertyAsVariant.IsValid())
+    if (propertyAsVariant.IsInt())
     {
-      if (propertyAsVariant.IsInt())
+      vtkSMBooleanDomain* boolDomain =
+        vtkSMBooleanDomain::SafeDownCast(prop->FindDomain("vtkSMBooleanDomain"));
+      if (boolDomain && (values[0].compare("false") == 0 || values[0].compare("true") == 0))
       {
-        vtkSMBooleanDomain* boolDomain =
-          vtkSMBooleanDomain::SafeDownCast(prop->FindDomain("vtkSMBooleanDomain"));
-        if (boolDomain && (values[0].compare("false") == 0 || values[0].compare("true") == 0))
-        {
-          int value = (values[0].compare("false") == 0) ? 0 : 1;
-          vtkSMPropertyHelper(prop).Set(value);
-        }
-        else
-        {
-          vtkSMPropertyHelper(prop).Set(std::stoi(values[0]));
-        }
+        int value = (values[0].compare("false") == 0) ? 0 : 1;
+        vtkSMPropertyHelper(prop).Set(value);
       }
-      else if (propertyAsVariant.IsNumeric())
+      else
       {
-        vtkSMPropertyHelper(prop).Set(std::stof(values[0]));
+        vtkSMPropertyHelper(prop).Set(std::stoi(values[0]));
       }
-      else if (propertyAsVariant.IsString())
-      {
-        vtkSMPropertyHelper(prop).Set(values[0].c_str());
-      }
-      proxy->UpdateProperty(propNameToFind.c_str());
-      return 1;
     }
+    else if (propertyAsVariant.IsNumeric())
+    {
+      vtkSMPropertyHelper(prop).Set(std::stof(values[0]));
+    }
+    else if (propertyAsVariant.IsString())
+    {
+      vtkSMPropertyHelper(prop).Set(values[0].c_str());
+    }
+    proxy->UpdateProperty(propNameToFind.c_str());
+    return 1;
   }
   return 0;
 }
@@ -406,7 +404,7 @@ int GetFrameIndexOfTimestamp(double timestamp)
   // frame 1 is from 1.18 to 1.27
   // frame 2 "starts" at time 1.28
   int indexFrame = 0;
-  while (allTimes.size() > 0 && indexFrame != allTimes.size() - 1 &&
+  while (!allTimes.empty() && indexFrame != allTimes.size() - 1 &&
     timestamp > allTimes[indexFrame] &&
     timestamp >= ((allTimes[indexFrame] + allTimes[indexFrame + 1]) / 2))
   {
