@@ -50,6 +50,8 @@ vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
 void vtkLidarPacketInterpreter::Initialize()
 {
   this->IsInitialized = true;
+  // AdvancedArrays could have been changed so we need to reset current frame.
+  this->ResetCurrentFrame();
 }
 
 //-----------------------------------------------------------------------------
