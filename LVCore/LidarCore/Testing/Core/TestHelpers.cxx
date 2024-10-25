@@ -261,7 +261,6 @@ int TestPointDataStructure(vtkPolyData* currentFrame, vtkPolyData* currentRefere
 //-----------------------------------------------------------------------------
 int CompareAbstractArray(vtkAbstractArray* currentArray, vtkAbstractArray* referenceArray)
 {
-
   if (currentArray->GetNumberOfValues() != referenceArray->GetNumberOfValues())
   {
     std::cerr << "number of values does not match" << std::endl;
@@ -337,10 +336,15 @@ int TestPointDataValues(vtkPolyData* currentFrame, vtkPolyData* currentReference
   // For each array, Checks the values
   for (int idArray = 0; idArray < currentReferencePointData->GetNumberOfArrays(); ++idArray)
   {
-    const char* arrayName = currentFramePointData->GetArrayName(idArray);
+    const char* arrayName = currentReferencePointData->GetArrayName(idArray);
     vtkAbstractArray* currentFrameArray = currentFramePointData->GetAbstractArray(arrayName);
     vtkAbstractArray* currentReferenceArray =
       currentReferencePointData->GetAbstractArray(arrayName);
+    if (!currentFrameArray)
+    {
+      std::cout << "failed: missing " << arrayName << " array in current frame!" << std::endl;
+      return 0;
+    }
     if (CompareAbstractArray(currentFrameArray, currentReferenceArray))
     {
       return 1;
@@ -575,15 +579,15 @@ int testLidarStream(vtkLidarStream* stream,
     {
       return 1;
     }
+    // Clear all cached data.
     interpreter->ClearAllFramesAvailable();
+    interpreter->ResetCurrentFrame();
   }
 
-  stream->Start();
   if (interpreter->GetIsInitialized())
   {
     retVal += SendAndTestAllFrames(
       stream, interpreter, referenceFilesList, pcapFileName, destinationIp, dataPort);
-    stream->Stop();
   }
   else
   {
@@ -628,6 +632,7 @@ int SendAndTestAllFrames(vtkLidarStream* stream,
 
   // The packet are at 15% of the real speed. This is because our osx and windows buildboots
   // aren't good enought for handling 100%.
+  stream->Start();
   bool isOk = sender.sendAllPackets(0.15, 0, testFrame);
   if (!isOk)
   {
@@ -638,6 +643,8 @@ int SendAndTestAllFrames(vtkLidarStream* stream,
   // Wait a bit for every packet to arrive and check if a last complete frame is available.
   std::this_thread::sleep_for(std::chrono::seconds(1));
   testFrame();
+
+  stream->Stop();
 
   // check for a potential uncomplete last frame.
   if (idFrame < referenceFilesList.size())
