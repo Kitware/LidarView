@@ -1,64 +1,65 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="TrailingFrame" class="vtkTrailingFrame" label="Trailing Frame">
-      <Documentation
-         short_help="Combine consecutive timestep in a multiblock."
-         long_help="Combine consecutive timestep in a multiblock.">
-      </Documentation>
+    <SourceProxy name="TrailingFrame"
+                 class="vtkTrailingFrame"
+                 label="Trailing Frame">
+      <Documentation short_help="Combine consecutive timestep in a multiblock." long_help="Combine consecutive timestep in a multiblock."></Documentation>
 
-      <InputProperty
-         name="Input"
-         port_index="0"
-         command="SetInputConnection">
+      <InputProperty name="Input"
+                     port_index="0"
+                     command="SetInputConnection">
         <ProxyGroupDomain name="groups">
-          <Group name="sources"/>
-          <Group name="filters"/>
+          <Group name="sources" />
+          <Group name="filters" />
         </ProxyGroupDomain>
         <DataTypeDomain name="input_type">
-          <DataType value="vtkPolyData"/>
+          <DataType value="vtkPolyData" />
         </DataTypeDomain>
         <Documentation>
           Set the input poly data
         </Documentation>
       </InputProperty>
 
-      <IntVectorProperty
-          name="NumberOfTrailingFrames"
-          animateable="0"
-          command="SetNumberOfTrailingFrames"
-          default_values="0"
-          number_of_elements="1">
+      <IntVectorProperty name="NumberOfTrailingFrames"
+                         animateable="0"
+                         command="SetNumberOfTrailingFrames"
+                         default_values="0"
+                         number_of_elements="1">
         <Documentation>
           Set the number of trailing frame to display
         </Documentation>
       </IntVectorProperty>
 
-      <IntVectorProperty
-          name="UseStreamMode"
-          animateable="0"
-          command="SetUseStreamMode"
-          default_values="0"
-          number_of_elements="1">
+      <IntVectorProperty name="UseStreamMode"
+                         animateable="0"
+                         command="SetUseStreamMode"
+                         default_values="0"
+                         number_of_elements="1">
         <BooleanDomain name="bool" />
         <Documentation>
-          Use the trailing frame filter stream data.  
+          Use the trailing frame filter stream data.
         </Documentation>
       </IntVectorProperty>
 
-      <IntVectorProperty
-          name="UseCache"
-          animateable="0"
-          command="SetUseCache"
-          default_values="1"
-          number_of_elements="1"
-          panel_visibility="advanced">
+      <IntVectorProperty name="UseCache"
+                         animateable="0"
+                         command="SetUseCache"
+                         default_values="1"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
         <BooleanDomain name="bool" />
         <Documentation>
           Use an internal cache for speed up. If a cache is used, some artefact may appear if
-          the input for previous timestep change. Does not have an impact in stream mode.
+          the input for previous timestep change.
         </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseStreamMode"
+                                   value="0" />
+        </Hints>
       </IntVectorProperty>
 
-   </SourceProxy>
+    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

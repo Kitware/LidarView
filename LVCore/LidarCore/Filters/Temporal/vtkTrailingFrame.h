@@ -25,9 +25,9 @@
 #include "lvFiltersTemporalModule.h"
 
 /**
- * @brief The vtkTrailingFrame class is a filter that combine consecutive timestep
+ * The vtkTrailingFrame class is a filter that combine consecutive timestep
  * of its input to produce a multiblock.
- * The input of this filter must produce only consecutive interger timestep.
+ * The input of this filter must produce only consecutive timesteps.
  */
 class LVFILTERSTEMPORAL_EXPORT vtkTrailingFrame : public vtkPolyDataAlgorithm
 {
@@ -35,23 +35,31 @@ public:
   static vtkTrailingFrame* New();
   vtkTypeMacro(vtkTrailingFrame, vtkPolyDataAlgorithm)
 
-  //! @{
-  //! @copydoc NumberOfTrailingFrames
+  ///@{
+  /**
+   * Number of previous trailing frame to display
+   */
   vtkGetMacro(NumberOfTrailingFrames, unsigned int);
   void SetNumberOfTrailingFrames(const unsigned int value);
-  //! @}
+  ///@}
 
-  //! @{
-  //! @copydoc UseStreamMode
+  ///@{
+  /**
+   * Should be enabled if this filter is used in a stream mode, or that
+   * for some reasons the timesteps are not are not available.
+   */
   vtkGetMacro(UseStreamMode, bool);
   vtkSetMacro(UseStreamMode, bool);
-  //! @}
+  ///@}
 
-  //! @{
-  //! @copydoc UseCache
+  ///@{
+  /**
+   * Should we use a cache to improve filter speed. (Forced to true in stream mode.)
+   * Default: true.
+   */
   vtkGetMacro(UseCache, bool);
   vtkSetMacro(UseCache, bool);
-  //! @}
+  ///@}
 
 protected:
   vtkTrailingFrame() = default;
