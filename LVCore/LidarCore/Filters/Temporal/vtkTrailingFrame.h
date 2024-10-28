@@ -1,5 +1,20 @@
-#ifndef VTKTRAILINGFRAME_H
-#define VTKTRAILINGFRAME_H
+/*=========================================================================
+
+  Program:   LidarView
+  Module:    vtkTrailingFrame.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkTrailingFrame_h
+#define vtkTrailingFrame_h
 
 #include <queue>
 
@@ -90,4 +105,4 @@ private:
   void operator=(const vtkTrailingFrame&);   // not implemented
 };
 
-#endif // VTKTRAILINGFRAME_H
+#endif // vtkTrailingFrame_h
