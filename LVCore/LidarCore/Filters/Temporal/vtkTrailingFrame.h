@@ -86,8 +86,15 @@ private:
   int CacheTimeRange[2] = { -1, -1 };
   //! Last Time index required from the filter to its input filter
   int LastTimeProcessedIndex = -1;
+
+  //! Enum that explicitly indicate the direction value
+  enum DirectionType
+  {
+    FORWARD = 1,
+    BACKWARD = -1
+  };
   //! Indicate if the next time to process is after or before the last processed
-  int Direction = 1;
+  int Direction = DirectionType::FORWARD;
   //! In stream keep track of current number of trailing frames
   unsigned int CurrentTrailingFramesNumber = 0;
   //! Cache to save ouput previously produced by the filter

@@ -144,19 +144,19 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
         unsigned int newIndex = this->LastTimeProcessedIndex % (this->NumberOfTrailingFrames + 1);
         this->Cache->SetBlock(newIndex, oldCache->GetBlock(previousIndex));
       }
-      this->Direction = -1;
+      this->Direction = DirectionType::BACKWARD;
     }
     // handle case when jumping backward
     else if (this->CacheTimeRange[1] < previousCacheTimeRange[1])
     {
-      this->Direction = -1;
+      this->Direction = DirectionType::BACKWARD;
       this->LastTimeProcessedIndex =
         std::max(0, std::min(this->CacheTimeRange[1], previousCacheTimeRange[0]) - 1);
     }
     // handle case when jumping forward
     else if (this->CacheTimeRange[1] > previousCacheTimeRange[1])
     {
-      this->Direction = 1;
+      this->Direction = DirectionType::FORWARD;
       this->LastTimeProcessedIndex = std::max(this->CacheTimeRange[0], previousCacheTimeRange[1]);
     }
     this->FirstFilterIteration = false;
@@ -251,8 +251,12 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     return 1;
   }
-  if ((this->LastTimeProcessedIndex == this->CacheTimeRange[0] && this->Direction == -1) ||
-    (this->LastTimeProcessedIndex == this->CacheTimeRange[1] - 1 && this->Direction == 1))
+
+  bool isCacheCompletelyUpdated = this->Direction == DirectionType::FORWARD
+    ? this->LastTimeProcessedIndex == this->CacheTimeRange[1] - 1
+    : this->LastTimeProcessedIndex == this->CacheTimeRange[0];
+
+  if (isCacheCompletelyUpdated)
   {
     // Stop the pipeline loop
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
