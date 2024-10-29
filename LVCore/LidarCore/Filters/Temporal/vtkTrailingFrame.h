@@ -28,6 +28,9 @@
  * The vtkTrailingFrame class is a filter that combine consecutive timestep
  * of its input to produce a multiblock.
  * The input of this filter must produce only consecutive timesteps.
+ *
+ * Note that an optional trajectory input (e.g SLAM trajectory) can be provided
+ * to compensate SLAM motion.
  */
 class LVFILTERSTEMPORAL_EXPORT vtkTrailingFrame : public vtkPolyDataAlgorithm
 {
@@ -61,9 +64,45 @@ public:
   vtkSetMacro(UseCache, bool);
   ///@}
 
-protected:
-  vtkTrailingFrame() = default;
+  ///@{
+  /**
+   * If enabled use the optional trajectory input to place trailing frame in LiDAR referential
+   * by compensating trajectory.
+   */
+  vtkGetMacro(UseTrajectoryCompensation, bool);
+  vtkSetMacro(UseTrajectoryCompensation, bool);
+  ///@}
 
+  ///@{
+  /**
+   * Define the referential trailing frame used to compensate origin, can be either first or last.
+   * Only used if UseTrajectoryCompensation is true.
+   */
+  enum CompensationOriginType
+  {
+    NEWEST_FRAME = 0,
+    OLDEST_FRAME,
+
+    Size
+  };
+  vtkSetClampMacro(CompensationOrigin, int, 0, CompensationOriginType::Size);
+  vtkGetMacro(CompensationOrigin, int);
+  ///@}
+
+  ///@{
+  /**
+   * Name of the array containing the time to match the trajectory with the point cloud.
+   * Only used if UseTrajectoryCompensation is true.
+   */
+  vtkGetMacro(CustomTimeArrayName, std::string);
+  vtkSetMacro(CustomTimeArrayName, std::string);
+  ///@}
+
+protected:
+  vtkTrailingFrame();
+  ~vtkTrailingFrame() = default;
+
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation* request,
@@ -77,6 +116,12 @@ private:
   bool UseCache = true;
   //! Use TrailingFrame filter in stream mode
   bool UseStreamMode = false;
+  //! Do we use optional trajectory input to compensate trajectory
+  bool UseTrajectoryCompensation = false;
+  //! Where do we place the compensation origin
+  int CompensationOrigin = CompensationOriginType::NEWEST_FRAME;
+  //! Name of the array containing the time to match the trajectory with the point cloud
+  std::string CustomTimeArrayName = "timestamp";
 
   //! Original pipeline time which must be restored after modifying the input filter time
   double PipelineTime = 0;
@@ -115,6 +160,7 @@ private:
   int ProcessStreamingMode(vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
+  int CompensateTrajectory(vtkInformationVector** inputVector, vtkInformationVector* outputVector);
 
   vtkTrailingFrame(const vtkTrailingFrame&); // not implemented
   void operator=(const vtkTrailingFrame&);   // not implemented

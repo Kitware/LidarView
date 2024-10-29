@@ -15,12 +15,32 @@
 
 #include "vtkTrailingFrame.h"
 
+#include <vtkDoubleArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkTransform.h>
+
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+
+namespace
+{
+constexpr unsigned int FRAME_INPUT_PORT = 0;
+constexpr unsigned int TRAJECTORY_INPUT_PORT = 1;
+constexpr unsigned int NB_INPUT_PORT = 2;
+}
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTrailingFrame)
+
+//-----------------------------------------------------------------------------
+vtkTrailingFrame::vtkTrailingFrame()
+{
+  this->SetNumberOfInputPorts(::NB_INPUT_PORT);
+}
 
 //----------------------------------------------------------------------------
 void vtkTrailingFrame::SetNumberOfTrailingFrames(const unsigned int value)
@@ -35,6 +55,23 @@ void vtkTrailingFrame::SetNumberOfTrailingFrames(const unsigned int value)
 }
 
 //----------------------------------------------------------------------------
+int vtkTrailingFrame::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if (port == ::FRAME_INPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    return 1;
+  }
+  if (port == ::TRAJECTORY_INPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    return 1;
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 int vtkTrailingFrame::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -42,7 +79,6 @@ int vtkTrailingFrame::FillOutputPortInformation(int port, vtkInformation* info)
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   }
-
   return 0;
 }
 
@@ -51,7 +87,7 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[::FRAME_INPUT_PORT]->GetInformationObject(0);
 
   // In stream mode we don't need the RequestUpdateExtent step
   if (this->UseStreamMode)
@@ -177,14 +213,24 @@ int vtkTrailingFrame::RequestData(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  int ret;
   if (this->UseStreamMode)
   {
-    return this->ProcessStreamingMode(request, inputVector, outputVector);
+    ret = this->ProcessStreamingMode(request, inputVector, outputVector);
   }
   else
   {
-    return this->ProcessReadingMode(request, inputVector, outputVector);
+    ret = this->ProcessReadingMode(request, inputVector, outputVector);
   }
+
+  if (ret && this->UseTrajectoryCompensation)
+  {
+    if (!this->CompensateTrajectory(inputVector, outputVector))
+    {
+      return 0;
+    }
+  }
+  return ret;
 }
 
 //----------------------------------------------------------------------------
@@ -192,7 +238,7 @@ int vtkTrailingFrame::ProcessStreamingMode(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[::FRAME_INPUT_PORT], 0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   vtkNew<vtkPolyData> currentFrame;
@@ -232,8 +278,8 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[::FRAME_INPUT_PORT], 0);
+  vtkInformation* inInfo = inputVector[::FRAME_INPUT_PORT]->GetInformationObject(0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   // Workaround to handle that multiple RequestUpdateExtent can be call
@@ -302,6 +348,103 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
     if (cacheIdx < this->Cache->GetNumberOfBlocks())
     {
       output->SetBlock(nbFrames - i, this->Cache->GetBlock(cacheIdx));
+    }
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkTrailingFrame::CompensateTrajectory(vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[::TRAJECTORY_INPUT_PORT], 0);
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
+  if (!trajectory || trajectory->GetNumberOfPoints() == 0)
+  {
+    vtkErrorMacro(<< "Missing trajectory input!");
+    return 0;
+  }
+  if (output->GetNumberOfBlocks() == 0)
+  {
+    return 1;
+  }
+
+  unsigned int originFrameIdx = 0;
+  if (this->CompensationOrigin == OLDEST_FRAME)
+  {
+    unsigned int nbTrajectoryPoints = trajectory->GetNumberOfPoints();
+    originFrameIdx = std::min(nbTrajectoryPoints, output->GetNumberOfBlocks());
+    // Can't be equal to 0 - checked above
+    assert(originFrameIdx != 0);
+    originFrameIdx--;
+  }
+
+  vtkPolyData* frame = vtkPolyData::SafeDownCast(output->GetBlock(originFrameIdx));
+  auto arrayTime = frame->GetPointData()->GetArray(this->CustomTimeArrayName.c_str());
+  if (!arrayTime)
+  {
+    vtkErrorMacro(<< "Could not find \"" << this->CustomTimeArrayName
+                  << "\" array in input point cloud!");
+    return 0;
+  }
+  double* range = arrayTime->GetRange();
+  double duration = std::abs(range[1] - range[0]);
+  double timeToSearch = range[1];
+  // We suppose the duration time is contained between 20ms and 0.9s.
+  double timeToSec = 1.;
+  while (timeToSec * duration > 0.9) // Min = ~1 Hz
+  {
+    timeToSec *= 1e-3;
+  }
+  timeToSearch *= timeToSec;
+  auto* timeArray =
+    vtkDoubleArray::SafeDownCast(trajectory->GetPointData()->GetAbstractArray("Time"));
+  if (!timeArray)
+  {
+    vtkErrorMacro(<< "Could not find \"Time\" array in input trajectory!");
+    return 0;
+  }
+  auto findClosest = [timeToSearch](double a, double b)
+  { return std::abs(a - timeToSearch) < std::abs(b - timeToSearch); };
+  auto closest = std::min_element(timeArray->Begin(), timeArray->End(), findClosest);
+  unsigned int trajectoryIdx = std::distance(timeArray->Begin(), closest);
+
+  double position[3];
+  trajectory->GetPoint(trajectoryIdx, position);
+
+  auto* quaternionArray = vtkDoubleArray::SafeDownCast(
+    trajectory->GetPointData()->GetAbstractArray("Orientation(Quaternion)"));
+  if (!quaternionArray)
+  {
+    vtkErrorMacro(<< "Could not find \"Orientation(Quaternion)\" array in input trajectory!");
+    return 0;
+  }
+  double* quaternionData = quaternionArray->GetTuple(trajectoryIdx);
+  Eigen::Quaterniond quad(
+    quaternionData[0], quaternionData[1], quaternionData[2], quaternionData[3]);
+  Eigen::Isometry3d isometry;
+  isometry.linear() = quad.toRotationMatrix();
+  isometry.translation() = Eigen::Vector3d(position);
+  isometry = isometry.inverse();
+
+  // Convert matrix from column major (Eigen) to row major (VTK)
+  isometry.matrix().transposeInPlace();
+
+  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+  transform->Concatenate(isometry.matrix().data());
+  for (unsigned int idx = 0; idx < output->GetNumberOfBlocks(); idx++)
+  {
+    vtkPolyData* frame = vtkPolyData::SafeDownCast(output->GetBlock(idx));
+    if (frame)
+    {
+      vtkSmartPointer<vtkPolyData> newFrame = vtkSmartPointer<vtkPolyData>::New();
+      vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
+      newFrame->DeepCopy(frame);
+      newPts->Allocate(newFrame->GetNumberOfPoints());
+      newPts->GetData()->SetName(newFrame->GetPoints()->GetData()->GetName());
+      transform->TransformPoints(newFrame->GetPoints(), newPts);
+      newFrame->SetPoints(newPts);
+      output->SetBlock(idx, newFrame);
     }
   }
   return 1;
