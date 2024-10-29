@@ -81,7 +81,7 @@ private:
   //! Original pipeline time which must be restored after modifying the input filter time
   double PipelineTime = 0;
   //! Index of time step corresponding to PipelineTime
-  int PipelineIndex = 0;
+  unsigned int PipelineIndex = 0;
   //! Time index range that should be in the cache, it's e right half-open interval : [Tstart, Tend[
   int CacheTimeRange[2] = { -1, -1 };
   //! Last Time index required from the filter to its input filter

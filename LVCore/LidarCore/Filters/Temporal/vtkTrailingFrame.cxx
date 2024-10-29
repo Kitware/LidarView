@@ -119,7 +119,7 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     // save old TimeRange and update new one
     int previousCacheTimeRange[2] = { this->CacheTimeRange[0], this->CacheTimeRange[1] };
     this->CacheTimeRange[0] =
-      std::max(this->PipelineIndex - static_cast<int>(this->NumberOfTrailingFrames), 0);
+      std::max(static_cast<int>(this->PipelineIndex - this->NumberOfTrailingFrames), 0);
     this->CacheTimeRange[1] = this->PipelineIndex + 1;
 
     // handle case when changing NumberOfTrailingFrame
@@ -276,8 +276,7 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
   currentFrame->ShallowCopy(input);
   if (this->NumberOfTrailingFrames != 0)
   {
-    unsigned int index =
-      static_cast<unsigned int>(this->LastTimeProcessedIndex) % (this->NumberOfTrailingFrames + 1);
+    unsigned int index = this->LastTimeProcessedIndex % (this->NumberOfTrailingFrames + 1);
     this->Cache->SetBlock(index, currentFrame.GetPointer());
   }
   // handle case when no trailing frame
