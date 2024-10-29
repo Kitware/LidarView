@@ -79,7 +79,7 @@ int vtkTrailingFrame::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   // If the TimeSteps size is still zero, it means
   // that no time_steps has been filled by the reader.
   // Hence, no lidar data was stored in the .pcap.
-  // It could also means that the user is tring to use
+  // It could also means that the user is trying to use
   // this filter in stream mode without the option.
   if (this->TimeSteps.size() == 0)
   {
@@ -252,32 +252,6 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
     return 1;
   }
 
-  bool isCacheCompletelyUpdated = this->Direction == DirectionType::FORWARD
-    ? this->LastTimeProcessedIndex == this->CacheTimeRange[1] - 1
-    : this->LastTimeProcessedIndex == this->CacheTimeRange[0];
-
-  if (isCacheCompletelyUpdated)
-  {
-    // Stop the pipeline loop
-    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-
-    // reset block that should be empty
-    for (unsigned int i = this->PipelineIndex + 1; i < this->NumberOfTrailingFrames + 1; i++)
-    {
-      int index = i % (this->NumberOfTrailingFrames + 1);
-      this->Cache->SetBlock(index, nullptr);
-    }
-
-    // reset some variable and pipeline time
-    this->FirstFilterIteration = true;
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->PipelineTime);
-  }
-  else
-  {
-    // force the pipeline loop
-    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-  }
-
   // copy the input in the multiblock
   vtkNew<vtkPolyData> currentFrame;
   currentFrame->ShallowCopy(input);
@@ -291,20 +265,43 @@ int vtkTrailingFrame::ProcessReadingMode(vtkInformation* request,
   {
     this->Cache->SetBlock(0, currentFrame.GetPointer());
   }
-  output->ShallowCopy(this->Cache.GetPointer());
+
+  bool isCacheCompletelyUpdated = this->Direction == DirectionType::FORWARD
+    ? this->LastTimeProcessedIndex == this->CacheTimeRange[1] - 1
+    : this->LastTimeProcessedIndex == this->CacheTimeRange[0];
+
+  if (!isCacheCompletelyUpdated)
+  {
+    // force the pipeline loop
+    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+    return 1;
+  }
+
+  // Stop the pipeline loop
+  request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+  // reset some variable and pipeline time
+  this->FirstFilterIteration = true;
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), this->PipelineTime);
+
+  // reset block that should be empty (e.g first frames without trailing frames)
+  if (this->PipelineIndex < this->NumberOfTrailingFrames)
+  {
+    this->Cache->SetNumberOfBlocks(this->PipelineIndex + 1);
+  }
 
   // re-order output blocks so that:
   //    current frame => 0
   //    current frame - 1 => 1
   //    current frame - 2 => 2
   // ...
-  int n = this->NumberOfTrailingFrames + 1;
-  if (n > 0)
+  unsigned int nbFrames = this->NumberOfTrailingFrames + 1;
+  unsigned int currentOffset = this->PipelineIndex % nbFrames;
+  for (unsigned int i = 1; i <= nbFrames; ++i)
   {
-    int current_frame_index = this->PipelineIndex % n;
-    for (int i = 1; i <= n; ++i)
+    unsigned int cacheIdx = (currentOffset + i) % nbFrames;
+    if (cacheIdx < this->Cache->GetNumberOfBlocks())
     {
-      output->SetBlock(n - i, this->Cache->GetBlock((current_frame_index + i) % n));
+      output->SetBlock(nbFrames - i, this->Cache->GetBlock(cacheIdx));
     }
   }
   return 1;

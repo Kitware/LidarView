@@ -91,7 +91,8 @@ bool check_trailing_frames(vtkTrailingFrame* tf,
   double* time_steps,
   int time_index)
 {
-  int nb_trailing_frames = tf->GetNumberOfTrailingFrames();
+  int nb_trailing_frames =
+    std::min(static_cast<unsigned>(time_index), tf->GetNumberOfTrailingFrames());
   // go to specified time index
   info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time_steps[time_index]);
   tf->Update();
