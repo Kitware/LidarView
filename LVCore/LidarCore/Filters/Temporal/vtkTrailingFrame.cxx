@@ -253,20 +253,16 @@ int vtkTrailingFrame::ProcessStreamingMode(vtkInformation* vtkNotUsed(request),
     this->CurrentTrailingFramesNumber = StreamNumberOfTrailingFrames;
   }
 
-  this->Cache->SetBlock(this->CurrentTrailingFramesNumber, currentFrame.GetPointer());
-
   // Re-order output blocks, to do a queue FIFO
-  if (this->CurrentTrailingFramesNumber == StreamNumberOfTrailingFrames)
+  for (unsigned int i = this->CurrentTrailingFramesNumber; i > 0; i--)
   {
-    for (unsigned int i = 0; i < this->CurrentTrailingFramesNumber; i++)
-    {
-      this->Cache->SetBlock(i, this->Cache->GetBlock(i + 1));
-    }
+    this->Cache->SetBlock(i, this->Cache->GetBlock(i - 1));
   }
+  this->Cache->SetBlock(0, currentFrame.GetPointer());
 
   if (this->CurrentTrailingFramesNumber < StreamNumberOfTrailingFrames)
   {
-    this->CurrentTrailingFramesNumber += 1;
+    this->CurrentTrailingFramesNumber++;
   }
 
   output->ShallowCopy(this->Cache.GetPointer());
