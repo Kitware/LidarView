@@ -25,6 +25,8 @@
 #include <memory>
 #include <thread>
 
+class vtkPacketRecorder;
+
 /**
  * vtkUDPPacketReceiver is designed to listen on a specified port and address.
  * It opens a socket and forwards all received data to a provided callback function.
@@ -57,16 +59,10 @@ public:
   bool IsListening();
   ///@}
 
-  ///@{
   /**
-   * Start or stop recording the UDP stream.
-   * Calling StartRecording creates a new pcap file with the specified filename.
-   * Note that StartListening must be called before recording data.
+   * If set the packet receiver will forward received packets to the recorder
    */
-  void StartRecording(const std::string& filename);
-  void StopRecording();
-  bool IsRecording();
-  ///@}
+  void SetRecorder(vtkPacketRecorder* writer);
 
 protected:
   vtkUDPPacketReceiver();

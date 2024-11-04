@@ -19,6 +19,8 @@
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
+#include "vtkPacketRecorder.h"
+#include "vtkUDPPacketReceiver.h"
 
 #include <vtkCommand.h>
 #include <vtkExecutive.h>
@@ -34,6 +36,15 @@
 #include <sstream>
 
 #include <thread>
+
+namespace
+{
+void SetUDPPacketHandler(vtkLidarStream* stream)
+{
+  vtkSmartPointer<vtkUDPPacketReceiver> pktReceiver = vtkSmartPointer<vtkUDPPacketReceiver>::New();
+  stream->SetPacketHandler(pktReceiver);
+}
+}
 
 // Helper functions
 //-----------------------------------------------------------------------------
@@ -539,6 +550,10 @@ int testLidarStream(vtkLidarStream* stream,
     std::cout << "Stream is nullptr" << std::endl;
     return 1;
   }
+  if (!stream->GetPacketHandler())
+  {
+    ::SetUDPPacketHandler(stream);
+  }
 
   int retVal = 0;
   // get VTP file name from the reference file
@@ -699,6 +714,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 {
 
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
+  ::SetUDPPacketHandler(LidarStream1);
   LidarStream1->SetLidarInterpreter(interpreter1);
   interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
@@ -710,6 +726,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   LidarStream1->Stop();
 
   vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
+  ::SetUDPPacketHandler(LidarStream2);
   LidarStream2->SetLidarInterpreter(interpreter2);
   interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort + 1);
@@ -791,19 +808,26 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
 
   // Test the original pcap and record it to a temporary file
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
+  ::SetUDPPacketHandler(LidarStream1);
   LidarStream1->SetLidarInterpreter(interpreter1);
   interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
-  LidarStream1->SetRecordingFilename(temporaryFile);
+
+  vtkUDPPacketReceiver* receiver = LidarStream1->GetPacketHandler();
+  vtkSmartPointer<vtkPacketRecorder> recorder = vtkSmartPointer<vtkPacketRecorder>::New();
+  receiver->SetRecorder(recorder);
+  recorder->SetRecordingFileName(temporaryFile);
+
   LidarStream1->Update();
   LidarStream1->Stop();
 
-  LidarStream1->StartRecording();
+  recorder->StartRecording();
   retVal += testLidarStream(LidarStream1.Get(), pcapFileName, referenceFileName, shouldPreSend);
-  LidarStream1->StopRecording();
+  recorder->StopRecording();
 
   // Send and test the recorded pcap
   vtkSmartPointer<vtkLidarStream> LidarStream2 = vtkSmartPointer<vtkLidarStream>::New();
+  ::SetUDPPacketHandler(LidarStream2);
   LidarStream2->SetLidarInterpreter(interpreter2);
   interpreter2->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream2->SetListeningPort(dataPort);

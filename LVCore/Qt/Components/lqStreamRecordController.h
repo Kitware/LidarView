@@ -18,9 +18,12 @@
 
 #include "lqComponentsModule.h"
 
+#include <vtkSmartPointer.h>
+
 #include <QObject>
 #include <QString>
 
+class vtkSMProxy;
 class pqPipelineSource;
 
 /**
@@ -33,6 +36,7 @@ class LQCOMPONENTS_EXPORT lqStreamRecordController : public QObject
 
 public:
   lqStreamRecordController(QObject* parent = nullptr);
+  ~lqStreamRecordController() = default;
 
 public Q_SLOTS:
   /**
@@ -66,6 +70,7 @@ private:
   void onSourceRemoved(pqPipelineSource* src);
 
 private:
+  vtkSmartPointer<vtkSMProxy> RecorderProxy;
   QString RecordingFilename = "";
   bool IsRecording = false;
 };

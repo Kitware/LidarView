@@ -1,0 +1,29 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Packet recorder -->
+    <Proxy name="PacketRecorder" class="vtkPacketRecorder">
+      <StringVectorProperty name="RecordingFileName"
+                            command="SetRecordingFileName"
+                            number_of_elements="1" />
+      <Property name="StartRecording"
+                command="StartRecording"
+                panel_widget="command_button" />
+      <Property name="StopRecording"
+                command="StopRecording"
+                panel_widget="command_button" />
+    </Proxy>
+
+    <!-- ==================================================================== -->
+    <!-- UDP Packet receiver -->
+    <Proxy name="UDPPacketReceiver" class="vtkUDPPacketReceiver">
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
+  </ProxyGroup>
+
+  <!-- ==================================================================== -->
+  <!-- Group with all available packet handler -->
+  <ProxyGroup name="packet_handler_group">
+    <Proxy group="internal_interpreter" name="UDPPacketReceiver" />
+  </ProxyGroup>
+</ServerManagerConfiguration>

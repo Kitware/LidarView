@@ -31,6 +31,7 @@
 #include "lvIONetworkModule.h"
 
 class vtkInterpreter;
+class vtkPacketRecorder;
 
 #ifndef __VTK_WRAP__
 #define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
@@ -43,11 +44,6 @@ public:
 
   virtual void Start();
   virtual void Stop();
-
-  vtkSetMacro(RecordingFilename, std::string);
-  void StartRecording();
-  void StopRecording();
-  bool IsRecording();
 
   vtkGetMacro(ListeningPort, int);
   vtkSetMacro(ListeningPort, int);
@@ -69,6 +65,9 @@ public:
 
   vtkGetMacro(IsCrashAnalysing, bool);
   vtkSetMacro(IsCrashAnalysing, bool);
+
+  vtkGetObjectMacro(PacketHandler, vtkUDPPacketReceiver);
+  vtkSetObjectMacro(PacketHandler, vtkUDPPacketReceiver);
 
   /**
    * @brief GetNeedsUpdate
@@ -137,9 +136,6 @@ private:
   std::string MulticastAddress;
   /*!< The Listening address in case of multiples interfaces*/
   std::string LocalListeningAddress;
-
-  /*!< The file to record into */
-  std::string RecordingFilename;
 
   /*!< Allowing the forwarding of the packets*/
   bool IsForwarding = false;

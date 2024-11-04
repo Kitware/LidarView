@@ -109,30 +109,18 @@
         </Documentation>
       </Property>
 
-      <StringVectorProperty name="RecordingFilename"
-                            command="SetRecordingFilename"
-                            number_of_elements="1"
-                            panel_visibility="never">
-        <FileListDomain name="files" />
-        <Hints>
-          <AcceptAnyFile />
-        </Hints>
-      </StringVectorProperty>
-
-      <Property name="StartRecording"
-                command="StartRecording"
-                panel_widget="command_button"
-                panel_visibility="never" />
-
-      <Property name="StopRecording"
-                command="StopRecording"
-                panel_widget="command_button"
-                panel_visibility="never" />
-
       <PropertyGroup label="Stream Player">
         <Property name="Start" />
         <Property name="Stop" />
       </PropertyGroup>
+
+      <ProxyProperty name="PacketHandler"
+                     command="SetPacketHandler"
+                     panel_visibility="advanced">
+        <ProxyListDomain name="proxy_list">
+          <Group name="packet_handler_group" default="UDPPacketReceiver" />
+        </ProxyListDomain>
+      </ProxyProperty>
 
       <PropertyGroup label="Stream Options">
         <Property name="MulticastAddress" />
@@ -142,6 +130,7 @@
         <Property name="IsForwarding" panel_visibility="advanced" />
         <Property name="ForwardedIpAddress" panel_visibility="advanced" />
         <Property name="ForwardedPort" panel_visibility="advanced" />
+        <Property name="PacketHandler" panel_visibility="advanced" />
       </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>

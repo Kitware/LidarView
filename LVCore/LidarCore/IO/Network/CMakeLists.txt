@@ -16,6 +16,7 @@ set(classes
   vtkInterpreter
   vtkPacketFileReader
   vtkPacketFileWriter
+  vtkPacketRecorder
   vtkStream
   vtkUDPPacketReceiver
   vtkUDPPing

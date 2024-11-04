@@ -21,10 +21,7 @@
 #include "vtkUDPPacketReceiver.h"
 
 //-----------------------------------------------------------------------------
-vtkStream::vtkStream()
-  : PacketHandler(vtkSmartPointer<vtkUDPPacketReceiver>::New())
-{
-}
+vtkStream::vtkStream() = default;
 
 //-----------------------------------------------------------------------------
 vtkStream::~vtkStream() = default;
@@ -68,36 +65,19 @@ void vtkStream::Start()
 //----------------------------------------------------------------------------
 void vtkStream::Start(vtkUDPPacketReceiver::Parameters& params)
 {
-  auto consumeCallback = [this](const std::vector<uint8_t>& pkt, double timestamp)
-  { this->ConsumePacket(pkt, timestamp); };
-  this->PacketHandler->StartListening(params, consumeCallback);
+  if (this->PacketHandler)
+  {
+    auto consumeCallback = [this](const std::vector<uint8_t>& pkt, double timestamp)
+    { this->ConsumePacket(pkt, timestamp); };
+    this->PacketHandler->StartListening(params, consumeCallback);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkStream::Stop()
 {
-  this->PacketHandler->StopListening();
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::StartRecording()
-{
-  if (this->RecordingFilename.empty())
+  if (this->PacketHandler)
   {
-    return;
+    this->PacketHandler->StopListening();
   }
-  this->StopRecording();
-  this->PacketHandler->StartRecording(this->RecordingFilename);
-}
-
-//-----------------------------------------------------------------------------
-void vtkStream::StopRecording()
-{
-  this->PacketHandler->StopRecording();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkStream::IsRecording()
-{
-  return this->PacketHandler->IsRecording();
 }

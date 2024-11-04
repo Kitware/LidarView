@@ -15,7 +15,6 @@
 
 #include "lqStreamRecordController.h"
 
-#include "PacketFileWriter.h"
 #include "vtkSMLidarStreamProxy.h"
 #include "vtkStream.h"
 
@@ -24,9 +23,13 @@
 #include <pqCoreUtilities.h>
 #include <pqFileDialog.h>
 #include <pqPipelineSource.h>
+#include <pqServer.h>
 #include <pqServerManagerModel.h>
 
+#include <vtkSMProperty.h>
+#include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
+#include <vtkSMSessionProxyManager.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -97,7 +100,7 @@ bool lqStreamRecordController::startRecording()
   {
     return false;
   }
-  else if (streamList.size() == 1)
+  if (streamList.size() == 1)
   {
     defaultFileName = QString::fromStdString(streamList.at(0)->GetLidarInformation());
   }
@@ -122,20 +125,34 @@ bool lqStreamRecordController::startRecording()
     return false;
   }
 
-  // Create common writer Thread
-  std::shared_ptr<PacketFileWriter> writer = std::make_shared<PacketFileWriter>();
-  // Tell vtkStreams to Start Recording
+  // Create a recorder proxy
+  pqServer* server = pqActiveObjects::instance().activeServer();
+  if (!server)
+  {
+    return false;
+  }
+  vtkSMSessionProxyManager* pxm = server->proxyManager();
+  this->RecorderProxy.TakeReference(pxm->NewProxy("internal_interpreter", "PacketRecorder"));
+
+  // Set a common packet writer proxy for all streams
   Q_FOREACH (vtkSMLidarStreamProxy* proxy, streamList)
   {
-    auto* stream = vtkStream::SafeDownCast(proxy->GetClientSideObject());
-    if (!stream)
+    vtkSMProxy* packetHandlerProxy = vtkSMPropertyHelper(proxy, "PacketHandler").GetAsProxy();
+    if (!packetHandlerProxy)
     {
+      qWarning() << "No packet handler proxy found for " << proxy->GetVTKClassName();
       continue;
     }
-    // Multiple start is okay, it detects it
-    stream->SetRecordingFilename(this->RecordingFilename.toStdString());
-    stream->StartRecording(writer);
+    vtkSMPropertyHelper(packetHandlerProxy, "Recorder").Set(this->RecorderProxy);
+    packetHandlerProxy->UpdateVTKObjects();
   }
+
+  // Set up writer proxy
+  const char* filename = this->RecordingFilename.toUtf8().constData();
+  vtkSMPropertyHelper(this->RecorderProxy, "RecordingFileName").Set(filename);
+  this->RecorderProxy->UpdateProperty("RecordingFileName", true);
+  this->RecorderProxy->InvokeCommand("StartRecording");
+
   this->IsRecording = true;
   return true;
 }
@@ -143,18 +160,22 @@ bool lqStreamRecordController::startRecording()
 //-----------------------------------------------------------------------------
 void lqStreamRecordController::stopRecording()
 {
-  // Tell vtkStreams to Stop Recording
-  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  if (!this->RecorderProxy)
   {
-    auto* stream = vtkStream::SafeDownCast(src->getProxy()->GetClientSideObject());
-    if (!stream)
-    {
-      continue;
-    }
-    stream->StopRecording();
+    return;
   }
+
+  // Tell vtkStreams to Stop Recording
+  this->RecorderProxy->InvokeCommand("StopRecording");
   this->IsRecording = false;
+
+  // Delete recorder proxy
+  pqServer* server = pqActiveObjects::instance().activeServer();
+  if (server)
+  {
+    vtkSMSessionProxyManager* pxm = server->proxyManager();
+    pxm->UnRegisterProxy("internal_interpreter", "PacketRecorder", this->RecorderProxy);
+  }
 
   // Display a feedback message to the user when the recording is stopped
   QMessageBox stopRecordMsg;

@@ -15,6 +15,7 @@
 
 #include "vtkUDPPacketReceiver.h"
 
+#include "vtkPacketRecorder.h"
 #include "vtkSynchronizedQueue.h"
 #include "vtkUDPReceiverSocketImpl.h"
 
@@ -64,8 +65,7 @@ public:
   std::unique_ptr<QueueType> DataQueue;
   ConsumeCallback Callback;
 
-  std::unique_ptr<Tins::PacketWriter> Writer;
-  std::atomic<bool> IsRecording = false;
+  vtkPacketRecorder* Writer;
 
   //------------------------------------------------------------------------------
   bool OpenSocket(const Parameters& params)
@@ -131,7 +131,7 @@ public:
       double timestamp = packet.timestamp.tv_sec + packet.timestamp.tv_usec * 1e-6;
       this->Callback(packet.data, timestamp);
 
-      if (this->IsRecording)
+      if (this->Writer && this->Writer->GetIsRecording())
       {
         Tins::UDP udp(packet.dstPort, packet.srcPort);
         udp /= Tins::RawPDU(packet.data);
@@ -153,7 +153,7 @@ public:
         }
         pdu->serialize();
         Tins::Packet pkt(*pdu, Tins::Timestamp(packet.timestamp));
-        this->Writer->write(pkt);
+        this->Writer->AddPacketToWritingQueue(&pkt);
       }
     }
   }
@@ -209,22 +209,7 @@ bool vtkUDPPacketReceiver::IsListening()
 }
 
 //-----------------------------------------------------------------------------
-void vtkUDPPacketReceiver::StartRecording(const std::string& filename)
+void vtkUDPPacketReceiver::SetRecorder(vtkPacketRecorder* writer)
 {
-  this->Internals->Writer =
-    std::make_unique<Tins::PacketWriter>(filename, Tins::DataLinkType<Tins::EthernetII>());
-  this->Internals->IsRecording = true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkUDPPacketReceiver::StopRecording()
-{
-  this->Internals->IsRecording = false;
-  this->Internals->Writer.reset();
-}
-
-//-----------------------------------------------------------------------------
-bool vtkUDPPacketReceiver::IsRecording()
-{
-  return this->Internals->IsRecording;
+  this->Internals->Writer = writer;
 }
