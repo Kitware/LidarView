@@ -25,6 +25,7 @@
 #include <pqServer.h>
 #include <pqSettings.h>
 
+#include <vtkSMParaViewPipelineController.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMPropertyIterator.h>
@@ -114,7 +115,6 @@ public:
     return false;
   }
 
-public:
   pqProxyWidget* LidarProxyWidget;
   pqProxyWidget* PoseProxyWidget;
   QCheckBox* GNSSCheckbox;
@@ -168,6 +168,10 @@ pqProxyWidget* lqInterpreterWidget::createProxyWidget(QWidget* parent, const cha
   vtkSMSessionProxyManager* pxm = server->proxyManager();
   vtkSmartPointer<vtkSMProxy> proxy;
   proxy.TakeReference(pxm->NewProxy("sources", proxyName));
+
+  // Initialize sub-proxies
+  vtkNew<vtkSMParaViewPipelineController> controller;
+  controller->PreInitializeProxy(proxy);
 
   // Set FileName property ignore default and internal (in case of Lidar Reader)
   // as we already choose filename in previous step
