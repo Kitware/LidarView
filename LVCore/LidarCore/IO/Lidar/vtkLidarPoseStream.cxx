@@ -16,7 +16,7 @@
 #include "vtkLidarPoseStream.h"
 #include "vtkHelper.h"
 #include "vtkPosePacketInterpreter.h"
-#include "vtkUDPPacketReceiver.h"
+#include "vtkStreamPacketHandler.h"
 
 #include <sstream>
 
@@ -142,7 +142,7 @@ int vtkLidarPoseStream::RequestData(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkLidarPoseStream::Start()
 {
-  vtkUDPPacketReceiver::Parameters params;
+  vtkStreamPacketHandler::Parameters params;
   if (this->GetIsForwarding())
   {
     params.forwardAddress = this->GetForwardedIpAddress();

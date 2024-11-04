@@ -17,7 +17,8 @@
 #define vtkUDPPacketReceiver_h
 
 #include "lvIONetworkModule.h"
-#include <vtkObject.h>
+#include "vtkStreamPacketHandler.h"
+
 #include <vtkSetGet.h>
 
 #include <cstdint>
@@ -32,21 +33,11 @@ class vtkPacketRecorder;
  * It opens a socket and forwards all received data to a provided callback function.
  * Additionally, it includes an option to record the received data into a pcap file.
  */
-class LVIONETWORK_EXPORT vtkUDPPacketReceiver : public vtkObject
+class LVIONETWORK_EXPORT vtkUDPPacketReceiver : public vtkStreamPacketHandler
 {
 public:
   static vtkUDPPacketReceiver* New();
-  vtkTypeMacro(vtkUDPPacketReceiver, vtkObject);
-
-  struct Parameters
-  {
-    std::vector<uint16_t> listeningPorts;
-    std::string listeningAddress;
-    std::string multicastAddress;
-    std::vector<uint16_t> forwardPorts;
-    std::string forwardAddress;
-  };
-  using ConsumeCallback = std::function<void(const std::vector<uint8_t>&, double)>;
+  vtkTypeMacro(vtkUDPPacketReceiver, vtkStreamPacketHandler);
 
   ///@{
   /**
@@ -54,15 +45,15 @@ public:
    * When listening, two threads are created: one for receiving and one for consuming data,
    * which then forwards the data to the callback function.
    */
-  bool StartListening(const Parameters& params, const ConsumeCallback& callback);
-  void StopListening();
-  bool IsListening();
+  bool StartListening(const Parameters& params, const ConsumeCallback& callback) override;
+  void StopListening() override;
+  bool IsListening() override;
   ///@}
 
   /**
    * If set the packet receiver will forward received packets to the recorder
    */
-  void SetRecorder(vtkPacketRecorder* writer);
+  void SetRecorder(vtkPacketRecorder* writer) override;
 
 protected:
   vtkUDPPacketReceiver();

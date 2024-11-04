@@ -49,7 +49,7 @@ int vtkStream::RequestInformation(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkStream::Start()
 {
-  vtkUDPPacketReceiver::Parameters params;
+  vtkStreamPacketHandler::Parameters params;
   if (this->IsForwarding)
   {
     params.forwardAddress = this->ForwardedIpAddress;
@@ -63,7 +63,7 @@ void vtkStream::Start()
 }
 
 //----------------------------------------------------------------------------
-void vtkStream::Start(vtkUDPPacketReceiver::Parameters& params)
+void vtkStream::Start(vtkStreamPacketHandler::Parameters& params)
 {
   if (this->PacketHandler)
   {

@@ -1,0 +1,70 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkStreamPacketHandler.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkStreamPacketHandler_h
+#define vtkStreamPacketHandler_h
+
+#include "lvIONetworkModule.h"
+#include <vtkObject.h>
+
+#include <functional>
+
+class vtkPacketRecorder;
+
+/**
+ * Is an interface class to implement different packet handler that
+ * can be used by a vtkStream.
+ *
+ * @sa vtkUPDPacketReceiver
+ */
+class LVIONETWORK_EXPORT vtkStreamPacketHandler : public vtkObject
+{
+public:
+  vtkTypeMacro(vtkStreamPacketHandler, vtkObject);
+
+  struct Parameters
+  {
+    std::vector<uint16_t> listeningPorts;
+    std::string listeningAddress;
+    std::string multicastAddress;
+    std::vector<uint16_t> forwardPorts;
+    std::string forwardAddress;
+  };
+  using ConsumeCallback = std::function<void(const std::vector<uint8_t>&, double)>;
+
+  ///@{
+  /**
+   * Start / stop listening.
+   */
+  virtual bool StartListening(const Parameters& params, const ConsumeCallback& callback) = 0;
+  virtual void StopListening() = 0;
+  virtual bool IsListening() = 0;
+  ///@}
+
+  /**
+   * If set the packet receiver will forward received packets to the recorder.
+   */
+  virtual void SetRecorder(vtkPacketRecorder* writer) = 0;
+
+protected:
+  vtkStreamPacketHandler() = default;
+  ~vtkStreamPacketHandler() override = default;
+
+private:
+  vtkStreamPacketHandler(const vtkStreamPacketHandler&) = delete;
+  void operator=(const vtkStreamPacketHandler&) = delete;
+};
+
+#endif

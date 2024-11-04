@@ -20,6 +20,7 @@
 #include "vtkLidarReader.h"
 #include "vtkLidarStream.h"
 #include "vtkPacketRecorder.h"
+#include "vtkStreamPacketHandler.h"
 #include "vtkUDPPacketReceiver.h"
 
 #include <vtkCommand.h>
@@ -813,7 +814,7 @@ int TestLidarRecording(vtkLidarPacketInterpreter* interpreter1,
   interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
 
-  vtkUDPPacketReceiver* receiver = LidarStream1->GetPacketHandler();
+  vtkStreamPacketHandler* receiver = LidarStream1->GetPacketHandler();
   vtkSmartPointer<vtkPacketRecorder> recorder = vtkSmartPointer<vtkPacketRecorder>::New();
   receiver->SetRecorder(recorder);
   recorder->SetRecordingFileName(temporaryFile);

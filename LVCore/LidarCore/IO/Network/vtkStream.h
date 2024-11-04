@@ -26,7 +26,7 @@
 
 #include "vtkInterpreter.h"
 #include "vtkLiveSourceAlgorithm.h"
-#include "vtkUDPPacketReceiver.h"
+#include "vtkStreamPacketHandler.h"
 
 #include "lvIONetworkModule.h"
 
@@ -66,8 +66,8 @@ public:
   vtkGetMacro(IsCrashAnalysing, bool);
   vtkSetMacro(IsCrashAnalysing, bool);
 
-  vtkGetObjectMacro(PacketHandler, vtkUDPPacketReceiver);
-  vtkSetObjectMacro(PacketHandler, vtkUDPPacketReceiver);
+  vtkGetObjectMacro(PacketHandler, vtkStreamPacketHandler);
+  vtkSetObjectMacro(PacketHandler, vtkStreamPacketHandler);
 
   /**
    * @brief GetNeedsUpdate
@@ -118,7 +118,7 @@ protected:
   /**
    * Can be used by subclasses to start the stream with specifics parameters
    */
-  void Start(vtkUDPPacketReceiver::Parameters& params);
+  void Start(vtkStreamPacketHandler::Parameters& params);
 
   /**
    * This function is called for each packet received.
@@ -146,7 +146,7 @@ private:
 
   bool IsCrashAnalysing = false;
 
-  vtkSmartPointer<vtkUDPPacketReceiver> PacketHandler;
+  vtkSmartPointer<vtkStreamPacketHandler> PacketHandler;
 };
 
 #ifndef __VTK_WRAP__

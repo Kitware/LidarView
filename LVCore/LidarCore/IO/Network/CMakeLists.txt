@@ -10,6 +10,7 @@ set(headers
   InterpreterHelper.h
   NetworkPacket.h
   PacketSender.h
+  vtkStreamPacketHandler.h
 )
 
 set(classes
