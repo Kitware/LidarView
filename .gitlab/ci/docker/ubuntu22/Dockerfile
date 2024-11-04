@@ -14,4 +14,5 @@ COPY install_nanoflann.sh /root/install_nanoflann.sh
 RUN sh /root/install_nanoflann.sh
 
 COPY install_tins.sh /root/install_tins.sh
+COPY tins-fix-cmake-config-install.patch /root/tins-fix-cmake-config-install.patch
 RUN sh /root/install_tins.sh
