@@ -39,6 +39,23 @@ public:
 
   ///@{
   /**
+   * The network interface name to sniff packet on.
+   * If empty all interfaces are listen.
+   */
+  vtkGetMacro(NetworkInterface, std::string);
+  vtkSetMacro(NetworkInterface, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * The host address to search for, if empty all address are listen.
+   */
+  vtkGetMacro(HostAddress, std::string);
+  vtkSetMacro(HostAddress, std::string);
+  ///@}
+
+  ///@{
+  /**
    * Start / stop listening to the UDP stream.
    */
   bool StartListening(const std::vector<unsigned int>& ports,
@@ -59,6 +76,9 @@ protected:
 private:
   vtkStreamPacketSniffer(const vtkStreamPacketSniffer&) = delete;
   void operator=(const vtkStreamPacketSniffer&) = delete;
+
+  std::string NetworkInterface;
+  std::string HostAddress;
 
   std::unique_ptr<std::thread> ConsumerThread;
 

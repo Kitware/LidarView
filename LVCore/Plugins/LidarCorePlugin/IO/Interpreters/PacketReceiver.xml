@@ -96,6 +96,27 @@
     <!-- ==================================================================== -->
     <!-- Packet sniffer -->
     <Proxy name="PacketSniffer" class="vtkStreamPacketSniffer">
+      <StringVectorProperty name="HostAddress"
+                            command="SetHostAddress"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify the host address to listen. If empty, all addresses will be sniffed.
+        </Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="NetworkInterface"
+                            command="SetNetworkInterface"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specificy the network interface name to sniff packet on. (e.g "etho", "lo" ...)
+          If empty all interfaces are listen.
+        </Documentation>
+      </StringVectorProperty>
+
       <ProxyProperty command="SetRecorder" name="Recorder" />
     </Proxy>
   </ProxyGroup>

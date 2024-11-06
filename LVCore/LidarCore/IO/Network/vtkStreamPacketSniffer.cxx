@@ -27,6 +27,7 @@
 #include <atomic>
 #include <ctime>
 #include <memory>
+#include <sstream>
 #include <thread>
 
 namespace
@@ -136,18 +137,27 @@ class vtkStreamPacketSniffer::vtkInternals
 public:
   std::unique_ptr<QueueType> DataQueue;
   ConsumeCallback Callback;
-  vtkStreamPacketHandler::Parameters Parameters;
 
   std::vector<std::unique_ptr<PacketSnifferImpl>> Sniffers;
 
   vtkPacketRecorder* Writer;
 
   //------------------------------------------------------------------------------
-  void StartSniffers(std::string filter)
+  void StartSniffers(std::string networkInteface, std::string filter)
   {
     this->DataQueue = std::make_unique<QueueType>(::PKT_CACHE_SIZE);
 
-    for (auto netInterface : Tins::NetworkInterface::all())
+    std::vector<Tins::NetworkInterface> interfacesToListen;
+    if (!networkInteface.empty())
+    {
+      interfacesToListen.emplace_back(networkInteface);
+    }
+    else
+    {
+      interfacesToListen = Tins::NetworkInterface::all();
+    }
+
+    for (auto netInterface : interfacesToListen)
     {
       auto callback = std::bind(&QueueType::Enqueue, this->DataQueue.get(), std::placeholders::_1);
       auto sniffer = std::make_unique<PacketSnifferImpl>(netInterface.name(), filter, callback);
@@ -205,6 +215,10 @@ bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& por
   internals.Callback = callback;
 
   std::string filter = "udp ";
+  if (!this->HostAddress.empty())
+  {
+    filter += " src host " + this->HostAddress + " ";
+  }
   for (size_t idx = 0; idx < ports.size(); idx++)
   {
     unsigned int port = ports.at(idx);
@@ -215,7 +229,7 @@ bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& por
     }
   }
 
-  internals.StartSniffers(filter);
+  internals.StartSniffers(this->NetworkInterface, filter);
   this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
   return true;
 }
