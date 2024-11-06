@@ -38,8 +38,9 @@ public:
   ///@{
   /**
    * Add / pop elements from the queue.
+   * Return false if stopping queue is requested.
    */
-  void Enqueue(const T& data);
+  bool Enqueue(const T& data);
   bool Dequeue(T& data);
   ///@}
 

@@ -28,20 +28,22 @@ vtkSynchronizedQueue<T>::vtkSynchronizedQueue(unsigned int maxCacheSize)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-void vtkSynchronizedQueue<T>::Enqueue(const T& data)
+bool vtkSynchronizedQueue<T>::Enqueue(const T& data)
 {
   std::unique_lock<std::mutex> lock(this->DataMutex);
 
-  if (this->IsEnqueuingData)
+  if (!this->IsEnqueuingData)
   {
-    this->Queue.push(data);
-    this->SyncCondition.notify_one();
+    return false;
   }
+  this->Queue.push(data);
+  this->SyncCondition.notify_one();
 
   if (this->Queue.size() >= this->MaxQueueSize)
   {
     this->Queue.pop();
   }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
