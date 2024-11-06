@@ -646,10 +646,10 @@ int SendAndTestAllFrames(vtkLidarStream* stream,
   };
   PacketSender sender(pcapFileName, destinationIp, dataPort);
 
-  // The packet are at 15% of the real speed. This is because our osx and windows buildboots
+  // The packet are at 30% of the real speed. This is because our osx and windows buildboots
   // aren't good enought for handling 100%.
   stream->Start();
-  bool isOk = sender.sendAllPackets(0.15, 0, testFrame);
+  bool isOk = sender.sendAllPackets(0.30, 0, testFrame);
   if (!isOk)
   {
     std::cout << "Test failed: Error while sending the packets." << std::endl;
