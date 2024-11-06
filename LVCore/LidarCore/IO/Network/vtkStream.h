@@ -67,7 +67,7 @@ public:
   vtkSetMacro(IsCrashAnalysing, bool);
 
   vtkGetObjectMacro(PacketHandler, vtkStreamPacketHandler);
-  vtkSetObjectMacro(PacketHandler, vtkStreamPacketHandler);
+  void SetPacketHandler(vtkStreamPacketHandler* handler);
 
   /**
    * @brief GetNeedsUpdate

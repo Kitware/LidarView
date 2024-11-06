@@ -81,3 +81,25 @@ void vtkStream::Stop()
     this->PacketHandler->StopListening();
   }
 }
+
+//----------------------------------------------------------------------------
+void vtkStream::SetPacketHandler(vtkStreamPacketHandler* handler)
+{
+  if (handler != this->PacketHandler)
+  {
+    bool isListening = false;
+    if (this->PacketHandler)
+    {
+      isListening = this->PacketHandler->IsListening();
+      this->PacketHandler->StopListening();
+    }
+
+    this->PacketHandler = handler;
+    this->Modified();
+
+    if (isListening)
+    {
+      this->Start();
+    }
+  }
+}
