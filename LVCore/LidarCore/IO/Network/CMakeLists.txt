@@ -13,6 +13,7 @@ set(classes
   vtkPacketFileHandler
   vtkPacketRecorder
   vtkStream
+  vtkStreamPacketSniffer
   vtkUDPPacketReceiver
   vtkUDPPing
   vtkUDPPointSender

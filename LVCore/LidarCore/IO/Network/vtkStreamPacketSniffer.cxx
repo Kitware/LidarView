@@ -1,0 +1,253 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkStreamPacketSniffer.cxx
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "vtkStreamPacketSniffer.h"
+
+#include "vtkPacketRecorder.h"
+#include "vtkSynchronizedQueue.h"
+
+#include <vtkLogger.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+
+#include <tins/tins.h>
+
+#include <atomic>
+#include <ctime>
+#include <memory>
+#include <thread>
+
+namespace
+{
+constexpr unsigned int PKT_CACHE_SIZE = 500;
+
+//-----------------------------------------------------------------------------
+class PacketSnifferImpl
+{
+public:
+  using HandleReceiveCallback = std::function<bool(Tins::Packet)>;
+
+  //-----------------------------------------------------------------------------
+  PacketSnifferImpl(std::string interfaceName,
+    std::string filter,
+    HandleReceiveCallback addToQueueCallback)
+    : AddToQueueCallback(addToQueueCallback)
+  {
+    Tins::SnifferConfiguration config;
+    // config.set_promisc_mode(true); // Enable promiscuous mode to capture all packets
+    config.set_filter(filter);
+    try
+    {
+      this->Sniffer = std::make_unique<Tins::Sniffer>(interfaceName, config);
+    }
+    catch (std::exception& ex)
+    {
+      std::stringstream errorMessage;
+      errorMessage << "Error: " << ex.what() << ".";
+      if (std::strcmp(ex.what(), "socket: Operation not permitted") == 0)
+      {
+        errorMessage << " Please check you have sufficient permission.";
+      }
+      vtkWarningWithObjectMacro(nullptr, << errorMessage.str());
+    }
+  }
+
+  //-----------------------------------------------------------------------------
+  bool StartCapture()
+  {
+    bool started = false;
+    if (!this->Sniffer)
+    {
+      return started;
+    }
+
+    std::mutex mtx;
+    std::condition_variable cond;
+
+    this->Running = true;
+    this->ReceiverThread = std::thread(
+      [&]()
+      {
+        {
+          std::lock_guard<std::mutex> _(mtx);
+          started = true;
+          cond.notify_one();
+        }
+        this->Sniffer->sniff_loop(
+          std::bind(&PacketSnifferImpl::Callback, this, std::placeholders::_1));
+      });
+
+    std::unique_lock<std::mutex> locker(mtx);
+    while (!started)
+    {
+      cond.wait(locker);
+    }
+    return started;
+  }
+
+  //-----------------------------------------------------------------------------
+  void StopCapture()
+  {
+    this->Running = false;
+    this->Sniffer->stop_sniff();
+    this->ReceiverThread.join();
+  }
+
+  //-----------------------------------------------------------------------------
+  bool Callback(Tins::Packet& packet)
+  {
+    const Tins::PDU* pdu = packet.pdu();
+    const Tins::RawPDU* raw = pdu->find_pdu<Tins::RawPDU>();
+    if (raw)
+    {
+      this->AddToQueueCallback(packet);
+    }
+    return this->Running;
+  }
+
+private:
+  std::thread ReceiverThread;
+  std::unique_ptr<Tins::Sniffer> Sniffer;
+  std::atomic<bool> Running = false;
+  HandleReceiveCallback AddToQueueCallback;
+};
+
+using QueueType = vtkSynchronizedQueue<Tins::Packet>;
+}
+
+//-----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkStreamPacketSniffer);
+
+//-----------------------------------------------------------------------------
+class vtkStreamPacketSniffer::vtkInternals
+{
+public:
+  std::unique_ptr<QueueType> DataQueue;
+  ConsumeCallback Callback;
+  vtkStreamPacketHandler::Parameters Parameters;
+
+  std::vector<std::unique_ptr<PacketSnifferImpl>> Sniffers;
+
+  vtkPacketRecorder* Writer;
+
+  //------------------------------------------------------------------------------
+  void StartSniffers()
+  {
+    this->DataQueue = std::make_unique<QueueType>(::PKT_CACHE_SIZE);
+
+    for (auto netInterface : Tins::NetworkInterface::all())
+    {
+      std::string filter = "udp ";
+      for (size_t idx = 0; idx < this->Parameters.listeningPorts.size(); idx++)
+      {
+        auto port = this->Parameters.listeningPorts.at(idx);
+        filter.append("port " + std::to_string(port));
+        if (port < this->Parameters.listeningPorts.size() - 1)
+        {
+          filter.append(" or ");
+        }
+      }
+      auto callback = std::bind(&QueueType::Enqueue, this->DataQueue.get(), std::placeholders::_1);
+      auto sniffer = std::make_unique<PacketSnifferImpl>(netInterface.name(), filter, callback);
+      if (sniffer->StartCapture())
+      {
+        this->Sniffers.emplace_back(std::move(sniffer));
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------
+  void ConsumeLoop()
+  {
+    Tins::Packet packet;
+    while (this->DataQueue->Dequeue(packet))
+    {
+      const Tins::PDU* pdu = packet.pdu();
+      const Tins::RawPDU* raw = pdu->find_pdu<Tins::RawPDU>();
+
+      Tins::Timestamp timestamp = packet.timestamp();
+      double timeSec = timestamp.seconds() + timestamp.microseconds() * 1e-6;
+      this->Callback(raw->payload(), timeSec);
+
+      if (this->Writer && this->Writer->GetIsRecording())
+      {
+        this->Writer->AddPacketToWritingQueue(&packet);
+      }
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
+vtkStreamPacketSniffer::vtkStreamPacketSniffer()
+  : Internals(new vtkStreamPacketSniffer::vtkInternals())
+{
+}
+
+//------------------------------------------------------------------------------
+vtkStreamPacketSniffer::~vtkStreamPacketSniffer()
+{
+  this->StopListening();
+}
+
+//----------------------------------------------------------------------------
+bool vtkStreamPacketSniffer::StartListening(const Parameters& params,
+  const ConsumeCallback& callback)
+{
+  if (this->IsListening())
+  {
+    // Stop the stream, to handle succeeding call to Start()
+    this->StopListening();
+  }
+
+  auto& internals = *this->Internals;
+  internals.Callback = callback;
+  internals.Parameters = params;
+  internals.StartSniffers();
+  this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkStreamPacketSniffer::StopListening()
+{
+  auto& internals = *this->Internals;
+  for (auto& sniffer : internals.Sniffers)
+  {
+    sniffer->StopCapture();
+  }
+  internals.Sniffers.clear();
+  if (internals.DataQueue)
+  {
+    internals.DataQueue->StopQueue();
+  }
+  if (this->ConsumerThread && this->ConsumerThread->joinable())
+  {
+    this->ConsumerThread->join();
+  }
+  this->ConsumerThread.reset();
+  internals.DataQueue.reset();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkStreamPacketSniffer::IsListening()
+{
+  return !this->Internals->Sniffers.empty();
+}
+
+//-----------------------------------------------------------------------------
+void vtkStreamPacketSniffer::SetRecorder(vtkPacketRecorder* writer)
+{
+  this->Internals->Writer = writer;
+}

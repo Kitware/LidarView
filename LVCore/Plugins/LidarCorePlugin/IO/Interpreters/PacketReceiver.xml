@@ -19,11 +19,18 @@
     <Proxy name="UDPPacketReceiver" class="vtkUDPPacketReceiver">
       <ProxyProperty command="SetRecorder" name="Recorder" />
     </Proxy>
+
+    <!-- ==================================================================== -->
+    <!-- Packet sniffer -->
+    <Proxy name="PacketSniffer" class="vtkStreamPacketSniffer">
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
   </ProxyGroup>
 
   <!-- ==================================================================== -->
   <!-- Group with all available packet handler -->
   <ProxyGroup name="packet_handler_group">
     <Proxy group="internal_interpreter" name="UDPPacketReceiver" />
+    <Proxy group="internal_interpreter" name="PacketSniffer" />
   </ProxyGroup>
 </ServerManagerConfiguration>
