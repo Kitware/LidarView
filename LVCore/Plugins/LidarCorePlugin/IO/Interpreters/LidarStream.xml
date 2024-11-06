@@ -60,56 +60,15 @@
         </Documentation>
       </IntVectorProperty>
 
-      <IntVectorProperty name="ForwardedPort"
-                         label="Forward LiDAR Port"
-                         animateable="0"
-                         command="SetForwardedPort"
-                         default_values="2369"
-                         override="1"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <Documentation>
-          Specify lidar port on which to forward all packets received by the stream.
-        </Documentation>
-        <Hints>
-          <PropertyWidgetDecorator type="GenericDecorator"
-                                   mode="visibility"
-                                   property="IsForwarding"
-                                   value="1" />
-        </Hints>
-      </IntVectorProperty>
-
-      <IntVectorProperty name="GNSSForwardedPort"
-                         label="Forward GNSS / GPS Port"
-                         animateable="0"
-                         command="SetGNSSForwardedPort"
-                         default_values="8308"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <Documentation>
-          Specify GNSS/GPS port on which to forward the pose packets received by the stream.
-        </Documentation>
-        <Hints>
-          <PropertyWidgetDecorator type="GenericDecorator"
-                                   mode="visibility"
-                                   property="IsForwarding"
-                                   value="1" />
-        </Hints>
-      </IntVectorProperty>
-
       <PropertyGroup label="Stream Options">
-        <Property name="MulticastAddress" />
-        <Property name="LocalListeningAddress" />
         <Property name="ListeningPort" />
         <Property name="GNSSPort" />
-        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
       </PropertyGroup>
 
-      <PropertyGroup label="Forward Stream">
-        <Property name="IsForwarding" panel_visibility="advanced" />
-        <Property name="ForwardedIpAddress" panel_visibility="advanced" />
-        <Property name="ForwardedPort" panel_visibility="advanced" />
-        <Property name="GNSSForwardedPort" panel_visibility="advanced" />
+      <PropertyGroup label="Advanced Stream Options">
+        <Property name="PacketHandler" panel_visibility="advanced" />
+        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
       </PropertyGroup>
     </LidarStreamProxy>
   </ProxyGroup>

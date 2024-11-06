@@ -31,6 +31,15 @@ constexpr unsigned int BUFFER_SIZE = 34000;
 class vtkUDPReceiverSocketImpl
 {
 public:
+  struct Parameters
+  {
+    std::vector<unsigned int> listeningPorts;
+    std::string listeningAddress;
+    std::string multicastAddress;
+    std::vector<unsigned int> forwardPorts;
+    std::string forwardAddress;
+  };
+
   struct PacketType
   {
     timeval timestamp;
@@ -45,7 +54,7 @@ public:
 
   vtkUDPReceiverSocketImpl(boost::asio::io_context& ioContext, HandleReceiveCallback callback);
 
-  bool Open(const vtkUDPPacketReceiver::Parameters& params, uint16_t portIdx);
+  bool Open(const vtkUDPReceiverSocketImpl::Parameters& params, uint16_t portIdx);
   void Close();
 
   void ReceiveNextPacket();

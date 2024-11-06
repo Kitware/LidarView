@@ -41,7 +41,8 @@ public:
   /**
    * Start / stop listening to the UDP stream.
    */
-  bool StartListening(const Parameters& params, const ConsumeCallback& callback) override;
+  bool StartListening(const std::vector<unsigned int>& ports,
+    const ConsumeCallback& callback) override;
   void StopListening() override;
   bool IsListening() override;
   ///@}

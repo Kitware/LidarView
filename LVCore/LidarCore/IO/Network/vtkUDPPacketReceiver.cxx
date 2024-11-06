@@ -68,7 +68,7 @@ public:
   vtkPacketRecorder* Writer;
 
   //------------------------------------------------------------------------------
-  bool OpenSocket(const Parameters& params)
+  bool OpenSocket(const vtkUDPReceiverSocketImpl::Parameters& params)
   {
     if (params.listeningPorts.empty())
     {
@@ -172,12 +172,26 @@ vtkUDPPacketReceiver::~vtkUDPPacketReceiver()
 }
 
 //----------------------------------------------------------------------------
-bool vtkUDPPacketReceiver::StartListening(const Parameters& params, const ConsumeCallback& callback)
+bool vtkUDPPacketReceiver::StartListening(const std::vector<unsigned int>& ports,
+  const ConsumeCallback& callback)
 {
   if (this->IsListening())
   {
     // Stop the stream, to handle succeeding call to Start()
     this->StopListening();
+  }
+
+  vtkUDPReceiverSocketImpl::Parameters params;
+  params.listeningPorts = ports;
+  params.listeningAddress = this->LocalListeningAddress;
+  params.multicastAddress = this->MulticastAddress;
+  if (this->IsForwarding && !this->ForwardedIpAddress.empty())
+  {
+    for (auto& port : ports)
+    {
+      params.forwardPorts.emplace_back(port + this->ForwardedPortOffset);
+    }
+    params.forwardAddress = this->ForwardedIpAddress;
   }
 
   auto& internals = *this->Internals;

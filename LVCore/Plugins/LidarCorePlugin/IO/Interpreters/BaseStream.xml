@@ -4,36 +4,6 @@
     <!-- Base live source stream -->
     <SourceProxy name="BaseStream" class="vtkStream">
 
-      <!--
-        224.0.0.0 could be a good default address,
-        but it is more convenient to listen to brodcast by default
-      -->
-      <StringVectorProperty name="MulticastAddress"
-                            command="SetMulticastAddress"
-                            default_values=""
-                            number_of_elements="1">
-        <Documentation>
-          Specify multicast address on which to listen for Lidar packets.
-          The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
-          Empty and non-multicast address are ignored.
-          Leave it empty to listen in broadcast or in unicast.
-        </Documentation>
-      </StringVectorProperty>
-
-      <StringVectorProperty name="LocalListeningAddress"
-                            command="SetLocalListeningAddress"
-                            default_values="::"
-                            number_of_elements="1">
-        <Documentation>
-          Specify listening address in case of multiple inferface.
-          If :: or invalid, it tries to listen to ALL/ANY local IPv6 and IPv4 address.
-          If 0.0.0.0, it tries to listen to ALL/ANY local IPv4 address.
-          On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast
-          receiver address (x.x.x.255) instead of the local address.
-          Joining multicast group won't work with multiple interfaces if no specific address is entered.
-        </Documentation>
-      </StringVectorProperty>
-
       <IntVectorProperty name="ListeningPort"
                          animateable="0"
                          command="SetListeningPort"
@@ -44,53 +14,20 @@
         </Documentation>
       </IntVectorProperty>
 
+      <ProxyProperty name="PacketHandler"
+                     command="SetPacketHandler"
+                     panel_visibility="advanced">
+        <ProxyListDomain name="proxy_list">
+          <Group name="packet_handler_group" default="UDPPacketReceiver" />
+        </ProxyListDomain>
+      </ProxyProperty>
+
       <IntVectorProperty name="IsCrashAnalysing"
                          command="SetIsCrashAnalysing"
                          default_values="0"
                          number_of_elements="1"
                          panel_visibility="advanced">
         <BooleanDomain name="bool" />
-      </IntVectorProperty>
-
-      <IntVectorProperty name="IsForwarding"
-                         command="SetIsForwarding"
-                         default_values="0"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <BooleanDomain name="bool" />
-      </IntVectorProperty>
-
-      <StringVectorProperty name="ForwardedIpAddress"
-                            command="SetForwardedIpAddress"
-                            default_values="127.0.0.1"
-                            number_of_elements="1"
-                            panel_visibility="advanced">
-        <Documentation>
-          Specify the Ip address on which to forward all packets received by the stream
-        </Documentation>
-        <Hints>
-          <PropertyWidgetDecorator type="GenericDecorator"
-                                   mode="visibility"
-                                   property="IsForwarding"
-                                   value="1" />
-        </Hints>
-      </StringVectorProperty>
-
-      <IntVectorProperty name="ForwardedPort"
-                         animateable="0"
-                         command="SetForwardedPort"
-                         default_values="2369"
-                         number_of_elements="1"
-                         panel_visibility="advanced">
-        <Documentation>
-          Specify port on which to forward all packets received by the stream
-        </Documentation>
-        <Hints>
-          <PropertyWidgetDecorator type="GenericDecorator"
-                                   mode="visibility"
-                                   property="IsForwarding"
-                                   value="1" />
-        </Hints>
       </IntVectorProperty>
 
       <Property name="Start"
@@ -114,23 +51,10 @@
         <Property name="Stop" />
       </PropertyGroup>
 
-      <ProxyProperty name="PacketHandler"
-                     command="SetPacketHandler"
-                     panel_visibility="advanced">
-        <ProxyListDomain name="proxy_list">
-          <Group name="packet_handler_group" default="UDPPacketReceiver" />
-        </ProxyListDomain>
-      </ProxyProperty>
-
       <PropertyGroup label="Stream Options">
-        <Property name="MulticastAddress" />
-        <Property name="LocalListeningAddress" />
         <Property name="ListeningPort" />
-        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
-        <Property name="IsForwarding" panel_visibility="advanced" />
-        <Property name="ForwardedIpAddress" panel_visibility="advanced" />
-        <Property name="ForwardedPort" panel_visibility="advanced" />
         <Property name="PacketHandler" panel_visibility="advanced" />
+        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
       </PropertyGroup>
     </SourceProxy>
   </ProxyGroup>

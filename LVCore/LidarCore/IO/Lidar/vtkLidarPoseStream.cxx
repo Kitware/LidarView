@@ -142,19 +142,7 @@ int vtkLidarPoseStream::RequestData(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkLidarPoseStream::Start()
 {
-  vtkStreamPacketHandler::Parameters params;
-  if (this->GetIsForwarding())
-  {
-    params.forwardAddress = this->GetForwardedIpAddress();
-    params.forwardPorts.emplace_back(this->GetForwardedPort());
-    params.forwardPorts.emplace_back(this->GNSSForwardedPort);
-  }
-  params.listeningAddress = this->GetLocalListeningAddress();
-  params.multicastAddress = this->GetMulticastAddress();
-  params.listeningPorts.emplace_back(this->GetListeningPort());
-  params.listeningPorts.emplace_back(this->GNSSPort);
-
-  this->vtkStream::Start(params);
+  this->vtkStream::Start({ this->GetListeningPort(), this->GNSSPort });
 }
 
 //----------------------------------------------------------------------------
@@ -259,3 +247,22 @@ vtkMTimeType vtkLidarPoseStream::GetMTime()
 {
   return std::max(this->Superclass::GetMTime(), this->PoseInterpreter->GetMTime());
 }
+
+//----------------------------------------------------------------------------
+void vtkLidarPoseStream::SetGNSSForwardedPort(int port)
+{
+  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->GetPacketHandler()))
+  {
+    return receiver->SetForwardedPortOffset(port - this->GNSSPort);
+  }
+};
+
+//----------------------------------------------------------------------------
+int vtkLidarPoseStream::GetGNSSForwardedPort()
+{
+  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->GetPacketHandler()))
+  {
+    return this->GNSSPort + receiver->GetForwardedPortOffset();
+  }
+  return this->GNSSPort;
+};

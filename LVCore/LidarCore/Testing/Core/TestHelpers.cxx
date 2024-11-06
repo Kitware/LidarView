@@ -40,10 +40,11 @@
 
 namespace
 {
-void SetUDPPacketHandler(vtkLidarStream* stream)
+vtkUDPPacketReceiver* SetUDPPacketHandler(vtkLidarStream* stream)
 {
   vtkSmartPointer<vtkUDPPacketReceiver> pktReceiver = vtkSmartPointer<vtkUDPPacketReceiver>::New();
   stream->SetPacketHandler(pktReceiver);
+  return pktReceiver;
 }
 }
 
@@ -564,9 +565,10 @@ int testLidarStream(vtkLidarStream* stream,
   // Set the value for sending packets
   std::string destinationIp = "127.0.0.1";
   // If the stream listen in multicast, packets should be sent to the right multicast adress
-  if (!stream->GetMulticastAddress().empty())
+  vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(stream->GetPacketHandler());
+  if (receiver && !receiver->GetMulticastAddress().empty())
   {
-    destinationIp = stream->GetMulticastAddress();
+    destinationIp = receiver->GetMulticastAddress();
   }
 
   // Set the dataPort where the packets are sent to the same port the stream listen to
@@ -693,12 +695,12 @@ int TestLidarMulticast(vtkLidarPacketInterpreter* interpreter,
   int retVal = 0;
 
   vtkSmartPointer<vtkLidarStream> LidarStream = vtkSmartPointer<vtkLidarStream>::New();
+  vtkUDPPacketReceiver* receiver = ::SetUDPPacketHandler(LidarStream);
   LidarStream->SetLidarInterpreter(interpreter);
   interpreter->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream->SetListeningPort(dataPort);
   LidarStream->SetIsCrashAnalysing(false);
-  LidarStream->SetIsForwarding(false);
-  LidarStream->SetMulticastAddress("224.0.0.5");
+  receiver->SetMulticastAddress("224.0.0.5");
   retVal += testLidarStream(LidarStream.Get(), pcapFileName, referenceFileName, shouldPreSend);
 
   return retVal;
@@ -715,14 +717,14 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
 {
 
   vtkSmartPointer<vtkLidarStream> LidarStream1 = vtkSmartPointer<vtkLidarStream>::New();
-  ::SetUDPPacketHandler(LidarStream1);
+  vtkUDPPacketReceiver* receiver = ::SetUDPPacketHandler(LidarStream1);
   LidarStream1->SetLidarInterpreter(interpreter1);
   interpreter1->SetCalibrationFileName(correctionFileName.c_str());
   LidarStream1->SetListeningPort(dataPort);
   LidarStream1->SetIsCrashAnalysing(false);
-  LidarStream1->SetForwardedPort(dataPort + 1);
-  LidarStream1->SetForwardedIpAddress("127.0.0.1");
-  LidarStream1->SetIsForwarding(true);
+  receiver->SetForwardedPortOffset(1);
+  receiver->SetForwardedIpAddress("127.0.0.1");
+  receiver->SetIsForwarding(true);
   LidarStream1->Update();
   LidarStream1->Stop();
 

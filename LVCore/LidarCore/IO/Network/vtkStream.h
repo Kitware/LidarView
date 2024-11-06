@@ -28,10 +28,40 @@
 #include "vtkLiveSourceAlgorithm.h"
 #include "vtkStreamPacketHandler.h"
 
+// To deprecate
+#include "vtkLidarViewDeprecation.h"
+#include "vtkUDPPacketReceiver.h"
+
 #include "lvIONetworkModule.h"
 
 class vtkInterpreter;
 class vtkPacketRecorder;
+
+///@{
+/**
+ * Deprecation macros
+ */
+#define vtkSetUDPReceiverMemberMacro(name, type)                                                   \
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")                 \
+  virtual void Set##name(type _arg)                                                                \
+  {                                                                                                \
+    if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))  \
+    {                                                                                              \
+      receiver->Set##name(_arg);                                                                   \
+    }                                                                                              \
+  }
+
+#define vtkGetUDPReceiverMemberMacro(name, type)                                                   \
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")                 \
+  virtual type Get##name()                                                                         \
+  {                                                                                                \
+    if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))  \
+    {                                                                                              \
+      return receiver->Get##name();                                                                \
+    }                                                                                              \
+    return 0;                                                                                      \
+  }
+///@}
 
 #ifndef __VTK_WRAP__
 #define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
@@ -42,26 +72,31 @@ class LVIONETWORK_EXPORT vtkStream : public vtkDataObjectAlgorithm
 public:
   vtkTypeMacro(vtkStream, vtkDataObjectAlgorithm)
 
+  vtkMTimeType GetMTime() override;
+
   virtual void Start();
   virtual void Stop();
 
-  vtkGetMacro(ListeningPort, int);
-  vtkSetMacro(ListeningPort, int);
+  vtkGetMacro(ListeningPort, unsigned int);
+  vtkSetMacro(ListeningPort, unsigned int);
 
-  vtkGetMacro(MulticastAddress, std::string);
-  vtkSetMacro(MulticastAddress, std::string);
-
-  vtkGetMacro(LocalListeningAddress, std::string);
-  vtkSetMacro(LocalListeningAddress, std::string);
-
-  vtkGetMacro(ForwardedIpAddress, std::string);
-  vtkSetMacro(ForwardedIpAddress, std::string);
-
-  vtkGetMacro(ForwardedPort, int);
-  vtkSetMacro(ForwardedPort, int);
-
-  vtkGetMacro(IsForwarding, bool);
-  vtkSetMacro(IsForwarding, bool);
+  ///@{
+  /**
+   * Methods to deprecate
+   */
+  vtkSetUDPReceiverMemberMacro(MulticastAddress, std::string);
+  vtkGetUDPReceiverMemberMacro(MulticastAddress, std::string);
+  vtkSetUDPReceiverMemberMacro(LocalListeningAddress, std::string);
+  vtkGetUDPReceiverMemberMacro(LocalListeningAddress, std::string);
+  vtkSetUDPReceiverMemberMacro(ForwardedIpAddress, std::string);
+  vtkGetUDPReceiverMemberMacro(ForwardedIpAddress, std::string);
+  vtkSetUDPReceiverMemberMacro(IsForwarding, bool);
+  vtkGetUDPReceiverMemberMacro(IsForwarding, bool);
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
+  void SetForwardedPort(int port);
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
+  int GetForwardedPort();
+  ///@}
 
   vtkGetMacro(IsCrashAnalysing, bool);
   vtkSetMacro(IsCrashAnalysing, bool);
@@ -118,7 +153,7 @@ protected:
   /**
    * Can be used by subclasses to start the stream with specifics parameters
    */
-  void Start(vtkStreamPacketHandler::Parameters& params);
+  void Start(const std::vector<unsigned int>& ports);
 
   /**
    * This function is called for each packet received.
@@ -131,18 +166,7 @@ private:
   void operator=(const vtkStream&) = delete;
 
   /*!< The port to receive information*/
-  int ListeningPort = 2368;
-  /*!< The multicast address to receive packets*/
-  std::string MulticastAddress;
-  /*!< The Listening address in case of multiples interfaces*/
-  std::string LocalListeningAddress;
-
-  /*!< Allowing the forwarding of the packets*/
-  bool IsForwarding = false;
-  /*!< The port to send forwarded packets*/
-  int ForwardedPort = 2369;
-  /*!< The ip to send forwarded packets*/
-  std::string ForwardedIpAddress = "127.0.0.1";
+  unsigned int ListeningPort = 2368;
 
   bool IsCrashAnalysing = false;
 

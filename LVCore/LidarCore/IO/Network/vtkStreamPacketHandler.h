@@ -34,21 +34,14 @@ class LVIONETWORK_EXPORT vtkStreamPacketHandler : public vtkObject
 public:
   vtkTypeMacro(vtkStreamPacketHandler, vtkObject);
 
-  struct Parameters
-  {
-    std::vector<uint16_t> listeningPorts;
-    std::string listeningAddress;
-    std::string multicastAddress;
-    std::vector<uint16_t> forwardPorts;
-    std::string forwardAddress;
-  };
   using ConsumeCallback = std::function<void(const std::vector<uint8_t>&, double)>;
 
   ///@{
   /**
    * Start / stop listening.
    */
-  virtual bool StartListening(const Parameters& params, const ConsumeCallback& callback) = 0;
+  virtual bool StartListening(const std::vector<unsigned int>& ports,
+    const ConsumeCallback& callback) = 0;
   virtual void StopListening() = 0;
   virtual bool IsListening() = 0;
   ///@}

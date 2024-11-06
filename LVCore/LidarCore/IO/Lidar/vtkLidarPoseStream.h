@@ -52,12 +52,14 @@ public:
 
   ///@{
   /**
-   * Set / Get GNSS port and forward port for the internal stream object.
+   * Set / Get GNSS port for the internal stream object.
    */
-  vtkGetMacro(GNSSPort, int);
-  vtkSetMacro(GNSSPort, int);
-  vtkGetMacro(GNSSForwardedPort, int);
-  vtkSetMacro(GNSSForwardedPort, int);
+  vtkGetMacro(GNSSPort, unsigned int);
+  vtkSetMacro(GNSSPort, unsigned int);
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
+  void SetGNSSForwardedPort(int);
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
+  int GetGNSSForwardedPort();
   ///@}
 
   void AddNewData() override;
@@ -83,9 +85,7 @@ private:
   void operator=(const vtkLidarPoseStream&) = delete;
 
   /*!< The port to receive information*/
-  int GNSSPort = 8308;
-  /*!< The port to send forwarded packets*/
-  int GNSSForwardedPort = 8308;
+  unsigned int GNSSPort = 8308;
 
   vtkSmartPointer<vtkPosePacketInterpreter> PoseInterpreter;
 

@@ -27,6 +27,16 @@ vtkStream::vtkStream() = default;
 vtkStream::~vtkStream() = default;
 
 //-----------------------------------------------------------------------------
+vtkMTimeType vtkStream::GetMTime()
+{
+  if (this->GetPacketHandler())
+  {
+    return std::max(this->Superclass::GetMTime(), this->GetPacketHandler()->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
+
+//-----------------------------------------------------------------------------
 bool vtkStream::GetNeedsUpdate()
 {
   if (this->CheckForNewData())
@@ -49,27 +59,17 @@ int vtkStream::RequestInformation(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkStream::Start()
 {
-  vtkStreamPacketHandler::Parameters params;
-  if (this->IsForwarding)
-  {
-    params.forwardAddress = this->ForwardedIpAddress;
-    params.forwardPorts.emplace_back(this->ForwardedPort);
-  }
-  params.listeningAddress = this->LocalListeningAddress;
-  params.multicastAddress = this->MulticastAddress;
-  params.listeningPorts.emplace_back(this->ListeningPort);
-
-  this->Start(params);
+  this->Start({ this->ListeningPort });
 }
 
 //----------------------------------------------------------------------------
-void vtkStream::Start(vtkStreamPacketHandler::Parameters& params)
+void vtkStream::Start(const std::vector<unsigned int>& ports)
 {
   if (this->PacketHandler)
   {
     auto consumeCallback = [this](const std::vector<uint8_t>& pkt, double timestamp)
     { this->ConsumePacket(pkt, timestamp); };
-    this->PacketHandler->StartListening(params, consumeCallback);
+    this->PacketHandler->StartListening(ports, consumeCallback);
   }
 }
 
@@ -103,3 +103,22 @@ void vtkStream::SetPacketHandler(vtkStreamPacketHandler* handler)
     }
   }
 }
+
+//----------------------------------------------------------------------------
+void vtkStream::SetForwardedPort(int port)
+{
+  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))
+  {
+    return receiver->SetForwardedPortOffset(port - this->ListeningPort);
+  }
+};
+
+//----------------------------------------------------------------------------
+int vtkStream::GetForwardedPort()
+{
+  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))
+  {
+    return this->ListeningPort + receiver->GetForwardedPortOffset();
+  }
+  return this->ListeningPort;
+};

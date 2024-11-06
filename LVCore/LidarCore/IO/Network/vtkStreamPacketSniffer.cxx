@@ -143,22 +143,12 @@ public:
   vtkPacketRecorder* Writer;
 
   //------------------------------------------------------------------------------
-  void StartSniffers()
+  void StartSniffers(std::string filter)
   {
     this->DataQueue = std::make_unique<QueueType>(::PKT_CACHE_SIZE);
 
     for (auto netInterface : Tins::NetworkInterface::all())
     {
-      std::string filter = "udp ";
-      for (size_t idx = 0; idx < this->Parameters.listeningPorts.size(); idx++)
-      {
-        auto port = this->Parameters.listeningPorts.at(idx);
-        filter.append("port " + std::to_string(port));
-        if (port < this->Parameters.listeningPorts.size() - 1)
-        {
-          filter.append(" or ");
-        }
-      }
       auto callback = std::bind(&QueueType::Enqueue, this->DataQueue.get(), std::placeholders::_1);
       auto sniffer = std::make_unique<PacketSnifferImpl>(netInterface.name(), filter, callback);
       if (sniffer->StartCapture())
@@ -202,7 +192,7 @@ vtkStreamPacketSniffer::~vtkStreamPacketSniffer()
 }
 
 //----------------------------------------------------------------------------
-bool vtkStreamPacketSniffer::StartListening(const Parameters& params,
+bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& ports,
   const ConsumeCallback& callback)
 {
   if (this->IsListening())
@@ -213,8 +203,19 @@ bool vtkStreamPacketSniffer::StartListening(const Parameters& params,
 
   auto& internals = *this->Internals;
   internals.Callback = callback;
-  internals.Parameters = params;
-  internals.StartSniffers();
+
+  std::string filter = "udp ";
+  for (size_t idx = 0; idx < ports.size(); idx++)
+  {
+    unsigned int port = ports.at(idx);
+    filter.append("port " + std::to_string(port));
+    if (port < ports.size() - 1)
+    {
+      filter.append(" or ");
+    }
+  }
+
+  internals.StartSniffers(filter);
   this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
   return true;
 }

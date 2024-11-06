@@ -6,8 +6,8 @@ DEPENDS
   Boost::system
   Boost::thread
   LidarView::CommonCore
+  LidarView::Versioning
   VTK::CommonCore
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
-  LidarView::Versioning
   Tins::tins

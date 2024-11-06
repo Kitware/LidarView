@@ -30,7 +30,7 @@ vtkUDPReceiverSocketImpl::vtkUDPReceiverSocketImpl(boost::asio::io_context& ioCo
 }
 
 //-----------------------------------------------------------------------------
-bool vtkUDPReceiverSocketImpl::Open(const vtkUDPPacketReceiver::Parameters& params,
+bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& params,
   uint16_t portIdx)
 {
   boost::system::error_code errCode;
