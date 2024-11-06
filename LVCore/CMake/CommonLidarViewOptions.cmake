@@ -63,3 +63,6 @@ mark_as_advanced(PARAVIEW_PLUGIN_ENABLE_LidarCorePlugin)
 #========================================================================
 option(LIDARVIEW_INSTALL_DEVELOPMENT_FILES "Install development files to the install tree" ON)
 mark_as_advanced(LIDARVIEW_INSTALL_DEVELOPMENT_FILES)
+
+option(LIDARVIEW_HIDE_DEPRECATION_WARNINGS "If ON hide all deprecation warnings" OFF)
+mark_as_advanced(LIDARVIEW_HIDE_DEPRECATION_WARNINGS)

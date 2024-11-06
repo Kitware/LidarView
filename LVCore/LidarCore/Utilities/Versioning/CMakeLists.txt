@@ -1,4 +1,6 @@
-set(headers)
+set(headers
+  vtkLidarViewDeprecation.h
+)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkLVVersion.h.in"
