@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    vtkExamplePacketInterpreter.cxx
+  Module:    vtkRotativeLidarPacketInterpreter.cxx
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#include "vtkExamplePacketInterpreter.h"
+#include "vtkRotativeLidarPacketInterpreter.h"
 #include "InterpreterHelper.h"
 
-#include "ExampleFormat.h"
+#include "RotativeLidarFormat.h"
 
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
@@ -30,10 +30,10 @@ constexpr const char* MODEL_NAME[2] = { "ExampleModel16", "ExampleModel32" };
 }
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkExamplePacketInterpreter)
+vtkStandardNewMacro(vtkRotativeLidarPacketInterpreter)
 
 //-----------------------------------------------------------------------------
-vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
+vtkRotativeLidarPacketInterpreter::vtkRotativeLidarPacketInterpreter()
 {
   // Theses information will be stored in point cloud field data
   this->SetSensorVendor("Kitware");
@@ -43,10 +43,11 @@ vtkExamplePacketInterpreter::vtkExamplePacketInterpreter()
 }
 
 //-----------------------------------------------------------------------------
-vtkExamplePacketInterpreter::~vtkExamplePacketInterpreter() = default;
+vtkRotativeLidarPacketInterpreter::~vtkRotativeLidarPacketInterpreter() = default;
 
 //-----------------------------------------------------------------------------
-void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsigned int dataLength)
+void vtkRotativeLidarPacketInterpreter::ProcessPacket(unsigned char const* data,
+  unsigned int dataLength)
 {
   if (!this->IsLidarPacket(data, dataLength))
   {
@@ -80,14 +81,15 @@ void vtkExamplePacketInterpreter::ProcessPacket(unsigned char const* data, unsig
 }
 
 //-----------------------------------------------------------------------------
-bool vtkExamplePacketInterpreter::IsLidarPacket(unsigned char const* vtkNotUsed(data),
+bool vtkRotativeLidarPacketInterpreter::IsLidarPacket(unsigned char const* vtkNotUsed(data),
   unsigned int dataLength)
 {
   return dataLength == sizeof(FiringBlock);
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkExamplePacketInterpreter::CreateNewEmptyFrame(vtkIdType nbrOfPoints,
+vtkSmartPointer<vtkPolyData> vtkRotativeLidarPacketInterpreter::CreateNewEmptyFrame(
+  vtkIdType nbrOfPoints,
   vtkIdType prereservedNbrOfPoints)
 {
   const int defaultPrereservedNbrOfPointsPerFrame = 60000;
@@ -127,7 +129,7 @@ vtkSmartPointer<vtkPolyData> vtkExamplePacketInterpreter::CreateNewEmptyFrame(vt
 }
 
 //-----------------------------------------------------------------------------
-bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
+bool vtkRotativeLidarPacketInterpreter::PreProcessPacket(unsigned char const* data,
   unsigned int vtkNotUsed(dataLength),
   double& outLidarDataTime)
 {
@@ -143,7 +145,7 @@ bool vtkExamplePacketInterpreter::PreProcessPacket(unsigned char const* data,
 }
 
 //-----------------------------------------------------------------------------
-void vtkExamplePacketInterpreter::Initialize()
+void vtkRotativeLidarPacketInterpreter::Initialize()
 {
   std::string filename;
   if (this->CalibrationFileName != nullptr)
@@ -160,7 +162,7 @@ void vtkExamplePacketInterpreter::Initialize()
 }
 
 //-----------------------------------------------------------------------------
-void vtkExamplePacketInterpreter::SetLidarModel(int model)
+void vtkRotativeLidarPacketInterpreter::SetLidarModel(int model)
 {
   if (this->LidarModel == model)
   {

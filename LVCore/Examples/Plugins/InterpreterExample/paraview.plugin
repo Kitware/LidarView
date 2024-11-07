@@ -1,7 +1,0 @@
-NAME
-  InterpreterExamplePlugin
-DESCRIPTION
-  A simple interpreter plugin example
-REQUIRES_MODULES
-  VTK::CommonCore
-  LidarView::IOLidar

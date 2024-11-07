@@ -2,18 +2,16 @@ set(calib_files
   CalibrationExample.csv
 )
 
-paraview_add_plugin(InterpreterExamplePlugin
+paraview_add_plugin(RotativeLidarInterpreter
   REQUIRED_ON_CLIENT
   REQUIRED_ON_SERVER
   VERSION "2.0"
   MODULES
-    InterpreterExamplePlugin::ExamplePacketInterpreters
+    RotativeLidarInterpreter::RotativeLidarPacketInterpreter
   MODULE_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/ExamplePacketInterpreters/vtk.module"
-  UI_INTERFACES ${interfaces}
-  SOURCES ${sources}
+    "${CMAKE_CURRENT_SOURCE_DIR}/RotativeLidarPacketInterpreter/vtk.module"
   SERVER_MANAGER_XML
-    "${CMAKE_CURRENT_SOURCE_DIR}/ExampleProxies.xml"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RotativeLidarExampleProxies.xml"
 )
 
 # Copy the calibration to the build folder

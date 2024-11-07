@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="internal_interpreter">
-    <Proxy name="ExamplePacketInterpreter"
-           class="vtkExamplePacketInterpreter"
-           label="Example Interpreter"
+    <Proxy name="RotativeLidarPacketInterpreter"
+           class="vtkRotativeLidarPacketInterpreter"
+           label="Rotative Lidar Interpreter Example"
            base_proxygroup="internal_interpreter"
            base_proxyname="CommonLidarPacketInterpreter">
 

@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <LidarStreamProxy name="ExampleLidarStream"
+    <LidarStreamProxy name="RotativeLidarStream"
                       class="vtkLidarStream"
-                      label="Example LiDAR Stream"
+                      label="Example rotative LiDAR Stream"
                       base_proxygroup="internal_interpreter"
                       base_proxyname="CommonLidarStream">
 
@@ -13,7 +13,7 @@
       <SubProxy command="SetLidarInterpreter">
         <Proxy name="PacketInterpreter"
                proxygroup="internal_interpreter"
-               proxyname="ExamplePacketInterpreter" />
+               proxyname="RotativeLidarPacketInterpreter" />
         <ExposedProperties>
           <Property name="CalibrationFileName" />
           <Property name="LidarModel" />

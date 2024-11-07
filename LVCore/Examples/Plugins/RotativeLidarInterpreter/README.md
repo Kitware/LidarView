@@ -1,6 +1,6 @@
-# LidarView Interpreter Example
+# Rotative LiDAR Interpreter Example
 
-This plugin showcase how to implement a Lidar Interpreter.
+This plugin showcase how to implement a Rotative Lidar Interpreter.
 
 All necessary implementations are illustrated in this example, which
 should be kept updated as development progresses.

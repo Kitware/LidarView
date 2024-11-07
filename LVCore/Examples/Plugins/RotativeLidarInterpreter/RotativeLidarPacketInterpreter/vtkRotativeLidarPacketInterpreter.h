@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    vtkExamplePacketInterpreter.h
+  Module:    vtkRotativeLidarPacketInterpreter.h
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkExamplePacketInterpreter_h
-#define vtkExamplePacketInterpreter_h
+#ifndef vtkRotativeLidarPacketInterpreter_h
+#define vtkRotativeLidarPacketInterpreter_h
 
 #include <vtkLidarPacketInterpreter.h>
 
@@ -27,15 +27,11 @@
 
 #include <memory>
 
-#include "ExamplePacketInterpretersModule.h"
-
-class EXAMPLEPACKETINTERPRETERS_EXPORT vtkExamplePacketInterpreter
-  : public vtkLidarPacketInterpreter
+class vtkRotativeLidarPacketInterpreter : public vtkLidarPacketInterpreter
 {
 public:
-  static vtkExamplePacketInterpreter* New();
-  vtkTypeMacro(vtkExamplePacketInterpreter, vtkLidarPacketInterpreter);
-  void PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent)) override{};
+  static vtkRotativeLidarPacketInterpreter* New();
+  vtkTypeMacro(vtkRotativeLidarPacketInterpreter, vtkLidarPacketInterpreter);
 
   /**
    * Initializes the lidar calibration or configuration.
@@ -51,19 +47,21 @@ public:
   bool IsLidarPacket(unsigned char const* data, unsigned int dataLength) override;
 
   /**
-   * Builds a frame index for random access when reading a pcap file.
+   * Used to builds a frame index map for random access when reading a pcap file.
    * Returns true when a new frame is detected.
    *
-   * You should assigns time step information from the lidar packet to the outLidarDataTime
-   * variable, if available.
+   * If available, outLidarDataTime be assigned with the current packet timestamp information.
+   * the This method is not called in "stream" mode.
    */
   bool PreProcessPacket(unsigned char const* data,
     unsigned int dataLength,
     double& outLidarDataTime) override;
 
   /**
-   * Processes the packet, filling point information using packet data,
-   * and calling SplitFrame when necessary.
+   * Processes the packet by extracting and populating point the provided packet.
+   * Calls SplitFrame() when necessary.
+   *
+   * Once SplitFrame() is called, all accumulated points are cleared and output as a new frame.
    */
   void ProcessPacket(unsigned char const* data, unsigned int dataLength) override;
 
@@ -80,16 +78,17 @@ public:
 protected:
   /**
    * Creates a new empty frame object, which will be filled by ProcessPacket.
+   * Called by the based class, after each frame split.
    */
   vtkSmartPointer<vtkPolyData> CreateNewEmptyFrame(vtkIdType nbrOfPoints,
     vtkIdType prereservedNbrOfPoints = 60000) override;
 
-  vtkExamplePacketInterpreter();
-  ~vtkExamplePacketInterpreter();
+  vtkRotativeLidarPacketInterpreter();
+  ~vtkRotativeLidarPacketInterpreter();
 
 private:
-  vtkExamplePacketInterpreter(const vtkExamplePacketInterpreter&) = delete;
-  void operator=(const vtkExamplePacketInterpreter&) = delete;
+  vtkRotativeLidarPacketInterpreter(const vtkRotativeLidarPacketInterpreter&) = delete;
+  void operator=(const vtkRotativeLidarPacketInterpreter&) = delete;
 
   vtkSmartPointer<vtkPoints> Points;
   vtkSmartPointer<vtkDoubleArray> PointsX;
@@ -105,4 +104,4 @@ private:
   int LidarModel = 0;
 };
 
-#endif // vtkExamplePacketInterpreter_h
+#endif // vtkRotativeLidarPacketInterpreter_h

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   LidarView
-  Module:    ExampleFormat.h
+  Module:    RotativeLidarFormat.h
 
   Copyright (c) Kitware Inc.
   All rights reserved.
@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef ExampleFormat_h
-#define ExampleFormat_h
+#ifndef RotativeLidarFormat_h
+#define RotativeLidarFormat_h
 
 #include <boost/endian/arithmetic.hpp>
 #include <boost/predef/other/endian.h>
@@ -121,4 +121,4 @@ struct LidarPacket
 };
 #pragma pack(pop)
 
-#endif // ExampleFormat_h
+#endif // RotativeLidarFormat_h

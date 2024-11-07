@@ -1,7 +1,7 @@
 NAME
-  InterpreterExamplePlugin::ExamplePacketInterpreters
+  RotativeLidarInterpreter::RotativeLidarPacketInterpreter
 LIBRARY_NAME
-  ExamplePacketInterpreters
+  RotativeLidarPacketInterpreter
 DEPENDS
   LidarView::IOLidar
   VTK::CommonCore

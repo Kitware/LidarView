@@ -1,7 +1,7 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="lidar_interpreters">
     <!-- The name here is what the configuration dialog will show -->
-    <Proxy name="Example"
+    <Proxy name="RotativeLidarExample"
            base_proxygroup="internal_interpreter"
            base_proxyname="BaseInterpreter">
 
@@ -9,12 +9,12 @@
       <StringVectorProperty name="LidarReader"
                             number_of_elements="1"
                             override="1"
-                            default_values="ExampleLidarReader"
+                            default_values="RotativeLidarReader"
                             information_only="1" />
       <StringVectorProperty name="LidarStream"
                             number_of_elements="1"
                             override="1"
-                            default_values="ExampleLidarStream"
+                            default_values="RotativeLidarStream"
                             information_only="1" />
     </Proxy>
   </ProxyGroup>
