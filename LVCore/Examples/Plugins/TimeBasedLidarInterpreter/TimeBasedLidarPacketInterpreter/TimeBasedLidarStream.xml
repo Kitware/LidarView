@@ -1,0 +1,31 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <LidarStreamProxy name="TimeBasedLidarStream"
+                      class="vtkLidarStream"
+                      label="Example time based LiDAR Stream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarStream">
+
+      <Documentation short_help="Example LiDAR data stream." long_help="Example LiDAR live source stream.">
+        Example LiDAR live source stream.
+      </Documentation>
+
+      <!-- Assign a Lidar Interpreter to the stream source.
+           We also choose which properties to expose -->
+      <SubProxy command="SetLidarInterpreter">
+        <Proxy name="PacketInterpreter"
+               proxygroup="internal_interpreter"
+               proxyname="TimeBasedLidarPacketInterpreter" />
+        <ExposedProperties>
+          <Property name="PublishInterval" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <Hints>
+        <LiveSource refresh_on_interaction="1" />
+        <View type="None" port="1" />
+        <PipelineIcon name="SpreadSheetView" port="1" />
+      </Hints>
+    </LidarStreamProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
