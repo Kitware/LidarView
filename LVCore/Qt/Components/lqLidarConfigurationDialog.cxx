@@ -39,6 +39,19 @@
 
 #include <cstring>
 
+namespace
+{
+bool DoesProxyExist(vtkSMSessionProxyManager* pxm, const char* proxyName)
+{
+  if (!pxm->HasDefinition("sources", proxyName))
+  {
+    qCritical() << proxyName << " was not found, please make sure it was declared correctly.";
+    return false;
+  }
+  return true;
+}
+}
+
 //-----------------------------------------------------------------------------
 class lqLidarConfigurationDialog::lqInternals : public QObject
 {
@@ -214,6 +227,12 @@ lqLidarConfigurationDialog::lqLidarConfigurationDialog(QWidget* parentObject,
     const char* poseProxyName =
       imProxy->GetLidarProxyName(interpreter, vtkSMInterpretersManagerProxy::LIDAR_AND_POSE);
     bool hasPoseProxy = poseProxyName && strlen(poseProxyName) != 0;
+
+    if (!::DoesProxyExist(pxm, lidarProxyName) &&
+      (!hasPoseProxy || !::DoesProxyExist(pxm, poseProxyName)))
+    {
+      continue;
+    }
 
     lqInterpreterWidget* widget;
     if (hasPoseProxy)
