@@ -173,6 +173,18 @@
    </attribute>
    <widget class="pqPropertiesPanel" name="viewPropertiesPanel"/>
   </widget>
+  <widget class="QDockWidget" name="timeManagerDock">
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Time Manager</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+  <widget class="pqTimeManagerWidget" name="timeManagerPanel"/>
+  </widget>
   <widget class="QDockWidget" name="outputWidgetDock">
    <property name="floating">
     <bool>false</bool>
@@ -311,6 +323,12 @@
    <class>pqProxyInformationWidget</class>
    <extends>QWidget</extends>
    <header>pqProxyInformationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>pqTimeManagerWidget</class>
+   <extends>QWidget</extends>
+   <header>pqTimeManagerWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
