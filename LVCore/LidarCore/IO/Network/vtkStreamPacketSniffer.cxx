@@ -86,8 +86,8 @@ public:
           started = true;
           cond.notify_one();
         }
-        this->Sniffer->sniff_loop(
-          std::bind(&PacketSnifferImpl::Callback, this, std::placeholders::_1));
+        std::function<bool(Tins::PDU&)> functor = std::bind(&PacketSnifferImpl::Callback, this, std::placeholders::_1);
+        this->Sniffer->sniff_loop(functor);
       });
 
     std::unique_lock<std::mutex> locker(mtx);
@@ -107,12 +107,13 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  bool Callback(Tins::Packet& packet)
+  bool Callback(const Tins::PDU& pdu)
   {
-    const Tins::PDU* pdu = packet.pdu();
-    const Tins::RawPDU* raw = pdu->find_pdu<Tins::RawPDU>();
+    const Tins::RawPDU* raw = pdu.find_pdu<Tins::RawPDU>();
     if (raw)
     {
+      // Craft a packet with current time timestamp
+      Tins::Packet packet(pdu);
       this->AddToQueueCallback(packet);
     }
     return this->Running;
