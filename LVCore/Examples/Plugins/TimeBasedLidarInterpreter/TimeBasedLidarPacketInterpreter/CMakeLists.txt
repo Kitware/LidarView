@@ -8,6 +8,7 @@ set(example_headers
 
 # Build the vtk module library with interpreter class
 vtk_module_add_module(TimeBasedLidarInterpreter::TimeBasedLidarPacketInterpreter
+  FORCE_STATIC # Using FORCE_STATIC build the vtk module statically into the plugin library, to avoid confusion when loading
   CLASSES ${example_classes}
   HEADERS ${example_headers}
 )

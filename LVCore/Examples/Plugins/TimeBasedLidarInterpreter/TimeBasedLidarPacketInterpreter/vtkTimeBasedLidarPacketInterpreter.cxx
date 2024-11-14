@@ -21,6 +21,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
+#include <vtkSmartPointer.h>
 
 namespace
 {

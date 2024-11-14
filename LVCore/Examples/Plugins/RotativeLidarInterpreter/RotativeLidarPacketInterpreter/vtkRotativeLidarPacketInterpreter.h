@@ -18,6 +18,7 @@
 
 #include <vtkLidarPacketInterpreter.h>
 
+#include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTypeInt64Array.h>
 #include <vtkUnsignedCharArray.h>

@@ -7,6 +7,7 @@ set(example_headers
 )
 
 vtk_module_add_module(RotativeLidarInterpreter::RotativeLidarPacketInterpreter
+  FORCE_STATIC # Using FORCE_STATIC build the vtk module statically into the plugin library, to avoid confusion when loading
   CLASSES ${example_classes}
   HEADERS ${example_headers}
 )
