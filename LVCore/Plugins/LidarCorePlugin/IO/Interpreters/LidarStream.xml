@@ -37,18 +37,6 @@
       <OutputPort name="Pose" index="2" />
       <OutputPort name="Pose Raw informations" index="3" />
 
-      <IntVectorProperty name="ListeningPort"
-                         label="LiDAR Port"
-                         animateable="0"
-                         command="SetListeningPort"
-                         default_values="2368"
-                         override="1"
-                         number_of_elements="1">
-        <Documentation>
-        Specify port on which to listen for packets
-        </Documentation>
-      </IntVectorProperty>
-
       <IntVectorProperty name="GNSSPort"
                          label="GNSS / GPS Port"
                          animateable="0"
