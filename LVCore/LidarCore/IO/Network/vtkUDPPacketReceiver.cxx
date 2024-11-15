@@ -60,7 +60,7 @@ class vtkUDPPacketReceiver::vtkInternals
 {
 public:
   boost::asio::io_service IOService;
-  std::vector<vtkUDPReceiverSocketImpl> ReceiverSockets;
+  std::vector<std::unique_ptr<vtkUDPReceiverSocketImpl>> ReceiverSockets;
 
   std::unique_ptr<QueueType> DataQueue;
   ConsumeCallback Callback;
@@ -86,12 +86,13 @@ public:
     {
       auto callback = [this](vtkUDPReceiverSocketImpl::PacketType& packet)
       { this->DataQueue->Enqueue(packet); };
-      this->ReceiverSockets.emplace_back(this->IOService, callback);
+      this->ReceiverSockets.emplace_back(
+        std::make_unique<vtkUDPReceiverSocketImpl>(this->IOService, callback));
 
-      bool isOpen = this->ReceiverSockets.back().Open(params, portIdx);
+      bool isOpen = this->ReceiverSockets.back()->Open(params, portIdx);
       if (isOpen)
       {
-        this->ReceiverSockets.back().ReceiveNextPacket();
+        this->ReceiverSockets.back()->ReceiveNextPacket();
       }
     }
 
@@ -113,7 +114,7 @@ public:
   {
     for (auto& socket : this->ReceiverSockets)
     {
-      socket.Close();
+      socket->Close();
     }
     this->ReceiverSockets.clear();
     if (this->DataQueue)

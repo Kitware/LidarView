@@ -169,9 +169,12 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       // Get port & address information
       packet.srcPort = this->SenderEndpoint.port();
       packet.srcAddress = this->SenderEndpoint.address().to_string();
-      auto localEndpoint = this->ReceiveSocket.local_endpoint();
-      packet.dstPort = localEndpoint.port();
-      packet.dstAddress = localEndpoint.address().to_string();
+      if (this->ReceiveSocket.is_open())
+      {
+        auto localEndpoint = this->ReceiveSocket.local_endpoint();
+        packet.dstPort = localEndpoint.port();
+        packet.dstAddress = localEndpoint.address().to_string();
+      }
       packet.isIPv4 = this->SenderEndpoint.address().is_v4();
 
       // Get packet content
