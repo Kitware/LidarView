@@ -111,18 +111,6 @@ public:
   bool GetNeedsUpdate();
 
   /**
-   * @brief AddNewData Add the new data available to the specific buffer of the Stream
-   * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
-   */
-  virtual void AddNewData() = 0;
-
-  /**
-   * @brief ClearAllDataAvailable Clear the buffer that contains data
-   * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
-   */
-  virtual void ClearAllDataAvailable() = 0;
-
-  /**
    * @brief CheckForNewData Check if there is new data available
    * @warning Not thread safe! Be sure the DataMutex is locked before calling it!
    *

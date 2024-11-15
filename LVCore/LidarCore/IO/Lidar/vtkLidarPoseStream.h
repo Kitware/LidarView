@@ -62,10 +62,6 @@ public:
   int GetGNSSForwardedPort();
   ///@}
 
-  void AddNewData() override;
-
-  void ClearAllDataAvailable() override;
-
   int CheckForNewData() override;
 
 protected:
@@ -83,6 +79,8 @@ protected:
 private:
   vtkLidarPoseStream(const vtkLidarPoseStream&) = delete;
   void operator=(const vtkLidarPoseStream&) = delete;
+
+  void AddNewData();
 
   /*!< The port to receive information*/
   unsigned int GNSSPort = 8308;

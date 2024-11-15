@@ -48,10 +48,6 @@ public:
   vtkGetMacro(DetectFrameDropping, bool);
   vtkSetMacro(DetectFrameDropping, bool);
 
-  void AddNewData() override;
-
-  void ClearAllDataAvailable() override;
-
   int CheckForNewData() override;
 
   vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);
@@ -78,6 +74,8 @@ protected:
 private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
+
+  void AddNewData();
 
   vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter;
 

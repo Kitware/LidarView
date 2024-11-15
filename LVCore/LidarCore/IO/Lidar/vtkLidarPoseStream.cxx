@@ -142,6 +142,16 @@ int vtkLidarPoseStream::RequestData(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkLidarPoseStream::Start()
 {
+  if (!this->GetLidarInterpreter())
+  {
+    vtkErrorMacro("No packet interpreter selected.");
+    return;
+  }
+  if (!this->GetLidarInterpreter()->GetIsInitialized())
+  {
+    this->GetLidarInterpreter()->Initialize();
+  }
+
   this->vtkStream::Start({ this->GetListeningPort(), this->GNSSPort });
 }
 
@@ -149,19 +159,17 @@ void vtkLidarPoseStream::Start()
 void vtkLidarPoseStream::ConsumePacket(const std::vector<uint8_t>& pkt, double timestamp)
 {
   auto interp = this->GetPoseInterpreter();
-  if (!interp->IsValidPacket(pkt.data(), pkt.size()))
+  if (interp->IsValidPacket(pkt.data(), pkt.size()))
   {
-    return;
-  }
-
-  interp->ProcessPacketWrapped(pkt.data(), pkt.size(), timestamp);
-  if (interp->IsNewData())
-  {
+    interp->ProcessPacketWrapped(pkt.data(), pkt.size(), timestamp);
+    if (interp->IsNewData())
     {
-      std::lock_guard<std::mutex> lock(this->DataMutex);
-      this->AddNewData();
+      {
+        std::lock_guard<std::mutex> lock(this->DataMutex);
+        this->AddNewData();
+      }
+      interp->ResetCurrentData();
     }
-    this->ClearAllDataAvailable();
   }
   Superclass::ConsumePacket(pkt, timestamp);
 }
@@ -227,13 +235,8 @@ void vtkLidarPoseStream::AddNewData()
 int vtkLidarPoseStream::CheckForNewData()
 {
   auto& internals = *this->Internals;
-  return internals.CheckNewDataPositionOrientation() + internals.CheckForNewDataRawInformation();
-}
-
-//----------------------------------------------------------------------------
-void vtkLidarPoseStream::ClearAllDataAvailable()
-{
-  this->GetPoseInterpreter()->ResetCurrentData();
+  return internals.CheckNewDataPositionOrientation() + internals.CheckForNewDataRawInformation() +
+    Superclass::CheckForNewData();
 }
 
 //----------------------------------------------------------------------------

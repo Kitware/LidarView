@@ -149,8 +149,8 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
     {
       std::lock_guard<std::mutex> lock(this->DataMutex);
       this->AddNewData();
+      interp->ClearAllFramesAvailable();
     }
-    this->ClearAllDataAvailable();
   }
 }
 
@@ -172,12 +172,6 @@ void vtkLidarStream::AddNewData()
   {
     this->Frames.pop_back();
   }
-}
-
-//----------------------------------------------------------------------------
-void vtkLidarStream::ClearAllDataAvailable()
-{
-  this->GetLidarInterpreter()->ClearAllFramesAvailable();
 }
 
 //----------------------------------------------------------------------------
