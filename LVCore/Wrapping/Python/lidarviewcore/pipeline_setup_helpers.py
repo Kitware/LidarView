@@ -221,7 +221,7 @@ def setup_animation(trajectory,
                     output_dir,
                     resolution,
                     camera_params,
-                    camera_to_lidar_rotation=('XYZ', [0, 0, 0]),
+                    camera_to_lidar_rotation=([0, 0, 0], "xyz"),
                     animation_start_step=0,
                     animation_end_step=-1,
                     traj_smoothing_params={},
@@ -239,7 +239,7 @@ def setup_animation(trajectory,
              position: [0, -2, 0.2],  # Position of the camera, relative to the trajectory
              up_vector: [0, 0, 1],  # Up vector of the camera
              delay_s: 60  # delay on the camera position alongside the trajectory, in seconds}
-    - camera_to_lidar_rotation: tuple (axes, rotation angles in degrees)
+    - camera_to_lidar_rotation: tuple (rotation angles in degrees, axes)
     - animation_start_step: step index of the animation start (relative to
         animation.GetTimeKeeper.TimestepValues)
     - animation_end_step: step index of the animation end
@@ -283,7 +283,7 @@ def setup_animation(trajectory,
     # Create an animation cue with temporal_animation_cue_helpers
     anim_cue = smp.PythonAnimationCue()
     anim_cue.Script = """
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 import numpy as np
@@ -292,8 +292,7 @@ import numpy as np
 position    = {position}
 up_vector   = {up_vector}
 focal_point = {focal_point}
-cp.R_cam_to_lidar = Rotation.from_euler(*{camera_to_lidar_rotation},
-                                        degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler(*{camera_to_lidar_rotation}, degrees=True)
 
 # variables setup
 tach.params['cad_model_name'] = "carModel"

@@ -17,7 +17,7 @@ import paraview.simple as smp
 
 # Parameters using local coordinates system : X = right, Y = front, Z = up
 # Modify camera_to_lidar_rotation to your needs if you use another orientation 
-camera_to_lidar_rotation = 'XYZ', [0, 0, 0]  # (axes, values in degrees)
+camera_to_lidar_rotation = [0, 0, 0], 'xyz'  # (axes, values in degrees)
 
 # # > ~ First person view
 # focal_point = [0,   0,   0]
@@ -56,7 +56,7 @@ resolution = (1920, 1080)  # 16:9 FHD
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
 import numpy as np
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import camera_path as cp
 import temporal_animation_cue_helpers as tach
 
@@ -64,7 +64,7 @@ import temporal_animation_cue_helpers as tach
 position    = {position}
 up_vector   = {up_vector}
 focal_point = {focal_point}
-cp.R_cam_to_lidar = Rotation.from_euler(*{camera_to_lidar_rotation}, degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler(*{camera_to_lidar_rotation}, degrees=True)
 
 # Use last pose of the selected trajectory
 tach.params['trajectory_time_array'] = None

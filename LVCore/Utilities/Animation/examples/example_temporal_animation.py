@@ -31,8 +31,8 @@ animationStartTime = 0
 animationEndTime = -1
 
 # Tuple, (axes, values in degrees)
-# Will be provided to a scipy Rotation.from_euler
-camera2LidarRotation = ('ZYZ', [17, 90, -90])
+# Will be provided to rotation_matrix_from_euler
+camera2LidarRotation = ([17, 90, -90], 'zyz')
 # Rotations around X, Y, Z are intrinsic rotations, hence in the case of dataset-la-doua,
 # there is a first rotation around the Z axis (17 degrees) to compensate the lidar front
 # orientation, then rotations around Y and Z ([0, 90, -90]) to have Z looking forward
@@ -145,7 +145,7 @@ time_offset = view_timesteps[0] - trajectory_timesteps_bounds[0]
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
@@ -155,7 +155,7 @@ tach.params['trajectory_name'] = "trajectory"
 tach.params['trajectory_to_animation_time_offset'] = {time_offset}
 tach.params['frames_output_dir'] = "{frames_output_dir}"
 
-cp.R_cam_to_lidar = Rotation.from_euler(*{R_cam_to_lidar}, degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler(*{R_cam_to_lidar}, degrees=True)
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)

@@ -1,4 +1,4 @@
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_rotvec
 import numpy as np
 
 """
@@ -17,10 +17,10 @@ each camera path need to be coherent.
 """
 
 # Global variable defining the orientation of the camera w.r.t the lidar
-R_cam_to_lidar = Rotation.from_matrix(np.eye(3))  # identity by default
+R_cam_to_lidar = np.eye(3)  # identity by default
 
 # Example calibration la-doua car
-# R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+# R_cam_to_lidar = rotation_matrix_from_euler([17, 90.0, -90.0], 'zyz, degrees=True)
 # Rotations around X, Y, Z are intrinsic rotations, hence in the case of
 # dataset-la-doua, there is a first rotation around the Z axis (17 degrees) to
 # compensate the lidar front orientation, then rotations around Y and Z
@@ -92,8 +92,8 @@ class CameraPath:
 			prev_up = self.previous_camera_path.raw_up_vector(R_lidar)
 			axis = np.cross(prev_up, up)
 			r = np.arctan2(np.linalg.norm(axis), np.dot(prev_up, up))
-			R = Rotation.from_rotvec(axis * (self.compute_transition_weight(step) * r))
-			return R.apply(prev_up)
+			R = rotation_matrix_from_rotvec(axis * (self.compute_transition_weight(step) * r))
+			return R @ prev_up
 		else:
 			return up
 
@@ -123,13 +123,13 @@ class ThirdPersonView(CameraPath):
 		self.type = "Third Person View"
 
 	def raw_position(self, step, R_lidar, T_lidar, prev_cam_pos):
-		return T_lidar + R_lidar.apply(R_cam_to_lidar.apply(self.position))
+		return T_lidar + (R_lidar @ R_cam_to_lidar) @ self.position
 
 	def raw_up_vector(self, R_lidar):
-		return R_lidar.apply(R_cam_to_lidar.apply(self.up_vector))
+		return (R_lidar @ R_cam_to_lidar) @ self.up_vector
 
 	def raw_focal_point(self, R_lidar, T_lidar):
-		return T_lidar + R_lidar.apply(R_cam_to_lidar.apply(self.focal_point))
+		return T_lidar + (R_lidar @ R_cam_to_lidar) @ self.focal_point
 
 
 class FirstPersonView(ThirdPersonView):
@@ -192,8 +192,8 @@ class AbsoluteOrbit(CameraPath):
 		angle = self.ccw * (step - self.start) * d_angle
 		v = self.initial_pos - self.center
 		angle_axis = self.up_vector * angle
-		R = Rotation.from_rotvec(angle_axis)
-		return self.center + R.apply(v)
+		R = rotation_matrix_from_rotvec(angle_axis)
+		return self.center + R @ v
 
 	def raw_up_vector(self, R_lidar):
 		return self.up_vector
@@ -219,8 +219,8 @@ class RelativeOrbit(CameraPath):
 		angle = self.ccw * (step - self.start) * d_angle
 		v = self.initial_pos
 		angle_axis = self.up_vector * angle
-		R = Rotation.from_rotvec(angle_axis)
-		return T_lidar + R.apply(v)
+		R = rotation_matrix_from_rotvec(angle_axis)
+		return T_lidar + R @ v
 
 	def raw_up_vector(self, R_lidar):
 		return self.up_vector

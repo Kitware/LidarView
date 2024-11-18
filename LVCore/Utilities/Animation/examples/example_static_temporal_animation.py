@@ -21,7 +21,7 @@ frames_out_dir = '/path/to/road_marking_detection/images/'
 colormap_bounds = (0, 255)
 
 # Tuple : (axes, values in degrees)
-camera_to_lidar_rotation = 'XYZ', [0, 0, 0]
+camera_to_lidar_rotation = [0, 0, 0], "xyz"
 
 # Animation time management
 animation_start_timestep = 0  # which timestep to begin animation at
@@ -126,7 +126,7 @@ road_marking_display = DisplayPoints(road_marking, point_size=3)
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import camera_path as cp
 import temporal_animation_cue_helpers as tach
 
@@ -134,7 +134,7 @@ import temporal_animation_cue_helpers as tach
 tach.params['trajectory_name'] = "trajectory"
 tach.params['frames_output_dir'] = "{frames_out_dir}"
 
-cp.R_cam_to_lidar = Rotation.from_euler(*{R_cam_to_lidar}, degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler(*{R_cam_to_lidar}, degrees=True)
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)

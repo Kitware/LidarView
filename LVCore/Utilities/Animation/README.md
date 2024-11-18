@@ -54,8 +54,8 @@ see [here](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimatin
 ## Requirements
 
 In order to use temporal animations helpers, (ie. for camera paths depending on a trajectory),
-`scipy` and `numpy` must be installed on the python used by LidarView.
-(run `pip install scipy numpy` on Linux or Osx)
+`numpy` must be installed on the python used by LidarView.
+(run `pip install numpy` on Linux or Osx)
 
 ## Relevant modules
 
@@ -226,7 +226,7 @@ Here is an example of a full `PythonAnimationCue` script.
 See **example_temporal_animation.py** for an example in context.
 
 ```python
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
@@ -235,7 +235,7 @@ tach.params['cad_model_name'] = "your-model"
 tach.params['trajectory_name'] = "your-trajectory"
 tach.params['frames_output_dir'] = "/your/ouptut/dir"
 
-cp.R_cam_to_lidar = Rotation.from_euler("XYZ", [0, 90, -90],degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler([0, 90, -90], "xyz", degrees=True)
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)
@@ -272,7 +272,7 @@ In the following case (from dataset-la-doua), the Z axis of the lidar is vertica
 but X doesn't point to the front of the car, `R_car_to_lidar` should be set to something like:
 
 ```python
-cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler([17, 90.0, -90.0], "zyz", degrees=True)
 ```
 
 Which is composed of:
@@ -415,7 +415,7 @@ smp.ColorBy(dataDisplay, ('POINTS', 'category'))
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_euler
 import temporal_animation_cue_helpers as tach
 import camera_path as cp
 
@@ -424,7 +424,7 @@ tach.params['cad_model_name'] = "trajectory"
 tach.params['trajectory_name'] = "carModel"
 tach.params['frames_output_dir'] = "{frames_output_dir}"
 
-cp.R_cam_to_lidar = Rotation.from_euler('ZYZ', [17, 90.0, -90.0], degrees=True)
+cp.R_cam_to_lidar = rotation_matrix_from_euler([17, 90.0, -90.0], "zyz", degrees=True)
 
 # temporal cue creation
 from temporal_animation_cue_helpers import tick, end_cue

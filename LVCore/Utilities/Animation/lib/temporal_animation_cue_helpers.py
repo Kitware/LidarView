@@ -33,7 +33,7 @@ from temporal_animation_cue_helpers import tick, end_cue
 """
 import os
 import numpy as np
-from scipy.spatial.transform import Rotation
+from matrix_rotation import rotation_matrix_from_rotvec, rotation_matrix_to_rotvec
 import paraview.simple as smp
 from vtk.util import numpy_support
 
@@ -134,7 +134,7 @@ def update_cad_model(model, position, orientation):
     if model:
         # Update model pose (vtk Transform rotation are angle axis in degrees)
         model.Transform.Translate = position
-        model.Transform.Rotate = np.rad2deg(orientation.as_rotvec())
+        model.Transform.Rotate = np.rad2deg(rotation_matrix_to_rotvec(orientation))
         return True
     else:
         return False
@@ -250,7 +250,7 @@ def tick(self):
     # Get the 'pose_idx'th position and orientation from the trajectory
     position = np.asarray(self.trajectory.GetPoints().GetData().GetTuple3(self.pose_idx))
     axis_angle = np.asarray(self.trajectory.GetPointData().GetArray(params['trajectory_orientation_array']).GetTuple4(self.pose_idx))
-    orientation = Rotation.from_rotvec(axis_angle[:3] * axis_angle[3])
+    orientation = rotation_matrix_from_rotvec(axis_angle[:3] * axis_angle[3])
 
     # Update camera path
     for i, c in enumerate(self.cameras):
