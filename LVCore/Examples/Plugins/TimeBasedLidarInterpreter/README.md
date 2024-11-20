@@ -2,6 +2,9 @@
 
 This plugin showcase an implementation of a time based LiDARs.
 
+All necessary implementations are illustrated in this example, which
+should be kept updated as development progresses.
+
 ### How to run it
 
 - Build LidarView with the cmake option `-DBUILD_EXAMPLES=ON`
@@ -39,3 +42,9 @@ This plugin showcase an implementation of a time based LiDARs.
 | **File**            | **Description**                                               |
 |---------------------|---------------------------------------------------------------|
 | **point_sender.py** | A small script that emulates a LiDAR stream for this example. |
+
+### Testing
+
+To test a new interpreter, one could use `vtkLidarTestTools::TestPacketInterpreter`.
+This method performs sanity checks on how LidarView (and its tools such as SLAM)
+expect the interpreter to behave.
