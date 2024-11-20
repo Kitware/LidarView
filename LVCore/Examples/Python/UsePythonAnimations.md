@@ -27,8 +27,8 @@ see [here](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimatin
 - [Animations in Python](#animations-in-python)
   - [Requirements](#requirements)
   - [Relevant modules](#relevant-modules)
-    - [`lib/camera_path.py`](#libcamera_pathpy)
-    - [`lib/temporal_animation_cue_helpers.py`](#libtemporal_animation_cue_helperspy)
+    - [`lidarviewcore/camera_path.py`](#libcamera_pathpy)
+    - [`lidarviewcore/temporal_animation_cue_helpers.py`](#libtemporal_animation_cue_helperspy)
   - [Tutorial](#tutorial)
     - [How to define an animation cue script with `temporal_animation_cue_helpers`](#how-to-define-an-animation-cue-script-with-temporal_animation_cue_helpers)
       - [Function `start_cue_generic_setup`](#function-start_cue_generic_setup)
@@ -59,7 +59,7 @@ In order to use temporal animations helpers, (ie. for camera paths depending on 
 
 ## Relevant modules
 
-### `lib/camera_path.py`
+### `lidarviewcore/camera_path.py`
 
 This module contains the classes which define basic camera paths.
 Currently, the following types of camera are implemented:
@@ -73,7 +73,7 @@ Currently, the following types of camera are implemented:
     - *relative orbit*: the scene is viewed following an orbit around the vehicle in its reference
       (ie. around the current point of the trajectory).
 
-### `lib/temporal_animation_cue_helpers.py`
+### `lidarviewcore/temporal_animation_cue_helpers.py`
 
 This module contains helper functions in order to easily create temporal animation
 scripts with `smp.PythonAnimationCue()`, which needs to define the following 3 functions:
@@ -94,8 +94,6 @@ def end_cue(self):
 
 The `smp.PythonAnimationCue()` object requires this python script to be manually copy/pasted
 to the LidarView interface or provided as its `animation.Script` property (as a string).
-
-Check [this doc](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimating) for reference
 
 This module provides tools to help defining such methods in the case of temporal
 data following a trajectory (see documentation in that file for more details).
@@ -129,7 +127,7 @@ However, some of these parameters can/must be overridden to correspond to your a
 - `cad_model_name` (optional): the name of the element of the pipeline that serves
   for the 3D model to place at the current trajectory point for each frame.
 
-Please have a look to other parameters directly at the begining of [lib/temporal_animation_cue_helpers.py](LVCore/Utilities/Animation/lib/temporal_animation_cue_helpers.py) for enhanced usage.
+Please have a look to other parameters directly at the begining of [lidarviewcore/temporal_animation_cue_helpers.py](../../Wrapping/Python/lidarviewcore/temporal_animation_cue_helpers.py) for enhanced usage.
 
 #### Function `start_cue_generic_setup`
 
@@ -279,7 +277,7 @@ Which is composed of:
 - a rotation of 17 deg around Z to compensate for the lidar-trajectory angle
 - a rotation of [0, 90.0, -90.0] to pass from Z in the front (camera ref) to X in the front (lidar ref)
 
-![Camera-lidar references positions](doc/lidar_camera_references.png)
+![Camera-lidar references positions](Documentation/lidar_camera_references.png)
 
 
 #### How to set the camera path parameters
@@ -290,7 +288,7 @@ Which is composed of:
 - `focal point`: focal point of the camera in the camera reference (where the camera is pointing to)
 - `up vector`: direction of the top of the image.
 
-![Camera path parameters](doc/camera_path_parameters.png)
+![Camera path parameters](Documentation/camera_path_parameters.png)
 
 Specific to orbits:
 - `initial_pos`: initial position of the camera (similar to `position`)
@@ -298,7 +296,7 @@ Specific to orbits:
 - `center`: center of rotation
 - `ccw`: boolan, decides the direction direction (counter-clock-wise by default)
 
-![Orbit Parameters](doc/orbit_parameters.png)
+![Orbit Parameters](Documentation/orbit_parameters.png)
 
 Specific to *FixedPositionView*:
 - `position` is by default to `None`, in which case it takes the current position
@@ -369,7 +367,7 @@ See `examples/` directory for various examples.
 To be able to find the correct pose from the trajectory matching with current
 view/animation time, both timestamps must be expressed in the same time scale.
 
-If this is not the case for your data, 2 possibilities: 
+If this is not the case for your data, 2 possibilities:
 
 1. If both timestamps are using the same unit, but only differ from a fixed offset,
    set the `trajectory_to_animation_time_offset` parameter :
@@ -480,11 +478,11 @@ animation.Play()
 
 - Define your pipeline in the `Pipeline Browser` pane.
 
-![Example pipeline](doc/animation_pipeline_example.png)
+![Example pipeline](Documentation/animation_pipeline_example.png)
 
 - Open the `Animation` pane, choose the *Snap to timesteps* mode
 
-![Animation Pane](doc/animation_pane_example.png)
+![Animation Pane](Documentation/animation_pane_example.png)
 
 - Add a `Python` animation by selecting it in the drop-down list under the table
   and clicking on `+`. This will open a pop-up window.
@@ -492,4 +490,4 @@ animation.Play()
 - Press OK
 - Run the animation with the `Play` button in the top bar
 
-![Animation Script](doc/example_animation_script.png)
+![Animation Script](Documentation/example_animation_script.png)

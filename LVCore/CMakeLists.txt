@@ -181,13 +181,6 @@ if (BUILD_EXAMPLES)
 endif ()
 
 #--------------------------------------
-# Build non-plugin/modules LidarView source code
-# (This should be progressively removed)
-#--------------------------------------
-# Add subdirectory containing python script for animation
-add_subdirectory(Utilities/Animation)
-
-#--------------------------------------
 # Install development files if needeed
 #--------------------------------------
 if (LIDARVIEW_INSTALL_DEVELOPMENT_FILES)

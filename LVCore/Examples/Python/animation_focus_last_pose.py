@@ -34,7 +34,6 @@ def tick(self):
     view.CameraPosition = traj_pos + offset
 
 def end_cue(self):
-  pass
+    pass
 """
-
 smp.GetAnimationScene().Cues.append(anim_cue)

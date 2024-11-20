@@ -56,6 +56,7 @@ resolution = (1920, 1080)  # 16:9 FHD
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
 import numpy as np
+import paraview.simple as smp
 from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
 import lidarviewcore.camera_path as cp
 import lidarviewcore.temporal_animation_cue_helpers as tach
