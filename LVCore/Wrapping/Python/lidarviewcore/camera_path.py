@@ -1,4 +1,4 @@
-from matrix_rotation import rotation_matrix_from_rotvec
+from lidarviewcore.matrix_rotation import rotation_matrix_from_rotvec
 import numpy as np
 
 """
@@ -44,6 +44,7 @@ class CameraPath:
 
 	def timestep_inside_range(self, t):
 		""" Check if the timestep is inside the camera range """
+		print(t, self.start, self.end)
 		return t >= self.start and t < self.end
 
 	def set_transition(self, previous_camera_path, duration, mode):

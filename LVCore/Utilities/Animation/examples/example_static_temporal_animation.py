@@ -126,9 +126,9 @@ road_marking_display = DisplayPoints(road_marking, point_size=3)
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from matrix_rotation import rotation_matrix_from_euler
-import camera_path as cp
-import temporal_animation_cue_helpers as tach
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
 
 # variables setup
 tach.params['trajectory_name'] = "trajectory"
@@ -148,7 +148,7 @@ def start_cue(self):
 
     self.cameras = [c0, c1]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 """.format(frames_out_dir=frames_out_dir,
            R_cam_to_lidar=camera_to_lidar_rotation)
 

@@ -10,7 +10,7 @@
 
 import os
 import paraview.simple as smp
-import colormap_tools as cmt
+import lidarviewcore.colormap_tools as cmt
 
 
 def setup_view(use_eye_dome_lighting=False,
@@ -283,9 +283,9 @@ def setup_animation(trajectory,
     # Create an animation cue with temporal_animation_cue_helpers
     anim_cue = smp.PythonAnimationCue()
     anim_cue.Script = """
-from matrix_rotation import rotation_matrix_from_euler
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
 import numpy as np
 
 # Third person view, relative to current pose
@@ -313,7 +313,7 @@ def start_cue(self):
 
     self.cameras = [c]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 
     """.format(position=camera_params["position"],
                up_vector=camera_params["up_vector"],

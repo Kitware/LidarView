@@ -154,8 +154,8 @@ current_camera.set_transition(former_camera, interpolation_type)
 Example:
 
 ```python
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
 
 def start_cue(self)
     tach.start_cue_generic_setup(self)
@@ -182,7 +182,7 @@ you can modify the module parameters to your needs.
 Example:
 
 ```python
-import temporal_animation_cue_helpers as tach
+import lidarviewcore.temporal_animation_cue_helpers as tach
 
 # Use a different time array with a timeshift compared to view time
 tach.params['trajectory_time_array'] = "timestamp"
@@ -192,7 +192,7 @@ tach.params['trajectory_to_animation_time_offset'] = 1521646061.19
 tach.params['frames_output_dir'] = "/path/to/images/"
 tach.params['image_resolution'] = (3840, 2160)
 
-from temporal_animation_cue_helpers import tick
+from lidarviewcore.temporal_animation_cue_helpers import tick
 ```
 
 #### Function `end_cue`
@@ -205,7 +205,7 @@ Similarly to `tick`, it can be used directly with an import.
 Example:
 
 ```python
-import temporal_animation_cue_helpers as tach
+import lidarviewcore.temporal_animation_cue_helpers as tach
 
 tach.params['video_output_path'] = "/path/to/my/video.mp4"  # Name of the video generated using snapshots
 tach.params['video_framerate'] = 20.  # Output video frame rate [fps]
@@ -226,9 +226,9 @@ Here is an example of a full `PythonAnimationCue` script.
 See **example_temporal_animation.py** for an example in context.
 
 ```python
-from matrix_rotation import rotation_matrix_from_euler
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
 
 # modules parameters setup
 tach.params['cad_model_name'] = "your-model"
@@ -244,7 +244,7 @@ def start_cue(self):
     c2.set_transition(c1, 5, "s-shape")
     self.cameras = [c1, c2]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 ```
 
 ### How to set the parameters (position, up_vector, focal_point, ...) for the different camera paths
@@ -415,9 +415,9 @@ smp.ColorBy(dataDisplay, ('POINTS', 'category'))
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from matrix_rotation import rotation_matrix_from_euler
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
 
 # variables setup
 tach.params['cad_model_name'] = "trajectory"
@@ -427,7 +427,7 @@ tach.params['frames_output_dir'] = "{frames_output_dir}"
 cp.R_cam_to_lidar = rotation_matrix_from_euler([17, 90.0, -90.0], "zyz", degrees=True)
 
 # temporal cue creation
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 
 def start_cue(self):
     tach.start_cue_generic_setup(self)

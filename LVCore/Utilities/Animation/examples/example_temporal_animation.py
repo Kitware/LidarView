@@ -9,7 +9,7 @@ It has been tested and tuned on the LiDAR dataset from la-doua-22-03.
 """
 import os
 import paraview.simple as smp
-import colormap_tools as cmt
+import lidarviewcore.colormap_tools as cmt
 
 ################################################################################
 #  Script parameters
@@ -145,9 +145,9 @@ time_offset = view_timesteps[0] - trajectory_timesteps_bounds[0]
 # Create an animation cue with temporal_animation_cue_helpers
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
-from matrix_rotation import rotation_matrix_from_euler
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
 
 # variables setup
 tach.params['cad_model_name'] = "carModel"
@@ -165,7 +165,7 @@ def start_cue(self):
     c2.set_transition(c1, 10, "s-shape")		# transition from c1
     self.cameras = [c1, c2]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 
 """.format(time_offset=time_offset,
            frames_output_dir=framesOutDir,

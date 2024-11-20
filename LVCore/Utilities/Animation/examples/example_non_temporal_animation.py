@@ -7,7 +7,7 @@ along trajectory.
 """
 import os
 import paraview.simple as smp
-import camera_path as cp
+import lidarviewcore.camera_path as cp
 
 # How many steps/frames during orbit
 nb_frames = 100

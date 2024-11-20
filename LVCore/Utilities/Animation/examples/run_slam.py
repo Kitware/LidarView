@@ -275,9 +275,9 @@ fps = animation_nb_frames / (animation_end_time - animation_start_time)
 anim_cue = PythonAnimationCue()
 anim_cue.Script = """
 import numpy as np
-from matrix_rotation import rotation_matrix_from_euler
-import camera_path as cp
-import temporal_animation_cue_helpers as tach
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
 
 cp.R_cam_to_lidar = rotation_matrix_from_euler(*{camera_to_lidar_rotation}, degrees=True)
 
@@ -303,7 +303,7 @@ def start_cue(self):
 
   self.counter = 0
 
-from temporal_animation_cue_helpers import tick
+from lidarviewcore.temporal_animation_cue_helpers import tick
 
 def end_cue(self):
   slam = smp.FindSource('slam')

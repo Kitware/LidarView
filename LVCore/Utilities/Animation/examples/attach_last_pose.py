@@ -56,9 +56,9 @@ resolution = (1920, 1080)  # 16:9 FHD
 anim_cue = smp.PythonAnimationCue()
 anim_cue.Script = """
 import numpy as np
-from matrix_rotation import rotation_matrix_from_euler
-import camera_path as cp
-import temporal_animation_cue_helpers as tach
+from lidarviewcore.matrix_rotation import rotation_matrix_from_euler
+import lidarviewcore.camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
 
 # Third person view, relative to current SLAM pose
 position    = {position}
@@ -87,7 +87,7 @@ def start_cue(self):
     c = cp.ThirdPersonView(0, np.inf, position=position, focal_point=focal_point, up_vector=up_vector)
     self.cameras = [c]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 
 """.format(position=position, up_vector=up_vector, focal_point=focal_point,
            camera_to_lidar_rotation=camera_to_lidar_rotation,

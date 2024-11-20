@@ -12,8 +12,8 @@ already existing trajectory:
  - Animations that depend on a time field of the trajectory.
 
 ```python
-import temporal_animation_cue_helpers as tach
-import camera_path as cp
+import lidarviewcore.temporal_animation_cue_helpers as tach
+import lidarviewcore.camera_path as cp
 
 # tick and end_cue methods don't depend on the camera path so they can
 # be directly imported from the temporal_animation_cue_helpers module
@@ -28,12 +28,12 @@ def start_cue(self):
     c2 = cp.FixedPositionView(...)
     self.cameras = [c1, c2]
 
-from temporal_animation_cue_helpers import tick, end_cue
+from lidarviewcore.temporal_animation_cue_helpers import tick, end_cue
 ```
 """
 import os
 import numpy as np
-from matrix_rotation import rotation_matrix_from_rotvec, rotation_matrix_to_rotvec
+from lidarviewcore.matrix_rotation import rotation_matrix_from_rotvec, rotation_matrix_to_rotvec
 import paraview.simple as smp
 from vtk.util import numpy_support
 
@@ -48,7 +48,7 @@ params = {}
 
 # Poses to be considered as the camera trajectory for the relative views
 # (usually the vehicle trajectory).
-params['trajectory_name'] = "trajectory"
+params['trajectory_name'] = "Trajectory"
 
 # Name of the PointData array encoding pose orientation
 # (axis angle representation XYZ-A, A in radians)
@@ -61,7 +61,7 @@ params['trajectory_time_array'] = "Time"
 
 # If used, the time array of the trajectory must use the same time scale as the
 # animation time. If this is not your case, set this offset properly.
-params['trajectory_to_animation_time_offset'] = 0.
+params['trajectory_to_animation_time_offset'] = 0
 
 # ----------------------------------------------------------------------------
 # CAD model filter/source
