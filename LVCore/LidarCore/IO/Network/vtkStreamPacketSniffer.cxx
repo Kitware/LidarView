@@ -221,6 +221,12 @@ vtkStreamPacketSniffer::~vtkStreamPacketSniffer()
 bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& ports,
   const ConsumeCallback& callback)
 {
+  const std::string libVersion = pcap_lib_version();
+  if (libVersion.find("WinPcap") != std::string::npos)
+  {
+    vtkWarningMacro(<< "Cannot sniff packets with WinPcap please use Npcap instead.");
+    return false;
+  }
   if (this->IsListening())
   {
     // Stop the stream, to handle succeeding call to Start()
