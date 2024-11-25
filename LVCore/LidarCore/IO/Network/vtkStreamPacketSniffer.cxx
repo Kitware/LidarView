@@ -53,7 +53,7 @@ public:
     {
       this->Sniffer = std::make_unique<Tins::Sniffer>(interfaceName, config);
     }
-    catch (std::exception& ex)
+    catch (const std::exception& ex)
     {
       std::stringstream errorMessage;
       errorMessage << "Error: " << ex.what() << ".";
@@ -62,6 +62,7 @@ public:
         errorMessage << " Please check you have sufficient permission.";
       }
       vtkWarningWithObjectMacro(nullptr, << errorMessage.str());
+      this->Sniffer.reset();
     }
   }
 
@@ -119,6 +120,20 @@ public:
     return this->Running;
   }
 
+  static std::vector<std::string> GetAllInterfaces()
+  {
+    std::vector<std::string> interfaces;
+    std::vector<Tins::NetworkInterface> interfacesToListen;
+    for (auto &tinsInterfaces : Tins::NetworkInterface::all())
+    {
+      interfaces.emplace_back(tinsInterfaces.name());
+    }
+#if defined(_WIN32)
+    interfaces.emplace_back("Loopback");
+#endif
+    return interfaces;
+  }
+
 private:
   std::thread ReceiverThread;
   std::unique_ptr<Tins::Sniffer> Sniffer;
@@ -148,20 +163,20 @@ public:
   {
     this->DataQueue = std::make_unique<QueueType>(::PKT_CACHE_SIZE);
 
-    std::vector<Tins::NetworkInterface> interfacesToListen;
+    std::vector<std::string> interfacesToListen;
     if (!networkInteface.empty())
     {
       interfacesToListen.emplace_back(networkInteface);
     }
     else
     {
-      interfacesToListen = Tins::NetworkInterface::all();
+      interfacesToListen = PacketSnifferImpl::GetAllInterfaces();
     }
 
-    for (auto netInterface : interfacesToListen)
+    for (auto& netInterface : interfacesToListen)
     {
       auto callback = std::bind(&QueueType::Enqueue, this->DataQueue.get(), std::placeholders::_1);
-      auto sniffer = std::make_unique<PacketSnifferImpl>(netInterface.name(), filter, callback);
+      auto sniffer = std::make_unique<PacketSnifferImpl>(netInterface, filter, callback);
       if (sniffer->StartCapture())
       {
         this->Sniffers.emplace_back(std::move(sniffer));
@@ -224,14 +239,17 @@ bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& por
   {
     unsigned int port = ports.at(idx);
     filter.append("port " + std::to_string(port));
-    if (port < ports.size() - 1)
+    if (idx < ports.size() - 1)
     {
       filter.append(" or ");
     }
   }
 
   internals.StartSniffers(this->NetworkInterface, filter);
-  this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
+  if (!internals.Sniffers.empty())
+  {
+    this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
+  }
   return true;
 }
 
