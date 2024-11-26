@@ -7,11 +7,12 @@ target_link_libraries(PacketFileSender
   PRIVATE
     LidarView::UtilitiesPCAPTools)
 
-vtk_module_add_executable(PCAPSeparator
-  PCAPSeparator.cxx)
-target_link_libraries(PCAPSeparator
-  PRIVATE
-    LidarView::UtilitiesPCAPTools)
+# Would need some refactoring
+# vtk_module_add_executable(PCAPSeparator
+#   PCAPSeparator.cxx)
+# target_link_libraries(PCAPSeparator
+#   PRIVATE
+#     LidarView::UtilitiesPCAPTools)
 
 # Would need some refactoring - uses vtkVelodynePacketInterpreter
 # vtk_module_add_executable(PCAPTester

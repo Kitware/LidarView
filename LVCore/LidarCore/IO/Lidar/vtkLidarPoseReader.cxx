@@ -65,7 +65,7 @@ vtkMTimeType vtkLidarPoseReader::GetMTime()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPoseReader::Open(bool reassemble)
+bool vtkLidarPoseReader::Open()
 {
   std::vector<int> ports;
   if (this->GetLidarPort() != -1)
@@ -73,7 +73,13 @@ bool vtkLidarPoseReader::Open(bool reassemble)
     ports.emplace_back(this->GetLidarPort());
     ports.emplace_back(this->LidarPosePort);
   }
-  return Superclass::Open(ports, reassemble);
+  return Superclass::Open(ports);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarPoseReader::Open(bool vtkNotUsed(reassemble))
+{
+  return this->Open();
 }
 
 //-----------------------------------------------------------------------------
@@ -85,21 +91,20 @@ void vtkLidarPoseReader::ReadPoses()
     return;
   }
 
-  const unsigned char* data = nullptr;
-  unsigned int dataLength = 0;
   double timeSinceStart;
 
-  while (this->ReadNextPacket(data, dataLength, timeSinceStart))
+  while (this->ReadNextPacket(timeSinceStart))
   {
+    const std::vector<uint8_t>& payload = this->GetPayload();
     // If the current packet is not valid,
     // skip it and update the file position
-    if (!this->PoseInterpreter->IsValidPacket(data, dataLength))
+    if (!this->PoseInterpreter->IsValidPacket(payload.data(), payload.size()))
     {
       continue;
     }
 
     // Process the packet
-    this->PoseInterpreter->ProcessPacket(data, dataLength);
+    this->PoseInterpreter->ProcessPacket(payload.data(), payload.size());
   }
   this->Close();
 

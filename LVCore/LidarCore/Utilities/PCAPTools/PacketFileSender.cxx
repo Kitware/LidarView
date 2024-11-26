@@ -30,8 +30,6 @@
 // This program reads a pcap file and sends the packets using UDP.
 // The default playback speed is based on the timestamps specified in the pcap file
 
-#include "vtkPacketFileReader.h"
-
 #include "PacketSender.h"
 
 #include <cstdlib>

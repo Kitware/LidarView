@@ -28,8 +28,7 @@
 
 #include "statistics.h"
 #include "vtkLidarPacketInterpreter.h"
-#include "vtkPacketFileReader.h"
-#include "vtkPacketFileWriter.h"
+#include "vtkPacketFileHandler.h"
 
 #include <algorithm>
 #include <sstream>
@@ -82,7 +81,7 @@ public:
     double LidarTime;
   };
   std::vector<LidarFrame> FramesIndex;
-  vtkPacketFileReader Reader;
+  vtkSmartPointer<vtkPacketFileHandler> Reader;
   bool NeedsReIndexing = true;
   double LastFrameRequested = 0;
   // The following are for EmulatedTime hiding frames
@@ -165,6 +164,7 @@ vtkStandardNewMacro(vtkLidarReader);
 vtkLidarReader::vtkLidarReader()
   : Internals(new vtkLidarReader::vtkInternals())
 {
+  this->Internals->Reader = vtkSmartPointer<vtkPacketFileHandler>::New();
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
 }
@@ -234,21 +234,20 @@ bool vtkLidarReader::BuildFramesIndex()
   {
     return false;
   }
-  const unsigned char* data = nullptr;
-  unsigned int dataLength = 0;
-
   // reset the frame catalog to build a new one
   this->Internals->FramesIndex.clear();
 
   fpos_t lastFilePosition;
   double networkPacketTime = 0;
-  this->Internals->Reader.GetFilePosition(&lastFilePosition);
+  this->Internals->Reader->GetFilePosition(&lastFilePosition);
 
   bool isFirstPacket = true;
   vtkLidarReader::vtkInternals::LidarFrame currentFrame;
 
-  while (this->ReadNextPacket(data, dataLength, networkPacketTime))
+  while (this->ReadNextPacket(networkPacketTime))
   {
+    const std::vector<uint8_t>& payload = this->GetPayload();
+
     // This command sends a signal that can be observed from outside
     // and that is used to diplay a Qt progress dialog from Python
     // This progress dialog is not displaying a progress percentage,
@@ -257,16 +256,16 @@ bool vtkLidarReader::BuildFramesIndex()
 
     // If the current packet is not a lidar packet,
     // skip it and update the file position
-    if (!this->LidarInterpreter->IsLidarPacket(data, dataLength))
+    if (!this->LidarInterpreter->IsLidarPacket(payload.data(), payload.size()))
     {
-      this->Internals->Reader.GetFilePosition(&lastFilePosition);
+      this->Internals->Reader->GetFilePosition(&lastFilePosition);
       continue;
     }
 
     // Get information about the current packet
     double lidarDataTime = 0.;
     bool splitFrame = this->LidarInterpreter->PreProcessPacketWrapped(
-      data, dataLength, networkPacketTime, lidarDataTime);
+      payload.data(), payload.size(), networkPacketTime, lidarDataTime);
 
     if (isFirstPacket)
     {
@@ -282,7 +281,7 @@ bool vtkLidarReader::BuildFramesIndex()
     }
     isFirstPacket = false;
 
-    this->Internals->Reader.GetFilePosition(&lastFilePosition);
+    this->Internals->Reader->GetFilePosition(&lastFilePosition);
   }
   this->Internals->FramesIndex.emplace_back(currentFrame);
 
@@ -318,26 +317,25 @@ bool vtkLidarReader::ReadFrame(size_t index, vtkPolyData* output)
     return 0;
   }
 
-  const unsigned char* data = nullptr;
-  unsigned int dataLength = 0;
   double timeSinceStart = 0;
 
   // Update the interpreter meta data according to the requested frame
   auto& currentFrame = this->Internals->FramesIndex[index];
-  this->Internals->Reader.SetFilePosition(&currentFrame.FilePosition);
+  this->Internals->Reader->SetFilePosition(&currentFrame.FilePosition);
 
-  while (this->ReadNextPacket(data, dataLength, timeSinceStart))
+  while (this->ReadNextPacket(timeSinceStart))
   {
+    const std::vector<uint8_t>& payload = this->GetPayload();
     // If the current packet is not a lidar packet,
     // skip it and update the file position
-    if (!this->LidarInterpreter->IsLidarPacket(data, dataLength))
+    if (!this->LidarInterpreter->IsLidarPacket(payload.data(), payload.size()))
     {
       continue;
     }
 
     // Process the lidar packet and check
     // if the required frame is ready
-    this->LidarInterpreter->ProcessPacketWrapped(data, dataLength, timeSinceStart);
+    this->LidarInterpreter->ProcessPacketWrapped(payload.data(), payload.size(), timeSinceStart);
     if (this->LidarInterpreter->IsNewFrameReady())
     {
       output->ShallowCopy(this->LidarInterpreter->GetLastFrameAvailable());
@@ -354,18 +352,24 @@ bool vtkLidarReader::ReadFrame(size_t index, vtkPolyData* output)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarReader::Open(bool reassemble)
+bool vtkLidarReader::Open()
 {
   std::vector<int> ports;
   if (this->LidarPort != -1)
   {
     ports.emplace_back(this->LidarPort);
   }
-  return this->Open(ports, reassemble);
+  return this->Open(ports);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarReader::Open(std::vector<int> ports, bool reassemble)
+bool vtkLidarReader::Open(bool vtkNotUsed(reassemble))
+{
+  return this->Open();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarReader::Open(std::vector<int> ports)
 {
   if (this->FileName.empty())
   {
@@ -383,13 +387,26 @@ bool vtkLidarReader::Open(std::vector<int> ports, bool reassemble)
 
     filterPCAP += " port " + portsString;
   }
-  if (!this->Internals->Reader.Open(this->FileName, filterPCAP, reassemble))
+  if (!this->Internals->Reader->Open(this->FileName, filterPCAP))
   {
-    vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!\n"
-                  << this->Internals->Reader.GetLastError());
+    vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!");
     return false;
   }
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarReader::Open(std::vector<int> ports, bool vtkNotUsed(reassemble))
+{
+  return this->Open(ports);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkLidarReader::ReadNextPacket(double& timeSinceStart)
+{
+  bool ret = this->Internals->Reader->ReadNextPacket();
+  timeSinceStart = this->Internals->Reader->GetTimestamp();
+  return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -397,15 +414,25 @@ bool vtkLidarReader::ReadNextPacket(const unsigned char*& data,
   unsigned int& dataLength,
   double& timeSinceStart)
 {
-  return this->Internals->Reader.NextPacket(data, dataLength, timeSinceStart);
+  bool ret = this->ReadNextPacket(timeSinceStart);
+  const std::vector<uint8_t>& payload = this->GetPayload();
+  data = payload.data();
+  dataLength = payload.size();
+  return ret;
+}
+
+//-----------------------------------------------------------------------------
+const std::vector<uint8_t>& vtkLidarReader::GetPayload()
+{
+  return this->Internals->Reader->GetPayload();
 }
 
 //-----------------------------------------------------------------------------
 void vtkLidarReader::Close()
 {
-  if (this->Internals->Reader.IsOpen())
+  if (this->Internals->Reader->IsOpen())
   {
-    this->Internals->Reader.Close();
+    this->Internals->Reader->Close();
   }
 }
 
@@ -434,35 +461,15 @@ void vtkLidarReader::SaveFrames(unsigned int startFrame,
     return;
   }
 
-  vtkPacketFileWriter writer;
-  if (!writer.Open(filename))
-  {
-    vtkErrorMacro("Failed to open packet file for writing: " << filename);
-    return;
-  }
-
-  pcap_pkthdr* header = nullptr;
-  const unsigned char* data = nullptr;
-  unsigned int dataLength = 0;
-  unsigned int headerLength = 0;
-  double networkTime = 0;
+  fpos_t& startPosition = this->Internals->FramesIndex[startFrame].FilePosition;
   const double endNetworkTime = endFrame >= frameNb - 2
     ? std::numeric_limits<double>::max()
     : this->Internals->FramesIndex[endFrame + 1].NetworkTime;
 
-  this->Internals->Reader.SetFilePosition(&this->Internals->FramesIndex[startFrame].FilePosition);
-  while (this->Internals->Reader.NextPacket(data, dataLength, networkTime, &header, &headerLength))
-  {
-    if (networkTime >= endNetworkTime)
-    {
-      break;
-    }
-    // writing all packets, even those that do not contain lidar frames,
-    // such as IMU data or GPS data
-    writer.WritePacket(header, data - headerLength);
-  }
+  // writing all packets, even those that do not contain lidar frames,
+  // such as IMU data or GPS data
+  this->Internals->Reader->WritePackets(filename, &startPosition, endNetworkTime);
 
-  writer.Close();
   this->Close();
 }
 

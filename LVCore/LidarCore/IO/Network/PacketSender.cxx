@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "PacketSender.h"
-#include "vtkPacketFileReader.h"
+#include "vtkPacketFileHandler.h"
 
 #include <chrono>
 #include <iomanip>
@@ -25,15 +25,14 @@ PacketSender::PacketSender(std::string pcapfile,
   std::string destinationIp,
   int lidarPort,
   int positionPort)
-  : LIDARSocket(0)
+  : LIDARSocket(nullptr)
   , LIDAREndpoint(boost::asio::ip::address_v4::from_string(destinationIp), lidarPort)
-  , PositionSocket(0)
+  , PositionSocket(nullptr)
   , PositionEndpoint(boost::asio::ip::address_v4::from_string(destinationIp), positionPort)
-  , PacketReader(0)
   , Done(false)
   , PacketCount(0)
 {
-  this->PacketReader = new vtkPacketFileReader;
+  this->PacketReader = vtkSmartPointer<vtkPacketFileHandler>::New();
   this->PacketReader->Open(pcapfile);
   if (!this->PacketReader->IsOpen())
   {
@@ -162,29 +161,25 @@ double PacketSender::pumpPacket()
     return std::numeric_limits<int>::max();
   }
 
-  // some return value
-  const unsigned char* data = 0;
-  unsigned int dataLength = 0;
-  double timeSinceStart = 0;
-
   // Get the next packet
-  if (!this->PacketReader->NextPacket(data, dataLength, timeSinceStart))
+  if (!this->PacketReader->ReadNextPacket())
   {
     this->Done = true;
-    return timeSinceStart;
+    return this->PacketReader->GetTimestamp();
   }
+  const std::vector<uint8_t>& payload = this->PacketReader->GetPayload();
 
   // Position packet
-  if ((dataLength == 512))
+  if (payload.size() == 512)
   {
-    this->PositionSocket->send_to(boost::asio::buffer(data, dataLength), this->PositionEndpoint);
+    this->PositionSocket->send_to(boost::asio::buffer(payload), this->PositionEndpoint);
   }
   else // Lidar packet
   {
-    this->LIDARSocket->send_to(boost::asio::buffer(data, dataLength), this->LIDAREndpoint);
+    this->LIDARSocket->send_to(boost::asio::buffer(payload), this->LIDAREndpoint);
   }
   this->PacketCount++;
-  return timeSinceStart;
+  return this->PacketReader->GetTimestamp();
 }
 
 //-----------------------------------------------------------------------------

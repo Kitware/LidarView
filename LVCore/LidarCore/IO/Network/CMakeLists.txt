@@ -15,8 +15,7 @@ set(headers
 
 set(classes
   vtkInterpreter
-  vtkPacketFileReader
-  vtkPacketFileWriter
+  vtkPacketFileHandler
   vtkPacketRecorder
   vtkStream
   vtkUDPPacketReceiver

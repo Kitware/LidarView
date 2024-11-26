@@ -6,7 +6,6 @@ DEPENDS
   Boost::system
   Boost::thread
   LidarView::CommonCore
-  PCAP::pcap
   VTK::CommonCore
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS

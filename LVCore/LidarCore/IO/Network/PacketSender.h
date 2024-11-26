@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
+#include <vtkSmartPointer.h>
 
 #include "lvIONetworkModule.h"
 
@@ -20,8 +20,9 @@
 #include <boost/thread/thread.hpp>
 
 #include <functional>
+#include <string>
 
-class vtkPacketFileReader;
+class vtkPacketFileHandler;
 
 /**
  * \class PacketSender
@@ -74,7 +75,7 @@ private:
 
   boost::asio::io_service IOService;
 
-  vtkPacketFileReader* PacketReader;
+  vtkSmartPointer<vtkPacketFileHandler> PacketReader;
   //! Indicate if the end of the pcap file has been reach
   bool Done;
   //! Number of packet already send

@@ -21,8 +21,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 
-#include "vtkPosePacketInterpreter.h"
 #include "vtkLidarReader.h"
+#include "vtkLidarViewDeprecation.h"
+#include "vtkPosePacketInterpreter.h"
 
 #include "lvIOLidarModule.h"
 
@@ -47,7 +48,9 @@ public:
   /**
    * Call vtkLidarReader::Open with the addition of the pose port.
    */
-  bool Open(bool reassemble = true) override;
+  bool Open() override;
+  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use Open() methods without reassemble instead")
+  bool Open(bool reassemble) override;
 
   vtkMTimeType GetMTime() override;
 
