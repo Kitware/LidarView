@@ -67,12 +67,19 @@ lidarcoreplugin_add_module_xml(
     Filters/RPMText.xml
 )
 
+set(xml_files
+  Filters/PlaneProjector.xml
+  Filters/RansacPlaneModel.xml
+  Filters/ComputeVolume.xml)
+
+if (LIDARVIEW_USE_NANOFLANN)
+  list(APPEND xml_files Filters/ComputeNormalAdaptive.xml)
+endif()
+
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersProcessing
   XML_MODULE_FILES
-    Filters/PlaneProjector.xml
-    Filters/RansacPlaneModel.xml
-    Filters/ComputeVolume.xml
+    ${xml_files}
 )
 
 lidarcoreplugin_add_module_xml(

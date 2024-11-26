@@ -48,6 +48,13 @@ public:
 
   ///@{
   /**
+   *  Set point indices to use in PCA
+   */
+  void SetPointIndices(const std::vector<int>& pointIndices);
+  ///@}
+
+  ///@{
+  /**
    * Get eigen vectors. The eigenvectors are ordered according to the magnitude of their
    * associated eigen values, sorted from largest to smallest. That is, eigenvector 0 corresponds
    * to the largest eigen value.
@@ -68,6 +75,7 @@ private:
   void operator=(const vtkPointsPCA&);
 
   vtkSmartPointer<vtkPCAStatistics> PCA;
+  std::vector<int> PointIndices;
 };
 
 #endif // vtkPointsPCA_h

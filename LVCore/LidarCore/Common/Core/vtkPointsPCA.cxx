@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include <numeric> // For std::iota
+
 // Local includes
 #include "vtkPointsPCA.h"
 
@@ -61,15 +63,22 @@ int vtkPointsPCA::RequestData(vtkInformation* vtkNotUsed(request),
   zArray->SetName("Z");
 
   // Fill the table with the points from the polyData
-  vtkIdType numPoints = input->GetNumberOfPoints();
-  for (vtkIdType i = 0; i < numPoints; i++)
+  if (this->PointIndices.empty())
+  {
+    vtkIdType numPoints = input->GetNumberOfPoints();
+    this->PointIndices.resize(numPoints);
+    std::iota(this->PointIndices.begin(), this->PointIndices.end(), 0);
+  }
+
+  for (const auto& ptIdx : this->PointIndices)
   {
     double point[3];
-    input->GetPoint(i, point);
+    input->GetPoint(ptIdx, point);
     xArray->InsertNextValue(point[0]);
     yArray->InsertNextValue(point[1]);
     zArray->InsertNextValue(point[2]);
   }
+
   table->AddColumn(xArray);
   table->AddColumn(yArray);
   table->AddColumn(zArray);
@@ -85,6 +94,12 @@ int vtkPointsPCA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* output = vtkDataSet::GetData(outputVector->GetInformationObject(0));
   output->ShallowCopy(input);
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkPointsPCA::SetPointIndices(const std::vector<int>& pointIndices)
+{
+  this->PointIndices = pointIndices;
 }
 
 //-----------------------------------------------------------------------------
