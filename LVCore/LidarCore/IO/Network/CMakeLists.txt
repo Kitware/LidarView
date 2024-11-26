@@ -1,14 +1,9 @@
 set(sources
-  CrashAnalysing.cxx
-  NetworkPacket.cxx
   PacketSender.cxx
 )
 
 set(headers
-  CrashAnalysing.h
-  FrameInformation.h
   InterpreterHelper.h
-  NetworkPacket.h
   PacketSender.h
   vtkStreamPacketHandler.h
 )
