@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkPacketFileReader_h
-#define vtkPacketFileReader_h
+#ifndef vtkPacketFileHandler_h
+#define vtkPacketFileHandler_h
 
 // Compliance with vtk's fpos_t policy, needs to be included before any libc header
 #include <vtkSystemIncludes.h>
