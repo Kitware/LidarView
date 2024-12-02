@@ -87,7 +87,8 @@ public:
           started = true;
           cond.notify_one();
         }
-        std::function<bool(Tins::PDU&)> functor = std::bind(&PacketSnifferImpl::Callback, this, std::placeholders::_1);
+        std::function<bool(Tins::PDU&)> functor =
+          std::bind(&PacketSnifferImpl::Callback, this, std::placeholders::_1);
         this->Sniffer->sniff_loop(functor);
       });
 
@@ -124,7 +125,7 @@ public:
   {
     std::vector<std::string> interfaces;
     std::vector<Tins::NetworkInterface> interfacesToListen;
-    for (auto &tinsInterfaces : Tins::NetworkInterface::all())
+    for (auto& tinsInterfaces : Tins::NetworkInterface::all())
     {
       interfaces.emplace_back(tinsInterfaces.name());
     }
