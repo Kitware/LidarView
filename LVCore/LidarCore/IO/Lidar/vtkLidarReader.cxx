@@ -16,7 +16,7 @@
 #include "vtkLidarReader.h"
 
 // Compliance with vtk's fpos_t policy, needs to be included before any libc header
-#include <vtkSystemIncludes.h>
+#include "vtkPacketFilePositionType.h"
 
 #include <vtkDataObject.h>
 #include <vtkDemandDrivenPipeline.h>
@@ -65,7 +65,7 @@ public:
     /**
      * Position of the first packet of the given frame
      */
-    fpos_t FilePosition;
+    vtkPcapIdxType FilePosition;
 
     /**
      * To be agnostic to the underlying data, we rely on the first packet time step to determine
@@ -237,7 +237,7 @@ bool vtkLidarReader::BuildFramesIndex()
   // reset the frame catalog to build a new one
   this->Internals->FramesIndex.clear();
 
-  fpos_t lastFilePosition;
+  vtkPcapIdxType lastFilePosition;
   double networkPacketTime = 0;
   this->Internals->Reader->GetFilePosition(&lastFilePosition);
 
@@ -461,7 +461,7 @@ void vtkLidarReader::SaveFrames(unsigned int startFrame,
     return;
   }
 
-  fpos_t& startPosition = this->Internals->FramesIndex[startFrame].FilePosition;
+  vtkPcapIdxType& startPosition = this->Internals->FramesIndex[startFrame].FilePosition;
   const double endNetworkTime = endFrame >= frameNb - 2
     ? std::numeric_limits<double>::max()
     : this->Internals->FramesIndex[endFrame + 1].NetworkTime;

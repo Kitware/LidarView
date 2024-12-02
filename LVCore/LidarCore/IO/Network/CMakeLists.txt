@@ -28,8 +28,16 @@ set(private_template
 )
 
 set(private_classes
+  vtkPacketFilePositionHandler
   vtkUDPReceiverSocketImpl
 )
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkPacketFilePositionType.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkPacketFilePositionType.h"
+  @ONLY)
+list(APPEND headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkPacketFilePositionType.h")
 
 vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}

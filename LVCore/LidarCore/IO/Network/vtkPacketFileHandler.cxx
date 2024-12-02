@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Compliance with vtk's fpos_t policy, needs to be included before any libc header
+#include "vtkPacketFilePositionHandler.h"
+
 #include "vtkPacketFileHandler.h"
 
 #include <vtkNew.h>
@@ -27,6 +30,49 @@ namespace
 {
 constexpr unsigned int PROTOCOL_UDP = 17;
 constexpr double US_TO_S_FACTOR = 1e-6;
+
+/**
+ * Inherit from Tins::SnifferConfiguration to expose protected properties
+ * and avoid friend IDIOM.
+ */
+class lvSnifferConfiguration : public Tins::SnifferConfiguration
+{
+public:
+  lvSnifferConfiguration() = default;
+
+  uint32_t IsFlagValid() const { return flags_ & Tins::SnifferConfiguration::PACKET_FILTER; };
+  std::string GetFilter() const { return filter_; };
+  Tins::BaseSniffer::PcapSniffingMethod GetSniffingMethod() const { return pcap_sniffing_method_; };
+};
+
+class lvFileSniffer : public Tins::BaseSniffer
+{
+public:
+  lvFileSniffer(FILE* fp, const lvSnifferConfiguration& configuration)
+  {
+    char error[PCAP_ERRBUF_SIZE];
+    // Maybe useful later
+    // pcap_t* phandle = pcap_hopen_offline(_get_osfhandle(_fileno(fp)), err_buf);
+    pcap_t* phandle = pcap_fopen_offline(fp, error);
+    if (!phandle)
+    {
+      vtkWarningWithObjectMacro(nullptr, "Could not open pcap: " << error);
+      return;
+    }
+
+    this->set_pcap_handle(phandle);
+    if (configuration.IsFlagValid() != 0)
+    {
+      if (!this->set_filter(configuration.GetFilter()))
+      {
+        vtkWarningWithObjectMacro(
+          nullptr, "Could not open pcap: " << pcap_geterr(this->get_pcap_handle()));
+      }
+    }
+    this->set_pcap_sniffing_method(configuration.GetSniffingMethod());
+  }
+};
+
 }
 
 //-----------------------------------------------------------------------------
@@ -36,7 +82,8 @@ vtkStandardNewMacro(vtkPacketFileHandler);
 class vtkPacketFileHandler::vtkInternals
 {
 public:
-  std::unique_ptr<Tins::FileSniffer> PCAPReader;
+  std::unique_ptr<lvFileSniffer> PCAPReader;
+  FILE* FileHandle = nullptr;
   pcap_t* PCAPFileHandle = nullptr;
   uint64_t FileSize = 0;
   Tins::Packet PktCache;
@@ -65,10 +112,11 @@ bool vtkPacketFileHandler::Open(const std::string& filename, std::string filterA
   internals.FileSize = fileSizeStream.tellg();
   fileSizeStream.close();
 
-  Tins::SnifferConfiguration config;
+  lvSnifferConfiguration config;
   config.set_filter(filterArgs);
 
-  internals.PCAPReader = std::make_unique<Tins::FileSniffer>(filename, config);
+  internals.FileHandle = std::fopen(filename.c_str(), "rb");
+  internals.PCAPReader = std::make_unique<lvFileSniffer>(internals.FileHandle, config);
   internals.PCAPFileHandle = internals.PCAPReader->get_pcap_handle();
   return this->IsOpen();
 }
@@ -77,7 +125,7 @@ bool vtkPacketFileHandler::Open(const std::string& filename, std::string filterA
 bool vtkPacketFileHandler::IsOpen() const
 {
   auto& internals = *this->Internals;
-  if (internals.PCAPReader && internals.PCAPFileHandle)
+  if (internals.PCAPReader && internals.PCAPFileHandle && internals.FileHandle)
   {
     return true;
   }
@@ -91,44 +139,34 @@ void vtkPacketFileHandler::Close()
   {
     auto& internals = *this->Internals;
     internals.PCAPReader.reset();
+#if defined(_WIN32)
+    std::fclose(internals.FileHandle);
+#endif
     internals.PCAPFileHandle = nullptr;
+    internals.FileHandle = nullptr;
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkPacketFileHandler::GetFilePosition(fpos_t* position) const
+void vtkPacketFileHandler::GetFilePosition(vtkPcapIdxType* position) const
 {
   if (!this->IsOpen())
   {
     return;
   }
   auto& internals = *this->Internals;
-
-#ifdef _MSC_VER
-  // Custom method from pat marion winpcap fork
-  pcap_fgetpos(internals.PCAPFileHandle, position);
-#else
-  FILE* f = pcap_file(internals.PCAPFileHandle);
-  fgetpos(f, position);
-#endif
+  vtkPacketFilePositionHandler::GetFilePosition(internals.PCAPFileHandle, position);
 }
 
 //------------------------------------------------------------------------------
-void vtkPacketFileHandler::SetFilePosition(fpos_t* position)
+void vtkPacketFileHandler::SetFilePosition(vtkPcapIdxType* position)
 {
   if (!this->IsOpen())
   {
     return;
   }
   auto& internals = *this->Internals;
-
-#ifdef _MSC_VER
-  // Custom method from pat marion winpcap fork
-  pcap_fsetpos(internals.PCAPFileHandle, position);
-#else
-  FILE* f = pcap_file(internals.PCAPFileHandle);
-  fsetpos(f, position);
-#endif
+  vtkPacketFilePositionHandler::SetFilePosition(internals.PCAPFileHandle, position);
 }
 
 //------------------------------------------------------------------------------
@@ -183,7 +221,7 @@ bool vtkPacketFileHandler::ReadNextPacket()
 
 //------------------------------------------------------------------------------
 void vtkPacketFileHandler::WritePackets(std::string filename,
-  fpos_t* startPosition,
+  vtkPcapIdxType* startPosition,
   double endNetworkTime)
 {
   auto& internals = *this->Internals;

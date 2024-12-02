@@ -46,6 +46,10 @@ option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_def
 option(LIDARVIEW_USE_ROS2IO_PLUGIN "Search for Ros2IO plugin." OFF)
 option(LIDARVIEW_USE_PCLPLUGIN_PLUGIN "Search for PCL plugin wrapping." OFF)
 
+if (WIN32)
+  option(LIDARVIEW_USE_NPCAP "Use npcap instead of winpcap." OFF)
+endif ()
+
 lidarview_obsolete_setting(LIDARVIEW_USE_PCAP)
 lidarview_obsolete_setting(LIDARVIEW_USE_LIBLAS)
 lidarview_obsolete_setting(LIDARVIEW_USE_PYTHONQT)

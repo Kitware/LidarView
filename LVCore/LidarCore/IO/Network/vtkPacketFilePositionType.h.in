@@ -1,0 +1,39 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkPacketFilePositionType.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkPacketFilePositionType_h
+#define vtkPacketFilePositionType_h
+
+// Compliance with vtk's fpos_t policy, needs to be included before any libc header
+#include <vtkSystemIncludes.h>
+
+#include <cstdint>
+
+#if defined(_WIN32)
+#cmakedefine LIDARVIEW_USE_NPCAP
+#if defined(LIDARVIEW_USE_NPCAP)
+#define LIBPCAP_INDEXING_SUPPORTED
+#endif
+#else
+#define LIBPCAP_INDEXING_SUPPORTED
+#endif
+
+#if defined(LIBPCAP_INDEXING_SUPPORTED)
+typedef int64_t vtkPcapIdxType;
+#else
+typedef fpos_t vtkPcapIdxType;
+#endif
+
+#endif
