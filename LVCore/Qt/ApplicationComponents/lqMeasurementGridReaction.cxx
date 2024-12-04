@@ -54,9 +54,7 @@ void lqMeasurementGridReaction::onRefreshButton()
   pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
   if (renderView)
   {
-    const std::string viewName = view->getViewProxy()->GetVTKClassName();
-    this->parentAction()->blockSignals(true);
-    if (viewName == "vtkLidarGridView")
+    if (view->getProxy()->GetProperty("LidarGrid"))
     {
       double visibility = ::isGridVisible(renderView);
       this->parentAction()->setEnabled(true);
@@ -78,8 +76,7 @@ void lqMeasurementGridReaction::updateGridVisibility(bool show)
   pqRenderView* renderView = dynamic_cast<pqRenderView*>(view);
   if (renderView)
   {
-    const std::string viewName = view->getViewProxy()->GetVTKClassName();
-    if (viewName == "vtkLidarGridView")
+    if (view->getProxy()->GetProperty("LidarGrid"))
     {
       vtkSMProxy* lidarGridProxy = vtkSMPropertyHelper(view->getProxy(), "LidarGrid").GetAsProxy();
       if (lidarGridProxy)
