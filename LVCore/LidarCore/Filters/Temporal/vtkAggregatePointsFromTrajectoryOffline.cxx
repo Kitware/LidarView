@@ -86,7 +86,13 @@ int vtkAggregatePointsFromTrajectoryOffline::RequestData(vtkInformation* request
     }
   }
 
-  return vtkAggregatePointsFromTrajectoryOnline::RequestData(request, inputVector, outputVector);
+  if (!vtkAggregatePointsFromTrajectoryOnline::RequestData(request, inputVector, outputVector))
+  {
+    // Stop the pipeline loop
+    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+    return 0;
+  }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

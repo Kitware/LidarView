@@ -102,7 +102,8 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
     this->Initialized = true;
   }
 
-  auto timestamp = pointcloud->GetPointData()->GetArray(this->TimeArrayName.c_str());
+  auto timestamp = vtkDataArray::SafeDownCast(
+    pointcloud->GetPointData()->GetAbstractArray(this->TimeArrayName.c_str()));
   if (!timestamp)
   {
     vtkErrorMacro("No TimeStamp array selected.");
