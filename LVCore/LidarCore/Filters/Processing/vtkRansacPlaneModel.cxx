@@ -22,21 +22,23 @@
 #include <iostream>
 #include <random>
 
-#include <vtkPointData.h>
+#include <vtkDoubleArray.h>
 #include <vtkInformationVector.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkUnsignedIntArray.h>
-#include <vtkDoubleArray.h>
 
 #include <Eigen/Dense>
 
 //----------------------------------------------------------------------------
 struct RansacSampleInfo
 {
-  RansacSampleInfo(unsigned int nInliers, unsigned int index1,
-                   unsigned int index2, unsigned int index3)
+  RansacSampleInfo(unsigned int nInliers,
+    unsigned int index1,
+    unsigned int index2,
+    unsigned int index3)
   {
     this->NInliers = nInliers;
     this->Index1 = index1;
@@ -51,8 +53,11 @@ struct RansacSampleInfo
 };
 
 //----------------------------------------------------------------------------
-void RefineRansac(std::vector<Eigen::Vector3d >& Points, vtkPolyData* output,
-                  RansacSampleInfo sampleInfo, double threshold, double PlaneParam[4])
+void RefineRansac(std::vector<Eigen::Vector3d>& Points,
+  vtkPolyData* output,
+  RansacSampleInfo sampleInfo,
+  double threshold,
+  double PlaneParam[4])
 {
   // Create inliers / outliers array information
   vtkNew<vtkUnsignedIntArray> inliersArray;
@@ -60,11 +65,12 @@ void RefineRansac(std::vector<Eigen::Vector3d >& Points, vtkPolyData* output,
 
   // compute plane PlaneParameters
   Eigen::Vector3d pointPlane = Points[sampleInfo.Index1];
-  Eigen::Vector3d normalPlane = (Points[sampleInfo.Index3] - pointPlane).cross(Points[sampleInfo.Index2] - pointPlane);
+  Eigen::Vector3d normalPlane =
+    (Points[sampleInfo.Index3] - pointPlane).cross(Points[sampleInfo.Index2] - pointPlane);
   normalPlane.normalize();
 
   // compute inliers
-  std::vector<Eigen::Vector3d > inliersPoints;
+  std::vector<Eigen::Vector3d> inliersPoints;
   for (unsigned int k = 0; k < Points.size(); ++k)
   {
     if (std::abs((Points[k] - pointPlane).dot(normalPlane)) < threshold)
@@ -97,7 +103,7 @@ void RefineRansac(std::vector<Eigen::Vector3d >& Points, vtkPolyData* output,
   // since the variance covariance matrix is a real
   // symmetric matrix it can be diagonalized in a orthonormal
   // basis. We will use the AutoAdjoint eigen solver
-  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d > eigenSolver(varianceCovariance);
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigenSolver(varianceCovariance);
 
   // PlaneParameters
   normalPlane = eigenSolver.eigenvectors().col(0);
@@ -110,10 +116,11 @@ void RefineRansac(std::vector<Eigen::Vector3d >& Points, vtkPolyData* output,
   output->GetPointData()->AddArray(inliersArray.Get());
 }
 
-
 //----------------------------------------------------------------------------
-unsigned int ComputeNumberOfInlier(std::vector<Eigen::Vector3d >& Points, Eigen::Vector3d planePoint,
-                                   Eigen::Vector3d planeNormal, double threshold)
+unsigned int ComputeNumberOfInlier(std::vector<Eigen::Vector3d>& Points,
+  Eigen::Vector3d planePoint,
+  Eigen::Vector3d planeNormal,
+  double threshold)
 {
   unsigned int nInliers = 0;
   for (unsigned int k = 0; k < Points.size(); ++k)
@@ -131,18 +138,19 @@ unsigned int ComputeNumberOfInlier(std::vector<Eigen::Vector3d >& Points, Eigen:
 vtkStandardNewMacro(vtkRansacPlaneModel)
 
 //-----------------------------------------------------------------------------
-int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector, vtkInformationVector *outputVector)
+int vtkRansacPlaneModel::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // Save the previous plane estimate
   double prevPlaneEst[4];
   std::copy(this->PlaneParam, this->PlaneParam + 4, prevPlaneEst);
 
   // Get the input
-  vtkPolyData * input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
 
   // Get the output
-  vtkPolyData *output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
+  vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   output->ShallowCopy(input);
 
   // Convert the point cloud in Eigen data structure point cloud
@@ -181,20 +189,24 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
     // to random shuffle again
     if ((iterationPointer + 2) >= randomIndex.size())
     {
-      std::shuffle(randomIndex.begin(), randomIndex.end(),g);
+      std::shuffle(randomIndex.begin(), randomIndex.end(), g);
       iterationPointer = 0;
     }
 
     // Compute current sample plane PlaneParameters
     planePoint = Points[randomIndex[iterationPointer]];
-    planeNormal = (Points[randomIndex[iterationPointer + 2]] - planePoint).cross(Points[randomIndex[iterationPointer + 1]] - planePoint);
+    planeNormal = (Points[randomIndex[iterationPointer + 2]] - planePoint)
+                    .cross(Points[randomIndex[iterationPointer + 1]] - planePoint);
     planeNormal.normalize();
 
     // Compute the number of inliers / outliers
     unsigned int nInliers = ComputeNumberOfInlier(Points, planePoint, planeNormal, this->Threshold);
 
     // keep info
-    RansacSampleInfo info(nInliers, randomIndex[iterationPointer], randomIndex[iterationPointer + 1], randomIndex[iterationPointer + 2]);
+    RansacSampleInfo info(nInliers,
+      randomIndex[iterationPointer],
+      randomIndex[iterationPointer + 1],
+      randomIndex[iterationPointer + 2]);
     samplesInfo.push_back(info);
 
     if (nInliers > maxInliers)
@@ -228,8 +240,10 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
   // output info
   std::cout << "ransac algorithm has converged: " << hasConverged << std::endl;
   std::cout << "number of iteration made: " << iterationMade << std::endl;
-  std::cout << "number of inliers: " << maxInliers << ", " << samplesInfo[indexMaxInliers].NInliers << std::endl;
-  std::cout << "plane PlaneParams: [" << this->PlaneParam[0] << "," << this->PlaneParam[1] << "," << this->PlaneParam[2] << "," << this->PlaneParam[3] << "]" << std::endl;
+  std::cout << "number of inliers: " << maxInliers << ", " << samplesInfo[indexMaxInliers].NInliers
+            << std::endl;
+  std::cout << "plane PlaneParams: [" << this->PlaneParam[0] << "," << this->PlaneParam[1] << ","
+            << this->PlaneParam[2] << "," << this->PlaneParam[3] << "]" << std::endl;
 
   // flip normal if needed
   if (this->PlaneParam[2] < 0)
@@ -248,9 +262,11 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
   Eigen::Vector3d nPrev(prevPlaneEst[0], prevPlaneEst[1], prevPlaneEst[2]);
   double dPrev = prevPlaneEst[3];
 
-  double newEstimationWeight = 1.0 - this->PreviousEstimationWeight;  // how much do we trust the new plane estimate
+  double newEstimationWeight =
+    1.0 - this->PreviousEstimationWeight; // how much do we trust the new plane estimate
 
-  if (this->TemporalAveraging && std::abs(nPrev.norm() - 1) < 1e-3)   // if the previous estimate is valid
+  if (this->TemporalAveraging &&
+    std::abs(nPrev.norm() - 1) < 1e-3) // if the previous estimate is valid
   {
     // if the angle between the new normal estimate and the previous is larger than the threshold,
     // the current normal is discarded
@@ -284,7 +300,7 @@ int vtkRansacPlaneModel::RequestData(vtkInformation *vtkNotUsed(request),
     // transform points
     for (auto& pt : Points)
     {
-      pt =  rot * pt + shift;
+      pt = rot * pt + shift;
     }
     // copy points to output
     output->SetPoints(eigenVectorToVTKPoints(Points));

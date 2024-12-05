@@ -20,11 +20,11 @@
 
 // VTK
 #include <vtkInformation.h>
-#include <vtkPolyData.h>
-#include <vtkPointData.h>
-#include <vtkTransform.h>
-#include <vtkNew.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
+#include <vtkTransform.h>
 
 constexpr unsigned int POINTS_INPUT_PORT = 0;
 constexpr unsigned int PLANE_INPUT_PORT = 1;
@@ -33,7 +33,6 @@ constexpr unsigned int INPUT_PORT_COUNT = 2;
 constexpr unsigned int RAW_POINTS_OUTPUT_PORT = 0;
 constexpr unsigned int XY_POINTS_OUTPUT_PORT = 1;
 constexpr unsigned int OUTPUT_PORT_COUNT = 2;
-
 
 vtkStandardNewMacro(vtkPlaneProjector)
 
@@ -45,16 +44,16 @@ vtkPlaneProjector::vtkPlaneProjector()
 }
 
 //-----------------------------------------------------------------------------
-int vtkPlaneProjector::FillInputPortInformation(int port, vtkInformation *info)
+int vtkPlaneProjector::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == POINTS_INPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
   }
   if (port == PLANE_INPUT_PORT)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     return 1;
   }
@@ -83,7 +82,7 @@ int vtkPlaneProjector::RequestData(vtkInformation* vtkNotUsed(request),
     if (inPlane != nullptr)
     {
       if ((inPlane->GetNumberOfPoints() > 0) &&
-          (inPlane->GetPointData()->GetArray("Normals") != nullptr))
+        (inPlane->GetPointData()->GetArray("Normals") != nullptr))
       {
         double* pt = inPlane->GetPoint(0);
         origin << pt[0], pt[1], pt[2];
@@ -107,7 +106,8 @@ int vtkPlaneProjector::RequestData(vtkInformation* vtkNotUsed(request),
   Eigen::Vector3d unitNormal = normal.normalized();
 
   // Compute the transform between the projected plane and XY plane
-  Eigen::Quaterniond rotation = Eigen::Quaterniond::FromTwoVectors(unitNormal, Eigen::Vector3d::UnitZ());
+  Eigen::Quaterniond rotation =
+    Eigen::Quaterniond::FromTwoVectors(unitNormal, Eigen::Vector3d::UnitZ());
 
   for (vtkIdType pointIndex = 0; pointIndex < inCloud->GetNumberOfPoints(); ++pointIndex)
   {
@@ -123,7 +123,7 @@ int vtkPlaneProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
     pt[0] = yrot.x();
     pt[1] = yrot.y();
-    pt[2] = 0;  // yrot.z();
+    pt[2] = 0; // yrot.z();
     xyOutCloud->GetPoints()->SetPoint(pointIndex, pt);
   }
 

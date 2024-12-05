@@ -15,7 +15,6 @@
 // limitations under the License.
 //=========================================================================
 
-
 #ifndef VTK_PLANE_PROJECTOR_H
 #define VTK_PLANE_PROJECTOR_H
 
@@ -42,7 +41,7 @@ class LVFILTERSPROCESSING_EXPORT vtkPlaneProjector : public vtkPolyDataAlgorithm
 {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  static vtkPlaneProjector *New();
+  static vtkPlaneProjector* New();
   vtkTypeMacro(vtkPlaneProjector, vtkPolyDataAlgorithm)
 
   vtkSetMacro(UsePlaneFromInput, bool);
@@ -66,8 +65,7 @@ protected:
   ~vtkPlaneProjector() = default;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkPlaneProjector(const vtkPlaneProjector&) = delete;
@@ -79,7 +77,7 @@ private:
   // "Normals" PointData array (its value for the first point is used as Normal)
   bool UsePlaneFromInput = false;
 
-  Eigen::Vector3d Normal = Eigen::Vector3d::UnitZ();  // project on XY plane
+  Eigen::Vector3d Normal = Eigen::Vector3d::UnitZ(); // project on XY plane
   Eigen::Vector3d Origin = Eigen::Vector3d::Zero();
 };
 
