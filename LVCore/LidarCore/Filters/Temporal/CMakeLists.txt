@@ -1,6 +1,7 @@
 set(classes
   vtkAggregatePointsFromTrajectoryOffline
   vtkAggregatePointsFromTrajectoryOnline
+  vtkClusteringAndTracking
   vtkMLSPosesSmoothing
   vtkMotionDetector
   vtkTemporalTransformsApplier

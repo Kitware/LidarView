@@ -1,0 +1,33 @@
+<ServerManagerConfiguration>
+  <!-- Begin ClusteringAndTracking -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ClusteringAndTracking" class="vtkClusteringAndTracking" label="Clustering and Tracking">
+      <Documentation
+        short_help="Extract and track clusters in a pointcloud"
+        long_help="Extract and track clusters in a pointcloud">
+        Clustering and tracking filter extract clusters of points from lidar frames.
+        It can also do a rough tracking for temporal lidar data.
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      port_index = "0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Clusters points" index="0" />
+    <OutputPort name="Clusters" index="1" />
+    <OutputPort name="Clusters information" index="2" />
+    <Hints>
+      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      <OutputPort index="2" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="2" />
+    </Hints>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End ClusteringAndTracking -->
+</ServerManagerConfiguration>
