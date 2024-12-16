@@ -149,6 +149,23 @@ Eigen::Isometry3d vtkClusteringAndTracking::Bbox::GetEigenTransform() const
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::SetClusterExtractor(int extractor)
+{
+  Extractor clusterExtractor = static_cast<Extractor>(extractor);
+  if (clusterExtractor != Extractor::NOEXTRACTION && clusterExtractor != Extractor::EUCLIDEAN &&
+    clusterExtractor != Extractor::GMM && clusterExtractor != Extractor::REGION_GROWING)
+  {
+    vtkWarningMacro(<< "Invalid clustering extractor (" << extractor << "), ignoring setting.");
+    return;
+  }
+  if (this->ClusterExtractor != extractor)
+  {
+    this->ClusterExtractor = clusterExtractor;
+  }
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterStats(
   vtkSmartPointer<vtkPolyData> input,
   const std::vector<int>& clusterPtIndices,
@@ -329,6 +346,102 @@ void vtkClusteringAndTracking::CreateClustersOutput(
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  if (polydata->GetNumberOfPoints() == 0)
+  {
+    vtkLog(INFO, "Not enough points: clusters not extracted");
+    return;
+  }
+
+  // Extract cluster
+  vtkNew<vtkEuclideanClusterExtraction> cluster;
+  cluster->SetInputData(polydata);
+  cluster->SetExtractionModeToAllClusters();
+  cluster->SetRadius(this->ClusterRadius);
+  cluster->ColorClustersOn();
+  cluster->Update();
+
+  // Create output with vertices
+  polydata->ShallowCopy(cluster->GetOutput());
+  vtkNew<vtkIdTypeArray> connectivity;
+  connectivity->SetNumberOfValues(polydata->GetNumberOfPoints());
+  vtkNew<vtkCellArray> cellArray;
+  cellArray->SetData(1, connectivity);
+  polydata->SetVerts(cellArray);
+  for (vtkIdType k = 0; k < polydata->GetNumberOfPoints(); ++k)
+  {
+    connectivity->SetValue(k, k);
+  }
+
+  // Get point indices of each cluster
+  int numClusters = cluster->GetNumberOfExtractedClusters();
+  std::unordered_map<int, std::vector<int>> clusters;
+  clusters.reserve(numClusters);
+  for (int clusterId = 0; clusterId < numClusters; ++clusterId)
+  {
+    for (vtkIdType pointId = 0; pointId < polydata->GetNumberOfPoints(); ++pointId)
+    {
+      auto currClusterId = polydata->GetPointData()->GetArray("ClusterId")->GetTuple1(pointId);
+      clusters[currClusterId].emplace_back(pointId);
+    }
+  }
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  this->ClustersStats.clear();
+  for (const auto& clus : clusters)
+  {
+    auto& clusterId = clus.first;  // shortcut for clusterId
+    auto& ptIndices = clus.second; // shortcut for point indices
+    int nbClusterPoints = ptIndices.size();
+    if (nbClusterPoints < this->ClusterMinNbPoints)
+    {
+      for (const auto& pointId : ptIndices)
+      {
+        polydata->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, -1);
+      }
+      continue;
+    }
+
+    this->ClustersStats.emplace_back(this->ComputeClusterStats(polydata, ptIndices, clusterId));
+  }
+
+  // Sort clusters based on their average depth values
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.MeanDepth < cluster2.MeanDepth; });
+  std::vector<int> newClusterIds(numClusters);
+  int newClusterId = 0;
+  for (auto& cluster : this->ClustersStats)
+  {
+    newClusterIds[cluster.ClusterId] = newClusterId;
+    ++newClusterId;
+  }
+
+  // Reset cluster id for points and cluster stats
+  newClusterId = 0;
+  for (auto& cluster : this->ClustersStats)
+  {
+    cluster.ClusterId = newClusterId;
+    ++newClusterId;
+  }
+  auto clusterIdArray = polydata->GetPointData()->GetArray("ClusterId");
+  for (vtkIdType pointId = 0; pointId < polydata->GetNumberOfPoints(); pointId++)
+  {
+    auto clusterId = clusterIdArray->GetTuple1(pointId);
+    if (clusterId < 0)
+      continue;
+    polydata->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, newClusterIds[clusterId]);
+  }
+
+  // Create output of clusters information
+  this->CreateClustersOutput(clustersOutput, infoOutput);
+}
+
+//-----------------------------------------------------------------------------
 int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -357,5 +470,25 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
     vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   vtkTable* clusterInfoOutput = vtkTable::GetData(outputVector, CLUSTERS_TEXT_OUTPUT_PORT);
 
+  // Extract clusters
+  clustersPointsOutput->ShallowCopy(input);
+  switch (this->ClusterExtractor)
+  {
+    case Extractor::EUCLIDEAN:
+    {
+      this->ExtractClustersWithEuclidean(clustersPointsOutput, clustersOutput, clusterInfoOutput);
+      break;
+    }
+    case Extractor::GMM:
+    {
+      break;
+    }
+    case Extractor::REGION_GROWING:
+    {
+      break;
+    }
+    default:
+      vtkWarningMacro(<< "No extractor selected");
+  }
   return 1;
 }

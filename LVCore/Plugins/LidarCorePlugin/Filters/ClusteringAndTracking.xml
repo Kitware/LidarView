@@ -27,6 +27,77 @@
       <PipelineIcon name="SpreadSheetView" port="2" />
     </Hints>
 
+    <!-- ============================ Clustering and tracking ============================ -->
+      <IntVectorProperty name="Cluster extractor"
+                         command="SetClusterExtractor"
+                         number_of_elements="1"
+                         default_values="2">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="No extraction"/>
+          <Entry value="1" text="Euclidean clustering"/>
+          <Entry value="2" text="Gaussian mixture model"/>
+          <Entry value="3" text="Region growing"/>
+        </EnumerationDomain>
+        <Documentation>
+          Choose an extractor for clustering:
+
+           (0) Do not extract clusters
+
+           (1) Euclidean clustering:
+               This method groups points based on their spatial proximity. It is ideal for identifying quickly compact
+               motion areas.
+
+           (2) Gaussian mixture model:
+               This method utilizes probabilistic model based on distances between points and works well in complex environments.
+               It offers a rough tracking of clusters.
+
+           (3) Region growing:
+               This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
+               when motion points are scattered but related. It offers a rough tracking of clusters.
+        </Documentation>
+      </IntVectorProperty>
+
+    <IntVectorProperty name="Compute cluster orientation"
+                       command="SetEnableClusterOrientation"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        If enable, the PCA is applied to the points of clusters to compute the orientation of clusters.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Cluster radius"
+                       command="SetClusterRadius"
+                       number_of_elements="1"
+                       default_values="0.4">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The search radius to find cluster.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Cluster minimum point number"
+                       command="SetClusterMinNbPoints"
+                       number_of_elements="1"
+                       default_values="10">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Clustering and tracking Parameters">
+      <Property name="Cluster extractor" />
+      <Property name="Compute cluster orientation" />
+      <Property name="Cluster radius" />
+      <Property name="Cluster minimum point number" />
+    </PropertyGroup>
+
     </SourceProxy>
   </ProxyGroup>
   <!-- End ClusteringAndTracking -->

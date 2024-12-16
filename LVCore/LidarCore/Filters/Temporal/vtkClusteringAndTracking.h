@@ -48,6 +48,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Getters / Setters
+  // Set the extraction method
+  void SetClusterExtractor(int extractor);
+  // Set the minimum radius of a cluster
+  vtkSetMacro(ClusterRadius, double);
+  // Set the minimum number of points in a cluster
+  vtkSetMacro(ClusterMinNbPoints, int);
+  // Setter to enable/disable to compute the cluster's orientation
   vtkSetMacro(EnableClusterOrientation, bool);
   vtkGetMacro(EnableClusterOrientation, bool);
 
@@ -66,8 +73,23 @@ private:
   vtkClusteringAndTracking(const vtkClusteringAndTracking&);
   void operator=(const vtkClusteringAndTracking&);
 
+  // Parameters to extract clusters
+  enum Extractor
+  {
+    NOEXTRACTION = 0,
+    EUCLIDEAN = 1,
+    GMM = 2,
+    REGION_GROWING = 3,
+  };
+  Extractor ClusterExtractor = Extractor::NOEXTRACTION;
+  // Minimum radius of a cluster
+  double ClusterRadius = 0.4;
+  // Minimum number of points of a cluster
+  int ClusterMinNbPoints = 5;
+
   // Parameter to enable/disable to compute orientation of clusters
   bool EnableClusterOrientation = false;
+
   // Bounding box of clusters
   class Bbox
   {
@@ -120,6 +142,11 @@ private:
     Bbox BoundingBox;
   };
   std::vector<ClusterStats> ClustersStats;
+
+  // Extract clusters with vtkEuclideanClusterExtraction method
+  void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Compute stats of a cluster
   ClusterStats ComputeClusterStats(vtkSmartPointer<vtkPolyData> input,
