@@ -117,6 +117,121 @@ void vtkClusteringAndTracking::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+Eigen::Vector3d vtkClusteringAndTracking::Bbox::GetTrueCenter() const
+{
+  return this->GetEigenTransform() * this->Center;
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Vector4d vtkClusteringAndTracking::Bbox::GetOrientation() const
+{
+  Eigen::Isometry3d transform = this->GetEigenTransform();
+  Eigen::Quaterniond quat(transform.linear());
+  Eigen::Vector4d out;
+  out.tail(4) << quat.x(), quat.y(), quat.z(), quat.w();
+  out.tail(4).normalize();
+  return out;
+}
+
+//-----------------------------------------------------------------------------
+Eigen::Isometry3d vtkClusteringAndTracking::Bbox::GetEigenTransform() const
+{
+  Eigen::Isometry3d transform = Eigen::Isometry3d::Identity();
+  transform.linear().col(0) =
+    Eigen::Vector3d(this->Transform[0], this->Transform[4], this->Transform[8]);
+  transform.linear().col(1) =
+    Eigen::Vector3d(this->Transform[1], this->Transform[5], this->Transform[9]);
+  transform.linear().col(2) =
+    Eigen::Vector3d(this->Transform[2], this->Transform[6], this->Transform[10]);
+  transform.translation() =
+    Eigen::Vector3d(this->Transform[3], this->Transform[7], this->Transform[11]);
+  return transform;
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::CreateClustersOutput(
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  // Add bounding box for each cluster into output
+  int blockId = 0;
+  for (const auto& cluster : this->ClustersStats)
+  {
+    vtkNew<vtkCubeSource> cubeSource;
+    vtkNew<vtkPolyData> source;
+    cubeSource->SetBounds(cluster.BoundingBox.GetVertices().data());
+    cubeSource->SetCenter(cluster.BoundingBox.GetCenter().data());
+    // Transform bounding box
+    vtkNew<vtkTransformPolyDataFilter> transformFilter;
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->SetMatrix(cluster.BoundingBox.GetTransform().data());
+    transformFilter->SetTransform(transform);
+    transformFilter->SetInputConnection(cubeSource->GetOutputPort());
+    transformFilter->Update();
+    source->ShallowCopy(transformFilter->GetOutput());
+
+    std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
+    clustersOutput->SetBlock(blockId, source);
+    clustersOutput->GetMetaData(blockId)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
+
+    // Create field data and add information to it
+    vtkSmartPointer<vtkIntArray> bboxId = vtkSmartPointer<vtkIntArray>::New();
+    bboxId->SetName("ClusterId");
+    bboxId->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
+    bboxDistances->SetName("Distance");
+    bboxDistances->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxSizes = vtkSmartPointer<vtkFloatArray>::New();
+    bboxSizes->SetName("Size");
+    bboxSizes->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkFloatArray> bboxCenters = vtkSmartPointer<vtkFloatArray>::New();
+    bboxCenters->SetName("Center");
+    bboxCenters->SetNumberOfComponents(3);
+    vtkSmartPointer<vtkFloatArray> bboxOrientations = vtkSmartPointer<vtkFloatArray>::New();
+    bboxOrientations->SetName("Orientation");
+    bboxOrientations->SetNumberOfComponents(4);
+    vtkSmartPointer<vtkUnsignedShortArray> bboxLabels =
+      vtkSmartPointer<vtkUnsignedShortArray>::New();
+    bboxLabels->SetName("Label");
+    bboxLabels->SetNumberOfComponents(1);
+
+    vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
+    fieldData->AddArray(bboxId);
+    fieldData->AddArray(bboxDistances);
+    fieldData->AddArray(bboxSizes);
+    fieldData->AddArray(bboxCenters);
+    fieldData->AddArray(bboxOrientations);
+    fieldData->AddArray(bboxLabels);
+    bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
+    bboxDistances->InsertNextTuple1(cluster.MeanDepth);
+    bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
+    bboxCenters->InsertNextTuple(cluster.BoundingBox.GetTrueCenter().data());
+    bboxOrientations->InsertNextTuple(cluster.BoundingBox.GetOrientation().data());
+    bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
+
+    clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
+
+    ++blockId;
+  }
+
+  // Print clusters info
+  // Set output for displaying clusters information
+  vtkNew<vtkStringArray> data;
+  data->SetName("Clusters Information");
+  data->SetNumberOfComponents(1);
+  std::ostringstream oss;
+  for (const auto& cluster : this->ClustersStats)
+  {
+    oss << std::setprecision(3) << std::showpoint << "Cluster " << std::setw(2) << cluster.ClusterId
+        << ": distance = " << std::setw(7) << cluster.MeanDepth << "m  "
+        << "size = " << cluster.BoundingBox.GetSize().transpose() << "\n";
+  }
+  std::string clusterInfo = oss.str();
+  data->InsertNextValue(clusterInfo.c_str());
+  infoOutput->AddColumn(data);
+}
+
+//-----------------------------------------------------------------------------
 int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
