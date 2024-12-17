@@ -55,9 +55,20 @@ public:
   void SetClusterRadius(double radius);
   // Set the minimum number of points in a cluster
   void SetClusterMinNbPoints(int minNbPoints);
+  // Set grid resolution for region growing method
+  void SetClusterGridResolution(float resolution);
+  // Set to enable the use of background grid
+  vtkSetMacro(EnableBackgroundGrid, bool);
+  vtkGetMacro(EnableBackgroundGrid, bool);
 
   // Set tracking window sizes
   void SetTrackingWindowSizes(int trackingWindowSizes);
+  // Set/get number of processed frames
+  vtkSetMacro(NbProcessedFrames, int);
+  vtkGetMacro(NbProcessedFrames, int);
+  // Set/get the number of frames
+  vtkSetMacro(InitNbFrames, int);
+  vtkGetMacro(InitNbFrames, int);
   // Setter to enable/disable to compute the cluster's orientation
   vtkSetMacro(EnableClusterOrientation, bool);
   vtkGetMacro(EnableClusterOrientation, bool);
@@ -90,12 +101,20 @@ private:
   double ClusterRadius = 0.4;
   // Minimum number of points of a cluster
   int ClusterMinNbPoints = 5;
+  // Grid resolution for region growing method
+  float ClusterGridResolution = 0.1;
+  // Use background grid to remove outliers
+  bool EnableBackgroundGrid = false;
 
   // Parameter to enable/disable to compute orientation of clusters
   bool EnableClusterOrientation = false;
 
   // Parameters for tracking
   int TrackingWindowSizes = 10;
+  // Number of processed frames
+  int NbProcessedFrames = 0;
+  // Number of frames for the initialization
+  int InitNbFrames = 10;
 
   // Bounding box of clusters
   class Bbox
@@ -298,6 +317,67 @@ private:
   };
   GaussianMixture3D GMMClusters;
 
+  // Clustering with region growing
+  struct Voxel
+  {
+    // Cluster id
+    int ClusterIdx = -1;
+
+    // Point indices for current frame
+    std::vector<int> CurrentPtIndices;
+    int NbCurrentPts = 0;
+    int SeenTimes = 0;
+    int Time = -1;
+  };
+  struct ClusteringGrid
+  {
+    // Grid of voxels
+    std::unordered_map<int, Voxel> VoxelMap;
+    std::unordered_map<int, Voxel> BackgroudMap;
+    Eigen::Vector3d Origin = { 0., 0., 0. };
+    Eigen::Array3i GridSize = { 100, 100, 100 };
+    float Resolution = 0.1;
+    bool IsInitialized = false;
+
+    bool IsInBounds(const Eigen::Array3i& voxelId3d)
+    {
+      if (voxelId3d.x() >= this->GridSize.x() || voxelId3d.y() >= this->GridSize.y() ||
+        voxelId3d.z() >= this->GridSize.z())
+        return false;
+      else
+        return true;
+    }
+
+    bool Check(const Eigen::Array3i& voxelId3d)
+    {
+      int idx = this->To1d(voxelId3d);
+      return this->VoxelMap.count(idx);
+    }
+
+    Voxel& operator()(const Eigen::Array3i& voxelId3d)
+    {
+      int idx = this->To1d(voxelId3d);
+      return this->VoxelMap[idx];
+    }
+
+    int To1d(const Eigen::Array3i& voxelId3d) const
+    {
+      int id =
+        voxelId3d.z() * GridSize[0] * GridSize[1] + voxelId3d.y() * GridSize[0] + voxelId3d.x();
+      return id;
+    }
+
+    Eigen::Array3i To3d(int voxelId1d) const
+    {
+      int x = voxelId1d % this->GridSize[0];
+      int y = (voxelId1d / this->GridSize[0]) % this->GridSize[1];
+      int z = voxelId1d / (this->GridSize[0] * this->GridSize[1]);
+      return { x, y, z };
+    }
+  };
+  ClusteringGrid ClustersGrid;
+  int NewClusterIdx = 0;
+
   // Extract clusters with vtkEuclideanClusterExtraction method
   void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
@@ -307,6 +387,15 @@ private:
   void ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
+
+  // Extract clusters with region growing method
+  void ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
+  // Functions to construct clustering grid
+  void InitClusteringGrid(vtkPolyData* polydata);
+  void BuildBackgroundGrid(vtkPolyData* polydata);
 
   // Compute stats of a cluster
   ClusterStats ComputeClusterStats(vtkSmartPointer<vtkPolyData> input,

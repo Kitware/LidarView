@@ -67,6 +67,31 @@
       </Documentation>
     </IntVectorProperty>
 
+    <IntVectorProperty name="Enable background map"
+                       command="SetEnableBackgroundGrid"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Enable/disable background map for the clustering with region growing method.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Initialization time"
+                       command="SetInitNbFrames"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+        The number of frames to wait for building background map.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable background map" value="1" />
+      </Hints>
+    </IntVectorProperty>
+
     <DoubleVectorProperty name="Cluster radius"
                        command="SetClusterRadius"
                        number_of_elements="1"
@@ -91,6 +116,18 @@
       </Documentation>
     </IntVectorProperty>
 
+    <DoubleVectorProperty name="Clustering grid resolution"
+                       command="SetClusterGridResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+      <Documentation>
+        The size of the voxel grid (in meters) which is used to extract clusters.
+      </Documentation>
+    </DoubleVectorProperty>
+
     <IntVectorProperty name="Set tracking window sizes"
                        command="SetTrackingWindowSizes"
                        number_of_elements="1"
@@ -111,8 +148,11 @@
     <PropertyGroup label="Clustering and tracking Parameters">
       <Property name="Cluster extractor" />
       <Property name="Compute cluster orientation" />
+      <Property name="Enable background map" />
+      <Property name="Initialization time" />
       <Property name="Cluster radius" />
       <Property name="Cluster minimum point number" />
+      <Property name="Clustering grid resolution" />
       <Property name="Set tracking window sizes" />
     </PropertyGroup>
 
