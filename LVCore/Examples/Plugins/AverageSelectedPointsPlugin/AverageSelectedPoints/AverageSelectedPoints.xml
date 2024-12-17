@@ -1,0 +1,37 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkAverageSelectedPoints -->
+  <ProxyGroup name="filters">
+    <SourceProxy class="vtkAverageSelectedPoints" name="AverageSelectedPoints">
+      <Documentation long_help="Average point z selected via a box widget and display result on screen" short_help="Average point z"></Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataObject" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <ProxyProperty command="SetImplicitFunction"
+                     label="Clip Type"
+                     name="ClipFunction">
+        <ProxyGroupDomain name="groups">
+          <Group name="implicit_functions" />
+        </ProxyGroupDomain>
+        <ProxyListDomain name="proxy_list">
+          <Proxy group="implicit_functions" name="Box" />
+          <!-- Other function availables -->
+          <!-- <Proxy group="implicit_functions" name="Sphere" />
+          <Proxy group="implicit_functions" name="Cylinder" /> -->
+        </ProxyListDomain>
+        <Documentation>This property specifies the parameters of the
+        function (an implicit description).</Documentation>
+      </ProxyProperty>
+
+      <Hints>
+        <OutputPort index="0"
+                    name="Output-0"
+                    type="text" />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkAverageSelectedPoints -->
+</ServerManagerConfiguration>

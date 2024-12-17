@@ -1,0 +1,7 @@
+NAME
+  AverageSelectedPoints
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel

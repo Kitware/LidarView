@@ -28,6 +28,7 @@ list(APPEND lidarview_default_plugins
 
 if (BUILD_EXAMPLES)
   list(APPEND lidarview_default_plugins
+    AverageSelectedPointsPlugin
     CustomDockWidget
     ProcessingSamplePlugin
     RotativeLidarInterpreter
