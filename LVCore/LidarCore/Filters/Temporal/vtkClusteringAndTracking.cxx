@@ -54,7 +54,6 @@
 // STD
 #include <iomanip>
 #include <iostream>
-#include <list>
 #include <numeric>
 
 constexpr unsigned int POINTCLOUD_INPUT_PORT = 0;
@@ -146,6 +145,158 @@ Eigen::Isometry3d vtkClusteringAndTracking::Bbox::GetEigenTransform() const
   transform.translation() =
     Eigen::Vector3d(this->Transform[3], this->Transform[7], this->Transform[11]);
   return transform;
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::Gaussian3D::UpdateParams(const Eigen::Vector3d& pt, double weightX)
+{
+  // Update the weight
+  double oldWeight = this->Weight;
+  double sumWeight = this->NbInliers * oldWeight;
+  this->Weight = (sumWeight + weightX) / (this->NbInliers + 1);
+
+  // Update the mean
+  Eigen::Vector3d oldMean = this->Mean;
+  this->Mean = oldMean + weightX * (pt - oldMean) / (sumWeight + weightX);
+
+  // Update the covariance using Welford's method
+  // Do not update covariance for the clustering and tracking
+  // to keep the cluster size
+
+  // Update the number of sample
+  ++NbInliers;
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::GaussianMixture3D::Reset()
+{
+  this->Gaussians.clear();
+  this->UniqueID = 0;
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::GaussianMixture3D::GetClusters(
+  std::vector<std::vector<int>>& clusters,
+  std::vector<int>& clusterId)
+{
+  for (auto& gaussian : this->Gaussians)
+  {
+    if (gaussian.PointsId.empty())
+      continue;
+    clusters.emplace_back(gaussian.PointsId);
+    clusterId.emplace_back(gaussian.Id);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::GaussianMixture3D::ClearClusters()
+{
+  for (auto& gaussian : this->Gaussians)
+  {
+    gaussian.PointsId.clear();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::GaussianMixture3D::AddPoint(const Eigen::Vector3d& pt, int ptId)
+{
+  // Create a new gaussian if the gaussian mixture model is empty
+  if (this->Gaussians.empty())
+  {
+    Eigen::Matrix3d covInit = this->CovCoeff * Eigen::Matrix3d::Identity();
+    Gaussian3D newGaussian(pt, covInit, this->MaxTTL, this->GetNewUniqueID());
+    newGaussian.PointsId.emplace_back(ptId);
+    this->Gaussians.push_back(newGaussian);
+    this->ItClosest = this->Gaussians.begin();
+    return;
+  }
+  // Find the closest gaussian for the new point
+  std::vector<double> probas;
+  double minDistance = FLT_MAX;
+  this->ItClosest = this->Gaussians.begin();
+  for (auto it = this->Gaussians.begin(); it != this->Gaussians.end(); ++it)
+  {
+    probas.emplace_back(it->ComputeWeightedProba(pt));
+    double dist = (pt - it->Mean).norm();
+    if (dist < minDistance)
+    {
+      minDistance = dist;
+      this->ItClosest = it;
+    }
+  }
+
+  // Update current gaussian mixture model if the new point is close to a gaussian cluster
+  Eigen::Vector3d distance = pt - this->ItClosest->Mean;
+  if (distance.norm() < 3. * this->GaussianClusterRadius)
+  {
+    this->ItClosest->PointsId.emplace_back(ptId);
+    int idProba = 0;
+    double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+    for (auto& gaussian : this->Gaussians)
+    {
+      gaussian.UpdateParams(pt, probas[idProba] / sumProba);
+      ++idProba;
+    }
+    this->ResetTTL();
+    return;
+  }
+
+  // Create a new gaussian if the new point is far from existing distributions
+  Eigen::Matrix3d covInit = this->CovCoeff * Eigen::Matrix3d::Identity();
+  Gaussian3D newGaussian(
+    pt, covInit, this->MaxTTL, this->GetNewUniqueID(), this->ItClosest->NbInliers + 1);
+  newGaussian.PointsId.emplace_back(ptId);
+  probas.clear();
+  for (auto gaussian : this->Gaussians)
+  {
+    probas.emplace_back(gaussian(pt));
+  }
+  probas.emplace_back(newGaussian(pt));
+  double sumProba = std::accumulate(probas.begin(), probas.end(), 0.);
+  int idProba = 0;
+  // Update existing gaussians with new weights
+  for (auto& gaussian : this->Gaussians)
+  {
+    gaussian.UpdateParams(pt, probas[idProba] / sumProba);
+    ++idProba;
+  }
+  // Set weight for new gaussian and add it to the model
+  double newGaussianWeight = (probas.back() / sumProba) / (this->ItClosest->NbInliers + 1);
+  newGaussian.Weight = newGaussianWeight;
+  this->Gaussians.push_back(newGaussian);
+  this->ItClosest = std::prev(this->Gaussians.end());
+}
+
+//-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::GaussianMixture3D::UpdateClusters()
+{
+  if (this->Gaussians.empty())
+    return;
+  auto it = this->Gaussians.begin();
+  while (it != this->Gaussians.end())
+  {
+    // Check if or not the gaussian is still alive
+    bool stillAlive = it->UpdateTTL();
+
+    // Erase the gaussian if it is not alive
+    if (!stillAlive || int(it->PointsId.size()) < this->GaussianClusterMinNbPoints)
+    {
+      // erase current iterator and get next on
+      it = this->Gaussians.erase(it);
+      // no need to increment iterator here
+    }
+    else
+    {
+      ++it; // increment iterator here
+    }
+  }
+  // Normalise weights and clear points id
+  int nbGaussians = this->Gaussians.size();
+  for (auto& gaussian : this->Gaussians)
+  {
+    gaussian.NbInliers = 1;
+    gaussian.Weight = 1. / double(nbGaussians);
+  }
 }
 
 //-----------------------------------------------------------------------------
