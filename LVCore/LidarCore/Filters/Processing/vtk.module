@@ -11,6 +11,5 @@ PRIVATE_DEPENDS
   LidarView::CommonCore
   VTK::CommonTransforms
   VTK::FiltersCore
-  nanoflann::nanoflann
 TEST_DEPENDS
   LidarView::TestingCore

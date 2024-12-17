@@ -23,3 +23,10 @@ vtk_module_add_module(LidarView::FiltersProcessing
   CLASSES ${classes}
   PRIVATE_HEADERS ${private_headers}
   SOURCES ${sources})
+
+if (LIDARVIEW_USE_NANOFLANN)
+  vtk_module_link(LidarView::FiltersProcessing
+    PRIVATE
+      nanoflann::nanoflann
+  )
+endif()
