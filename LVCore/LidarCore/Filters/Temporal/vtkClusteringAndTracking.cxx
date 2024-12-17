@@ -316,6 +316,49 @@ void vtkClusteringAndTracking::SetClusterExtractor(int extractor)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkClusteringAndTracking::SetClusterRadius(double radius)
+{
+  if (this->ClusterRadius != radius)
+  {
+    this->ClusterRadius = radius;
+    if (this->ClusterExtractor == Extractor::GMM)
+    {
+      this->GMMClusters.SetGaussianClusterRadius(radius);
+      this->GMMClusters.SetCovCoeff(radius);
+    }
+  }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkClusteringAndTracking::SetClusterMinNbPoints(int minNbPoints)
+{
+  if (this->ClusterMinNbPoints != minNbPoints)
+  {
+    this->ClusterMinNbPoints = minNbPoints;
+    if (this->ClusterExtractor == Extractor::GMM)
+    {
+      this->GMMClusters.SetGaussianClusterMinNbPoints(minNbPoints);
+    }
+  }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkClusteringAndTracking::SetTrackingWindowSizes(int trackingWindowSizes)
+{
+  if (this->TrackingWindowSizes != trackingWindowSizes)
+  {
+    this->TrackingWindowSizes = trackingWindowSizes;
+    if (this->ClusterExtractor == Extractor::GMM)
+    {
+      this->GMMClusters.SetMaxTTL(trackingWindowSizes);
+    }
+  }
+  this->Modified();
+}
+
 //-----------------------------------------------------------------------------
 vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterStats(
   vtkSmartPointer<vtkPolyData> input,
@@ -593,6 +636,69 @@ void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkP
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  if (polydata->GetNumberOfPoints() == 0)
+  {
+    vtkLog(INFO, "Not enough points: clusters not extracted");
+    return;
+  }
+
+  // Extract clusters with gaussian mixture model
+  Eigen::Vector3d point;
+  for (int id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  {
+    polydata->GetPoint(id, point.data());
+    this->GMMClusters.AddPoint(point, id);
+  }
+  this->GMMClusters.UpdateClusters();
+
+  // Add array to store cluster Id
+  // The array name is ClusterId to be same as the vtkEuclideanClusterExtraction filter
+  vtkSmartPointer<vtkIntArray> pointLabel = vtkSmartPointer<vtkIntArray>::New();
+  pointLabel->SetName("ClusterId");
+  for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  {
+    pointLabel->InsertNextTuple1(-1);
+  }
+  polydata->GetPointData()->AddArray(pointLabel);
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  std::vector<std::vector<int>> clusters;
+  std::vector<int> clusterUUID;
+  this->GMMClusters.GetClusters(clusters, clusterUUID);
+  this->ClustersStats.clear();
+  for (unsigned int id = 0; id < clusters.size(); ++id)
+  {
+    int nbClusterPoints = clusters[id].size();
+    if (nbClusterPoints < this->ClusterMinNbPoints)
+      continue;
+
+    // Label points with their cluster Id
+    for (const auto& pointId : clusters[id])
+    {
+      polydata->GetPointData()->GetArray("ClusterId")->SetTuple1(pointId, clusterUUID[id]);
+    }
+
+    // Compute stats
+    this->ClustersStats.emplace_back(
+      this->ComputeClusterStats(polydata, clusters[id], clusterUUID[id]));
+  }
+  this->GMMClusters.ClearClusters();
+
+  // Sort clusters based on their clusterId
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.ClusterId < cluster2.ClusterId; });
+
+  // Create output of clusters information
+  this->CreateClustersOutput(clustersOutput, infoOutput);
+}
+
+//-----------------------------------------------------------------------------
 int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -632,6 +738,7 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
     }
     case Extractor::GMM:
     {
+      this->ExtractClustersWithGMM(clustersPointsOutput, clustersOutput, clusterInfoOutput);
       break;
     }
     case Extractor::REGION_GROWING:

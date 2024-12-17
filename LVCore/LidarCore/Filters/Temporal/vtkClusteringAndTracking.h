@@ -52,9 +52,12 @@ public:
   // Set the extraction method
   void SetClusterExtractor(int extractor);
   // Set the minimum radius of a cluster
-  vtkSetMacro(ClusterRadius, double);
+  void SetClusterRadius(double radius);
   // Set the minimum number of points in a cluster
-  vtkSetMacro(ClusterMinNbPoints, int);
+  void SetClusterMinNbPoints(int minNbPoints);
+
+  // Set tracking window sizes
+  void SetTrackingWindowSizes(int trackingWindowSizes);
   // Setter to enable/disable to compute the cluster's orientation
   vtkSetMacro(EnableClusterOrientation, bool);
   vtkGetMacro(EnableClusterOrientation, bool);
@@ -90,6 +93,9 @@ private:
 
   // Parameter to enable/disable to compute orientation of clusters
   bool EnableClusterOrientation = false;
+
+  // Parameters for tracking
+  int TrackingWindowSizes = 10;
 
   // Bounding box of clusters
   class Bbox
@@ -290,9 +296,15 @@ private:
     // Gaussian distributions
     std::list<Gaussian3D> Gaussians;
   };
+  GaussianMixture3D GMMClusters;
 
   // Extract clusters with vtkEuclideanClusterExtraction method
   void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
+  // Extract clusters with gaussian mixture model method
+  void ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
 
