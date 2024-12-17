@@ -47,6 +47,10 @@ public:
   vtkTypeMacro(vtkClusteringAndTracking, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // Getters / Setters
+  vtkSetMacro(EnableClusterOrientation, bool);
+  vtkGetMacro(EnableClusterOrientation, bool);
+
 protected:
   // constructor / destructor
   vtkClusteringAndTracking();
@@ -62,6 +66,8 @@ private:
   vtkClusteringAndTracking(const vtkClusteringAndTracking&);
   void operator=(const vtkClusteringAndTracking&);
 
+  // Parameter to enable/disable to compute orientation of clusters
+  bool EnableClusterOrientation = false;
   // Bounding box of clusters
   class Bbox
   {
@@ -88,7 +94,8 @@ private:
 
   private:
     Eigen::Isometry3d GetEigenTransform() const;
-    std::vector<double> Transform;
+    std::vector<double>
+      Transform = { 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1. };
     Eigen::Matrix<double, 6, 1> Vertices = { 0., 0., 0., 0., 0., 0. };
     Eigen::Vector3d Center = { 0., 0., 0. };
     Eigen::Vector3d Size = { 0., 0., 0. };
@@ -113,6 +120,11 @@ private:
     Bbox BoundingBox;
   };
   std::vector<ClusterStats> ClustersStats;
+
+  // Compute stats of a cluster
+  ClusterStats ComputeClusterStats(vtkSmartPointer<vtkPolyData> input,
+    const std::vector<int>& clusterPtIndices,
+    const int clusterId);
 
   // Create outputs
   void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,

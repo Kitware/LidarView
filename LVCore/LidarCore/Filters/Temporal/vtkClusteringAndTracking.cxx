@@ -149,6 +149,95 @@ Eigen::Isometry3d vtkClusteringAndTracking::Bbox::GetEigenTransform() const
 }
 
 //-----------------------------------------------------------------------------
+vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterStats(
+  vtkSmartPointer<vtkPolyData> input,
+  const std::vector<int>& clusterPtIndices,
+  const int clusterId)
+{
+  // Create polydata for points of clusters
+  vtkNew<vtkPoints> clusterPoints;
+  vtkNew<vtkPolyData> clusterPointsPolydata;
+  clusterPointsPolydata->SetPoints(clusterPoints);
+
+  ClusterStats clusterInfo;
+  // Calculate the average depth value and bounding box for this cluster
+  double depth = 0.0;
+  double intensity = 0.0;
+  for (const auto& pointId : clusterPtIndices)
+  {
+    depth += input->GetPointData()->GetArray("distance_m")->GetTuple1(pointId);
+    intensity += input->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
+    Eigen::Vector3d point;
+    input->GetPoint(pointId, point.data());
+    clusterPoints->InsertNextPoint(point.data());
+  }
+  int nbClusterPoints = clusterPtIndices.size();
+  clusterInfo.ClusterId = clusterId;
+  clusterInfo.NbPoints = nbClusterPoints;
+  depth /= nbClusterPoints;
+  intensity /= nbClusterPoints;
+  clusterInfo.MeanDepth = depth;
+  clusterInfo.MeanIntensity = intensity;
+
+  if (this->EnableClusterOrientation)
+  {
+    // For PCA
+    auto computePCA = vtkSmartPointer<vtkPointsPCA>::New();
+    computePCA->SetInputData(clusterPointsPolydata);
+    computePCA->Update();
+    vtkNew<vtkDoubleArray> eigenvectors;
+    computePCA->GetEigenVectors(eigenvectors);
+
+    Eigen::Vector3d pointcloudCentroid;
+    vtkCenterOfMass::ComputeCenterOfMass(clusterPoints, nullptr, pointcloudCentroid.data());
+
+    // clang-format off
+    double matrix[16] = {
+      eigenvectors->GetValue(6), eigenvectors->GetValue(3), eigenvectors->GetValue(0), pointcloudCentroid.x(),
+      eigenvectors->GetValue(7), eigenvectors->GetValue(4), eigenvectors->GetValue(1), pointcloudCentroid.y(),
+      eigenvectors->GetValue(8), eigenvectors->GetValue(5), eigenvectors->GetValue(2), pointcloudCentroid.z(),
+      0., 0., 0., 1. };
+    // clang-format on
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->SetMatrix(matrix);
+
+    // Transform cluster point cloud
+    vtkNew<vtkTransformPolyDataFilter> transformFilter;
+    transformFilter->SetTransform(transform->GetInverse());
+    transformFilter->SetInputData(clusterPointsPolydata);
+    transformFilter->Update();
+    double bounds[6];
+    transformFilter->GetOutput()->GetBounds(bounds);
+
+    clusterInfo.BoundingBox.SetTransform(matrix);
+    clusterInfo.BoundingBox.SetVertices(
+      bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  }
+  else
+  {
+    double bounds[6];
+    clusterPointsPolydata->GetBounds(bounds);
+    clusterInfo.BoundingBox.SetVertices(
+      bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+  }
+
+  // Label cluster by geometry dimension
+  // clang-format off
+  if (clusterInfo.BoundingBox.GetSize().z() >= 0.8 && clusterInfo.BoundingBox.GetSize().z() <= 2.2 &&
+     ((clusterInfo.BoundingBox.GetSize().x() >= 0.2 && clusterInfo.BoundingBox.GetSize().x() <= 0.7) ||
+      (clusterInfo.BoundingBox.GetSize().y() >= 0.2 && clusterInfo.BoundingBox.GetSize().y() <= 0.7)))
+  // clang-format on
+  {
+    clusterInfo.ClusterLabel = vtkClusteringAndTracking::Label::HUMAN;
+  }
+  else
+  {
+    clusterInfo.ClusterLabel = vtkClusteringAndTracking::Label::OTHERS;
+  }
+  return clusterInfo;
+}
+
+//-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::CreateClustersOutput(
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
   vtkSmartPointer<vtkTable> infoOutput)
@@ -161,14 +250,22 @@ void vtkClusteringAndTracking::CreateClustersOutput(
     vtkNew<vtkPolyData> source;
     cubeSource->SetBounds(cluster.BoundingBox.GetVertices().data());
     cubeSource->SetCenter(cluster.BoundingBox.GetCenter().data());
-    // Transform bounding box
-    vtkNew<vtkTransformPolyDataFilter> transformFilter;
-    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-    transform->SetMatrix(cluster.BoundingBox.GetTransform().data());
-    transformFilter->SetTransform(transform);
-    transformFilter->SetInputConnection(cubeSource->GetOutputPort());
-    transformFilter->Update();
-    source->ShallowCopy(transformFilter->GetOutput());
+    if (this->EnableClusterOrientation)
+    {
+      // Transform bounding box
+      vtkNew<vtkTransformPolyDataFilter> transformFilter;
+      vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+      transform->SetMatrix(cluster.BoundingBox.GetTransform().data());
+      transformFilter->SetTransform(transform);
+      transformFilter->SetInputConnection(cubeSource->GetOutputPort());
+      transformFilter->Update();
+      source->ShallowCopy(transformFilter->GetOutput());
+    }
+    else
+    {
+      cubeSource->Update();
+      source->ShallowCopy(cubeSource->GetOutput());
+    }
 
     std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));
     clustersOutput->SetBlock(blockId, source);
