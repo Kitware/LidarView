@@ -454,11 +454,39 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
   ClusterStats clusterInfo;
   // Calculate the average depth value and bounding box for this cluster
   double depth = 0.0;
+  bool hasDepth = false;
+  std::string depthName;
   double intensity = 0.0;
+  bool hasIntensity = false;
+  std::string intensityName;
+  // Check depth array
+  if (input->GetPointData()->HasArray("distance_m"))
+  {
+    hasDepth = true;
+    depthName = "distance_m";
+  }
+  else if (input->GetPointData()->HasArray("Distance"))
+  {
+    hasDepth = true;
+    depthName = "Distance";
+  }
+  // Check intensity array
+  if (input->GetPointData()->HasArray("intensity"))
+  {
+    hasIntensity = true;
+    intensityName = "intensity";
+  }
+  else if (input->GetPointData()->HasArray("Reflectivity"))
+  {
+    hasIntensity = true;
+    intensityName = "Reflectivity";
+  }
   for (const auto& pointId : clusterPtIndices)
   {
-    depth += input->GetPointData()->GetArray("distance_m")->GetTuple1(pointId);
-    intensity += input->GetPointData()->GetArray("intensity")->GetTuple1(pointId);
+    if (hasDepth)
+      depth += input->GetPointData()->GetArray(depthName.c_str())->GetTuple1(pointId);
+    if (hasIntensity)
+      intensity += input->GetPointData()->GetArray(intensityName.c_str())->GetTuple1(pointId);
     Eigen::Vector3d point;
     input->GetPoint(pointId, point.data());
     clusterPoints->InsertNextPoint(point.data());
