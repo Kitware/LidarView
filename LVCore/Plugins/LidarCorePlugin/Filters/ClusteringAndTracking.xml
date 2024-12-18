@@ -27,6 +27,17 @@
       <PipelineIcon name="SpreadSheetView" port="2" />
     </Hints>
 
+    <Property name="Reset"
+              command="Reset">
+      <Documentation>
+        Reset clustering and tracking states.
+        GMM model or region growing maps are cleared.
+        Parameters are reset to current state.
+        The number of processed frames returns to 0.
+        The counter of cluster id returns to 0.
+      </Documentation>
+    </Property>
+
     <!-- ============================ Clustering and tracking ============================ -->
       <IntVectorProperty name="Cluster extractor"
                          command="SetClusterExtractor"

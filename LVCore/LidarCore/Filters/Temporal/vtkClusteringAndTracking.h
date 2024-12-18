@@ -48,6 +48,9 @@ public:
   vtkTypeMacro(vtkClusteringAndTracking, vtkPolyDataAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // Reset
+  void Reset();
+
   // Getters / Setters
   // Set the extraction method
   void SetClusterExtractor(int extractor);

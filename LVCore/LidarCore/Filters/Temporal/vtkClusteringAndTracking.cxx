@@ -441,6 +441,23 @@ void vtkClusteringAndTracking::BuildBackgroundGrid(vtkPolyData* polydata)
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::Reset()
+{
+  this->NbProcessedFrames = 0;
+  if (this->ClusterExtractor == Extractor::GMM)
+  {
+    this->GMMClusters.Reset();
+  }
+  if (this->ClusterExtractor == Extractor::REGION_GROWING)
+  {
+    this->ClustersGrid.VoxelMap.clear();
+    this->ClustersGrid.BackgroudMap.clear();
+    this->ClustersGrid.IsInitialized = false;
+    this->NewClusterIdx = 0;
+  }
+}
+
+//-----------------------------------------------------------------------------
 vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterStats(
   vtkSmartPointer<vtkPolyData> input,
   const std::vector<int>& clusterPtIndices,
