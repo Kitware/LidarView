@@ -11,5 +11,6 @@ PRIVATE_DEPENDS
   LidarView::CommonCore
   VTK::CommonTransforms
   VTK::FiltersCore
+  VTK::FiltersGeneral
 TEST_DEPENDS
   LidarView::TestingCore

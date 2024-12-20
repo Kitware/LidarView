@@ -18,11 +18,13 @@
 #include "KDTreeVTKAdaptor.h"
 
 // VTK
+#include <vtkIdTypeArray.h>
 #include <vtkInformation.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
+#include <vtkRemovePolyData.h>
 #include <vtkTransform.h>
 
 constexpr unsigned int POINTS_INPUT_PORT = 0;
@@ -48,6 +50,60 @@ int vtkAdaptiveOutlierRemoval::FillInputPortInformation(int vtkNotUsed(port), vt
 }
 
 //-----------------------------------------------------------------------------
+void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> inputPointcloud,
+  vtkSmartPointer<vtkPolyData> outputPointcloud)
+{
+  // Check depth array
+  bool hasDepth = false;
+  std::string depthName;
+  if (inputPointcloud->GetPointData()->HasArray("distance_m"))
+  {
+    hasDepth = true;
+    depthName = "distance_m";
+  }
+  else if (inputPointcloud->GetPointData()->HasArray("Distance"))
+  {
+    hasDepth = true;
+    depthName = "Distance";
+  }
+
+  vtkKDTreeVTKAdaptor kDTree;
+  kDTree.Reset(inputPointcloud);
+  vtkSmartPointer<vtkIdTypeArray> pointIdsToRemove = vtkSmartPointer<vtkIdTypeArray>::New();
+  pointIdsToRemove->SetNumberOfComponents(1);
+  for (auto id = 0; id < inputPointcloud->GetNumberOfPoints(); ++id)
+  {
+    double point[3];
+    inputPointcloud->GetPoint(id, point);
+    std::vector<float> sqDistances(this->NbNeighbors);
+    std::vector<int> neighborsIndices(this->NbNeighbors);
+    kDTree.KnnSearch(point, this->NbNeighbors, neighborsIndices, sqDistances);
+    // Compute average distance
+    float aveDist = 0.;
+    for (const float& sqDist : sqDistances)
+      aveDist += std::sqrt(sqDist);
+    aveDist /= this->NbNeighbors;
+    // Define the threshold
+    double depth = 0.;
+    if (this->EnableAdaptiveRemoval && hasDepth)
+      depth = inputPointcloud->GetPointData()->GetArray(depthName.c_str())->GetTuple1(id);
+    double threshold = this->EnableAdaptiveRemoval
+      ? std::max(this->Factor * depth, this->AveDistThreshold)
+      : this->AveDistThreshold;
+    // Save id of points to be removed
+    if (aveDist > threshold)
+      pointIdsToRemove->InsertNextValue(id);
+  }
+  vtkSmartPointer<vtkRemovePolyData> removePolyDataFilter =
+    vtkSmartPointer<vtkRemovePolyData>::New();
+  removePolyDataFilter->SetInputData(0, inputPointcloud);
+  removePolyDataFilter->SetPointIds(pointIdsToRemove);
+  removePolyDataFilter->Update();
+
+  outputPointcloud->ShallowCopy(removePolyDataFilter->GetOutput());
+}
+
+//-----------------------------------------------------------------------------
 int vtkAdaptiveOutlierRemoval::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -56,5 +112,6 @@ int vtkAdaptiveOutlierRemoval::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* inputPointcloud = vtkPolyData::GetData(inputVector[POINTS_INPUT_PORT], 0);
   vtkPolyData* outputPointcloud = vtkPolyData::GetData(outputVector, FILTERED_POINTS_OUTPUT_PORT);
 
+  this->RemoveOutlier(inputPointcloud, outputPointcloud);
   return 1;
 }

@@ -34,6 +34,22 @@ public:
   static vtkAdaptiveOutlierRemoval* New();
   vtkTypeMacro(vtkAdaptiveOutlierRemoval, vtkPolyDataAlgorithm)
 
+  // Set number of neighbor points to use
+  vtkSetClampMacro(NbNeighbors, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NbNeighbors, int);
+
+  // Set average distance threshold
+  vtkSetMacro(AveDistThreshold, double);
+  vtkGetMacro(AveDistThreshold, double);
+
+  // Enable/disable adaptive outlier removal
+  vtkSetMacro(EnableAdaptiveRemoval, bool);
+  vtkGetMacro(EnableAdaptiveRemoval, bool);
+
+  // Set factor of the linear function to define the threshold
+  vtkSetMacro(Factor, double);
+  vtkGetMacro(Factor, double);
+
 protected:
   vtkAdaptiveOutlierRemoval();
   ~vtkAdaptiveOutlierRemoval() = default;
@@ -45,6 +61,21 @@ protected:
 private:
   vtkAdaptiveOutlierRemoval(const vtkAdaptiveOutlierRemoval&) = delete;
   void operator=(const vtkAdaptiveOutlierRemoval&) = delete;
+
+  void RemoveOutlier(vtkSmartPointer<vtkPolyData> inputPointcloud,
+    vtkSmartPointer<vtkPolyData> outputPointcloud);
+
+  // Number of neighbor points to compute the average distance for one point
+  int NbNeighbors = 10;
+  // The threshold to remove one point
+  double AveDistThreshold = 0.1;
+  // Enable adaptive outlier removal
+  bool EnableAdaptiveRemoval = true;
+  // The factor of the linear function of depth to define the threshold
+  // The default linear function is based on the arc length of an angular resolution :
+  // Threshold = angular resolution * depth
+  // The default value is computed based on an angular resolution 0.2° (0.2 * pi / 180)
+  double Factor = 0.0035;
 };
 
 #endif // VTK_ADAPTIVE_OUTLIER_REMOVAL_H

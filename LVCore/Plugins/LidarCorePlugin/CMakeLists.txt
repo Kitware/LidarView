@@ -73,7 +73,9 @@ set(xml_files
   Filters/ComputeVolume.xml)
 
 if (LIDARVIEW_USE_NANOFLANN)
-  list(APPEND xml_files Filters/ComputeNormalAdaptive.xml)
+  list(APPEND xml_files
+    Filters/AdaptiveOutlierRemoval.xml
+    Filters/ComputeNormalAdaptive.xml)
 endif()
 
 lidarcoreplugin_add_module_xml(
