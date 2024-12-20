@@ -7,7 +7,9 @@ set(private_headers)
 set(sources)
 
 if (LIDARVIEW_USE_NANOFLANN)
-  list(APPEND classes vtkComputeNormalAdaptive)
+  list(APPEND classes
+      vtkComputeNormalAdaptive
+      vtkAdaptiveOutlierRemoval)
 
   list(APPEND private_headers
       KDTreeVTKAdaptor.h
