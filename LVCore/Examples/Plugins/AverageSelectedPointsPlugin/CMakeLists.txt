@@ -3,4 +3,6 @@ paraview_add_plugin(AverageSelectedPointsPlugin
   REQUIRED_ON_SERVER
   VERSION "1.0"
   MODULES AverageSelectedPoints
-  MODULE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/AverageSelectedPoints/vtk.module")
+  MODULE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/AverageSelectedPoints/vtk.module"
+  SERVER_MANAGER_XML AverageSelectedPoints.xml
+)
