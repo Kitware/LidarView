@@ -4,6 +4,10 @@ With Python scripting and Paraview animation mechanisms, there are many ways to 
 
 This document aims at describing how to easily generate LidarView animations with Python.
 
+We recommend first reading [this tutorial](https://docs.paraview.org/en/latest/UsersGuide/animation.html) on how to use Paraview's time manager to create animations, which also gives a short introduction to the Python scripting used for the animtations below.
+
+Different types of animations : 
+
 - **temporal animations** are Paraview-based animations that depend on the data flow :
   they increment the pipeline time at each step. They often require providing a
   trajectory input which is used to move the camera reference at each step.
@@ -21,14 +25,11 @@ Non-temporal animations make use of the same *CameraPaths* objects but require l
 
 Check out the `examples` directory for samples scripts to illustrate animations use.
 
-For more information on how to use Python scripting and animations in Paraview,
-see [here](https://trac.version.fz-juelich.de/vis/wiki/Examples/ParaviewAnimating).
-
 - [Animations in Python](#animations-in-python)
   - [Requirements](#requirements)
   - [Relevant modules](#relevant-modules)
-    - [`lidarviewcore/camera_path.py`](#libcamera_pathpy)
-    - [`lidarviewcore/temporal_animation_cue_helpers.py`](#libtemporal_animation_cue_helperspy)
+    - [`lib/camera_path.py`](#libcamera_pathpy)
+    - [`lib/temporal_animation_cue_helpers.py`](#libtemporal_animation_cue_helperspy)
   - [Tutorial](#tutorial)
     - [How to define an animation cue script with `temporal_animation_cue_helpers`](#how-to-define-an-animation-cue-script-with-temporal_animation_cue_helpers)
       - [Function `start_cue_generic_setup`](#function-start_cue_generic_setup)
@@ -59,7 +60,9 @@ In order to use temporal animations helpers, (ie. for camera paths depending on 
 
 ## Relevant modules
 
-### `lidarviewcore/camera_path.py`
+Note : lib folder refers to `LVCore/Wrapping/Python/lidarviewcore`, it contains utilies for python scripting in LidarView
+
+### `lib/camera_path.py`
 
 This module contains the classes which define basic camera paths.
 Currently, the following types of camera are implemented:
@@ -73,7 +76,7 @@ Currently, the following types of camera are implemented:
     - *relative orbit*: the scene is viewed following an orbit around the vehicle in its reference
       (ie. around the current point of the trajectory).
 
-### `lidarviewcore/temporal_animation_cue_helpers.py`
+### `lib/temporal_animation_cue_helpers.py`
 
 This module contains helper functions in order to easily create temporal animation
 scripts with `smp.PythonAnimationCue()`, which needs to define the following 3 functions:
@@ -127,7 +130,7 @@ However, some of these parameters can/must be overridden to correspond to your a
 - `cad_model_name` (optional): the name of the element of the pipeline that serves
   for the 3D model to place at the current trajectory point for each frame.
 
-Please have a look to other parameters directly at the begining of [lidarviewcore/temporal_animation_cue_helpers.py](../../Wrapping/Python/lidarviewcore/temporal_animation_cue_helpers.py) for enhanced usage.
+Please have a look to other parameters directly at the begining of [lib/temporal_animation_cue_helpers.py](LVCore/Utilities/Animation/lib/temporal_animation_cue_helpers.py) for enhanced usage.
 
 #### Function `start_cue_generic_setup`
 
@@ -360,7 +363,7 @@ tach.params['cad_model_name'] = "carModel"
 
 #### Define a Lidarview processing pipeline
 
-See `examples/` directory for various examples.
+See `Examples/Python` directory for various examples.
 
 #### Make sure the trajectory and the data have a similar time base
 
@@ -477,15 +480,12 @@ animation.Play()
 ### Using lidarview GUI
 
 - Define your pipeline in the `Pipeline Browser` pane.
+- Open the `Time Manager` pane, choose the *All Frames* mode
 
-![Example pipeline](Documentation/animation_pipeline_example.png)
-
-- Open the `Animation` pane, choose the *Snap to timesteps* mode
-
-![Animation Pane](Documentation/animation_pane_example.png)
+![Time Manager Pane](Documentation/time_manager_pane_example.png)
 
 - Add a `Python` animation by selecting it in the drop-down list under the table
-  and clicking on `+`. This will open a pop-up window.
+  and clicking on `+`. And then double click on Python new widget, this will open a pop-up window.
 - Replace its content by the animation script.
 - Press OK
 - Run the animation with the `Play` button in the top bar
