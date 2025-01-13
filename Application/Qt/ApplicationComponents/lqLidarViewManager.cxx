@@ -238,7 +238,8 @@ public:
   //-----------------------------------------------------------------------------
   void updateToolBarsLayout()
   {
-    QList<QToolBar*> toolbars = this->mainWindow->findChildren<QToolBar*>();
+    QList<QToolBar*> toolbars =
+      this->mainWindow->findChildren<QToolBar*>(QString(), Qt::FindDirectChildrenOnly);
     nlohmann::json toolBarsConfig = this->currentJsonMode["toolbars"];
 
     if (toolBarsConfig["show"].is_array())
