@@ -29,6 +29,7 @@
 #include "statistics.h"
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkPacketFileHandler.h"
+#include "vtkStreamPacketHandler.h"
 
 #include <algorithm>
 #include <sstream>
@@ -377,16 +378,8 @@ bool vtkLidarReader::Open(std::vector<int> ports)
     return false;
   }
 
-  std::string filterPCAP = "udp";
-  if (!ports.empty())
-  {
-    auto buildString = [](const std::string& acc, int port)
-    { return acc.empty() ? std::to_string(port) : acc + " or " + std::to_string(port); };
-    std::string portsString =
-      std::accumulate(ports.begin(), ports.end(), std::string(), buildString);
+  std::string filterPCAP = vtkStreamPacketHandler::BuildPCAPFilter("udp", "", ports);
 
-    filterPCAP += " port " + portsString;
-  }
   if (!this->Internals->Reader->Open(this->FileName, filterPCAP))
   {
     vtkErrorMacro(<< "Failed to open packet file: " << this->FileName << "!");

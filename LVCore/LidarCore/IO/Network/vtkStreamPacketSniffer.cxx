@@ -237,21 +237,7 @@ bool vtkStreamPacketSniffer::StartListening(const std::vector<unsigned int>& por
   auto& internals = *this->Internals;
   internals.Callback = callback;
 
-  std::string filter = "udp ";
-  if (!this->HostAddress.empty())
-  {
-    filter += " src host " + this->HostAddress + " ";
-  }
-  for (size_t idx = 0; idx < ports.size(); idx++)
-  {
-    unsigned int port = ports.at(idx);
-    filter.append("port " + std::to_string(port));
-    if (idx < ports.size() - 1)
-    {
-      filter.append(" or ");
-    }
-  }
-
+  std::string filter = vtkStreamPacketHandler::BuildPCAPFilter("udp", this->HostAddress, ports);
   internals.StartSniffers(this->NetworkInterface, filter);
   if (!internals.Sniffers.empty())
   {

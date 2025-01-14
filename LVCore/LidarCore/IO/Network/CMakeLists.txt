@@ -8,6 +8,10 @@ set(headers
   vtkStreamPacketHandler.h
 )
 
+set(templates
+  vtkStreamPacketHandler.txx
+)
+
 set(classes
   vtkInterpreter
   vtkPacketFileHandler
@@ -44,6 +48,7 @@ vtk_module_add_module(LidarView::IONetwork
   SOURCES ${sources}
   CLASSES ${classes}
   HEADERS ${headers}
+  TEMPLATES ${templates}
   PRIVATE_HEADERS ${private_headers}
   PRIVATE_TEMPLATES ${private_template}
   PRIVATE_CLASSES ${private_classes}
