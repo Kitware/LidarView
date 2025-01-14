@@ -29,9 +29,10 @@ vtkStream::~vtkStream() = default;
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkStream::GetMTime()
 {
-  if (this->GetPacketHandler())
+  if (this->GetPacketHandler() &&
+    this->Superclass::GetMTime() < this->GetPacketHandler()->GetMTime())
   {
-    return std::max(this->Superclass::GetMTime(), this->GetPacketHandler()->GetMTime());
+    this->Modified();
   }
   return this->Superclass::GetMTime();
 }
@@ -52,6 +53,7 @@ int vtkStream::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
 {
+  std::cout << "new info" << std::endl;
   this->Start();
   return 1;
 }
