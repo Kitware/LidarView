@@ -25,6 +25,7 @@
 #include <pqServer.h>
 #include <pqSettings.h>
 
+#include <vtkPVXMLElement.h>
 #include <vtkSMParaViewPipelineController.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
@@ -191,11 +192,21 @@ pqProxyWidget* lqInterpreterWidget::createProxyWidget(QWidget* parent, const cha
         ::HideProperty(propIter->GetProperty());
       }
     }
-  }
 
-  // Restore custom settings
-  vtkSMSettings* settings = vtkSMSettings::GetInstance();
-  settings->GetProxySettings(proxy);
+    vtkSMProperty* smproperty = propIter->GetProperty();
+    if (smproperty->GetInformationOnly() || smproperty->GetIsInternal())
+    {
+      continue;
+    }
+
+    vtkPVXMLElement* propHints = smproperty->GetHints();
+    if (propHints && propHints->FindNestedElementByName("NoDefault"))
+    {
+      continue;
+    }
+    // Set sub-proxy default values.
+    propIter->GetProperty()->ResetToDomainDefaults();
+  }
 
   pqProxyWidget* widgetProxy = new pqProxyWidget(proxy, parent);
   widgetProxy->setApplyChangesImmediately(true);
