@@ -63,6 +63,10 @@ params['trajectory_time_array'] = "Time"
 # animation time. If this is not your case, set this offset properly.
 params['trajectory_to_animation_time_offset'] = 0
 
+# Specify the view to be used for the animation.
+# If no view is specified, the current active view will be used by default.
+params['animation_view'] = None
+
 # ----------------------------------------------------------------------------
 # CAD model filter/source
 
@@ -118,7 +122,7 @@ def get_pose_idx_from_time(trajectory_timesteps):
 def update_camera(camera, pose_idx, position, orientation):
     """ Update a camera path at a given step using current pose """
     if camera and camera.timestep_inside_range(pose_idx):
-        view = smp.GetActiveView()
+        view = params['animation_view'] if params['animation_view'] else smp.GetActiveView()
         view.CameraPosition = camera.interpolate_position(pose_idx, orientation, position, np.asarray(list(view.CameraPosition)))
         view.CameraFocalPoint = camera.interpolate_focal_point(pose_idx, orientation, position)
         view.CameraViewUp = camera.interpolate_up_vector(pose_idx, orientation)
