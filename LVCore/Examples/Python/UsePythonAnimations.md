@@ -351,6 +351,17 @@ else:
 tach.params['cad_model_name'] = "carModel"
 ```
 
+#### How to play camera animation for a specific view
+
+When using LidarView with multiple views, the camera animation will play on
+the currently active view by default. You can change this behavior by setting
+the `tach.params["animation_view"]` parameter to specify the desired view.
+
+```python
+# e.g typically view_name="LidarGridView1" view_type="LidarGridView"
+tach.params["animation_view"] = smp.FindViewOrCreate(view_name, view_type)
+```
+
 ## How to add `PythonAnimationCue` script to lidarview animations
 
 ### Using a python script
