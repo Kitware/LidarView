@@ -56,6 +56,11 @@ int vtkTemporalTransformsApplier::RequestData(vtkInformation* vtkNotUsed(request
   vtkPolyData* input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
 
   auto trajectory = vtkTemporalTransforms::CreateFromPolyData(input);
+  if (!trajectory)
+  {
+    vtkErrorMacro(<< "Invalid trajectory.");
+    return 0;
+  }
 
   // Fill the interpolator
   if (this->Interpolator->GetNumberOfTransforms() == 0)
@@ -103,7 +108,7 @@ int vtkTemporalTransformsApplier::RequestData(vtkInformation* vtkNotUsed(request
     if (!timestamp)
     {
       vtkErrorMacro(<< "No TimeStamp array selected.");
-      return 1;
+      return 0;
     }
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
     {
