@@ -1,102 +1,110 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="TemporalTransformsApplier" class="vtkTemporalTransformsApplier" label="Temporal Transforms Applier">
-      <Documentation
-         short_help="Combine consecutive timestep in a multiblock."
-         long_help="Combine consecutive timestep in a multiblock.">
+    <SourceProxy name="TemporalTransformsApplier"
+                 class="vtkTemporalTransformsApplier"
+                 label="Temporal Transforms Applier">
+      <Documentation short_help="Applies the transform of a trajectory corresponding to the current pipeline time or points time."
+                     long_help="Using LiDAR frames and a SLAM trajectory, this filter applies the current transform corresponding to either the pipeline time or the current points time.">
+        Using LiDAR frames and a SLAM trajectory, this filter applies the current transform corresponding to either the pipeline time or the current points time.
       </Documentation>
 
-    <InputProperty
-       name="PointCloud"
-       port_index="1"
-       command="SetInputConnection">
-      <ProxyGroupDomain name="groups">
-        <Group name="sources"/>
-        <Group name="filters"/>
-      </ProxyGroupDomain>
-      <DataTypeDomain name="input_type">
-        <DataType value="vtkPolyData"/>
-      </DataTypeDomain>
-      <Documentation>
-        Set the input trajectory
-      </Documentation>
-    </InputProperty>
+      <InputProperty name="PointCloud"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the input point cloud
+        </Documentation>
+      </InputProperty>
 
-    <InputProperty
-       name="Trajectory"
-       port_index="0"
-       command="SetInputConnection">
-      <ProxyGroupDomain name="groups">
-        <Group name="sources"/>
-        <Group name="filters"/>
-      </ProxyGroupDomain>
-      <DataTypeDomain name="input_type">
-        <DataType value="vtkPolyData"/>
-      </DataTypeDomain>
-      <Documentation>
-        Set the input point cloud
-      </Documentation>
-    </InputProperty>
+      <InputProperty name="Trajectory"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the input trajectory
+        </Documentation>
+      </InputProperty>
 
-    <IntVectorProperty
-                  name="InterpolationType"
-                  command="SetInterpolationType"
-                  number_of_elements="1"
-                  default_values="0">
-    <EnumerationDomain name="enum">
-      <Entry value="0" text="linear"/>
-      <Entry value="1" text="spline"/>
-      <Entry value="2" text="manual"/>
-      <Entry value="3" text="nearest"/>
-      <Entry value="4" text="nearest low bound"/>
-    </EnumerationDomain>
-    <Documentation>
-      This property indicates which type of interpolation will be used.
-    </Documentation>
-    </IntVectorProperty>
+      <IntVectorProperty name="InterpolationType"
+                         command="SetInterpolationType"
+                         number_of_elements="1"
+                         default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Linear" />
+          <Entry value="1" text="Spline" />
+          <Entry value="2" text="Manual" />
+          <Entry value="3" text="Nearest" />
+          <Entry value="4" text="Nearest low bound" />
+        </EnumerationDomain>
+        <Documentation>
+          The type of interpolation to use.
+        </Documentation>
+      </IntVectorProperty>
 
-    <IntVectorProperty name="InterpolateEachPoint"
-                       command="SetInterpolateEachPoint"
-                       number_of_elements="1"
-                       default_values="1">
-      <BooleanDomain name="bool"/>
-      <Documentation>
-        This property indicates if each point will be interpolate independanly according to its timestamp
-      </Documentation>
-    </IntVectorProperty>
+      <IntVectorProperty name="InterpolateEachPoint"
+                         command="SetInterpolateEachPoint"
+                         number_of_elements="1"
+                         default_values="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Indicates if each point should be interpolated independently according to its timestamp or
+          if the same transform should be applied to the whole point cloud.
+        </Documentation>
+      </IntVectorProperty>
 
-    <StringVectorProperty name="SelectTimeArray"
-                          label="Array"
-                          command="SetInputArrayToProcess"
-                          number_of_elements="5"
-                          element_types="0 0 0 0 2"
-                          default_values_delimiter=";"
-                          default_values="0;1;0;0;adjustedtime"
-                          animateable="0">
-      <ArrayListDomain name="array_list"
-                       attribute_type="Scalars">
-        <RequiredProperties>
-          <Property name="PointCloud"
-                    function="Input" />
-        </RequiredProperties>
-      </ArrayListDomain>
-      <Hints>
-        <PropertyWidgetDecorator type="GenericDecorator"
-                                 mode="visibility"
-                                 property="InterpolateEachPoint"
-                                 value="1" />
-      </Hints>
-    </StringVectorProperty>
+      <StringVectorProperty name="SelectTimeArray"
+                            label="Array"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;timestamp"
+                            animateable="0">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="PointCloud" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the corresponding time array name.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="InterpolateEachPoint"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
 
-    <DoubleVectorProperty name="ConversionFactorToSecond"
-                          command="SetConversionFactorToSecond"
-                          number_of_elements="1"
-                          default_values="1e-6">
-      <Documentation>
-        Double to convert Time unit in second, default is microsecond
-      </Documentation>
-    </DoubleVectorProperty>
+      <DoubleVectorProperty name="ConversionFactorToSecond"
+                            command="SetConversionFactorToSecond"
+                            panel_visibility="advanced"
+                            number_of_elements="1"
+                            default_values="1e-6">
+        <Documentation>
+          Factor to convert Time unit in second, default is microsecond.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="InterpolateEachPoint"
+                                   value="1" />
+        </Hints>
+      </DoubleVectorProperty>
 
-   </SourceProxy>
+    </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

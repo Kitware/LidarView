@@ -52,8 +52,8 @@ int vtkTemporalTransformsApplier::RequestData(vtkInformation* vtkNotUsed(request
   vtkInformationVector* outputVector)
 {
   // Get the input
-  vtkPolyData* pointcloud = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
-  vtkPolyData* input = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* pointcloud = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* input = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
 
   auto trajectory = vtkTemporalTransforms::CreateFromPolyData(input);
   if (!trajectory)
