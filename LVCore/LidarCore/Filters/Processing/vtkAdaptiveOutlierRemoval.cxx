@@ -18,6 +18,7 @@
 #include "KDTreeVTKAdaptor.h"
 
 // VTK
+#include <vtkCleanPolyData.h>
 #include <vtkIdTypeArray.h>
 #include <vtkInformation.h>
 #include <vtkMath.h>
@@ -98,9 +99,14 @@ void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> input
     vtkSmartPointer<vtkRemovePolyData>::New();
   removePolyDataFilter->SetInputData(0, inputPointcloud);
   removePolyDataFilter->SetPointIds(pointIdsToRemove);
-  removePolyDataFilter->Update();
 
-  outputPointcloud->ShallowCopy(removePolyDataFilter->GetOutput());
+  // Clean removed points
+  vtkSmartPointer<vtkCleanPolyData> cleanFilter = vtkSmartPointer<vtkCleanPolyData>::New();
+  cleanFilter->SetInputData(removePolyDataFilter->GetOutput());
+  cleanFilter->PointMergingOff();
+  cleanFilter->Update();
+
+  outputPointcloud->ShallowCopy(cleanFilter->GetOutput());
 }
 
 //-----------------------------------------------------------------------------
