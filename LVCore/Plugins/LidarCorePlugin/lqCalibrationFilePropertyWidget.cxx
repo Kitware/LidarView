@@ -45,6 +45,7 @@ constexpr const char* INDEX_KEY = "CalibrationIndex";
 class lqCalibrationFilePropertyWidget::lqInternals
 {
 public:
+  bool NoDefaultCalibration = false;
   QString SettingsGroup;
   Ui::CalibrationFileWidget UI;
 
@@ -198,9 +199,9 @@ lqCalibrationFilePropertyWidget::lqCalibrationFilePropertyWidget(vtkSMProxy* smp
     &lqCalibrationFilePropertyWidget::filenameChanged);
 
   vtkPVXMLElement* hints = smproperty->GetHints();
-  if (hints && hints->FindNestedElementByName("NoDefaultCalibration"))
+  internals.NoDefaultCalibration = hints && hints->FindNestedElementByName("NoDefaultCalibration");
+  if (internals.NoDefaultCalibration)
   {
-    internals.UI.UseCustomCalibrationFile->setChecked(true);
     internals.UI.UseCustomCalibrationFile->setVisible(false);
   }
   else
@@ -249,7 +250,8 @@ QString lqCalibrationFilePropertyWidget::currentFilename() const
   auto& internals = (*this->Internals);
   QString filename;
   QListWidget* calibWidget = internals.UI.CalibrationFileListWidget;
-  if (calibWidget->count() != 0 && internals.UI.UseCustomCalibrationFile->isChecked())
+  bool useCustomCalib = internals.UI.UseCustomCalibrationFile->isChecked() || internals.NoDefaultCalibration;
+  if (calibWidget->count() != 0 && useCustomCalib)
   {
     const int row = calibWidget->currentRow();
     if (0 <= row && row < calibWidget->count())
