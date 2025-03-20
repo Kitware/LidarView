@@ -102,7 +102,7 @@ void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> input
 
   // Clean removed points
   vtkSmartPointer<vtkCleanPolyData> cleanFilter = vtkSmartPointer<vtkCleanPolyData>::New();
-  cleanFilter->SetInputData(removePolyDataFilter->GetOutput());
+  cleanFilter->SetInputConnection(removePolyDataFilter->GetOutputPort());
   cleanFilter->PointMergingOff();
   cleanFilter->Update();
 
