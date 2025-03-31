@@ -8,6 +8,7 @@ set(classes
   lqMainControlsToolbar
   lqMenuSaveAsReaction
   lqStatusBar
+  lqViewFrameActionsImplementation
   lqWelcomeDialog
 )
 
