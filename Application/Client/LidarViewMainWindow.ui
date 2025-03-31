@@ -128,6 +128,18 @@
    </attribute>
    <widget class="pqPipelineBrowserWidget" name="pipelineBrowser"/>
   </widget>
+  <widget class="QDockWidget" name="comparativePanelDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Comparative View Inspector</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="pqComparativeVisPanel" name="comparativeVisPanel"/>
+  </widget>
   <widget class="QDockWidget" name="propertiesDock">
    <property name="windowTitle">
     <string>Properties</string>
@@ -312,6 +324,12 @@
    <class>lqStatusBar</class>
    <extends>QStatusBar</extends>
    <header>lqStatusBar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pqComparativeVisPanel</class>
+   <extends>QWidget</extends>
+   <header>pqComparativeVisPanel.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>pqPropertiesPanel</class>
