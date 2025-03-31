@@ -57,6 +57,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqOpenLidarReaction.h"
 #include "lqRecentlyUsedPcapLoader.h"
+#include "lqViewFrameActionsImplementation.h"
 #include "lqWelcomeDialog.h"
 
 //-----------------------------------------------------------------------------
@@ -191,6 +192,10 @@ LidarViewMainWindow::LidarViewMainWindow()
 
   // To register ParaView interfaces.
   pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+
+  // Replace default views
+  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
+  pgm->addInterface(new lqViewFrameActionsImplementation(pgm));
 
   // Add recently used pcap interface
   pgm->addInterface(new lqRecentlyUsedPcapLoader(pgm));
