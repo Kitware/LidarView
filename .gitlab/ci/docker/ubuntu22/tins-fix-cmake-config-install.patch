@@ -1,0 +1,135 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 696385f..81ad0c9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
++CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+ PROJECT(libtins)
+ 
+ OPTION(LIBTINS_BUILD_EXAMPLES "Build examples" ON)
+@@ -317,11 +317,7 @@ ENDIF()
+ # CMake project configuration export
+ # **********************************
+ 
+-if(UNIX)
+-    set(CONF_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/libtins")
+-else()
+-    set(CONF_CMAKE_INSTALL_DIR CMake)
+-endif()
++set(CONF_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/libtins")
+ 
+ # Add all targets to the build-tree export set
+ EXPORT(
+@@ -332,23 +328,33 @@ EXPORT(
+ # Export the package for use from the build-tree
+ # (this registers the build-tree with a global CMake-registry)
+ EXPORT(PACKAGE libtins)
++INCLUDE(CMakePackageConfigHelpers)
+ 
+ # Create the libtinsConfig.cmake and libtinsConfigVersion.cmake files
+ # for the build tree
+-SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
+-CONFIGURE_FILE(
++SET(CONF_INCLUDE_DIRS "include")
++CONFIGURE_PACKAGE_CONFIG_FILE(
+     cmake/libtinsConfig.cmake.in
+-    "${PROJECT_BINARY_DIR}/libtinsConfig.cmake" @ONLY
++    "${PROJECT_BINARY_DIR}/libtinsConfig.cmake"
++    INSTALL_DESTINATION ${CONF_CMAKE_INSTALL_DIR}
++    PATH_VARS CONF_INCLUDE_DIRS
+ )
+ CONFIGURE_FILE(
+     cmake/libtinsConfigVersion.cmake.in
+     "${PROJECT_BINARY_DIR}/libtinsConfigVersion.cmake" @ONLY
+ )
++CONFIGURE_FILE(
++    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake"
++    "${PROJECT_BINARY_DIR}/FindPCAP.cmake"
++    COPYONLY
++)
++
+ # Install the libtinsConfig.cmake and libtinsConfigVersion.cmake
+ INSTALL(
+     FILES
+     "${PROJECT_BINARY_DIR}/libtinsConfig.cmake"
+     "${PROJECT_BINARY_DIR}/libtinsConfigVersion.cmake"
++    "${PROJECT_BINARY_DIR}/FindPCAP.cmake"
+     DESTINATION ${CONF_CMAKE_INSTALL_DIR}
+     COMPONENT dev
+ )
+diff --git a/cmake/Modules/FindPCAP.cmake b/cmake/Modules/FindPCAP.cmake
+index 388b30b..f931e31 100644
+--- a/cmake/Modules/FindPCAP.cmake
++++ b/cmake/Modules/FindPCAP.cmake
+@@ -42,10 +42,18 @@ find_library(PCAP_LIBRARY
+     HINTS ${HINT_DIR}
+ )
+ 
++if (PCAP_LIBRARY AND PCAP_INCLUDE_DIR)
++    add_library(PCAP::pcap UNKNOWN IMPORTED)
++    set_target_properties(PCAP::pcap
++        PROPERTIES
++            IMPORTED_LOCATION "${PCAP_LIBRARY}"
++            INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIR}")
++    set(PCAP_LIBRARIES PCAP::pcap)
++endif ()
++
+ include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(PCAP DEFAULT_MSG
+-    PCAP_LIBRARY
+-    PCAP_INCLUDE_DIR
++    PCAP_LIBRARIES PCAP_LIBRARY PCAP_INCLUDE_DIR
+ )
+ 
+ include(CheckCXXSourceCompiles)
+diff --git a/cmake/libtinsConfig.cmake.in b/cmake/libtinsConfig.cmake.in
+index 183b245..fa8fd2f 100644
+--- a/cmake/libtinsConfig.cmake.in
++++ b/cmake/libtinsConfig.cmake.in
+@@ -3,14 +3,29 @@
+ #  LIBTINS_INCLUDE_DIRS - include directories for libtins
+ #  LIBTINS_LIBRARIES    - libraries to link against
+ 
+-# Compute paths
++@PACKAGE_INIT@
++
++set("${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save" "${CMAKE_MODULE_PATH}")
++list(INSERT CMAKE_MODULE_PATH 0
++  "${CMAKE_CURRENT_LIST_DIR}")
++
+ get_filename_component(LIBTINS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+-set(LIBTINS_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
++set_and_check(LIBTINS_INCLUDE_DIRS "@PACKAGE_CONF_INCLUDE_DIRS@")
++
++include(CMakeFindDependencyMacro)
++find_dependency(PCAP)
+ 
+ # Our library dependencies (contains definitions for IMPORTED targets)
+ if(NOT TARGET libtins AND NOT LIBTINS_BINARY_DIR)
+     include("${LIBTINS_CMAKE_DIR}/libtinsTargets.cmake")
++
++    set_target_properties(tins
++        PROPERTIES
++            INTERFACE_INCLUDE_DIRECTORIES "${LIBTINS_INCLUDE_DIRS}")
+ endif()
+ 
+ # These are IMPORTED targets created by libtinsTargets.cmake
+ set(LIBTINS_LIBRARIES tins)
++
++set(CMAKE_MODULE_PATH "${${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save}")
++unset("${CMAKE_FIND_PACKAGE_NAME}_CMAKE_MODULE_PATH_save")
+\ No newline at end of file
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 88f47a2..e14f519 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -212,7 +212,7 @@ ADD_LIBRARY(
+     ${HEADERS}
+ )
+ 
+-TARGET_LINK_LIBRARIES(tins ${PCAP_LIBRARY} ${OPENSSL_LIBRARIES} ${LIBTINS_OS_LIBS})
++TARGET_LINK_LIBRARIES(tins PUBLIC ${PCAP_LIBRARIES} ${OPENSSL_LIBRARIES} ${LIBTINS_OS_LIBS})
+ 
+ SET_TARGET_PROPERTIES(tins PROPERTIES OUTPUT_NAME tins)
+ SET_TARGET_PROPERTIES(tins PROPERTIES VERSION ${LIBTINS_VERSION} SOVERSION ${LIBTINS_VERSION} )

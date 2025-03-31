@@ -39,19 +39,11 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   list(APPEND plugins_targets LidarSlam::paraview_wrapping)
 endif ()
 
-if (LIDARVIEW_USE_ROS2IO_PLUGIN)
-  list(APPEND plugins_targets Ros2IO::paraview_plugin)
-endif ()
-
-if (LIDARVIEW_USE_PCLPLUGIN_PLUGIN)
-  list(APPEND plugins_targets PCLPlugin::paraview_plugin)
-endif ()
-
 paraview_client_add(
   NAME              ${SOFTWARE_NAME}
   NAMESPACE         "${SOFTWARE_NAME}"
   EXPORT            "LidarViewClient"
-  VERSION           ${LIDARVIEW_VERSION_FULL}
+  VERSION           "${LIDARVIEW_VERSION_MAJOR}.${LIDARVIEW_VERSION_MINOR}.${LIDARVIEW_VERSION_PATCH}"
   APPLICATION_NAME  "${SOFTWARE_NAME}"
   ORGANIZATION      "${SOFTWARE_VENDOR}"
   TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"

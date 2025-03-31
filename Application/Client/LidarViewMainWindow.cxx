@@ -57,6 +57,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqOpenLidarReaction.h"
 #include "lqRecentlyUsedPcapLoader.h"
+#include "lqViewFrameActionsImplementation.h"
 #include "lqWelcomeDialog.h"
 
 //-----------------------------------------------------------------------------
@@ -107,6 +108,10 @@ LidarViewMainWindow::LidarViewMainWindow()
 
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->viewPropertiesDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->displayPropertiesDock);
+  this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->comparativePanelDock);
+
+  // Set properties panel as default dock
+  this->Internals->propertiesDock->raise();
 
   // Change default properties panel modes (one dock for each)
   this->Internals->propertiesPanel->setPanelMode(pqPropertiesPanel::SOURCE_PROPERTIES);
@@ -187,6 +192,10 @@ LidarViewMainWindow::LidarViewMainWindow()
 
   // To register ParaView interfaces.
   pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+
+  // Replace default views
+  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
+  pgm->addInterface(new lqViewFrameActionsImplementation(pgm));
 
   // Add recently used pcap interface
   pgm->addInterface(new lqRecentlyUsedPcapLoader(pgm));

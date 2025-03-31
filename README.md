@@ -8,7 +8,7 @@ LidarView currently supports a variety of LiDAR models from multiple manufacture
 - `Velodyne`: VLP-16, VLP-32, HDL-32, HDL-64, Puck LITE, Puck Hi-Res and Alpha Prime (VLS-128).
 - `Hesai`: Pandar40P, Pandar40M, Pandar64, Pandar20A, Pandar20B, PandarQT, PandarXT-16, PandarXT-32, PandarXTM and Pandar128.
 - `Robosense`: RS16, RS32, BPerl, Helios (16 & 32), Ruby (48, 80 & 128), Ruby Plus (48, 80 & 128), M1, M2 and E1.
-- `Livox`: Mid-360 and HAP.
+- `Livox`: Mid-40, Tele-15, Horizon, Mid-70, Avia, Mid-360 and HAP.
 - `Leishen`: C16, C32 and MS_C16.
 
 Additional sensor models may be supported upon request, provided that the drivers or specifications are publicly available.

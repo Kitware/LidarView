@@ -18,6 +18,7 @@ curl -OL "https://github.com/mfontanini/libtins/archive/refs/tags/v$version.tar.
 sha256sum --check tins.sha256sum
 mkdir -p "$tins_src"
 tar -xf "$tarball" -C "$tins_src" --strip-components 1 --no-same-owner
+cd "$tins_src" && git apply "/root/tins-fix-cmake-config-install.patch"
 
 tins_build () {
     local prefix="$1"

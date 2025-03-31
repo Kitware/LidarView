@@ -10,4 +10,5 @@ PRIVATE_DEPENDS
   ParaView::pqComponents
   ParaView::RemotingViews
   VTK::CommonCore
+  Tins::tins
 EXCLUDE_WRAP

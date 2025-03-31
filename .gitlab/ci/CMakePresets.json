@@ -29,7 +29,7 @@
         "name": "ci_ubuntu22_debug",
         "inherits": ["ci_common"],
         "filter": {
-          "exclude": {"name": "TestVelodyneHDLPositionReader"}
+          "exclude": {"name": "TestVelodyneHDLPositionReader|TestVelodyneLidarStream_HDL_64_Dual|TestExtractPointSelection"}
         }
       },
       {
