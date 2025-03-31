@@ -108,6 +108,9 @@ LidarViewMainWindow::LidarViewMainWindow()
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->viewPropertiesDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->displayPropertiesDock);
 
+  // Set properties panel as default dock
+  this->Internals->propertiesDock->raise();
+
   // Change default properties panel modes (one dock for each)
   this->Internals->propertiesPanel->setPanelMode(pqPropertiesPanel::SOURCE_PROPERTIES);
   this->Internals->viewPropertiesPanel->setPanelMode(pqPropertiesPanel::VIEW_PROPERTIES);
