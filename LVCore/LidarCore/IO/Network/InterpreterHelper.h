@@ -21,7 +21,8 @@
 #include <vtkTable.h>
 
 // clang-format off
-//! @brief Simple getter that handles conversion to native unsigned integer types.
+
+//! Simple getter that handles conversion to native unsigned integer types.
 #define GET_NATIVE_UINT(n, attr) uint ## n ##_t Get ## attr() const { return this->attr; }
 #define SET_NATIVE_UINT(n, attr) void Set ## attr(uint ## n ##_t x) { this->attr = x; }
 #define GET_NATIVE_INT(n, attr) int ## n ##_t Get ## attr() const { return this->attr; }
@@ -66,6 +67,29 @@ T CombinedBytesLittleEndian(const RangeType* range, uint8_t size)
     result |= static_cast<T>(range[idx]) << (idx * 8);
   }
   return result;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Convert a array of UTCTime to a timestamp in seconds.
+ */
+inline uint64_t ConvertUTCToTimestamp(std::vector<uint8_t> utcTime, bool hasMonthOffset = true)
+{
+  if (utcTime.size() != 6)
+  {
+    return 0;
+  }
+
+  struct tm t;
+  t.tm_year = utcTime[0];
+  t.tm_mon = utcTime[1] - hasMonthOffset;
+  t.tm_mday = utcTime[2];
+  t.tm_hour = utcTime[3];
+  t.tm_min = utcTime[4];
+  t.tm_sec = utcTime[5];
+  t.tm_isdst = 0;
+  time_t seconds = std::mktime(&t);
+  return seconds;
 }
 
 //------------------------------------------------------------------------------
