@@ -181,6 +181,7 @@ LidarViewMainWindow::LidarViewMainWindow()
   // Customize application behaviors - the other ones are kept to default
   pqParaViewBehaviors::setEnableCollaborationBehavior(false);
   pqParaViewBehaviors::setEnableViewStreamingBehavior(false);
+  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
   pqParaViewBehaviors::setEnableStandardRecentlyUsedResourceLoader(true);
   // This must be delayed in lqCommandLineOptionsBehavior so tests can run with LidarGridView
@@ -194,7 +195,6 @@ LidarViewMainWindow::LidarViewMainWindow()
   pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
 
   // Replace default views
-  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pgm->addInterface(new lqViewFrameActionsImplementation(pgm));
 
   // Add recently used pcap interface
