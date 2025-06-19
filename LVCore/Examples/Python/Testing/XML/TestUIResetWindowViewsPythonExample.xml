@@ -7,7 +7,7 @@
 
   <!-- Create another render view -->
   <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.0/SplitHorizontal" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.2/CentralWidgetFrame/EmptyView/scrollArea/qt_scrollarea_viewport/widgetFoo/ConvertActionsFrame/RenderView" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.2/CentralWidgetFrame/EmptyView/scrollArea/qt_scrollarea_viewport/widgetFoo/ConvertActionsFrame/LidarGridView" command="activate" arguments="" />
 
   <!-- Call ResetWindowViews example -->
   <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="ResetWindowViews()" />
