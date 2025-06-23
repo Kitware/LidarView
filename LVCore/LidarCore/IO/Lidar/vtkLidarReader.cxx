@@ -18,6 +18,7 @@
 // Compliance with vtk's fpos_t policy, needs to be included before any libc header
 #include "vtkPacketFilePositionType.h"
 
+#include <vtkCommand.h>
 #include <vtkDataObject.h>
 #include <vtkDemandDrivenPipeline.h>
 #include <vtkInformation.h>
@@ -88,6 +89,7 @@ public:
   // The following are for EmulatedTime hiding frames
   bool EmptyFrameUpdate = false;
   bool ShouldRefreshEmptyFrame = false;
+  unsigned long ReaderObserverId = 0;
 
   //----------------------------------------------------------------------------
   double ComputeNetworkTimeToDataTime()
@@ -216,16 +218,6 @@ bool vtkLidarReader::GetNeedsUpdate(double time)
     }
   }
   return needUpdate || this->Internals->EmptyFrameUpdate;
-}
-
-//-----------------------------------------------------------------------------
-vtkMTimeType vtkLidarReader::GetMTime()
-{
-  if (this->LidarInterpreter && this->Superclass::GetMTime() < this->LidarInterpreter->GetMTime())
-  {
-    this->Modified();
-  }
-  return this->Superclass::GetMTime();
 }
 
 //-----------------------------------------------------------------------------
@@ -661,10 +653,30 @@ void vtkLidarReader::SetShowPartialFrames(bool show)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkLidarReader::OnInterpreterModifiedEvent()
+{
+  this->Modified();
+}
+
 //-----------------------------------------------------------------------------
 void vtkLidarReader::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
-  this->LidarInterpreter = interpreter;
+  if (this->LidarInterpreter == interpreter)
+  {
+    return;
+  }
+
+  if (this->LidarInterpreter)
+  {
+    this->LidarInterpreter->RemoveObserver(this->Internals->ReaderObserverId);
+  }
+  vtkSetObjectBodyMacro(LidarInterpreter, vtkLidarPacketInterpreter, interpreter);
+  if (this->LidarInterpreter)
+  {
+    this->Internals->ReaderObserverId = this->LidarInterpreter->AddObserver(
+      vtkCommand::ModifiedEvent, this, &vtkLidarReader::OnInterpreterModifiedEvent);
+  }
 }
 
 //------------------------------------------------------------------------------

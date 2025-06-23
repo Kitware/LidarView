@@ -22,22 +22,13 @@
 
 #include <sstream>
 
+#include <vtkCommand.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkLidarStream)
-
-//-----------------------------------------------------------------------------
-vtkMTimeType vtkLidarStream::GetMTime()
-{
-  if (this->GetLidarInterpreter())
-  {
-    return std::max(this->Superclass::GetMTime(), this->GetLidarInterpreter()->GetMTime());
-  }
-  return this->Superclass::GetMTime();
-}
 
 //-----------------------------------------------------------------------------
 int vtkLidarStream::FillOutputPortInformation(int port, vtkInformation* info)
@@ -181,7 +172,27 @@ int vtkLidarStream::CheckForNewData()
 }
 
 //----------------------------------------------------------------------------
+void vtkLidarStream::OnInterpreterModifiedEvent()
+{
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkLidarStream::SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter)
 {
-  this->LidarInterpreter = interpreter;
+  if (this->LidarInterpreter == interpreter)
+  {
+    return;
+  }
+
+  if (this->LidarInterpreter)
+  {
+    this->LidarInterpreter->RemoveObserver(this->ReaderObserverId);
+  }
+  vtkSetObjectBodyMacro(LidarInterpreter, vtkLidarPacketInterpreter, interpreter);
+  if (this->LidarInterpreter)
+  {
+    this->ReaderObserverId = this->LidarInterpreter->AddObserver(
+      vtkCommand::ModifiedEvent, this, &vtkLidarStream::OnInterpreterModifiedEvent);
+  }
 }

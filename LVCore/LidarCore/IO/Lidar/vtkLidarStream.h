@@ -35,8 +35,6 @@ public:
   static vtkLidarStream* New();
   vtkTypeMacro(vtkLidarStream, vtkStream)
 
-  vtkMTimeType GetMTime() override;
-
   void Start() override;
 
   /**
@@ -75,8 +73,14 @@ private:
   vtkLidarStream(const vtkLidarStream&) = delete;
   void operator=(const vtkLidarStream&) = delete;
 
+  /**
+   * Callback to set on modified if interpreter is modified
+   */
+  void OnInterpreterModifiedEvent();
+
   void AddNewData();
 
+  unsigned long ReaderObserverId = 0;
   vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter;
 
   std::deque<vtkSmartPointer<vtkPolyData>> Frames;

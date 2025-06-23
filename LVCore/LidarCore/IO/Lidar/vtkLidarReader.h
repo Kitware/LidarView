@@ -49,12 +49,6 @@ public:
    */
   bool GetNeedsUpdate(double time) override;
 
-  /**
-   * Override MTime with interpreter one. So when the interpreter is updated
-   * the LidarReader is also considered updated.
-   */
-  vtkMTimeType GetMTime() override;
-
   ///@{
   /**
    * Set/Get pcap filename
@@ -195,6 +189,11 @@ protected:
 private:
   vtkLidarReader(const vtkLidarReader&) = delete;
   void operator=(const vtkLidarReader&) = delete;
+
+  /**
+   * Callback to set reader on modified if interpreter is modified
+   */
+  void OnInterpreterModifiedEvent();
 
   /**
    * Read the whole pcap to create frame index.
