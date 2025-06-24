@@ -53,7 +53,6 @@ int vtkStream::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  std::cout << "new info" << std::endl;
   this->Start();
   return 1;
 }
