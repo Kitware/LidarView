@@ -200,6 +200,11 @@ std::string vtkLidarReader::GetSensorInformation(bool shortVersion)
 //-----------------------------------------------------------------------------
 bool vtkLidarReader::GetNeedsUpdate(double time)
 {
+  if (this->Internals->FramesIndex.empty())
+  {
+    return false;
+  }
+
   bool needUpdate = false;
   double* ranges = this->Superclass::GetTimeRange();
   if (ranges[0] - ::SHOW_FRAME_TOLERANCE <= time && time <= ranges[1] + ::SHOW_FRAME_TOLERANCE)
@@ -276,17 +281,15 @@ bool vtkLidarReader::BuildFramesIndex()
 
     this->Internals->Reader->GetFilePosition(&lastFilePosition);
   }
-  this->Internals->FramesIndex.emplace_back(currentFrame);
+  // If isFirstPacket is still true, the interpreter failed to find one at least one valid packet.
+  if (!isFirstPacket)
+  {
+    this->Internals->FramesIndex.emplace_back(currentFrame);
+  }
 
   if (!this->ShowPartialFrames && this->Internals->FramesIndex.size() >= 3)
   {
     this->Internals->HidePartialFrames(networkPacketTime, this->DisplayTimeType);
-  }
-
-  if (this->Internals->FramesIndex.empty())
-  {
-    vtkErrorMacro("The parsing of the pcap file failed. Consider attempting with another "
-                  "calibration file or a different lidar model.");
   }
 
   this->Close();
@@ -570,7 +573,9 @@ int vtkLidarReader::RequestData(vtkInformation* vtkNotUsed(request),
   // This mean that the reader did not manage to parser the pcap file
   if (this->Internals->FramesIndex.empty())
   {
-    return 1;
+    vtkErrorMacro("The parsing of the pcap file failed. Consider attempting with another "
+                  "calibration file or a different lidar model.");
+    return 0;
   }
 
   double requestedTime = 0.0;
