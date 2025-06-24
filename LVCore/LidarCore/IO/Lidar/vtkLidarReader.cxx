@@ -173,7 +173,10 @@ vtkLidarReader::vtkLidarReader()
 }
 
 //------------------------------------------------------------------------------
-vtkLidarReader::~vtkLidarReader() = default;
+vtkLidarReader::~vtkLidarReader()
+{
+  this->SetLidarInterpreter(nullptr);
+}
 
 //-----------------------------------------------------------------------------
 int vtkLidarReader::FillOutputPortInformation(int port, vtkInformation* info)
