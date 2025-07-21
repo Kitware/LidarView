@@ -16,7 +16,7 @@
 
     variables:
         CMAKE_CONFIGURATION: windows_vs2019
-        QTBINARIES: "C:\\Qt\\Qt5.12.9\\5.12.9\\msvc2017_64\\bin"
+        QTBINARIES: "C:\\Qt\\Qt5.15.2\\5.15.2\\msvc2019_64\\bin"
         VCVARSALL: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
         VCVARSPLATFORM: "x64"
         VCVARSVERSION: "14.29.30133"
