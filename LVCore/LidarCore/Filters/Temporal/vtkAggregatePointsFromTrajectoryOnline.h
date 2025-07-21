@@ -104,6 +104,12 @@ protected:
   void InitializeData(vtkPolyData*, vtkPolyData*);
 
   /**
+   * @brief To remove the offset when the input trajectory has large coordinates. This is to avoid
+   * some numerical issue.
+   */
+  void CheckAndRemoveOffsetFromTrajectory(vtkPolyData* localTrajectory);
+
+  /**
    * @brief AutoComputeVoxelBounds Compute the bounds of the voxel grid by transforming the bounds
    * of the input point cloud using the trajectory and calculating the global bounds of the
    * transformed bounds. This method is called sequentially once per frame before the aggregation.
@@ -161,6 +167,11 @@ protected:
   //! Offset to add to the time of the point cloud to match the trajectory
   //! The unit must be consistent with ConversionFactorToSecond
   double TimeOffset = 0;
+
+  //! Boolean to store whether or not an offset is removed from trajectory
+  bool IsOffsetRemoved = false;
+  //! Offset of the input trajectory
+  double OffsetOrigin[3] = { 0., 0., 0. };
 
   //! If true, the voxel grid filter is used to aggregate the points
   //! If false, the points are aggregated without filtering

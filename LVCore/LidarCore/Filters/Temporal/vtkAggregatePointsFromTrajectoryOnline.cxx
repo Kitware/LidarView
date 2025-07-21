@@ -18,6 +18,7 @@
 #include <vtkBoundingBox.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLogger.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
@@ -125,8 +126,13 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
 void vtkAggregatePointsFromTrajectoryOnline::InitializeData(vtkPolyData* trajectory,
   vtkPolyData* pointcloud)
 {
+  vtkSmartPointer<vtkPolyData> localTrajectory = vtkSmartPointer<vtkPolyData>::New();
+  localTrajectory->DeepCopy(trajectory);
+  // Check whether or not the trajectory contain larege scale
+  this->CheckAndRemoveOffsetFromTrajectory(localTrajectory);
+
   // Create the temporal transform
-  auto temporalTransform = vtkTemporalTransforms::CreateFromPolyData(trajectory);
+  auto temporalTransform = vtkTemporalTransforms::CreateFromPolyData(localTrajectory);
   // Fill the interpolator
   this->Interpolator = temporalTransform->CreateInterpolator();
   this->Interpolator->SetInterpolationType(this->InterpolationType);
@@ -174,6 +180,49 @@ void vtkAggregatePointsFromTrajectoryOnline::InitializeData(vtkPolyData* traject
 }
 
 //----------------------------------------------------------------------------
+void vtkAggregatePointsFromTrajectoryOnline::CheckAndRemoveOffsetFromTrajectory(
+  vtkPolyData* localTrajectory)
+{
+  this->IsOffsetRemoved = false;
+
+  vtkPoints* trajPositions = localTrajectory->GetPoints();
+  if (!trajPositions || trajPositions->GetNumberOfPoints() == 0)
+  {
+    vtkWarningMacro("Trajectory is missing X, Y or Z array or is empty.");
+    return;
+  }
+
+  // Get the first position as offset
+  trajPositions->GetPoint(0, this->OffsetOrigin);
+  double& x0 = this->OffsetOrigin[0];
+  double& y0 = this->OffsetOrigin[1];
+  double& z0 = this->OffsetOrigin[2];
+
+  double distToZero = std::sqrt(x0 * x0 + y0 * y0 + z0 * z0);
+  if (distToZero < 10000.0)
+  {
+    return;
+  }
+  // Remove large offset
+  for (vtkIdType i = 0; i < trajPositions->GetNumberOfPoints(); ++i)
+  {
+    double p[3];
+    trajPositions->GetPoint(i, p);
+    p[0] -= x0;
+    p[1] -= y0;
+    p[2] -= z0;
+    trajPositions->SetPoint(i, p);
+  }
+
+  this->IsOffsetRemoved = true;
+
+  vtkLog(INFO,
+    << "The input trajectory seems to be georeferenced. \n"
+    << "A local trajectory has been computed by removing the offset: ( " << x0 << "," << y0 << ","
+    << z0 << " )");
+}
+
+//----------------------------------------------------------------------------
 int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformation* request,
   vtkInformation* inInfo,
   vtkPolyData* pointcloud,
@@ -207,6 +256,12 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
 
     double transformedPoint[3];
     transform->TransformPoint(point, transformedPoint);
+    if (this->IsOffsetRemoved)
+    {
+      transformedPoint[0] += this->OffsetOrigin[0];
+      transformedPoint[1] += this->OffsetOrigin[1];
+      transformedPoint[2] += this->OffsetOrigin[2];
+    }
     transformedBoundingBox.AddPoint(transformedPoint);
   }
 
@@ -312,6 +367,13 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* 
     double p[3];
     pointcloud->GetPoint(i, p);
     transform->TransformPoint(p, p);
+    // If the offset is removed from the input trajectory, re-apply this offset
+    if (this->IsOffsetRemoved)
+    {
+      p[0] += this->OffsetOrigin[0];
+      p[1] += this->OffsetOrigin[1];
+      p[2] += this->OffsetOrigin[2];
+    }
 
     bool addPointSuccess;
 
