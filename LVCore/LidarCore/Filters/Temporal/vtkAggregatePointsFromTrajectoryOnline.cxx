@@ -226,6 +226,7 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtkInformation* inInfo)
 {
   int timeStepNumber = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -292,6 +293,7 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* timestamp,
   vtkPolyData* pointcloud)
 {
