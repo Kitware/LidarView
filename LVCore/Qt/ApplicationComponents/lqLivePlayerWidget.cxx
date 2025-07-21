@@ -267,3 +267,9 @@ void lqLivePlayerWidget::onTimestepChanged(double timestep)
   ui.VCRPreviousFrame->setEnabled(frameIndex != ui.FrameSlider->minimum());
   ui.VCRNextFrame->setEnabled(frameIndex != ui.FrameSlider->maximum());
 }
+
+//-----------------------------------------------------------------------------
+const lqStreamRecordController* lqLivePlayerWidget::getRecordController() const
+{
+  return this->Internals->Recorder;
+}

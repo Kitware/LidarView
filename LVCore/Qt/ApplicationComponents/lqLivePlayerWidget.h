@@ -25,6 +25,7 @@
 #include <memory> // for unique_ptr
 
 class pqAnimationScene;
+class lqStreamRecordController;
 
 /**
  * lqLivePlayerWidget is the main widget for the Lidar Player DockWidget.
@@ -46,6 +47,13 @@ public:
    * determined with last speed used.
    */
   void changeReaderMode(lqLiveVCRController::PlayMode mode);
+
+  /**
+   * Get a pointer on the record controller object.
+   * Note that the player keep the ownership of the object, and it should be
+   * only use to connect to recorder signals.
+   */
+  const lqStreamRecordController* getRecordController() const;
 
 private Q_SLOTS:
   /**
