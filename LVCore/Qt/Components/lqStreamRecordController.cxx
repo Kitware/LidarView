@@ -18,6 +18,8 @@
 #include "vtkSMLidarStreamProxy.h"
 #include "vtkStream.h"
 
+#include "lqStreamRecordDialog.h"
+
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
 #include <pqCoreUtilities.h>
@@ -33,10 +35,13 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QFileInfo>
 #include <QMessageBox>
+#include <QTimer>
 
 namespace
 {
+//-----------------------------------------------------------------------------
 bool isLastStream(pqPipelineSource* src)
 {
   if (!vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()))
@@ -60,6 +65,7 @@ bool isLastStream(pqPipelineSource* src)
 lqStreamRecordController::lqStreamRecordController(QObject* parent)
   : Superclass(parent)
 {
+  this->SplitRecordTimer = new QTimer(this);
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
   this->connect(smmodel,
     &pqServerManagerModel::sourceRemoved,
@@ -95,33 +101,27 @@ bool lqStreamRecordController::startRecording()
     }
   }
 
-  QString defaultFileName = "";
   if (streamList.isEmpty())
   {
     return false;
   }
+  this->BaseRecordingFileName = "Record";
   if (streamList.size() == 1)
   {
-    defaultFileName = QString::fromStdString(streamList.at(0)->GetLidarInformation());
+    this->BaseRecordingFileName = QString::fromStdString(streamList.front()->GetLidarInformation());
   }
-  defaultFileName = defaultFileName.isEmpty() ? "Record-" : defaultFileName + "-";
-  defaultFileName += QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss");
-  defaultFileName += ".pcap";
 
-  QString title = "Choose where to record: " + defaultFileName;
-  auto dialog = pqFileDialog(pqActiveObjects::instance().activeServer(),
-    pqCoreUtilities::mainWidget(),
-    title,
-    QDir::currentPath());
-  dialog.setFileMode(pqFileDialog::Directory);
+  lqStreamRecordDialog dialog(pqCoreUtilities::mainWidget());
   if (dialog.exec() != pqFileDialog::Accepted)
   {
     return false;
   }
-  this->RecordingFilename = dialog.getSelectedFiles()[0] + "/" + defaultFileName;
-  if (this->RecordingFilename.isEmpty())
+
+  this->RecordingFilePath = dialog.getFilepath();
+  QFileInfo fileInfo(this->RecordingFilePath);
+  if (!fileInfo.exists() || !fileInfo.isDir())
   {
-    qCritical() << "Recording Filename is empty, aborting.";
+    qCritical() << "Recording Filename is not valid, aborting.";
     return false;
   }
 
@@ -148,13 +148,48 @@ bool lqStreamRecordController::startRecording()
   }
 
   // Set up writer proxy
-  const char* filename = this->RecordingFilename.toUtf8().constData();
+  this->startWriterProxy();
+  this->IsRecording = true;
+
+  if (dialog.isSplitRecordingEnabled())
+  {
+    unsigned int interval = dialog.getSplitInterval();
+    this->connect(
+      this->SplitRecordTimer, &QTimer::timeout, this, &lqStreamRecordController::onSplitRecording);
+    this->SplitRecordTimer->start(interval * 60 * 1000);
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void lqStreamRecordController::startWriterProxy()
+{
+  QString dateSuffix(QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss"));
+  this->LastRecordingFileName = this->BaseRecordingFileName + "-" + dateSuffix + ".pcap";
+
+  QString recordingCompletePath(this->RecordingFilePath + "/" + this->LastRecordingFileName);
+  const char* filename = recordingCompletePath.toUtf8().constData();
   vtkSMPropertyHelper(this->RecorderProxy, "RecordingFileName").Set(filename);
   this->RecorderProxy->UpdateProperty("RecordingFileName", true);
   this->RecorderProxy->InvokeCommand("StartRecording");
+}
 
-  this->IsRecording = true;
-  return true;
+//-----------------------------------------------------------------------------
+void lqStreamRecordController::stopWriterProxy()
+{
+  if (this->RecorderProxy)
+  {
+    this->RecorderProxy->InvokeCommand("StopRecording");
+    Q_EMIT this->recordingFileFinished(this->RecordingFilePath + "/" + this->LastRecordingFileName);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqStreamRecordController::onSplitRecording()
+{
+  this->stopWriterProxy();
+  // This will create a new filename with updated timestamp
+  this->startWriterProxy();
 }
 
 //-----------------------------------------------------------------------------
@@ -166,8 +201,12 @@ void lqStreamRecordController::stopRecording()
   }
 
   // Tell vtkStreams to Stop Recording
-  this->RecorderProxy->InvokeCommand("StopRecording");
+  this->stopWriterProxy();
   this->IsRecording = false;
+
+  // Stop timer
+  this->SplitRecordTimer->disconnect();
+  this->SplitRecordTimer->stop();
 
   // Delete recorder proxy
   pqServer* server = pqActiveObjects::instance().activeServer();
@@ -179,9 +218,9 @@ void lqStreamRecordController::stopRecording()
 
   // Display a feedback message to the user when the recording is stopped
   QMessageBox stopRecordMsg;
-  const QString txt = "Stream data have been saved in the file:\n\n";
+  const QString txt = "Stream data have been saved in the directory:\n\n";
   stopRecordMsg.setWindowTitle("Stop stream recording");
-  stopRecordMsg.setText(txt + this->RecordingFilename);
+  stopRecordMsg.setText(txt + this->RecordingFilePath);
   stopRecordMsg.setStandardButtons(QMessageBox::Ok);
   stopRecordMsg.exec();
 

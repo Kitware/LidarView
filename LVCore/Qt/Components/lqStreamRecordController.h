@@ -26,6 +26,8 @@
 class vtkSMProxy;
 class pqPipelineSource;
 
+class QTimer;
+
 /**
  * Record all current stream data received in a single pcap file.
  */
@@ -50,6 +52,14 @@ Q_SIGNALS:
    */
   void recording(bool isRecording);
 
+  /**
+   * Emitted when a recording file is saved.
+   */
+  void recordingFileFinished(QString filepath);
+
+private Q_SLOTS:
+  void onSplitRecording();
+
 private:
   Q_DISABLE_COPY(lqStreamRecordController)
 
@@ -58,6 +68,14 @@ private:
    * Return true if recording was started.
    */
   bool startRecording();
+
+  ///@{
+  /**
+   * Start / stop writer proxy with the right configuration
+   */
+  void startWriterProxy();
+  void stopWriterProxy();
+  ///@}
 
   /**
    * Stop running stream recording and open a pop up to warn user.
@@ -70,8 +88,11 @@ private:
   void onSourceRemoved(pqPipelineSource* src);
 
 private:
+  QTimer* SplitRecordTimer;
   vtkSmartPointer<vtkSMProxy> RecorderProxy;
-  QString RecordingFilename = "";
+  QString RecordingFilePath;
+  QString BaseRecordingFileName;
+  QString LastRecordingFileName;
   bool IsRecording = false;
 };
 

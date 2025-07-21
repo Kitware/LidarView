@@ -68,8 +68,6 @@ public:
 vtkPacketRecorder::vtkPacketRecorder()
   : Internals(new vtkPacketRecorder::vtkInternals())
 {
-  auto& internals = *this->Internals;
-  internals.DataQueue = std::make_unique<QueueType>(::QUEUE_CACHE_SIZE);
 }
 
 //------------------------------------------------------------------------------
@@ -87,6 +85,7 @@ void vtkPacketRecorder::StartRecording()
     return;
   }
   auto& internals = *this->Internals;
+  internals.DataQueue = std::make_unique<QueueType>(::QUEUE_CACHE_SIZE);
   this->WritingThread =
     std::make_unique<std::thread>([&] { internals.RecordingLoop(this->RecordingFileName); });
   this->IsRecording = true;
