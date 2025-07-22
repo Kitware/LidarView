@@ -20,5 +20,6 @@ PRIVATE_DEPENDS
   VTK::IOXML
 TEST_DEPENDS
   LidarView::TestingCore
+  VTK::FiltersHybrid
   VTK::FiltersGeometry
   VTK::FiltersGeneral

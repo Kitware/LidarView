@@ -1,6 +1,7 @@
 set(classes
   vtkAggregatePointsFromTrajectoryOffline
   vtkAggregatePointsFromTrajectoryOnline
+  vtkAssociateTableToTemporalDataset
   vtkClusteringAndTracking
   vtkMLSPosesSmoothing
   vtkMotionDetector
