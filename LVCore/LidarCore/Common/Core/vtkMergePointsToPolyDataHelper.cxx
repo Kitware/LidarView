@@ -69,6 +69,7 @@ void vtkMergePointsToPolyDataHelper::InitializeData()
 {
   vtkNew<vtkPoints> points;
   vtkNew<vtkCellArray> cells;
+  points->SetDataTypeToDouble();
   points->Resize(this->InitialNumberOfPoints);
   cells->SetNumberOfCells(this->InitialNumberOfPoints);
   this->Output->SetPoints(points);
