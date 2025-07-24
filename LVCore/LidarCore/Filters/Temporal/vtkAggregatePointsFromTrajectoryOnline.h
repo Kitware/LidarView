@@ -138,10 +138,21 @@ protected:
   virtual int TransformAndAddPoints(vtkDataArray*, vtkPolyData*);
 
   /**
+   * @brief DetectTimeArray Checks AutoDetectTimeArray to get the correct Time array name
+   */
+  std::string GetTimeArrayName(vtkPolyData*);
+
+  /**
    * @brief DetectTimeArray Detect a time array in the point cloud by searching for the words "time"
    * or "Time" in name of arrays and return its name
    */
   std::string DetectTimeArray(vtkPolyData*);
+
+  /**
+   * @brief  Init the polydata pointcloud with either a composite dataset input or a
+   * or a polydata input
+   */
+  vtkSmartPointer<vtkPolyData> InitPointCLoud(vtkInformation* inInfo);
 
   /**
    * @brief Compute the time unit conversion between the trajectory and the point cloud
@@ -222,6 +233,8 @@ protected:
 
   //! Specify if the output should be displayed
   bool DisplayOutput = true;
+
+  std::vector<double> LastFrameTime;
 
 private:
   vtkAggregatePointsFromTrajectoryOnline(const vtkAggregatePointsFromTrajectoryOnline&);

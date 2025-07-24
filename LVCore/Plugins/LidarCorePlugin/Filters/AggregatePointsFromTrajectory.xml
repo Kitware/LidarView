@@ -14,7 +14,7 @@
           <Group name="filters"/>
         </ProxyGroupDomain>
         <DataTypeDomain name="input_type">
-          <DataType value="vtkPolyData"/>
+          <DataType value="vtkDataObject"/>
         </DataTypeDomain>
         <Documentation>
           Set the input poly data.

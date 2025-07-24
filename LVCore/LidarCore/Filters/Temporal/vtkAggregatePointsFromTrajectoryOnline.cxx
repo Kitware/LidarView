@@ -14,6 +14,7 @@
 =========================================================================*/
 
 // VTK includes
+#include <vtkAppendDataSets.h>
 #include <vtkAppendPolyData.h>
 #include <vtkBoundingBox.h>
 #include <vtkInformation.h>
@@ -44,7 +45,12 @@ vtkAggregatePointsFromTrajectoryOnline::vtkAggregatePointsFromTrajectoryOnline()
 int vtkAggregatePointsFromTrajectoryOnline::FillInputPortInformation(int port, vtkInformation* info)
 {
   // Pointcloud data
-  if (port == 0 || port == 1)
+  if (port == 0)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+    return 1;
+  }
+  if (port == 1)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
     return 1;
@@ -69,6 +75,90 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestUpdateExtent(vtkInformation* 
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCLoud(
+  vtkInformation* inInfo)
+{
+  vtkNew<vtkAppendDataSets> appendFilter;
+  appendFilter->SetOutputDataSetType(VTK_POLY_DATA);
+
+  vtkSmartPointer<vtkPolyData> pointcloud = vtkPolyData::GetData(inInfo);
+  if (pointcloud)
+    return pointcloud;
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::GetData(inInfo);
+  if (!cds)
+    return nullptr;
+  // Get the ComositeDataSet size
+  unsigned int index = 0;
+  vtkCompositeDataIterator* it = cds->NewIterator();
+  it->InitTraversal();
+  it->GoToFirstItem();
+  while (!it->IsDoneWithTraversal())
+  {
+    it->GoToNextItem();
+    ++index;
+  }
+
+  // Resize the LastFrame cache
+  this->LastFrameTime.resize(index, -1);
+  bool check = false;
+  unsigned int count = 0;
+  index = 0;
+
+  // Append in the frames that changed since the last call
+  it->GoToFirstItem();
+  while (!it->IsDoneWithTraversal())
+  {
+    vtkPolyData* current = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+    if (!current)
+    {
+      vtkErrorMacro("CompositeDataSet isn't exclusively composed of polydata");
+      return nullptr;
+    }
+    auto timestamp = current->GetPointData()->GetArray(this->GetTimeArrayName(current).c_str());
+    if (timestamp)
+    {
+      if (timestamp->GetRange()[1] > this->LastFrameTime[index])
+      {
+        appendFilter->AddInputData(current);
+        ++count;
+      }
+      this->LastFrameTime[index] = timestamp->GetRange()[1];
+      // Check if at least one array with a timestamp exists in the vtkCompositeDataSet
+      check = true;
+    }
+    it->GoToNextItem();
+    ++index;
+  }
+  it->Delete();
+
+  // If the data hasn't changed since the last time,
+  // return an empty array to be appended to the result.
+  if (!appendFilter->GetInput() && check)
+  {
+    vtkNew<vtkPolyData> empty;
+    return empty;
+  }
+  // If the data didn't contain any timestamp
+  if (check == false)
+  {
+    vtkErrorMacro("No TimeStamp array found.");
+    return nullptr;
+  }
+  // The append filter reorders the arrays in the 'data' field (sorting them by name) only when
+  // multiple arrays are inserted. To ensure consistency between frames, each array must remain in
+  // the same position. Therefore, an empty array is added as a placeholder if needed.
+  if (count < 2)
+  {
+    vtkNew<vtkPolyData> empty;
+    appendFilter->AddInputData(empty);
+  }
+  appendFilter->Update();
+  pointcloud = appendFilter->GetPolyDataOutput();
+
+  return pointcloud;
+}
+
+//----------------------------------------------------------------------------
 int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -77,18 +167,9 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Get the input pointcloud and trajectory
-  vtkPolyData* pointcloud = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkSmartPointer<vtkPolyData> pointcloud =
+    this->InitPointCLoud(inputVector[0]->GetInformationObject(0));
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
-
-  // In case the input is a multiblock dataset, the first block is extracted
-  if (!pointcloud)
-  {
-    vtkMultiBlockDataSet* mb =
-      vtkMultiBlockDataSet::GetData(inputVector[0]->GetInformationObject(0));
-    // Extract first block if it is a vtkPolyData
-    pointcloud = vtkPolyData::SafeDownCast(mb->GetBlock(0));
-  }
-
   if (!pointcloud || !trajectory)
   {
     vtkErrorMacro("No input data");
@@ -105,7 +186,7 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
 
   auto timestamp = vtkDataArray::SafeDownCast(
     pointcloud->GetPointData()->GetAbstractArray(this->TimeArrayName.c_str()));
-  if (!timestamp)
+  if (pointcloud->GetNumberOfPoints() > 0 && !timestamp)
   {
     vtkErrorMacro("No TimeStamp array selected.");
     return 0;
@@ -142,15 +223,7 @@ void vtkAggregatePointsFromTrajectoryOnline::InitializeData(vtkPolyData* traject
   this->ContinuousTrajectory = this->Interpolator->IsTimeContinuous();
 
   // Get the time array
-  if (this->AutoDetectTimeArray)
-  {
-    std::string tempTimeArrayName = this->DetectTimeArray(pointcloud);
-    this->TimeArrayName = tempTimeArrayName.empty() ? this->CustomTimeArrayName : tempTimeArrayName;
-  }
-  else
-  {
-    this->TimeArrayName = this->CustomTimeArrayName;
-  }
+  this->TimeArrayName = this->GetTimeArrayName(pointcloud);
 
   // Get the timestamp array
   auto timestamp = pointcloud->GetPointData()->GetArray(this->TimeArrayName.c_str());
@@ -290,6 +363,7 @@ void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtk
   {
     this->AreBoundsComputed = true;
     this->CurrentFrame = 0;
+    std::fill(this->LastFrameTime.begin(), this->LastFrameTime.end(), -1);
     return;
   }
 
@@ -311,15 +385,18 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
     this->IsVoxelGridFilterInitialized = true;
   }
 
-  std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
-  for (const auto& idx : pointIdx)
+  if (pointcloud->GetNumberOfPoints())
   {
-    double currentTimestamp =
-      timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset;
-    if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+    std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
+    for (const auto& idx : pointIdx)
     {
-      vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
-        << "interpolation might be invalid.");
+      double currentTimestamp =
+        timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset;
+      if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+      {
+        vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
+          << "interpolation might be invalid.");
+      }
     }
   }
 
@@ -398,6 +475,17 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* 
 }
 
 //----------------------------------------------------------------------------
+std::string vtkAggregatePointsFromTrajectoryOnline::GetTimeArrayName(vtkPolyData* poly)
+{
+  if (this->AutoDetectTimeArray)
+  {
+    std::string tempTimeArrayName = this->DetectTimeArray(poly);
+    return tempTimeArrayName.empty() ? this->CustomTimeArrayName : tempTimeArrayName;
+  }
+  return this->CustomTimeArrayName;
+}
+
+//----------------------------------------------------------------------------
 std::string vtkAggregatePointsFromTrajectoryOnline::DetectTimeArray(vtkPolyData* poly)
 {
   // Loop over all the arrays
@@ -456,6 +544,7 @@ double vtkAggregatePointsFromTrajectoryOnline::ComputeTimeUnitConversion(
 //----------------------------------------------------------------------------
 void vtkAggregatePointsFromTrajectoryOnline::Clear()
 {
+  std::fill(this->LastFrameTime.begin(), this->LastFrameTime.end(), -1);
   this->VoxelGrid->Clear();
   this->CurrentFrame = 0;
   this->IsVoxelGridFilterInitialized = false;
