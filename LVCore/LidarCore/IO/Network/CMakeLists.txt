@@ -1,4 +1,5 @@
 set(sources
+  InterpreterHelper.cxx
   PacketSender.cxx
 )
 

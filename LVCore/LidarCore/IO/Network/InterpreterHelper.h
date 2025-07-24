@@ -20,6 +20,8 @@
 #include <vtkPolyData.h>
 #include <vtkTable.h>
 
+#include "lvIONetworkModule.h"
+
 // clang-format off
 
 //! Simple getter that handles conversion to native unsigned integer types.
@@ -73,24 +75,7 @@ T CombinedBytesLittleEndian(const RangeType* range, uint8_t size)
 /**
  * Convert a array of UTCTime to a timestamp in seconds.
  */
-inline uint64_t ConvertUTCToTimestamp(std::vector<uint8_t> utcTime, bool hasMonthOffset = true)
-{
-  if (utcTime.size() != 6)
-  {
-    return 0;
-  }
-
-  struct tm t;
-  t.tm_year = utcTime[0];
-  t.tm_mon = utcTime[1] - hasMonthOffset;
-  t.tm_mday = utcTime[2];
-  t.tm_hour = utcTime[3];
-  t.tm_min = utcTime[4];
-  t.tm_sec = utcTime[5];
-  t.tm_isdst = 0;
-  time_t seconds = std::mktime(&t);
-  return seconds;
-}
+uint64_t LVIONETWORK_EXPORT ConvertUTCToTimestamp(std::vector<uint8_t> utcTime, bool hasMonthOffset = true);
 
 //------------------------------------------------------------------------------
 /*!
