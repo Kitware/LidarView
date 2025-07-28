@@ -244,9 +244,6 @@ void vtkAggregatePointsFromTrajectoryOnline::InitializeData(vtkPolyData* traject
     this->ConversionFactorToSecond = this->CustomConversionFactorToSecond;
   }
 
-  // Reset the bounds
-  this->Bounds = { 0, 0, 0, 0, 0, 0 };
-
   // Set initial number of points to allocate in the voxel grid and the free points
   this->VoxelGrid->SetInitialNumberOfPoints(this->DefaultNumberOfPoints);
   this->MergePointsToPolyDataHelper->SetInitialNumberOfPoints(this->NumberOfPoints);
@@ -549,7 +546,6 @@ void vtkAggregatePointsFromTrajectoryOnline::Clear()
   this->CurrentFrame = 0;
   this->IsVoxelGridFilterInitialized = false;
   this->Initialized = false;
-  this->AreBoundsComputed = false;
   this->NumberOfPoints = 0;
   this->Modified();
 }
