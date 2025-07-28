@@ -34,8 +34,8 @@ function (lidarview_add_executable name)
   target_compile_definitions("${name}"
     PRIVATE
     "PARAVIEW_USE_EXTERNAL_VTK=$<BOOL:${PARAVIEW_USE_EXTERNAL_VTK}>"
-    "PARAVIEW_USE_PYTHON=$<BOOL:${PARAVIEW_USE_PYTHON}>")
-  if (PARAVIEW_USE_PYTHON)
+    "LIDARVIEW_USE_PYTHON=$<BOOL:${LIDARVIEW_USE_PYTHON}>")
+  if (LIDARVIEW_USE_PYTHON)
     target_link_libraries("${name}"
       PRIVATE
         VTK::PythonInterpreter
@@ -55,7 +55,7 @@ foreach (exe IN ITEMS lvserver)
   lidarview_add_executable("${exe}" "${exe}.cxx")
 endforeach ()
 
-if (PARAVIEW_USE_PYTHON)
+if (LIDARVIEW_USE_PYTHON)
   foreach (exe IN ITEMS lvbatch lvpython)
     lidarview_add_executable("${exe}" "${exe}.cxx")
   endforeach ()

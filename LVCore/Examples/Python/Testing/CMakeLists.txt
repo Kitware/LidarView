@@ -4,6 +4,6 @@ set(_vtk_build_TEST_OUTPUT_DATA_DIRECTORY "${lidarview_test_data_directory_outpu
 set(_vtk_build_TEST_OUTPUT_DIRECTORY "${lidarview_test_output_directory}")
 set(lidarview_test_baseline_dir "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
 
-if (SOFTWARE_TARGET)
+if (SOFTWARE_TARGET AND LIDARVIEW_USE_QT)
     add_subdirectory(XML)
 endif ()

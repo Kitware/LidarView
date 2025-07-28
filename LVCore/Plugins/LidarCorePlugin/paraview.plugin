@@ -3,7 +3,5 @@ NAME
 DESCRIPTION
   Readers, writer and filters from LidarCore (required for LidarView)
 REQUIRES_MODULES
-  ParaView::pqCore
-  ParaView::pqComponents
   ParaView::RemotingServerManager
   LidarView::UtilitiesUsedModules

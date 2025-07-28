@@ -26,6 +26,10 @@ mark_as_advanced(BUILD_TESTING)
 #========================================================================
 # OPTIONNAL EXTERN LIBRARY OPTIONS
 #========================================================================
+option(LIDARVIEW_USE_QT "If enabled build LidarView Qt interface" ON)
+
+option(LIDARVIEW_USE_PYTHON "If enabled build LidarView python interface" ON)
+
 lidarview_deprecated_setting(ceres_default LIDARVIEW_USE_CERES ENABLE_ceres OFF)
 option(LIDARVIEW_USE_CERES "Ceres is required for filters using non-linear least square optimization (e.g SLAM, autocalibration)" "${ceres_default}")
 

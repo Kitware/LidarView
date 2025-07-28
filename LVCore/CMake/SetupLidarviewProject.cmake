@@ -50,4 +50,6 @@ if (BUILD_DEVELOPER_DOCUMENTATION)
   include(SetupDoxygenDocumentation)
 endif ()
 
-vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
+if (LIDARVIEW_USE_PYTHON)
+  vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
+endif ()

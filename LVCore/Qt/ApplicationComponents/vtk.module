@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   lqApplicationComponents
 CONDITION
-  PARAVIEW_USE_PYTHON
+  LIDARVIEW_USE_PYTHON AND LIDARVIEW_USE_QT
 DEPENDS
   LidarView::lqComponents
   ParaView::pqApplicationComponents

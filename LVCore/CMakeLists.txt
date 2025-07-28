@@ -29,11 +29,15 @@ list(APPEND lidarview_default_plugins
 if (BUILD_EXAMPLES)
   list(APPEND lidarview_default_plugins
     AverageSelectedPointsPlugin
-    CustomDockWidget
     ProcessingSamplePlugin
     RotativeLidarInterpreter
     ThresholdFromFilePlugin
     TimeBasedLidarInterpreter)
+
+  if (PARAVIEW_USE_QT)
+    list(APPEND lidarview_default_plugins
+      CustomDockWidget)
+  endif ()
 endif ()
 
 # Ensure that the LidarCorePlugin is positioned at the first position,
@@ -152,33 +156,35 @@ paraview_plugin_build(
   PLUGINS               ${lidarview_plugins}
   AUTOLOAD              ${autoload_plugins})
 
-#-----------------------------------------------------------------------------
-# Python wrapping
-# Simply use "import lidarview.modules" and you have acces to the wrapped c++ code
-# DO NOT FOR ANY REASON USE the method GetClientSideObject() to have acces to the vtkObject directly.
-#-----------------------------------------------------------------------------
+if (LIDARVIEW_USE_PYTHON)
+  #-----------------------------------------------------------------------------
+  # Python wrapping
+  # Simply use "import lidarview.modules" and you have acces to the wrapped c++ code
+  # DO NOT FOR ANY REASON USE the method GetClientSideObject() to have acces to the vtkObject directly.
+  #-----------------------------------------------------------------------------
 
-vtk_module_wrap_python(
-  MODULES             ${lidarview_modules}
-  INSTALL_EXPORT      LidarViewPython
-  INSTALL_HEADERS     "${LIDARVIEW_INSTALL_DEVELOPMENT_FILES}"
-  CMAKE_DESTINATION   "${lidarview_cmake_destination}"
-  LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/lidarview/lvpythonmodules"
-  PYTHON_PACKAGE      "lidarview.modules"
-  MODULE_DESTINATION  "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}"
-  TARGET              LidarView::lvpythonmodules
-  DEPENDS             VTK::vtkpythonmodules
-)
+  vtk_module_wrap_python(
+    MODULES             ${lidarview_modules}
+    INSTALL_EXPORT      LidarViewPython
+    INSTALL_HEADERS     "${LIDARVIEW_INSTALL_DEVELOPMENT_FILES}"
+    CMAKE_DESTINATION   "${lidarview_cmake_destination}"
+    LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/lidarview/lvpythonmodules"
+    PYTHON_PACKAGE      "lidarview.modules"
+    MODULE_DESTINATION  "${LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX}"
+    TARGET              LidarView::lvpythonmodules
+    DEPENDS             VTK::vtkpythonmodules
+  )
 
-# Add sudbirectory containing python helper functions for pipeline scripting
-add_subdirectory(Wrapping/Python)
+  # Add sudirectory containing python helper functions for pipeline scripting
+  add_subdirectory(Wrapping/Python)
+
+  if (BUILD_EXAMPLES)
+    add_subdirectory(Examples/Python)
+  endif ()
+endif ()
 
 add_subdirectory(CommandLineExecutables)
-
-if (BUILD_EXAMPLES)
-  add_subdirectory(Examples/Python)
-endif ()
 
 #--------------------------------------
 # Install development files if needeed

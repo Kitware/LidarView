@@ -14,21 +14,14 @@ function(check_depedency_target name target_name)
 endfunction()
 
 #--------------------------------------
-# Python dependency - required
-#--------------------------------------
-find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
-set(lidarview_python_version "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
-message(STATUS "Using Python ${lidarview_python_version}")
-
-#--------------------------------------
 # ParaView dependency - required
 #--------------------------------------
 find_package(ParaView 5.13 REQUIRED)
 set(paraview_version "${ParaView_VERSION_MAJOR}.${ParaView_VERSION_MINOR}")
-if (NOT PARAVIEW_USE_QT)
+if (LIDARVIEW_USE_QT AND NOT PARAVIEW_USE_QT)
   message(FATAL_ERROR "PARAVIEW_USE_QT is OFF, Paraview must be built with Qt")
 endif ()
-if (NOT PARAVIEW_USE_PYTHON)
+if (LIDARVIEW_USE_PYTHON AND NOT PARAVIEW_USE_PYTHON)
   message(FATAL_ERROR "PARAVIEW_USE_PYTHON is OFF, Paraview must be built with Python")
 endif ()
 print_version(ParaView)
@@ -42,13 +35,28 @@ endif ()
 print_version(VTK)
 
 #--------------------------------------
-# Qt dependency - required
+# Qt dependency - optional
 #--------------------------------------
-if (NOT DEFINED PARAVIEW_QT_MAJOR_VERSION)
-  message(FATAL_ERROR "ParaView should provide PARAVIEW_QT_MAJOR_VERSION variable.")
+if (LIDARVIEW_USE_QT)
+  if (NOT DEFINED PARAVIEW_QT_MAJOR_VERSION)
+    message(FATAL_ERROR "ParaView should provide PARAVIEW_QT_MAJOR_VERSION variable.")
+  endif ()
+  find_package("Qt${PARAVIEW_QT_MAJOR_VERSION}" REQUIRED COMPONENTS Core Widgets)
+  print_version("Qt${PARAVIEW_QT_MAJOR_VERSION}")
 endif ()
-find_package("Qt${PARAVIEW_QT_MAJOR_VERSION}" REQUIRED COMPONENTS Core Widgets)
-print_version("Qt${PARAVIEW_QT_MAJOR_VERSION}")
+
+if (LIDARVIEW_USE_QT AND NOT LIDARVIEW_USE_PYTHON)
+  message(FATAL_ERROR "If LidarView is built with Qt, LIDARVIEW_USE_PYTHON must be enabled.")
+endif ()
+
+#--------------------------------------
+# Python dependency - optional without Qt
+#--------------------------------------
+if (LIDARVIEW_USE_PYTHON OR LIDARVIEW_USE_QT)
+  find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
+  set(lidarview_python_version "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+  message(STATUS "Using Python ${lidarview_python_version}")
+endif ()
 
 #--------------------------------------
 # Tins dependency - required

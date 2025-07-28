@@ -197,54 +197,56 @@ lidarcoreplugin_add_module_xml(
     Sources/GridSource.xml
 )
 
-set(interfaces)
-set(ui_files
-  Resources/UI/lqCalibrationFileWidget.ui)
-set(sources
-  lqCalibrationFilePropertyWidget.cxx
-  lqCalibrationFilePropertyWidget.h
-  lqConditionalDefaultPropertyWidgetDecorator.cxx
-  lqConditionalDefaultPropertyWidgetDecorator.h
-  lqLidarCorePluginManager.cxx
-  lqLidarCorePluginManager.h)
+if (LIDARVIEW_USE_QT)
+  set(interfaces)
+  set(ui_files
+    Resources/UI/lqCalibrationFileWidget.ui)
+  set(sources
+    lqCalibrationFilePropertyWidget.cxx
+    lqCalibrationFilePropertyWidget.h
+    lqConditionalDefaultPropertyWidgetDecorator.cxx
+    lqConditionalDefaultPropertyWidgetDecorator.h
+    lqLidarCorePluginManager.cxx
+    lqLidarCorePluginManager.h)
 
-paraview_plugin_add_property_widget(
-  KIND WIDGET
-  TYPE "calibration_file_widget"
-  CLASS_NAME lqCalibrationFilePropertyWidget
-  INTERFACES calibration_file_widget_interfaces
-  SOURCES calibration_file_widget_sources)
+  paraview_plugin_add_property_widget(
+    KIND WIDGET
+    TYPE "calibration_file_widget"
+    CLASS_NAME lqCalibrationFilePropertyWidget
+    INTERFACES calibration_file_widget_interfaces
+    SOURCES calibration_file_widget_sources)
 
-paraview_plugin_add_property_widget(
-  KIND WIDGET_DECORATOR
-  TYPE "ConditionalDefaultValueDecorator"
-  CLASS_NAME lqConditionalDefaultPropertyWidgetDecorator
-  INTERFACES conditional_default_decorator_interfaces
-  SOURCES conditional_default_decorator_sources)
+  paraview_plugin_add_property_widget(
+    KIND WIDGET_DECORATOR
+    TYPE "ConditionalDefaultValueDecorator"
+    CLASS_NAME lqConditionalDefaultPropertyWidgetDecorator
+    INTERFACES conditional_default_decorator_interfaces
+    SOURCES conditional_default_decorator_sources)
 
-paraview_plugin_add_auto_start(
-  CLASS_NAME lqLidarCorePluginManager
-  STARTUP onStartup
-  SHUTDOWN onShutdown
-  INTERFACES autostart_interface
-  SOURCES autostart_sources)
+  paraview_plugin_add_auto_start(
+    CLASS_NAME lqLidarCorePluginManager
+    STARTUP onStartup
+    SHUTDOWN onShutdown
+    INTERFACES autostart_interface
+    SOURCES autostart_sources)
 
-list(APPEND interfaces
-  ${calibration_file_widget_interfaces}
-  ${conditional_default_decorator_interfaces}
-  ${autostart_interface})
-list(APPEND sources
-  ${calibration_file_widget_sources}
-  ${conditional_default_decorator_sources}
-  ${autostart_sources})
+  list(APPEND interfaces
+    ${calibration_file_widget_interfaces}
+    ${conditional_default_decorator_interfaces}
+    ${autostart_interface})
+  list(APPEND sources
+    ${calibration_file_widget_sources}
+    ${conditional_default_decorator_sources}
+    ${autostart_sources})
 
-set(qrc_files
-  Resources/lqFilters.qrc
-)
+  set(qrc_files
+    Resources/lqFilters.qrc
+  )
 
-# As the ui files are not in the current source diectory
-list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS
-  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/UI")
+  # As the ui files are not in the current source diectory
+  list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Resources/UI")
+endif ()
 
 paraview_add_plugin(LidarCorePlugin
   REQUIRED_ON_CLIENT

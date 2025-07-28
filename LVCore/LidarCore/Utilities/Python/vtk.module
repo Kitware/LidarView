@@ -2,6 +2,8 @@ NAME
   LidarView::PythonInitializer
 LIBRARY_NAME
   lvPythonInitializer
+CONDITION
+  LIDARVIEW_USE_PYTHON
 DEPENDS
   VTK::CommonCore
 PRIVATE_DEPENDS

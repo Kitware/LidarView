@@ -1,3 +1,7 @@
+if (NOT PARAVIEW_USE_QT)
+  message(FATAL_ERROR "ParaView must be built with Qt for this plugin!")
+endif ()
+
 set(interfaces)
 set(sources
   lqCustomDockWidget.cxx

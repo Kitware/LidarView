@@ -2,6 +2,8 @@ NAME
   LidarView::lqCore
 LIBRARY_NAME
   lqCore
+CONDITION
+  LIDARVIEW_USE_QT
 DEPENDS
   LidarView::IOLidar
   LidarView::IOGeolocation

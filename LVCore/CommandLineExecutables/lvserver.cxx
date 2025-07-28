@@ -14,7 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 // This classe is greatly inspired from paraview pvserver
 
-#if PARAVIEW_USE_PYTHON && PARAVIEW_USE_EXTERNAL_VTK
+#if LIDARVIEW_USE_PYTHON && PARAVIEW_USE_EXTERNAL_VTK
 #include "vtkPVPythonInterpreterPath.h"
 #include "vtkPythonInterpreter.h"
 #endif
@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSMProxyManager.h"
 #include "vtkSmartPointer.h"
 
-#if PARAVIEW_USE_PYTHON
+#if LIDARVIEW_USE_PYTHON
 extern "C"
 {
   void vtkPVInitializePythonModules();
@@ -43,7 +43,7 @@ extern "C"
 //----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-#if PARAVIEW_USE_PYTHON && PARAVIEW_USE_EXTERNAL_VTK
+#if LIDARVIEW_USE_PYTHON && PARAVIEW_USE_EXTERNAL_VTK
   vtkPVPythonInterpreterPath();
 #endif
 
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 
   auto config = vtkRemotingCoreConfiguration::GetInstance();
 
-#if PARAVIEW_USE_PYTHON
+#if LIDARVIEW_USE_PYTHON
   // register callback to initialize modules statically. The callback is
   // empty when BUILD_SHARED_LIBS is ON.
   vtkPVInitializePythonModules();
