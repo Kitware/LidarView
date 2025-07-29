@@ -160,6 +160,7 @@ void vtkUDPReceiverSocketImpl::Close()
   catch (...)
   {
   }
+  this->ReceiveCallback = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -200,7 +201,10 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       // Get packet content
       packet.data.resize(numberOfBytes);
       std::copy(this->Buffer.begin(), this->Buffer.begin() + numberOfBytes, packet.data.begin());
-      this->ReceiveCallback(packet);
+      if (this->ReceiveCallback)
+      {
+        this->ReceiveCallback(packet);
+      }
 
       if (this->ForwardSocket.is_open())
       {
@@ -215,7 +219,7 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       this->ReceiveNextPacket();
     }
   };
-  if (this->ReceiveSocket.is_open())
+  if (this->ReceiveSocket.is_open() && this->ReceiveCallback)
   {
     this->ReceiveSocket.async_receive_from(
       boost::asio::buffer(this->Buffer), this->SenderEndpoint, receiveCallback);
