@@ -80,6 +80,9 @@ private:
 
   void AddNewData();
 
+  unsigned long NbOfPacketReceived = 0;
+  std::map<unsigned int, unsigned int> PacketReceivedMap;
+
   unsigned long ReaderObserverId = 0;
   vtkSmartPointer<vtkLidarPacketInterpreter> LidarInterpreter;
 

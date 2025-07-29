@@ -23,6 +23,7 @@
 #include <sstream>
 
 #include <vtkCommand.h>
+#include <vtkLogger.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtksys/SystemTools.hxx>
@@ -128,6 +129,27 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
     vtkErrorMacro("No packet interpreter selected.");
     return;
   }
+
+  if (this->PacketReceivedMap.find(pkt.size()) != this->PacketReceivedMap.cend())
+  {
+    this->PacketReceivedMap[pkt.size()]++;
+  }
+  else
+  {
+    this->PacketReceivedMap[pkt.size()] = 1;
+  }
+  if (this->NbOfPacketReceived % 10000 == 0)
+  {
+    std::stringstream ss;
+    ss << "Received packets";
+    for (auto& [size, number] : this->PacketReceivedMap)
+    {
+      ss << ", " << number << " packets with a size of " << size;
+    }
+    vtkLog(INFO, << ss.str());
+    this->PacketReceivedMap.clear();
+  }
+  this->NbOfPacketReceived++;
 
   auto interp = this->GetLidarInterpreter();
   if (!interp->IsValidPacket(pkt.data(), pkt.size()))
