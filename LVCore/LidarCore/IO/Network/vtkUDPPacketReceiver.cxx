@@ -106,7 +106,13 @@ public:
     {
       this->IOService.restart();
     }
-    this->IOService.run();
+    boost::system::error_code errCode;
+    this->IOService.run(errCode);
+    if (errCode)
+    {
+      vtkErrorWithObjectMacro(
+        nullptr, << "An error occurred when running boost io service: " << errCode.message());
+    }
   }
 
   //------------------------------------------------------------------------------

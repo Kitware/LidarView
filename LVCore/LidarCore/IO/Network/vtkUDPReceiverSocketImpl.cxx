@@ -43,9 +43,12 @@ bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& 
       // If more than one port ignore specified forward port and forward on the same port.
       uint16_t forwardPort = params.forwardPorts[portIdx];
       this->ForwardEndpoint = boost::asio::ip::udp::endpoint(ipAddressForwarding, forwardPort);
-      this->ForwardSocket.open(this->ForwardEndpoint.protocol());
-      // Allow to send the packet on the same machine
-      this->ForwardSocket.set_option(boost::asio::ip::multicast::enable_loopback(true));
+      this->ForwardSocket.open(this->ForwardEndpoint.protocol(), errCode);
+      if (!errCode)
+      {
+        // Allow to send the packet on the same machine
+        this->ForwardSocket.set_option(boost::asio::ip::multicast::enable_loopback(true));
+      }
     }
     else
     {
@@ -86,22 +89,29 @@ bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& 
 
   if (listenAddress.is_v4())
   {
-    this->ReceiveSocket.open(boost::asio::ip::udp::v4());
+    this->ReceiveSocket.open(boost::asio::ip::udp::v4(), errCode);
   }
   else if (listenAddress.is_v6())
   {
-    this->ReceiveSocket.open(boost::asio::ip::udp::v6());
-    if (listenAddress == boost::asio::ip::address_v6::any())
+    this->ReceiveSocket.open(boost::asio::ip::udp::v6(), errCode);
+    if (listenAddress == boost::asio::ip::address_v6::any() &&
+      errCode == boost::system::errc::success)
     {
       this->ReceiveSocket.set_option(boost::asio::ip::v6_only(false));
     }
   }
-  // Tell the OS we accept to re-use the port address for an other app
-  this->ReceiveSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+  if (errCode != boost::system::errc::success)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Could not open the receive socket!");
+    return false;
+  }
 
-  uint16_t port = params.listeningPorts[portIdx];
   try
   {
+    // Tell the OS we accept to re-use the port address for an other app
+    this->ReceiveSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+
+    uint16_t port = params.listeningPorts[portIdx];
     if (useMulticast)
     {
 #ifdef _MSC_VER
@@ -136,13 +146,19 @@ bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& 
 //-----------------------------------------------------------------------------
 void vtkUDPReceiverSocketImpl::Close()
 {
-  if (this->ForwardSocket.is_open())
+  try
   {
-    this->ForwardSocket.close();
+    if (this->ForwardSocket.is_open())
+    {
+      this->ForwardSocket.close();
+    }
+    if (this->ReceiveSocket.is_open())
+    {
+      this->ReceiveSocket.close();
+    }
   }
-  if (this->ReceiveSocket.is_open())
+  catch (...)
   {
-    this->ReceiveSocket.close();
   }
 }
 
@@ -171,9 +187,13 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       packet.srcAddress = this->SenderEndpoint.address().to_string();
       if (this->ReceiveSocket.is_open())
       {
-        auto localEndpoint = this->ReceiveSocket.local_endpoint();
-        packet.dstPort = localEndpoint.port();
-        packet.dstAddress = localEndpoint.address().to_string();
+        boost::system::error_code errCode;
+        auto localEndpoint = this->ReceiveSocket.local_endpoint(errCode);
+        if (errCode == boost::system::errc::success)
+        {
+          packet.dstPort = localEndpoint.port();
+          packet.dstAddress = localEndpoint.address().to_string();
+        }
       }
       packet.isIPv4 = this->SenderEndpoint.address().is_v4();
 
@@ -184,7 +204,9 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
 
       if (this->ForwardSocket.is_open())
       {
-        this->ForwardSocket.send_to(boost::asio::buffer(packet.data), this->ForwardEndpoint);
+        boost::system::error_code errCode;
+        this->ForwardSocket.send_to(
+          boost::asio::buffer(packet.data), this->ForwardEndpoint, 0, errCode);
       }
     }
 
@@ -193,7 +215,9 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       this->ReceiveNextPacket();
     }
   };
-
-  this->ReceiveSocket.async_receive_from(
-    boost::asio::buffer(this->Buffer), this->SenderEndpoint, receiveCallback);
+  if (this->ReceiveSocket.is_open())
+  {
+    this->ReceiveSocket.async_receive_from(
+      boost::asio::buffer(this->Buffer), this->SenderEndpoint, receiveCallback);
+  }
 }
