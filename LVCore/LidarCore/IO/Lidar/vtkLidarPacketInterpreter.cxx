@@ -118,6 +118,9 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
 
     // add vertex to the polydata
     this->CurrentFrame->SetVerts(::NewVertexCells(this->CurrentFrame->GetNumberOfPoints()));
+    // free extra memory allocated
+    this->CurrentFrame->Squeeze();
+
     // split the frame
     this->Frames.push_back(this->CurrentFrame);
     // create a new frame
