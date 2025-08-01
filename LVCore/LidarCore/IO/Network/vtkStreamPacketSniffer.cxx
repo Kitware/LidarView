@@ -32,6 +32,7 @@
 
 namespace
 {
+constexpr unsigned int PROTOCOL_UDP = 17;
 constexpr unsigned int PKT_CACHE_SIZE = 500;
 
 //-----------------------------------------------------------------------------
@@ -200,7 +201,38 @@ public:
 
       if (this->Writer && this->Writer->GetIsRecording())
       {
-        this->Writer->AddPacketToWritingQueue(&packet);
+        unsigned int dport = 0;
+        unsigned int sport = 0;
+        if (const Tins::UDP* res = pdu->find_pdu<Tins::UDP>())
+        {
+          dport = res->dport();
+          sport = res->sport();
+        }
+        else if (const Tins::TCP* res = pdu->find_pdu<Tins::TCP>())
+        {
+          dport = res->dport();
+          sport = res->sport();
+        }
+        Tins::UDP udp(dport, sport);
+        udp /= Tins::RawPDU(raw->payload());
+        std::unique_ptr<Tins::PDU> newPdu = std::make_unique<Tins::EthernetII>();
+        if (const Tins::IP* ipv4 = pdu->find_pdu<Tins::IP>())
+        {
+          Tins::IP ip(ipv4->dst_addr(), ipv4->src_addr());
+          ip.protocol(::PROTOCOL_UDP);
+          *newPdu /= (ip / udp);
+        }
+        else if (const Tins::IPv6* ipv6 = pdu->find_pdu<Tins::IPv6>())
+        {
+          Tins::IPv6 ip(ipv6->dst_addr(), ipv6->src_addr());
+          // Hop limit is equivalent to TTL in IPv4, set to 64 to avoid warnings in wireshark.
+          ip.hop_limit(64);
+          ip.next_header(::PROTOCOL_UDP);
+          *newPdu /= (ip / udp);
+        }
+        newPdu->serialize();
+        Tins::Packet pkt(*newPdu, timestamp);
+        this->Writer->AddPacketToWritingQueue(&pkt);
       }
     }
   }
