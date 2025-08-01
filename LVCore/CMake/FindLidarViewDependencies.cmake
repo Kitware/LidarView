@@ -53,7 +53,7 @@ endif ()
 # Python dependency - optional without Qt
 #--------------------------------------
 if (LIDARVIEW_USE_PYTHON OR LIDARVIEW_USE_QT)
-  find_package(Python3 3.8 QUIET REQUIRED COMPONENTS Interpreter)
+  find_package(Python3 3.10 QUIET REQUIRED COMPONENTS Interpreter)
   set(lidarview_python_version "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
   message(STATUS "Using Python ${lidarview_python_version}")
 endif ()
