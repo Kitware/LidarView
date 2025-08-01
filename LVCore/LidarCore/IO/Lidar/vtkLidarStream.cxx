@@ -138,7 +138,7 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
   {
     this->PacketReceivedMap[pkt.size()] = 1;
   }
-  if (this->NbOfPacketReceived % 10000 == 0)
+  if (this->NbOfPacketReceived % 10'000 == 0)
   {
     std::stringstream ss;
     ss << "Received packets";
@@ -146,7 +146,7 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
     {
       ss << ", " << number << " packets with a size of " << size;
     }
-    vtkLog(INFO, << ss.str());
+    vtkLog(1, << ss.str());
     this->PacketReceivedMap.clear();
   }
   this->NbOfPacketReceived++;
