@@ -28,7 +28,6 @@
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkVector.h>
-#include <vtkVectorOperators.h>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPointsPCA);
