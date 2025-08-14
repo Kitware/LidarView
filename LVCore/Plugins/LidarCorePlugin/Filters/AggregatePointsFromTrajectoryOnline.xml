@@ -8,17 +8,17 @@
         long_help="Aggregate points from a trajectory into a voxel grid with play mode">
       </Documentation>
 
-    <Property name="Clear voxel grid"
+    <Property name="Clear point cloud"
               command="Clear">
       <Documentation>
-        Clear the voxel grid. Parameter changes must be applied before clearing.
+        Clear the point cloud. Parameter changes must be applied before clearing.
       </Documentation>
     </Property>
 
     <Property name="Free Unused Memory"
               command="FreeUnusedMemory">
       <Documentation>
-        Free the excess memory allocated to the voxel grid. 
+        Free the excess memory allocated to the voxel grid.
       </Documentation>
     </Property>
 
@@ -35,7 +35,7 @@
 
     <PropertyGroup label="Output Management">
       <Property name="Free Unused Memory" />
-      <Property name="Clear voxel grid" />
+      <Property name="Clear point cloud" />
       <Property name="Display Output" />
     </PropertyGroup>
 

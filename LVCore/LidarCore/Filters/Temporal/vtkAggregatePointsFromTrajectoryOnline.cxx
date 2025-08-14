@@ -543,6 +543,7 @@ void vtkAggregatePointsFromTrajectoryOnline::Clear()
 {
   std::fill(this->LastFrameTime.begin(), this->LastFrameTime.end(), -1);
   this->VoxelGrid->Clear();
+  this->MergePointsToPolyDataHelper->Clear();
   this->CurrentFrame = 0;
   this->IsVoxelGridFilterInitialized = false;
   this->Initialized = false;
