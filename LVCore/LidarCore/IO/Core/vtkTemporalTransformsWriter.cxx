@@ -1,6 +1,7 @@
 #include "vtkTemporalTransformsWriter.h"
 
 #include <vtkTransform.h>
+#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkInformationVector.h>
@@ -70,14 +71,21 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation *vtkNotUsed(request)
     // point).
     // Possible optimization: hide useless trailing zeros which take up space.
     // (at the cost of breaking the columns alignement that helps a human parse)
-    file << std::fixed << std::setprecision(17)
-         << t
-         << "," << towrite.first[0]
-         << "," << towrite.first[1]
-         << "," << towrite.first[2]
-         << "," << towrite.second[0]
-         << "," << towrite.second[1]
-         << "," << towrite.second[2]
+    // Write orientation
+    if (this->WriteInDegrees)
+    {
+      file << std::fixed << std::setprecision(17) << t << ","
+           << vtkMath::DegreesFromRadians(towrite.first[0]) << ","
+           << vtkMath::DegreesFromRadians(towrite.first[1]) << ","
+           << vtkMath::DegreesFromRadians(towrite.first[2]);
+    }
+    else
+    {
+      file << std::fixed << std::setprecision(17) << t << "," << towrite.first[0] << ","
+           << towrite.first[1] << "," << towrite.first[2];
+    }
+    // Write translation
+    file << "," << towrite.second[0] << "," << towrite.second[1] << "," << towrite.second[2]
          << std::endl;
   }
 

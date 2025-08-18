@@ -30,6 +30,9 @@ public:
   vtkSetStringMacro(FileName)
   vtkGetStringMacro(FileName)
 
+  vtkSetMacro(WriteInDegrees, bool)
+  vtkGetMacro(WriteInDegrees, bool)
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 protected:
@@ -39,6 +42,8 @@ protected:
 private:
   vtkTemporalTransformsWriter(const vtkTemporalTransformsWriter&) = delete;
   void operator =(const vtkTemporalTransformsWriter&) = delete;
+
+  bool WriteInDegrees = false;
 
   char* FileName = nullptr;
 };
