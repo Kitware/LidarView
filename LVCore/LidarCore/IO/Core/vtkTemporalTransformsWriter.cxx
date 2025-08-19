@@ -1,12 +1,12 @@
 #include "vtkTemporalTransformsWriter.h"
 
-#include <vtkTransform.h>
+#include <iostream>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include <vtkInformationVector.h>
-#include <vtkInformation.h>
-#include <iostream>
+#include <vtkTransform.h>
 
 #include "vtkTemporalTransforms.h"
 
@@ -18,20 +18,16 @@ vtkStandardNewMacro(vtkTemporalTransformsWriter)
 //-----------------------------------------------------------------------------
 vtkTemporalTransformsWriter::~vtkTemporalTransformsWriter()
 {
-  if (this->FileName)
-  {
-    delete[] this->FileName;
-  }
+  delete[] this->FileName;
 }
 
 //-----------------------------------------------------------------------------
-int vtkTemporalTransformsWriter::RequestData(vtkInformation *vtkNotUsed(request),
-                                             vtkInformationVector **inputVector,
-                                             vtkInformationVector *vtkNotUsed(outputVector))
+int vtkTemporalTransformsWriter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPolyData *polyData = vtkPolyData::SafeDownCast(
-  inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkPolyData* polyData = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (polyData == nullptr)
   {
@@ -40,7 +36,8 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation *vtkNotUsed(request)
   }
 
   auto orientationArray = this->GetInputArrayToProcess(0, inputVector);
-  auto transforms = vtkTemporalTransforms::CreateFromPolyData(polyData, orientationArray->GetName());
+  auto transforms =
+    vtkTemporalTransforms::CreateFromPolyData(polyData, orientationArray->GetName());
   if (transforms == nullptr)
   {
     vtkErrorMacro("Input is not a vtkTemporalTransforms");

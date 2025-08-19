@@ -27,13 +27,13 @@ public:
   static vtkTemporalTransformsWriter* New();
   vtkTypeMacro(vtkTemporalTransformsWriter, vtkPolyDataWriter)
 
-  vtkSetStringMacro(FileName)
-  vtkGetStringMacro(FileName)
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
-  vtkSetMacro(WriteInDegrees, bool)
-  vtkGetMacro(WriteInDegrees, bool)
+  vtkSetMacro(WriteInDegrees, bool);
+  vtkGetMacro(WriteInDegrees, bool);
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkTemporalTransformsWriter() = default;
@@ -41,7 +41,7 @@ protected:
 
 private:
   vtkTemporalTransformsWriter(const vtkTemporalTransformsWriter&) = delete;
-  void operator =(const vtkTemporalTransformsWriter&) = delete;
+  void operator=(const vtkTemporalTransformsWriter&) = delete;
 
   bool WriteInDegrees = false;
 
