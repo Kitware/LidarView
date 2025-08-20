@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkLASWriter.h"
 
+#include <filesystem>
+
 #include <vtkAbstractArray.h>
 #include <vtkInformation.h>
 #include <vtkPointData.h>
@@ -33,6 +35,15 @@ vtkStandardNewMacro(vtkLASWriter);
 
 namespace
 {
+//------------------------------------------------------------------------------
+std::string normalizePath(const std::string& oldPath)
+{
+  std::filesystem::path path(oldPath);
+  std::filesystem::path canonicalPath = std::filesystem::weakly_canonical(path);
+  return canonicalPath.make_preferred().string();
+}
+
+//------------------------------------------------------------------------------
 pdal::Dimension::Id vtkArrayToPDAL(const std::string arrayName)
 {
   static const std::map<std::string, pdal::Dimension::Id> pdalMapping{
@@ -48,6 +59,7 @@ pdal::Dimension::Id vtkArrayToPDAL(const std::string arrayName)
   return pdal::Dimension::Id::Unknown;
 }
 
+//------------------------------------------------------------------------------
 pdal::Dimension::Type vtkTypeToPDAL(int type)
 {
   switch (type)
@@ -77,6 +89,7 @@ pdal::Dimension::Type vtkTypeToPDAL(int type)
   }
 }
 
+//------------------------------------------------------------------------------
 bool isIgnoredArray(const std::string arrayName)
 {
   static const std::vector<std::string> toIgnore{ "x", "y", "z" };
@@ -91,16 +104,19 @@ bool isIgnoredArray(const std::string arrayName)
 }
 }
 
+//------------------------------------------------------------------------------
 vtkLASWriter::vtkLASWriter()
 {
   this->FileName = nullptr;
 }
 
+//------------------------------------------------------------------------------
 vtkLASWriter::~vtkLASWriter()
 {
   delete[] this->FileName;
 }
 
+//------------------------------------------------------------------------------
 void vtkLASWriter::WriteData()
 {
   vtkPolyData* input = this->GetInput();
@@ -162,7 +178,7 @@ void vtkLASWriter::WriteData()
     // Replace .las with .laz
     filename.replace(filename.size() - 1, 1, "z");
   }
-  options.add("filename", filename);
+  options.add("filename", ::normalizePath(filename));
 
   // 0 == no color or time stored
   // 1 == time is stored
@@ -233,6 +249,7 @@ void vtkLASWriter::WriteData()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkLASWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -243,16 +260,19 @@ void vtkLASWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compression " << this->Compression << endl;
 }
 
+//------------------------------------------------------------------------------
 vtkPolyData* vtkLASWriter::GetInput()
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput());
 }
 
+//------------------------------------------------------------------------------
 vtkPolyData* vtkLASWriter::GetInput(int port)
 {
   return vtkPolyData::SafeDownCast(this->Superclass::GetInput(port));
 }
 
+//------------------------------------------------------------------------------
 int vtkLASWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
