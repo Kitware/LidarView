@@ -44,16 +44,21 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation* vtkNotUsed(request)
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkPolyData* polyData = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (polyData == nullptr)
+  if (!polyData)
   {
     vtkErrorMacro("Input is not a vtkPolyData");
     return 0;
   }
 
-  auto orientationArray = this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray* orientationArray = this->GetInputArrayToProcess(0, inputVector);
+  if (!orientationArray)
+  {
+    vtkErrorMacro("Could not find orientation array name.");
+    return 0;
+  }
   auto transforms =
     vtkTemporalTransforms::CreateFromPolyData(polyData, orientationArray->GetName());
-  if (transforms == nullptr)
+  if (!transforms)
   {
     vtkErrorMacro("Input is not a vtkTemporalTransforms");
     return 0;
