@@ -31,6 +31,16 @@
         </Documentation>
       </DoubleVectorProperty>
 
+      <IntVectorProperty name="ConvertAnglesToRadians"
+                         command="SetConvertAnglesToRadians"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true consider orientation angles are in degrees and convert them to radians.
+        </Documentation>
+      </IntVectorProperty>
+
       <Hints>
         <ReaderFactory extensions="csv txt poses" file_description="CSV formated file containing a pose trajectory" />
       </Hints>

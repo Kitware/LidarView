@@ -170,10 +170,16 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
 
     timstamp->InsertNextValue(array["time"]->GetTuple1(i) + this->TimeOffset);
 
-    // Assumption: roll, pitch and yaw are in degree
     double roll = array["roll"]->GetTuple1(i);
     double pitch = array["pitch"]->GetTuple1(i);
     double yaw = array["yaw"]->GetTuple1(i);
+
+    if (this->ConvertAnglesToRadians)
+    {
+      roll = vtkMath::RadiansFromDegrees(roll);
+      pitch = vtkMath::RadiansFromDegrees(pitch);
+      yaw = vtkMath::RadiansFromDegrees(yaw);
+    }
 
     auto currentAxisAngleRotation =
       Eigen::AngleAxisd(Eigen::AngleAxisd(yaw, Eigen::Vector3d::UnitZ()) *

@@ -74,6 +74,15 @@ public:
   vtkGetStringMacro(FileName);
   //@}
 
+  //@{
+  /**
+   * If true consider orientation angles are in degrees and convert them to radians.
+   * Default to false
+   */
+  vtkSetMacro(ConvertAnglesToRadians, bool);
+  vtkGetMacro(ConvertAnglesToRadians, bool);
+  //@}
+
 protected:
   vtkTemporalTransformsReader();
   ~vtkTemporalTransformsReader() override;
@@ -90,6 +99,7 @@ private:
   //! TimeOffset in seconds relative to the system clock
   double TimeOffset = 0.0;
   char* FileName;
+  bool ConvertAnglesToRadians = false;
 
   vtkTemporalTransformsReader(const vtkTemporalTransformsReader&) = delete;
   void operator=(const vtkTemporalTransformsReader&) = delete;
