@@ -1,16 +1,17 @@
-// Copyright 2019 Kitware SAS.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkTemporalTransformsReader.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 
 #ifndef VTKTEMPORALTRANSFORMSREADER_H
 #define VTKTEMPORALTRANSFORMSREADER_H
@@ -53,7 +54,7 @@ class LVIOCORE_EXPORT vtkTemporalTransformsReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTemporalTransformsReader* New();
-  vtkTypeMacro(vtkTemporalTransformsReader,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkTemporalTransformsReader, vtkPolyDataAlgorithm)
 
   static vtkSmartPointer<vtkTemporalTransforms> OpenTemporalTransforms(const std::string& filename);
 
@@ -61,10 +62,10 @@ public:
   /**
    * @copydoc vtkTemporalTransformsReader::TimeOffset
    */
-  vtkGetMacro(TimeOffset, double)
-  vtkSetMacro(TimeOffset, double)
+  vtkGetMacro(TimeOffset, double);
+  vtkSetMacro(TimeOffset, double);
   //@}
-  
+
   //@{
   /**
    * @copydoc vtkTemporalTransformsReader::FileName
@@ -82,8 +83,8 @@ protected:
   void ReadData();
 
   int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   //! TimeOffset in seconds relative to the system clock
@@ -91,8 +92,7 @@ private:
   char* FileName;
 
   vtkTemporalTransformsReader(const vtkTemporalTransformsReader&) = delete;
-  void operator =(const vtkTemporalTransformsReader&) = delete;
-
+  void operator=(const vtkTemporalTransformsReader&) = delete;
 };
 
 #endif // VTKTEMPORALTRANSFORMSREADER_H
