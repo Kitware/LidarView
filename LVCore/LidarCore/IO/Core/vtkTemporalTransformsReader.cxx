@@ -47,12 +47,12 @@ vtkDoubleArray* foundArray(vtkTable* table, std::vector<std::string> potentialNa
     }
   }
   // throw an exception when no matching could be founded
-  std::string errorMessage = "Could not find of the following colum: ";
+  std::string errorMessage = "Could not find of the following column: ";
   for (const auto& name : potentialName)
   {
     errorMessage += name + " , ";
   }
-  throw errorMessage;
+  throw std::runtime_error(errorMessage);
 }
 
 //-----------------------------------------------------------------------------
@@ -156,9 +156,9 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
   {
     array = createArrayIndex(table);
   }
-  catch (std::string e)
+  catch (const std::string& err)
   {
-    vtkErrorMacro(<< e);
+    vtkErrorMacro(<< err);
     return 1;
   }
 
