@@ -40,6 +40,16 @@
         </ArrayListDomain>
       </StringVectorProperty>
 
+      <IntVectorProperty name="WriteInDegrees"
+                         command="SetWriteInDegrees"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true write orientation angles in degrees instead of radians.
+        </Documentation>
+      </IntVectorProperty>
+
       <Hints>
         <Property name="Input" show="0" />
         <Property name="FileName" show="0" />
