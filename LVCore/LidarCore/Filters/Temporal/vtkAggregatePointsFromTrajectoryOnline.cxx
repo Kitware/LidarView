@@ -326,6 +326,12 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
 
     double transformedPoint[3];
     transform->TransformPoint(point, transformedPoint);
+    if (this->IsOffsetRemoved)
+    {
+      transformedPoint[0] += this->OffsetOrigin[0];
+      transformedPoint[1] += this->OffsetOrigin[1];
+      transformedPoint[2] += this->OffsetOrigin[2];
+    }
     transformedBoundingBox.AddPoint(transformedPoint);
   }
 
@@ -435,6 +441,14 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* 
     double p[3];
     pointcloud->GetPoint(i, p);
     transform->TransformPoint(p, p);
+    // If the offset is removed from the input trajectory, re-apply this offset
+    if (this->IsOffsetRemoved)
+    {
+      p[0] += this->OffsetOrigin[0];
+      p[1] += this->OffsetOrigin[1];
+      p[2] += this->OffsetOrigin[2];
+    }
+
     bool addPointSuccess;
 
     if (this->IsVoxelGridFilterUsed)
@@ -446,14 +460,6 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* 
     {
       // Add a free point (not filtered by the voxel grid)
       addPointSuccess = this->MergePointsToPolyDataHelper->AddPoint(pointcloud, i, p);
-    }
-
-    // If the offset is removed from the input trajectory, re-apply this offset
-    if (this->IsOffsetRemoved)
-    {
-      p[0] += this->OffsetOrigin[0];
-      p[1] += this->OffsetOrigin[1];
-      p[2] += this->OffsetOrigin[2];
     }
 
     if (!addPointSuccess)
