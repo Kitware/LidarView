@@ -206,7 +206,7 @@ void vtkLASWriter::WriteData()
     options.add("a_srs", this->SRSInformation);
   }
 
-  pdal::PointViewPtr view(new pdal::PointView(table));
+  pdal::PointViewPtr view = std::make_shared<pdal::PointView>(table);
 
   vtkDataArray* arr = pts->GetData();
   for (vtkIdType i = 0; i < npts; ++i)
