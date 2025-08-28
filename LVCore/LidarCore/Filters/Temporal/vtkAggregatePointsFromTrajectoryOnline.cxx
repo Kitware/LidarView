@@ -39,6 +39,13 @@ vtkAggregatePointsFromTrajectoryOnline::vtkAggregatePointsFromTrajectoryOnline()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
+
+  // Reset the bounds with min / max values
+  for (int i = 0; i < 3; i++)
+  {
+    this->Bounds[i * 2] = std::numeric_limits<double>::max();
+    this->Bounds[i * 2 + 1] = std::numeric_limits<double>::lowest();
+  }
 }
 
 //-----------------------------------------------------------------------------
