@@ -139,11 +139,14 @@ void vtkPacketFileHandler::Close()
   {
     auto& internals = *this->Internals;
     internals.PCAPReader.reset();
-#if defined(_WIN32)
-    std::fclose(internals.FileHandle);
-#endif
-    internals.PCAPFileHandle = nullptr;
-    internals.FileHandle = nullptr;
+    if (internals.PCAPFileHandle)
+    {
+      internals.PCAPFileHandle = nullptr;
+    }
+    if (internals.FileHandle)
+    {
+      internals.FileHandle = nullptr;
+    }
   }
 }
 
