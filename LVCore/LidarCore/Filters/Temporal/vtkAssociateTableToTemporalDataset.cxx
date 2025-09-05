@@ -103,11 +103,17 @@ int vtkAssociateTableToTemporalDataset::RequestData(vtkInformation* vtkNotUsed(r
   vtkDoubleArray* timeArray =
     vtkDoubleArray::SafeDownCast(table->GetColumnByName(this->TimeArrayName.c_str()));
   std::optional<int> lastIndex;
+  if (this->AlwaysAssociate)
+  {
+    // If no value is found takes the last one
+    lastIndex = timeArray->GetNumberOfValues() - 1;
+  }
   // Iterate over all available timesteps to get the last one in the time range
   for (unsigned int idx = 0; idx < timeArray->GetNumberOfValues(); idx++)
   {
     double time = timeArray->GetValue(idx);
-    if (currentTimestep <= time && time < upperTimestepLimit)
+    bool lowerLimitCondition = this->AlwaysAssociate || currentTimestep <= time;
+    if (lowerLimitCondition && time < upperTimestepLimit)
     {
       lastIndex = idx;
     }

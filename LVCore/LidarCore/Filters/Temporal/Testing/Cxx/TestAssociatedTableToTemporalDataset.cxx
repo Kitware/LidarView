@@ -85,6 +85,7 @@ int TestAssociatedTableToTemporalDataset(int, char*[])
   associateFilter->SetInputConnection(0, temporal->GetOutputPort());
   associateFilter->SetInputData(1, table);
   associateFilter->SetTimeArrayName(::timeArrayName);
+  associateFilter->SetAlwaysAssociate(false);
 
   for (unsigned int timeIdx = 0; timeIdx < timesteps.size(); timeIdx++)
   {

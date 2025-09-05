@@ -47,6 +47,15 @@ public:
   vtkSetMacro(TimeArrayName, std::string);
   ///@}
 
+  ///@{
+  /**
+   * If enabled the algorithm will always associate a value to the dataset.
+   * Defaults to true.
+   */
+  vtkGetMacro(AlwaysAssociate, bool);
+  vtkSetMacro(AlwaysAssociate, bool);
+  ///@}
+
   /**
    * Retrieves the name of the validity array.
    * This array is included in the output field data and indicates whether the association algorithm
@@ -73,6 +82,7 @@ private:
   void operator=(const vtkAssociateTableToTemporalDataset&) /*= delete*/;
 
   std::string TimeArrayName;
+  bool AlwaysAssociate = true;
 };
 
 #endif // vtkAssociateTableToTemporalDataset_h

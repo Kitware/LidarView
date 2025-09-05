@@ -38,6 +38,17 @@
         </Documentation>
       </StringVectorProperty>
 
+    <IntVectorProperty name="AlwaysAssociate"
+                       command="SetAlwaysAssociate"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        If enabled the algorithm will always associate a value to the dataset.
+      </Documentation>
+    </IntVectorProperty>
+
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
