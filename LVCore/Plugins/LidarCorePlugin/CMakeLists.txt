@@ -65,6 +65,7 @@ lidarcoreplugin_add_module_xml(
   XML_MODULE_FILES
     Filters/ClipPoints.xml
     Filters/RPMText.xml
+    Filters/SelectPointsByScalars.xml
 )
 
 set(xml_files

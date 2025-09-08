@@ -1,0 +1,63 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkSelectPointsByScalars -->
+  <ProxyGroup name="filters">
+    <SourceProxy class="vtkSelectPointsByScalars"
+                 name="SelectPointsByScalars"
+                 label="Select Points By Scalars">
+
+      <Documentation long_help="This filter selects points from the input dataset based on scalar values.
+      Only points whose scalar value matches one of the specified values will be passed to the output.">
+      </Documentation>
+
+      <InputProperty command="SetInputConnection" name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <InputArrayDomain name="input_array" number_of_components="1"></InputArrayDomain>
+      </InputProperty>
+
+      <StringVectorProperty command="SetInputArrayToProcess"
+                            element_types="0 0 0 0 2"
+                            label="Scalars"
+                            name="SelectInputScalars"
+                            number_of_elements="5">
+        <ArrayListDomain attribute_type="Scalars" name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          The value of this property contains the name of the
+          scalar array from which to perform the selection.
+        </Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty animateable="1"
+                            command="SetValue"
+                            label="Values to Select"
+                            name="SelectedValues"
+                            number_of_elements_per_command="1"
+                            repeat_command="1"
+                            set_number_command="SetNumberOfValues"
+                            use_index="1">
+        <!-- <BoundsDomain name="range" mode="array_scaled_extent">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+            <Property function="ArraySelection" name="SelectInputScalars" />
+          </RequiredProperties>
+        </BoundsDomain> -->
+        <Documentation>
+          Specify the list of scalar values to be selected. 
+          Only points with scalar values matching one of these will be kept.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <!-- End Threshold -->
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkSelectPointsByScalars -->
+</ServerManagerConfiguration>
