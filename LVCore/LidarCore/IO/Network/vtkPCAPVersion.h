@@ -16,12 +16,14 @@
 #ifndef vtkPCAPVersion_h
 #define vtkPCAPVersion_h
 
+#include "lvIONetworkModule.h"
+
 /**
  * Utility functions to get the underlying pcap library version.
  */
 namespace vtkPCAPVersion
 {
-const char* GetPcapLibraryVersion();
+LVIONETWORK_EXPORT const char* GetPcapLibraryVersion();
 };
 
 #endif
