@@ -8,9 +8,9 @@ DEPENDS
   ParaView::pqCore
 PRIVATE_DEPENDS
   LidarView::lqCore
+  LidarView::IONetwork
   LidarView::Versioning
   ParaView::pqComponents
   ParaView::RemotingViews
   VTK::CommonCore
-  Tins::tins
 EXCLUDE_WRAP
