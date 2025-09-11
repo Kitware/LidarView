@@ -17,6 +17,7 @@
 #include <filesystem>
 
 #include <vtkAbstractArray.h>
+#include <vtkCenterOfMass.h>
 #include <vtkInformation.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
@@ -186,6 +187,13 @@ void vtkLASWriter::WriteData()
   // 3 == color and time are stored
   options.add("dataformat_id", dataformat_id);
 
+  // If auto offset compute activated, compute the center of mass of the point cloud
+  if (this->AutoOffset)
+  {
+    vtkPoints* pts = input->GetPoints();
+    vtkCenterOfMass::ComputeCenterOfMass(pts, nullptr, this->Offset);
+  }
+
   // By default it truncate positions from .01
   options.add("scale_x", "auto");
   options.add("scale_y", "auto");
@@ -257,6 +265,7 @@ void vtkLASWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SRSInformation " << this->SRSInformation << endl;
   os << indent << "Offset " << this->Offset[0] << " " << this->Offset[1] << " " << this->Offset[2]
      << endl;
+  os << indent << "AutoOffset " << this->AutoOffset << endl;
   os << indent << "Compression " << this->Compression << endl;
 }
 

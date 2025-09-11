@@ -1,13 +1,11 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="internal_writers">
-    <WriterProxy  name="LASWriter"
-                  class="vtkLASWriter">
+    <WriterProxy name="LASWriter" class="vtkLASWriter">
       <Documentation short_help="Write LAS files">
         Write LAS files.
       </Documentation>
 
-      <InputProperty command="SetInputConnection"
-                     name="Input">
+      <InputProperty command="SetInputConnection" name="Input">
         <DataTypeDomain name="input_type" composite_data_supported="0">
           <DataType value="vtkPolyData" />
         </DataTypeDomain>
@@ -40,15 +38,33 @@
                             number_of_elements="3">
         <DoubleRangeDomain name="range" />
         <Documentation>
-          Offset to be subtracted from the X, Y and Z nominal values, respectively.
+          Offset to be subtracted from the nominal X, Y and Z values ​​respectively. If the Auto Offset option is enabled, this field will be hidden.
         </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="AutoOffset"
+                                   value="0" />
+        </Hints>
       </DoubleVectorProperty>
+
+      <IntVectorProperty name="AutoOffset"
+                         command="SetAutoOffset"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Automatically compute the offset of the point cloud. The offset is calculated 
+          as the geometric center (centroid) of all points. If disabled, a manual offset 
+          input will be available.
+        </Documentation>
+      </IntVectorProperty>
 
       <IntVectorProperty name="Compression"
                          command="SetCompression"
                          number_of_elements="1"
                          default_values="0">
-        <BooleanDomain name="bool"/>
+        <BooleanDomain name="bool" />
         <Documentation>
           Apply compression to the output, creating a LAZ file instead of a LAS file.
           Note that PDAL must have been compiled with zlib.
@@ -56,8 +72,8 @@
       </IntVectorProperty>
 
       <Hints>
-        <Property name="Input" show="0"/>
-        <Property name="FileName" show="0"/>
+        <Property name="Input" show="0" />
+        <Property name="FileName" show="0" />
         <WriterFactory extensions="las laz" file_description="LAS File Format" />
       </Hints>
     </WriterProxy>
@@ -76,22 +92,22 @@
       <SubProxy>
         <Proxy name="Writer"
                proxygroup="internal_writers"
-               proxyname="LASWriter">
-        </Proxy>
+               proxyname="LASWriter"></Proxy>
         <LinkProperties>
           <Property name="Input" with_property="Input" />
         </LinkProperties>
+
         <ExposedProperties>
           <PropertyGroup label="LAS File Format Options">
-            <Property name="SRSInformation"/>
-            <Property name="Offset"/>
-            <Property name="Compression"/>
+            <Property name="SRSInformation" />
+            <Property name="AutoOffset" />
+            <ExposedProperty name="Offset"></ExposedProperty>
+            <Property name="Compression" />
           </PropertyGroup>
         </ExposedProperties>
       </SubProxy>
 
-      <InputProperty command="SetInputConnection"
-                     name="Input">
+      <InputProperty command="SetInputConnection" name="Input">
         <DataTypeDomain name="input_type" composite_data_supported="0">
           <DataType value="vtkPolyData" />
         </DataTypeDomain>
@@ -101,9 +117,9 @@
       </InputProperty>
 
       <Hints>
-        <Property name="Input" show="0"/>
-        <Property name="FileName" show="0"/>
-        <WriterFactory extensions="las laz" file_description="LAS File Format"/>
+        <Property name="Input" show="0" />
+        <Property name="FileName" show="0" />
+        <WriterFactory extensions="las laz" file_description="LAS File Format" />
       </Hints>
     </WriterProxy>
   </ProxyGroup>

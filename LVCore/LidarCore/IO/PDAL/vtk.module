@@ -7,3 +7,8 @@ CONDITION
 DEPENDS
   LidarView::CommonCore
   VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersModeling
+TEST_DEPENDS
+  LidarView::TestingCore

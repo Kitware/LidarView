@@ -15,7 +15,7 @@
 
 /**
  * @class vtkLASWriter
- * @brief Write a LAS/LAZ file using PDAL.
+ * @brief Write a LAS/LAZ file using PDAL with support for AutoOffset.
  *
  * vtkLASWriter writes LAS (or compressed LAZ) files with a polydata input.
  * It also writes all polydata arrays by default.
@@ -86,6 +86,15 @@ public:
   vtkGetMacro(Compression, bool);
   ///@}
 
+  ///@{
+  /**
+   * If true, the writer will compute the offset to apply to the points
+   * so that the coordinates are as close to the origin as possible.
+   */
+  vtkSetMacro(AutoOffset, bool);
+  vtkGetMacro(AutoOffset, bool);
+  ///@}
+
 protected:
   vtkLASWriter();
   ~vtkLASWriter() override;
@@ -95,6 +104,7 @@ protected:
   char* FileName = nullptr;
   std::string SRSInformation;
   bool Compression = false;
+  bool AutoOffset = false;
   double Offset[3];
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
