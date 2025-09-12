@@ -4,7 +4,7 @@ set(classes
   vtkEuclideanCompare
   vtkComputeVolume
   vtkVoxelOverlapFilter
-)
+  vtkImagesOperations)
 
 set(private_headers)
 set(sources)

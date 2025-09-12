@@ -73,6 +73,7 @@ set(xml_files
   Filters/RansacPlaneModel.xml
   Filters/EuclideanCompare.xml
   Filters/ComputeVolume.xml
+  Filters/ImagesOperations.xml
   Filters/VoxelOverlapFilter.xml
 )
 
@@ -122,6 +123,7 @@ lidarcoreplugin_add_module_xml(
     Filters/BirdEyeViewSnap.xml
     Filters/LidarRawSignalImage.xml
     Filters/PointCloudLinearProjector.xml
+    Filters/PointCloudPinHoleProjector.xml
     Filters/VoxelGridFilter.xml
 )
 

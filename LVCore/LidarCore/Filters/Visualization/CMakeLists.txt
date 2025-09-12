@@ -2,7 +2,8 @@ set(classes
   vtkBirdEyeViewSnap
   vtkLidarRawSignalImage
   vtkPointCloudLinearProjector
-  vtkVoxelGridFilter)
+  vtkVoxelGridFilter
+  vtkPointCloudPinHoleProjector)
 
 vtk_module_add_module(LidarView::FiltersVisualization
   CLASSES ${classes})

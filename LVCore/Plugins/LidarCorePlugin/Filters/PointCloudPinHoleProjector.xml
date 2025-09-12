@@ -1,0 +1,94 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="PointCloudPinHoleProjector" class="vtkPointCloudPinHoleProjector" label="PointCloud PinHole Projector">
+      <Documentation
+        short_help="Project a PointCloud from a PinHole model to an image"
+        long_help="Project a PointCloud from a PinHole model to an image">
+          Project a PointCloud from a PinHole model to an image
+      </Documentation>
+
+      <InputProperty name="Input" port_index="0" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <OutputPort name="ImageData" index="0" />
+      <OutputPort name="CameraModel" index="1" />
+      <Hints>
+        <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      </Hints>
+
+      <IntVectorProperty
+        name="Resolution"
+        animateable="0"
+        default_values="1280 720"
+        command="SetResolution"
+        number_of_elements="2">
+        <Documentation>
+            The image resolution.
+            A higher resolution will give you more details, but depending on your points density, the resulting
+            image could have empty areas.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Translation"
+        animateable="0"
+        default_values="0 0 0"
+        command="SetCameraTranslation"
+        number_of_elements="3">
+        <Documentation>
+          The camera translation from origin.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Direction"
+        animateable="0"
+        default_values="1 0 0"
+        command="SetCameraDirection"
+        number_of_elements="3">
+        <Documentation>
+          A vector representing the camera direction (will be normalized).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Angle"
+        animateable="0"
+        default_values="0"
+        command="SetCameraAngle"
+        number_of_elements="1">
+        <Documentation>
+          The roll of the camera (around direction axis).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <StringVectorProperty name="SelectValueArray"
+                            label="Value"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;Intensity"
+                            animateable="0">
+        <Documentation>
+          The value to use in the image.
+        </Documentation>
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input"
+                      function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="InterpolateEachPoint"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
