@@ -141,6 +141,9 @@
    <widget class="pqComparativeVisPanel" name="comparativeVisPanel"/>
   </widget>
   <widget class="QDockWidget" name="propertiesDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>Properties</string>
    </property>
@@ -150,6 +153,9 @@
    <widget class="pqPropertiesPanel" name="propertiesPanel"/>
   </widget>
   <widget class="QDockWidget" name="memoryInspectorDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>Memory Inspector</string>
    </property>
@@ -168,22 +174,36 @@
    <widget class="pqProxyInformationWidget" name="proxyInformationWidget"/>
   </widget>
   <widget class="QDockWidget" name="displayPropertiesDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>Display</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="pqPropertiesPanel" name="displayPropertiesPanel"/>
+   <widget class="pqPropertiesPanel" name="displayPropertiesPanel">
+    <property name="panelMode" stdset="0">
+     <number>2</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QDockWidget" name="viewPropertiesDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>View</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="pqPropertiesPanel" name="viewPropertiesPanel"/>
+   <widget class="pqPropertiesPanel" name="viewPropertiesPanel">
+    <property name="panelMode" stdset="0">
+     <number>4</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QDockWidget" name="timeManagerDock">
    <property name="allowedAreas">
@@ -195,7 +215,7 @@
    <attribute name="dockWidgetArea">
     <number>8</number>
    </attribute>
-  <widget class="pqTimeManagerWidget" name="timeManagerPanel"/>
+   <widget class="pqTimeManagerWidget" name="timeManagerPanel"/>
   </widget>
   <widget class="QDockWidget" name="outputWidgetDock">
    <property name="floating">
