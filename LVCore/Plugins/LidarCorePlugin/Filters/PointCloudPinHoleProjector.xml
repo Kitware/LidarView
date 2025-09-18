@@ -64,31 +64,19 @@
           The roll of the camera (around direction axis).
         </Documentation>
       </DoubleVectorProperty>
-
-      <StringVectorProperty name="SelectValueArray"
-                            label="Value"
-                            command="SetInputArrayToProcess"
-                            number_of_elements="5"
-                            element_types="0 0 0 0 2"
-                            default_values_delimiter=";"
-                            default_values="0;0;0;0;Intensity"
-                            animateable="0">
+      
+      <IntVectorProperty
+        name="Use nan"
+        animateable="0"
+        default_values="0"
+        command="SetUseNaN"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
         <Documentation>
-          The value to use in the image.
+            If activated, use NaN when double scalars are missing for a pixel.
+            This option doesn't affect non-double scalars, which remains initalized at 0.
         </Documentation>
-        <ArrayListDomain name="array_list" attribute_type="Scalars">
-          <RequiredProperties>
-            <Property name="Input"
-                      function="Input" />
-          </RequiredProperties>
-        </ArrayListDomain>
-        <Hints>
-          <PropertyWidgetDecorator type="GenericDecorator"
-                                   mode="visibility"
-                                   property="InterpolateEachPoint"
-                                   value="1" />
-        </Hints>
-      </StringVectorProperty>
+      </IntVectorProperty>
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

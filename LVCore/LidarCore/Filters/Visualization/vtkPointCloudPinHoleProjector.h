@@ -67,6 +67,14 @@ public:
   double GetCameraAngle();
   ///@}
 
+  ///@{
+  /**
+   * Whether or not to use NaN to initalize double scalar values.
+   */
+  vtkGetMacro(UseNaN, bool);
+  vtkSetMacro(UseNaN, bool);
+  ///@}
+
 protected:
   vtkPointCloudPinHoleProjector();
   ~vtkPointCloudPinHoleProjector() = default;
@@ -86,16 +94,16 @@ private:
   Eigen::Vector3d CameraTranslation = Eigen::Vector3d(0, 0, 0);
   Eigen::Vector3d CameraDirection = Eigen::Vector3d(1, 0, 0);
   double CameraAngle = 0;
+  bool UseNaN = false;
 
   Eigen::Matrix3d RotationMatrix = Eigen::Matrix3d::Identity();
 
   // Rasterize a given polydata into a new vtkImageData.
-  vtkSmartPointer<vtkImageData> polyDataToImageData(vtkSmartPointer<vtkPolyData> input,
-    vtkDataArray* values);
+  vtkSmartPointer<vtkImageData> polyDataToImageData(vtkSmartPointer<vtkPolyData> input);
 
   // Update the transformation matrix, called when camera related properties are updated.
   void UpdateTransform();
-  
+
   // Create a 3d model to indicate to the user camera location/rotation.
   vtkSmartPointer<vtkPolyData> generateCameraModel();
 };

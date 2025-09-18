@@ -24,6 +24,11 @@
 #include <vtkPolyData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkLongArray.h>
+#include <vtkLongLongArray.h>
+
 #include <Eigen/Dense>
 
 vtkStandardNewMacro(vtkImagesOperations);
@@ -53,6 +58,65 @@ int vtkImagesOperations::FillInputPortInformation(int port, vtkInformation* info
 }
 
 //-----------------------------------------------------------------------------
+template <typename T>
+std::function<T(T, T)> vtkImagesOperations::GetOperation()
+{
+  switch (this->Operation)
+  {
+    case Operator::SUM:
+      return [](T a, T b) { return a + b; };
+    case Operator::DIFFERENCE:
+      return [](T a, T b) { return a - b; };
+      break;
+    case Operator::ABSOLUTE_DIFFERENCE:
+      return [](T a, T b) { return std::abs(a - b); };
+    case Operator::PRODUCT:
+      return [](T a, T b) { return a * b; };
+    default:
+      vtkErrorMacro("The specified operation type doesn't exist");
+      return [](T a, T vtkNotUsed(b)) { return a; };
+  }
+};
+
+//-----------------------------------------------------------------------------
+template <typename T, typename U>
+void vtkImagesOperations::PerformImageOperation(vtkAbstractArray* inArray1,
+  vtkAbstractArray* inArray2,
+  vtkPointData* outPointData,
+  int width,
+  int height)
+{
+  T* _inArray1 = T::FastDownCast(inArray1);
+  T* _inArray2 = T::FastDownCast(inArray2);
+  vtkNew<T> _outArray;
+
+  for (int i = 0; i < inArray1->GetNumberOfValues(); i++)
+  {
+    _outArray->InsertNextValue(0);
+  }
+
+  _outArray->SetName(this->ResultScalarName.c_str());
+
+  auto operation = GetOperation<U>();
+
+  for (int y = 0; y < height; y++)
+  {
+    for (int x = 0; x < width; x++)
+    {
+      const int pixelIndex = y * width + x;
+
+      auto value0 = _inArray1->GetValue(pixelIndex);
+      auto value1 = _inArray2->GetValue(pixelIndex);
+
+      auto newValue = operation(value0, value1);
+      _outArray->SetValue(pixelIndex, newValue);
+    }
+  }
+
+  outPointData->AddArray(_outArray);
+};
+
+//-----------------------------------------------------------------------------
 int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -65,51 +129,68 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   int dimensions1[3];
   inputImage0->GetDimensions(dimensions0);
   inputImage1->GetDimensions(dimensions1);
+  const int width = dimensions0[0];
+  const int height = dimensions0[1];
 
+  // Check for same image dimensions
   if (dimensions0[0] != dimensions1[0] || dimensions0[1] != dimensions1[1])
   {
+    vtkWarningMacro("Images dimensions must match.");
     return VTK_ERROR;
   }
 
-  vtkNew<vtkImageData> newImage;
-  newImage->SetDimensions(dimensions0);
-  newImage->AllocateScalars(VTK_DOUBLE, 1);
-  newImage->SetOrigin(0, 0, 0);
-  newImage->SetSpacing(.1, .1, 1);
-
-  std::function<double(double, double)> operation;
-  switch (this->Operation)
+  // Check if the selected scalar name exist on input data
+  vtkAbstractArray* arr0 = this->GetInputAbstractArrayToProcess(0, inputVector);
+  if (arr0 == nullptr)
   {
-    case Operator::SUM:
-      operation = [](double a, double b) { return a + b; };
+    vtkWarningMacro("The specified scalar doesn't exist on first image.");
+    return VTK_ERROR;
+  }
+
+  // Create the new image as a copy of the first image
+  vtkNew<vtkImageData> newImage;
+  newImage->DeepCopy(inputImage0);
+  vtkPointData* newPointData = newImage->GetPointData();
+  vtkPointData* pointData1 = inputImage1->GetPointData();
+
+  // Extract selected scalar array
+  const char* scalarName = arr0->GetName();
+  vtkAbstractArray* arr1 = pointData1->GetAbstractArray(scalarName);
+  if (arr1 == nullptr)
+  {
+    vtkWarningMacro("The specified scalar doesn't exist on second image.");
+    return VTK_ERROR;
+  }
+
+  // Check for similar types between both images
+  int type0 = arr0->GetDataType();
+  int type1 = arr1->GetDataType();
+  if (type0 != type1)
+  {
+    vtkWarningMacro("Scalar types of both images must match");
+    return VTK_ERROR;
+  }
+
+  // Switch through VTK Types to call the correct template
+  switch (type0)
+  {
+    case VTK_DOUBLE:
+      PerformImageOperation<vtkDoubleArray, double>(arr0, arr1, newPointData, width, height);
       break;
-    case Operator::DIFFERENCE:
-      operation = [](double a, double b) { return a - b; };
+    case VTK_INT:
+      PerformImageOperation<vtkIntArray, int>(arr0, arr1, newPointData, width, height);
       break;
-    case Operator::ABSOLUTE_DIFFERENCE:
-      operation = [](double a, double b) { return std::abs(a - b); };
+    case VTK_LONG:
+      PerformImageOperation<vtkLongArray, long>(arr0, arr1, newPointData, width, height);
       break;
-    case Operator::PRODUCT:
-      operation = [](double a, double b) { return a * b; };
+    case VTK_LONG_LONG:
+      PerformImageOperation<vtkLongLongArray, long long>(arr0, arr1, newPointData, width, height);
       break;
     default:
-      vtkErrorMacro("The specified operation type doesn't exist");
-      return VTK_ERROR;
+      vtkWarningMacro("Unsupported scalar type.");
+      break;
   }
 
-  for (int y = 0; y < dimensions0[1]; y++)
-  {
-    for (int x = 0; x < dimensions0[0]; x++)
-    {
-      double value0 = inputImage0->GetScalarComponentAsDouble(x, y, 0, 0);
-      double value1 = inputImage1->GetScalarComponentAsDouble(x, y, 0, 0);
-
-      double newValue = operation(value0, value1);
-      newImage->SetScalarComponentFromDouble(x, y, 0, 0, newValue);
-    }
-  }
-
-  newImage->GetPointData()->GetScalars()->SetName(this->ResultScalarName.c_str());
   outputImage->ShallowCopy(newImage);
 
   return VTK_OK;

@@ -15,6 +15,7 @@
 
 #include "vtkPointCloudPinHoleProjector.h"
 
+#include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -62,8 +63,7 @@ int vtkPointCloudPinHoleProjector::FillOutputPortInformation(int port, vtkInform
 
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData> vtkPointCloudPinHoleProjector::polyDataToImageData(
-  vtkSmartPointer<vtkPolyData> input,
-  vtkDataArray* values)
+  vtkSmartPointer<vtkPolyData> input)
 {
   const int width = this->Resolution[0];
   const int height = this->Resolution[1];
@@ -71,20 +71,55 @@ vtkSmartPointer<vtkImageData> vtkPointCloudPinHoleProjector::polyDataToImageData
   vtkNew<vtkImageData> imageData;
   imageData->SetOrigin(0, 0, 0);
   imageData->SetSpacing(.1, .1, 1);
-
   imageData->SetDimensions(width, height, 1);
-  imageData->AllocateScalars(VTK_DOUBLE, 1);
 
-  for (int x = 0; x < width; x++)
+  vtkPointData* inputPointData = input->GetPointData();
+  const int numberOfArrays = inputPointData->GetNumberOfArrays();
+  vtkPointData* imagePointData = imageData->GetPointData();
+
+  // Initialize all scalar values of image
+  for (int i = 0; i < numberOfArrays; i++)
   {
-    for (int y = 0; y < height; y++)
+    vtkAbstractArray* abstractArray = inputPointData->GetAbstractArray(i);
+    const int dataType = abstractArray->GetDataType();
+
+    vtkDataArray* da = vtkDataArray::CreateDataArray(dataType);
+
+    da->SetName(abstractArray->GetName());
+    for (int x = 0; x < width; x++)
     {
-      imageData->SetScalarComponentFromDouble(x, y, 0, 0, 0);
+      for (int y = 0; y < height; y++)
+      {
+        if (this->UseNaN && dataType == VTK_DOUBLE)
+        {
+          da->InsertNextTuple1(std::numeric_limits<double>::quiet_NaN());
+        }
+        else
+        {
+          da->InsertNextTuple1(0);
+        }
+      }
     }
+
+    imagePointData->AddArray(da);
   }
 
-  size_t totalPoints = input->GetNumberOfPoints();
+  // Initialize points info arrays
+  vtkNew<vtkIntArray> pointIdArray;
+  vtkNew<vtkDoubleArray> pointDistanceArray;
+  pointIdArray->SetName("PointId");
+  pointDistanceArray->SetName("PointDistance");
 
+  for (int i = 0; i < width * height; i++)
+  {
+    pointIdArray->InsertNextValue(-1);
+    pointDistanceArray->InsertNextValue(std::numeric_limits<double>::quiet_NaN());
+  }
+  imagePointData->AddArray(pointIdArray);
+  imagePointData->AddArray(pointDistanceArray);
+
+  // Rasterization
+  size_t totalPoints = input->GetNumberOfPoints();
   double point[3];
   Eigen::Vector4d eigenPoint;
   Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
@@ -102,14 +137,32 @@ vtkSmartPointer<vtkImageData> vtkPointCloudPinHoleProjector::polyDataToImageData
     eigenPoint = projector * eigenPoint;
     Eigen::Vector3d transformedPoint = eigenPoint.head<3>();
 
+    // If the point is in front of the projection plane...
     if (transformedPoint.z() > 0)
     {
       int x = transformedPoint.x() / transformedPoint.z() * width / 2 + width / 2;
       int y = transformedPoint.y() / transformedPoint.z() * width / 2 + height / 2;
 
+      int imageIndex = y * width + x;
+      double previousDistance = pointDistanceArray->GetValue(imageIndex);
+      double currentDistance = transformedPoint.norm();
+
+      // ...and its projection is in image bounds
       if (0 <= x && x < width && 0 <= y && y < height)
       {
-        imageData->SetScalarComponentFromDouble(x, y, 0, 0, values->GetTuple1(i));
+        // If two points match the same pixel, we keep the closest one to the camera
+        if (previousDistance != previousDistance || currentDistance < previousDistance)
+        {
+          for (int j = 0; j < numberOfArrays; j++)
+          {
+            // Copy scalar directly from
+            imagePointData->GetArray(j)->SetTuple(imageIndex, i, inputPointData->GetArray(j));
+          }
+
+          // Set additional scalars to track projected points
+          pointIdArray->SetValue(imageIndex, i);
+          pointDistanceArray->SetValue(imageIndex, currentDistance);
+        }
       }
     }
   }
@@ -186,17 +239,8 @@ int vtkPointCloudPinHoleProjector::RequestData(vtkInformation* vtkNotUsed(reques
   vtkImageData* output = vtkImageData::GetData(outputVector, 0);
   vtkPolyData* modelOutput = vtkPolyData::GetData(outputVector, 1);
 
-  vtkAbstractArray* abstractValues = this->GetInputAbstractArrayToProcess(0, inputVector);
-  if (abstractValues == nullptr)
-  {
-    vtkWarningMacro("The specified 'Value' field doesn't exist.");
-    return VTK_ERROR;
-  }
-
-  vtkDataArray* values = vtkDataArray::FastDownCast(abstractValues);
-  vtkSmartPointer<vtkImageData> imageData = polyDataToImageData(input, values);
+  vtkSmartPointer<vtkImageData> imageData = polyDataToImageData(input);
   output->ShallowCopy(imageData);
-  imageData->GetPointData()->GetScalars()->SetName(values->GetName());
 
   vtkSmartPointer<vtkPolyData> cameraModel = this->generateCameraModel();
   modelOutput->DeepCopy(cameraModel);

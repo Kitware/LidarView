@@ -65,6 +65,18 @@ private:
   vtkImagesOperations(const vtkImagesOperations&) = delete;
   void operator=(const vtkImagesOperations&) = delete;
 
+  template <typename T>
+  std::function<T(T, T)> GetOperation();
+
+  // Compute operation
+  template <typename T, typename U>
+  void PerformImageOperation(vtkAbstractArray* inArray1,
+    vtkAbstractArray* inArray2,
+    vtkPointData* outPointData,
+    int width,
+    int height);
+
+  // All possible operations on scalar
   enum Operator
   {
     SUM = 0,
@@ -73,6 +85,8 @@ private:
     PRODUCT = 3,
   };
   int Operation = 0;
+
+  // The name of the output scalar
   std::string ResultScalarName = "Result";
 };
 
