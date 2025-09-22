@@ -238,7 +238,7 @@ lqCalibrationFilePropertyWidget::lqCalibrationFilePropertyWidget(vtkSMProxy* smp
   QObject::connect(internals.UI.RemoveButton, &QToolButton::clicked, removeButtonReaction);
 
   this->setChangeAvailableAsChangeFinished(true);
-  this->addPropertyLink(this, "currentFilename", SIGNAL(filenameChanged()), smproperty);
+  this->addPropertyLink(this, "filenameProp", SIGNAL(filenameChanged()), smproperty);
 }
 
 //-----------------------------------------------------------------------------

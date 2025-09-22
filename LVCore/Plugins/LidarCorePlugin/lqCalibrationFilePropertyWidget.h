@@ -36,7 +36,7 @@ class lqCalibrationFilePropertyWidget : public pqPropertyWidget
   typedef pqPropertyWidget Superclass;
 
   Q_PROPERTY(
-    QString currentFilename READ currentFilename WRITE setCurrentFilename NOTIFY filenameChanged);
+    QString filenameProp READ currentFilename WRITE setCurrentFilename NOTIFY filenameChanged);
 
 public:
   lqCalibrationFilePropertyWidget(vtkSMProxy* smproxy,
