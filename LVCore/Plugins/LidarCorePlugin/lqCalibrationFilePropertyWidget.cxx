@@ -216,7 +216,6 @@ lqCalibrationFilePropertyWidget::lqCalibrationFilePropertyWidget(vtkSMProxy* smp
         Q_EMIT this->filenameChanged();
       });
   }
-
   auto addButtonReaction = [&internals, this, smproxy, smproperty]()
   {
     QString filename = internals.chooseFile(this, smproxy, smproperty);
@@ -239,6 +238,14 @@ lqCalibrationFilePropertyWidget::lqCalibrationFilePropertyWidget(vtkSMProxy* smp
 
   this->setChangeAvailableAsChangeFinished(true);
   this->addPropertyLink(this, "filenameProp", SIGNAL(filenameChanged()), smproperty);
+
+  // Update filename in proxy in case it was preloaded
+  bool useCustomCalib =
+    internals.UI.UseCustomCalibrationFile->isChecked() || internals.NoDefaultCalibration;
+  if (internals.UI.CalibrationFileListWidget->count() != 0 && useCustomCalib)
+  {
+    Q_EMIT this->filenameChanged();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -250,7 +257,8 @@ QString lqCalibrationFilePropertyWidget::currentFilename() const
   auto& internals = (*this->Internals);
   QString filename;
   QListWidget* calibWidget = internals.UI.CalibrationFileListWidget;
-  bool useCustomCalib = internals.UI.UseCustomCalibrationFile->isChecked() || internals.NoDefaultCalibration;
+  bool useCustomCalib =
+    internals.UI.UseCustomCalibrationFile->isChecked() || internals.NoDefaultCalibration;
   if (calibWidget->count() != 0 && useCustomCalib)
   {
     const int row = calibWidget->currentRow();
