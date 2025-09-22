@@ -93,6 +93,23 @@
       <ProxyProperty command="SetRecorder" name="Recorder" />
     </Proxy>
 
+
+    <!-- ==================================================================== -->
+    <!-- TCP Packet receiver -->
+    <Proxy name="TCPPacketReceiver" class="vtkTCPPacketReceiver">
+      <StringVectorProperty name="LocalListeningAddress"
+                            command="SetLocalListeningAddress"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify the server address.
+        </Documentation>
+      </StringVectorProperty>
+
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
+
     <!-- ==================================================================== -->
     <!-- Packet sniffer -->
     <Proxy name="PacketSniffer" class="vtkStreamPacketSniffer">
@@ -122,7 +139,7 @@
   </ProxyGroup>
 
   <!-- ==================================================================== -->
-  <!-- Group with all available packet handler -->
+  <!-- Default group with all available packet handler -->
   <ProxyGroup name="packet_handler_group">
     <Proxy group="internal_interpreter" name="UDPPacketReceiver" />
     <Proxy group="internal_interpreter" name="PacketSniffer" />

@@ -20,6 +20,7 @@ set(classes
   vtkPCAPVersion
   vtkStream
   vtkStreamPacketSniffer
+  vtkTCPPacketReceiver
   vtkUDPPacketReceiver
   vtkUDPPing
   vtkUDPPointSender
