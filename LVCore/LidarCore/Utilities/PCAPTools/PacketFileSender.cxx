@@ -31,6 +31,7 @@
 // The default playback speed is based on the timestamps specified in the pcap file
 
 #include "PacketSender.h"
+#include "vtkTCPPacketSender.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -48,6 +49,7 @@ const int OUTPUT_WIDTH = 15; // width of the column (#packet, duration, ...) in 
 int main(int argc, char* argv[])
 {
   bool loop = false; // run the capture 1 time or in loop
+  bool isTCP = false;
 
   // parse the command line options
   po::options_description visible("Allowed options");
@@ -56,6 +58,7 @@ int main(int argc, char* argv[])
       ("help", "produce help message")
       ("ip", po::value<std::string>()->default_value("127.0.0.1"), "destination ip adress")
       ("loop", po::bool_switch(&loop), "run the capture in loop")
+      ("tcp", po::bool_switch(&isTCP), "use TCP communication, instead of UDP (default)")
       ("lidarPort", po::value<unsigned int>()->default_value(2368), "destination port for lidar packets")
       ("GPSPort", po::value<unsigned int>()->default_value(8308), "destination port for GPS packets")
       ("speed", po::value<double>()->default_value(1), "playback speed")
@@ -97,8 +100,19 @@ int main(int argc, char* argv[])
   do
   {
     // Create a Packet Sender
-    PacketSender sender(filename, destinationIp, lidarPort, GPSPort);
-    sender.sendAllPackets(speed, display_frequency);
+    if (isTCP)
+    {
+      auto sender = vtkSmartPointer<vtkTCPPacketSender>::New();
+      sender->SetAddress(destinationIp);
+      sender->SetPort(lidarPort);
+      sender->SetPCAPFileName(filename);
+      sender->SendAllPackets(speed);
+    }
+    else
+    {
+      PacketSender sender(filename, destinationIp, lidarPort, GPSPort);
+      sender.sendAllPackets(speed, display_frequency);
+    }
   } while (loop);
 
   return 0;

@@ -21,6 +21,7 @@ set(classes
   vtkStream
   vtkStreamPacketSniffer
   vtkTCPPacketReceiver
+  vtkTCPPacketSender
   vtkUDPPacketReceiver
   vtkUDPPing
   vtkUDPPointSender
