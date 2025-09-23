@@ -1,0 +1,90 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="EuclideanCompare" class="vtkEuclideanCompare">
+      <Documentation short_help="Computes nearest-neighbor Euclidean distances between target and source point clouds.">
+        This filter computes the Euclidean distance from each point in the target cloud
+        to its nearest neighbor in the source point cloud.
+      </Documentation>
+
+      <InputProperty name="Reference Input"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the reference dataset.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty name="Target Input"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the dataset to compare.
+        </Documentation>
+      </InputProperty>
+
+      <IntVectorProperty name="UseKDTree"
+                         command="SetUseKDTree"
+                         number_of_elements="1"
+                         default_values="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true, use a kdtree to locate points. Should be true if the reference
+          point cloud is static / doesn't change often.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseVoxelGrid"
+                         command="SetUseVoxelGrid"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true, use a voxel grid to compare (speed up process).
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="LeafSize"
+                            command="SetLeafSize"
+                            number_of_elements="1"
+                            default_values="0.5">
+        <DoubleRangeDomain name="range" min="0.01" />
+        <Documentation>
+          Size of the leaf used to downsample the point cloud when computing the distance.
+          Points in the same voxel will have the same distance.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseVoxelGrid"
+                                   value="1" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <StringVectorProperty name="ResultScalarName"
+                            command="SetResultScalarName"
+                            number_of_elements="1"
+                            default_values="Distance"
+                            panel_visibility="advanced"
+                            animateable="0">
+        <Documentation>
+          The name of the scalar used to store the result of the operation.
+        </Documentation>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

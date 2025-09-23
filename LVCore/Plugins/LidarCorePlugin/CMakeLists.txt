@@ -71,6 +71,7 @@ lidarcoreplugin_add_module_xml(
 set(xml_files
   Filters/PlaneProjector.xml
   Filters/RansacPlaneModel.xml
+  Filters/EuclideanCompare.xml
   Filters/ComputeVolume.xml
   Filters/VoxelOverlapFilter.xml
 )

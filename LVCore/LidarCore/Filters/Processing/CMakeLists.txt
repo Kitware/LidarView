@@ -1,6 +1,7 @@
 set(classes
   vtkPlaneProjector
   vtkRansacPlaneModel
+  vtkEuclideanCompare
   vtkComputeVolume
   vtkVoxelOverlapFilter
 )
