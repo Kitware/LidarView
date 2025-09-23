@@ -255,6 +255,21 @@ void vtkVoxelGridProcessor::AddPoints(vtkDataSet* points)
 }
 
 //------------------------------------------------------------------------------
+uint64_t vtkVoxelGridProcessor::GetPointId(const double coord[3])
+{
+  Eigen::Vector3d position;
+  position << coord[0], coord[1], coord[2];
+  return this->PositionToVoxelId(position);
+}
+
+//------------------------------------------------------------------------------
+bool vtkVoxelGridProcessor::HasPointInVoxel(const double coord[3])
+{
+  uint64 voxelId = this->GetPointId(coord);
+  return this->VoxelGrid.count(voxelId);
+}
+
+//------------------------------------------------------------------------------
 void vtkVoxelGridProcessor::UpdateVoxelSize()
 {
   // Check if the bounds are valid

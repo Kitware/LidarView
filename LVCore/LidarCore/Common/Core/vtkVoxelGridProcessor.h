@@ -93,6 +93,15 @@ public:
    */
   void AddPoints(vtkDataSet* points);
 
+  /**
+   * Returns the corresponding voxel grid id for a coordinate
+   */
+  uint64_t GetPointId(const double coord[3]);
+
+  /**
+   * Returns true if the voxel of this coord is already filled
+   */
+  bool HasPointInVoxel(const double coord[3]);
 
   /**
    * @brief ResizeData Check if enough memory is allocated to store the points, resize data if
