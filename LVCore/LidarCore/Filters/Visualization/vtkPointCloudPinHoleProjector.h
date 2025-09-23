@@ -44,6 +44,14 @@ public:
 
   ///@{
   /**
+   * A scalar multiplicated by resolution and represent the focal distance.
+   */
+  vtkGetMacro(FocalLength, double);
+  vtkSetMacro(FocalLength, double);
+  ///@}
+
+  ///@{
+  /**
    * The position of the camera.
    */
   void SetCameraTranslation(double x, double y, double z);
@@ -75,6 +83,14 @@ public:
   vtkSetMacro(UseNaN, bool);
   ///@}
 
+  ///@{
+  /**
+   * Replace NaN values by one of its 4 neighbors if one is different from NaN.
+   */
+  vtkGetMacro(FillWithNeighbors, bool);
+  vtkSetMacro(FillWithNeighbors, bool);
+  ///@}
+
 protected:
   vtkPointCloudPinHoleProjector();
   ~vtkPointCloudPinHoleProjector() = default;
@@ -91,10 +107,12 @@ private:
   void operator=(const vtkPointCloudPinHoleProjector&) = delete;
 
   unsigned int Resolution[2] = { 1280, 720 };
+  double FocalLength = 1.0;
   Eigen::Vector3d CameraTranslation = Eigen::Vector3d(0, 0, 0);
   Eigen::Vector3d CameraDirection = Eigen::Vector3d(1, 0, 0);
   double CameraAngle = 0;
   bool UseNaN = false;
+  bool FillWithNeighbors = false;
 
   Eigen::Matrix3d RotationMatrix = Eigen::Matrix3d::Identity();
 

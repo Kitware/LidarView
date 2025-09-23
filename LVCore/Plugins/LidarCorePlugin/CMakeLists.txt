@@ -77,6 +77,10 @@ set(xml_files
   Filters/VoxelOverlapFilter.xml
 )
 
+if (TARGET VTK::ImagingMorphological)
+  list(APPEND xml_files Filters/ImageBasedClustering.xml)
+endif ()
+
 if (LIDARVIEW_USE_NANOFLANN)
   list(APPEND xml_files
     Filters/AdaptiveOutlierRemoval.xml

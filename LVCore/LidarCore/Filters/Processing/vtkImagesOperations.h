@@ -51,6 +51,15 @@ public:
   vtkGetMacro(ResultScalarName, std::string);
   ///@}
 
+  // All possible operations on scalar
+  enum Operator
+  {
+    SUM = 0,
+    DIFFERENCE = 1,
+    ABSOLUTE_DIFFERENCE = 2,
+    PRODUCT = 3,
+  };
+
 protected:
   vtkImagesOperations();
   ~vtkImagesOperations() = default;
@@ -69,21 +78,11 @@ private:
   std::function<T(T, T)> GetOperation();
 
   // Compute operation
-  template <typename T, typename U>
+  template <typename ArrayT>
   void PerformImageOperation(vtkAbstractArray* inArray1,
     vtkAbstractArray* inArray2,
-    vtkPointData* outPointData,
-    int width,
-    int height);
+    vtkPointData* outPointData);
 
-  // All possible operations on scalar
-  enum Operator
-  {
-    SUM = 0,
-    DIFFERENCE = 1,
-    ABSOLUTE_DIFFERENCE = 2,
-    PRODUCT = 3,
-  };
   int Operation = 0;
 
   // The name of the output scalar

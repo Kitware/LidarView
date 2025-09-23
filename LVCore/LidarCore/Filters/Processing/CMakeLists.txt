@@ -6,6 +6,12 @@ set(classes
   vtkVoxelOverlapFilter
   vtkImagesOperations)
 
+if (TARGET VTK::ImagingMorphological)
+  list(APPEND classes vtkImageBasedClustering)
+else ()
+  message(WARNING "VTK::ImagingMorphological dependency is missing for LidarView::FiltersProcessing, some filters won't be built.")
+endif ()
+
 set(private_headers)
 set(sources)
 

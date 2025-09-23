@@ -9,8 +9,11 @@ DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
   LidarView::CommonCore
+  LidarView::FiltersVisualization
   VTK::CommonTransforms
   VTK::FiltersCore
   VTK::FiltersGeneral
+OPTIONAL_DEPENDS
+  VTK::ImagingMorphological
 TEST_DEPENDS
   LidarView::TestingCore

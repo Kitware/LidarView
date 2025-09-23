@@ -1,0 +1,158 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ImageBasedClustering" class="vtkImageBasedClustering" label="Image Based Clustering">
+      <Documentation
+        short_help="Compute clusters based on the projection difference of 2 point clouds"
+        long_help="Compute clusters based on the projection difference of 2 point clouds">
+          Compute clusters based on the projection difference of 2 point clouds
+      </Documentation>
+
+      <InputProperty name="Input" label="Reference" port_index="0" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty name="Input1" label="New Frame" port_index="1" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <OutputPort name="Output" index="0" />
+      <OutputPort name="ImageData" index="1" />
+      <OutputPort name="CameraModel" index="2" />
+      <Hints>
+        <RepresentationType view="LidarGridView" type="Wireframe" port="2" />
+      </Hints>
+
+      <StringVectorProperty name="SelectValueArray"
+                            label="Value"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;Intensity"
+                            animateable="0">
+        <Documentation>
+          The scalar to use for image difference
+        </Documentation>
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input"
+                      function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="InterpolateEachPoint"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
+
+      <IntVectorProperty
+        name="Resolution"
+        animateable="0"
+        default_values="1280 720"
+        command="SetResolution"
+        number_of_elements="2">
+        <Documentation>
+            The image resolution.
+            A higher resolution will give you more details, but depending on your points density, the resulting
+            image could have empty areas.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Focal Length"
+        animateable="0"
+        default_values="1"
+        command="SetFocalLength"
+        number_of_elements="1">
+        <Documentation>
+            The focal length.
+            It is multiplicated by resolution width and represent the focal distance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Translation"
+        animateable="0"
+        default_values="0 0 0"
+        command="SetCameraTranslation"
+        number_of_elements="3">
+        <Documentation>
+          The camera translation from origin.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Direction"
+        animateable="0"
+        default_values="1 0 0"
+        command="SetCameraDirection"
+        number_of_elements="3">
+        <Documentation>
+          A vector representing the camera direction (will be normalized).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Angle"
+        animateable="0"
+        default_values="0"
+        command="SetCameraAngle"
+        number_of_elements="1">
+        <Documentation>
+          The roll of the camera (around direction axis).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <StringVectorProperty
+        name="Result Scalar"
+        animateable="0"
+        default_values="ClusterId"
+        command="SetResultScalar"
+        number_of_elements="1">
+        <Documentation>
+          The name of the created scalar that identify clusters.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty
+        name="Min Number Of Pixels"
+        animateable="0"
+        default_values="10"
+        command="SetMinNumberOfPixels"
+        number_of_elements="1">
+        <Documentation>
+          The minimum number of pixels to have in one cluster.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Max Distance To Erosion Cluster"
+        animateable="0"
+        default_values="0.5"
+        command="SetMaxDistToErosionCluster"
+        number_of_elements="1">
+        <Documentation>
+          The distance threshold to include points that disapeared during erosion process.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="Fill With Neighbors"
+        animateable="0"
+        default_values="0"
+        command="SetFillWithNeighbors"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+            If activated, replace NaN pixel values by one of its 4 neighbors if one is different from NaN.
+        </Documentation>
+      </IntVectorProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

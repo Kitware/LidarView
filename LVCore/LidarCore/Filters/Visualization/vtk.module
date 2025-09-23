@@ -13,3 +13,4 @@ PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::IOImage
   VTK::RenderingCore
+  VTK::FiltersGeneral

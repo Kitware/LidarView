@@ -24,10 +24,19 @@
 #include <vtkPolyData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
+#include <vtkCharArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkIntArray.h>
 #include <vtkLongArray.h>
 #include <vtkLongLongArray.h>
+#include <vtkShortArray.h>
+#include <vtkSignedCharArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkUnsignedIntArray.h>
+#include <vtkUnsignedLongArray.h>
+#include <vtkUnsignedLongLongArray.h>
+#include <vtkUnsignedShortArray.h>
 
 #include <Eigen/Dense>
 
@@ -48,7 +57,7 @@ int vtkImagesOperations::FillInputPortInformation(int port, vtkInformation* info
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return VTK_OK;
   }
-  else if (port == 1)
+  if (port == 1)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return VTK_OK;
@@ -67,9 +76,9 @@ std::function<T(T, T)> vtkImagesOperations::GetOperation()
       return [](T a, T b) { return a + b; };
     case Operator::DIFFERENCE:
       return [](T a, T b) { return a - b; };
-      break;
     case Operator::ABSOLUTE_DIFFERENCE:
-      return [](T a, T b) { return std::abs(a - b); };
+      // We can't directly return std::abs(a - b) because of unsigned types
+      return [](T a, T b) { return (a > b) ? (a - b) : (b - a); };
     case Operator::PRODUCT:
       return [](T a, T b) { return a * b; };
     default:
@@ -78,39 +87,49 @@ std::function<T(T, T)> vtkImagesOperations::GetOperation()
   }
 };
 
+template <>
+std::function<double(double, double)> vtkImagesOperations::GetOperation()
+{
+  switch (this->Operation)
+  {
+    case Operator::SUM:
+      return [](double a, double b) { return a + b; };
+    case Operator::DIFFERENCE:
+      return [](double a, double b) { return a - b; };
+    case Operator::ABSOLUTE_DIFFERENCE:
+      // We can't directly return std::abs(a - b) because of unsigned types
+      return [](double a, double b) { return (a > b) ? (a - b) : (b - a); };
+    case Operator::PRODUCT:
+      return [](double a, double b) { return a * b; };
+    default:
+      vtkErrorMacro("The specified operation type doesn't exist");
+      return [](double a, double vtkNotUsed(b)) { return a; };
+  }
+};
+
 //-----------------------------------------------------------------------------
-template <typename T, typename U>
+template <typename ArrayT>
 void vtkImagesOperations::PerformImageOperation(vtkAbstractArray* inArray1,
   vtkAbstractArray* inArray2,
-  vtkPointData* outPointData,
-  int width,
-  int height)
+  vtkPointData* outPointData)
 {
-  T* _inArray1 = T::FastDownCast(inArray1);
-  T* _inArray2 = T::FastDownCast(inArray2);
-  vtkNew<T> _outArray;
+  int numberOfValues = inArray1->GetNumberOfValues();
+  ArrayT* _inArray1 = ArrayT::FastDownCast(inArray1);
+  ArrayT* _inArray2 = ArrayT::FastDownCast(inArray2);
 
-  for (int i = 0; i < inArray1->GetNumberOfValues(); i++)
-  {
-    _outArray->InsertNextValue(0);
-  }
-
+  vtkSmartPointer<ArrayT> _outArray = vtkSmartPointer<ArrayT>::New();
+  _outArray->SetNumberOfValues(numberOfValues);
   _outArray->SetName(this->ResultScalarName.c_str());
 
-  auto operation = GetOperation<U>();
+  auto operation = GetOperation<typename ArrayT::ValueType>();
 
-  for (int y = 0; y < height; y++)
+  for (int i = 0; i < numberOfValues; i++)
   {
-    for (int x = 0; x < width; x++)
-    {
-      const int pixelIndex = y * width + x;
+    auto value0 = _inArray1->GetValue(i);
+    auto value1 = _inArray2->GetValue(i);
 
-      auto value0 = _inArray1->GetValue(pixelIndex);
-      auto value1 = _inArray2->GetValue(pixelIndex);
-
-      auto newValue = operation(value0, value1);
-      _outArray->SetValue(pixelIndex, newValue);
-    }
+    auto newValue = operation(value0, value1);
+    _outArray->SetValue(i, newValue);
   }
 
   outPointData->AddArray(_outArray);
@@ -129,8 +148,6 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   int dimensions1[3];
   inputImage0->GetDimensions(dimensions0);
   inputImage1->GetDimensions(dimensions1);
-  const int width = dimensions0[0];
-  const int height = dimensions0[1];
 
   // Check for same image dimensions
   if (dimensions0[0] != dimensions1[0] || dimensions0[1] != dimensions1[1])
@@ -148,7 +165,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Create the new image as a copy of the first image
-  vtkNew<vtkImageData> newImage;
+  vtkSmartPointer<vtkImageData> newImage = vtkSmartPointer<vtkImageData>::New();
   newImage->DeepCopy(inputImage0);
   vtkPointData* newPointData = newImage->GetPointData();
   vtkPointData* pointData1 = inputImage1->GetPointData();
@@ -171,20 +188,56 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
     return VTK_ERROR;
   }
 
+  int nbComponents0 = arr0->GetNumberOfComponents();
+  int nbComponents1 = arr1->GetNumberOfComponents();
+  if (nbComponents0 > 1 || nbComponents1 > 1)
+  {
+    vtkWarningMacro("Currently, only single components scalars are supported");
+    return VTK_ERROR;
+  }
+
   // Switch through VTK Types to call the correct template
+  // PerformImageOperationVariant(arr0, arr1, newPointData);
   switch (type0)
   {
-    case VTK_DOUBLE:
-      PerformImageOperation<vtkDoubleArray, double>(arr0, arr1, newPointData, width, height);
+    case VTK_CHAR:
+      PerformImageOperation<vtkCharArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_SIGNED_CHAR:
+      PerformImageOperation<vtkSignedCharArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      PerformImageOperation<vtkUnsignedCharArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_SHORT:
+      PerformImageOperation<vtkShortArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      PerformImageOperation<vtkUnsignedShortArray>(arr0, arr1, newPointData);
       break;
     case VTK_INT:
-      PerformImageOperation<vtkIntArray, int>(arr0, arr1, newPointData, width, height);
+      PerformImageOperation<vtkIntArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_UNSIGNED_INT:
+      PerformImageOperation<vtkUnsignedIntArray>(arr0, arr1, newPointData);
       break;
     case VTK_LONG:
-      PerformImageOperation<vtkLongArray, long>(arr0, arr1, newPointData, width, height);
+      PerformImageOperation<vtkLongArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_UNSIGNED_LONG:
+      PerformImageOperation<vtkUnsignedLongArray>(arr0, arr1, newPointData);
       break;
     case VTK_LONG_LONG:
-      PerformImageOperation<vtkLongLongArray, long long>(arr0, arr1, newPointData, width, height);
+      PerformImageOperation<vtkLongLongArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_UNSIGNED_LONG_LONG:
+      PerformImageOperation<vtkUnsignedLongLongArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_FLOAT:
+      PerformImageOperation<vtkFloatArray>(arr0, arr1, newPointData);
+      break;
+    case VTK_DOUBLE:
+      PerformImageOperation<vtkDoubleArray>(arr0, arr1, newPointData);
       break;
     default:
       vtkWarningMacro("Unsupported scalar type.");

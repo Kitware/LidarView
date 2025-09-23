@@ -33,6 +33,18 @@
       </IntVectorProperty>
 
       <DoubleVectorProperty
+        name="Focal Length"
+        animateable="0"
+        default_values="1"
+        command="SetFocalLength"
+        number_of_elements="1">
+        <Documentation>
+            The focal length.
+            It is multiplicated by resolution width and represent the focal distance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
         name="Camera Translation"
         animateable="0"
         default_values="0 0 0"
@@ -66,7 +78,8 @@
       </DoubleVectorProperty>
       
       <IntVectorProperty
-        name="Use nan"
+        name="UseNaN"
+        label="Use NaN"
         animateable="0"
         default_values="0"
         command="SetUseNaN"
@@ -75,6 +88,18 @@
         <Documentation>
             If activated, use NaN when double scalars are missing for a pixel.
             This option doesn't affect non-double scalars, which remains initalized at 0.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="Fill With Neighbors"
+        animateable="0"
+        default_values="0"
+        command="SetFillWithNeighbors"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+            If activated, replace NaN values by one of its 4 neighbors if one is different from NaN.
         </Documentation>
       </IntVectorProperty>
     </SourceProxy>
