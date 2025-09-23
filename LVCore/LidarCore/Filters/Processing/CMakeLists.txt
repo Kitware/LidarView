@@ -1,7 +1,9 @@
 set(classes
   vtkPlaneProjector
   vtkRansacPlaneModel
-  vtkComputeVolume)
+  vtkComputeVolume
+  vtkVoxelOverlapFilter
+)
 
 set(private_headers)
 set(sources)
