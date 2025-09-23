@@ -70,10 +70,10 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
   // Compute the voxel id
   uint64 voxelId = this->PositionToVoxelId(position);
 
-  // Get the number of instances of the voxel in the grid (0 or 1)
-  int nbInstancesInVox = this->VoxelGrid.count(voxelId);
+  // Does it have already a voxel grid at this id?
+  bool hasVoxel = this->VoxelGrid.count(voxelId);
   vtkIdType pointId = -1;
-  if (nbInstancesInVox > 0)
+  if (hasVoxel)
   {
     // Get the point id in the voxel grid if the voxel is already in the grid
     pointId = this->VoxelGrid[voxelId];
@@ -88,15 +88,10 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
   {
     case SamplingMode::FIRST:
     {
-      switch (nbInstancesInVox)
+      if (!hasVoxel)
       {
-        case 0:
-          addPoint = true;
-          newPoint = true;
-          break;
-
-        default:
-          break;
+        addPoint = true;
+        newPoint = true;
       }
       break;
     }
@@ -104,14 +99,9 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
     case SamplingMode::LAST:
     {
       addPoint = true;
-      switch (nbInstancesInVox)
+      if (!hasVoxel)
       {
-        case 0:
-          newPoint = true;
-          break;
-
-        default:
-          break;
+        newPoint = true;
       }
       break;
     }
@@ -119,50 +109,42 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
     case SamplingMode::MAX_INTENSITY:
     {
       // Add the current point if the voxel is not already in the grid
-      addPoint = (nbInstancesInVox == 0);
-      newPoint = addPoint;
-      if (newPoint)
+      addPoint = !hasVoxel;
+      newPoint = !hasVoxel;
+      // Otherwise check if the current point has a greater intensity
+      if (hasVoxel)
       {
-        break;
-      }
-      vtkDataArray* intensityArray =
-        vtkDataArray::SafeDownCast(this->Output->GetPointData()->GetAbstractArray("intensity"));
-      vtkDataArray* newIntensityArray =
-        vtkDataArray::SafeDownCast(points->GetPointData()->GetAbstractArray("intensity"));
-      if (intensityArray && newIntensityArray)
-      {
-        float intensity = intensityArray->GetTuple1(pointId);
-        float newIntensity = newIntensityArray->GetTuple1(id);
-        if (newIntensity > intensity)
+        vtkDataArray* intensityArray =
+          vtkDataArray::SafeDownCast(this->Output->GetPointData()->GetAbstractArray("intensity"));
+        vtkDataArray* newIntensityArray =
+          vtkDataArray::SafeDownCast(points->GetPointData()->GetAbstractArray("intensity"));
+        if (intensityArray && newIntensityArray)
         {
-          addPoint = true;
+          float intensity = intensityArray->GetTuple1(pointId);
+          float newIntensity = newIntensityArray->GetTuple1(id);
+          if (newIntensity > intensity)
+          {
+            addPoint = true;
+          }
         }
-      }
-      else
-      {
-        vtkWarningMacro("vtkVoxelGridProcessor::Add : no intensity array");
-        return false;
+        else
+        {
+          vtkWarningMacro("vtkVoxelGridProcessor::Add : no intensity array");
+          return false;
+        }
       }
       break;
     }
 
     case SamplingMode::CENTER_POINT:
     {
-      switch (nbInstancesInVox)
+      if (!hasVoxel)
       {
-        case 0:
-        {
-          addPoint = true;
-          newPoint = true;
-          // Set the point coordinates to the voxel center
-          position = this->VoxelIdToPosition(voxelId);
-          pointCoord = position.data();
-          break;
-        }
-        default:
-        {
-          break;
-        }
+        addPoint = true;
+        newPoint = true;
+        // Set the point coordinates to the voxel center
+        position = this->VoxelIdToPosition(voxelId);
+        pointCoord = position.data();
       }
       break;
     }
@@ -170,35 +152,29 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
     case SamplingMode::CENTROID:
     {
       addPoint = true;
-      switch (nbInstancesInVox)
+      if (!hasVoxel)
       {
-        case 0:
+        newPoint = true;
+        this->NumberOfPointsPerVoxel.push_back(1);
+      }
+      else
+      {
+        // Security check to avoid division by 0 in case of sampling mode change during the
+        // process
+        if (pointId < 0 || this->NumberOfPointsPerVoxel.size() <= static_cast<size_t>(pointId))
         {
-          newPoint = true;
-          this->NumberOfPointsPerVoxel.push_back(1);
-          break;
+          vtkErrorMacro("vtkVoxelGridProcessor::Add : CENTROID sampling mode requires to clear "
+                        "the voxel grid before adding points");
+          return false;
         }
-
-        default:
-        {
-          // Security check to avoid division by 0 in case of sampling mode change during the
-          // process
-          if (pointId < 0 || this->NumberOfPointsPerVoxel.size() <= static_cast<size_t>(pointId))
-          {
-            vtkErrorMacro("vtkVoxelGridProcessor::Add : CENTROID sampling mode requires to clear "
-                          "the voxel grid before adding points");
-            return false;
-          }
-          double previousCoord[3];
-          this->Output->GetPoints()->GetPoint(pointId, previousCoord);
-          int nbPtsInVox = this->NumberOfPointsPerVoxel[pointId];
-          // Update the centroid
-          pointCoord[0] = (previousCoord[0] * nbPtsInVox + pointCoord[0]) / (nbPtsInVox + 1);
-          pointCoord[1] = (previousCoord[1] * nbPtsInVox + pointCoord[1]) / (nbPtsInVox + 1);
-          pointCoord[2] = (previousCoord[2] * nbPtsInVox + pointCoord[2]) / (nbPtsInVox + 1);
-          this->NumberOfPointsPerVoxel[pointId]++;
-          break;
-        }
+        double previousCoord[3];
+        this->Output->GetPoints()->GetPoint(pointId, previousCoord);
+        int nbPtsInVox = this->NumberOfPointsPerVoxel[pointId];
+        // Update the centroid
+        pointCoord[0] = (previousCoord[0] * nbPtsInVox + pointCoord[0]) / (nbPtsInVox + 1);
+        pointCoord[1] = (previousCoord[1] * nbPtsInVox + pointCoord[1]) / (nbPtsInVox + 1);
+        pointCoord[2] = (previousCoord[2] * nbPtsInVox + pointCoord[2]) / (nbPtsInVox + 1);
+        this->NumberOfPointsPerVoxel[pointId]++;
       }
       break;
     }
