@@ -20,7 +20,8 @@
                           default_values="0.5">
       <DoubleRangeDomain name="range" min="0.01" />
       <Documentation>
-        Desired probability of choosing at least one sample free from outliers
+        Size of the leaf used to downsample the point cloud, equivalent to the average
+        resolution of the cloud.
       </Documentation>
     </DoubleVectorProperty>
 
