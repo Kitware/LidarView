@@ -19,6 +19,7 @@
 // VTK includes
 #include <vtkBoundingBox.h>
 #include <vtkCellArray.h>
+#include <vtkDataSet.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -36,7 +37,7 @@ vtkVoxelGridProcessor::vtkVoxelGridProcessor()
 }
 
 //------------------------------------------------------------------------------
-bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const double coord[3])
+bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const double coord[3])
 {
   if (!this->IsVoxelGridValid)
   {
@@ -237,11 +238,20 @@ bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id, const do
 }
 
 //------------------------------------------------------------------------------
-bool vtkVoxelGridProcessor::AddPoint(vtkPolyData* points, vtkIdType id)
+bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id)
 {
   double coord[3];
   points->GetPoint(id, coord);
   return this->AddPoint(points, id, coord);
+}
+
+//------------------------------------------------------------------------------
+void vtkVoxelGridProcessor::AddPoints(vtkDataSet* points)
+{
+  for (int idx = 0; idx < points->GetPoints()->GetNumberOfPoints(); ++idx)
+  {
+    this->AddPoint(points, idx);
+  }
 }
 
 //------------------------------------------------------------------------------

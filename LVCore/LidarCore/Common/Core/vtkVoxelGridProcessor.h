@@ -32,6 +32,8 @@
 
 typedef unsigned long long int uint64;
 
+class vtkDataSet;
+
 /**
  * @class vtkVoxelGridProcessor
  * @brief Filter a point cloud using a voxel grid.
@@ -80,11 +82,17 @@ public:
   /**
    * @brief AddPoint Add a point with given coordinates to the voxel grid
    */
-  bool AddPoint(vtkPolyData* points, vtkIdType id, const double coord[3]);
+  bool AddPoint(vtkDataSet* points, vtkIdType id, const double coord[3]);
   /**
    * @brief AddPoint Add a point from a polydata to the voxel grid
    */
-  bool AddPoint(vtkPolyData* points, vtkIdType id);
+  bool AddPoint(vtkDataSet* points, vtkIdType id);
+
+  /**
+   * Add all point contained in a vtkDataSet
+   */
+  void AddPoints(vtkDataSet* points);
+
 
   /**
    * @brief ResizeData Check if enough memory is allocated to store the points, resize data if
