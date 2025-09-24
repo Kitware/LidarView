@@ -3,8 +3,7 @@ set(headers
 )
 
 set(classes
-  vtkOpenCVVideoReader
-  vtkPCAPImageReader)
+  vtkOpenCVVideoReader)
 
 vtk_module_add_module(LidarView::IOCameraOpenCV
   HEADERS ${headers}
