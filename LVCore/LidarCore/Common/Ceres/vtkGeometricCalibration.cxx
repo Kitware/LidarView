@@ -450,8 +450,8 @@ void CreateSyntheticPosesData(const std::string& vehiclePosesFilename,
 
   // Initial oorientation and position
   // of the SLAM sensor
-  Eigen::Matrix3d Sensor2R_t0;
-  Eigen::Vector3d Sensor2T_t0;
+  Eigen::Matrix3d Sensor2R_t0 = Eigen::Matrix3d::Identity();
+  Eigen::Vector3d Sensor2T_t0 = Eigen::Vector3d::Zero();
 
   for (double t = timeBounds[0]; t <= timeBounds[1]; t += dt)
   {
