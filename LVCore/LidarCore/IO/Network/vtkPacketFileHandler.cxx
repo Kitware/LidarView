@@ -48,6 +48,7 @@ public:
 class lvFileSniffer : public Tins::BaseSniffer
 {
 public:
+  //-----------------------------------------------------------------------------
   lvFileSniffer(FILE* fp, const lvSnifferConfiguration& configuration)
   {
     char error[PCAP_ERRBUF_SIZE];
@@ -145,6 +146,11 @@ void vtkPacketFileHandler::Close()
     }
     if (internals.FileHandle)
     {
+      // For some reason the pcap isn't fully closed on Windows with the pcap_close call (in tins)
+      // closing the file handler seems to do the trick but it throw a warning on debug mode...
+#if defined(_WIN32)
+      std::fclose(internals.FileHandle);
+#endif
       internals.FileHandle = nullptr;
     }
   }
