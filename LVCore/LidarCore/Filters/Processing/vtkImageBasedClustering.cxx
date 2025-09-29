@@ -198,8 +198,8 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector* outputVector)
 {
   // Get inputs
-  vtkPolyData* input0 = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
-  vtkPolyData* input1 = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
+  vtkPolyData* targetInput = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* refInput = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
 
   // Get outputs
   vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
@@ -225,7 +225,7 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
     this->CameraDirection[0], this->CameraDirection[1], this->CameraDirection[2]);
   projector0->SetCameraAngle(this->CameraAngle);
   projector0->SetUseNaN(true);
-  projector0->SetInputData(input0);
+  projector0->SetInputData(refInput);
   projector0->Update();
 
   // Project new point cloud
@@ -238,7 +238,7 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
     this->CameraDirection[0], this->CameraDirection[1], this->CameraDirection[2]);
   projector1->SetCameraAngle(this->CameraAngle);
   projector1->SetUseNaN(true);
-  projector1->SetInputData(input1);
+  projector1->SetInputData(targetInput);
   projector1->Update();
 
   // Compute the difference between both
@@ -300,7 +300,7 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
     clusterizeBinaryImage(binImgThr, width, height, this->MinNumberOfPixels);
 
   vtkSmartPointer<vtkPolyData> outPolyData = vtkSmartPointer<vtkPolyData>::New();
-  outPolyData->ShallowCopy(input1);
+  outPolyData->ShallowCopy(targetInput);
   vtkPointData* outPointData = outPolyData->GetPointData();
 
   vtkPointData* image1Pd = projector1->GetOutput()->GetPointData();

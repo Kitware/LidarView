@@ -53,8 +53,8 @@ int vtkVoxelOverlapFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkPolyData* referenceDs = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
-  vtkPolyData* targetDs = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
+  vtkPolyData* targetDs = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData* referenceDs = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
 
   if (!referenceDs || !targetDs)
   {

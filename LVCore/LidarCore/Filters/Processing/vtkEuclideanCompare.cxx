@@ -132,8 +132,8 @@ int vtkEuclideanCompare::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkDataSet* referenceDs = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
-  vtkDataSet* targetDs = vtkDataSet::GetData(inputVector[1]->GetInformationObject(0));
+  vtkDataSet* targetDs = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
+  vtkDataSet* referenceDs = vtkDataSet::GetData(inputVector[1]->GetInformationObject(0));
 
   if (!referenceDs || !targetDs)
   {

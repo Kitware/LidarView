@@ -7,7 +7,7 @@
       </Documentation>
 
       <InputProperty name="Reference Input"
-                     port_index="0"
+                     port_index="1"
                      command="SetInputConnection">
         <ProxyGroupDomain name="groups">
           <Group name="sources" />
@@ -22,7 +22,7 @@
       </InputProperty>
 
       <InputProperty name="Target Input"
-                     port_index="1"
+                     port_index="0"
                      command="SetInputConnection">
         <ProxyGroupDomain name="groups">
           <Group name="sources" />

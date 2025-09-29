@@ -7,13 +7,13 @@
           Compute clusters based on the projection difference of 2 point clouds
       </Documentation>
 
-      <InputProperty name="Input" label="Reference" port_index="0" command="SetInputConnection">
+      <InputProperty name="Input" label="Reference" port_index="1" command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkPolyData"/>
         </DataTypeDomain>
       </InputProperty>
 
-      <InputProperty name="Input1" label="New Frame" port_index="1" command="SetInputConnection">
+      <InputProperty name="Input1" label="New Frame" port_index="0" command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkPolyData"/>
         </DataTypeDomain>
