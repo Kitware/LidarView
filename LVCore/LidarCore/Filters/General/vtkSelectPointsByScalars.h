@@ -55,6 +55,16 @@ public:
   vtkGetMacro(InputArrayComponent, int);
   ///@}
 
+  ///@{
+  /**
+   * If InvertSelection is true, select points whose scalar value does NOT
+   * match any of the specified values.
+   */
+  vtkSetMacro(InvertSelection, bool);
+  vtkGetMacro(InvertSelection, bool);
+  vtkBooleanMacro(InvertSelection, bool);
+  ///@}
+
 protected:
   vtkSelectPointsByScalars() = default;
   ~vtkSelectPointsByScalars() = default;
@@ -65,7 +75,8 @@ private:
   vtkSelectPointsByScalars(const vtkSelectPointsByScalars&);
   void operator=(const vtkSelectPointsByScalars&);
 
-  int InputArrayComponent;
+  bool InvertSelection = false;
+  int InputArrayComponent = 0;
   std::vector<int> ValuesToProcess;
 };
 

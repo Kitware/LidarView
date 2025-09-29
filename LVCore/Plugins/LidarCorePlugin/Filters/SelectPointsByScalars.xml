@@ -36,6 +36,17 @@
         </Documentation>
       </StringVectorProperty>
 
+      <IntVectorProperty command="SetInvertSelection"
+                         name="InvertSelection"
+                         label="Invert Selection"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          When checked, selects points whose scalar does NOT match any of the specified values.
+        </Documentation>
+      </IntVectorProperty>
+
       <DoubleVectorProperty animateable="1"
                             command="SetValue"
                             label="Values to Select"

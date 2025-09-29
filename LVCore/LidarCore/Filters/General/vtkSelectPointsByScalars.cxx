@@ -73,17 +73,26 @@ int vtkSelectPointsByScalars::RequestData(vtkInformation* vtkNotUsed(request),
   for (vtkIdType idx = 0; idx < points->GetNumberOfPoints(); idx++)
   {
     double scalarVal = inScalars->GetComponent(idx, 0);
+
+    bool match = false;
     for (int requiredValue : this->ValuesToProcess)
     {
       if (scalarVal == requiredValue)
       {
-        vtkIdType newPtId = newPoints->InsertNextPoint(points->GetPoint(idx));
-
-        verts->InsertNextCell(1);
-        verts->InsertCellPoint(newPtId);
-
-        outPD->CopyData(inPD, idx, newPtId);
+        match = true;
+        break;
       }
+    }
+
+    const bool select = this->InvertSelection ? !match : match;
+    if (select)
+    {
+      vtkIdType newPtId = newPoints->InsertNextPoint(points->GetPoint(idx));
+
+      verts->InsertNextCell(1);
+      verts->InsertCellPoint(newPtId);
+
+      outPD->CopyData(inPD, idx, newPtId);
     }
   }
 
