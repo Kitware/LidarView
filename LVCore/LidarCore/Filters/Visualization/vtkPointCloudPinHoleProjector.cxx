@@ -193,7 +193,7 @@ vtkSmartPointer<vtkImageData> vtkPointCloudPinHoleProjector::polyDataToImageData
     // If the point is in front of the projection plane...
     if (point[2] > 0)
     {
-      int x = point[0] / point[2] * f * dWidth / 2 + dHeight / 2;
+      int x = point[0] / point[2] * f * dWidth / 2 + dWidth / 2;
       int y = point[1] / point[2] * f * dWidth / 2 + dHeight / 2;
 
       // ...and its projection is in image bounds
