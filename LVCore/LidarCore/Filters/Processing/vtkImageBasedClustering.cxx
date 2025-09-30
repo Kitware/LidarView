@@ -241,11 +241,17 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
   projector1->SetInputData(targetInput);
   projector1->Update();
 
+  vtkDataArray* arrayToProcess = this->GetInputArrayToProcess(0, inputVector);
+  if (!arrayToProcess || !arrayToProcess->GetName())
+  {
+    vtkWarningMacro("The scalar doesn't exist on the 'Reference' input.");
+    return 0;
+  }
+
   // Compute the difference between both
   vtkSmartPointer<vtkImagesOperations> imagesSubtractor =
     vtkSmartPointer<vtkImagesOperations>::New();
   imagesSubtractor->SetOperation(vtkImagesOperations::DIFF);
-  vtkDataArray* arrayToProcess = this->GetInputArrayToProcess(0, inputVector);
   imagesSubtractor->SetInputArrayToProcess(
     arrayToProcess->GetName(), vtkDataObject::FIELD_ASSOCIATION_POINTS);
   imagesSubtractor->SetInputConnection(0, projector0->GetOutputPort(0));
@@ -254,8 +260,15 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
   imagesSubtractor->Update();
 
   vtkImageData* img = imagesSubtractor->GetOutput();
+  if (!img || !img->GetPointData())
+  {
+    return 0;
+  }
   vtkPointData* pointData = img->GetPointData();
-  pointData->SetActiveScalars("Difference");
+  if (!pointData->HasArray("Difference"))
+  {
+    return 0;
+  }
   vtkDataArray* differenceArray = pointData->GetArray("Difference");
 
   // Init the difference array

@@ -133,6 +133,7 @@ void vtkImagesOperations::PerformImageOperation(vtkAbstractArray* inArray1,
   }
 
   outPointData->AddArray(_outArray);
+  outPointData->SetActiveScalars(this->ResultScalarName.c_str());
 };
 
 //-----------------------------------------------------------------------------
@@ -241,7 +242,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
       break;
     default:
       vtkWarningMacro("Unsupported scalar type.");
-      break;
+      return 0;
   }
 
   outputImage->ShallowCopy(newImage);
