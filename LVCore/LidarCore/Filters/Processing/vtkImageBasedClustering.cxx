@@ -61,7 +61,7 @@ int vtkImageBasedClustering::FillInputPortInformation(int port, vtkInformation* 
     return VTK_OK;
   }
 
-  return VTK_ERROR;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ int vtkImageBasedClustering::FillOutputPortInformation(int port, vtkInformation*
     return VTK_OK;
   }
 
-  return VTK_ERROR;
+  return 0;
 }
 
 //------------------------------------------------------------------------------

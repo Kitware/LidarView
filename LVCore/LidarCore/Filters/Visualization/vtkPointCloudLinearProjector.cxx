@@ -61,7 +61,7 @@ int vtkPointCloudLinearProjector::RequestInformation(vtkInformation *vtkNotUsed(
   if (this->Resolution[0] <= 0 || this->Resolution[1] <= 0)
   {
     vtkWarningMacro("Resolution must be positive, not " << this->Resolution[0] << "x" << this->Resolution[1] << ".");
-    return VTK_ERROR;
+    return 0;
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -120,7 +120,7 @@ int vtkPointCloudLinearProjector::RequestData(vtkInformation* vtkNotUsed(request
 
   if (pointRangeX <= 0 || pointRangeY <= 0)
   {
-    return VTK_ERROR;
+    return 0;
   }
 
   this->Origin[0] = boundingBox[0];

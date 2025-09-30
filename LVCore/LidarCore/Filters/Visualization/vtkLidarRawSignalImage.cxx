@@ -81,7 +81,7 @@ int vtkLidarRawSignalImage::RequestData(vtkInformation *vtkNotUsed(request),
   {
     if (!this->InitializationFromCalibration(calibration))
     {
-      return VTK_ERROR;
+      return 0;
     }
   }
 

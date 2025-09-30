@@ -152,7 +152,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
   if (this->FileName.empty())
   {
     vtkErrorMacro("Please specify a file name");
-    return VTK_ERROR;
+    return 0;
   }
   auto *output = vtkMultiBlockDataSet::GetData(outputVector->GetInformationObject(0));
 

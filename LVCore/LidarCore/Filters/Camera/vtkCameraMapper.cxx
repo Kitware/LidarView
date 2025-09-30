@@ -133,7 +133,7 @@ int vtkCameraMapper::RequestData(vtkInformation *vtkNotUsed(request),
       if (trajectoryTemp == nullptr)
       {
         vtkWarningMacro("warning: could not read trajectory from input");
-                        return VTK_ERROR;
+                        return 0;
       }
       this->Trajectory= trajectoryTemp->CreateInterpolator();
       this->Trajectory->SetInterpolationTypeToLinear(); // enough if freq is high TODO: expose this option

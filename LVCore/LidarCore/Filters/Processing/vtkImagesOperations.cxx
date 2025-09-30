@@ -63,7 +63,7 @@ int vtkImagesOperations::FillInputPortInformation(int port, vtkInformation* info
     return VTK_OK;
   }
 
-  return VTK_ERROR;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   if (dimensions0[0] != dimensions1[0] || dimensions0[1] != dimensions1[1])
   {
     vtkWarningMacro("Images dimensions must match.");
-    return VTK_ERROR;
+    return 0;
   }
 
   // Check if the selected scalar name exist on input data
@@ -162,7 +162,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   if (arr0 == nullptr)
   {
     vtkWarningMacro("The specified scalar doesn't exist on first image.");
-    return VTK_ERROR;
+    return 0;
   }
 
   // Create the new image as a copy of the first image
@@ -177,7 +177,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   if (arr1 == nullptr)
   {
     vtkWarningMacro("The specified scalar doesn't exist on second image.");
-    return VTK_ERROR;
+    return 0;
   }
 
   // Check for similar types between both images
@@ -186,7 +186,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   if (type0 != type1)
   {
     vtkWarningMacro("Scalar types of both images must match");
-    return VTK_ERROR;
+    return 0;
   }
 
   int nbComponents0 = arr0->GetNumberOfComponents();
@@ -194,7 +194,7 @@ int vtkImagesOperations::RequestData(vtkInformation* vtkNotUsed(request),
   if (nbComponents0 > 1 || nbComponents1 > 1)
   {
     vtkWarningMacro("Currently, only single components scalars are supported");
-    return VTK_ERROR;
+    return 0;
   }
 
   // Switch through VTK Types to call the correct template

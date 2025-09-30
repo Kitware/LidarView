@@ -29,7 +29,7 @@ int vtkArduPilotDataFlashLogReader::RequestData(vtkInformation *, vtkInformation
   if (!f.good())
   {
     vtkErrorMacro("Failed to open input file \"" << this->FileName << "\"");
-    return VTK_ERROR;
+    return 0;
   }
 
   bool offsetFound = false;

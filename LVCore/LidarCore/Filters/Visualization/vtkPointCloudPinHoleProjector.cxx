@@ -62,7 +62,7 @@ int vtkPointCloudPinHoleProjector::FillOutputPortInformation(int port, vtkInform
     return VTK_OK;
   }
 
-  return VTK_ERROR;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

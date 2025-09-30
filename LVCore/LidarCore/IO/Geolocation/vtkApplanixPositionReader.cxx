@@ -119,7 +119,7 @@ int vtkApplanixPositionReader::RequestData(
   if (!this->FileName || !*this->FileName)
   {
     vtkErrorMacro("FileName has not been set");
-    return VTK_ERROR;
+    return 0;
   }
 
   vtkNew<vtkPoints> points;
@@ -146,7 +146,7 @@ int vtkApplanixPositionReader::RequestData(
   if (!f.good())
   {
     vtkErrorMacro("Failed to open input file \"" << this->FileName << "\"");
-    return VTK_ERROR;
+    return 0;
   }
 
   std::string line;
@@ -245,7 +245,7 @@ int vtkApplanixPositionReader::RequestData(
   {
     vtkErrorMacro("Failed to extract points: one or more position fields has fewer values"
                   " than the number of readable records in the input file");
-    return VTK_ERROR;
+    return 0;
   }
 
   // Build polyline and transform interpolator

@@ -215,7 +215,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
       if (trajectoryTemp == nullptr)
       {
         vtkWarningMacro("warning: could not read trajectory from input 1");
-        return VTK_ERROR;
+        return 0;
       }
       this->Trajectory = trajectoryTemp->CreateInterpolator();
       this->Trajectory
