@@ -7,13 +7,13 @@
           Compute some operations between two images
       </Documentation>
 
-      <InputProperty name="Input" port_index="0" command="SetInputConnection">
+      <InputProperty name="Input" label="Image 1" port_index="0" command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkImageData"/>
         </DataTypeDomain>
       </InputProperty>
 
-      <InputProperty name="Image 2" port_index="1" command="SetInputConnection">
+      <InputProperty name="Input2" label="Image 2" port_index="1" command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkImageData"/>
         </DataTypeDomain>
