@@ -72,14 +72,14 @@ std::function<T(T, T)> vtkImagesOperations::GetOperation()
 {
   switch (this->Operation)
   {
-    case Operator::SUM:
+    case OperationType::SUM:
       return [](T a, T b) { return a + b; };
-    case Operator::DIFFERENCE:
+    case OperationType::DIFF:
       return [](T a, T b) { return a - b; };
-    case Operator::ABSOLUTE_DIFFERENCE:
+    case OperationType::ABSOLUTE_DIFF:
       // We can't directly return std::abs(a - b) because of unsigned types
       return [](T a, T b) { return (a > b) ? (a - b) : (b - a); };
-    case Operator::PRODUCT:
+    case OperationType::PRODUCT:
       return [](T a, T b) { return a * b; };
     default:
       vtkErrorMacro("The specified operation type doesn't exist");
@@ -92,14 +92,14 @@ std::function<double(double, double)> vtkImagesOperations::GetOperation()
 {
   switch (this->Operation)
   {
-    case Operator::SUM:
+    case OperationType::SUM:
       return [](double a, double b) { return a + b; };
-    case Operator::DIFFERENCE:
+    case OperationType::DIFF:
       return [](double a, double b) { return a - b; };
-    case Operator::ABSOLUTE_DIFFERENCE:
+    case OperationType::ABSOLUTE_DIFF:
       // We can't directly return std::abs(a - b) because of unsigned types
       return [](double a, double b) { return (a > b) ? (a - b) : (b - a); };
-    case Operator::PRODUCT:
+    case OperationType::PRODUCT:
       return [](double a, double b) { return a * b; };
     default:
       vtkErrorMacro("The specified operation type doesn't exist");

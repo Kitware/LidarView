@@ -35,12 +35,23 @@ public:
   static vtkImagesOperations* New();
   vtkTypeMacro(vtkImagesOperations, vtkImageAlgorithm)
 
+  // Possible operations on scalar
+  enum OperationType : unsigned int
+  {
+    SUM = 0,
+    DIFF = 1,
+    ABSOLUTE_DIFF = 2,
+    PRODUCT = 3,
+
+    Size
+  };
+
   ///@{
   /**
    * The operatation to use during images aggregation.
    */
-  vtkSetMacro(Operation, int);
-  vtkGetMacro(Operation, int);
+  vtkSetClampMacro(Operation, unsigned int, 0, OperationType::Size);
+  vtkGetMacro(Operation, unsigned int);
   ///@}
 
   ///@{
@@ -50,15 +61,6 @@ public:
   vtkSetMacro(ResultScalarName, std::string);
   vtkGetMacro(ResultScalarName, std::string);
   ///@}
-
-  // All possible operations on scalar
-  enum Operator
-  {
-    SUM = 0,
-    DIFFERENCE = 1,
-    ABSOLUTE_DIFFERENCE = 2,
-    PRODUCT = 3,
-  };
 
 protected:
   vtkImagesOperations();
@@ -83,7 +85,7 @@ private:
     vtkAbstractArray* inArray2,
     vtkPointData* outPointData);
 
-  int Operation = 0;
+  unsigned int Operation = 0;
 
   // The name of the output scalar
   std::string ResultScalarName = "Result";

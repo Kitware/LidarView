@@ -244,7 +244,7 @@ int vtkImageBasedClustering::RequestData(vtkInformation* vtkNotUsed(request),
   // Compute the difference between both
   vtkSmartPointer<vtkImagesOperations> imagesSubtractor =
     vtkSmartPointer<vtkImagesOperations>::New();
-  imagesSubtractor->SetOperation(vtkImagesOperations::DIFFERENCE);
+  imagesSubtractor->SetOperation(vtkImagesOperations::DIFF);
   vtkDataArray* arrayToProcess = this->GetInputArrayToProcess(0, inputVector);
   imagesSubtractor->SetInputArrayToProcess(
     arrayToProcess->GetName(), vtkDataObject::FIELD_ASSOCIATION_POINTS);
