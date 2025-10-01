@@ -16,7 +16,7 @@ endfunction()
 #--------------------------------------
 # ParaView dependency - required
 #--------------------------------------
-find_package(ParaView 5.13 REQUIRED)
+find_package(ParaView 6.0 REQUIRED)
 set(paraview_version "${ParaView_VERSION_MAJOR}.${ParaView_VERSION_MINOR}")
 if (LIDARVIEW_USE_QT AND NOT PARAVIEW_USE_QT)
   message(FATAL_ERROR "PARAVIEW_USE_QT is OFF, Paraview must be built with Qt")
