@@ -30,7 +30,7 @@
 // This program reads a pcap file and sends the packets using UDP.
 // The default playback speed is based on the timestamps specified in the pcap file
 
-#include "PacketSender.h"
+#include "UDPPacketSender.h"
 #include "vtkTCPPacketSender.h"
 
 #include <cstdlib>
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-      PacketSender sender(filename, destinationIp, lidarPort, GPSPort);
+      UDPPacketSender sender(filename, destinationIp, lidarPort, GPSPort);
       sender.sendAllPackets(speed, display_frequency);
     }
   } while (loop);

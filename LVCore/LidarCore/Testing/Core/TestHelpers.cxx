@@ -14,7 +14,7 @@
 
 #include "TestHelpers.h"
 
-#include "PacketSender.h"
+#include "UDPPacketSender.h"
 
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkLidarReader.h"
@@ -586,7 +586,7 @@ int testLidarStream(vtkLidarStream* stream,
   if (preSend)
   {
     stream->Start();
-    PacketSender sender(pcapFileName, destinationIp, dataPort);
+    UDPPacketSender sender(pcapFileName, destinationIp, dataPort);
     bool isOk = sender.sendAllPackets();
     stream->Stop();
     if (stream->GetNeedsUpdate())
@@ -646,7 +646,7 @@ int SendAndTestAllFrames(vtkLidarStream* stream,
       idFrame++;
     }
   };
-  PacketSender sender(pcapFileName, destinationIp, dataPort);
+  UDPPacketSender sender(pcapFileName, destinationIp, dataPort);
 
   // The packet are at 30% of the real speed. This is because our osx and windows buildboots
   // aren't good enought for handling 100%.
@@ -749,7 +749,7 @@ int TestLidarForwarding(vtkLidarPacketInterpreter* interpreter1,
   {
     LidarStream1->Start();
     LidarStream2->Start();
-    PacketSender sender(pcapFileName, destinationIp, dataPort);
+    UDPPacketSender sender(pcapFileName, destinationIp, dataPort);
     bool isOk = sender.sendAllPackets();
     LidarStream1->Stop();
     LidarStream2->Stop();

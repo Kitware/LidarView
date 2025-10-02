@@ -1,11 +1,11 @@
 set(sources
   InterpreterHelper.cxx
-  PacketSender.cxx
+  UDPPacketSender.cxx
 )
 
 set(headers
   InterpreterHelper.h
-  PacketSender.h
+  UDPPacketSender.h
   vtkStreamPacketHandler.h
 )
 

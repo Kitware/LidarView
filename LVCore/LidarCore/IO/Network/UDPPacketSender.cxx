@@ -1,18 +1,20 @@
-// Copyright 2013 Velodyne Acoustics, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*=========================================================================
 
-#include "PacketSender.h"
+  Program: LidarView
+  Module:  UDPPacketSender.cxx
+
+  Copyright 2013 Velodyne Acoustics, Inc.
+  Copyright 2018 (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "UDPPacketSender.h"
 #include "vtkPacketFileHandler.h"
 
 #include <chrono>
@@ -21,7 +23,7 @@
 #include <thread>
 
 //-----------------------------------------------------------------------------
-PacketSender::PacketSender(std::string pcapfile,
+UDPPacketSender::UDPPacketSender(std::string pcapfile,
   std::string destinationIp,
   int lidarPort,
   int positionPort)
@@ -53,14 +55,14 @@ PacketSender::PacketSender(std::string pcapfile,
 }
 
 //-----------------------------------------------------------------------------
-PacketSender::~PacketSender()
+UDPPacketSender::~UDPPacketSender()
 {
   delete this->LIDARSocket;
   delete this->PositionSocket;
 }
 
 //-----------------------------------------------------------------------------
-bool PacketSender::sendAllPackets(double speed,
+bool UDPPacketSender::sendAllPackets(double speed,
   int display_frequency,
   std::function<void()> callback)
 {
@@ -154,7 +156,7 @@ bool PacketSender::sendAllPackets(double speed,
 }
 
 //-----------------------------------------------------------------------------
-double PacketSender::pumpPacket()
+double UDPPacketSender::pumpPacket()
 {
   if (this->Done)
   {
@@ -183,13 +185,13 @@ double PacketSender::pumpPacket()
 }
 
 //-----------------------------------------------------------------------------
-size_t PacketSender::GetPacketCount() const
+size_t UDPPacketSender::GetPacketCount() const
 {
   return this->PacketCount;
 }
 
 //-----------------------------------------------------------------------------
-bool PacketSender::IsDone() const
+bool UDPPacketSender::IsDone() const
 {
   return this->Done;
 }
