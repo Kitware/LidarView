@@ -13,7 +13,7 @@
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StartFrameSpinBox" command="set_int" arguments="5" />
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/StopFrameSpinBox" command="set_int" arguments="20" />
   <pqevent object="LidarViewMainWindow/lqSelectLidarFrameDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/1pqFileDialog0/tabWidget/qt_tabwidget_stackedwidget/pqFileDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20" />
+  <pqevent object="LidarViewMainWindow/pqFileDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSavePcap-range-5-20" />
 
   <!-- Reset session -->
   <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionDeleteAll" command="activate" arguments="" />
