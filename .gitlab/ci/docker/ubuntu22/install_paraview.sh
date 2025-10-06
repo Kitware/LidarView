@@ -3,7 +3,7 @@
 set -e
 
 readonly paraview_repo="https://gitlab.kitware.com/paraview/paraview.git"
-readonly paraview_commit="v5.13.1"
+readonly paraview_commit="v6.0.1"
 
 readonly paraview_root="$HOME/paraview"
 readonly paraview_src="$paraview_root/src"
@@ -26,6 +26,7 @@ paraview_build () {
         -DPARAVIEW_USE_VTKM=OFF \
         -DPARAVIEW_USE_QT=ON \
         -DPARAVIEW_USE_PYTHON=ON \
+        -DVTK_MODULE_ENABLE_VTK_ImagingMorphological=YES \
         "-DCMAKE_INSTALL_PREFIX=$prefix" \
         "$@"
     cmake --build "$paraview_build_root" --target install
