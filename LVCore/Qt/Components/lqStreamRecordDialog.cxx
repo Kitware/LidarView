@@ -17,10 +17,15 @@
 #include "ui_lqStreamRecordDialog.h"
 
 #include <pqActiveObjects.h>
+#include <pqApplicationCore.h>
 #include <pqFileChooserWidget.h>
+#include <pqSettings.h>
 
+#include <QDir>
 #include <QPushButton>
 #include <QWidget>
+
+constexpr const char* SETTING_NAME = "RecordFilename";
 
 //-----------------------------------------------------------------------------
 class lqStreamRecordDialog::lqInternals : public Ui::lqStreamRecordDialog
@@ -34,6 +39,15 @@ public:
     this->dirChooser->setForceSingleFile(true);
     this->dirChooser->setTitle("Choose where to save PCAP recording");
     this->dirChooser->setServer(pqActiveObjects::instance().activeServer());
+
+    pqSettings* settings = pqApplicationCore::instance()->settings();
+    QString lastFilename = settings->value(::SETTING_NAME, "").toString();
+    QDir dir(lastFilename);
+    if (dir.exists())
+    {
+      this->dirChooser->setSingleFilename(lastFilename);
+    }
+
     this->directoryPathLayout->addWidget(this->dirChooser);
 
     this->recordTimeLapsSpinBox->setValue(5);
@@ -49,6 +63,15 @@ public:
         {
           QString filename = this->dirChooser->singleFilename();
           okButton->setEnabled(!filename.isEmpty());
+        });
+
+      QObject::connect(okButton,
+        &QAbstractButton::clicked,
+        [this]()
+        {
+          QString filename = this->dirChooser->singleFilename();
+          pqSettings* settings = pqApplicationCore::instance()->settings();
+          settings->setValue(::SETTING_NAME, filename);
         });
     }
   };
