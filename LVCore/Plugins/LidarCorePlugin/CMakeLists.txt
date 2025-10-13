@@ -78,6 +78,7 @@ set(filters_processing_xml_files
   Filters/ComputeVolume.xml
   Filters/ImagesOperations.xml
   Filters/VoxelOverlapFilter.xml
+  Filters/ComputeGeodeticCoordinates.xml
 )
 
 if (TARGET VTK::ImagingMorphological)

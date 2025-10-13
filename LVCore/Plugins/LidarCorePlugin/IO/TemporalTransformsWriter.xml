@@ -1,12 +1,13 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="writers">
     <WriterProxy name="TemporalTransformsWriter" class="vtkTemporalTransformsWriter">
-      <Documentation short_help="Write in a CSV the list of time indexed transforms" long_help="Write in a CSV the list of time indexed transforms">
+      <Documentation short_help="Write time-indexed transforms (CSV)" long_help="Write time-indexed transforms to CSV. Columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m). If arrays named Longitude, Latitude (and optionally Altitude) exist on the input, they are appended as extra columns.">
         Write in a CSV the list of time indexed transforms.
         Usually these transforms represent the pose trajectory of a solid
         over time.
-        The CSV has the following columns:
-        time(s),roll(d),pitch(d),yaw(d),X(m),Y(m),Z(m)
+        The CSV has the following columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m).
+        If arrays named Longitude, Latitude (and optionally Altitude) exist on the input,
+        they are appended as extra columns.
       </Documentation>
 
       <InputProperty name="Input" command="SetInputConnection">

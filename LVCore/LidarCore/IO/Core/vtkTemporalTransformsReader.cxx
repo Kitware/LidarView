@@ -162,11 +162,40 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
     return 1;
   }
 
+  // Optional exact-named geodetic columns
+  vtkDoubleArray* lonCol = vtkDoubleArray::SafeDownCast(table->GetColumnByName("Longitude"));
+  vtkDoubleArray* latCol = vtkDoubleArray::SafeDownCast(table->GetColumnByName("Latitude"));
+  vtkDoubleArray* altCol = vtkDoubleArray::SafeDownCast(table->GetColumnByName("Altitude"));
+
+  // Geodetic data is considered available if all three columns exist
+  const bool isGeodeticAvailable = (lonCol && latCol && altCol);
+
+  vtkSmartPointer<vtkDoubleArray> lonArray;
+  vtkSmartPointer<vtkDoubleArray> latArray;
+  vtkSmartPointer<vtkDoubleArray> altArray;
+  if (isGeodeticAvailable)
+  {
+    lonArray = vtkSmartPointer<vtkDoubleArray>::New();
+    lonArray->SetName("Longitude");
+    latArray = vtkSmartPointer<vtkDoubleArray>::New();
+    latArray->SetName("Latitude");
+    altArray = vtkSmartPointer<vtkDoubleArray>::New();
+    altArray->SetName("Altitude");
+  }
+
   // Read the data from the csv table
   for (vtkIdType i = 0; i < table->GetNumberOfRows(); i++)
   {
     translation->InsertNextTuple3(
       array["X"]->GetTuple1(i), array["Y"]->GetTuple1(i), array["Z"]->GetTuple1(i));
+
+    // If geodetic columns exist, copy their values as point-data arrays
+    if (isGeodeticAvailable)
+    {
+      lonArray->InsertNextValue(lonCol->GetTuple1(i));
+      latArray->InsertNextValue(latCol->GetTuple1(i));
+      altArray->InsertNextValue(altCol->GetTuple1(i));
+    }
 
     timstamp->InsertNextValue(array["time"]->GetTuple1(i) + this->TimeOffset);
 
@@ -197,6 +226,12 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
   trajectory->SetTranslationArray(translation);
   trajectory->SetTimeArray(timstamp);
   trajectory->SetOrientationArray(axisAngle);
+  if (isGeodeticAvailable)
+  {
+    trajectory->GetPointData()->AddArray(lonArray);
+    trajectory->GetPointData()->AddArray(latArray);
+    trajectory->GetPointData()->AddArray(altArray);
+  }
 
   // Set the filter output
   vtkPolyData* output = vtkPolyData::GetData(outputVector);

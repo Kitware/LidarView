@@ -22,6 +22,8 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkTransform.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
 
 #include "vtkTemporalTransforms.h"
 
@@ -65,15 +67,31 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation* vtkNotUsed(request)
   }
 
   vtkDataArray* time = transforms->GetTimeArray();
-
-  std::ofstream file(this->FileName);
   // TODO: when we support reading a CSV with commented line, add such comment:
   // # Pose trajectory format, time in s, angles in degree, position in meters
   // # Recompose the rotation part of the pose using:
   // # R = Rz(yaw) * Ry(pitch) * Rx(roll)
   // # a point exprimed in the Lidar reference frame can be exprimed in a fixed
   // # reference frame using: X_fixed = R(t) * X_lidar + [x(t), y(t), z(t)]^T
-  file << "Time,Rx(Roll),Ry(Pitch),Rz(Yaw),X,Y,Z" << endl;
+
+  // Optional geodetic arrays present on input
+  vtkDataArray* lonArray = polyData->GetPointData()->GetArray("Longitude");
+  vtkDataArray* latArray = polyData->GetPointData()->GetArray("Latitude");
+  vtkDataArray* altArray = polyData->GetPointData()->GetArray("Altitude");
+
+  const vtkIdType npts = transforms->GetNumberOfPoints();
+  const bool hasGeodeticCoord = (lonArray && latArray && altArray &&
+                          lonArray->GetNumberOfTuples() == npts &&
+                          latArray->GetNumberOfTuples() == npts &&
+                          altArray->GetNumberOfTuples() == npts);
+
+  std::ofstream file(this->FileName);
+  file << "Time,Rx(Roll),Ry(Pitch),Rz(Yaw),X,Y,Z";
+  if (hasGeodeticCoord)
+  {
+    file << ",Longitude,Latitude,Altitude";
+  }
+  file << endl;
 
   for (unsigned int i = 0; i < transforms->GetNumberOfPoints(); i++)
   {
@@ -101,9 +119,17 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation* vtkNotUsed(request)
       file << std::fixed << std::setprecision(17) << t << "," << towrite.first[0] << ","
            << towrite.first[1] << "," << towrite.first[2];
     }
-    // Write translation
-    file << "," << towrite.second[0] << "," << towrite.second[1] << "," << towrite.second[2]
-         << std::endl;
+    file << "," << towrite.second[0] << "," << towrite.second[1] << "," << towrite.second[2];
+
+    if (hasGeodeticCoord)
+    {
+      const double lon = lonArray->GetComponent(i, 0);
+      const double lat = latArray->GetComponent(i, 0);
+      const double alt = altArray->GetComponent(i, 0);
+      file << "," << lon << "," << lat << "," << alt;
+    }
+
+    file << std::endl;
   }
 
   file.close();

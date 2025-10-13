@@ -41,6 +41,10 @@
  * - pitch : expresses the sensor rotation around the Y axis and is in degree
  * - yaw   : expresses the sensor rotation around the Z axis and is in degree
  * - the rotation matrix can be recomposed this way: R = Rz(z)*Ry(y)*Rx(x)
+ * 
+ * Optional columns: Longitude(d), Latitude(d), Altitude(m)
+ *   If arrays named "Longitude", "Latitude", "Altitude" are present,
+ *   they are copied into the output as point-data arrays.
  *
  * Remark: if you get from LidarView UI the error:
  * "vtkSIProxyDefinitionManager: No proxy that matches: group= and proxy= were found."

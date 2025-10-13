@@ -4,7 +4,8 @@ set(classes
   vtkEuclideanCompare
   vtkComputeVolume
   vtkVoxelOverlapFilter
-  vtkImagesOperations)
+  vtkImagesOperations
+  vtkComputeGeodeticCoordinates)
 
 if (TARGET VTK::ImagingMorphological)
   list(APPEND classes vtkImageBasedClustering)
