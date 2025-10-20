@@ -1,0 +1,124 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="CalibrationEvaluation"
+                 class="vtkCalibrationEvaluation"
+                 label="Evaluate Calibration">
+      <Documentation short_help="Sweep LiDAR extrinsics (RPY/XYZ) and rank by voxel occupancy" long_help="Sweeps roll/pitch/yaw and X/Y/Z around the LiDAR-trajectory transform, aggregates selected frames, and scores by occupied voxels (lower is better). Use to verify or fine-tune extrinsics; set sweep ranges/steps, frame subset/stride, and voxel leaf size."></Documentation>
+
+      <InputProperty name="PointCloud"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataObject" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty name="Trajectory"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <DoubleVectorProperty name="Translation Range"
+                            command="SetTranslationRangeM"
+                            number_of_elements="3"
+                            default_values="0 0 0">
+        <Documentation>Half-range in meters for X, Y, Z. Sweep is centered on the upstream sensor translation and spans [-range, +range] per axis.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="Translation Steps"
+                         command="SetTranslationSteps"
+                         number_of_elements="3"
+                         default_values="1 1 1">
+        <IntRangeDomain name="range"
+                        min="0"
+                        max="1001" />
+        <Documentation>Number of samples along X, Y, Z. A value ≤ 1 disables sweep on that axis (center only).</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="Angle Range"
+                            command="SetAngleRangeDeg"
+                            number_of_elements="3"
+                            default_values="0 0 0">
+        <Documentation>Half-range in degrees for Roll, Pitch, Yaw. Sweep spans [-range, +range] around the upstream sensor orientation.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="Angle Steps"
+                         command="SetAngleSteps"
+                         number_of_elements="3"
+                         default_values="1 1 1">
+        <IntRangeDomain name="range"
+                        min="0"
+                        max="1001" />
+        <Documentation>Number of samples for Roll, Pitch, Yaw. A value ≤ 1 disables sweep on that axis (center only).</Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Translation Sweep">
+        <Property name="Translation Range" />
+        <Property name="Translation Steps" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Rotation Sweep">
+        <Property name="Angle Range" />
+        <Property name="Angle Steps" />
+      </PropertyGroup>
+
+      <IntVectorProperty name="All Frames"
+                         command="SetAllFrames"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>Use all input frames when enabled. When disabled, the [First Frame, Last Frame] range with Step Size is used.</Documentation>
+      </IntVectorProperty>
+      <IntVectorProperty name="First Frame"
+                         command="SetFirstFrame"
+                         number_of_elements="1"
+                         default_values="100">
+        <Documentation>Start frame index (inclusive). Used only when All Frames is disabled.</Documentation>
+      </IntVectorProperty>
+      <IntVectorProperty name="Last Frame"
+                         command="SetLastFrame"
+                         number_of_elements="1"
+                         default_values="150">
+        <Documentation>End frame index (inclusive). Used only when All Frames is disabled.</Documentation>
+      </IntVectorProperty>
+      <IntVectorProperty name="Step Size"
+                         command="SetStepSize"
+                         number_of_elements="1"
+                         default_values="10">
+        <IntRangeDomain name="range" min="1" />
+        <Documentation>Frame stride within the selected range. 1 = use every frame.</Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Input frames">
+        <Property name="All Frames" />
+        <Property name="First Frame" />
+        <Property name="Last Frame" />
+        <Property name="Step Size" />
+      </PropertyGroup>
+
+      <DoubleVectorProperty name="Voxel Leaf Size"
+                            command="SetVoxelLeafSize"
+                            number_of_elements="1"
+                            default_values="0.05">
+        <DoubleRangeDomain name="range" min="0.01" />
+        <Documentation>Downsampling resolution in meters for the voxel grid. Larger values yield coarser aggregation and typically lower voxel counts.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Voxel grid parameters">
+        <Property name="Voxel Leaf Size" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

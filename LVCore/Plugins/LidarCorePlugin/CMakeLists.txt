@@ -43,6 +43,7 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersCalibration
   XML_MODULE_FILES
     Filters/CalibrationFromPoses.xml
+    Filters/CalibrationEvaluation.xml
     Filters/TemporalTransformsRemapper.xml
 )
 

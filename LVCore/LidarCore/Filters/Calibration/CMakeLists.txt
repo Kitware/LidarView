@@ -7,7 +7,8 @@ set(headers
 set(classes
   vtkCalibrationFromPoses
   vtkCarGeometricCalibration
-  vtkTemporalTransformsRemapper)
+  vtkTemporalTransformsRemapper
+  vtkCalibrationEvaluation)
 
 vtk_module_add_module(LidarView::FiltersCalibration
   SOURCES ${sources}

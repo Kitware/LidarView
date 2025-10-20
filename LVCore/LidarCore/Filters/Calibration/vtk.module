@@ -12,9 +12,13 @@ PRIVATE_DEPENDS
   Boost::system
   Ceres::ceres
   LidarView::CommonCeres
+  LidarView::FiltersTemporal
+  LidarView::IOLidar
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
 TEST_DEPENDS
   LidarView::CommonCeres
   LidarView::IOCore
