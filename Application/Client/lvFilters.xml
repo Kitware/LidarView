@@ -7,6 +7,7 @@
     <Proxy group="filters" name="ThresholdPoints" />
     <Proxy group="filters" name="ExtractPointSelection" />
     <Proxy group="filters" name="AggregatePointsFromTrajectoryOnline" />
+    <Proxy group="filters" name="PCANormalEstimation" />
     <Proxy group="filters" name="Glyph" />
   </Category>
 
@@ -49,13 +50,16 @@
 
   <!-- This section list all filters that can be available in ParaView and their icons -->
   <Proxy group="filters" name="AggregatePointsFromTrajectoryOnline" />
+  <Proxy group="filters" name="AnnotateAttributeData" />
+  <Proxy group="filters" name="AnnotateGlobalData" />
   <Proxy group="filters" name="Append" />
   <Proxy group="filters" name="AppendAttributes" />
   <Proxy group="filters" name="AppendPolyData" />
   <Proxy group="filters" name="ArbitrarySourceGlyph" />
-  <Proxy group="filters" name="AnnotateAttributeData" />
-  <Proxy group="filters" name="AnnotateGlobalData" />
+  <Proxy group="filters" name="AxisAlignedReflectionFilter" />
+  <Proxy group="filters" name="AxisAlignedTransformFilter" />
   <Proxy group="filters" name="BlockIdScalars" />
+  <Proxy group="filters" name="BlockIds" />
   <Proxy group="filters" name="BrownianPoints" />
   <Proxy group="filters" name="Calculator" icon=":/pqWidgets/Icons/pqCalculator.svg" />
   <Proxy group="filters" name="CellCenters" />
@@ -66,6 +70,7 @@
   <Proxy group="filters" name="ClipPoints" icon=":/pqWidgets/Icons/pqClip.svg" />
   <Proxy group="filters" name="Contour" icon=":/pqWidgets/Icons/pqIsosurface.svg" />
   <Proxy group="filters" name="ConvertToPointCloud" />
+  <Proxy group="filters" name="Coordinates" />
   <Proxy group="filters" name="Curvatures" />
   <Proxy group="filters" name="Cut" icon=":/pqWidgets/Icons/pqSlice.svg" />
   <Proxy group="filters" name="DataSetSurfaceFilter" />
@@ -78,12 +83,14 @@
   <Proxy group="filters" name="ExtractBlock" icon=":/pqWidgets/Icons/pqGroupExtract.svg" />
   <Proxy group="filters" name="ExtractEdges" />
   <Proxy group="filters" name="ExtractGeometry" />
+  <Proxy group="filters" name="ExtractHierarchicalDataSets" />
   <Proxy group="filters" name="ExtractHistogram" icon=":/pqWidgets/Icons/pqHistogram24.png" />
   <Proxy group="filters" name="ExtractPointSelection" />
   <Proxy group="filters" name="ExtractSelection" icon=":/pqWidgets/Icons/pqExtractSelection.svg" />
   <Proxy group="filters" name="ExtractSelectionOverTime" icon=":/pqWidgets/Icons/pqPlotCellOverTime24.png" />
-  <Proxy group="filters" name="ExtractHierarchicalDataSets" />
   <Proxy group="filters" name="FeatureEdges" />
+  <Proxy group="filters" name="FieldArraysFromFile" />
+  <Proxy group="filters" name="FieldDataToDataSetAttribute" />
   <Proxy group="filters" name="ForceTime" />
   <Proxy group="filters" name="GenerateIdScalars"/>
   <Proxy group="filters" name="Glyph" icon=":/pqWidgets/Icons/pqGlyph.svg" />
@@ -94,22 +101,24 @@
   <Proxy group="filters" name="MaskPoints" />
   <Proxy group="filters" name="Median" />
   <Proxy group="filters" name="MergeBlocks" />
-  <Proxy group="filters" name="MeshQuality" />
+  <Proxy group="filters" name="MergeTime" />
+  <Proxy group="filters" name="NormalGlyphs" />
   <Proxy group="filters" name="OutlineCornerFilter" />
   <Proxy group="filters" name="OutlineFilter" />
+  <Proxy group="filters" name="PCANormalEstimation" />
+  <Proxy group="filters" name="PVConnectivityFilter" />
   <Proxy group="filters" name="PassArrays" />
   <Proxy group="filters" name="PlotAttributes" />
   <Proxy group="filters" name="PointDataToCellData" />
-  <Proxy group="filters" name="PolyDataNormals" />
   <Proxy group="filters" name="Probe" />
   <Proxy group="filters" name="ProbeLine" icon=":/pqWidgets/Icons/pqPlotLineOverTime24.png" />
   <Proxy group="filters" name="ProbePoint" icon=":/pqWidgets/Icons/pqProbeLocation.svg" />
   <Proxy group="filters" name="ProcessIdScalars" />
   <Proxy group="filters" name="ProgrammableFilter" icon=":/pqWidgets/Icons/pqProgrammableFilter.svg" />
-  <Proxy group="filters" name="PVConnectivityFilter" />
   <Proxy group="filters" name="PythonAnnotation" />
   <Proxy group="filters" name="PythonCalculator"  icon=":/lvResources/Icons/python_logo_124.png" />
   <Proxy group="filters" name="ReflectionFilter" />
+  <Proxy group="filters" name="RenameArrays" />
   <Proxy group="filters" name="RotationalExtrusionFilter" />
   <Proxy group="filters" name="ScatterPlot"/>
   <Proxy group="filters" name="ShrinkFilter" />
@@ -117,10 +126,11 @@
   <Proxy group="filters" name="Stripper" />
   <Proxy group="filters" name="Subdivide" />
   <Proxy group="filters" name="SurfaceVectors" />
+  <Proxy group="filters" name="TableToPolyData" />
   <Proxy group="filters" name="TemporalCache" />
   <Proxy group="filters" name="TemporalInterpolator" />
-  <Proxy group="filters" name="TemporalSnapToTimeStep" />
   <Proxy group="filters" name="TemporalShiftScale" />
+  <Proxy group="filters" name="TemporalSnapToTimeStep" />
   <Proxy group="filters" name="TemporalStatistics" />
   <Proxy group="filters" name="Threshold" icon=":/pqWidgets/Icons/pqThreshold.svg" />
   <Proxy group="filters" name="ThresholdPoints" icon=":/pqWidgets/Icons/pqThreshold.svg" />
@@ -130,6 +140,4 @@
   <Proxy group="filters" name="TriangleFilter" />
   <Proxy group="filters" name="WarpScalar" />
   <Proxy group="filters" name="WarpVector" icon=":/pqWidgets/Icons/pqWarp.svg" />
-  <Proxy group="filters" name="NormalGlyphs" />
-  <Proxy group="filters" name="TableToPolyData" />
 </ParaViewFilters>
