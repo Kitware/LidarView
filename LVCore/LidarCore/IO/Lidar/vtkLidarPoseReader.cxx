@@ -77,12 +77,6 @@ bool vtkLidarPoseReader::Open()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarPoseReader::Open(bool vtkNotUsed(reassemble))
-{
-  return this->Open();
-}
-
-//-----------------------------------------------------------------------------
 void vtkLidarPoseReader::ReadPoses()
 {
   if (!this->Open())

@@ -168,14 +168,8 @@ protected:
    * Open/Close the pcap file.
    */
   virtual bool Open();
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use Open() methods without reassemble instead")
-  virtual bool Open(bool reassemble);
   bool Open(std::vector<int> ports);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use Open() methods without reassemble instead")
-  bool Open(std::vector<int> ports, bool reassemble);
   bool ReadNextPacket(double& timeSinceStart);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use simpler signature instead and call GetPayload()")
-  bool ReadNextPacket(const unsigned char*& data, unsigned int& dataLength, double& timeSinceStart);
   const std::vector<uint8_t>& GetPayload();
   void Close();
   ///@}

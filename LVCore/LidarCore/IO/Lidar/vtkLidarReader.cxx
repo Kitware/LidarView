@@ -362,12 +362,6 @@ bool vtkLidarReader::Open()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarReader::Open(bool vtkNotUsed(reassemble))
-{
-  return this->Open();
-}
-
-//-----------------------------------------------------------------------------
 bool vtkLidarReader::Open(std::vector<int> ports)
 {
   if (this->FileName.empty())
@@ -387,28 +381,10 @@ bool vtkLidarReader::Open(std::vector<int> ports)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkLidarReader::Open(std::vector<int> ports, bool vtkNotUsed(reassemble))
-{
-  return this->Open(ports);
-}
-
-//-----------------------------------------------------------------------------
 bool vtkLidarReader::ReadNextPacket(double& timeSinceStart)
 {
   bool ret = this->Internals->Reader->ReadNextPacket();
   timeSinceStart = this->Internals->Reader->GetTimestamp();
-  return ret;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkLidarReader::ReadNextPacket(const unsigned char*& data,
-  unsigned int& dataLength,
-  double& timeSinceStart)
-{
-  bool ret = this->ReadNextPacket(timeSinceStart);
-  const std::vector<uint8_t>& payload = this->GetPayload();
-  data = payload.data();
-  dataLength = payload.size();
   return ret;
 }
 

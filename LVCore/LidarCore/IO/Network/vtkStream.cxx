@@ -104,22 +104,3 @@ void vtkStream::SetPacketHandler(vtkStreamPacketHandler* handler)
     }
   }
 }
-
-//----------------------------------------------------------------------------
-void vtkStream::SetForwardedPort(int port)
-{
-  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))
-  {
-    return receiver->SetForwardedPortOffset(port - this->ListeningPort);
-  }
-};
-
-//----------------------------------------------------------------------------
-int vtkStream::GetForwardedPort()
-{
-  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))
-  {
-    return this->ListeningPort + receiver->GetForwardedPortOffset();
-  }
-  return this->ListeningPort;
-};

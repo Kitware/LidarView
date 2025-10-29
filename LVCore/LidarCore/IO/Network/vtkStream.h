@@ -37,32 +37,6 @@
 class vtkInterpreter;
 class vtkPacketRecorder;
 
-///@{
-/**
- * Deprecation macros
- */
-#define vtkSetUDPReceiverMemberMacro(name, type)                                                   \
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")                 \
-  virtual void Set##name(type _arg)                                                                \
-  {                                                                                                \
-    if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))  \
-    {                                                                                              \
-      receiver->Set##name(_arg);                                                                   \
-    }                                                                                              \
-  }
-
-#define vtkGetUDPReceiverMemberMacro(name, type)                                                   \
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")                 \
-  virtual type Get##name()                                                                         \
-  {                                                                                                \
-    if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->PacketHandler))  \
-    {                                                                                              \
-      return receiver->Get##name();                                                                \
-    }                                                                                              \
-    return 0;                                                                                      \
-  }
-///@}
-
 #ifndef __VTK_WRAP__
 #define vtkDataObjectAlgorithm vtkLiveSourceAlgorithm<vtkDataObjectAlgorithm>
 #endif
@@ -79,24 +53,6 @@ public:
 
   vtkGetMacro(ListeningPort, unsigned int);
   vtkSetMacro(ListeningPort, unsigned int);
-
-  ///@{
-  /**
-   * Methods to deprecate
-   */
-  vtkSetUDPReceiverMemberMacro(MulticastAddress, std::string);
-  vtkGetUDPReceiverMemberMacro(MulticastAddress, std::string);
-  vtkSetUDPReceiverMemberMacro(LocalListeningAddress, std::string);
-  vtkGetUDPReceiverMemberMacro(LocalListeningAddress, std::string);
-  vtkSetUDPReceiverMemberMacro(ForwardedIpAddress, std::string);
-  vtkGetUDPReceiverMemberMacro(ForwardedIpAddress, std::string);
-  vtkSetUDPReceiverMemberMacro(IsForwarding, bool);
-  vtkGetUDPReceiverMemberMacro(IsForwarding, bool);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
-  void SetForwardedPort(int port);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
-  int GetForwardedPort();
-  ///@}
 
   vtkGetMacro(IsCrashAnalysing, bool);
   vtkSetMacro(IsCrashAnalysing, bool);

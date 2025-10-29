@@ -49,8 +49,6 @@ public:
    * Call vtkLidarReader::Open with the addition of the pose port.
    */
   bool Open() override;
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use Open() methods without reassemble instead")
-  bool Open(bool reassemble) override;
 
   vtkMTimeType GetMTime() override;
 

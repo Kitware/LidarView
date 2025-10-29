@@ -56,10 +56,6 @@ public:
    */
   vtkGetMacro(GNSSPort, unsigned int);
   vtkSetMacro(GNSSPort, unsigned int);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
-  void SetGNSSForwardedPort(int);
-  LIDARVIEW_DEPRECATED_IN_5_1_0("Please use vtkUDPPacketReceiver methods instead")
-  int GetGNSSForwardedPort();
   ///@}
 
   int CheckForNewData() override;

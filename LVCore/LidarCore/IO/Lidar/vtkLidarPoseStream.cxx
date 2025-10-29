@@ -250,22 +250,3 @@ vtkMTimeType vtkLidarPoseStream::GetMTime()
 {
   return std::max(this->Superclass::GetMTime(), this->PoseInterpreter->GetMTime());
 }
-
-//----------------------------------------------------------------------------
-void vtkLidarPoseStream::SetGNSSForwardedPort(int port)
-{
-  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->GetPacketHandler()))
-  {
-    return receiver->SetForwardedPortOffset(port - this->GNSSPort);
-  }
-};
-
-//----------------------------------------------------------------------------
-int vtkLidarPoseStream::GetGNSSForwardedPort()
-{
-  if (vtkUDPPacketReceiver* receiver = vtkUDPPacketReceiver::SafeDownCast(this->GetPacketHandler()))
-  {
-    return this->GNSSPort + receiver->GetForwardedPortOffset();
-  }
-  return this->GNSSPort;
-};
