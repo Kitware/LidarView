@@ -16,9 +16,8 @@
 #include "lqAboutDialog.h"
 #include "ui_lqAboutDialog.h"
 
-#include <tins/tins.h>
-
 #include <vtkLVVersion.h>
+#include <vtkPCAPVersion.h>
 
 #include <QtTestingConfigure.h>
 #include <pqApplicationCore.h>
@@ -96,7 +95,7 @@ void lqAboutDialog::AddClientInformation()
   ::addItem(tree, tr("ParaView Version"), QString(PARAVIEW_VERSION_FULL));
   ::addItem(tree, tr("VTK Version"), QString(vtkVersion::GetVTKVersionFull()));
   ::addItem(tree, tr("Qt Version"), QT_VERSION_STR);
-  ::addItem(tree, tr("Libpcap Version"), pcap_lib_version());
+  ::addItem(tree, tr("Libpcap Version"), QString(vtkPCAPVersion::GetPcapLibraryVersion()));
 
   ::addItem(tree, tr("vtkIdType size"), tr("%1bits").arg(8 * sizeof(vtkIdType)));
 

@@ -2,6 +2,8 @@ NAME
 LidarViewApp::lvApplicationComponents
 LIBRARY_NAME
   lvApplicationComponents
+CONDITION
+  LIDARVIEW_USE_QT
 DEPENDS
   ParaView::pqApplicationComponents
   ParaView::pqCore

@@ -47,7 +47,7 @@ paraview_client_add(
   APPLICATION_NAME  "${SOFTWARE_NAME}"
   ORGANIZATION      "${SOFTWARE_VENDOR}"
   TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
-  SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.jpg"
+  SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.png"
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.icns"
   BUNDLE_PLIST      "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
   APPLICATION_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.ico"

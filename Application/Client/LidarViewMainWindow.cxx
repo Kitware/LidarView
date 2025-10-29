@@ -94,6 +94,13 @@ LidarViewMainWindow::LidarViewMainWindow()
   pvpythonmodules_load();
   // #endif
 
+  // Setup default GUI layout.
+  this->setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
+
+  // Set up the dock window corners to give the vertical docks more room.
+  this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
   // Init LidarView manager based on LVCore common manager
   new lqLidarViewManager(this);
   lqLidarViewManager::setLidarViewDefaultSettings();
@@ -101,16 +108,33 @@ LidarViewMainWindow::LidarViewMainWindow()
   this->Internals = new lqInternals();
   this->Internals->setupUi(this);
 
+  // Without hiding manually here the screen size can be out of control
+  this->Internals->findDataDock->hide();
+  this->Internals->pythonShellDock->hide();
+  this->Internals->comparativePanelDock->hide();
+  this->Internals->memoryInspectorDock->hide();
+  this->Internals->colorMapEditorDock->hide();
+  this->Internals->informationDock->hide();
+  this->Internals->timeManagerDock->hide();
+  this->Internals->outputWidgetDock->hide();
+
   // Tabify some widgets (by default second widget will open where first widget is as a tab)
+  // Left dock widgets
   this->tabifyDockWidget(this->Internals->pythonShellDock, this->Internals->memoryInspectorDock);
   this->tabifyDockWidget(this->Internals->pythonShellDock, this->Internals->findDataDock);
   this->tabifyDockWidget(this->Internals->pythonShellDock, this->Internals->informationDock);
 
+  // Bottom dock widgets
+  this->tabifyDockWidget(this->Internals->outputWidgetDock, this->Internals->timeManagerDock);
+
+  // Right dock widgets
+  this->tabifyDockWidget(this->Internals->colorMapEditorDock, this->Internals->pipelineBrowserDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->viewPropertiesDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->displayPropertiesDock);
   this->tabifyDockWidget(this->Internals->propertiesDock, this->Internals->comparativePanelDock);
 
   // Set properties panel as default dock
+  this->Internals->propertiesDock->show();
   this->Internals->propertiesDock->raise();
 
   // Change default properties panel modes (one dock for each)
@@ -181,6 +205,7 @@ LidarViewMainWindow::LidarViewMainWindow()
   // Customize application behaviors - the other ones are kept to default
   pqParaViewBehaviors::setEnableCollaborationBehavior(false);
   pqParaViewBehaviors::setEnableViewStreamingBehavior(false);
+  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pqParaViewBehaviors::setEnableUsageLoggingBehavior(true);
   pqParaViewBehaviors::setEnableStandardRecentlyUsedResourceLoader(true);
   // This must be delayed in lqCommandLineOptionsBehavior so tests can run with LidarGridView
@@ -194,7 +219,6 @@ LidarViewMainWindow::LidarViewMainWindow()
   pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
 
   // Replace default views
-  pqParaViewBehaviors::setEnableStandardViewFrameActions(false);
   pgm->addInterface(new lqViewFrameActionsImplementation(pgm));
 
   // Add recently used pcap interface
