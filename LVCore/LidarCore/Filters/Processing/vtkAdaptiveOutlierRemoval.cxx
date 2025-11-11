@@ -54,19 +54,10 @@ int vtkAdaptiveOutlierRemoval::FillInputPortInformation(int vtkNotUsed(port), vt
 void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> inputPointcloud,
   vtkSmartPointer<vtkPolyData> outputPointcloud)
 {
-  // Check depth array
-  bool hasDepth = false;
-  std::string depthName;
-  if (inputPointcloud->GetPointData()->HasArray("distance_m"))
-  {
-    hasDepth = true;
-    depthName = "distance_m";
-  }
-  else if (inputPointcloud->GetPointData()->HasArray("Distance"))
-  {
-    hasDepth = true;
-    depthName = "Distance";
-  }
+  // Get depth array name
+  this->DepthArrayName = this->GetInputArrayToProcess(0, inputPointcloud)
+    ? this->GetInputArrayToProcess(0, inputPointcloud)->GetName()
+    : "";
 
   vtkKDTreeVTKAdaptor kDTree;
   kDTree.Reset(inputPointcloud);
@@ -85,12 +76,14 @@ void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> input
       aveDist += std::sqrt(sqDist);
     aveDist /= this->NbNeighbors;
     // Define the threshold
-    double depth = 0.;
-    if (this->EnableAdaptiveRemoval && hasDepth)
-      depth = inputPointcloud->GetPointData()->GetArray(depthName.c_str())->GetTuple1(id);
-    double threshold = this->EnableAdaptiveRemoval
-      ? std::max(this->Factor * depth, this->AveDistThreshold)
-      : this->AveDistThreshold;
+    double threshold = this->AveDistThreshold;
+    if (this->EnableAdaptiveRemoval)
+    {
+      double depth = this->DepthArrayName.empty()
+        ? std::sqrt(point[0] * point[0] + point[1] * point[1] + point[2] * point[2])
+        : inputPointcloud->GetPointData()->GetArray(this->DepthArrayName.c_str())->GetTuple1(id);
+      threshold = std::max(this->Factor * depth, this->AveDistThreshold);
+    }
     // Save id of points to be removed
     if (aveDist > threshold)
       pointIdsToRemove->InsertNextValue(id);

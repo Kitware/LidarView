@@ -65,6 +65,8 @@ private:
   void RemoveOutlier(vtkSmartPointer<vtkPolyData> inputPointcloud,
     vtkSmartPointer<vtkPolyData> outputPointcloud);
 
+  // Depth array name
+  std::string DepthArrayName;
   // Number of neighbor points to compute the average distance for one point
   int NbNeighbors = 10;
   // The threshold to remove one point
