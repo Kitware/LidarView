@@ -46,6 +46,7 @@
       <EnumerationDomain name="enum">
         <Entry value="0" text="No extraction"/>
         <Entry value="1" text="Euclidean clustering"/>
+        <Entry value="4" text="Adaptive Euclidean clustering"/>
         <Entry value="2" text="Gaussian mixture model"/>
         <Entry value="3" text="Region growing"/>
       </EnumerationDomain>
@@ -65,6 +66,9 @@
           (3) Region growing:
               This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
               when motion points are scattered but related. It offers a rough tracking of clusters.
+
+          (4) Adaptive Euclidean clustering:
+              This method groups points based on their spatial proximity and takes account of the density change over the distance.
       </Documentation>
     </IntVectorProperty>
 
@@ -115,6 +119,21 @@
       </Documentation>
     </DoubleVectorProperty>
 
+    <DoubleVectorProperty name="Search radius factor"
+                       command="SetFactor"
+                       number_of_elements="1"
+                       default_values="0.0035">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+      <Documentation>
+        The factor of the linear function of depth to define the cluster raidus.
+        Search radius = Cluster radius + factor * depth
+        The value can be defined by the sensor angular resolution
+        e.g. the default value is 0.0035 which corresponds to an angular resolution of 0.2° (0.2 * pi / 180)
+      </Documentation>
+    </DoubleVectorProperty>
+
     <IntVectorProperty name="Cluster minimum point number"
                        command="SetClusterMinNbPoints"
                        number_of_elements="1"
@@ -162,6 +181,7 @@
       <Property name="Enable background map" />
       <Property name="Initialization time" />
       <Property name="Cluster radius" />
+      <Property name="Search radius factor" />
       <Property name="Cluster minimum point number" />
       <Property name="Clustering grid resolution" />
       <Property name="Set tracking window sizes" />
