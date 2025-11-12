@@ -64,6 +64,10 @@ public:
   vtkSetMacro(EnableBackgroundGrid, bool);
   vtkGetMacro(EnableBackgroundGrid, bool);
 
+  // Set/get search radius factor for adaptive clustering
+  vtkSetMacro(Factor, double);
+  vtkGetMacro(Factor, double);
+
   // Set tracking window sizes
   void SetTrackingWindowSizes(int trackingWindowSizes);
   // Set/get number of processed frames
@@ -98,6 +102,7 @@ private:
     EUCLIDEAN = 1,
     GMM = 2,
     REGION_GROWING = 3,
+    ADAPTIVE_EUCLIDEAN = 4,
   };
   Extractor ClusterExtractor = Extractor::NOEXTRACTION;
   // Minimum radius of a cluster
@@ -108,6 +113,12 @@ private:
   float ClusterGridResolution = 0.1;
   // Use background grid to remove outliers
   bool EnableBackgroundGrid = false;
+  // The factor of the linear function of depth to define the cluster raidus
+  // radius = baseRadius + factor * depth
+  // The default linear function is based on the arc length of an angular resolution :
+  // Threshold = angular resolution * depth
+  // The default value is computed based on an angular resolution 0.2° (0.2 * pi / 180)
+  double Factor = 0.0035;
 
   // Parameter to enable/disable to compute orientation of clusters
   bool EnableClusterOrientation = false;
@@ -393,6 +404,11 @@ private:
 
   // Extract clusters with region growing method
   void ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
+    vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+    vtkSmartPointer<vtkTable> infoOutput);
+
+  // Extract clusters with adaptive euclidean cluster
+  void ExtractClustersWithAdaptiveEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
 

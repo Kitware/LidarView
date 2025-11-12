@@ -60,6 +60,7 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <queue>
 
 constexpr unsigned int POINTCLOUD_INPUT_PORT = 0;
 constexpr unsigned int INPUT_PORT_COUNT = 1;
@@ -310,7 +311,8 @@ void vtkClusteringAndTracking::SetClusterExtractor(int extractor)
 {
   Extractor clusterExtractor = static_cast<Extractor>(extractor);
   if (clusterExtractor != Extractor::NOEXTRACTION && clusterExtractor != Extractor::EUCLIDEAN &&
-    clusterExtractor != Extractor::GMM && clusterExtractor != Extractor::REGION_GROWING)
+    clusterExtractor != Extractor::GMM && clusterExtractor != Extractor::REGION_GROWING &&
+    clusterExtractor != Extractor::ADAPTIVE_EUCLIDEAN)
   {
     vtkWarningMacro(<< "Invalid clustering extractor (" << extractor << "), ignoring setting.");
     return;
@@ -1128,6 +1130,121 @@ void vtkClusteringAndTracking::ExtractClustersWithRegionGrowing(
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
+  vtkSmartPointer<vtkPolyData> polydata,
+  vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
+  vtkSmartPointer<vtkTable> infoOutput)
+{
+  // Set input data
+  if (polydata->GetNumberOfPoints() == 0)
+  {
+    vtkLog(INFO, "Not enough points: clusters not extracted");
+    return;
+  }
+  // Add array to store cluster Id
+  // The array name is ClusterId to be same as the vtkEuclideanClusterExtraction filter
+  vtkSmartPointer<vtkIntArray> pointLabel = vtkSmartPointer<vtkIntArray>::New();
+  pointLabel->SetName("ClusterId");
+  for (auto id = 0; id < polydata->GetNumberOfPoints(); ++id)
+  {
+    pointLabel->InsertNextTuple1(-1);
+  }
+  polydata->GetPointData()->AddArray(pointLabel);
+
+#ifdef LIDARVIEW_USE_NANOFLANN
+  // Check depth array
+  bool hasDepth = false;
+  std::string depthName;
+  if (polydata->GetPointData()->HasArray("distance_m"))
+  {
+    hasDepth = true;
+    depthName = "distance_m";
+  }
+  else if (polydata->GetPointData()->HasArray("Distance"))
+  {
+    hasDepth = true;
+    depthName = "Distance";
+  }
+
+  vtkKDTreeVTKAdaptor kDTree;
+  kDTree.Reset(polydata);
+  auto numPoints = polydata->GetNumberOfPoints();
+  std::vector<bool> visited(numPoints, false);
+  std::vector<std::vector<int>> clusters;
+  // Clustering with an adaptive search radius depending on depth
+  for (auto id = 0; id < numPoints; ++id)
+  {
+    if (visited[id])
+      continue;
+    double point[3];
+    polydata->GetPoint(id, point);
+    // Get depth value
+    double depth = hasDepth
+      ? polydata->GetPointData()->GetArray(depthName.c_str())->GetTuple1(id)
+      : std::sqrt(point[0] * point[0] + point[1] * point[2] + point[2] * point[2]);
+    // Compute the search radius depending on depth
+    float radius = this->ClusterRadius + this->Factor * depth;
+    // Clustering
+    std::vector<int> cluster;
+    std::queue<int> candidatePts;
+    candidatePts.push(id);
+    visited[id] = true;
+    while (!candidatePts.empty())
+    {
+      int idx = candidatePts.front();
+      candidatePts.pop();
+
+      Eigen::Vector3d point;
+      polydata->GetPoint(idx, point.data());
+      std::vector<float> sqDistances;
+      std::vector<int> neighborsIndices;
+      Eigen::Vector3f pointF = point.cast<float>();
+      kDTree.radiusSearch(pointF.data(), radius, neighborsIndices, sqDistances);
+      for (const int neighborId : neighborsIndices)
+      {
+        if (!visited[neighborId])
+        {
+          visited[neighborId] = true;
+          candidatePts.push(neighborId);
+          cluster.push_back(neighborId);
+        }
+      }
+    }
+    if (cluster.size() > static_cast<size_t>(this->ClusterMinNbPoints))
+      clusters.emplace_back(cluster);
+  }
+
+  // Compute cluster stats: size, mean depth, mean intensity etc
+  this->ClustersStats.clear();
+  int clusterId = 0;
+  for (const auto& clus : clusters)
+  {
+    this->ClustersStats.emplace_back(this->ComputeClusterStats(polydata, clus, clusterId));
+    clusterId++;
+  }
+
+  // Sort clusters based on their average depth values
+  std::vector<int> newClusterIds(clusters.size());
+  this->RedistributeClusterIdByDepth(newClusterIds);
+  // Label points with new clusterId
+  for (size_t i = 0; i < clusters.size(); ++i)
+  {
+    int clusterId = newClusterIds[i];
+    for (const auto pId : clusters[i])
+    {
+      polydata->GetPointData()->GetArray("ClusterId")->SetTuple1(pId, clusterId);
+    }
+  }
+#else
+  vtkErrorMacro(
+    << "Cannot extract clusters with adaptive euclidean method because nanoflann was not found.");
+#endif
+
+  // Create output of clusters information
+  this->CreateClustersOutput(clustersOutput, infoOutput);
+}
+
+//-----------------------------------------------------------------------------
 int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -1177,6 +1294,12 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
       if (this->EnableBackgroundGrid && this->NbProcessedFrames <= this->InitNbFrames)
         this->BuildBackgroundGrid(clustersPointsOutput);
       this->ExtractClustersWithRegionGrowing(
+        clustersPointsOutput, clustersOutput, clusterInfoOutput);
+      break;
+    }
+    case Extractor::ADAPTIVE_EUCLIDEAN:
+    {
+      this->ExtractClustersWithAdaptiveEuclidean(
         clustersPointsOutput, clustersOutput, clusterInfoOutput);
       break;
     }
