@@ -500,13 +500,15 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
   }
   for (const auto& pointId : clusterPtIndices)
   {
-    if (hasDepth)
-      depth += input->GetPointData()->GetArray(depthName.c_str())->GetTuple1(pointId);
-    if (hasIntensity)
-      intensity += input->GetPointData()->GetArray(intensityName.c_str())->GetTuple1(pointId);
     Eigen::Vector3d point;
     input->GetPoint(pointId, point.data());
     clusterPoints->InsertNextPoint(point.data());
+    double dist = hasDepth
+      ? input->GetPointData()->GetArray(depthName.c_str())->GetTuple1(pointId)
+      : std::sqrt(point[0] * point[0] + point[1] * point[2] + point[2] * point[2]);
+    depth += dist;
+    if (hasIntensity)
+      intensity += input->GetPointData()->GetArray(intensityName.c_str())->GetTuple1(pointId);
   }
   int nbClusterPoints = clusterPtIndices.size();
   clusterInfo.ClusterId = clusterId;
