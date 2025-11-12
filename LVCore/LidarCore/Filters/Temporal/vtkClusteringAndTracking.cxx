@@ -14,7 +14,12 @@
 =========================================================================*/
 
 #include "vtkClusteringAndTracking.h"
+#include "vtkLVUsedDependencies.h"
 #include "vtkPointsPCA.h"
+
+#ifdef LIDARVIEW_USE_NANOFLANN
+#include "KDTreeVTKAdaptor.h"
+#endif
 
 // VTK
 #include <vtkAppendFilter.h>

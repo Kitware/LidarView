@@ -9,6 +9,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMath
+  LidarView::Versioning
 PRIVATE_DEPENDS
   VTK::CommonTransforms
   VTK::FiltersCore
@@ -18,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
+  LidarView::FiltersProcessing
 TEST_DEPENDS
   LidarView::TestingCore
   VTK::FiltersHybrid
