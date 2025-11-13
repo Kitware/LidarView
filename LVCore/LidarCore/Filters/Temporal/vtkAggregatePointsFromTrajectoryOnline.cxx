@@ -292,11 +292,6 @@ void vtkAggregatePointsFromTrajectoryOnline::CheckAndRemoveOffsetFromTrajectory(
   }
 
   this->IsOffsetRemoved = true;
-
-  // vtkLog(INFO,
-  //   << "The input trajectory seems to be georeferenced. \n"
-  //   << "A local trajectory has been computed by removing the offset: ( " << x0 << "," << y0 << ","
-  //   << z0 << " )");
 }
 
 //----------------------------------------------------------------------------

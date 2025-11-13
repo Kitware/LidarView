@@ -18,12 +18,14 @@
 #include "vtkAggregatePointsFromTrajectoryOffline.h"
 
 // VTK
-#include <unordered_set>
-#include <vector>
 #include <vtkAlgorithm.h>
 #include <vtkAlgorithmOutput.h>
+#include <vtkCallbackCommand.h>
+#include <vtkDoubleArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLidarPacketInterpreter.h>
+#include <vtkLidarReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -31,31 +33,53 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkTable.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 
-// Lidar IO for upstream calibration fetch
-#include "vtkLidarPacketInterpreter.h"
-#include "vtkLidarReader.h"
+#include <algorithm>
 #include <string>
-#include <vtkDoubleArray.h>
-#include <vtkTable.h>
+#include <unordered_set>
+#include <vector>
 
-// Port indices
+vtkStandardNewMacro(vtkCalibrationEvaluation)
+namespace
+{
 constexpr unsigned int LIDAR_INPUT_PORT = 0;
 constexpr unsigned int TRAJ_INPUT_PORT = 1;
 constexpr unsigned int INPUT_PORT_COUNT = 2;
 
-// Output ports
 constexpr unsigned int TABLE_OUTPUT_PORT = 0;
 constexpr unsigned int AGGREGATED_CLOUD_OUTPUT_PORT = 1;
 constexpr unsigned int OUTPUT_PORT_COUNT = 2;
 
-vtkStandardNewMacro(vtkCalibrationEvaluation)
+//-----------------------------------------------------------------------------
+// Compute voxels ranking (ascending => rank 1)
+void ComputeVoxelRanking(vtkDoubleArray* voxels, vtkDoubleArray* outRank)
+{
+  if (!voxels || !outRank)
+  {
+    return;
+  }
+  vtkIdType n = voxels->GetNumberOfTuples();
+  std::vector<std::pair<double, vtkIdType>> order;
+  order.reserve(static_cast<size_t>(n));
+  for (vtkIdType i = 0; i < n; ++i)
+  {
+    order.emplace_back(voxels->GetValue(i), i);
+  }
+  std::stable_sort(
+    order.begin(), order.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+
+  outRank->SetNumberOfTuples(n);
+  for (vtkIdType i = 0; i < n; ++i)
+  {
+    vtkIdType idx = order[static_cast<size_t>(i)].second;
+    outRank->SetValue(idx, static_cast<double>(i + 1));
+  }
+}
 
 //-----------------------------------------------------------------------------
-namespace
-{
 vtkSmartPointer<vtkTransform> FindUpstreamSensorTransform(vtkAlgorithmOutput* inConn)
 {
   if (!inConn)
@@ -143,31 +167,74 @@ int vtkCalibrationEvaluation::FillOutputPortInformation(int port, vtkInformation
 }
 
 //-----------------------------------------------------------------------------
+int vtkCalibrationEvaluation::RequestInformation(vtkInformation*,
+  vtkInformationVector**,
+  vtkInformationVector*)
+{
+  // Discover upstream sensor transform for information-only UI exposure
+  vtkSmartPointer<vtkTransform> upstreamT =
+    FindUpstreamSensorTransform(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
+  if (upstreamT)
+  {
+    double pos[3] = { 0., 0., 0. };
+    double ori[3] = { 0., 0., 0. };
+    upstreamT->GetPosition(pos);
+    upstreamT->GetOrientation(ori);
+    this->UpstreamFound = true;
+    this->UpstreamPosition[0] = pos[0];
+    this->UpstreamPosition[1] = pos[1];
+    this->UpstreamPosition[2] = pos[2];
+    this->UpstreamRotationDeg[0] = ori[0];
+    this->UpstreamRotationDeg[1] = ori[1];
+    this->UpstreamRotationDeg[2] = ori[2];
+  }
+  else
+  {
+    this->UpstreamFound = false;
+  }
+  this->Modified();
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   vtkTable* tableOutput = vtkTable::GetData(outputVector, 0);
-
-  vtkSmartPointer<vtkTransform> upstreamT =
-    FindUpstreamSensorTransform(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
-  double basePos[3] = { 0, 0, 0 };
-  double baseOri[3] = { 0, 0, 0 };
-  if (upstreamT)
+  // Choose sweep center: upstream pose if enabled and available; otherwise user base pose.
+  double basePos[3];
+  double baseOri[3];
+  if (this->UseUpstreamCalibration && this->UpstreamFound)
   {
-    upstreamT->GetPosition(basePos);
-    upstreamT->GetOrientation(baseOri);
-    vtkLog(INFO,
-      "Upstream SensorTransform: pos=(" << basePos[0] << ", " << basePos[1] << ", " << basePos[2]
-                                        << ") orientRPY=(" << baseOri[0] << ", " << baseOri[1]
-                                        << ", " << baseOri[2] << ")");
+    basePos[0] = this->UpstreamPosition[0];
+    basePos[1] = this->UpstreamPosition[1];
+    basePos[2] = this->UpstreamPosition[2];
+    baseOri[0] = this->UpstreamRotationDeg[0];
+    baseOri[1] = this->UpstreamRotationDeg[1];
+    baseOri[2] = this->UpstreamRotationDeg[2];
   }
   else
   {
-    vtkLog(INFO, "Upstream SensorTransform: not found (using identity)");
-    upstreamT.TakeReference(vtkTransform::New());
-    upstreamT->Identity();
+    basePos[0] = this->BasePosition[0];
+    basePos[1] = this->BasePosition[1];
+    basePos[2] = this->BasePosition[2];
+    baseOri[0] = this->BaseRotationDeg[0];
+    baseOri[1] = this->BaseRotationDeg[1];
+    baseOri[2] = this->BaseRotationDeg[2];
   }
+
+  vtkNew<vtkTransform> centerT;
+  centerT->PreMultiply();
+  centerT->RotateZ(baseOri[2]);
+  centerT->RotateX(baseOri[0]);
+  centerT->RotateY(baseOri[1]);
+  centerT->Translate(basePos);
+  vtkLog(INFO,
+    "Sweep center: pos=("
+      << basePos[0] << ", " << basePos[1] << ", " << basePos[2] << ") orientRPY=(" << baseOri[0]
+      << ", " << baseOri[1] << ", " << baseOri[2] << ")"
+      << (this->UseUpstreamCalibration && this->UpstreamFound ? " [upstream]" : " [user base]"));
   vtkSmartPointer<vtkDoubleArray> colRoll = vtkSmartPointer<vtkDoubleArray>::New();
   colRoll->SetName("roll_deg");
   vtkSmartPointer<vtkDoubleArray> colPitch = vtkSmartPointer<vtkDoubleArray>::New();
@@ -184,6 +251,16 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
   colVox->SetName("voxels");
   vtkSmartPointer<vtkDoubleArray> colRank = vtkSmartPointer<vtkDoubleArray>::New();
   colRank->SetName("voxels_rank");
+
+  vtkSmartPointer<vtkTransform> inputT =
+    FindUpstreamSensorTransform(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
+  vtkNew<vtkTransform> inputInv;
+  inputInv->Identity();
+  if (inputT)
+  {
+    inputInv->DeepCopy(inputT);
+    inputInv->Inverse();
+  }
 
   auto linspace = [](double range, int steps)
   {
@@ -230,7 +307,9 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
 
   long long progress = 0;
 
-  // Nested sweep, each candidate uses a fresh aggregator and transform filter
+  // Require aggregator to be provided as a subproxy
+  vtkAggregatePointsFromTrajectoryOffline* aggregatorPtr = this->Aggregator;
+
   for (double vDx : dX)
   {
     for (double vDy : dY)
@@ -259,44 +338,25 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
               deltaTransform->RotateX(vDr);
               deltaTransform->RotateY(vDp);
 
-              vtkNew<vtkTransform> uInv;
-              uInv->DeepCopy(upstreamT);
-              uInv->Inverse();
-
-              // Apply perturbation in the sensor’s own coordinate frame composedDeltaTransform =
-              // upstreamT * deltaTransform * uInv ensures that the rotation and translation occur
-              // around the sensor’s center, not around the world origin.
-              vtkNew<vtkTransform> composedDeltaTransform;
-              composedDeltaTransform->PreMultiply();
-              composedDeltaTransform->Concatenate(upstreamT->GetMatrix());
-              composedDeltaTransform->Concatenate(deltaTransform->GetMatrix());
-              composedDeltaTransform->Concatenate(uInv->GetMatrix());
+              // Unified application: M = T0 · Δ · (T_in)^-1
+              vtkNew<vtkTransform> composedTransform;
+              composedTransform->PreMultiply();
+              composedTransform->Concatenate(centerT->GetMatrix());
+              composedTransform->Concatenate(deltaTransform->GetMatrix());
+              composedTransform->Concatenate(inputInv->GetMatrix());
 
               vtkNew<vtkTransformPolyDataFilter> tf;
-              tf->SetTransform(composedDeltaTransform);
+              tf->SetTransform(composedTransform);
               tf->SetInputConnection(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
 
-              // Set up the offline aggregator to combine the LiDAR input with the INS trajectory.
-              vtkNew<vtkAggregatePointsFromTrajectoryOffline> aggregator;
-              aggregator->SetAutoDetectTimeArray(this->AutoDetectTimeArray);
-              aggregator->SetIsVoxelGridFilterUsed(this->IsVoxelGridFilterUsed);
-              aggregator->SetAutoComputeBounds(this->AutoComputeBounds);
-              aggregator->SetVoxelSamplingMode(this->VoxelSamplingMode);
-              aggregator->SetVoxelLeafSize(this->VoxelLeafSize);
-              aggregator->SetAutoDetectTimeUnitConversion(this->AutoDetectTimeUnitConversion);
-              aggregator->SetCustomConversionFactorToSecond(this->CustomConversionFactorToSecond);
-              aggregator->SetTimeOffset(this->TimeOffset);
-              aggregator->SetInterpolationType(this->InterpolationType);
-              aggregator->SetAllFrames(this->AllFrames);
-              aggregator->SetFirstFrame(this->FirstFrame);
-              aggregator->SetLastFrame(this->LastFrame);
-              aggregator->SetStepSize(this->StepSize);
-              aggregator->SetInputConnection(0, tf->GetOutputPort());
-              aggregator->SetInputConnection(1, this->GetInputConnection(TRAJ_INPUT_PORT, 0));
+              // Wire inputs and Clear previous state
+              aggregatorPtr->Clear();
+              aggregatorPtr->SetInputConnection(0, tf->GetOutputPort());
+              aggregatorPtr->SetInputConnection(1, this->GetInputConnection(TRAJ_INPUT_PORT, 0));
 
               // Execute once per candidate
-              aggregator->Update();
-              vtkPolyData* last = aggregator->GetOutput();
+              aggregatorPtr->Update();
+              vtkPolyData* last = aggregatorPtr->GetOutput();
               vtkIdType voxels = last ? last->GetNumberOfPoints() : 0;
               ++progress;
               vtkLog(INFO,
@@ -320,27 +380,7 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Compute voxels ranking (ascending: smallest voxels => rank 1)
-  {
-    vtkIdType n = colVox->GetNumberOfTuples();
-    std::vector<std::pair<double, vtkIdType>> order;
-    order.reserve(static_cast<size_t>(n));
-    for (vtkIdType i = 0; i < n; ++i)
-    {
-      order.emplace_back(colVox->GetValue(i), i);
-    }
-    std::stable_sort(
-      order.begin(), order.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
-    std::vector<double> rank(static_cast<size_t>(n), 0.0);
-    for (vtkIdType i = 0; i < n; ++i)
-    {
-      rank[static_cast<size_t>(order[static_cast<size_t>(i)].second)] = static_cast<double>(i + 1);
-    }
-    colRank->SetNumberOfTuples(n);
-    for (vtkIdType i = 0; i < n; ++i)
-    {
-      colRank->SetValue(i, rank[static_cast<size_t>(i)]);
-    }
-  }
+  ComputeVoxelRanking(colVox, colRank);
 
   tableOutput->AddColumn(colRank);
   tableOutput->AddColumn(colRoll);
@@ -352,4 +392,60 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
   tableOutput->AddColumn(colVox);
 
   return 1;
+}
+
+//-----------------------------------------------------------------------------
+void vtkCalibrationEvaluation::SetBasePosition(double x, double y, double z)
+{
+  if (this->BasePosition[0] == x && this->BasePosition[1] == y && this->BasePosition[2] == z)
+  {
+    return;
+  }
+  this->BasePosition[0] = x;
+  this->BasePosition[1] = y;
+  this->BasePosition[2] = z;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCalibrationEvaluation::SetBaseRotationDeg(double roll, double pitch, double yaw)
+{
+  if (this->BaseRotationDeg[0] == roll && this->BaseRotationDeg[1] == pitch &&
+    this->BaseRotationDeg[2] == yaw)
+  {
+    return;
+  }
+  this->BaseRotationDeg[0] = roll;
+  this->BaseRotationDeg[1] = pitch;
+  this->BaseRotationDeg[2] = yaw;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCalibrationEvaluation::SetAggregator(vtkAggregatePointsFromTrajectoryOffline* agg)
+{
+  if (this->Aggregator == agg)
+  {
+    return;
+  }
+  // Remove previous observer if any
+  if (this->Aggregator && this->AggregatorObserverTag)
+  {
+    this->Aggregator->RemoveObserver(this->AggregatorObserverTag);
+    this->AggregatorObserverTag = 0;
+  }
+
+  this->Aggregator = agg;
+
+  vtkNew<vtkCallbackCommand> cb;
+  cb->SetClientData(this);
+  cb->SetCallback(
+    [](vtkObject*, unsigned long, void* clientData, void*)
+    {
+      auto self = reinterpret_cast<vtkCalibrationEvaluation*>(clientData);
+      self->Modified();
+    });
+  this->AggregatorObserverTag = this->Aggregator->AddObserver(vtkCommand::ModifiedEvent, cb);
+
+  this->Modified();
 }

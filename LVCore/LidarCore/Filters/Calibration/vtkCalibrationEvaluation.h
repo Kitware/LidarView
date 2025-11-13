@@ -18,6 +18,7 @@
 
 // VTK
 #include <string>
+#include <vtkSmartPointer.h>
 #include <vtkTableAlgorithm.h>
 
 #include "lvFiltersCalibrationModule.h"
@@ -43,6 +44,23 @@ class LVFILTERSCALIBRATION_EXPORT vtkCalibrationEvaluation : public vtkTableAlgo
 public:
   static vtkCalibrationEvaluation* New();
   vtkTypeMacro(vtkCalibrationEvaluation, vtkTableAlgorithm)
+
+  /**
+   * Aggregator subproxy setter. When provided via ServerManager
+   * SubProxy, the evaluation reuses this instance across candidates and
+   * calls Clear() between iterations instead of creating a new aggregator
+   * every time.
+   */
+  void SetAggregator(class vtkAggregatePointsFromTrajectoryOffline* agg);
+
+  ///@{
+  /**
+   * Whether to use upstream SensorTransform as the sweep center when available.
+   * If disabled, uses the user-provided Base Position/Rotation.
+   */
+  vtkSetMacro(UseUpstreamCalibration, bool);
+  vtkGetMacro(UseUpstreamCalibration, bool);
+  ///@}
 
   ///@{
   /**
@@ -108,6 +126,7 @@ protected:
   ~vtkCalibrationEvaluation() override = default;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
@@ -135,6 +154,43 @@ private:
   double VoxelLeafSize = 0.05;
   double CustomConversionFactorToSecond = 1e-6;
   double TimeOffset = 0.0;
+
+public:
+  ///@{
+  /**
+   * Base transform used as the center of the sweep, in meters and degrees.
+   * User-editable. Upstream values, if any, are exposed separately as information-only
+   * properties and can be used when UseUpstreamCalibration is enabled.
+   */
+  void SetBasePosition(double x, double y, double z);
+  vtkGetVector3Macro(BasePosition, double);
+
+  void SetBaseRotationDeg(double roll, double pitch, double yaw);
+  vtkGetVector3Macro(BaseRotationDeg, double);
+  ///@}
+
+  ///@{
+  /**
+   * Detected upstream calibration pose.
+   */
+  vtkGetMacro(UpstreamFound, bool);
+  vtkGetVector3Macro(UpstreamPosition, double);
+  vtkGetVector3Macro(UpstreamRotationDeg, double);
+  ///@}
+
+private:
+  double BasePosition[3] = { 0., 0., 0. };
+  double BaseRotationDeg[3] = { 0., 0., 0. };
+  bool UseUpstreamCalibration = true;
+  bool UpstreamFound = false;
+  double UpstreamPosition[3] = { 0., 0., 0. };
+  double UpstreamRotationDeg[3] = { 0., 0., 0. };
+
+  // Aggregator instance provided as a subproxy
+  vtkSmartPointer<class vtkAggregatePointsFromTrajectoryOffline> Aggregator;
+
+  // Observer tag to forward Aggregator ModifiedEvent
+  unsigned long AggregatorObserverTag = 0;
 };
 
 #endif // VTK_CALIBRATION_EVALUATE_H

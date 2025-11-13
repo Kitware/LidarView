@@ -3,7 +3,11 @@
     <SourceProxy name="CalibrationEvaluation"
                  class="vtkCalibrationEvaluation"
                  label="Evaluate Calibration">
-      <Documentation short_help="Sweep LiDAR extrinsics (RPY/XYZ) and rank by voxel occupancy" long_help="Sweeps roll/pitch/yaw and X/Y/Z around the LiDAR-trajectory transform, aggregates selected frames, and scores by occupied voxels (lower is better). Use to verify or fine-tune extrinsics; set sweep ranges/steps, frame subset/stride, and voxel leaf size."></Documentation>
+      <Documentation short_help="Sweep LiDAR extrinsics (RPY/XYZ) and rank by voxel occupancy">
+      Sweeps roll/pitch/yaw and X/Y/Z around the LiDAR-trajectory transform, aggregates selected frames,
+      and scores by occupied voxels (lower is better).
+      Use to verify or fine-tune extrinsics; set sweep ranges/steps, frame subset/stride, and voxel leaf size.
+      </Documentation>
 
       <InputProperty name="PointCloud"
                      port_index="0"
@@ -28,6 +32,82 @@
           <DataType value="vtkPolyData" />
         </DataTypeDomain>
       </InputProperty>
+
+      <IntVectorProperty name="Use Upstream Calibration"
+                         command="SetUseUpstreamCalibration"
+                         number_of_elements="1"
+                         default_values="1">
+        <BooleanDomain name="bool" />
+        <Documentation>When enabled, use the upstream SensorTransform (if found) as the sweep center. When disabled, use the user-provided Base Position/Rotation.</Documentation>
+      </IntVectorProperty>
+
+      <SubProxy command="SetAggregator">
+        <Proxy name="Aggregator"
+               proxygroup="filters"
+               proxyname="AggregatePointsFromTrajectoryOffline" />
+        <LinkProperties>
+          <Property name="PointCloud" with_property="PointCloud" />
+          <Property name="Trajectory" with_property="Trajectory" />
+        </LinkProperties>
+        <ExposedProperties>
+          <Property name="All Frames" />
+          <Property name="First Frame" />
+          <Property name="Last Frame" />
+          <Property name="Step Size" />
+          <Property name="Voxel Leaf Size" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <DoubleVectorProperty name="PositionInfo"
+                            command="GetBasePosition"
+                            number_of_elements="3"
+                            information_only="1"
+                            default_values="0 0 0">
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Position"
+                            command="SetBasePosition"
+                            number_of_elements="3"
+                            information_property="PositionInfo"
+                            default_values="0 0 0">
+        <Documentation>Base LiDAR position (meters) used as sweep center.</Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="Use Upstream Calibration"
+                                   value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="RotationInfo"
+                            command="GetBaseRotationDeg"
+                            number_of_elements="3"
+                            information_only="1"
+                            default_values="0 0 0">
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Rotation"
+                            command="SetBaseRotationDeg"
+                            number_of_elements="3"
+                            information_property="RotationInfo"
+                            default_values="0 0 0">
+        <Documentation>Base LiDAR orientation (roll, pitch, yaw in degrees) used as sweep center.</Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="Use Upstream Calibration"
+                                   value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Calibration Reference Pose">
+        <Property name="Position"/>
+        <Property name="Rotation"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Upstream Calibration">
+        <Property name="Use Upstream Calibration" />
+      </PropertyGroup>
 
       <DoubleVectorProperty name="Translation Range"
                             command="SetTranslationRangeM"
@@ -73,47 +153,12 @@
         <Property name="Angle Steps" />
       </PropertyGroup>
 
-      <IntVectorProperty name="All Frames"
-                         command="SetAllFrames"
-                         number_of_elements="1"
-                         default_values="0">
-        <BooleanDomain name="bool" />
-        <Documentation>Use all input frames when enabled. When disabled, the [First Frame, Last Frame] range with Step Size is used.</Documentation>
-      </IntVectorProperty>
-      <IntVectorProperty name="First Frame"
-                         command="SetFirstFrame"
-                         number_of_elements="1"
-                         default_values="100">
-        <Documentation>Start frame index (inclusive). Used only when All Frames is disabled.</Documentation>
-      </IntVectorProperty>
-      <IntVectorProperty name="Last Frame"
-                         command="SetLastFrame"
-                         number_of_elements="1"
-                         default_values="150">
-        <Documentation>End frame index (inclusive). Used only when All Frames is disabled.</Documentation>
-      </IntVectorProperty>
-      <IntVectorProperty name="Step Size"
-                         command="SetStepSize"
-                         number_of_elements="1"
-                         default_values="10">
-        <IntRangeDomain name="range" min="1" />
-        <Documentation>Frame stride within the selected range. 1 = use every frame.</Documentation>
-      </IntVectorProperty>
-
       <PropertyGroup label="Input frames">
         <Property name="All Frames" />
         <Property name="First Frame" />
         <Property name="Last Frame" />
         <Property name="Step Size" />
       </PropertyGroup>
-
-      <DoubleVectorProperty name="Voxel Leaf Size"
-                            command="SetVoxelLeafSize"
-                            number_of_elements="1"
-                            default_values="0.05">
-        <DoubleRangeDomain name="range" min="0.01" />
-        <Documentation>Downsampling resolution in meters for the voxel grid. Larger values yield coarser aggregation and typically lower voxel counts.</Documentation>
-      </DoubleVectorProperty>
 
       <PropertyGroup label="Voxel grid parameters">
         <Property name="Voxel Leaf Size" />
