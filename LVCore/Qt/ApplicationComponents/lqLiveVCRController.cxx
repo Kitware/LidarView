@@ -19,8 +19,6 @@
 #include <QPointer>
 #include <QtDebug>
 
-#include <lqSensorListWidget.h>
-
 #include <pqAnimationScene.h>
 #include <pqApplicationCore.h>
 #include <pqLiveSourceItem.h>
@@ -40,6 +38,9 @@
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 #include <vtkSMSourceProxy.h>
+
+#include "lqHelper.h"
+#include "vtkSMLidarReaderProxy.h"
 
 #include <QList>
 
@@ -80,7 +81,6 @@ lqLiveVCRController::lqLiveVCRController(QObject* _parent)
   // If a stream is started change the current mode.
   auto streamModeChanged = [this]()
   {
-    Q_EMIT this->modeChanged(this->getCurrentMode());
     if (this->getCurrentMode() == PlayMode::STREAM)
     {
       // We want the stream to start automatically.
@@ -94,10 +94,13 @@ lqLiveVCRController::lqLiveVCRController(QObject* _parent)
       Q_EMIT this->playing(false, false);
     }
   };
-  this->connect(
-    lqSensorListWidget::instance(), &lqSensorListWidget::lidarStreamModeChanged, streamModeChanged);
+  this->connect(this, &lqLiveVCRController::modeChanged, streamModeChanged);
 
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+  this->connect(
+    smmodel, &pqServerManagerModel::sourceAdded, this, &lqLiveVCRController::onSourceAdded);
+  this->connect(
+    smmodel, &pqServerManagerModel::sourceRemoved, this, &lqLiveVCRController::onSourceRemoved);
 
   // Emit timeChanged signal when data is updated.
   auto onSourceTimeUpdated = [this]()
@@ -151,7 +154,7 @@ lqLiveVCRController::PlayMode lqLiveVCRController::getCurrentMode()
   {
     return PlayMode::DISABLED;
   }
-  return lqSensorListWidget::instance()->isInLiveSensorMode() ? PlayMode::STREAM : this->ReaderMode;
+  return this->IsStream ? PlayMode::STREAM : this->ReaderMode;
 }
 
 //-----------------------------------------------------------------------------
@@ -395,4 +398,32 @@ double lqLiveVCRController::getSceneTime()
     return tk->getTime();
   }
   return 0.;
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onSourceAdded(pqPipelineSource* src)
+{
+  if (IsLidarProxy(src->getProxy()))
+  {
+    bool isReader = vtkSMLidarReaderProxy::SafeDownCast(src->getProxy()) != nullptr;
+
+    if (!this->IsStream && !isReader)
+    {
+      this->IsStream = true;
+      Q_EMIT this->modeChanged(this->getCurrentMode());
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void lqLiveVCRController::onSourceRemoved(pqPipelineSource* src)
+{
+  if (IsLidarProxy(src->getProxy()))
+  {
+    if (IsLidarStreamProxy(src->getProxy()) && !this->IsStream)
+    {
+      this->IsStream = false;
+      Q_EMIT this->modeChanged(this->getCurrentMode());
+    }
+  }
 }

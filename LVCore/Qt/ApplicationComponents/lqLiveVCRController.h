@@ -121,6 +121,10 @@ Q_SIGNALS:
    */
   void modeChanged(PlayMode mode);
 
+private Q_SLOTS:
+  void onSourceAdded(pqPipelineSource* src);
+  void onSourceRemoved(pqPipelineSource* src);
+
 private:
   Q_DISABLE_COPY(lqLiveVCRController)
 
@@ -129,6 +133,7 @@ private:
 
 private:
   PlayMode ReaderMode = PlayMode::ALL_FRAMES;
+  bool IsStream = false;
   double LastSceneTime = 0.;
 };
 
