@@ -69,7 +69,7 @@ lidarcoreplugin_add_module_xml(
     Filters/ThresholdPoints.xml
 )
 
-set(xml_files
+set(filters_processing_xml_files
   Filters/PlaneProjector.xml
   Filters/RansacPlaneModel.xml
   Filters/EuclideanCompare.xml
@@ -79,11 +79,11 @@ set(xml_files
 )
 
 if (TARGET VTK::ImagingMorphological)
-  list(APPEND xml_files Filters/ImageBasedClustering.xml)
+  list(APPEND filters_processing_xml_files Filters/ImageBasedClustering.xml)
 endif ()
 
 if (LIDARVIEW_USE_NANOFLANN)
-  list(APPEND xml_files
+  list(APPEND filters_processing_xml_files
     Filters/AdaptiveOutlierRemoval.xml
     Filters/ComputeNormalAdaptive.xml)
 endif()
@@ -91,7 +91,7 @@ endif()
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersProcessing
   XML_MODULE_FILES
-    ${xml_files}
+    ${filters_processing_xml_files}
 )
 
 lidarcoreplugin_add_module_xml(
