@@ -66,6 +66,7 @@ lidarcoreplugin_add_module_xml(
     Filters/ClipPoints.xml
     Filters/RPMText.xml
     Filters/SelectPointsByScalars.xml
+    Filters/NormalizeExternalSensorData.xml
     Filters/ThresholdPoints.xml
 )
 
@@ -149,6 +150,7 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::IOGeneral
   XML_MODULE_FILES
     IO/PCDWriter.xml
+    IO/ExternalSensorReader.xml
 )
 
 lidarcoreplugin_add_module_xml(
@@ -217,7 +219,10 @@ if (LIDARVIEW_USE_QT)
     lqConditionalDefaultPropertyWidgetDecorator.cxx
     lqConditionalDefaultPropertyWidgetDecorator.h
     lqLidarCorePluginManager.cxx
-    lqLidarCorePluginManager.h)
+    lqLidarCorePluginManager.h
+    lqMultiColumnSelectorWidget.cxx     
+    lqMultiColumnSelectorWidget.h
+    )   
 
   paraview_plugin_add_property_widget(
     KIND WIDGET
@@ -233,6 +238,14 @@ if (LIDARVIEW_USE_QT)
     INTERFACES conditional_default_decorator_interfaces
     SOURCES conditional_default_decorator_sources)
 
+  paraview_plugin_add_property_widget(
+    KIND WIDGET
+    TYPE "multi_column_selector_widget"
+    CLASS_NAME lqMultiColumnSelectorWidget
+    INTERFACES multi_column_selector_widget_interfaces
+    SOURCES multi_column_selector_widget_sources)
+
+
   paraview_plugin_add_auto_start(
     CLASS_NAME lqLidarCorePluginManager
     STARTUP onStartup
@@ -243,11 +256,13 @@ if (LIDARVIEW_USE_QT)
   list(APPEND interfaces
     ${calibration_file_widget_interfaces}
     ${conditional_default_decorator_interfaces}
-    ${autostart_interface})
+    ${autostart_interface}
+    ${multi_column_selector_widget_interfaces})
   list(APPEND sources
     ${calibration_file_widget_sources}
     ${conditional_default_decorator_sources}
-    ${autostart_sources})
+    ${autostart_sources}
+    ${multi_column_selector_widget_sources})
 
   set(qrc_files
     Resources/lqFilters.qrc
