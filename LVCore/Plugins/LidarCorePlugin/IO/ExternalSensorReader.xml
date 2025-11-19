@@ -1,0 +1,99 @@
+<ServerManagerConfiguration>
+    <ProxyGroup name="sources">
+        <SourceProxy name="ExternalSensorReader"
+                     label="External Sensor Reader"
+                     class="vtkExternalSensorReader">
+
+            <StringVectorProperty name="FileName"
+                                  command="SetFileName"
+                                  number_of_elements="1"
+                                  panel_visibility="never">
+                <FileListDomain name="files" />
+                <Documentation>CSV file containing external sensor data.</Documentation>
+            </StringVectorProperty>
+
+            <SubProxy command="SetNormalizer">
+                <Proxy name="Normalizer"
+                       proxygroup="filters"
+                       proxyname="NormalizeExternalSensorData" />
+                <ExposedProperties>
+                    <PropertyGroup label="Captor Selection">
+                        <Property name="UseIMU" />
+                        <Property name="UseGNSS" />
+                        <Property name="UseINS" />
+                        <Property name="UseOdometry" />
+                    </PropertyGroup>
+                    <PropertyGroup label="IMU Transform">
+                        <Property name="IMUPosition" />
+                        <Property name="IMURotation" />
+                        <Hints>
+                            <PropertyWidgetDecorator type="GenericDecorator"
+                                                     mode="visibility"
+                                                     property="UseIMU"
+                                                     value="1" />
+                        </Hints>
+                    </PropertyGroup>
+                    <PropertyGroup label="Pose Transform">
+                        <Property name="PosePosition" />
+                        <Property name="PoseRotation" />
+                        <Hints>
+                            <PropertyWidgetDecorator type="CompositeDecorator">
+                                <Expression type="or">
+                                    <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseGNSS" value="1" />
+                                    <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseINS" value="1" />
+                                </Expression>
+                            </PropertyWidgetDecorator>
+                        </Hints>
+                    </PropertyGroup>
+                    <PropertyGroup label="Odometry Transform">
+                        <Property name="OdometryPosition" />
+                        <Property name="OdometryRotation" />
+                        <Hints>
+                            <PropertyWidgetDecorator type="GenericDecorator"
+                                                     mode="visibility"
+                                                     property="UseOdometry"
+                                                     value="1" />
+                        </Hints>
+                    </PropertyGroup>
+                    <PropertyGroup label="Column Mapping">
+                        <Property name="Widget" />
+                        <Property name="IMUAccXColumn" panel_visibility="never" />
+                        <Property name="IMUAccYColumn" panel_visibility="never" />
+                        <Property name="IMUAccZColumn" panel_visibility="never" />
+                        <Property name="IMUGyroXColumn" panel_visibility="never" />
+                        <Property name="IMUGyroYColumn" panel_visibility="never" />
+                        <Property name="IMUGyroZColumn" panel_visibility="never" />
+                        <Property name="GNSSXColumn" panel_visibility="never" />
+                        <Property name="GNSSYColumn" panel_visibility="never" />
+                        <Property name="GNSSZColumn" panel_visibility="never" />
+                        <Property name="RollColumn" panel_visibility="never" />
+                        <Property name="PitchColumn" panel_visibility="never" />
+                        <Property name="YawColumn" panel_visibility="never" />
+                        <Property name="OdometryColumn" panel_visibility="never" />
+                        <Property name="TimeColumn" panel_visibility="never" />
+                    </PropertyGroup>
+                    <PropertyGroup label="IMU Acc Units (CSV)">
+                        <Property name="IMUAccelerationUnits" />
+                    </PropertyGroup>
+                    <PropertyGroup label="IMU Gyro Units (CSV)">
+                        <Property name="IMUGyroUnits" />
+                    </PropertyGroup>
+                    <PropertyGroup label="GNSS Position Units (CSV)">
+                        <Property name="GNSSPositionUnits" />
+                    </PropertyGroup>
+                    <PropertyGroup label="INS Euler Units (CSV)">
+                        <Property name="GNSSEulerUnits" />
+                    </PropertyGroup>
+                    <PropertyGroup label="Odometry Units (CSV)">
+                        <Property name="OdometryUnits" />
+                    </PropertyGroup>
+                </ExposedProperties>
+            </SubProxy>
+
+            <Hints>
+                <ReaderFactory extensions="csv" file_description="External Sensor CSV" />
+            </Hints>
+
+        </SourceProxy>
+    </ProxyGroup>
+</ServerManagerConfiguration>
