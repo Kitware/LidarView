@@ -577,6 +577,30 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::RedistributeClusterIdByDepth(std::vector<int>& newClusterIds)
+{
+  // Sort clusters based on their average depth values
+  std::sort(this->ClustersStats.begin(),
+    this->ClustersStats.end(),
+    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
+    { return cluster1.MeanDepth < cluster2.MeanDepth; });
+  // Save new cluster id
+  int newClusterId = 0;
+  for (auto& cluster : this->ClustersStats)
+  {
+    newClusterIds[cluster.ClusterId] = newClusterId;
+    ++newClusterId;
+  }
+  // Reset cluster id for points and cluster stats
+  newClusterId = 0;
+  for (auto& cluster : this->ClustersStats)
+  {
+    cluster.ClusterId = newClusterId;
+    ++newClusterId;
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::CreateClustersOutput(
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
   vtkSmartPointer<vtkTable> infoOutput)
@@ -731,25 +755,9 @@ void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkP
   }
 
   // Sort clusters based on their average depth values
-  std::sort(this->ClustersStats.begin(),
-    this->ClustersStats.end(),
-    [](const ClusterStats& cluster1, const ClusterStats& cluster2)
-    { return cluster1.MeanDepth < cluster2.MeanDepth; });
   std::vector<int> newClusterIds(numClusters);
-  int newClusterId = 0;
-  for (auto& cluster : this->ClustersStats)
-  {
-    newClusterIds[cluster.ClusterId] = newClusterId;
-    ++newClusterId;
-  }
-
-  // Reset cluster id for points and cluster stats
-  newClusterId = 0;
-  for (auto& cluster : this->ClustersStats)
-  {
-    cluster.ClusterId = newClusterId;
-    ++newClusterId;
-  }
+  this->RedistributeClusterIdByDepth(newClusterIds);
+  // Label points with new clusterId
   auto clusterIdArray = polydata->GetPointData()->GetArray("ClusterId");
   for (vtkIdType pointId = 0; pointId < polydata->GetNumberOfPoints(); pointId++)
   {

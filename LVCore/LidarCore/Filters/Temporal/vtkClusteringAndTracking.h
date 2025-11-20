@@ -405,6 +405,9 @@ private:
     const std::vector<int>& clusterPtIndices,
     const int clusterId);
 
+  // Distribute clusterId by depth
+  void RedistributeClusterIdByDepth(std::vector<int>& newClusterIds);
+
   // Create outputs
   void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
     vtkSmartPointer<vtkTable> infoOutput);
