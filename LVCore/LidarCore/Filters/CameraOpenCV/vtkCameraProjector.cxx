@@ -257,16 +257,24 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  // Invalidate calibration file before processing to ensure latest parameters/file are applied.
+  this->ModelValid = false;
+
   if (!this->UseCalibrationFile)
   {
     this->SetCameraModelParams();
     this->ModelValid = true;
   }
 
-  if (!this->ModelValid)
+  // If using a calibration file and model not yet validated, attempt to load now (Apply time)
+  if (this->UseCalibrationFile && !this->ModelValid)
   {
-    vtkErrorMacro("Camera model is not valid");
-    return 0;
+    this->ModelValid = this->Model.LoadParamsFromFile(this->Filename);
+    if (!this->ModelValid)
+    {
+      vtkWarningMacro(
+        "Calibration parameters not available. Please load from file or enter manually.");
+    }
   }
 
   // Get inputs
@@ -305,6 +313,23 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     vtkPolyData::GetData(outputVector->GetInformationObject(POINTS_OUTPUT_PORT));
   vtkPolyData* projectedCloud =
     vtkPolyData::GetData(outputVector->GetInformationObject(PROJECTED_POINTS_OUTPUT_PORT));
+
+  // If model is still invalid at Apply time, do a pass-through:
+  // copy input image, and output empty clouds.
+  if (!this->ModelValid)
+  {
+    if (inImg)
+    {
+      outImg->DeepCopy(inImg);
+    }
+    else
+    {
+      outImg->Initialize();
+    }
+    outCloud->Initialize();
+    projectedCloud->Initialize();
+    return 1;
+  }
 
   vtkNew<vtkImageData> inputImg;
 
@@ -594,29 +619,13 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkCameraProjector::SetUseCalibrationFile(bool argUseCalibrationFile)
 {
   this->UseCalibrationFile = argUseCalibrationFile;
-  if (this->UseCalibrationFile)
-  {
-    this->SetFileName(this->Filename);
-  }
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkCameraProjector::SetFileName(const std::string& argfilename)
 {
-  if (!this->UseCalibrationFile)
-  {
-    return;
-  }
   this->Filename = argfilename;
-  int ret = this->Model.LoadParamsFromFile(this->Filename);
-  if (!ret)
-  {
-    vtkWarningMacro("Calibration parameters could not be read from file.");
-    this->ModelValid = false;
-    return;
-  }
-  this->ModelValid = true;
   this->Modified();
 }
 
