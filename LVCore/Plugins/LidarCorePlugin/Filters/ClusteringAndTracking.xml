@@ -38,6 +38,46 @@
       </Documentation>
     </Property>
 
+    <StringVectorProperty name="Depth array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="0;0;0;0;distance_m"
+                          panel_visibility="advanced">
+        <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Choose the input array of depth value
+      </Documentation>
+    </StringVectorProperty>
+
+    <StringVectorProperty name="Intensity array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="1;0;0;0;intensity"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Choose the input array of intensity/reflectivity
+      </Documentation>
+    </StringVectorProperty>
+
+    <PropertyGroup label="Input / Output options">
+      <Property name="Reset" />
+      <Property name="Depth array" />
+      <Property name="Intensity array" />
+    </PropertyGroup>
+
     <!-- ============================ Clustering and tracking ============================ -->
     <IntVectorProperty name="Cluster extractor"
                         command="SetClusterExtractor"

@@ -466,6 +466,23 @@ void vtkClusteringAndTracking::Reset()
 }
 
 //-----------------------------------------------------------------------------
+double vtkClusteringAndTracking::ComputeDepth(vtkSmartPointer<vtkPolyData> input, const int pointId)
+{
+  double depth = 0.;
+  if (this->DepthArrayName.empty())
+  {
+    Eigen::Vector3d point;
+    input->GetPoint(pointId, point.data());
+    depth = point.norm();
+  }
+  else
+  {
+    depth = input->GetPointData()->GetArray(this->DepthArrayName.c_str())->GetTuple1(pointId);
+  }
+  return depth;
+}
+
+//-----------------------------------------------------------------------------
 vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterStats(
   vtkSmartPointer<vtkPolyData> input,
   const std::vector<int>& clusterPtIndices,
@@ -479,44 +496,16 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
   ClusterStats clusterInfo;
   // Calculate the average depth value and bounding box for this cluster
   double depth = 0.0;
-  bool hasDepth = false;
-  std::string depthName;
   double intensity = 0.0;
-  bool hasIntensity = false;
-  std::string intensityName;
-  // Check depth array
-  if (input->GetPointData()->HasArray("distance_m"))
-  {
-    hasDepth = true;
-    depthName = "distance_m";
-  }
-  else if (input->GetPointData()->HasArray("Distance"))
-  {
-    hasDepth = true;
-    depthName = "Distance";
-  }
-  // Check intensity array
-  if (input->GetPointData()->HasArray("intensity"))
-  {
-    hasIntensity = true;
-    intensityName = "intensity";
-  }
-  else if (input->GetPointData()->HasArray("Reflectivity"))
-  {
-    hasIntensity = true;
-    intensityName = "Reflectivity";
-  }
   for (const auto& pointId : clusterPtIndices)
   {
     Eigen::Vector3d point;
     input->GetPoint(pointId, point.data());
     clusterPoints->InsertNextPoint(point.data());
-    double dist = hasDepth
-      ? input->GetPointData()->GetArray(depthName.c_str())->GetTuple1(pointId)
-      : std::sqrt(point[0] * point[0] + point[1] * point[2] + point[2] * point[2]);
-    depth += dist;
-    if (hasIntensity)
-      intensity += input->GetPointData()->GetArray(intensityName.c_str())->GetTuple1(pointId);
+    depth += this->ComputeDepth(input, pointId);
+    if (!this->IntensityArrayName.empty())
+      intensity +=
+        input->GetPointData()->GetArray(this->IntensityArrayName.c_str())->GetTuple1(pointId);
   }
   int nbClusterPoints = clusterPtIndices.size();
   clusterInfo.ClusterId = clusterId;
@@ -1152,20 +1141,6 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
   polydata->GetPointData()->AddArray(pointLabel);
 
 #ifdef LIDARVIEW_USE_NANOFLANN
-  // Check depth array
-  bool hasDepth = false;
-  std::string depthName;
-  if (polydata->GetPointData()->HasArray("distance_m"))
-  {
-    hasDepth = true;
-    depthName = "distance_m";
-  }
-  else if (polydata->GetPointData()->HasArray("Distance"))
-  {
-    hasDepth = true;
-    depthName = "Distance";
-  }
-
   vtkKDTreeVTKAdaptor kDTree;
   kDTree.Reset(polydata);
   auto numPoints = polydata->GetNumberOfPoints();
@@ -1176,12 +1151,8 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
   {
     if (visited[id])
       continue;
-    double point[3];
-    polydata->GetPoint(id, point);
     // Get depth value
-    double depth = hasDepth
-      ? polydata->GetPointData()->GetArray(depthName.c_str())->GetTuple1(id)
-      : std::sqrt(point[0] * point[0] + point[1] * point[2] + point[2] * point[2]);
+    double depth = this->ComputeDepth(polydata, id);
     // Compute the search radius depending on depth
     float radius = this->ClusterRadius + this->Factor * depth;
     // Clustering
@@ -1274,6 +1245,12 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* clustersOutput =
     vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   vtkTable* clusterInfoOutput = vtkTable::GetData(outputVector, CLUSTERS_TEXT_OUTPUT_PORT);
+
+  // Get array name
+  this->DepthArrayName =
+    this->GetInputArrayToProcess(0, input) ? this->GetInputArrayToProcess(0, input)->GetName() : "";
+  this->IntensityArrayName =
+    this->GetInputArrayToProcess(1, input) ? this->GetInputArrayToProcess(1, input)->GetName() : "";
 
   // Extract clusters
   clustersPointsOutput->ShallowCopy(input);

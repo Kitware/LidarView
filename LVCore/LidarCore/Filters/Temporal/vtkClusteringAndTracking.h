@@ -95,6 +95,10 @@ private:
   vtkClusteringAndTracking(const vtkClusteringAndTracking&);
   void operator=(const vtkClusteringAndTracking&);
 
+  // Array to use to fill points data
+  std::string DepthArrayName;
+  std::string IntensityArrayName;
+
   // Parameters to extract clusters
   enum Extractor
   {
@@ -420,6 +424,9 @@ private:
   ClusterStats ComputeClusterStats(vtkSmartPointer<vtkPolyData> input,
     const std::vector<int>& clusterPtIndices,
     const int clusterId);
+
+  // Compute depth value for one point
+  double ComputeDepth(vtkSmartPointer<vtkPolyData> input, const int pointId);
 
   // Distribute clusterId by depth
   void RedistributeClusterIdByDepth(std::vector<int>& newClusterIds);
