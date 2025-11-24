@@ -279,7 +279,8 @@ void vtkClusteringAndTracking::GaussianMixture3D::UpdateClusters()
     bool stillAlive = it->UpdateTTL();
 
     // Erase the gaussian if it is not alive
-    if (!stillAlive || int(it->PointsId.size()) < this->GaussianClusterMinNbPoints)
+    if (!stillAlive ||
+      static_cast<unsigned int>(it->PointsId.size()) < this->GaussianClusterMinNbPoints)
     {
       // erase current iterator and get next on
       it = this->Gaussians.erase(it);
@@ -332,7 +333,7 @@ void vtkClusteringAndTracking::SetClusterRadius(double radius)
 }
 
 //----------------------------------------------------------------------------
-void vtkClusteringAndTracking::SetClusterMinNbPoints(int minNbPoints)
+void vtkClusteringAndTracking::SetClusterMinNbPoints(unsigned int minNbPoints)
 {
   if (this->ClusterMinNbPoints != minNbPoints)
   {
@@ -741,8 +742,7 @@ void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkP
   {
     auto& clusterId = clus.first;  // shortcut for clusterId
     auto& ptIndices = clus.second; // shortcut for point indices
-    int nbClusterPoints = ptIndices.size();
-    if (nbClusterPoints < this->ClusterMinNbPoints)
+    if (ptIndices.size() < this->ClusterMinNbPoints)
     {
       for (const auto& pointId : ptIndices)
       {
@@ -808,8 +808,7 @@ void vtkClusteringAndTracking::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyDat
   this->ClustersStats.clear();
   for (unsigned int id = 0; id < clusters.size(); ++id)
   {
-    int nbClusterPoints = clusters[id].size();
-    if (nbClusterPoints < this->ClusterMinNbPoints)
+    if (clusters[id].size() < this->ClusterMinNbPoints)
       continue;
 
     // Label points with their cluster Id
@@ -1100,8 +1099,7 @@ void vtkClusteringAndTracking::ExtractClustersWithRegionGrowing(
     auto& clusId = clusPts.first;
     auto& clusPtsId = clusPts.second;
 
-    int nbClusterPoints = clusPtsId.size();
-    if (nbClusterPoints < this->ClusterMinNbPoints)
+    if (clusPtsId.size() < this->ClusterMinNbPoints)
       continue;
 
     // Label points with their cluster Id

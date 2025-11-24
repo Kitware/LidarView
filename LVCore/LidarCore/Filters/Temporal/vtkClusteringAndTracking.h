@@ -57,7 +57,7 @@ public:
   // Set the minimum radius of a cluster
   void SetClusterRadius(double radius);
   // Set the minimum number of points in a cluster
-  void SetClusterMinNbPoints(int minNbPoints);
+  void SetClusterMinNbPoints(unsigned int minNbPoints);
   // Set grid resolution for region growing method
   void SetClusterGridResolution(float resolution);
   // Set to enable the use of background grid
@@ -103,7 +103,7 @@ private:
   // Minimum radius of a cluster
   double ClusterRadius = 0.4;
   // Minimum number of points of a cluster
-  int ClusterMinNbPoints = 5;
+  unsigned int ClusterMinNbPoints = 5;
   // Grid resolution for region growing method
   float ClusterGridResolution = 0.1;
   // Use background grid to remove outliers
@@ -266,7 +266,7 @@ private:
     void SetCovCoeff(double clusterSize) { this->CovCoeff = std::pow(clusterSize, 2.); }
 
     void SetGaussianClusterRadius(double clusterSize) { this->GaussianClusterRadius = clusterSize; }
-    void SetGaussianClusterMinNbPoints(int minNumber)
+    void SetGaussianClusterMinNbPoints(unsigned int minNumber)
     {
       this->GaussianClusterMinNbPoints = minNumber;
     }
@@ -310,7 +310,7 @@ private:
     // To initialiaze covariance with 0.2 research radius
     double CovCoeff = 0.04;
     // Minimum points to form a cluster
-    int GaussianClusterMinNbPoints = 10;
+    unsigned int GaussianClusterMinNbPoints = 10;
     // Radius to search for cluster
     double GaussianClusterRadius = 0.5;
     // Iterator to the cluster whose mean value is the closest to the point
