@@ -414,17 +414,30 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   // a range [Dmin, Dmax] over all points.
   Eigen::Matrix3d Rext = RollPitchYawToMatrix(W(0), W(1), W(2));
   Eigen::Vector3d Text(W(3), W(4), W(5));
+  // Determine distance range for overlay coloring.
+  // Prefer using a precomputed array named "distance_m" if available.
   double Dmin = 0.0, Dmax = 1.0;
-  ComputeCameraDistanceRange(pointcloud,
-    timestampArray,
-    canUndistort,
-    this->Trajectory,
-    poseAtPointTimeTemp,
-    poseAtCameraTime,
-    Rext,
-    Text,
-    Dmin,
-    Dmax);
+  vtkDataArray* distanceArray = pointcloud->GetPointData()->GetArray("distance_m");
+  if (distanceArray)
+  {
+    double range[2] = {0.0, 1.0};
+    distanceArray->GetRange(range);
+    Dmin = range[0];
+    Dmax = range[1];
+  }
+  else
+  {
+    Utils::ComputeCameraDistanceRange(pointcloud,
+      timestampArray,
+      canUndistort,
+      this->Trajectory,
+      poseAtPointTimeTemp,
+      poseAtCameraTime,
+      Rext,
+      Text,
+      Dmin,
+      Dmax);
+  }
 
   // Project the points in the image
   vtkIdType numPoints = 0;
@@ -521,7 +534,14 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      v = dist;
+      if (distanceArray)
+      {
+        v = distanceArray->GetTuple1(pointIndex);
+      }
+      else
+      {
+        v = dist;
+      }
       vmin = Dmin;
       vmax = Dmax;
     }
