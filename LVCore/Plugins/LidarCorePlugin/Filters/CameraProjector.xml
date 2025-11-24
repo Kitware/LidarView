@@ -2,10 +2,11 @@
   <!-- Begin CameraProjector -->
   <ProxyGroup name="filters">
     <SourceProxy name="CameraProjector" class="vtkCameraProjector" label="Camera Projector">
-      <Documentation
-        short_help="Project 3D points into the image using a camera model"
-        long_help="Project 3D points into the image using a camera model. To improve the result, 
-        give the path to the video in the filter properties rather than giving the video as input.">
+      <Documentation short_help="Project 3D points onto an image/video using a camera model">
+        Projects 3D points onto an image or a video frame using a camera model.
+        You can either connect an image/video as input or set a video path in properties.
+        When image coordinate origin differs (OpenCV top-left vs VTK bottom-left),
+        the overlay is automatically flipped vertically to match.
       </Documentation>
 
       <InputProperty
@@ -22,12 +23,17 @@
       </InputProperty>
 
       <InputProperty
-        name="Video"
+        name="Video or Image"
         port_index="0"
         command="SetInputConnection">
         <DataTypeDomain name="input_type">
           <DataType value="vtkImageData"/>
         </DataTypeDomain>
+        <Documentation>
+          Optional image or video-frame input. If not provided, the filter can read frames from the
+          path. The overlay automatically accounts for image origin differences
+          by flipping vertically when needed.
+        </Documentation>
       </InputProperty>
 
       <InputProperty
@@ -68,7 +74,7 @@
                             number_of_elements="1"
                             default_values="0">
         <Documentation>
-          This property specifies the time offset of the video. 
+          This property specifies the time offset of the video.
         </Documentation>
       </DoubleVectorProperty>
 
