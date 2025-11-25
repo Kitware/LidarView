@@ -48,15 +48,6 @@ public:
 
   ///@{
   /**
-   * Set/Get the component to threshold. Set this to a value greater than the number of
-   * components in the selected data array to threshold by magnitude.
-   */
-  vtkSetMacro(InputArrayComponent, int);
-  vtkGetMacro(InputArrayComponent, int);
-  ///@}
-
-  ///@{
-  /**
    * If InvertSelection is true, select points whose scalar value does NOT
    * match any of the specified values.
    */
@@ -76,7 +67,6 @@ private:
   void operator=(const vtkSelectPointsByScalars&);
 
   bool InvertSelection = false;
-  int InputArrayComponent = 0;
   std::vector<int> ValuesToProcess;
 };
 
