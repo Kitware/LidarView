@@ -42,6 +42,7 @@
  * Output1: Clusters points
  * Output2: Clusters statistics
  * Output3: Text of clusters information for display purpose
+ * Output4: 3d text of a cluster statistic displayed around the corresponded cluster
  */
 class LVFILTERSTEMPORAL_EXPORT vtkClusteringAndTracking : public vtkPolyDataAlgorithm
 {
@@ -423,22 +424,26 @@ private:
   // Extract clusters with vtkEuclideanClusterExtraction method
   void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput);
+    vtkSmartPointer<vtkTable> infoOutput,
+    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
 
   // Extract clusters with gaussian mixture model method
   void ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput);
+    vtkSmartPointer<vtkTable> infoOutput,
+    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
 
   // Extract clusters with region growing method
   void ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput);
+    vtkSmartPointer<vtkTable> infoOutput,
+    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
 
   // Extract clusters with adaptive euclidean cluster
   void ExtractClustersWithAdaptiveEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput);
+    vtkSmartPointer<vtkTable> infoOutput,
+    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
 
   // Functions to construct clustering grid
   void InitClusteringGrid(vtkPolyData* polydata);
@@ -457,7 +462,8 @@ private:
 
   // Create outputs
   void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput);
+    vtkSmartPointer<vtkTable> infoOutput,
+    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
 };
 
 #endif // VTK_CLUSTERING_H

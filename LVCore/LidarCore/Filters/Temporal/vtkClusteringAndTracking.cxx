@@ -55,6 +55,7 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedShortArray.h>
+#include <vtkVectorText.h>
 
 // STD
 #include <iomanip>
@@ -68,7 +69,8 @@ constexpr unsigned int INPUT_PORT_COUNT = 1;
 constexpr unsigned int CLUSTERS_POINTS_OUTPUT_PORT = 0;
 constexpr unsigned int CLUSTERS_OUTPUT_PORT = 1;
 constexpr unsigned int CLUSTERS_TEXT_OUTPUT_PORT = 2;
-constexpr unsigned int OUTPUT_PORT_COUNT = 3;
+constexpr unsigned int CLUSTERS_3DTEXT_OUTPUT_PORT = 3;
+constexpr unsigned int OUTPUT_PORT_COUNT = 4;
 
 // Implementation of the New function
 vtkStandardNewMacro(vtkClusteringAndTracking)
@@ -109,6 +111,11 @@ int vtkClusteringAndTracking::FillOutputPortInformation(int port, vtkInformation
   if (port == CLUSTERS_TEXT_OUTPUT_PORT)
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
+    return 1;
+  }
+  if (port == CLUSTERS_3DTEXT_OUTPUT_PORT)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
     return 1;
   }
 
@@ -613,7 +620,8 @@ void vtkClusteringAndTracking::RedistributeClusterIdByDepth(std::vector<int>& ne
 //-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::CreateClustersOutput(
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-  vtkSmartPointer<vtkTable> infoOutput)
+  vtkSmartPointer<vtkTable> infoOutput,
+  vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput)
 {
   // Add bounding box for each cluster into output
   int blockId = 0;
@@ -681,7 +689,52 @@ void vtkClusteringAndTracking::CreateClustersOutput(
 
     clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
 
-    ++blockId;
+    // Create 3d text to display cluster information
+    vtkNew<vtkVectorText> text3D;
+    std::ostringstream txt;
+    txt << this->ClusterDisplayStatNames.at(this->ClusterInfoToDisplay) << ": "
+        << std::setprecision(2);
+    switch (this->ClusterInfoToDisplay)
+    {
+      case CLUSTER_ID:
+        txt << cluster.ClusterId;
+        break;
+      case NB_POINTS:
+        txt << cluster.NbPoints;
+        break;
+      case HEIGHT:
+        txt << cluster.Height << " m";
+        break;
+      case DEPTH:
+        txt << cluster.MeanDepth << " m";
+        break;
+      case INTENSITY:
+        txt << cluster.MeanIntensity;
+        break;
+    }
+    text3D->SetText(txt.str().c_str());
+    text3D->Update();
+
+    vtkNew<vtkTransform> transform;
+    auto center = cluster.BoundingBox.GetTrueCenter();
+    transform->Translate(center.x(), center.y(), center.z() + cluster.Height * 0.6);
+    transform->RotateX(90);
+    transform->RotateY(-90);
+    transform->Scale(0.5, 0.5, 0.5);
+
+    vtkNew<vtkTransformPolyDataFilter> tfText;
+    tfText->SetInputConnection(text3D->GetOutputPort());
+
+    tfText->SetTransform(transform);
+    tfText->Update();
+
+    vtkSmartPointer<vtkPolyData> labelPoly = tfText->GetOutput();
+    clusters3DTextOutput->SetBlock(blockId, labelPoly);
+    std::string labelblockName("Cluster-" + std::to_string(cluster.ClusterId));
+    clusters3DTextOutput->GetMetaData(blockId)->Set(
+      vtkCompositeDataSet::NAME(), labelblockName.c_str());
+    clusters3DTextOutput->GetBlock(blockId)->SetFieldData(fieldData);
+    blockId++;
   }
 
   // Print clusters info
@@ -704,7 +757,8 @@ void vtkClusteringAndTracking::CreateClustersOutput(
 //-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-  vtkSmartPointer<vtkTable> infoOutput)
+  vtkSmartPointer<vtkTable> infoOutput,
+  vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput)
 {
   if (polydata->GetNumberOfPoints() == 0)
   {
@@ -777,13 +831,14 @@ void vtkClusteringAndTracking::ExtractClustersWithEuclidean(vtkSmartPointer<vtkP
   }
 
   // Create output of clusters information
-  this->CreateClustersOutput(clustersOutput, infoOutput);
+  this->CreateClustersOutput(clustersOutput, infoOutput, clusters3DTextOutput);
 }
 
 //-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-  vtkSmartPointer<vtkTable> infoOutput)
+  vtkSmartPointer<vtkTable> infoOutput,
+  vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput)
 {
   if (polydata->GetNumberOfPoints() == 0)
   {
@@ -839,14 +894,15 @@ void vtkClusteringAndTracking::ExtractClustersWithGMM(vtkSmartPointer<vtkPolyDat
     { return cluster1.ClusterId < cluster2.ClusterId; });
 
   // Create output of clusters information
-  this->CreateClustersOutput(clustersOutput, infoOutput);
+  this->CreateClustersOutput(clustersOutput, infoOutput, clusters3DTextOutput);
 }
 
 //-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::ExtractClustersWithRegionGrowing(
   vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-  vtkSmartPointer<vtkTable> infoOutput)
+  vtkSmartPointer<vtkTable> infoOutput,
+  vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput)
 {
   if (polydata->GetNumberOfPoints() == 0)
   {
@@ -1128,14 +1184,15 @@ void vtkClusteringAndTracking::ExtractClustersWithRegionGrowing(
     { return cluster1.ClusterId < cluster2.ClusterId; });
 
   // Create output of clusters information
-  this->CreateClustersOutput(clustersOutput, infoOutput);
+  this->CreateClustersOutput(clustersOutput, infoOutput, clusters3DTextOutput);
 }
 
 //-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
   vtkSmartPointer<vtkPolyData> polydata,
   vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-  vtkSmartPointer<vtkTable> infoOutput)
+  vtkSmartPointer<vtkTable> infoOutput,
+  vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput)
 {
   // Set input data
   if (polydata->GetNumberOfPoints() == 0)
@@ -1225,7 +1282,7 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
 #endif
 
   // Create output of clusters information
-  this->CreateClustersOutput(clustersOutput, infoOutput);
+  this->CreateClustersOutput(clustersOutput, infoOutput, clusters3DTextOutput);
 }
 
 //-----------------------------------------------------------------------------
@@ -1258,6 +1315,8 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* clustersOutput =
     vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_OUTPUT_PORT);
   vtkTable* clusterInfoOutput = vtkTable::GetData(outputVector, CLUSTERS_TEXT_OUTPUT_PORT);
+  vtkMultiBlockDataSet* clusters3DTextOutput =
+    vtkMultiBlockDataSet::GetData(outputVector, CLUSTERS_3DTEXT_OUTPUT_PORT);
 
   // Get array name
   this->DepthArrayName =
@@ -1271,12 +1330,14 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
   {
     case Extractor::EUCLIDEAN:
     {
-      this->ExtractClustersWithEuclidean(clustersPointsOutput, clustersOutput, clusterInfoOutput);
+      this->ExtractClustersWithEuclidean(
+        clustersPointsOutput, clustersOutput, clusterInfoOutput, clusters3DTextOutput);
       break;
     }
     case Extractor::GMM:
     {
-      this->ExtractClustersWithGMM(clustersPointsOutput, clustersOutput, clusterInfoOutput);
+      this->ExtractClustersWithGMM(
+        clustersPointsOutput, clustersOutput, clusterInfoOutput, clusters3DTextOutput);
       break;
     }
     case Extractor::REGION_GROWING:
@@ -1284,13 +1345,13 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
       if (this->EnableBackgroundGrid && this->NbProcessedFrames <= this->InitNbFrames)
         this->BuildBackgroundGrid(clustersPointsOutput);
       this->ExtractClustersWithRegionGrowing(
-        clustersPointsOutput, clustersOutput, clusterInfoOutput);
+        clustersPointsOutput, clustersOutput, clusterInfoOutput, clusters3DTextOutput);
       break;
     }
     case Extractor::ADAPTIVE_EUCLIDEAN:
     {
       this->ExtractClustersWithAdaptiveEuclidean(
-        clustersPointsOutput, clustersOutput, clusterInfoOutput);
+        clustersPointsOutput, clustersOutput, clusterInfoOutput, clusters3DTextOutput);
       break;
     }
     default:

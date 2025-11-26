@@ -19,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
+  VTK::RenderingFreeType
   LidarView::FiltersProcessing
 TEST_DEPENDS
   LidarView::TestingCore
