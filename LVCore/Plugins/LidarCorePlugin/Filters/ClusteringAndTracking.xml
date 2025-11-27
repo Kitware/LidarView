@@ -39,34 +39,34 @@
     </Property>
 
     <!-- ============================ Clustering and tracking ============================ -->
-      <IntVectorProperty name="Cluster extractor"
-                         command="SetClusterExtractor"
-                         number_of_elements="1"
-                         default_values="2">
-        <EnumerationDomain name="enum">
-          <Entry value="0" text="No extraction"/>
-          <Entry value="1" text="Euclidean clustering"/>
-          <Entry value="2" text="Gaussian mixture model"/>
-          <Entry value="3" text="Region growing"/>
-        </EnumerationDomain>
-        <Documentation>
-          Choose an extractor for clustering:
+    <IntVectorProperty name="Cluster extractor"
+                        command="SetClusterExtractor"
+                        number_of_elements="1"
+                        default_values="2">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="No extraction"/>
+        <Entry value="1" text="Euclidean clustering"/>
+        <Entry value="2" text="Gaussian mixture model"/>
+        <Entry value="3" text="Region growing"/>
+      </EnumerationDomain>
+      <Documentation>
+        Choose an extractor for clustering:
 
-           (0) Do not extract clusters
+          (0) Do not extract clusters
 
-           (1) Euclidean clustering:
-               This method groups points based on their spatial proximity. It is ideal for identifying quickly compact
-               motion areas.
+          (1) Euclidean clustering:
+              This method groups points based on their spatial proximity. It is ideal for identifying quickly compact
+              motion areas.
 
-           (2) Gaussian mixture model:
-               This method utilizes probabilistic model based on distances between points and works well in complex environments.
-               It offers a rough tracking of clusters.
+          (2) Gaussian mixture model:
+              This method utilizes probabilistic model based on distances between points and works well in complex environments.
+              It offers a rough tracking of clusters.
 
-           (3) Region growing:
-               This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
-               when motion points are scattered but related. It offers a rough tracking of clusters.
-        </Documentation>
-      </IntVectorProperty>
+          (3) Region growing:
+              This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
+              when motion points are scattered but related. It offers a rough tracking of clusters.
+      </Documentation>
+    </IntVectorProperty>
 
     <IntVectorProperty name="Compute cluster orientation"
                        command="SetEnableClusterOrientation"
