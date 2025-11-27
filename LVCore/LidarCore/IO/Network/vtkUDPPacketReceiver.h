@@ -28,6 +28,14 @@
 
 class vtkPacketRecorder;
 
+namespace boost
+{
+namespace asio
+{
+class io_context;
+}
+}
+
 /**
  * vtkUDPPacketReceiver is designed to listen on a specified port and address.
  * It opens a socket and forwards all received data to a provided callback function.
@@ -84,9 +92,15 @@ public:
    * Start / stop listening to the UDP stream.
    * When listening, two threads are created: one for receiving and one for consuming data,
    * which then forwards the data to the callback function.
+   *
+   * Note that StartListening have a signature where the ioContext is provided, and must be
+   * started by calling class.
    */
   bool StartListening(const std::vector<unsigned int>& ports,
     const ConsumeCallback& callback) override;
+  bool StartListening(boost::asio::io_context& service,
+    const std::vector<unsigned int>& ports,
+    const ConsumeCallback& callback);
   void StopListening() override;
   bool IsListening() override;
   ///@}

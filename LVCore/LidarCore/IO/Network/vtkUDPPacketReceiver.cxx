@@ -59,7 +59,7 @@ vtkStandardNewMacro(vtkUDPPacketReceiver);
 class vtkUDPPacketReceiver::vtkInternals
 {
 public:
-  boost::asio::io_service IOService;
+  boost::asio::io_context IOService;
   std::vector<std::unique_ptr<vtkUDPReceiverSocketImpl>> ReceiverSockets;
 
   std::unique_ptr<QueueType> DataQueue;
@@ -68,7 +68,8 @@ public:
   vtkPacketRecorder* Writer;
 
   //------------------------------------------------------------------------------
-  bool OpenSocket(const vtkUDPReceiverSocketImpl::Parameters& params)
+  bool OpenSocket(boost::asio::io_context& service,
+    const vtkUDPReceiverSocketImpl::Parameters& params)
   {
     if (params.listeningPorts.empty())
     {
@@ -87,7 +88,7 @@ public:
       auto callback = [this](vtkUDPReceiverSocketImpl::PacketType& packet)
       { this->DataQueue->Enqueue(packet); };
       this->ReceiverSockets.emplace_back(
-        std::make_unique<vtkUDPReceiverSocketImpl>(this->IOService, callback));
+        std::make_unique<vtkUDPReceiverSocketImpl>(service, callback));
 
       bool isOpen = this->ReceiverSockets.back()->Open(params, portIdx);
       if (isOpen)
@@ -182,6 +183,21 @@ vtkUDPPacketReceiver::~vtkUDPPacketReceiver()
 bool vtkUDPPacketReceiver::StartListening(const std::vector<unsigned int>& ports,
   const ConsumeCallback& callback)
 {
+  auto& internals = *this->Internals;
+  bool started = this->StartListening(internals.IOService, ports, callback);
+  if (started)
+  {
+    this->ReceiverThread =
+      std::make_unique<std::thread>([&internals] { internals.StartIOService(); });
+  }
+  return started;
+}
+
+//----------------------------------------------------------------------------
+bool vtkUDPPacketReceiver::StartListening(boost::asio::io_context& service,
+  const std::vector<unsigned int>& ports,
+  const ConsumeCallback& callback)
+{
   if (this->IsListening())
   {
     // Stop the stream, to handle succeeding call to Start()
@@ -202,12 +218,10 @@ bool vtkUDPPacketReceiver::StartListening(const std::vector<unsigned int>& ports
   }
 
   auto& internals = *this->Internals;
-  bool started = internals.OpenSocket(params);
+  bool started = internals.OpenSocket(service, params);
   if (started)
   {
     internals.Callback = callback;
-    this->ReceiverThread =
-      std::make_unique<std::thread>([&internals] { internals.StartIOService(); });
     this->ConsumerThread = std::make_unique<std::thread>([&internals] { internals.ConsumeLoop(); });
   }
   return started;
