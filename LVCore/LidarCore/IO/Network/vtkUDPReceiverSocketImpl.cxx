@@ -225,3 +225,16 @@ void vtkUDPReceiverSocketImpl::ReceiveNextPacket()
       boost::asio::buffer(this->Buffer), this->SenderEndpoint, receiveCallback);
   }
 }
+
+//-----------------------------------------------------------------------------
+unsigned short vtkUDPReceiverSocketImpl::GetAssignedPort()
+{
+  boost::system::error_code error;
+  auto endp = this->ReceiveSocket.local_endpoint(error);
+  if (error)
+  {
+    vtkLog(ERROR, << "An error occurred when running boost io service: " << error.message());
+    return 0;
+  }
+  return endp.port();
+}

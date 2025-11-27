@@ -230,6 +230,18 @@ bool vtkUDPPacketReceiver::IsListening()
 }
 
 //-----------------------------------------------------------------------------
+std::vector<unsigned short> vtkUDPPacketReceiver::GetListAssignedPorts()
+{
+  std::vector<unsigned short> ports;
+  auto& internals = *this->Internals;
+  for (auto& socket : internals.ReceiverSockets)
+  {
+    ports.emplace_back(socket->GetAssignedPort());
+  }
+  return ports;
+}
+
+//-----------------------------------------------------------------------------
 void vtkUDPPacketReceiver::SetRecorder(vtkPacketRecorder* writer)
 {
   this->Internals->Writer = writer;

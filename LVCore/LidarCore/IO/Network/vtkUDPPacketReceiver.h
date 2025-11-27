@@ -92,6 +92,16 @@ public:
   ///@}
 
   /**
+   * Return a vector of assigned port for each UDP socket.
+   *
+   * This is useful when one or more sockets were bound to port 0 (letting the OS choose),
+   * and the user needs to retrieve the actual ports assigned by the system.
+   *
+   * Return 0 in case of failure.
+   */
+  std::vector<unsigned short> GetListAssignedPorts();
+
+  /**
    * If set the packet receiver will forward received packets to the recorder
    */
   void SetRecorder(vtkPacketRecorder* writer) override;

@@ -59,6 +59,8 @@ public:
 
   void ReceiveNextPacket();
 
+  unsigned short GetAssignedPort();
+
 private:
   boost::asio::ip::udp::socket ReceiveSocket;
   boost::asio::ip::udp::endpoint SenderEndpoint;
