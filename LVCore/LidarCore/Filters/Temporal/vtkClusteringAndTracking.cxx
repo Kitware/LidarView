@@ -1212,7 +1212,13 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
 
 #ifdef LIDARVIEW_USE_NANOFLANN
   vtkKDTreeVTKAdaptor kDTree;
-  kDTree.Reset(polydata);
+  std::vector<std::string> extraDims;
+  if (!this->Scalar1ArrayName.empty())
+    extraDims.emplace_back(this->Scalar1ArrayName);
+  if (!this->Scalar2ArrayName.empty())
+    extraDims.emplace_back(this->Scalar2ArrayName);
+  int dim = 3 + extraDims.size();
+  kDTree.Reset(polydata, extraDims);
   auto numPoints = polydata->GetNumberOfPoints();
   std::vector<bool> visited(numPoints, false);
   std::vector<std::vector<int>> clusters;
@@ -1237,10 +1243,19 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
 
       Eigen::Vector3d point;
       polydata->GetPoint(idx, point.data());
+      std::vector<float> ptXd(dim);
+      ptXd[0] = point.x();
+      ptXd[1] = point.y();
+      ptXd[2] = point.z();
+      int dimId = 3;
+      for (const auto& arrayName : extraDims)
+      {
+        ptXd[dimId] = polydata->GetPointData()->GetArray(arrayName.c_str())->GetTuple1(idx);
+        dimId++;
+      }
       std::vector<float> sqDistances;
       std::vector<int> neighborsIndices;
-      Eigen::Vector3f pointF = point.cast<float>();
-      kDTree.radiusSearch(pointF.data(), radius, neighborsIndices, sqDistances);
+      kDTree.radiusSearch(ptXd.data(), radius, neighborsIndices, sqDistances);
       for (const int neighborId : neighborsIndices)
       {
         if (!visited[neighborId])
