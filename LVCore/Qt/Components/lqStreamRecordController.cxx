@@ -137,14 +137,23 @@ bool lqStreamRecordController::startRecording()
   // Set a common packet writer proxy for all streams
   Q_FOREACH (vtkSMLidarStreamProxy* proxy, streamList)
   {
-    vtkSMProxy* packetHandlerProxy = vtkSMPropertyHelper(proxy, "PacketHandler").GetAsProxy();
-    if (!packetHandlerProxy)
+    vtkSMProxy* packetHandlerProxy = vtkSMPropertyHelper(proxy, "PacketHandler", true).GetAsProxy();
+    if (packetHandlerProxy)
     {
-      qWarning() << "No packet handler proxy found for " << proxy->GetVTKClassName();
+      vtkSMPropertyHelper(packetHandlerProxy, "Recorder").Set(this->RecorderProxy);
+      packetHandlerProxy->UpdateVTKObjects();
+    }
+    // Recorder could be set at lidar proxy level.
+    else if (proxy->GetProperty("Recorder"))
+    {
+      vtkSMPropertyHelper(proxy, "Recorder").Set(this->RecorderProxy);
+      proxy->UpdateVTKObjects();
+    }
+    else
+    {
+      qWarning() << "No recorder setter property found for " << proxy->GetVTKClassName();
       continue;
     }
-    vtkSMPropertyHelper(packetHandlerProxy, "Recorder").Set(this->RecorderProxy);
-    packetHandlerProxy->UpdateVTKObjects();
   }
 
   // Set up writer proxy
