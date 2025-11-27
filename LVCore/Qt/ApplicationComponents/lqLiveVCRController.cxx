@@ -39,8 +39,8 @@
 #include <vtkSMProxy.h>
 #include <vtkSMSourceProxy.h>
 
-#include "lqHelper.h"
 #include "vtkSMLidarReaderProxy.h"
+#include "vtkSMLidarStreamProxy.h"
 
 #include <QList>
 
@@ -403,24 +403,34 @@ double lqLiveVCRController::getSceneTime()
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onSourceAdded(pqPipelineSource* src)
 {
-  if (IsLidarProxy(src->getProxy()))
+  bool isStreamLidarProxy = vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()) != nullptr;
+  if (!this->IsStream && isStreamLidarProxy)
   {
-    bool isReader = vtkSMLidarReaderProxy::SafeDownCast(src->getProxy()) != nullptr;
-
-    if (!this->IsStream && !isReader)
-    {
-      this->IsStream = true;
-      Q_EMIT this->modeChanged(this->getCurrentMode());
-    }
+    this->IsStream = true;
+    Q_EMIT this->modeChanged(this->getCurrentMode());
   }
 }
 
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onSourceRemoved(pqPipelineSource* src)
 {
-  if (IsLidarProxy(src->getProxy()))
+  // Check if the proxy removed was a stream
+  bool isStreamLidarProxy = vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()) != nullptr;
+  if (this->IsStream && isStreamLidarProxy)
   {
-    if (IsLidarStreamProxy(src->getProxy()) && !this->IsStream)
+    // Check if another stream exist in the pipeline.
+    bool hasStream = false;
+    pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
+    Q_FOREACH (pqPipelineSource* item, smmodel->findItems<pqPipelineSource*>())
+    {
+      if (vtkSMLidarStreamProxy::SafeDownCast(item->getProxy()) != nullptr)
+      {
+        hasStream = true;
+        break;
+      }
+    }
+
+    if (!hasStream)
     {
       this->IsStream = false;
       Q_EMIT this->modeChanged(this->getCurrentMode());
