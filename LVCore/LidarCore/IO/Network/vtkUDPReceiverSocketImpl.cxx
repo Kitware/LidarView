@@ -15,6 +15,7 @@
 
 #include "vtkUDPReceiverSocketImpl.h"
 
+#include <vtkLogger.h>
 #include <vtkObject.h>
 #include <vtkSetGet.h>
 
@@ -135,9 +136,9 @@ bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& 
       this->ReceiveSocket.bind(boost::asio::ip::udp::endpoint(listenAddress, port));
     }
   }
-  catch (...)
+  catch (boost::system::system_error& error)
   {
-    vtkGenericWarningMacro(<< "Error while opening socket!");
+    vtkLog(ERROR, << "Error while opening socket!" << error.what());
     return false;
   }
   return true;
