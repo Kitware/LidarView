@@ -55,7 +55,7 @@ public:
     QPushButton* okButton = this->buttonBox->button(QDialogButtonBox::Ok);
     if (okButton)
     {
-      okButton->setEnabled(false);
+      okButton->setEnabled(dir.exists());
 
       QObject::connect(this->dirChooser,
         &pqFileChooserWidget::filenameChanged,
