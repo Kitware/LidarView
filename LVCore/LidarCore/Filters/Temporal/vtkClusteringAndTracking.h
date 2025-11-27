@@ -104,6 +104,8 @@ private:
   // Array to use to fill points data
   std::string DepthArrayName;
   std::string IntensityArrayName;
+  std::string Scalar1ArrayName;
+  std::string Scalar2ArrayName;
 
   // Parameters to extract clusters
   enum Extractor

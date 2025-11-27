@@ -1323,6 +1323,10 @@ int vtkClusteringAndTracking::RequestData(vtkInformation* vtkNotUsed(request),
     this->GetInputArrayToProcess(0, input) ? this->GetInputArrayToProcess(0, input)->GetName() : "";
   this->IntensityArrayName =
     this->GetInputArrayToProcess(1, input) ? this->GetInputArrayToProcess(1, input)->GetName() : "";
+  this->Scalar1ArrayName =
+    this->GetInputArrayToProcess(2, input) ? this->GetInputArrayToProcess(2, input)->GetName() : "";
+  this->Scalar2ArrayName =
+    this->GetInputArrayToProcess(3, input) ? this->GetInputArrayToProcess(3, input)->GetName() : "";
 
   // Extract clusters
   clustersPointsOutput->ShallowCopy(input);

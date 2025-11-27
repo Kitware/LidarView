@@ -123,6 +123,46 @@
       </Documentation>
     </IntVectorProperty>
 
+    <StringVectorProperty name="Scalar1 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="2;0;0;0;intensity"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used for clustering.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </StringVectorProperty>
+
+    <StringVectorProperty name="Scalar2 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="3;0;0;0;doppler"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used for clustering.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </StringVectorProperty>
+
     <IntVectorProperty name="Enable background map"
                        command="SetEnableBackgroundGrid"
                        number_of_elements="1"
@@ -235,6 +275,8 @@
     <PropertyGroup label="Clustering and tracking Parameters">
       <Property name="Cluster extractor" />
       <Property name="Compute cluster orientation" />
+      <Property name="Scalar1 array" />
+      <Property name="Scalar2 array" />
       <Property name="Enable background map" />
       <Property name="Initialization time" />
       <Property name="Cluster radius" />
