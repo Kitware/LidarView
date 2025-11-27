@@ -21,13 +21,15 @@
 // VTK includes
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include <vtkDataArray.h>
+#include <vtkPointData.h>
 
 class vtkKDTreeVTKAdaptor
 {
 
   using metric_t =
     typename nanoflann::metric_L2_Simple::traits<float, vtkKDTreeVTKAdaptor>::distance_t;
-  using index_t = nanoflann::KDTreeSingleIndexAdaptor<metric_t, vtkKDTreeVTKAdaptor, 3, int>;
+  using index_t = nanoflann::KDTreeSingleIndexAdaptor<metric_t, vtkKDTreeVTKAdaptor, -1, int>;
 
 public:
   /**
@@ -38,10 +40,11 @@ public:
    */
   vtkKDTreeVTKAdaptor(
     vtkSmartPointer<vtkPolyData> cloud = vtkSmartPointer(vtkSmartPointer<vtkPolyData>::New()),
+    const std::vector<std::string>& extraDims = {},
     int leafMaxSize = 16)
   {
 
-    this->Reset(cloud, leafMaxSize);
+    this->Reset(cloud, extraDims, leafMaxSize);
   }
 
   /**
@@ -52,14 +55,17 @@ public:
    */
   void Reset(
     vtkSmartPointer<vtkPolyData> cloud = vtkSmartPointer(vtkSmartPointer<vtkPolyData>::New()),
+    const std::vector<std::string>& extraDims = {},
     int leafMaxSize = 16)
   {
     // Copy the input cloud
     this->Cloud = cloud;
+    this->ExtraDimensions = extraDims;
 
+    const size_t dim = this->GetPointDimension();
     // Build KD-tree
     this->Index =
-      std::make_unique<index_t>(3, *this, nanoflann::KDTreeSingleIndexAdaptorParams(leafMaxSize));
+      std::make_unique<index_t>(dim, *this, nanoflann::KDTreeSingleIndexAdaptorParams(leafMaxSize));
     this->Index->buildIndex();
   }
   /**
@@ -74,14 +80,14 @@ public:
    * be valid. Return may be less than `knearest` only if the number of
    * elements in the tree is less than `knearest`.
    */
-  inline size_t KnnSearch(const float queryPoint[3],
+  inline size_t KnnSearch(const float queryPoint[],
     int knearest,
     int* knnIndices,
     float* knnSqDistances) const
   {
     return this->Index->knnSearch(queryPoint, knearest, knnIndices, knnSqDistances);
   }
-  inline size_t KnnSearch(const float queryPoint[3],
+  inline size_t KnnSearch(const float queryPoint[],
     int knearest,
     std::vector<int>& knnIndices,
     std::vector<float>& knnSqDistances) const
@@ -99,7 +105,7 @@ public:
     knnSqDistances.resize(kneighbors);
     return kneighbors;
   }
-  inline size_t KnnSearch(const double queryPoint[3],
+  inline size_t KnnSearch(const double queryPoint[],
     int knearest,
     std::vector<int>& knnIndices,
     std::vector<float>& knnSqDistances) const
@@ -108,7 +114,7 @@ public:
     std::copy(queryPoint, queryPoint + 3, pt);
     return this->KnnSearch(pt, knearest, knnIndices, knnSqDistances);
   }
-  size_t radiusSearch(const float queryPoint[3],
+  size_t radiusSearch(const float queryPoint[],
     float radius,
     std::vector<int>& knnIndices,
     std::vector<float>& knnDistances) const
@@ -128,6 +134,8 @@ public:
    * \return The input pointcloud used to build KD-tree.
    */
   inline vtkSmartPointer<vtkPolyData> GetInputCloud() const { return this->Cloud; }
+
+  size_t GetPointDimension() const { return 3 + this->ExtraDimensions.size(); }
 
   // ---------------------------------------------------------------------------
   //   Methods required by nanoflann adaptor design
@@ -151,9 +159,23 @@ public:
    */
   inline float kdtree_get_pt(const int idx, const int dim) const
   {
-    double point[3];
-    Cloud->GetPoint(idx, point);
-    return point[dim];
+    if (dim < 3)
+    {
+      double point[3];
+      this->Cloud->GetPoint(idx, point);
+      return static_cast<float>(point[dim]);
+    }
+    else
+    {
+      int extraIdx = dim - 3;
+      if (extraIdx >= int(this->ExtraDimensions.size()))
+        return 0.f;
+      vtkDataArray* arr =
+        this->Cloud->GetPointData()->GetArray(this->ExtraDimensions[extraIdx].c_str());
+      if (!arr)
+        return 0.f;
+      return static_cast<float>(arr->GetTuple1(idx));
+    }
   }
   /**
    * Optional bounding-box computation.
@@ -176,6 +198,9 @@ protected:
 
   //! The input data
   vtkSmartPointer<vtkPolyData> Cloud;
+
+  //! The array names of extra dimensions
+  std::vector<std::string> ExtraDimensions;
 };
 
 #endif // KDTREE_VTK_ADAPTOUR
