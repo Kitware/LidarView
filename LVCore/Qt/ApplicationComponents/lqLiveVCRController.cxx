@@ -263,6 +263,7 @@ void lqLiveVCRController::onFirstFrame()
       break;
     }
 
+    case PlayMode::STREAM:
     default:
       break;
   }
@@ -280,6 +281,7 @@ void lqLiveVCRController::onPreviousFrame()
       ::UpdateEmulatedCurrentTime(this->getSceneTime() - lqLiveVCRController::getCurrentSpeed());
       break;
 
+    case PlayMode::STREAM:
     default:
       break;
   }
@@ -298,6 +300,7 @@ void lqLiveVCRController::onNextFrame()
       ::UpdateEmulatedCurrentTime(this->getSceneTime() + lqLiveVCRController::getCurrentSpeed());
       break;
 
+    case PlayMode::STREAM:
     default:
       break;
   }
@@ -322,6 +325,7 @@ void lqLiveVCRController::onLastFrame()
       break;
     }
 
+    case PlayMode::STREAM:
     default:
       break;
   }
