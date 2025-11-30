@@ -163,6 +163,32 @@
       </Hints>
     </StringVectorProperty>
 
+    <DoubleVectorProperty name="Scalar1 weight"
+                       command="SetScalar1Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Scalar2 weight"
+                       command="SetScalar2Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </DoubleVectorProperty>
+
     <IntVectorProperty name="Enable background map"
                        command="SetEnableBackgroundGrid"
                        number_of_elements="1"
@@ -277,6 +303,8 @@
       <Property name="Compute cluster orientation" />
       <Property name="Scalar1 array" />
       <Property name="Scalar2 array" />
+      <Property name="Scalar1 weight" />
+      <Property name="Scalar2 weight" />
       <Property name="Enable background map" />
       <Property name="Initialization time" />
       <Property name="Cluster radius" />

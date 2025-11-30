@@ -41,10 +41,11 @@ public:
   vtkKDTreeVTKAdaptor(
     vtkSmartPointer<vtkPolyData> cloud = vtkSmartPointer(vtkSmartPointer<vtkPolyData>::New()),
     const std::vector<std::string>& extraDims = {},
+    const std::vector<float>& weights = {},
     int leafMaxSize = 16)
   {
 
-    this->Reset(cloud, extraDims, leafMaxSize);
+    this->Reset(cloud, extraDims, weights, leafMaxSize);
   }
 
   /**
@@ -56,11 +57,13 @@ public:
   void Reset(
     vtkSmartPointer<vtkPolyData> cloud = vtkSmartPointer(vtkSmartPointer<vtkPolyData>::New()),
     const std::vector<std::string>& extraDims = {},
+    const std::vector<float>& weights = {},
     int leafMaxSize = 16)
   {
     // Copy the input cloud
     this->Cloud = cloud;
     this->ExtraDimensions = extraDims;
+    this->Weights = weights;
 
     const size_t dim = this->GetPointDimension();
     // Build KD-tree
@@ -159,11 +162,12 @@ public:
    */
   inline float kdtree_get_pt(const int idx, const int dim) const
   {
+    float weight = int(this->Weights.size()) <= dim ? 0.0 : this->Weights[dim];
     if (dim < 3)
     {
       double point[3];
       this->Cloud->GetPoint(idx, point);
-      return static_cast<float>(point[dim]);
+      return static_cast<float>(point[dim]) * weight;
     }
     else
     {
@@ -174,7 +178,7 @@ public:
         this->Cloud->GetPointData()->GetArray(this->ExtraDimensions[extraIdx].c_str());
       if (!arr)
         return 0.f;
-      return static_cast<float>(arr->GetTuple1(idx));
+      return static_cast<float>(arr->GetTuple1(idx)) * weight;
     }
   }
   /**
@@ -201,6 +205,9 @@ protected:
 
   //! The array names of extra dimensions
   std::vector<std::string> ExtraDimensions;
+
+  //! Weights for each dimension
+  std::vector<float> Weights;
 };
 
 #endif // KDTREE_VTK_ADAPTOUR

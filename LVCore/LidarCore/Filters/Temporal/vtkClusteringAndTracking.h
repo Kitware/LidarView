@@ -71,6 +71,14 @@ public:
   vtkSetMacro(Factor, double);
   vtkGetMacro(Factor, double);
 
+  // Set/get search radius factor for adaptive clustering
+  vtkSetMacro(Scalar1Weight, float);
+  vtkGetMacro(Scalar1Weight, float);
+
+  // Set/get search radius factor for adaptive clustering
+  vtkSetMacro(Scalar2Weight, float);
+  vtkGetMacro(Scalar2Weight, float);
+
   // Set tracking window sizes
   void SetTrackingWindowSizes(int trackingWindowSizes);
   // Set/get number of processed frames
@@ -106,6 +114,8 @@ private:
   std::string IntensityArrayName;
   std::string Scalar1ArrayName;
   std::string Scalar2ArrayName;
+  float Scalar1Weight = 1.0;
+  float Scalar2Weight = 1.0;
 
   // Parameters to extract clusters
   enum Extractor

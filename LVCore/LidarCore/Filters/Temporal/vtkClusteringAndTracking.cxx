@@ -1213,12 +1213,19 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
 #ifdef LIDARVIEW_USE_NANOFLANN
   vtkKDTreeVTKAdaptor kDTree;
   std::vector<std::string> extraDims;
+  std::vector<float> dimWeights(3, 1.0f);
   if (!this->Scalar1ArrayName.empty())
+  {
     extraDims.emplace_back(this->Scalar1ArrayName);
+    dimWeights.emplace_back(this->Scalar1Weight);
+  }
   if (!this->Scalar2ArrayName.empty())
+  {
     extraDims.emplace_back(this->Scalar2ArrayName);
+    dimWeights.emplace_back(this->Scalar2Weight);
+  }
   int dim = 3 + extraDims.size();
-  kDTree.Reset(polydata, extraDims);
+  kDTree.Reset(polydata, extraDims, dimWeights);
   auto numPoints = polydata->GetNumberOfPoints();
   std::vector<bool> visited(numPoints, false);
   std::vector<std::vector<int>> clusters;
@@ -1250,7 +1257,8 @@ void vtkClusteringAndTracking::ExtractClustersWithAdaptiveEuclidean(
       int dimId = 3;
       for (const auto& arrayName : extraDims)
       {
-        ptXd[dimId] = polydata->GetPointData()->GetArray(arrayName.c_str())->GetTuple1(idx);
+        ptXd[dimId] =
+          dimWeights[dimId] * polydata->GetPointData()->GetArray(arrayName.c_str())->GetTuple1(idx);
         dimId++;
       }
       std::vector<float> sqDistances;
