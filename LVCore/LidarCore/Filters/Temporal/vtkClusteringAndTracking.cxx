@@ -570,6 +570,8 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
   {
     clusterInfo.ClusterLabel = vtkClusteringAndTracking::Label::OTHERS;
   }
+  // Get height value
+  clusterInfo.Height = clusterInfo.BoundingBox.GetSize().z();
   return clusterInfo;
 }
 

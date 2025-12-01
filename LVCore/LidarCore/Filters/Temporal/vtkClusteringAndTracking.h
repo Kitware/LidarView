@@ -181,6 +181,7 @@ private:
     Label ClusterLabel = Label::HUMAN;
     int ClusterId = 0;
     int NbPoints = 0;
+    double Height = 0;
     double MeanDepth = 0.;
     double MeanIntensity = 0.;
     Bbox BoundingBox;
