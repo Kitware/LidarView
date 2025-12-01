@@ -31,6 +31,8 @@
 
 #include <climits>
 #include <list>
+#include <map>
+#include <string>
 
 /**
  * @brief The ClusteringAndTracking class contains three algorithms to
@@ -79,6 +81,9 @@ public:
   // Setter to enable/disable to compute the cluster's orientation
   vtkSetMacro(EnableClusterOrientation, bool);
   vtkGetMacro(EnableClusterOrientation, bool);
+
+  // Set cluster information to display
+  void SetClusterInfoToDisplay(int displayInfo);
 
 protected:
   // constructor / destructor
@@ -187,6 +192,24 @@ private:
     Bbox BoundingBox;
   };
   std::vector<ClusterStats> ClustersStats;
+
+  // Display stat
+  enum DisplayStat
+  {
+    CLUSTER_ID = 0,
+    NB_POINTS = 1,
+    HEIGHT = 2,
+    DEPTH = 3,
+    INTENSITY = 4,
+  };
+  inline static const std::map<DisplayStat, std::string> ClusterDisplayStatNames = {
+    { CLUSTER_ID, "ClusterId" },
+    { NB_POINTS, "Num points" },
+    { HEIGHT, "H" },
+    { DEPTH, "D" },
+    { INTENSITY, "I" }
+  };
+  DisplayStat ClusterInfoToDisplay = CLUSTER_ID;
 
   // Clustering with gaussian mixture model
   /**

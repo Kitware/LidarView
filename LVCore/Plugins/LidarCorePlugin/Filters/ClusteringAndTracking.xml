@@ -215,6 +215,22 @@
       </Hints>
     </IntVectorProperty>
 
+    <IntVectorProperty name="Cluster information to display"
+                        command="SetClusterInfoToDisplay"
+                        number_of_elements="1"
+                        default_values="2">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="Cluster ID"/>
+        <Entry value="1" text="Number of points"/>
+        <Entry value="2" text="Height"/>
+        <Entry value="3" text="Mean depth"/>
+        <Entry value="4" text="Mean intensity"/>
+      </EnumerationDomain>
+      <Documentation>
+        Choose a cluster information to display.
+      </Documentation>
+    </IntVectorProperty>
+
     <PropertyGroup label="Clustering and tracking Parameters">
       <Property name="Cluster extractor" />
       <Property name="Compute cluster orientation" />
@@ -225,6 +241,7 @@
       <Property name="Cluster minimum point number" />
       <Property name="Clustering grid resolution" />
       <Property name="Set tracking window sizes" />
+      <Property name="Cluster information to display" />
     </PropertyGroup>
 
     </SourceProxy>

@@ -390,6 +390,17 @@ void vtkClusteringAndTracking::SetClusterGridResolution(float resolution)
 }
 
 //-----------------------------------------------------------------------------
+void vtkClusteringAndTracking::SetClusterInfoToDisplay(int displayInfo)
+{
+  DisplayStat clusterInfo = static_cast<DisplayStat>(displayInfo);
+  if (this->ClusterInfoToDisplay != clusterInfo)
+  {
+    this->ClusterInfoToDisplay = clusterInfo;
+  }
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkClusteringAndTracking::InitClusteringGrid(vtkPolyData* polydata)
 {
   // Initialize parameters of clustering grid
