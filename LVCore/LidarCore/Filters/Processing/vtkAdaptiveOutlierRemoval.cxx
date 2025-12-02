@@ -68,16 +68,40 @@ void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> input
     : "";
 
   vtkKDTreeVTKAdaptor kDTree;
-  kDTree.Reset(inputPointcloud);
+  std::vector<std::string> extraDims;
+  std::vector<float> dimWeights(3, 1.0f);
+  if (!this->Scalar1ArrayName.empty())
+  {
+    extraDims.emplace_back(this->Scalar1ArrayName);
+    dimWeights.emplace_back(this->Scalar1Weight);
+  }
+  if (!this->Scalar2ArrayName.empty())
+  {
+    extraDims.emplace_back(this->Scalar2ArrayName);
+    dimWeights.emplace_back(this->Scalar2Weight);
+  }
+  int dim = 3 + extraDims.size();
+  kDTree.Reset(inputPointcloud, extraDims, dimWeights);
   vtkSmartPointer<vtkIdTypeArray> pointIdsToRemove = vtkSmartPointer<vtkIdTypeArray>::New();
   pointIdsToRemove->SetNumberOfComponents(1);
   for (auto id = 0; id < inputPointcloud->GetNumberOfPoints(); ++id)
   {
     double point[3];
     inputPointcloud->GetPoint(id, point);
+    std::vector<float> ptXd(dim);
+    ptXd[0] = point[0];
+    ptXd[1] = point[1];
+    ptXd[2] = point[2];
+    int dimId = 3;
+    for (const auto& arrayName : extraDims)
+    {
+      ptXd[dimId] = dimWeights[dimId] *
+        inputPointcloud->GetPointData()->GetArray(arrayName.c_str())->GetTuple1(id);
+      dimId++;
+    }
     std::vector<float> sqDistances(this->NbNeighbors);
     std::vector<int> neighborsIndices(this->NbNeighbors);
-    kDTree.KnnSearch(point, this->NbNeighbors, neighborsIndices, sqDistances);
+    kDTree.KnnSearch(ptXd.data(), this->NbNeighbors, neighborsIndices, sqDistances);
     // Compute average distance
     float aveDist = 0.;
     for (const float& sqDist : sqDistances)

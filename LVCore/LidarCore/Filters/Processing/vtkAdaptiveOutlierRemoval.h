@@ -50,6 +50,14 @@ public:
   vtkSetMacro(Factor, double);
   vtkGetMacro(Factor, double);
 
+  // Set/get search radius factor for adaptive clustering
+  vtkSetMacro(Scalar1Weight, float);
+  vtkGetMacro(Scalar1Weight, float);
+
+  // Set/get search radius factor for adaptive clustering
+  vtkSetMacro(Scalar2Weight, float);
+  vtkGetMacro(Scalar2Weight, float);
+
 protected:
   vtkAdaptiveOutlierRemoval();
   ~vtkAdaptiveOutlierRemoval() = default;
@@ -71,6 +79,9 @@ private:
   // Extra dimensions to compute distance
   std::string Scalar1ArrayName;
   std::string Scalar2ArrayName;
+  // Scalar weight
+  float Scalar1Weight = 1.0;
+  float Scalar2Weight = 1.0;
   // Number of neighbor points to compute the average distance for one point
   int NbNeighbors = 10;
   // The threshold to remove one point

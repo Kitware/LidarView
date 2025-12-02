@@ -90,6 +90,32 @@
       </Hints>
     </StringVectorProperty>
 
+    <DoubleVectorProperty name="Scalar1 weight"
+                       command="SetScalar1Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Scalar2 weight"
+                       command="SetScalar2Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
     <IntVectorProperty name="Number of neighbors"
                        command="SetNbNeighbors"
                        number_of_elements="1"
@@ -130,6 +156,8 @@
       <Property name="Enable adaptive outlier removal" />
       <Property name="Scalar1 array" />
       <Property name="Scalar2 array" />
+      <Property name="Scalar1 weight" />
+      <Property name="Scalar2 weight" />
       <Property name="Number of neighbors" />
       <Property name="Average distance threshold" />
       <Property name="Factor" />
