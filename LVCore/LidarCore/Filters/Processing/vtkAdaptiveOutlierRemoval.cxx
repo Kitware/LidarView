@@ -59,6 +59,14 @@ void vtkAdaptiveOutlierRemoval::RemoveOutlier(vtkSmartPointer<vtkPolyData> input
     ? this->GetInputArrayToProcess(0, inputPointcloud)->GetName()
     : "";
 
+  // Get scalar name to use for outlier removal
+  this->Scalar1ArrayName = this->GetInputArrayToProcess(1, inputPointcloud)
+    ? this->GetInputArrayToProcess(1, inputPointcloud)->GetName()
+    : "";
+  this->Scalar2ArrayName = this->GetInputArrayToProcess(2, inputPointcloud)
+    ? this->GetInputArrayToProcess(2, inputPointcloud)->GetName()
+    : "";
+
   vtkKDTreeVTKAdaptor kDTree;
   kDTree.Reset(inputPointcloud);
   vtkSmartPointer<vtkIdTypeArray> pointIdsToRemove = vtkSmartPointer<vtkIdTypeArray>::New();

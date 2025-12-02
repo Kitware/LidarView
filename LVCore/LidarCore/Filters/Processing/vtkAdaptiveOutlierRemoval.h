@@ -67,6 +67,10 @@ private:
 
   // Depth array name
   std::string DepthArrayName;
+  // Scalar array name
+  // Extra dimensions to compute distance
+  std::string Scalar1ArrayName;
+  std::string Scalar2ArrayName;
   // Number of neighbor points to compute the average distance for one point
   int NbNeighbors = 10;
   // The threshold to remove one point
