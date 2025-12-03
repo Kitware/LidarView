@@ -18,6 +18,7 @@
 
 #include "vtkPacketFileHandler.h"
 
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
@@ -268,4 +269,37 @@ double vtkPacketFileHandler::GetTimestamp() const
   auto& internals = *this->Internals;
   return internals.PktCache.timestamp().seconds() +
     internals.PktCache.timestamp().microseconds() * ::US_TO_S_FACTOR;
+}
+
+//------------------------------------------------------------------------------
+std::set<uint16_t> vtkPacketFileHandler::GetAvailableUDPPort(std::string filename)
+{
+  std::set<uint16_t> ports;
+  try
+  {
+    std::unique_ptr<Tins::FileSniffer> sniffer = std::make_unique<Tins::FileSniffer>(filename);
+    while (Tins::Packet pkt = sniffer->next_packet())
+    {
+      Tins::PDU* pdu = pkt.pdu();
+      if (pdu)
+      {
+        Tins::IP* ip = pdu->find_pdu<Tins::IP>();
+        Tins::IPv6* ipv6 = pdu->find_pdu<Tins::IPv6>();
+        if ((ip && ip->protocol() == ::PROTOCOL_UDP) ||
+          (ipv6 && ipv6->next_header() == ::PROTOCOL_UDP))
+        {
+          Tins::UDP* udp = pdu->find_pdu<Tins::UDP>();
+          if (udp != nullptr)
+          {
+            ports.emplace(udp->sport());
+          }
+        }
+      }
+    }
+  }
+  catch (Tins::pcap_error&)
+  {
+    vtkLog(ERROR, "Could not open file: " << filename);
+  }
+  return ports;
 }

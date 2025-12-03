@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <set>
 
 /**
  * vtkPacketFileHandler is used to open and close pcap files,
@@ -84,6 +85,11 @@ public:
    * should not be used concurrently with `ReadNextPacket()`.
    */
   void WritePackets(std::string filename, vtkPcapIdxType* startPosition, double endNetworkTime);
+
+  /**
+   * Get a set of all available UDP port in a pcap.
+   */
+  static std::set<uint16_t> GetAvailableUDPPort(std::string filename);
 
 protected:
   vtkPacketFileHandler();
