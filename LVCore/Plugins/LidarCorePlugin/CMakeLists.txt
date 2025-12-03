@@ -128,6 +128,7 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersVisualization
   XML_MODULE_FILES
     Filters/BirdEyeViewSnap.xml
+    Filters/ImageColorProjector.xml
     Filters/LidarRawSignalImage.xml
     Filters/PointCloudLinearProjector.xml
     Filters/PointCloudPinHoleProjector.xml

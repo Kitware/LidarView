@@ -1,0 +1,50 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ImageColorProjector" class="vtkColorPointNeighborImage" label="Color Point Neighbor Image">
+      <Documentation short_help="Colorize points using nearest neighbor image sampling.">
+        Takes a vtkPolyData point cloud at port 0 and a vtkDataSet image input at port 1,
+        and assigns each point the color of the nearest image point.
+      </Documentation>
+
+      <InputProperty name="Point Cloud" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Set the input point cloud.</Documentation>
+      </InputProperty>
+
+      <InputProperty name="Input Image" port_index="1" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+        <Documentation>Set the input image dataset (e.g., .vts).</Documentation>
+      </InputProperty>
+
+      <StringVectorProperty name="Color Array"
+                            command="SetColorArrayName"
+                            number_of_elements="1"
+                            element_types="2"
+                            default_values="PNGImage"
+                            animateable="0">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input Image" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point-data array from the input image used as color source.
+        </Documentation>
+      </StringVectorProperty>
+
+      <OutputPort name="Output" index="0" id="port0" />
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

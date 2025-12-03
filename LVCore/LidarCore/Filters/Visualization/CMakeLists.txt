@@ -3,7 +3,8 @@ set(classes
   vtkLidarRawSignalImage
   vtkPointCloudLinearProjector
   vtkVoxelGridFilter
-  vtkPointCloudPinHoleProjector)
+  vtkPointCloudPinHoleProjector
+  vtkColorPointNeighborImage)
 
 vtk_module_add_module(LidarView::FiltersVisualization
   CLASSES ${classes})
