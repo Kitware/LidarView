@@ -137,6 +137,7 @@ lidarcoreplugin_add_module_xml(
     Filters/AggregatePointsFromTrajectoryOffline.xml
     Filters/AssociateTableToTemporalDataset.xml
     Filters/ClusteringAndTracking.xml
+    Filters/KalmanTracker.xml
     Filters/MLSPosesSmoothing.xml
     Filters/MotionDetector.xml
     Filters/TemporalTransformsApplier.xml

@@ -613,6 +613,12 @@ void vtkClusteringAndTracking::CreateClustersOutput(
     vtkNew<vtkPolyData> source;
     cubeSource->SetBounds(cluster.BoundingBox.GetVertices().data());
     cubeSource->SetCenter(cluster.BoundingBox.GetCenter().data());
+
+    // Remove duplicated points in the cube source
+    vtkNew<vtkCleanPolyData> clean;
+    clean->SetInputConnection(cubeSource->GetOutputPort());
+    clean->Update();
+
     if (this->EnableClusterOrientation)
     {
       // Transform bounding box
@@ -620,14 +626,13 @@ void vtkClusteringAndTracking::CreateClustersOutput(
       vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
       transform->SetMatrix(cluster.BoundingBox.GetTransform().data());
       transformFilter->SetTransform(transform);
-      transformFilter->SetInputConnection(cubeSource->GetOutputPort());
+      transformFilter->SetInputConnection(clean->GetOutputPort());
       transformFilter->Update();
       source->ShallowCopy(transformFilter->GetOutput());
     }
     else
     {
-      cubeSource->Update();
-      source->ShallowCopy(cubeSource->GetOutput());
+      source->ShallowCopy(clean->GetOutput());
     }
 
     std::string blockName("Cluster-" + std::to_string(cluster.ClusterId));

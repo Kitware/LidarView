@@ -1,0 +1,180 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkKalmanTracker -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="KalmanTracker" class="vtkKalmanTracker" label="Kalman Tracker">
+      <Documentation
+        short_help="Track detection bounding boxes using KalmanFilter estimation"
+        long_help="Track detection bounding boxes using KalmanFilter estimation">
+        A tracker to assign unique ID to bounding boxes accross time.
+        The tracker use a Kalman Filter to predict movement estimation from past positions.
+        You can use bounding boxes from any clustering or detection filter.
+      </Documentation>
+
+      <OutputPort name="Trackers" index="0" />
+      <Hints>
+        <RepresentationType view="LidarGridView" type="Wireframe" port="0" />
+      </Hints>
+
+      <Property name="Reset state" command="Reset"></Property>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkMultiBlockDataSet"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <IntVectorProperty
+        name="ShowGhostTracks"
+        animateable="0"
+        default_values="0"
+        command="SetShowGhostTracks"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Show tracks currently not associated to a detection.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="ShowTracksPredictions"
+        animateable="0"
+        default_values="0"
+        command="SetShowTracksPredictions"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Also show the predicted bbox of KF tracks.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="DistanceThreshold"
+        animateable="0"
+        default_values="3"
+        command="SetDistanceThreshold"
+        number_of_elements="1">
+        <Documentation>
+          The minimum distance required to match a track and a detection.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="DistanceCoefficients"
+        animateable="0"
+        default_values="3 1 0 0"
+        command="SetDistanceCoefficients"
+        number_of_elements="4">
+        <Documentation>
+          Distance formula: A × IoU + B × euclidean_distance + C × size_distance + D × rotation_distance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="MaxLostCount"
+        animateable="0"
+        default_values="7"
+        command="SetMaxLostCounter"
+        number_of_elements="1">
+        <Documentation>
+          The number of frame a track can still exist without matching a detection.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="MergeAndSplitTracks"
+        animateable="0"
+        default_values="0"
+        command="SetMergeAndSplitTracks"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Allow the merging/splitting of tracks.
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="General Parameters">
+        <Property name="ShowGhostTracks"/>
+        <Property name="ShowTracksPredictions"/>
+        <Property name="DistanceThreshold"/>
+        <Property name="DistanceCoefficients"/>
+        <Property name="MaxLostCount"/>
+        <Property name="MergeAndSplitTracks"/>
+      </PropertyGroup>
+
+      <DoubleVectorProperty
+        name="P"
+        animateable="0"
+        default_values="100"
+        command="SetP"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <Documentation>
+          KalmanFilter estimated error covariance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Q"
+        animateable="0"
+        default_values="0.5"
+        command="SetQ"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <Documentation>
+          KalmanFilter process measure noise error covariance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="R (position)"
+        animateable="0"
+        default_values="1.5 1.5 5.0"
+        command="SetRPos"
+        number_of_elements="3"
+        panel_visibility="advanced">
+        <Documentation>
+          KalmanFilter position measure noise error covariance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="R (size)"
+        animateable="0"
+        default_values="4 4 10"
+        command="SetRSize"
+        number_of_elements="3"
+        panel_visibility="advanced">
+        <Documentation>
+          KalmanFilter size measure noise error covariance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="R (theta)"
+        animateable="0"
+        default_values="0.0"
+        command="SetRTheta"
+        number_of_elements="1"
+        panel_visibility="advanced">
+        <Documentation>
+          KalmanFilter z-orientation measure noise error covariance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="KalmanFilter Parameters">
+        <Property name="P"/>
+        <Property name="Q"/>
+        <Property name="R (position)"/>
+        <Property name="R (size)"/>
+        <Property name="R (theta)"/>
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkKalmanTracker -->
+</ServerManagerConfiguration>
