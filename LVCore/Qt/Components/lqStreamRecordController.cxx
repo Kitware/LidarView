@@ -132,7 +132,7 @@ bool lqStreamRecordController::startRecording()
     return false;
   }
   vtkSMSessionProxyManager* pxm = server->proxyManager();
-  this->RecorderProxy.TakeReference(pxm->NewProxy("internal_interpreter", "PacketRecorder"));
+  this->RecorderProxy.TakeReference(pxm->NewProxy("misc", "PacketRecorder"));
 
   // Set a common packet writer proxy for all streams
   Q_FOREACH (vtkSMLidarStreamProxy* proxy, streamList)
@@ -222,7 +222,7 @@ void lqStreamRecordController::stopRecording()
   if (server)
   {
     vtkSMSessionProxyManager* pxm = server->proxyManager();
-    pxm->UnRegisterProxy("internal_interpreter", "PacketRecorder", this->RecorderProxy);
+    pxm->UnRegisterProxy("misc", "PacketRecorder", this->RecorderProxy);
   }
 
   // Display a feedback message to the user when the recording is stopped

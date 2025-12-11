@@ -1,5 +1,5 @@
 <ServerManagerConfiguration>
-  <ProxyGroup name="internal_interpreter">
+  <ProxyGroup name="misc">
     <!-- ==================================================================== -->
     <!-- Packet recorder -->
     <Proxy name="PacketRecorder" class="vtkPacketRecorder">
@@ -13,7 +13,9 @@
                 command="StopRecording"
                 panel_widget="command_button" />
     </Proxy>
+  </ProxyGroup>
 
+  <ProxyGroup name="internal_interpreter">
     <!-- ==================================================================== -->
     <!-- UDP Packet receiver -->
     <Proxy name="UDPPacketReceiver" class="vtkUDPPacketReceiver">
