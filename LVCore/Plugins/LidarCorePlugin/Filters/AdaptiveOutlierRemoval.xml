@@ -20,7 +20,7 @@
 
     <OutputPort name="Filtered points" index="0" />
 
-    <!-- ============================ Clustering and tracking ============================ -->
+    <!-- ============================ Adaptive outlier removal ============================ -->
     <StringVectorProperty name="Depth array"
                         command="SetInputArrayToProcess"
                         number_of_elements="5"
@@ -95,5 +95,5 @@
 
     </SourceProxy>
   </ProxyGroup>
-  <!-- End ClusteringAndTracking -->
+  <!-- End Adaptive outlier removal -->
 </ServerManagerConfiguration>
