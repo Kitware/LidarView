@@ -6,5 +6,8 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersGeneral
+  VTK::RenderingFreeType
 TEST_DEPENDS
   LidarView::TestingCore

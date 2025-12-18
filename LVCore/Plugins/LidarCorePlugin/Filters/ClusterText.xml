@@ -1,0 +1,39 @@
+<ServerManagerConfiguration>
+  <!-- Begin Cluster Text -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ClusterText" class="vtkClusterText" label="Cluster information">
+      <Documentation
+        short_help="Display cluster information"
+        long_help="Display cluster information from field data">
+        This filter is used to display a cluster information by a 3d text around the boundingbox of the cluster.
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkMultiBlockDataSet"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+    <OutputPort name="Clusters information" index="0" />
+
+    <!-- ============================ Clustering and tracking ============================ -->
+    <StringVectorProperty name="Cluster information to display"
+                          command="SetFieldDataArrayName"
+                          number_of_elements="1"
+                          default_values="Height">
+        <ArrayListDomain attribute_type="FieldData" none_string="None" name="array_list" input_domain_name="field_arrays">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Choose the input array of depth value
+      </Documentation>
+    </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End Cluster Text -->
+</ServerManagerConfiguration>

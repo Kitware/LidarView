@@ -65,6 +65,7 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersGeneral
   XML_MODULE_FILES
     Filters/ClipPoints.xml
+    Filters/ClusterText.xml
     Filters/RPMText.xml
     Filters/SelectPointsByScalars.xml
     Filters/NormalizeExternalSensorData.xml
@@ -234,7 +235,6 @@ if (LIDARVIEW_USE_QT)
     lqConditionalDefaultPropertyWidgetDecorator.h
     lqLidarCorePluginManager.cxx
     lqLidarCorePluginManager.h
-    lqMultiColumnSelectorWidget.cxx
     lqMultiColumnSelectorWidget.cxx
     lqMultiColumnSelectorWidget.h
     )
