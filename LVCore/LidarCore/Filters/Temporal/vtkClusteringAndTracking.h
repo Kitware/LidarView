@@ -42,7 +42,6 @@
  * Output1: Clusters points
  * Output2: Clusters statistics
  * Output3: Text of clusters information for display purpose
- * Output4: 3d text of a cluster statistic displayed around the corresponded cluster
  */
 class LVFILTERSTEMPORAL_EXPORT vtkClusteringAndTracking : public vtkPolyDataAlgorithm
 {
@@ -90,9 +89,6 @@ public:
   // Setter to enable/disable to compute the cluster's orientation
   vtkSetMacro(EnableClusterOrientation, bool);
   vtkGetMacro(EnableClusterOrientation, bool);
-
-  // Set cluster information to display
-  void SetClusterInfoToDisplay(int displayInfo);
 
 protected:
   // constructor / destructor
@@ -205,24 +201,6 @@ private:
     Bbox BoundingBox;
   };
   std::vector<ClusterStats> ClustersStats;
-
-  // Display stat
-  enum DisplayStat
-  {
-    CLUSTER_ID = 0,
-    NB_POINTS = 1,
-    HEIGHT = 2,
-    DEPTH = 3,
-    INTENSITY = 4,
-  };
-  inline static const std::map<DisplayStat, std::string> ClusterDisplayStatNames = {
-    { CLUSTER_ID, "ClusterId" },
-    { NB_POINTS, "Num points" },
-    { HEIGHT, "H" },
-    { DEPTH, "D" },
-    { INTENSITY, "I" }
-  };
-  DisplayStat ClusterInfoToDisplay = CLUSTER_ID;
 
   // Clustering with gaussian mixture model
   /**
@@ -436,26 +414,22 @@ private:
   // Extract clusters with vtkEuclideanClusterExtraction method
   void ExtractClustersWithEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput,
-    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Extract clusters with gaussian mixture model method
   void ExtractClustersWithGMM(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput,
-    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Extract clusters with region growing method
   void ExtractClustersWithRegionGrowing(vtkSmartPointer<vtkPolyData> input,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput,
-    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Extract clusters with adaptive euclidean cluster
   void ExtractClustersWithAdaptiveEuclidean(vtkSmartPointer<vtkPolyData> polydata,
     vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput,
-    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
+    vtkSmartPointer<vtkTable> infoOutput);
 
   // Functions to construct clustering grid
   void InitClusteringGrid(vtkPolyData* polydata);
@@ -474,8 +448,7 @@ private:
 
   // Create outputs
   void CreateClustersOutput(vtkSmartPointer<vtkMultiBlockDataSet> clustersOutput,
-    vtkSmartPointer<vtkTable> infoOutput,
-    vtkSmartPointer<vtkMultiBlockDataSet> clusters3DTextOutput);
+    vtkSmartPointer<vtkTable> infoOutput);
 };
 
 #endif // VTK_CLUSTERING_H
