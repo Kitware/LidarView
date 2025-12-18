@@ -19,7 +19,7 @@
     </InputProperty>
 
     <OutputPort name="Clusters points" index="0" />
-    <OutputPort name="Clusters" index="1" />
+    <OutputPort name="Clusters boundingbox" index="1" />
     <OutputPort name="Clusters information" index="2" />
     <OutputPort name="Clusters measurements" index="3" />
     <Hints>
