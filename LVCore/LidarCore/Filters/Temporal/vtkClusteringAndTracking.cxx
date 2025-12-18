@@ -659,6 +659,12 @@ void vtkClusteringAndTracking::CreateClustersOutput(
     vtkSmartPointer<vtkFloatArray> bboxDistances = vtkSmartPointer<vtkFloatArray>::New();
     bboxDistances->SetName("Distance");
     bboxDistances->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxIntensity = vtkSmartPointer<vtkFloatArray>::New();
+    bboxIntensity->SetName("Intensity");
+    bboxIntensity->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkFloatArray> bboxHeight = vtkSmartPointer<vtkFloatArray>::New();
+    bboxHeight->SetName("Height");
+    bboxHeight->SetNumberOfComponents(1);
     vtkSmartPointer<vtkFloatArray> bboxSizes = vtkSmartPointer<vtkFloatArray>::New();
     bboxSizes->SetName("Size");
     bboxSizes->SetNumberOfComponents(3);
@@ -672,20 +678,28 @@ void vtkClusteringAndTracking::CreateClustersOutput(
       vtkSmartPointer<vtkUnsignedShortArray>::New();
     bboxLabels->SetName("Label");
     bboxLabels->SetNumberOfComponents(1);
+    vtkSmartPointer<vtkIntArray> bboxNumPoints = vtkSmartPointer<vtkIntArray>::New();
+    bboxNumPoints->SetName("NumPoints");
+    bboxNumPoints->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkFieldData> fieldData = vtkSmartPointer<vtkFieldData>::New();
     fieldData->AddArray(bboxId);
     fieldData->AddArray(bboxDistances);
+    fieldData->AddArray(bboxIntensity);
+    fieldData->AddArray(bboxHeight);
     fieldData->AddArray(bboxSizes);
     fieldData->AddArray(bboxCenters);
     fieldData->AddArray(bboxOrientations);
     fieldData->AddArray(bboxLabels);
     bboxId->InsertNextTuple1(static_cast<int>(cluster.ClusterId));
     bboxDistances->InsertNextTuple1(cluster.MeanDepth);
+    bboxIntensity->InsertNextTuple1(cluster.MeanIntensity);
+    bboxHeight->InsertNextTuple1(cluster.Height);
     bboxSizes->InsertNextTuple(cluster.BoundingBox.GetSize().data());
     bboxCenters->InsertNextTuple(cluster.BoundingBox.GetTrueCenter().data());
     bboxOrientations->InsertNextTuple(cluster.BoundingBox.GetOrientation().data());
     bboxLabels->InsertNextTuple1(static_cast<unsigned short>(cluster.ClusterLabel));
+    bboxNumPoints->InsertNextTuple1(cluster.NbPoints);
 
     clustersOutput->GetBlock(blockId)->SetFieldData(fieldData);
 
