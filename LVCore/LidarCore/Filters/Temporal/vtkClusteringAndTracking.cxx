@@ -547,9 +547,9 @@ vtkClusteringAndTracking::ClusterStats vtkClusteringAndTracking::ComputeClusterS
 
     // clang-format off
     double matrix[16] = {
-      eigenvectors->GetValue(6), eigenvectors->GetValue(3), eigenvectors->GetValue(0), pointcloudCentroid.x(),
-      eigenvectors->GetValue(7), eigenvectors->GetValue(4), eigenvectors->GetValue(1), pointcloudCentroid.y(),
-      eigenvectors->GetValue(8), eigenvectors->GetValue(5), eigenvectors->GetValue(2), pointcloudCentroid.z(),
+      eigenvectors->GetValue(0), eigenvectors->GetValue(3), eigenvectors->GetValue(6), pointcloudCentroid.x(),
+      eigenvectors->GetValue(1), eigenvectors->GetValue(4), eigenvectors->GetValue(7), pointcloudCentroid.y(),
+      eigenvectors->GetValue(2), eigenvectors->GetValue(5), eigenvectors->GetValue(8), pointcloudCentroid.z(),
       0., 0., 0., 1. };
     // clang-format on
     vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
