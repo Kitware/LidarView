@@ -18,6 +18,7 @@
 #define vtkSynchronizedQueue_txx
 
 #include "vtkSynchronizedQueue.h"
+#include <vtkLogger.h>
 
 //-----------------------------------------------------------------------------
 template <typename T>
@@ -41,6 +42,7 @@ bool vtkSynchronizedQueue<T>::Enqueue(const T& data)
 
   if (this->Queue.size() >= this->MaxQueueSize)
   {
+    vtkLog(WARNING, "Queue reached max size of " << this->MaxQueueSize << ", dropping data!");
     this->Queue.pop();
   }
   return true;
