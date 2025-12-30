@@ -21,6 +21,11 @@
 
 #include <chrono>
 
+namespace
+{
+constexpr uint32_t RECEIVE_BUFFER_SIZE = 24 * 1024 * 1024; // 24MB
+}
+
 //-----------------------------------------------------------------------------
 vtkUDPReceiverSocketImpl::vtkUDPReceiverSocketImpl(boost::asio::io_context& ioContext,
   HandleReceiveCallback callback)
@@ -111,6 +116,10 @@ bool vtkUDPReceiverSocketImpl::Open(const vtkUDPReceiverSocketImpl::Parameters& 
   {
     // Tell the OS we accept to re-use the port address for an other app
     this->ReceiveSocket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+
+    // Increase default value of boost internal buffer.
+    this->ReceiveSocket.set_option(
+      boost::asio::socket_base::receive_buffer_size(RECEIVE_BUFFER_SIZE));
 
     uint16_t port = params.listeningPorts[portIdx];
     if (useMulticast)
