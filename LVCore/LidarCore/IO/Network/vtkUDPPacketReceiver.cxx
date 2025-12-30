@@ -33,7 +33,7 @@
 
 namespace
 {
-constexpr unsigned int PKT_CACHE_SIZE = 500;
+constexpr unsigned int PKT_CACHE_SIZE = 1500;
 constexpr unsigned int PROTOCOL_UDP = 17;
 
 using QueueType = vtkSynchronizedQueue<vtkUDPReceiverSocketImpl::PacketType>;

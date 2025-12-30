@@ -24,7 +24,7 @@
 
 namespace
 {
-unsigned int QUEUE_CACHE_SIZE = 20U;
+unsigned int QUEUE_CACHE_SIZE = 500U;
 using QueueType = vtkSynchronizedQueue<Tins::Packet>;
 
 //-----------------------------------------------------------------------------
