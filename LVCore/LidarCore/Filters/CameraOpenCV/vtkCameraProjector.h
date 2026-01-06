@@ -51,6 +51,15 @@ public:
   vtkSetMacro(OverlayColorMode, int);
   vtkGetMacro(OverlayColorMode, int);
 
+  vtkSetMacro(IntensityArrayName, std::string);
+  vtkGetMacro(IntensityArrayName, std::string);
+
+  vtkSetMacro(TimeArrayName, std::string);
+  vtkGetMacro(TimeArrayName, std::string);
+
+  vtkSetMacro(DistanceArrayName, std::string);
+  vtkGetMacro(DistanceArrayName, std::string);
+
   void SetUseCalibrationFile(bool argUseCalibrationFile);
 
   // Camera model parameters
@@ -143,6 +152,15 @@ private:
 
   //! 0 = Intensity, 1 = Distance in camera frame
   int OverlayColorMode = 0;
+
+  //! Name of the point-data array to use as intensity for overlay coloring
+  std::string IntensityArrayName = "Intensity";
+
+  //! Name of the point-data array that carries timestamps (used with trajectory)
+  std::string TimeArrayName = "adjustedtime";
+
+  //! Optional name of the precomputed distance array in camera frame.
+  std::string DistanceArrayName = "distance_m";
 };
 
 #endif // VTK_CAMERA_PROJECTOR_H

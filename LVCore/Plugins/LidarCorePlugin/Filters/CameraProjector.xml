@@ -267,6 +267,30 @@
         </Documentation>
       </IntVectorProperty>
 
+      <StringVectorProperty name="TimeArrayName"
+                            command="SetTimeArrayName"
+                            animateable="0"
+                            default_values="adjustedtime"
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point-data time array used with trajectory-based correction (e.g. adjustedtime).
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseTrajectoryToCorrectPoints"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
       <DoubleVectorProperty name="PipelineTimeToLidarTime"
                         command="SetPipelineTimeToLidarTime"
                         number_of_elements="1"
@@ -299,8 +323,58 @@
         </Documentation>
       </IntVectorProperty>
 
+      <StringVectorProperty name="IntensityArrayName"
+                            command="SetIntensityArrayName"
+                            animateable="0"
+                            default_values=""
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the intensity array to use for overlay coloring.
+        </Documentation>
+        <Hints>
+          <ArraySelectionWidget icon_type="point" />
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OverlayColorMode"
+                                   value="0" />
+        </Hints>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="DistanceArrayName"
+                            command="SetDistanceArrayName"
+                            animateable="0"
+                            default_values=""
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point-data array that stores distance in the camera frame. If user choose None, the distance range is computed from geometry.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OverlayColorMode"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
       <PropertyGroup label="Overlay Parameters">
         <Property name="OverlayColorMode" />
+        <Property name="IntensityArrayName" />
+        <Property name="DistanceArrayName" />
       </PropertyGroup>
 
     </SourceProxy>

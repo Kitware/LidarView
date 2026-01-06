@@ -390,13 +390,19 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataArray* intensity = nullptr;
   double Imin = 0.0, Imax = 255.0;
-  bool hasIntensity = GetIntensityArrayAndRange(pointcloud, intensity, Imin, Imax);
-  if (!hasIntensity)
+  if (!Utils::GetIntensityArrayAndRange(pointcloud, this->IntensityArrayName, intensity, Imin, Imax))
   {
-    vtkWarningMacro("Input point cloud does not have an 'intensity'/'Intensity' array.");
+    if (this->IntensityArrayName.empty())
+    {
+      vtkWarningMacro("Input point cloud does not have an Intensity array.");
+    }
   }
 
-  vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
+  vtkDataArray* timestampArray = nullptr;
+  if (!this->TimeArrayName.empty())
+  {
+    timestampArray = pointcloud->GetPointData()->GetArray(this->TimeArrayName.c_str());
+  }
 
   // Get RGB array from input pointcloud
   vtkSmartPointer<vtkIntArray> inputRGBArray =
@@ -421,9 +427,9 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     (timestampArray != nullptr);
   if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr && !timestampArray)
   {
-    vtkWarningMacro(
-      "UseTrajectoryToCorrectPoints is enabled and a trajectory is provided, but input point cloud"
-      " does not have an 'adjustedtime' array. Trajectory-based correction will be skipped.");
+    vtkWarningMacro(<< "UseTrajectoryToCorrectPoints is enabled and a trajectory is provided, but "
+                       "input point cloud does not have a valid time array '"
+                    << this->TimeArrayName << "'. Trajectory-based correction will be skipped.");
   }
   if (canUndistort)
   {
@@ -440,9 +446,13 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   Eigen::Matrix3d Rext = RollPitchYawToMatrix(W(0), W(1), W(2));
   Eigen::Vector3d Text(W(3), W(4), W(5));
   // Determine distance range for overlay coloring.
-  // Prefer using a precomputed array named "distance_m" if available.
+  // Prefer using a precomputed array if available.
   double Dmin = 0.0, Dmax = 1.0;
-  vtkDataArray* distanceArray = pointcloud->GetPointData()->GetArray("distance_m");
+  vtkDataArray* distanceArray = nullptr;
+  if (!this->DistanceArrayName.empty())
+  {
+    distanceArray = pointcloud->GetPointData()->GetArray(this->DistanceArrayName.c_str());
+  }
   if (distanceArray)
   {
     double range[2] = {0.0, 1.0};
