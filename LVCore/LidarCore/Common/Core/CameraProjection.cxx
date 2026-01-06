@@ -26,7 +26,7 @@
 #include <boost/algorithm/string.hpp>
 
 //-----------------------------------------------------------------------------
-Eigen::Vector3d GetRGBColourFromReflectivity(double intensity, double Imin, double Imax)
+Eigen::Vector3d GetRGBColourFromScalar(double intensity, double Imin, double Imax)
 {
   Eigen::Vector3d color(1.0, 1.0, 1.0); // white
   double dI;

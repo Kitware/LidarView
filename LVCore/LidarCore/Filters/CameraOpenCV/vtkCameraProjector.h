@@ -29,6 +29,9 @@
 
 #include "lvFiltersCameraOpenCVModule.h"
 
+class vtkPolyData;
+class vtkDataArray;
+class vtkTransform;
 class LVFILTERSCAMERAOPENCV_EXPORT vtkCameraProjector : public vtkImageAlgorithm
 {
 public:
@@ -44,6 +47,9 @@ public:
   vtkSetMacro(UseTrajectoryToCorrectPoints, bool);
   vtkSetMacro(PipelineTimeToLidarTime, double);
   vtkSetMacro(ColorizedOutputOnly, double);
+
+  vtkSetMacro(OverlayColorMode, int);
+  vtkGetMacro(OverlayColorMode, int);
 
   void SetUseCalibrationFile(bool argUseCalibrationFile);
 
@@ -134,6 +140,9 @@ private:
 
   //! type of camera model
   ProjectionType Type = ProjectionType::Pinhole;
+
+  //! 0 = Intensity, 1 = Distance in camera frame
+  int OverlayColorMode = 0;
 };
 
 #endif // VTK_CAMERA_PROJECTOR_H

@@ -84,14 +84,14 @@ LVCOMMONCORE_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(
   bool shouldPlaneClip = false);
 
 /**
- * @brief GetRGBColourFromReflectivity map the reflectivity signal
- *        onto a RGB color map
+ * @brief GetRGBColourFromScalar map a scalar value
+ *        onto an RGB color map.
  *
- * @param v reflectivity signal
- * @param vmin minimal value of the reflectivity signal
- * @param vmax maximal value of the reflectivity signal
+ * @param v scalar value to map
+ * @param vmin minimal value of the scalar range
+ * @param vmax maximal value of the scalar range
  */
-LVCOMMONCORE_EXPORT Eigen::Vector3d GetRGBColourFromReflectivity(double v,
+LVCOMMONCORE_EXPORT Eigen::Vector3d GetRGBColourFromScalar(double v,
   double vmin,
   double vmax);
 

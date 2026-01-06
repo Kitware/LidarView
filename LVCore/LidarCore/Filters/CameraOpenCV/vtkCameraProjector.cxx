@@ -399,6 +399,22 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   // place this costly heap allocation outside the loop
   auto poseAtPointTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
+  // Prepare distance-based coloring in camera frame: compute extrinsics and
+  // a range [Dmin, Dmax] over all points.
+  Eigen::Matrix3d Rext = RollPitchYawToMatrix(W(0), W(1), W(2));
+  Eigen::Vector3d Text(W(3), W(4), W(5));
+  double Dmin = 0.0, Dmax = 1.0;
+  ComputeCameraDistanceRange(pointcloud,
+    timestampArray,
+    canUndistort,
+    this->Trajectory,
+    poseAtPointTimeTemp,
+    poseAtCameraTime,
+    Rext,
+    Text,
+    Dmin,
+    Dmax);
+
   // Project the points in the image
   vtkIdType numPoints = 0;
   vtkIdType numPointsProjected = 0;
@@ -473,9 +489,24 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
     preProjectionIndexArray->InsertNextTuple1(pointIndex);
 
-    // Get its color
-    double intensityValue = intensity->GetTuple1(pointIndex);
-    Eigen::Vector3d color = GetRGBColourFromReflectivity(intensityValue, 0, 255);
+    // Determine overlay scalar based on user-selected mode
+    // 0 = intensity (if available), 1 = distance in camera frame
+    Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
+    double dist = Xcam.norm();
+    double v = 0.0, vmin = 0.0, vmax = 1.0;
+    if (this->OverlayColorMode == 0)
+    {
+      v = intensity->GetTuple1(pointIndex);
+      vmin = Imin;
+      vmax = Imax;
+    }
+    else
+    {
+      v = dist;
+      vmin = Dmin;
+      vmax = Dmax;
+    }
+    Eigen::Vector3d color = GetRGBColourFromScalar(v, vmin, vmax);
 
     double rgb[3];
     for (int k = 0; k < 3; ++k)
