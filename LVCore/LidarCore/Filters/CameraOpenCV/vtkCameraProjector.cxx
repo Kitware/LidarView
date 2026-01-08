@@ -530,6 +530,9 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     double rgb[3];
     for (int k = 0; k < 3; ++k)
     {
+      // Map output RGB channel k to the correct source channel.
+      // For image input, use RGB order, for video frames (OpenCV) use BGR.
+      int ck = inputIsPhoto ? k : 2 - k;
       for (int colOffset = -(this->ProjectedPointSizeInImage / 2);
            colOffset < ((this->ProjectedPointSizeInImage + 1) / 2);
            colOffset++)
@@ -540,7 +543,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
         {
           int c = std::min(std::max(0, vtkCol + colOffset), inImg->GetDimensions()[0] - 1);
           int r = std::min(std::max(0, vtkRow + rowOffset), inImg->GetDimensions()[1] - 1);
-          outImg->SetScalarComponentFromDouble(c, r, 0, k, color(2 - k));
+          outImg->SetScalarComponentFromDouble(c, r, 0, k, color(ck));
         }
       }
       rgb[k] = inImg->GetScalarComponentAsDouble(vtkCol, vtkRow, 0, k);
