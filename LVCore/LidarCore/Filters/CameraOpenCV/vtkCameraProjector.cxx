@@ -381,13 +381,15 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   auto poseAtCameraTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
   Eigen::Transform<double, 3, Eigen::Affine> poseAtCameraTime;
+  bool canUndistort = this->UseTrajectoryToCorrectPoints && (this->Trajectory != nullptr) &&
+    (timestampArray != nullptr);
   if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr && !timestampArray)
   {
     vtkWarningMacro(
       "UseTrajectoryToCorrectPoints is enabled and a trajectory is provided, but input point cloud"
       " does not have an 'adjustedtime' array. Trajectory-based correction will be skipped.");
   }
-  if (this->UseTrajectoryToCorrectPoints && (this->Trajectory != nullptr) && (timestampArray != nullptr))
+  if (canUndistort)
   {
     double pointTimestamp = 1e-6 * timestampArray->GetTuple1(0); // convert timestamp to seconds
     this->Trajectory->InterpolateTransform(pointTimestamp, poseAtCameraTimeTemp);
@@ -406,7 +408,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     pointcloud->GetPoint(pointIndex, pos);
     Eigen::Vector3d X(pos[0], pos[1], pos[2]);
     Eigen::Vector2d y;
-    if (this->UseTrajectoryToCorrectPoints && (this->Trajectory != nullptr) && (timestampArray != nullptr))
+    if (canUndistort)
     {
       double pointTimestamp =
         1e-6 * timestampArray->GetTuple1(pointIndex); // convert timestamp to seconds
