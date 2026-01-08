@@ -176,15 +176,15 @@ int vtkCameraProjector::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformation* inPointsInfo = inputVector[POINTS_INPUT_PORT]->GetInformationObject(0);
   std::vector<double> pointTimesteps = getTimeSteps(inPointsInfo);
 
-  if (pointTimesteps.size() == 0)
+  // Handle sources without TIME_STEPS by falling back to a single timestep.
+  if (pointTimesteps.empty())
   {
-    vtkErrorMacro("No timesteps available in the input point cloud");
-    return 0;
+    pointTimesteps = { 0.0 };
   }
 
   double timeRange[2] = { pointTimesteps[0], pointTimesteps[pointTimesteps.size() - 1] };
   // We provide the same timestamps for all outputs
-  for (int i = 0; i < OUTPUT_PORT_COUNT; i++)
+  for (unsigned int i = 0; i < OUTPUT_PORT_COUNT; i++)
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(i);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
@@ -230,6 +230,14 @@ int vtkCameraProjector::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   }
   std::vector<double> imageTimesteps =
     getTimeSteps(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
+
+  // If there are no timesteps on the image input, just use the current input image as-is.
+  if (imageTimesteps.empty())
+  {
+    vtkDebugMacro(<< "vtkCameraProjector::RequestUpdateExtent() - no image TIME_STEPS; using "
+                     "current image without time selection.");
+    return 1;
+  }
   int bestImageTimeId = closestElementInOrderedVector(imageTimesteps, requestedTimestamp);
   double bestImageTime = imageTimesteps[bestImageTimeId];
 
@@ -373,7 +381,13 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   auto poseAtCameraTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
   Eigen::Transform<double, 3, Eigen::Affine> poseAtCameraTime;
-  if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
+  if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr && !timestampArray)
+  {
+    vtkWarningMacro(
+      "UseTrajectoryToCorrectPoints is enabled and a trajectory is provided, but input point cloud"
+      " does not have an 'adjustedtime' array. Trajectory-based correction will be skipped.");
+  }
+  if (this->UseTrajectoryToCorrectPoints && (this->Trajectory != nullptr) && (timestampArray != nullptr))
   {
     double pointTimestamp = 1e-6 * timestampArray->GetTuple1(0); // convert timestamp to seconds
     this->Trajectory->InterpolateTransform(pointTimestamp, poseAtCameraTimeTemp);
@@ -392,7 +406,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     pointcloud->GetPoint(pointIndex, pos);
     Eigen::Vector3d X(pos[0], pos[1], pos[2]);
     Eigen::Vector2d y;
-    if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
+    if (this->UseTrajectoryToCorrectPoints && (this->Trajectory != nullptr) && (timestampArray != nullptr))
     {
       double pointTimestamp =
         1e-6 * timestampArray->GetTuple1(pointIndex); // convert timestamp to seconds
