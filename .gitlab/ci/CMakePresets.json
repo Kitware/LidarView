@@ -33,7 +33,7 @@
         }
       },
       {
-        "name": "ci_windows_vs2019",
+        "name": "ci_windows_vs2022",
         "inherits": ["ci_common"],
         "filter": {
           "exclude": {"name": "lv|Python|TestVelodyneLidarStream_HDL_64"}

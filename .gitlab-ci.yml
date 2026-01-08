@@ -82,23 +82,23 @@ clang-tidy-check:analyse:
 
 # Windows
 
-windows-vs2019:build:
+windows-vs2022:build:
     extends:
-        - .windows_vs2019
+        - .windows_vs2022
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
 
-windows-vs2019:test:
+windows-vs2022:test:
     extends:
-        - .windows_vs2019
+        - .windows_vs2022
         - .cmake_test_windows
         - .windows_test_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - windows-vs2019:build
+        - windows-vs2022:build
     needs:
-        - windows-vs2019:build
+        - windows-vs2022:build
