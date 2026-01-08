@@ -327,6 +327,17 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  // Determine whether the connected input should be treated as a image or a video.
+  // If an image is connected to the input port and it has TIME_STEPS metadata, treat as video;
+  // otherwise treat as a single photo. Inputs loaded via VideoPath are treated as video.
+  bool inputIsPhoto = false;
+  if (vtkImageData::GetData(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0)) != nullptr)
+  {
+    std::vector<double> timesteps =
+      getTimeSteps(inputVector[IMAGE_INPUT_PORT]->GetInformationObject(0));
+    inputIsPhoto = timesteps.empty();
+  }
+
   vtkNew<vtkPoints> outPoints;
   vtkNew<vtkCellArray> outVerts;
   outPoints->Resize(pointcloud->GetNumberOfPoints());
@@ -443,8 +454,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
     y = this->Model.Projection(X, true);
 
-    // y represents the pixel coordinates using opencv convention, we need to
-    // go back to vtkImageData pixel convention
+    // y represents the pixel coordinates using OpenCV convention (origin at top-left).
     int vtkRow = static_cast<int>(y(1));
     int vtkCol = static_cast<int>(y(0));
 
@@ -476,11 +486,20 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
       continue;
     }
 
+    // Align OpenCV (top-left origin) with VTK (bottom-left origin) for images only.
+    // If the input is video, skip flipping.
+    if (inputIsPhoto)
+    {
+      vtkRow = inImg->GetDimensions()[1] - 1 - vtkRow;
+    }
+
+    // Clamp to valid image bounds
     vtkRow = std::min(std::max(0, vtkRow), inImg->GetDimensions()[1] - 1);
     vtkCol = std::min(std::max(0, vtkCol), inImg->GetDimensions()[0] - 1);
 
     // register the point if it is valid
-    double pt[3] = { y(0), y(1), 0. };
+    // Keep Projected Frame coordinates identical to the original projection (OpenCV convention)
+    double pt[3] = { static_cast<double>(vtkCol), static_cast<double>(vtkRow), 0. };
     projectedCloud->GetPoints()->InsertNextPoint(pt);
     projectedCloud->GetVerts()->InsertNextCell(1, &numPointsProjected);
     projectedCloud->GetPointData()->CopyData(
