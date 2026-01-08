@@ -95,11 +95,11 @@ endif ()
 # CURL dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_CURL)
-  find_package(Curl REQUIRED)
+  find_package(CURL REQUIRED)
   if (CMAKE_MAJOR_VERSION GREATER_EQUAL "4")
-    print_version(Curl)
+    print_version(CURL)
   else ()
-    message(STATUS "Found Curl: ${CURL_VERSION_STRING}")
+    message(STATUS "Found CURL: ${CURL_VERSION_STRING}")
   endif ()
 endif ()
 
