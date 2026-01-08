@@ -36,18 +36,83 @@
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTransform.h>
 
-#define IMAGE_INPUT_PORT 0
-#define POINTS_INPUT_PORT 1
-#define TRAJECTORY_INPUT_PORT 2
-#define INPUT_PORT_COUNT 3
-
-#define IMAGE_WITH_POINTS_OUTPUT_PORT 0
-#define POINTS_OUTPUT_PORT 1 // this clearly is the most useful output (others are cosmetic/debug)
-#define PROJECTED_POINTS_OUTPUT_PORT 2
-#define OUTPUT_PORT_COUNT 3
-
-// Implementation of the New function
 vtkStandardNewMacro(vtkCameraProjector)
+
+constexpr unsigned int IMAGE_INPUT_PORT = 0;
+constexpr unsigned int POINTS_INPUT_PORT = 1;
+constexpr unsigned int TRAJECTORY_INPUT_PORT = 2;
+constexpr unsigned int INPUT_PORT_COUNT = 3;
+
+constexpr unsigned int IMAGE_WITH_POINTS_OUTPUT_PORT = 0;
+constexpr unsigned int POINTS_OUTPUT_PORT = 1;
+constexpr unsigned int PROJECTED_POINTS_OUTPUT_PORT = 2;
+constexpr unsigned int OUTPUT_PORT_COUNT = 3;
+namespace Utils
+{
+//-----------------------------------------------------------------------------
+bool GetIntensityArrayAndRange(vtkPolyData* pc,
+  const std::string& preferredName,
+  vtkDataArray*& arr,
+  double& Imin,
+  double& Imax)
+{
+  if (!preferredName.empty())
+  {
+    arr = pc->GetPointData()->GetArray(preferredName.c_str());
+    if (!arr)
+    {
+      return false;
+    }
+  }
+  double range[2] = { 0.0, 0.0 };
+  arr->GetRange(range);
+  Imin = range[0];
+  Imax = range[1];
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+void ComputeCameraDistanceRange(vtkPolyData* pointcloud,
+  vtkDataArray* timestampArray,
+  bool canUndistort,
+  vtkCustomTransformInterpolator* trajectory,
+  vtkTransform* poseAtPointTimeTemp,
+  const Eigen::Transform<double, 3, Eigen::Affine>& poseAtCameraTime,
+  const Eigen::Matrix3d& Rext,
+  const Eigen::Vector3d& Text,
+  double& DminOut,
+  double& DmaxOut)
+{
+  DminOut = std::numeric_limits<double>::max();
+  DmaxOut = -std::numeric_limits<double>::max();
+  for (vtkIdType idx = 0; idx < pointcloud->GetNumberOfPoints(); ++idx)
+  {
+    double point[3];
+    pointcloud->GetPoint(idx, point);
+    Eigen::Vector3d pointWorld(point[0], point[1], point[2]);
+    // If undistortion is enabled, compute the position of the point
+    // in the world reference at the camera time.
+    if (canUndistort)
+    {
+      double tsPt = 1e-6 * timestampArray->GetTuple1(idx); // convert timestamp to seconds
+      trajectory->InterpolateTransform(tsPt, poseAtPointTimeTemp);
+      poseAtPointTimeTemp->Update();
+      Eigen::Transform<double, 3, Eigen::Affine> poseAtPointTime =
+        ToEigenTransform(poseAtPointTimeTemp);
+      Eigen::Transform<double, 3, Eigen::Affine> relativeTransform =
+        poseAtCameraTime.inverse(Eigen::Affine) * poseAtPointTime;
+      pointWorld = relativeTransform.rotation() * pointWorld + relativeTransform.translation();
+    }
+    Eigen::Vector3d pointInCamera = Rext.transpose() * (pointWorld - Text);
+    double distance = pointInCamera.norm();
+    if (distance < DminOut)
+      DminOut = distance;
+    if (distance > DmaxOut)
+      DmaxOut = distance;
+  }
+}
+}
 
 //-----------------------------------------------------------------------------
 vtkCameraProjector::vtkCameraProjector()
@@ -279,7 +344,14 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     createArray<vtkIntArray>("preProjectionIndex", 1, projectedCloud->GetNumberOfPoints());
   projectedCloud->GetPointData()->AddArray(preProjectionIndexArray);
 
-  vtkDataArray* intensity = pointcloud->GetPointData()->GetArray("intensity");
+  vtkDataArray* intensity = nullptr;
+  double Imin = 0.0, Imax = 255.0;
+  bool hasIntensity = GetIntensityArrayAndRange(pointcloud, intensity, Imin, Imax);
+  if (!hasIntensity)
+  {
+    vtkWarningMacro("Input point cloud does not have an 'intensity'/'Intensity' array.");
+  }
+
   vtkDataArray* timestampArray = pointcloud->GetPointData()->GetArray("adjustedtime");
 
   // Get RGB array from input pointcloud
@@ -303,7 +375,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   Eigen::Transform<double, 3, Eigen::Affine> poseAtCameraTime;
   if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
   {
-    double pointTimestamp = 1e-6 * timestampArray->GetTuple1(0);
+    double pointTimestamp = 1e-6 * timestampArray->GetTuple1(0); // convert timestamp to seconds
     this->Trajectory->InterpolateTransform(pointTimestamp, poseAtCameraTimeTemp);
     poseAtCameraTimeTemp->Update();
     poseAtCameraTime = ToEigenTransform(poseAtCameraTimeTemp);
@@ -322,7 +394,8 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     Eigen::Vector2d y;
     if (this->UseTrajectoryToCorrectPoints && this->Trajectory != nullptr)
     {
-      double pointTimestamp = 1e-6 * timestampArray->GetTuple1(pointIndex);
+      double pointTimestamp =
+        1e-6 * timestampArray->GetTuple1(pointIndex); // convert timestamp to seconds
       this->Trajectory->InterpolateTransform(pointTimestamp, poseAtPointTimeTemp);
       poseAtPointTimeTemp->Update();
 
