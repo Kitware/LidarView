@@ -41,6 +41,8 @@ option(LIDARVIEW_USE_OPENCV "OpenCV is required for handling lidar-camera multis
 
 option(LIDARVIEW_USE_PDAL "PDAL is required for writing .las files" OFF)
 
+option(LIDARVIEW_USE_CURL "Curl is required for some sensor to communicate via HTTP (e.g Ouster)" OFF)
+
 option(LIDARVIEW_USE_YAMLCPP "Yaml-cpp is required for reading config yaml files (used in camera calibration)" OFF)
 
 lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the Slam

@@ -92,6 +92,18 @@ if (LIDARVIEW_USE_NANOFLANN)
 endif ()
 
 #--------------------------------------
+# CURL dependency - optional
+#--------------------------------------
+if (LIDARVIEW_USE_CURL)
+  find_package(Curl REQUIRED)
+  if (CMAKE_MAJOR_VERSION GREATER_EQUAL "4")
+    print_version(Curl)
+  else ()
+    message(STATUS "Found Curl: ${CURL_VERSION_STRING}")
+  endif ()
+endif ()
+
+#--------------------------------------
 # Opencv dependency - optional
 #--------------------------------------
 if (LIDARVIEW_USE_OPENCV)
