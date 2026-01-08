@@ -135,10 +135,10 @@ int vtkTemporalTransformsReader::RequestData(vtkInformation* vtkNotUsed(request)
 
   if (table->GetNumberOfColumns() < 7)
   {
-    vtkErrorMacro("The file you try to read has only "
-      << table->GetNumberOfColumns() << " colums."
-      << "This reader needs to have a CVS file with the following colum:"
-      << "time, roll, pitch, yaw, X, Y, Z");
+    vtkErrorMacro("The file you are trying to read has only "
+      << table->GetNumberOfColumns() << " columns. "
+      << "This reader expects a CSV with at least the following columns: "
+      << "Time, Rx(Roll), Ry(Pitch), Rz(Yaw), X, Y, Z");
   }
 
   auto translation = vtkSmartPointer<vtkDoubleArray>::New();

@@ -31,17 +31,17 @@
 /**
  * @brief vtkTemporalTransformsReader reads a csv file to generate a vtkTemporalTransform.
  *
- * The cvs file is expected to respect the following specification:
+ * The CSV file is expected to respect the following specification:
  * - Element separator = ","
  * - Line separator = "\n"
- * - Number of element >= 7
- * - header example = "time,roll,pitch,yaw,X,Y,Z"
- * - time  : expressed in microseconds
- * - roll  : expresses the sensor rotation around the X axis and is in degree
- * - pitch : expresses the sensor rotation around the Y axis and is in degree
- * - yaw   : expresses the sensor rotation around the Z axis and is in degree
- * - the rotation matrix can be recomposed this way: R = Rz(z)*Ry(y)*Rx(x)
- * 
+ * - Number of elements >= 7
+ * - Header example = "Time,Rx(Roll),Ry(Pitch),Rz(Yaw),X,Y,Z"
+ * - Time  : expressed in seconds
+ * - Rx(Roll)  : rotation around X axis, in degrees
+ * - Ry(Pitch) : rotation around Y axis, in degrees
+ * - Rz(Yaw)   : rotation around Z axis, in degrees
+ * - The rotation matrix can be recomposed this way: R = Rz(yaw)*Ry(pitch)*Rx(roll)
+ *
  * Optional columns: Longitude(d), Latitude(d), Altitude(m)
  *   If arrays named "Longitude", "Latitude", "Altitude" are present,
  *   they are copied into the output as point-data arrays.
