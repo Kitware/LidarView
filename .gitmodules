@@ -17,3 +17,6 @@
 [submodule "Plugins/RobosensePlugin"]
 	path = Plugins/RobosensePlugin
 	url = https://gitlab.kitware.com/LidarView/robosenseplugin.git
+[submodule "Plugins/OusterPlugin"]
+	path = Plugins/OusterPlugin
+	url = https://gitlab.kitware.com/LidarView/ousterplugin.git

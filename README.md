@@ -6,6 +6,7 @@ LidarView performs real-time reception, recording, visualization and processing 
 
 LidarView currently supports a variety of LiDAR models from multiple manufacturers, including:
 - `Velodyne`: VLP-16, VLP-32, HDL-32, HDL-64, Puck LITE, Puck Hi-Res and Alpha Prime (VLS-128).
+- `Ouster`: OS0, OS1, OS2 and OSDome
 - `Hesai`: Pandar40P, Pandar40M, Pandar64, Pandar20A, Pandar20B, PandarQT, PandarXT-16, PandarXT-32, PandarXTM, Pandar128, OT128 and QT128.
 - `Robosense`: RS16, RS32, BPerl, Helios (16 & 32), Ruby (48, 80 & 128), Ruby Plus (48, 80 & 128), M1, M2 and E1.
 - `Livox`: Mid-40, Tele-15, Horizon, Mid-70, Avia, Mid-360 and HAP.
