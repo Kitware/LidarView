@@ -38,6 +38,17 @@ public:
   static vtkCameraProjector* New();
   vtkTypeMacro(vtkCameraProjector, vtkImageAlgorithm)
 
+  /**
+   * Color modes for overlay coloring.
+   */
+  enum ColorMode
+  {
+    //! Colorize using intensity values.
+    INTENSITY = 0,
+    //! Colorize using distance in the camera frame.
+    DISTANCE = 1
+  };
+
   void SetFileName(const std::string& argfilename);
 
   vtkSetMacro(VideoPath, std::string);
@@ -150,8 +161,8 @@ private:
   //! type of camera model
   ProjectionType Type = ProjectionType::Pinhole;
 
-  //! 0 = Intensity, 1 = Distance in camera frame
-  int OverlayColorMode = 0;
+  //! Overlay coloring mode
+  int OverlayColorMode = INTENSITY;
 
   //! Name of the point-data array to use as intensity for overlay coloring
   std::string IntensityArrayName = "Intensity";

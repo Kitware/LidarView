@@ -561,7 +561,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
     double dist = Xcam.norm();
     double v = 0.0, vmin = 0.0, vmax = 1.0;
-    if (this->OverlayColorMode == 0)
+    if (this->OverlayColorMode == vtkCameraProjector::INTENSITY)
     {
       v = intensity->GetTuple1(pointIndex);
       vmin = Imin;
