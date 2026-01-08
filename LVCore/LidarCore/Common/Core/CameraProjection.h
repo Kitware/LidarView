@@ -91,8 +91,6 @@ LVCOMMONCORE_EXPORT Eigen::Vector2d BrownConradyPinholeProjection(
  * @param vmin minimal value of the scalar range
  * @param vmax maximal value of the scalar range
  */
-LVCOMMONCORE_EXPORT Eigen::Vector3d GetRGBColourFromScalar(double v,
-  double vmin,
-  double vmax);
+LVCOMMONCORE_EXPORT Eigen::Vector3d GetRGBColourFromScalar(double v, double vmin, double vmax);
 
 #endif // CAMERA_PROJECTION_H

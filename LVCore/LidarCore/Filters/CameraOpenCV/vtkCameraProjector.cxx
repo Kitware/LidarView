@@ -455,7 +455,7 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   }
   if (distanceArray)
   {
-    double range[2] = {0.0, 1.0};
+    double range[2] = { 0.0, 1.0 };
     distanceArray->GetRange(range);
     Dmin = range[0];
     Dmax = range[1];
@@ -559,28 +559,29 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
     // Determine overlay scalar based on user-selected mode
     // 0 = intensity (if available), 1 = distance in camera frame
     Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
-    double dist = Xcam.norm();
-    double v = 0.0, vmin = 0.0, vmax = 1.0;
+    double distanceInCamera = Xcam.norm();
+    double overlayScalarValue = 0.0, overlayRangeMin = 0.0, overlayRangeMax = 1.0;
     if (this->OverlayColorMode == vtkCameraProjector::INTENSITY)
     {
-      v = intensity->GetTuple1(pointIndex);
-      vmin = Imin;
-      vmax = Imax;
+      overlayScalarValue = intensity->GetTuple1(pointIndex);
+      overlayRangeMin = Imin;
+      overlayRangeMax = Imax;
     }
     else
     {
       if (distanceArray)
       {
-        v = distanceArray->GetTuple1(pointIndex);
+        overlayScalarValue = distanceArray->GetTuple1(pointIndex);
       }
       else
       {
-        v = dist;
+        overlayScalarValue = distanceInCamera;
       }
-      vmin = Dmin;
-      vmax = Dmax;
+      overlayRangeMin = Dmin;
+      overlayRangeMax = Dmax;
     }
-    Eigen::Vector3d color = GetRGBColourFromScalar(v, vmin, vmax);
+    Eigen::Vector3d color =
+      GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
 
     double rgb[3];
     for (int k = 0; k < 3; ++k)

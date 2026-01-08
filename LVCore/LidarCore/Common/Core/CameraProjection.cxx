@@ -80,7 +80,6 @@ void LoadCameraParamsFromCSV(std::string filename, Eigen::VectorXd& W)
   {
     W(i) = std::atof(values[i].c_str());
   }
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -98,7 +97,6 @@ void WriteCameraParamsCSV(std::string filename, Eigen::VectorXd& W)
     file << W(i) << ",";
   }
   file.close();
-  return;
 }
 
 //----------------------------------------------------------------------------
