@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Compliance with vtk's fpos_t policy, needs to be included before any libc header
-#include "vtkPacketFilePositionHandler.h"
-
 #include "vtkPacketFileHandler.h"
 
 #include <vtkLogger.h>
@@ -26,6 +23,15 @@
 
 #include <cstdio>
 #include <memory>
+
+#if defined(_WIN32)
+#define FTELL _ftelli64
+#define FSEEK _fseeki64
+#else
+#define FTELL std::ftell
+#define FSEEK std::fseek
+#endif
+
 
 namespace
 {
@@ -158,25 +164,41 @@ void vtkPacketFileHandler::Close()
 }
 
 //------------------------------------------------------------------------------
-void vtkPacketFileHandler::GetFilePosition(vtkPcapIdxType* position) const
+int64_t vtkPacketFileHandler::GetFilePosition()
 {
   if (!this->IsOpen())
   {
-    return;
+    return 0;
   }
   auto& internals = *this->Internals;
-  vtkPacketFilePositionHandler::GetFilePosition(internals.PCAPFileHandle, position);
+
+  FILE* fd = pcap_file(internals.PCAPFileHandle);
+  int64_t position = FTELL(fd);
+  if (position == -1)
+  {
+    vtkErrorMacro("Ftell error!");
+    this->Close();
+    return 0;
+  }
+  return position;
 }
 
 //------------------------------------------------------------------------------
-void vtkPacketFileHandler::SetFilePosition(vtkPcapIdxType* position)
+void vtkPacketFileHandler::SetFilePosition(int64_t position)
 {
   if (!this->IsOpen())
   {
     return;
   }
   auto& internals = *this->Internals;
-  vtkPacketFilePositionHandler::SetFilePosition(internals.PCAPFileHandle, position);
+
+  int64_t pcapHeaderSize = sizeof(struct pcap_file_header);
+  if (position < pcapHeaderSize)
+  {
+    position = pcapHeaderSize;
+  }
+  FILE* fd = pcap_file(internals.PCAPFileHandle);
+  FSEEK(fd, position, SEEK_SET);
 }
 
 //------------------------------------------------------------------------------
@@ -231,7 +253,7 @@ bool vtkPacketFileHandler::ReadNextPacket()
 
 //------------------------------------------------------------------------------
 void vtkPacketFileHandler::WritePackets(std::string filename,
-  vtkPcapIdxType* startPosition,
+  int64_t startPosition,
   double endNetworkTime)
 {
   auto& internals = *this->Internals;

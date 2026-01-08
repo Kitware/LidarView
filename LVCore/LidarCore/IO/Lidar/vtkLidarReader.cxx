@@ -15,9 +15,6 @@
 
 #include "vtkLidarReader.h"
 
-// Compliance with vtk's fpos_t policy, needs to be included before any libc header
-#include "vtkPacketFilePositionType.h"
-
 #include <vtkCommand.h>
 #include <vtkDataObject.h>
 #include <vtkDemandDrivenPipeline.h>
@@ -67,7 +64,7 @@ public:
     /**
      * Position of the first packet of the given frame
      */
-    vtkPcapIdxType FilePosition;
+    int64_t FilePosition;
 
     /**
      * To be agnostic to the underlying data, we rely on the first packet time step to determine
@@ -238,9 +235,8 @@ bool vtkLidarReader::BuildFramesIndex()
   // reset the frame catalog to build a new one
   this->Internals->FramesIndex.clear();
 
-  vtkPcapIdxType lastFilePosition;
   double networkPacketTime = 0;
-  this->Internals->Reader->GetFilePosition(&lastFilePosition);
+  int64_t lastFilePosition = this->Internals->Reader->GetFilePosition();
 
   bool isFirstPacket = true;
   vtkLidarReader::vtkInternals::LidarFrame currentFrame;
@@ -259,7 +255,7 @@ bool vtkLidarReader::BuildFramesIndex()
     // skip it and update the file position
     if (!this->LidarInterpreter->IsLidarPacket(payload.data(), payload.size()))
     {
-      this->Internals->Reader->GetFilePosition(&lastFilePosition);
+      lastFilePosition = this->Internals->Reader->GetFilePosition();
       continue;
     }
 
@@ -282,7 +278,7 @@ bool vtkLidarReader::BuildFramesIndex()
     }
     isFirstPacket = false;
 
-    this->Internals->Reader->GetFilePosition(&lastFilePosition);
+    lastFilePosition = this->Internals->Reader->GetFilePosition();
   }
   // If isFirstPacket is still true, the interpreter failed to find one at least one valid packet.
   if (!isFirstPacket)
@@ -320,7 +316,7 @@ bool vtkLidarReader::ReadFrame(size_t index, vtkPolyData* output)
 
   // Update the interpreter meta data according to the requested frame
   auto& currentFrame = this->Internals->FramesIndex[index];
-  this->Internals->Reader->SetFilePosition(&currentFrame.FilePosition);
+  this->Internals->Reader->SetFilePosition(currentFrame.FilePosition);
 
   while (this->ReadNextPacket(timeSinceStart))
   {
@@ -428,14 +424,14 @@ void vtkLidarReader::SaveFrames(unsigned int startFrame,
     return;
   }
 
-  vtkPcapIdxType& startPosition = this->Internals->FramesIndex[startFrame].FilePosition;
+  int64_t startPosition = this->Internals->FramesIndex[startFrame].FilePosition;
   const double endNetworkTime = endFrame >= frameNb - 2
     ? std::numeric_limits<double>::max()
     : this->Internals->FramesIndex[endFrame + 1].NetworkTime;
 
   // writing all packets, even those that do not contain lidar frames,
   // such as IMU data or GPS data
-  this->Internals->Reader->WritePackets(filename, &startPosition, endNetworkTime);
+  this->Internals->Reader->WritePackets(filename, startPosition, endNetworkTime);
 
   this->Close();
 }

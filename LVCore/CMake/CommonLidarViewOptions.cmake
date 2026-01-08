@@ -49,11 +49,8 @@ lidarview_obsolete_setting(LIDARVIEW_BUILD_SLAM) # LidarView no longer build the
 lidarview_deprecated_setting(slam_default LIDARVIEW_USE_LIDARSLAM_PLUGIN PARAVIEW_PLUGIN_ENABLE_LidarSlam "OFF")
 option(LIDARVIEW_USE_LIDARSLAM_PLUGIN "Search for LidarSlam plugin." "${slam_default}")
 
-if (WIN32)
-  option(LIDARVIEW_USE_NPCAP "Use npcap instead of winpcap." OFF)
-endif ()
-
 lidarview_obsolete_setting(LIDARVIEW_USE_PCAP)
+lidarview_obsolete_setting(LIDARVIEW_USE_NPCAP)
 lidarview_obsolete_setting(LIDARVIEW_USE_LIBLAS)
 lidarview_obsolete_setting(LIDARVIEW_USE_PYTHONQT)
 

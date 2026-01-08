@@ -16,9 +16,6 @@
 #ifndef vtkPacketFileHandler_h
 #define vtkPacketFileHandler_h
 
-// Compliance with vtk's fpos_t policy, needs to be included before any libc header
-#include "vtkPacketFilePositionType.h"
-
 #include "lvIONetworkModule.h"
 #include <vtkObject.h>
 
@@ -52,8 +49,8 @@ public:
    * Get / Set the current position within the pcap file.
    * This can be used for random access operations.
    */
-  void GetFilePosition(vtkPcapIdxType* position) const;
-  void SetFilePosition(vtkPcapIdxType* position);
+  int64_t GetFilePosition();
+  void SetFilePosition(int64_t position);
   ///@}
 
   /**
@@ -84,7 +81,7 @@ public:
    * `SetFilePosition()` internally to iterate through the pcap file, so it
    * should not be used concurrently with `ReadNextPacket()`.
    */
-  void WritePackets(std::string filename, vtkPcapIdxType* startPosition, double endNetworkTime);
+  void WritePackets(std::string filename, int64_t startPosition, double endNetworkTime);
 
   /**
    * Get a set of all available UDP port in a pcap.
