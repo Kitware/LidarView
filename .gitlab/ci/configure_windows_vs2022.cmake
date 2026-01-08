@@ -6,9 +6,11 @@ if (NOT DEFINED "ENV{LVSB_PATH}")
 else ()
   get_filename_component(lvsb_dir "$ENV{LVSB_PATH}/install/" ABSOLUTE)
 endif ()
-list(APPEND lvsb_dir "${lvsb_dir}/Python")
-message(STATUS "CMAKE_PREFIX_PATH setted to ${lvsb_dir}")
+message(STATUS "CMAKE_PREFIX_PATH set to ${lvsb_dir}")
 set(CMAKE_PREFIX_PATH "${lvsb_dir}" CACHE PATH "")
+
+set(python_dir "${lvsb_dir}/Python")
+set(Python3_ROOT_DIR "${python_dir}" CACHE PATH "")
 
 set(Boost_USE_STATIC_LIBS OFF CACHE STRING "")
 
