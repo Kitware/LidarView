@@ -390,11 +390,15 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkDataArray* intensity = nullptr;
   double Imin = 0.0, Imax = 255.0;
-  if (!Utils::GetIntensityArrayAndRange(pointcloud, this->IntensityArrayName, intensity, Imin, Imax))
+  bool hasIntensity = false;
+  if (!this->IntensityArrayName.empty())
   {
-    if (this->IntensityArrayName.empty())
+    hasIntensity =
+      Utils::GetIntensityArrayAndRange(pointcloud, this->IntensityArrayName, intensity, Imin, Imax);
+    if (!hasIntensity)
     {
-      vtkWarningMacro("Input point cloud does not have an Intensity array.");
+      vtkWarningMacro(<< "Selected intensity array '" << this->IntensityArrayName
+                      << "' not found on input.");
     }
   }
 
@@ -556,32 +560,41 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
 
     preProjectionIndexArray->InsertNextTuple1(pointIndex);
 
-    // Determine overlay scalar based on user-selected mode
-    // 0 = intensity (if available), 1 = distance in camera frame
-    Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
-    double distanceInCamera = Xcam.norm();
+    // Determine overlay scalar and color based on selected mode.
+    // If INTENSITY is selected but no intensity array is available (e.g., None), skip overlay.
+    bool drawOverlay = true;
     double overlayScalarValue = 0.0, overlayRangeMin = 0.0, overlayRangeMax = 1.0;
-    if (this->OverlayColorMode == vtkCameraProjector::INTENSITY)
+    Eigen::Vector3d color(0.0, 0.0, 0.0);
+    switch (this->OverlayColorMode)
     {
-      overlayScalarValue = intensity->GetTuple1(pointIndex);
-      overlayRangeMin = Imin;
-      overlayRangeMax = Imax;
-    }
-    else
-    {
-      if (distanceArray)
+      case vtkCameraProjector::INTENSITY:
+        if (!hasIntensity)
+        {
+          drawOverlay = false;
+        }
+        else
+        {
+          overlayScalarValue = intensity->GetTuple1(pointIndex);
+          overlayRangeMin = Imin;
+          overlayRangeMax = Imax;
+          color = GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
+        }
+        break;
+      case vtkCameraProjector::DISTANCE:
       {
-        overlayScalarValue = distanceArray->GetTuple1(pointIndex);
+        Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
+        double distanceInCamera = Xcam.norm();
+        overlayScalarValue =
+          distanceArray ? distanceArray->GetTuple1(pointIndex) : distanceInCamera;
+        overlayRangeMin = Dmin;
+        overlayRangeMax = Dmax;
+        color = GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
+        break;
       }
-      else
-      {
-        overlayScalarValue = distanceInCamera;
-      }
-      overlayRangeMin = Dmin;
-      overlayRangeMax = Dmax;
+      default:
+        drawOverlay = false;
+        break;
     }
-    Eigen::Vector3d color =
-      GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
 
     double rgb[3];
     for (int k = 0; k < 3; ++k)
@@ -589,17 +602,20 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
       // Map output RGB channel k to the correct source channel.
       // For image input, use RGB order, for video frames (OpenCV) use BGR.
       int ck = inputIsPhoto ? k : 2 - k;
-      for (int colOffset = -(this->ProjectedPointSizeInImage / 2);
-           colOffset < ((this->ProjectedPointSizeInImage + 1) / 2);
-           colOffset++)
+      if (drawOverlay)
       {
-        for (int rowOffset = -(this->ProjectedPointSizeInImage / 2);
-             rowOffset < ((this->ProjectedPointSizeInImage + 1) / 2);
-             rowOffset++)
+        for (int colOffset = -(this->ProjectedPointSizeInImage / 2);
+             colOffset < ((this->ProjectedPointSizeInImage + 1) / 2);
+             colOffset++)
         {
-          int c = std::min(std::max(0, vtkCol + colOffset), inImg->GetDimensions()[0] - 1);
-          int r = std::min(std::max(0, vtkRow + rowOffset), inImg->GetDimensions()[1] - 1);
-          outImg->SetScalarComponentFromDouble(c, r, 0, k, color(ck));
+          for (int rowOffset = -(this->ProjectedPointSizeInImage / 2);
+               rowOffset < ((this->ProjectedPointSizeInImage + 1) / 2);
+               rowOffset++)
+          {
+            int c = std::min(std::max(0, vtkCol + colOffset), inImg->GetDimensions()[0] - 1);
+            int r = std::min(std::max(0, vtkRow + rowOffset), inImg->GetDimensions()[1] - 1);
+            outImg->SetScalarComponentFromDouble(c, r, 0, k, color(ck));
+          }
         }
       }
       rgb[k] = inImg->GetScalarComponentAsDouble(vtkCol, vtkRow, 0, k);
