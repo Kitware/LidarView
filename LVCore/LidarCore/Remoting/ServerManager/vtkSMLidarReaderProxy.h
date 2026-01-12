@@ -35,6 +35,11 @@ public:
   vtkTypeMacro(vtkSMLidarReaderProxy, vtkSMLidarProxy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * Calls the `SaveFrames` method on the underlying LidarReader implementation.
+   */
+  void SaveFrames(unsigned int start, unsigned int end, const std::string& filename);
+
 protected:
   vtkSMLidarReaderProxy();
   ~vtkSMLidarReaderProxy() override;

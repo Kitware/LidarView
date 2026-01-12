@@ -31,7 +31,6 @@
 #include <pqPipelineSource.h>
 
 #include "lqSelectLidarFrameDialog.h"
-#include "vtkLidarReader.h"
 #include "vtkSMLidarReaderProxy.h"
 
 //-----------------------------------------------------------------------------
@@ -104,21 +103,13 @@ bool lqSavePcapReaction::saveFrame(vtkSMProxy* lidar, int start, int stop)
     return false;
   }
 
-  auto* lidarProxy = vtkSMSourceProxy::SafeDownCast(lidar);
-
+  vtkSMLidarReaderProxy* lidarProxy = vtkSMLidarReaderProxy::SafeDownCast(lidar);
   if (!lidarProxy)
   {
     return false;
   }
 
-  vtkLidarReader* reader = vtkLidarReader::SafeDownCast(lidarProxy->GetClientSideObject());
-  if (!reader)
-  {
-    return false;
-  }
-
   QString filename = this->FolderPath + "/" + this->BaseName + "." + this->Extension;
-
-  reader->SaveFrames(start, stop, filename.toStdString());
+  lidarProxy->SaveFrames(start, stop, filename.toStdString());
   return true;
 }
