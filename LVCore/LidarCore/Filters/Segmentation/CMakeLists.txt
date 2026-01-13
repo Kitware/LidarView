@@ -1,6 +1,7 @@
 set(sources)
 set(headers)
 set(classes
+  vtkCurbDetector
   vtkCurbDetectorOffline
 )
 

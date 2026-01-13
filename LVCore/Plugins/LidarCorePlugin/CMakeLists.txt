@@ -98,6 +98,7 @@ lidarcoreplugin_add_module_xml(
 )
 
 set(filters_segmentation_xml_files
+  Filters/CurbDetector.xml
   Filters/CurbDetectorOffline.xml
 )
 
@@ -233,6 +234,7 @@ if (LIDARVIEW_USE_QT)
     lqConditionalDefaultPropertyWidgetDecorator.h
     lqLidarCorePluginManager.cxx
     lqLidarCorePluginManager.h
+    lqMultiColumnSelectorWidget.cxx
     lqMultiColumnSelectorWidget.cxx
     lqMultiColumnSelectorWidget.h
     )

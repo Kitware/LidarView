@@ -1,0 +1,60 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="CurbDetector" class="vtkCurbDetector" label="Curb Detector">
+      <Documentation short_help="Detect curb edges (left/right) within a 3D ROI.">
+        Extracts curb points in real-time from a LiDAR point cloud within a 3D region of interest.
+        It detects the left and right curb edges inside the ROI.
+      </Documentation>
+
+      <InputProperty name="Input" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Set the input polydata.</Documentation>
+      </InputProperty>
+
+      <OutputPort name="FilteredPoints" index="0" id="port0" />
+      <OutputPort name="ROIBox" index="1" id="port1" />
+      <OutputPort name="CurbPointsLR" index="2" id="port2" />
+      <OutputPort name="FullCloudRed" index="3" id="port3" />
+
+      <DoubleVectorProperty name="ZValue" command="SetZValue" number_of_elements="1" default_values="-2.3">
+        <Documentation>Keep points with z exactly equal to this value.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Tolerance" command="SetTolerance" number_of_elements="1" default_values="0.6">
+        <Documentation>Absolute tolerance for z equality: keep if |z - ZValue| &lt;= Tolerance.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.1">
+        <Documentation>Minimum total ΔZ over X-ordered neighbors (meters).</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="XRange" command="SetXRange" number_of_elements="2" default_values="-10.0 10.0">
+        <Documentation>ROI X range [min max]; used for candidate filtering and ROI box.</Documentation>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty name="YRange" command="SetYRange" number_of_elements="2" default_values="0.0 30.0">
+        <Documentation>ROI Y range [min max]; used for candidate filtering and ROI box.</Documentation>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty name="ZRange" command="SetZRange" number_of_elements="2" default_values="-3.5 -1.0">
+        <Documentation>ROI Z range [min max]; used for candidate filtering and ROI box.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Filter">
+        <Property name="ZValue" />
+        <Property name="Tolerance" />
+        <Property name="ZChangeMin" />
+      </PropertyGroup>
+      <PropertyGroup label="ROI">
+        <Property name="XRange" />
+        <Property name="YRange" />
+        <Property name="ZRange" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
