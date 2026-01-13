@@ -186,21 +186,27 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   output->SetPoints(filteredOutputPoints);
   output->SetVerts(filteredVerts);
 
-  // Port 1: ROI box
+  // Port 1: ROI box (derive bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale)
   vtkPolyData* roiOut = vtkPolyData::GetData(outputVector->GetInformationObject(1));
-  double cx = 0.5 * (this->XMin + this->XMax);
-  double cy = 0.5 * (this->YMin + this->YMax);
-  double cz = 0.5 * (this->ZMin + this->ZMax);
+  double lx = std::max(1e-6, this->BoxScale[0]);
+  double ly = std::max(1e-6, this->BoxScale[1]);
+  double lz = std::max(1e-6, this->BoxScale[2]);
+  this->XMin = this->BoxPosition[0];
+  this->YMin = this->BoxPosition[1];
+  this->ZMin = this->BoxPosition[2];
+  this->XMax = this->XMin + lx;
+  this->YMax = this->YMin + ly;
+  this->ZMax = this->ZMin + lz;
   if (this->XMin >= this->XMax || this->YMin >= this->YMax || this->ZMin >= this->ZMax)
   {
     vtkErrorMacro(
       "Invalid ROI bounds: minimun value must be smaller than maximun value on all axes");
     return VTK_ERROR;
   }
-  double lx = this->XMax - this->XMin;
-  double ly = this->YMax - this->YMin;
-  double lz = this->ZMax - this->ZMin;
-
+  // Cube source expects center/lengths; compute center from bounds
+  const double cx = 0.5 * (this->XMin + this->XMax);
+  const double cy = 0.5 * (this->YMin + this->YMax);
+  const double cz = 0.5 * (this->ZMin + this->ZMax);
   vtkNew<vtkCubeSource> cube;
   cube->SetCenter(cx, cy, cz);
   cube->SetXLength(lx);
@@ -395,34 +401,27 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
 }
 
 //-----------------------------------------------------------------------------
-void vtkCurbDetector::SetXRange(double minVal, double maxVal)
+void vtkCurbDetector::SetBoxScale(double sx, double sy, double sz)
 {
-  if (this->XMin != minVal || this->XMax != maxVal)
+  sx = std::fabs(sx);
+  sy = std::fabs(sy);
+  sz = std::fabs(sz);
+  if (this->BoxScale[0] == sx && this->BoxScale[1] == sy && this->BoxScale[2] == sz)
   {
-    this->XMin = minVal;
-    this->XMax = maxVal;
-    this->Modified();
+    return;
   }
+  this->BoxScale[0] = sx;
+  this->BoxScale[1] = sy;
+  this->BoxScale[2] = sz;
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void vtkCurbDetector::SetYRange(double minVal, double maxVal)
+void vtkCurbDetector::SetBoxScale(const double s[3])
 {
-  if (this->YMin != minVal || this->YMax != maxVal)
+  if (!s)
   {
-    this->YMin = minVal;
-    this->YMax = maxVal;
-    this->Modified();
+    return;
   }
-}
-
-//-----------------------------------------------------------------------------
-void vtkCurbDetector::SetZRange(double minVal, double maxVal)
-{
-  if (this->ZMin != minVal || this->ZMax != maxVal)
-  {
-    this->ZMin = minVal;
-    this->ZMax = maxVal;
-    this->Modified();
-  }
+  this->SetBoxScale(s[0], s[1], s[2]);
 }

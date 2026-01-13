@@ -54,23 +54,16 @@ public:
   vtkGetMacro(ZChangeMin, double);
   ///@}
 
-  // ROI bounds
-  vtkSetMacro(XMin, double);
-  vtkGetMacro(XMin, double);
-  vtkSetMacro(XMax, double);
-  vtkGetMacro(XMax, double);
-  vtkSetMacro(YMin, double);
-  vtkGetMacro(YMin, double);
-  vtkSetMacro(YMax, double);
-  vtkGetMacro(YMax, double);
-  vtkSetMacro(ZMin, double);
-  vtkGetMacro(ZMin, double);
-  vtkSetMacro(ZMax, double);
-  vtkGetMacro(ZMax, double);
-
-  void SetXRange(double minVal, double maxVal);
-  void SetYRange(double minVal, double maxVal);
-  void SetZRange(double minVal, double maxVal);
+  ///@{
+  /**
+   * Region-of-interest box defined by its position and size.
+   */
+  vtkSetVector3Macro(BoxPosition, double);
+  vtkGetVector3Macro(BoxPosition, double);
+  void SetBoxScale(double sx, double sy, double sz);
+  void SetBoxScale(const double s[3]);
+  vtkGetVector3Macro(BoxScale, double);
+  ///@}
 
 protected:
   vtkCurbDetector();
@@ -86,6 +79,9 @@ private:
 
   // Threshold for step detection
   double ZChangeMin = 0.1;
+  // Interactive box pose (center and absolute lengths)
+  double BoxPosition[3] = { -10.0, 5.0, -3.0 };
+  double BoxScale[3] = { 15.0, 25.0, 2.0 };
 };
 
 #endif // VTK_CURB_DETECTOR_H

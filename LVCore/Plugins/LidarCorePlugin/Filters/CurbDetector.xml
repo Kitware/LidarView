@@ -20,7 +20,6 @@
       <OutputPort name="FilteredPoints" index="0" id="port0" />
       <OutputPort name="ROIBox" index="1" id="port1" />
       <OutputPort name="CurbPointsLR" index="2" id="port2" />
-      <OutputPort name="FullCloudRed" index="3" id="port3" />
 
       <DoubleVectorProperty name="ZValue" command="SetZValue" number_of_elements="1" default_values="-2.3">
         <Documentation>Keep points with z exactly equal to this value.</Documentation>
@@ -34,14 +33,13 @@
         <Documentation>Minimum total ΔZ over X-ordered neighbors (meters).</Documentation>
       </DoubleVectorProperty>
 
-      <DoubleVectorProperty name="XRange" command="SetXRange" number_of_elements="2" default_values="-10.0 10.0">
-        <Documentation>ROI X range [min max]; used for candidate filtering and ROI box.</Documentation>
+      <DoubleVectorProperty name="Position" command="SetBoxPosition" number_of_elements="3"
+                            default_values="-10 5 -3">
+        <Documentation>Interactive box center (x y z).</Documentation>
       </DoubleVectorProperty>
-      <DoubleVectorProperty name="YRange" command="SetYRange" number_of_elements="2" default_values="0.0 30.0">
-        <Documentation>ROI Y range [min max]; used for candidate filtering and ROI box.</Documentation>
-      </DoubleVectorProperty>
-      <DoubleVectorProperty name="ZRange" command="SetZRange" number_of_elements="2" default_values="-3.5 -1.0">
-        <Documentation>ROI Z range [min max]; used for candidate filtering and ROI box.</Documentation>
+      <DoubleVectorProperty name="Scale" command="SetBoxScale" number_of_elements="3"
+                            default_values="15 25 2">
+        <Documentation>Interactive box lengths (x y z).</Documentation>
       </DoubleVectorProperty>
 
       <PropertyGroup label="Filter">
@@ -49,10 +47,9 @@
         <Property name="Tolerance" />
         <Property name="ZChangeMin" />
       </PropertyGroup>
-      <PropertyGroup label="ROI">
-        <Property name="XRange" />
-        <Property name="YRange" />
-        <Property name="ZRange" />
+      <PropertyGroup label="ROI" panel_widget="InteractiveBox">
+        <Property name="Position" />
+        <Property name="Scale" />
       </PropertyGroup>
 
     </SourceProxy>
