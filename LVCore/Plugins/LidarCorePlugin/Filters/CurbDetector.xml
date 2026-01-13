@@ -18,8 +18,7 @@
       </InputProperty>
 
       <OutputPort name="FilteredPoints" index="0" id="port0" />
-      <OutputPort name="ROIBox" index="1" id="port1" />
-      <OutputPort name="CurbPointsLR" index="2" id="port2" />
+      <OutputPort name="CurbPointsLR" index="1" id="port1" />
 
       <DoubleVectorProperty name="ZValue" command="SetZValue" number_of_elements="1" default_values="-2.3">
         <Documentation>Keep points with z exactly equal to this value.</Documentation>

@@ -127,7 +127,7 @@ std::vector<vtkIdType> RansacLine3D(vtkPoints* points,
 vtkCurbDetector::vtkCurbDetector()
 {
   this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(3);
+  this->SetNumberOfOutputPorts(2);
 }
 
 //-----------------------------------------------------------------------------
@@ -186,8 +186,7 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   output->SetPoints(filteredOutputPoints);
   output->SetVerts(filteredVerts);
 
-  // Port 1: ROI box (derive bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale)
-  vtkPolyData* roiOut = vtkPolyData::GetData(outputVector->GetInformationObject(1));
+  // Derive ROI bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale
   double lx = std::max(1e-6, this->BoxScale[0]);
   double ly = std::max(1e-6, this->BoxScale[1]);
   double lz = std::max(1e-6, this->BoxScale[2]);
@@ -203,17 +202,6 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
       "Invalid ROI bounds: minimun value must be smaller than maximun value on all axes");
     return VTK_ERROR;
   }
-  // Cube source expects center/lengths; compute center from bounds
-  const double cx = 0.5 * (this->XMin + this->XMax);
-  const double cy = 0.5 * (this->YMin + this->YMax);
-  const double cz = 0.5 * (this->ZMin + this->ZMax);
-  vtkNew<vtkCubeSource> cube;
-  cube->SetCenter(cx, cy, cz);
-  cube->SetXLength(lx);
-  cube->SetYLength(ly);
-  cube->SetZLength(lz);
-  cube->Update();
-  roiOut->ShallowCopy(cube->GetOutput());
 
   // Use filtered Z-slice from port 0 for curb detection
   vtkPoints* filteredPoints = output->GetPoints();
@@ -336,8 +324,8 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
         /*distanceThreshold*/ 0.15,
         /*seed*/ 5489u);
 
-      // Port 2: curb inliers only (left=blue, right=green)
-      vtkPolyData* curbOut = vtkPolyData::GetData(outputVector->GetInformationObject(2));
+      // Port 1: curb inliers (left=blue, right=green)
+      vtkPolyData* curbOut = vtkPolyData::GetData(outputVector->GetInformationObject(1));
       if (curbOut)
       {
         // Merge left and right RANSAC inliers into a single curb point index list
