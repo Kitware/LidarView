@@ -21,9 +21,9 @@
 #include "lvFiltersSegmentationModule.h"
 
 /**
- * vtkCurbDetector extracts curb points in real-time from a LiDAR point cloud. It focuses on
- * a configurable Z-slice and 3D region of interest to detect the left
- * and right curb edges.
+ * vtkCurbDetector extracts curb points in real-time from a LiDAR point cloud
+ * within a 3D region of interest (interactive box). It detects the left and
+ * right curb edges inside the ROI.
  *
  * Internally, the filter orders points per lidar ring, flags step edges
  * using Z-height differences, splits candidates by the sign of X into left/right,
@@ -37,14 +37,6 @@ class LVFILTERSSEGMENTATION_EXPORT vtkCurbDetector : public vtkPolyDataAlgorithm
 public:
   static vtkCurbDetector* New();
   vtkTypeMacro(vtkCurbDetector, vtkPolyDataAlgorithm);
-
-  // ZValue: keep all points with z == ZValue
-  vtkSetMacro(ZValue, double);
-  vtkGetMacro(ZValue, double);
-
-  // Tolerance for equality check: keep if |z - ZValue| <= Tolerance
-  vtkSetMacro(Tolerance, double);
-  vtkGetMacro(Tolerance, double);
 
   ///@{
   /**
@@ -74,12 +66,9 @@ private:
   vtkCurbDetector(const vtkCurbDetector&) = delete;
   void operator=(const vtkCurbDetector&) = delete;
 
-  double ZValue = -2.3;
-  double Tolerance = 0.6;
-
   // Threshold for step detection
   double ZChangeMin = 0.1;
-  // Interactive box pose (center and absolute lengths)
+  // Interactive box pose (min-corner and absolute lengths)
   double BoxPosition[3] = { -10.0, 5.0, -3.0 };
   double BoxScale[3] = { 15.0, 25.0, 2.0 };
 };

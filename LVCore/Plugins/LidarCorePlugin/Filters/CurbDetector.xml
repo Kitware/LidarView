@@ -20,21 +20,13 @@
       <OutputPort name="FilteredPoints" index="0" id="port0" />
       <OutputPort name="CurbPointsLR" index="1" id="port1" />
 
-      <DoubleVectorProperty name="ZValue" command="SetZValue" number_of_elements="1" default_values="-2.3">
-        <Documentation>Keep points with z exactly equal to this value.</Documentation>
-      </DoubleVectorProperty>
-
-      <DoubleVectorProperty name="Tolerance" command="SetTolerance" number_of_elements="1" default_values="0.6">
-        <Documentation>Absolute tolerance for z equality: keep if |z - ZValue| &lt;= Tolerance.</Documentation>
-      </DoubleVectorProperty>
-
       <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.1">
         <Documentation>Minimum total ΔZ over X-ordered neighbors (meters).</Documentation>
       </DoubleVectorProperty>
 
       <DoubleVectorProperty name="Position" command="SetBoxPosition" number_of_elements="3"
                             default_values="-10 5 -3">
-        <Documentation>Interactive box center (x y z).</Documentation>
+        <Documentation>Interactive box origin/min-corner (x y z).</Documentation>
       </DoubleVectorProperty>
       <DoubleVectorProperty name="Scale" command="SetBoxScale" number_of_elements="3"
                             default_values="15 25 2">
@@ -42,11 +34,9 @@
       </DoubleVectorProperty>
 
       <PropertyGroup label="Filter">
-        <Property name="ZValue" />
-        <Property name="Tolerance" />
         <Property name="ZChangeMin" />
       </PropertyGroup>
-      <PropertyGroup label="ROI" panel_widget="InteractiveBox">
+      <PropertyGroup label="Region of interest (ROI)" panel_widget="InteractiveBox">
         <Property name="Position" />
         <Property name="Scale" />
       </PropertyGroup>

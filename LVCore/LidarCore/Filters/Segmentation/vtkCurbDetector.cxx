@@ -146,20 +146,40 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   vtkIdType inputPointCount = input->GetNumberOfPoints();
   vtkPoints* inputPoints = input->GetPoints();
 
+  // Derive ROI bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale
+  const double lx = std::max(1e-6, this->BoxScale[0]);
+  const double ly = std::max(1e-6, this->BoxScale[1]);
+  const double lz = std::max(1e-6, this->BoxScale[2]);
+  const double xMin = this->BoxPosition[0];
+  const double yMin = this->BoxPosition[1];
+  const double zMin = this->BoxPosition[2];
+  const double xMax = xMin + lx;
+  const double yMax = yMin + ly;
+  const double zMax = zMin + lz;
+
+  if (xMin >= xMax || yMin >= yMax || zMin >= zMax)
+  {
+    vtkErrorMacro(
+      "Invalid ROI bounds: minimun value must be smaller than maximun value on all axes");
+    return 0;
+  }
+
+  // Build selection from input points that lie inside ROI (Interactive Box)
   double pointCoords[3];
   std::vector<vtkIdType> selected;
   selected.reserve(static_cast<size_t>(inputPointCount / 2));
   for (vtkIdType pointId = 0; pointId < inputPointCount; ++pointId)
   {
     inputPoints->GetPoint(pointId, pointCoords);
-    // Keep points whose Z is within Tolerance of ZValue (Z-slice)
-    if (std::fabs(pointCoords[2] - this->ZValue) <= this->Tolerance)
+    if (pointCoords[0] >= xMin && pointCoords[0] <= xMax &&
+      pointCoords[1] >= yMin && pointCoords[1] <= yMax &&
+      pointCoords[2] >= zMin && pointCoords[2] <= zMax)
     {
       selected.push_back(pointId);
     }
   }
 
-  // Port 0: filtered Z-slice points
+  // Port 0: ROI-filtered points
   vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   vtkNew<vtkPoints> filteredOutputPoints;
   filteredOutputPoints->SetDataTypeToFloat();
@@ -186,24 +206,7 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   output->SetPoints(filteredOutputPoints);
   output->SetVerts(filteredVerts);
 
-  // Derive ROI bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale
-  double lx = std::max(1e-6, this->BoxScale[0]);
-  double ly = std::max(1e-6, this->BoxScale[1]);
-  double lz = std::max(1e-6, this->BoxScale[2]);
-  this->XMin = this->BoxPosition[0];
-  this->YMin = this->BoxPosition[1];
-  this->ZMin = this->BoxPosition[2];
-  this->XMax = this->XMin + lx;
-  this->YMax = this->YMin + ly;
-  this->ZMax = this->ZMin + lz;
-  if (this->XMin >= this->XMax || this->YMin >= this->YMax || this->ZMin >= this->ZMax)
-  {
-    vtkErrorMacro(
-      "Invalid ROI bounds: minimun value must be smaller than maximun value on all axes");
-    return VTK_ERROR;
-  }
-
-  // Use filtered Z-slice from port 0 for curb detection
+  // Use ROI-filtered points from port 0 for curb detection
   vtkPoints* filteredPoints = output->GetPoints();
   vtkPointData* filteredPointData = output->GetPointData();
   vtkDataArray* ringArr = filteredPointData ? filteredPointData->GetArray("laser_id") : nullptr;
@@ -215,17 +218,10 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
     int maxRing = static_cast<int>(ringRange[1]);
     if (maxRing >= 0 && filteredPointCount > 0)
     {
-      // Group filtered Z-slice points by laser ring and keep only those inside the ROI volume
+      // Group ROI-filtered points by laser ring
       std::vector<std::vector<vtkIdType>> rings(static_cast<size_t>(maxRing) + 1);
       for (vtkIdType fid = 0; fid < filteredPointCount; ++fid)
       {
-        filteredPoints->GetPoint(fid, pointCoords);
-        if (!(pointCoords[0] >= this->XMin && pointCoords[0] <= this->XMax &&
-              pointCoords[1] >= this->YMin && pointCoords[1] <= this->YMax &&
-              pointCoords[2] >= this->ZMin && pointCoords[2] <= this->ZMax))
-        {
-          continue;
-        }
         int rid = static_cast<int>(ringArr->GetComponent(fid, 0));
         rings[static_cast<size_t>(rid)].push_back(fid);
       }
