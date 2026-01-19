@@ -45,6 +45,12 @@ int vtkSelectPointsByScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]->GetInformationObject(0));
   vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
 
+  if (!input)
+  {
+    vtkErrorMacro(<< "Invalid input!");
+    return 1;
+  }
+
   vtkDataArray* inScalars;
 
   if (!(inScalars = this->GetInputArrayToProcess(0, inputVector)))
