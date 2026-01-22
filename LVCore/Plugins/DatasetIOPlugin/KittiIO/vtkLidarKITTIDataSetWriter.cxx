@@ -27,7 +27,7 @@ void WriteToBinaryFile(std::vector<float>& inData, const std::string& filename)
   }
   else
   {
-    fout.write(reinterpret_cast<char*>(&inData[0]), inData.size() * sizeof(float));
+    fout.write(reinterpret_cast<char*>(inData.data()), inData.size() * sizeof(float));
     fout.close();
   }
 }

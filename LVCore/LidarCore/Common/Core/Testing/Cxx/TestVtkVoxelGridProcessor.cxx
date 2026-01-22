@@ -190,7 +190,7 @@ int TestVtkVoxelGridProcessor(int, char*[])
   voxelGrid->Clear();
   // The voxel grid unordered map should be empty and the output polydata should not contain
   // vtkPoints
-  if (voxels.size() != 0 || voxelGrid->GetOutput()->GetPoints())
+  if (!voxels.empty() || voxelGrid->GetOutput()->GetPoints())
   {
     std::cout << "Error: Clear method failed" << std::endl;
     return VTK_FAILURE;
