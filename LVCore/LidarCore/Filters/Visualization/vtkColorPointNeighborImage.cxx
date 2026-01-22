@@ -25,6 +25,7 @@
 #include <vtkPointLocator.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkSMPTools.h>
 #include <vtkStaticPointLocator.h>
 #include <vtkUnsignedCharArray.h>
 
@@ -115,34 +116,44 @@ int vtkColorPointNeighborImage::RequestData(vtkInformation* vtkNotUsed(request),
     colorArray = sgrid->GetPointData()->GetScalars();
   }
 
-  double p[3];
-  for (vtkIdType pid = 0; pid < points->GetNumberOfPoints(); ++pid)
-  {
-    points->GetPoint(pid, p);
-    vtkIdType gid = locator->FindClosestPoint(p);
-    unsigned char rgb[3] = { 255, 255, 255 };
-    if (gid >= 0 && colorArray)
+  unsigned char* outColors = static_cast<unsigned char*>(colors->GetVoidPointer(0));
+  const vtkIdType npts = points->GetNumberOfPoints();
+  vtkSMPTools::For(0,
+    npts,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      if (auto uc = vtkUnsignedCharArray::SafeDownCast(colorArray))
+      double p[3];
+      for (vtkIdType pid = begin; pid < end; ++pid)
       {
-        unsigned char tmp[4] = { 0, 0, 0, 0 };
-        uc->GetTypedTuple(gid, tmp);
-        rgb[0] = tmp[0];
-        rgb[1] = uc->GetNumberOfComponents() > 1 ? tmp[1] : tmp[0];
-        rgb[2] = uc->GetNumberOfComponents() > 2 ? tmp[2] : tmp[0];
+        points->GetPoint(pid, p);
+        vtkIdType gid = locator->FindClosestPoint(p);
+        unsigned char rgb[3] = { 255, 255, 255 };
+        if (gid >= 0 && colorArray)
+        {
+          if (auto uc = vtkUnsignedCharArray::SafeDownCast(colorArray))
+          {
+            unsigned char tmp[4] = { 0, 0, 0, 0 };
+            uc->GetTypedTuple(gid, tmp);
+            rgb[0] = tmp[0];
+            rgb[1] = uc->GetNumberOfComponents() > 1 ? tmp[1] : tmp[0];
+            rgb[2] = uc->GetNumberOfComponents() > 2 ? tmp[2] : tmp[0];
+          }
+          else if (auto da = vtkDataArray::SafeDownCast(colorArray))
+          {
+            double r = da->GetComponent(gid, 0);
+            double g = da->GetNumberOfComponents() > 1 ? da->GetComponent(gid, 1) : r;
+            double b = da->GetNumberOfComponents() > 2 ? da->GetComponent(gid, 2) : r;
+            rgb[0] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, r))));
+            rgb[1] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, g))));
+            rgb[2] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, b))));
+          }
+        }
+        const vtkIdType base = 3 * pid;
+        outColors[base + 0] = rgb[0];
+        outColors[base + 1] = rgb[1];
+        outColors[base + 2] = rgb[2];
       }
-      else if (auto da = vtkDataArray::SafeDownCast(colorArray))
-      {
-        double r = da->GetComponent(gid, 0);
-        double g = da->GetNumberOfComponents() > 1 ? da->GetComponent(gid, 1) : r;
-        double b = da->GetNumberOfComponents() > 2 ? da->GetComponent(gid, 2) : r;
-        rgb[0] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, r))));
-        rgb[1] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, g))));
-        rgb[2] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, b))));
-      }
-    }
-    colors->SetTypedTuple(pid, rgb);
-  }
+    });
 
   outputPoly->GetPointData()->SetScalars(colors);
 
