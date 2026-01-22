@@ -48,6 +48,22 @@ public:
 
   ///@{
   /**
+   * Number of neighbors on each side (window half-size)
+   */
+  vtkSetMacro(NeighborCount, int);
+  vtkGetMacro(NeighborCount, int);
+  ///@}
+
+  ///@{
+  /**
+   * RANSAC inlier distance threshold (meters)
+   */
+  vtkSetMacro(RansacDistanceThreshold, double);
+  vtkGetMacro(RansacDistanceThreshold, double);
+  ///@}
+
+  ///@{
+  /**
    * Region-of-interest box defined by its position and size.
    */
   vtkSetVector3Macro(BoxPosition, double);
@@ -67,7 +83,11 @@ private:
   void operator=(const vtkCurbDetector&) = delete;
 
   // Threshold for step detection
-  double ZChangeMin = 0.1;
+  double ZChangeMin = 0.2;
+  // Neighbor window half-size for Z-change evaluation
+  int NeighborCount = 5;
+  // RANSAC inlier distance threshold (m)
+  double RansacDistanceThreshold = 0.15;
   // Interactive box pose (min-corner and absolute lengths)
   double BoxPosition[3] = { -10.0, 5.0, -3.0 };
   double BoxScale[3] = { 15.0, 25.0, 2.0 };

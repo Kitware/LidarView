@@ -256,8 +256,8 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
           [&](size_t a, size_t b) { return xCoords[a] < xCoords[b]; });
 
         // Number of neighboring points on each side of the center point discontinuities used to
-        // evaluate Z
-        const int neighborCount = 3;
+        // evaluate Z (clamp to at least 1)
+        const int neighborCount = std::max(1, this->NeighborCount);
 
         // Require enough points for a symmetric window
         if (orderByX.size() < static_cast<size_t>(2 * neighborCount + 1))
@@ -312,12 +312,12 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
       std::vector<vtkIdType> inliersLeft = RansacLine3D(filteredPoints,
         leftFids,
         /*maxIterations*/ 300,
-        /*distanceThreshold*/ 0.15,
+        /*distanceThreshold*/ std::max(1e-6, this->RansacDistanceThreshold),
         /*seed*/ 5489u);
       std::vector<vtkIdType> inliersRight = RansacLine3D(filteredPoints,
         rightFids,
         /*maxIterations*/ 300,
-        /*distanceThreshold*/ 0.15,
+        /*distanceThreshold*/ std::max(1e-6, this->RansacDistanceThreshold),
         /*seed*/ 5489u);
 
       // Port 1: curb inliers (left=blue, right=green)

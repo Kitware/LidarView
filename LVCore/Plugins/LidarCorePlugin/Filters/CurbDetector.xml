@@ -20,9 +20,21 @@
       <OutputPort name="FilteredPoints" index="0" id="port0" />
       <OutputPort name="CurbPointsLR" index="1" id="port1" />
 
-      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.1">
+      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.2">
         <Documentation>Minimum total ΔZ over X-ordered neighbors (meters).</Documentation>
       </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="RansacDistanceThreshold" label="RANSAC Inlier Distance (m)"
+                            command="SetRansacDistanceThreshold"
+                            number_of_elements="1" default_values="0.15"
+                            panel_visibility="advanced">
+        <Documentation>Maximum point-to-line distance for inliers during RANSAC (meters).</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="NeighborCount" label="Neighbors Per Side" command="SetNeighborCount"
+                         number_of_elements="1" default_values="5">
+        <Documentation>Number of neighbors on each side used to compute the Z-change window.</Documentation>
+      </IntVectorProperty>
 
       <DoubleVectorProperty name="Position" command="SetBoxPosition" number_of_elements="3"
                             default_values="-10 5 -3">
@@ -35,6 +47,8 @@
 
       <PropertyGroup label="Filter">
         <Property name="ZChangeMin" />
+        <Property name="NeighborCount" />
+        <Property name="RansacDistanceThreshold" panel_visibility="advanced" />
       </PropertyGroup>
       <PropertyGroup label="Region of interest (ROI)" panel_widget="InteractiveBox">
         <Property name="Position" />
