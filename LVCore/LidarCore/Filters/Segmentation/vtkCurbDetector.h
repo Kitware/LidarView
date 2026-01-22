@@ -99,8 +99,8 @@ private:
   // LiDAR spin rate (Hz) — e.g., 10 Hz => ~0.1 s per frame
   double SpinRateHz = 10.0;
   // Interactive box pose (min-corner and absolute lengths)
-  double BoxPosition[3] = { -10.0, 5.0, -3.0 };
-  double BoxScale[3] = { 15.0, 25.0, 2.0 };
+  double BoxPosition[3] = { -10.0, -10.0, -2.5 };
+  double BoxScale[3] = { 20.0, 20.0, 1.0 };
 };
 
 #endif // VTK_CURB_DETECTOR_H
