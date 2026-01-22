@@ -64,6 +64,14 @@ public:
 
   ///@{
   /**
+   * LiDAR spin rate (Hz), used to derive a timestamp continuity threshold
+   */
+  vtkSetMacro(SpinRateHz, double);
+  vtkGetMacro(SpinRateHz, double);
+  ///@}
+
+  ///@{
+  /**
    * Region-of-interest box defined by its position and size.
    */
   vtkSetVector3Macro(BoxPosition, double);
@@ -88,6 +96,8 @@ private:
   int NeighborCount = 5;
   // RANSAC inlier distance threshold (m)
   double RansacDistanceThreshold = 0.15;
+  // LiDAR spin rate (Hz) — e.g., 10 Hz => ~0.1 s per frame
+  double SpinRateHz = 10.0;
   // Interactive box pose (min-corner and absolute lengths)
   double BoxPosition[3] = { -10.0, 5.0, -3.0 };
   double BoxScale[3] = { 15.0, 25.0, 2.0 };

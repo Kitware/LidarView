@@ -36,6 +36,11 @@
         <Documentation>Number of neighbors on each side used to compute the Z-change window.</Documentation>
       </IntVectorProperty>
 
+      <DoubleVectorProperty name="SpinRateHz" label="LiDAR Spin Rate (Hz)"
+                            command="SetSpinRateHz" number_of_elements="1" default_values="10.0">
+        <Documentation>LiDAR rotation rate in Hz. Used internally to derive a timestamp continuity threshold and ignore cross-frame discontinuities.</Documentation>
+      </DoubleVectorProperty>
+
       <DoubleVectorProperty name="Position" command="SetBoxPosition" number_of_elements="3"
                             default_values="-10 5 -3">
         <Documentation>Interactive box origin/min-corner (x y z).</Documentation>
@@ -48,6 +53,7 @@
       <PropertyGroup label="Filter">
         <Property name="ZChangeMin" />
         <Property name="NeighborCount" />
+        <Property name="SpinRateHz" />
         <Property name="RansacDistanceThreshold" panel_visibility="advanced" />
       </PropertyGroup>
       <PropertyGroup label="Region of interest (ROI)" panel_widget="InteractiveBox">

@@ -210,6 +210,7 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   vtkPoints* filteredPoints = output->GetPoints();
   vtkPointData* filteredPointData = output->GetPointData();
   vtkDataArray* ringArr = filteredPointData ? filteredPointData->GetArray("laser_id") : nullptr;
+  vtkDataArray* timestampArr = filteredPointData ? filteredPointData->GetArray("timestamp") : nullptr;
   if (filteredPoints && filteredPointData && ringArr)
   {
     vtkIdType filteredPointCount = filteredPoints->GetNumberOfPoints();
@@ -229,6 +230,11 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
       // Candidate curb edge point indices detected from Z discontinuities within each laser ring
       std::vector<vtkIdType> edgeIds;
 
+      // Precompute frame duration in microseconds from spin rate
+      const bool useTimeGating = (timestampArr != nullptr && this->SpinRateHz > 1e-9);
+      const double frameDurationUs = useTimeGating ? (1.0e6 / this->SpinRateHz) : 0.0;
+      const double maxAllowedGapUs = useTimeGating ? (0.5 * frameDurationUs) : 0.0;
+
       // Iterate over each laser ring to process points ring by ring
       for (int ringIndex = 0; ringIndex <= maxRing; ++ringIndex)
       {
@@ -239,12 +245,21 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
         std::vector<double> yCoords(idxsAll.size());
         std::vector<double> zCoords(idxsAll.size());
 
+        std::vector<double> tStamps; // microseconds
+        if (useTimeGating)
+        {
+          tStamps.resize(idxsAll.size());
+        }
         for (size_t pointOrderIndex = 0; pointOrderIndex < idxsAll.size(); ++pointOrderIndex)
         {
           filteredPoints->GetPoint(idxsAll[pointOrderIndex], pointCoords);
           xCoords[pointOrderIndex] = pointCoords[0];
           yCoords[pointOrderIndex] = pointCoords[1];
           zCoords[pointOrderIndex] = pointCoords[2];
+          if (useTimeGating)
+          {
+            tStamps[pointOrderIndex] = timestampArr->GetComponent(idxsAll[pointOrderIndex], 0);
+          }
         }
 
         // Build an index order that sorts points of this ring by X coordinate
@@ -271,14 +286,26 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
              ++centerIndex)
         {
           double sumDeltaZ = 0.0;
+          int contributingPairs = 0;
           for (int neighborOffset = 1; neighborOffset <= neighborCount; ++neighborOffset)
           {
             size_t indexA = orderByX[centerIndex - neighborOffset];
             size_t indexB = orderByX[centerIndex + neighborOffset];
+            // If timestamps are detected, skip pairs that likely cross a frame boundary
+            if (useTimeGating)
+            {
+              double dtUs = std::fabs(tStamps[indexB] - tStamps[indexA]);
+              if (dtUs > maxAllowedGapUs)
+              {
+                continue; // ignore discontinuous temporal pairs
+              }
+            }
             sumDeltaZ += std::fabs(zCoords[indexB] - zCoords[indexA]);
+            ++contributingPairs;
           }
-          // Normalize by neighborCount so the threshold is an average ΔZ per pair
-          if ((sumDeltaZ / static_cast<double>(neighborCount)) >= this->ZChangeMin)
+          // Normalize by contributing pairs so the threshold is an average ΔZ per valid pair
+          if (contributingPairs > 0 &&
+            (sumDeltaZ / static_cast<double>(contributingPairs)) >= this->ZChangeMin)
           {
             edgeIds.push_back(idxsAll[orderByX[centerIndex]]);
           }
