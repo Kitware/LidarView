@@ -277,7 +277,8 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
             size_t indexB = orderByX[centerIndex + neighborOffset];
             sumDeltaZ += std::fabs(zCoords[indexB] - zCoords[indexA]);
           }
-          if (sumDeltaZ >= this->ZChangeMin)
+          // Normalize by neighborCount so the threshold is an average ΔZ per pair
+          if ((sumDeltaZ / static_cast<double>(neighborCount)) >= this->ZChangeMin)
           {
             edgeIds.push_back(idxsAll[orderByX[centerIndex]]);
           }

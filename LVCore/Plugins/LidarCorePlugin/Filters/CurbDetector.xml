@@ -20,8 +20,8 @@
       <OutputPort name="FilteredPoints" index="0" id="port0" />
       <OutputPort name="CurbPointsLR" index="1" id="port1" />
 
-      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.2">
-        <Documentation>Minimum total ΔZ over X-ordered neighbors (meters).</Documentation>
+      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.05">
+        <Documentation>Minimum average ΔZ per neighbor pair along X (meters).</Documentation>
       </DoubleVectorProperty>
 
       <DoubleVectorProperty name="RansacDistanceThreshold" label="RANSAC Inlier Distance (m)"

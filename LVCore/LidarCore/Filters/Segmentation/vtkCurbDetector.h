@@ -83,7 +83,7 @@ private:
   void operator=(const vtkCurbDetector&) = delete;
 
   // Threshold for step detection
-  double ZChangeMin = 0.2;
+  double ZChangeMin = 0.05;
   // Neighbor window half-size for Z-change evaluation
   int NeighborCount = 5;
   // RANSAC inlier distance threshold (m)
