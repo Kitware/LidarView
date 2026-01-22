@@ -1,12 +1,27 @@
-#include "vtkTemporalTransforms.h"
-#include "vtkEigenTools.h"
-#include "vtkConversions.h"
+/*=========================================================================
 
-#include <vtkCellData.h>
+  Program:   LidarView
+  Module:    vtkTemporalTransforms.cxx
+
+  Copyright (c) Kitware, Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "vtkTemporalTransforms.h"
+#include "vtkConversions.h"
+#include "vtkEigenTools.h"
+
 #include <vtkCell.h>
+#include <vtkCellData.h>
+#include <vtkLine.h>
 #include <vtkLogger.h>
 #include <vtkPolyLine.h>
-#include <vtkLine.h>
 #include <vtkTransform.h>
 
 #include <cmath>
@@ -43,7 +58,8 @@ vtkTemporalTransforms::vtkTemporalTransforms()
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData(vtkPolyData *poly, const char* orientationArrayName)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData(vtkPolyData* poly,
+  const char* orientationArrayName)
 {
   if (!poly)
   {
@@ -55,9 +71,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData
   temporalTransforms->OrientationArrayName = orientationArrayName;
 
   bool isWellFormed = temporalTransforms->GetTimeArray() &&
-                      temporalTransforms->GetTranslationArray() &&
-                      temporalTransforms->GetOrientationArray();
-  if(!isWellFormed)
+    temporalTransforms->GetTranslationArray() && temporalTransforms->GetOrientationArray();
+  if (!isWellFormed)
   {
     return nullptr;
   }
@@ -70,7 +85,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CreateFromPolyData
     polyLine->GetPointIds()->SetNumberOfIds(temporalTransforms->GetNumberOfPoints());
     for (vtkIdType i = 0; i < temporalTransforms->GetNumberOfPoints(); i++)
     {
-      polyLine->GetPointIds()->SetId(i,i);
+      polyLine->GetPointIds()->SetId(i, i);
     }
     auto cell = vtkSmartPointer<vtkCellArray>::New();
     cell->InsertNextCell(polyLine);
@@ -89,8 +104,8 @@ vtkSmartPointer<vtkTransform> vtkTemporalTransforms::GetTransform(unsigned int t
   double x = axisAngle->GetTuple4(transformNumber)[0];
   double y = axisAngle->GetTuple4(transformNumber)[1];
   double z = axisAngle->GetTuple4(transformNumber)[2];
-  double w = axisAngle->GetTuple4(transformNumber)[3]
-      * 180 / vtkMath::Pi(); // vtk need degrees not radians
+  double w =
+    axisAngle->GetTuple4(transformNumber)[3] * 180 / vtkMath::Pi(); // vtk need degrees not radians
   transform->RotateWXYZ(w, x, y, z);
   transform->Translate(this->GetTranslationArray()->GetTuple(transformNumber));
 
@@ -127,7 +142,7 @@ vtkSmartPointer<vtkCustomTransformInterpolator> vtkTemporalTransforms::CreateInt
 }
 
 //-----------------------------------------------------------------------------
-void vtkTemporalTransforms::SetOrientationArray(vtkDoubleArray *array)
+void vtkTemporalTransforms::SetOrientationArray(vtkDoubleArray* array)
 {
   if (array->GetNumberOfComponents() != 4)
   {
@@ -139,14 +154,14 @@ void vtkTemporalTransforms::SetOrientationArray(vtkDoubleArray *array)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTemporalTransforms::SetTranslationArray(vtkDataArray *array)
+void vtkTemporalTransforms::SetTranslationArray(vtkDataArray* array)
 {
   if (array->GetNumberOfComponents() != 3)
   {
     vtkErrorMacro(<< "The translation array has " << array->GetNumberOfComponents()
                   << ". 3 components are expected");
   }
-  auto points =  vtkSmartPointer<vtkPoints>::New();
+  auto points = vtkSmartPointer<vtkPoints>::New();
   this->SetPoints(points);
   this->GetPoints()->SetData(array);
 
@@ -155,7 +170,7 @@ void vtkTemporalTransforms::SetTranslationArray(vtkDataArray *array)
   polyLine->GetPointIds()->SetNumberOfIds(this->GetNumberOfPoints());
   for (vtkIdType i = 0; i < array->GetNumberOfTuples(); i++)
   {
-    polyLine->GetPointIds()->SetId(i,i);
+    polyLine->GetPointIds()->SetId(i, i);
   }
   auto cell = vtkSmartPointer<vtkCellArray>::New();
   cell->InsertNextCell(polyLine);
@@ -163,7 +178,7 @@ void vtkTemporalTransforms::SetTranslationArray(vtkDataArray *array)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTemporalTransforms::SetTimeArray(vtkDoubleArray *array)
+void vtkTemporalTransforms::SetTimeArray(vtkDoubleArray* array)
 {
   if (array->GetNumberOfComponents() != 1)
   {
@@ -175,9 +190,11 @@ void vtkTemporalTransforms::SetTimeArray(vtkDoubleArray *array)
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::IsometricTransform(vtkSmartPointer<vtkTransform> H)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::IsometricTransform(
+  vtkSmartPointer<vtkTransform> H)
 {
-  vtkSmartPointer<vtkTemporalTransforms> outputPoses = vtkSmartPointer<vtkTemporalTransforms>::New();
+  vtkSmartPointer<vtkTemporalTransforms> outputPoses =
+    vtkSmartPointer<vtkTemporalTransforms>::New();
   outputPoses->DeepCopy(this);
 
   // First, compute the rotation and translation from H 4x4 matrix
@@ -190,7 +207,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::IsometricTransform
   vtkDoubleArray* xyzArray = vtkDoubleArray::SafeDownCast(outputPoses->GetTranslationArray());
 
   // Loop over the transforms points
-  for (unsigned int transformIndex = 0; transformIndex < outputPoses->GetNumberOfPoints(); transformIndex++)
+  for (unsigned int transformIndex = 0; transformIndex < outputPoses->GetNumberOfPoints();
+       transformIndex++)
   {
     // Get the angle-axis representation
     double* xyzw = xyzwArray->GetTuple4(transformIndex);
@@ -208,8 +226,9 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::IsometricTransform
 
     // Get the axis angle representation of this new rotation
     Eigen::AngleAxisd newAngleAxis(R);
-    double newXyzw[4] = {newAngleAxis.axis()(0), newAngleAxis.axis()(1),
-                         newAngleAxis.axis()(2), newAngleAxis.angle()};
+    double newXyzw[4] = {
+      newAngleAxis.axis()(0), newAngleAxis.axis()(1), newAngleAxis.axis()(2), newAngleAxis.angle()
+    };
 
     // Replace it
     xyzwArray->SetTuple4(transformIndex, newXyzw[0], newXyzw[1], newXyzw[2], newXyzw[3]);
@@ -219,9 +238,11 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::IsometricTransform
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CycloidicTransform(vtkSmartPointer<vtkTransform> H)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CycloidicTransform(
+  vtkSmartPointer<vtkTransform> H)
 {
-  vtkSmartPointer<vtkTemporalTransforms> outputPoses = vtkSmartPointer<vtkTemporalTransforms>::New();
+  vtkSmartPointer<vtkTemporalTransforms> outputPoses =
+    vtkSmartPointer<vtkTemporalTransforms>::New();
   outputPoses->DeepCopy(this);
 
   // First, compute the rotation and translation from H 4x4 matrix
@@ -234,7 +255,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CycloidicTransform
   vtkDoubleArray* xyzArray = vtkDoubleArray::SafeDownCast(this->GetTranslationArray());
 
   // Loop over the transforms points
-  for (unsigned int transformIndex = 0; transformIndex < this->GetNumberOfPoints(); transformIndex++)
+  for (unsigned int transformIndex = 0; transformIndex < this->GetNumberOfPoints();
+       transformIndex++)
   {
     // Get the angle-axis representation
     double* xyzw = xyzwArray->GetTuple4(transformIndex);
@@ -252,8 +274,9 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CycloidicTransform
 
     // Get the axis angle representation of this new rotation
     Eigen::AngleAxisd newAngleAxis(R);
-    double newXyzw[4] = {newAngleAxis.axis()(0), newAngleAxis.axis()(1),
-                         newAngleAxis.axis()(2), newAngleAxis.angle()};
+    double newXyzw[4] = {
+      newAngleAxis.axis()(0), newAngleAxis.axis()(1), newAngleAxis.axis()(2), newAngleAxis.angle()
+    };
 
     // Replace it
     xyzwArray->SetTuple4(transformIndex, newXyzw[0], newXyzw[1], newXyzw[2], newXyzw[3]);
@@ -263,7 +286,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::CycloidicTransform
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int polDeg, int kernelRadius)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int polDeg,
+  int kernelRadius)
 {
   auto outputPoses = vtkSmartPointer<vtkTemporalTransforms>::New();
   outputPoses->DeepCopy(this);
@@ -277,7 +301,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
   {
     Eigen::Vector3d pos;
     outputPoses->GetPoint(k, pos.data());
-    Xin[k] = pos;  // x, y, z
+    Xin[k] = pos; // x, y, z
   }
 
   // Smooth the trajectory
@@ -291,7 +315,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
 
   // Check validity of orientation arrays
   vtkDoubleArray* anglesAxisArray = vtkDoubleArray::SafeDownCast(this->GetOrientationArray());
-  vtkDoubleArray* outputAnglesAxisArray = vtkDoubleArray::SafeDownCast(outputPoses->GetOrientationArray());
+  vtkDoubleArray* outputAnglesAxisArray =
+    vtkDoubleArray::SafeDownCast(outputPoses->GetOrientationArray());
   bool smoothOrientations = anglesAxisArray && outputAnglesAxisArray;
 
   if (smoothOrientations)
@@ -303,7 +328,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
       double* xyza = anglesAxisArray->GetTuple4(k);
       Eigen::AngleAxisd angleAxis(xyza[3], Eigen::Vector3d(xyza[0], xyza[1], xyza[2]));
       Eigen::Quaterniond quat(angleAxis);
-      Qin[k] = quat.coeffs();  // x, y, z, w
+      Qin[k] = quat.coeffs(); // x, y, z, w
     }
 
     // Smooth the quaternions components using an euclidean MLS algorithm.
@@ -314,9 +339,10 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
     for (vtkIdType k = 0; k < nbPoints; ++k)
     {
       Eigen::Quaterniond quat(Qout[k].data());
-      quat.normalize();  // Reproject the quaternions back onto the unit sphere
+      quat.normalize(); // Reproject the quaternions back onto the unit sphere
       Eigen::AngleAxisd angleAxis(quat);
-      outputAnglesAxisArray->SetTuple4(k, angleAxis.axis().x(), angleAxis.axis().y(), angleAxis.axis().z(), angleAxis.angle());
+      outputAnglesAxisArray->SetTuple4(
+        k, angleAxis.axis().x(), angleAxis.axis().y(), angleAxis.axis().z(), angleAxis.angle());
     }
   }
   else
@@ -328,15 +354,14 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::MLSSmoothing(int p
 }
 
 //-----------------------------------------------------------------------------
-void vtkTemporalTransforms::PushBack(double time, const Eigen::AngleAxisd& orientation , const Eigen::Vector3d translation)
+void vtkTemporalTransforms::PushBack(double time,
+  const Eigen::AngleAxisd& orientation,
+  const Eigen::Vector3d translation)
 {
   this->GetTimeArray()->InsertNextTuple1(time);
-  this->GetOrientationArray()->InsertNextTuple4(orientation.axis()[0],
-                                                orientation.axis()[1],
-                                                orientation.axis()[2],
-                                                orientation.angle());
+  this->GetOrientationArray()->InsertNextTuple4(
+    orientation.axis()[0], orientation.axis()[1], orientation.axis()[2], orientation.angle());
   this->GetTranslationArray()->InsertNextTuple(static_cast<const double*>(translation.data()));
-
 
   if (this->GetNumberOfPoints() == 1)
   {
@@ -354,7 +379,8 @@ void vtkTemporalTransforms::PushBack(double time, const Eigen::AngleAxisd& orien
   lines->InsertNextCell(line);
 }
 
-vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ExtractTimes(double tstart, double tend)
+vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ExtractTimes(double tstart,
+  double tend)
 {
   auto extract = vtkSmartPointer<vtkTemporalTransforms>::New();
 
@@ -362,7 +388,8 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ExtractTimes(doubl
   {
     // get timestamp
     double currentTimestamp = this->GetTimeArray()->GetTuple1(i);
-    if (currentTimestamp < tstart || currentTimestamp > tend) {
+    if (currentTimestamp < tstart || currentTimestamp > tend)
+    {
       continue;
     }
 
@@ -400,7 +427,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::Subsample(int N)
   polyLine->GetPointIds()->SetNumberOfIds(extract->GetNumberOfPoints());
   for (vtkIdType i = 0; i < extract->GetNumberOfPoints(); i++)
   {
-    polyLine->GetPointIds()->SetId(i,i);
+    polyLine->GetPointIds()->SetId(i, i);
   }
   auto cell = vtkSmartPointer<vtkCellArray>::New();
   cell->InsertNextCell(polyLine);
@@ -427,23 +454,21 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ApplyTimeshift(dou
   polyLine->GetPointIds()->SetNumberOfIds(timeshifted->GetNumberOfPoints());
   for (vtkIdType i = 0; i < timeshifted->GetNumberOfPoints(); i++)
   {
-    polyLine->GetPointIds()->SetId(i,i);
+    polyLine->GetPointIds()->SetId(i, i);
   }
   auto cell = vtkSmartPointer<vtkCellArray>::New();
   cell->InsertNextCell(polyLine);
   timeshifted->SetLines(cell);
 
-  bool isWellFormed = timeshifted->GetTimeArray() &&
-                      timeshifted->GetTranslationArray() &&
-                      timeshifted->GetOrientationArray();
-  if(!isWellFormed)
+  bool isWellFormed = timeshifted->GetTimeArray() && timeshifted->GetTranslationArray() &&
+    timeshifted->GetOrientationArray();
+  if (!isWellFormed)
   {
     vtkLog(WARNING, "Time shifted not well formed");
   }
 
   return timeshifted;
 }
-
 
 vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ApplyScale(double scale)
 {
@@ -466,15 +491,15 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ApplyScale(double 
   polyLine->GetPointIds()->SetNumberOfIds(scaled->GetNumberOfPoints());
   for (vtkIdType i = 0; i < scaled->GetNumberOfPoints(); i++)
   {
-    polyLine->GetPointIds()->SetId(i,i);
+    polyLine->GetPointIds()->SetId(i, i);
   }
   auto cell = vtkSmartPointer<vtkCellArray>::New();
   cell->InsertNextCell(polyLine);
   scaled->SetLines(cell);
 
-  bool isWellFormed = scaled->GetTimeArray() && scaled->GetTranslationArray() &&
-                      scaled->GetOrientationArray();
-  if(!isWellFormed)
+  bool isWellFormed =
+    scaled->GetTimeArray() && scaled->GetTranslationArray() && scaled->GetOrientationArray();
+  if (!isWellFormed)
   {
     vtkLog(WARNING, "Scaled not well formed");
   }
