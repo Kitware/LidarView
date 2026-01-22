@@ -4,6 +4,7 @@
 
 #include <vtkCellData.h>
 #include <vtkCell.h>
+#include <vtkLogger.h>
 #include <vtkPolyLine.h>
 #include <vtkLine.h>
 #include <vtkTransform.h>
@@ -437,7 +438,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ApplyTimeshift(dou
                       timeshifted->GetOrientationArray();
   if(!isWellFormed)
   {
-    std::cout << "warning ! timeshifted not well formed" << std::endl;
+    vtkLog(WARNING, "Time shifted not well formed");
   }
 
   return timeshifted;
@@ -475,7 +476,7 @@ vtkSmartPointer<vtkTemporalTransforms> vtkTemporalTransforms::ApplyScale(double 
                       scaled->GetOrientationArray();
   if(!isWellFormed)
   {
-    std::cout << "warning ! scaled not well formed" << std::endl;
+    vtkLog(WARNING, "Scaled not well formed");
   }
 
   return scaled;

@@ -15,6 +15,7 @@
 
 #include "vtkTCPPacketSender.h"
 
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
@@ -71,7 +72,7 @@ bool vtkTCPPacketSender::SendAllPackets(double speed)
     vtkGenericWarningMacro(<< "Listen address is not valid: " << errCode.message());
     return false;
   }
-  std::cout << this->Address << " " << this->Port << std::endl;
+  vtkLog(INFO, << this->Address << " " << this->Port);
   boost::asio::ip::tcp::endpoint endpoint(listenAddress, this->Port);
 
   boost::asio::ip::tcp::acceptor acceptor(internals.IOService, endpoint);
@@ -85,7 +86,7 @@ bool vtkTCPPacketSender::SendAllPackets(double speed)
     // Waiting for connection
     acceptor.accept(*internals.Socket);
 
-    std::cout << "connected!" << std::endl;
+    vtkLog(INFO, << "connected!");
 
     internals.IsDone = false;
     auto replayStartTime = std::chrono::steady_clock::now();
@@ -113,14 +114,14 @@ bool vtkTCPPacketSender::SendAllPackets(double speed)
       }
       if (internals.PacketCount % 100)
       {
-        std::cout << "Packet sent " << internals.PacketCount << std::endl;
+        vtkLog(INFO, << "Packet sent " << internals.PacketCount);
       }
     }
-    std::cout << "Done sending..." << std::endl;
+    vtkLog(INFO, << "Done sending...");
   }
   catch (std::exception& e)
   {
-    std::cout << "Caught Exception: " << e.what() << std::endl;
+    vtkLog(WARNING, << "Caught Exception: " << e.what());
     return false;
   }
   return true;

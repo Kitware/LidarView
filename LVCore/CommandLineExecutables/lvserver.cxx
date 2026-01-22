@@ -31,6 +31,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSMProxyManager.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #if LIDARVIEW_USE_PYTHON
 extern "C"
 {
@@ -58,7 +60,8 @@ int main(int argc, char* argv[])
     "This is the LidarView server executable. This is intended for client-server use-cases "
     "which require the client and server to be on different processes, potentially on "
     "different systems.\n\n"
-    "Typically, one connects a LidarView / ParaView client (either a graphical client, or a Python-based "
+    "Typically, one connects a LidarView / ParaView client (either a graphical client, or a "
+    "Python-based "
     "client) to this process to drive the data analysis and visualization pipelines.");
 
   // Init current process type
@@ -96,11 +99,11 @@ int main(int argc, char* argv[])
     // Report status:
     if (config->GetReverseConnection())
     {
-      cout << "Connecting to client (reverse connection requested)..." << endl;
+      std::cout << "Connecting to client (reverse connection requested)..." << std::endl;
     }
     else
     {
-      cout << "Waiting for client..." << endl;
+      std::cout << "Waiting for client..." << std::endl;
     }
   }
   bool success = false;
@@ -121,7 +124,7 @@ int main(int argc, char* argv[])
     pm->UnRegisterSession(session);
   }
 
-  cout << "Exiting..." << endl;
+  std::cout << "Exiting..." << std::endl;
   session->Delete();
   // Exit application
   vtkInitializationHelper::Finalize();

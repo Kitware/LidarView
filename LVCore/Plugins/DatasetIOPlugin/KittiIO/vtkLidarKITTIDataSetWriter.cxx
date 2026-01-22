@@ -2,6 +2,7 @@
 
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLogger.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
@@ -22,7 +23,7 @@ void WriteToBinaryFile(std::vector<float>& inData, const std::string& filename)
   std::ofstream fout(filename, std::ios::out | std::ios::binary);
   if (!fout.is_open())
   {
-    std::cout << "Error: could not open file " << filename << " for writing." << std::endl;
+    vtkLog(ERROR, << "Error: could not open file " << filename << " for writing.");
   }
   else
   {

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lqLiveSourceScalarColoringBehavior.h"
 
 #include <vtkDataObject.h>
+#include <vtkLogger.h>
 #include <vtkNew.h>
 
 #include <vtkDataSetAttributes.h>
@@ -93,7 +94,7 @@ bool lqLiveSourceScalarColoringBehavior::TrySetScalarColoring(pqPipelineSource* 
     auto* ppcwr = vtkSMParaViewPipelineControllerWithRendering::SafeDownCast(ppc);
     if ( !ppcwr )
     {
-      std::cerr << __FUNCTION__ << " Pipeline Controller has no rendering capabilities" << std::endl;
+      vtkLog(WARNING, << __FUNCTION__ << " Pipeline Controller has no rendering capabilities");
       return true; // Error, Do not try again
     }
 

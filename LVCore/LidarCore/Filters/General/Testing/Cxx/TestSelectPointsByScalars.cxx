@@ -20,6 +20,8 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 #include "vtkSelectPointsByScalars.h"
 
 namespace
@@ -48,7 +50,7 @@ int TestSelectPointsByScalars(int, char*[])
 
   scalars->InsertNextValue(0.5); // point 0 → scalar 0.5
   scalars->InsertNextValue(1.0); // point 1 → scalar 1.0
-  scalars->InsertNextValue(2.0);  // point 2 → scalar 2.0
+  scalars->InsertNextValue(2.0); // point 2 → scalar 2.0
 
   dataset->GetPointData()->SetScalars(scalars);
 

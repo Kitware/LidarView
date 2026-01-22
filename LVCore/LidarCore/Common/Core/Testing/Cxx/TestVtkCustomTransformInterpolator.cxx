@@ -18,6 +18,8 @@
 #include <vtkPolyData.h>
 #include <vtkTesting.h>
 
+#include <iostream>
+
 // LOCAL
 #include "vtkCustomTransformInterpolator.h"
 #include "vtkTemporalTransforms.h"

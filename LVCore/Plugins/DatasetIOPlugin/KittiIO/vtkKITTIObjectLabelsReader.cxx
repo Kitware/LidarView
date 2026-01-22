@@ -6,6 +6,7 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkIntArray.h>
+#include <vtkLogger.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -194,7 +195,7 @@ Eigen::Isometry3d ParseCalibFile(const std::string& filename)
   }
   else
   {
-    std::cerr << "Could not open calibration file." << std::endl;
+    vtkLog(ERROR, "Could not open calibration file.");
     return Eigen::Isometry3d::Identity();
   }
   f.close();
