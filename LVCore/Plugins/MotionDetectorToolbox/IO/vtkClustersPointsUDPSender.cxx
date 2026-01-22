@@ -23,6 +23,7 @@
 #include <vtkInformationVector.h>
 #include <vtkIntArray.h>
 #include <vtkObjectFactory.h>
+#include <vtkSelectPointsByScalars.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkThresholdPoints.h>
 
@@ -133,10 +134,11 @@ int vtkClustersPointsUDPSender::RequestData(vtkInformation* vtkNotUsed(request),
     {
       continue;
     }
-    vtkSmartPointer<vtkThresholdPoints> selector = vtkSmartPointer<vtkThresholdPoints>::New();
+    vtkNew<vtkSelectPointsByScalars> selector;
     selector->SetInputData(input);
     selector->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "ClusterId");
-    selector->ThresholdBetween(id, id);
+    selector->SetNumberOfValues(1);
+    selector->SetValue(0, id);
     selector->Update();
     auto selectedPoints = vtkDataSet::SafeDownCast(selector->GetOutputDataObject(0));
     if (!selectedPoints)

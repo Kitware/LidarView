@@ -9,4 +9,5 @@ DEPENDS
 PRIVATE_DEPENDS
   Boost::system
   Boost::thread
+  LidarView::FiltersGeneral
   VTK::FiltersCore
