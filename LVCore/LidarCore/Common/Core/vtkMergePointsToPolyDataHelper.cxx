@@ -71,7 +71,7 @@ void vtkMergePointsToPolyDataHelper::InitializeData()
   vtkNew<vtkCellArray> cells;
   points->SetDataTypeToDouble();
   points->Resize(this->InitialNumberOfPoints);
-  cells->SetNumberOfCells(this->InitialNumberOfPoints);
+  cells->AllocateEstimate(this->InitialNumberOfPoints, 1);
   this->Output->SetPoints(points);
   this->Output->SetVerts(cells);
 
@@ -95,7 +95,7 @@ bool vtkMergePointsToPolyDataHelper::ResizeData()
       vtkErrorMacro("vtkMergePointsToPolyDataHelper::ResizeData : failed to resize the data");
       return false;
     }
-    this->Output->GetVerts()->SetNumberOfCells(this->CurrentDataSize + ResizeNumberOfPoints);
+    this->Output->GetVerts()->AllocateEstimate(this->CurrentDataSize + ResizeNumberOfPoints, 1);
     this->CurrentDataSize += this->ResizeNumberOfPoints;
   }
   return true;

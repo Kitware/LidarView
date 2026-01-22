@@ -28,7 +28,7 @@ vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts)
   }
 
   vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
-  cellArray->SetCells(numberOfVerts, cells.GetPointer());
+  cellArray->SetData(numberOfVerts, cells.GetPointer());
   return cellArray;
 }
 
