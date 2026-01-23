@@ -102,6 +102,7 @@ lidarcoreplugin_add_module_xml(
   XML_MODULE_FILES
     Filters/DBSCANClustering.xml
     Filters/SeparateCloudKnn.xml
+    Filters/CurbDetectorOffline.xml
 )
 
 lidarcoreplugin_add_module_xml(

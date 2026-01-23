@@ -1,0 +1,35 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="CurbDetectorOffline" class="vtkCurbDetectorOffline" label="Curb Detector (offline)">
+      <Documentation short_help="Detect curb steps via per-segment trajectory slicing and a lateral height profile.">
+        Takes an aggregated point cloud and the trajectory used to generate it. For each consecutive
+        trajectory segment, builds a slice plane perpendicular to the segment and a rectangular window.
+        Projects in-window points to the slice frame, computes a lateral 1D height profile using order-median
+        with light smoothing, and flags significant vertical steps (≥ ZChangeMin) as curb candidates.
+      </Documentation>
+
+      <InputProperty name="AggregatedPointCloud" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Aggregated point cloud.</Documentation>
+      </InputProperty>
+
+      <InputProperty name="Trajectory" port_index="1" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Trajectory representing the sensor path.</Documentation>
+      </InputProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

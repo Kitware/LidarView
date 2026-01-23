@@ -10,7 +10,8 @@ set(headers
 
 set(classes
   vtkDBSCANClustering
-  vtkSeparateCloudKnn)
+  vtkSeparateCloudKnn
+  vtkCurbDetectorOffline)
 
 # set(templates
 #   DBSCAN)
