@@ -30,6 +30,55 @@
         <Documentation>Trajectory representing the sensor path.</Documentation>
       </InputProperty>
 
+      <DoubleVectorProperty name="Slice Left Distance"
+                            label="Left Distance (m)"
+                            command="SetSliceLeftDistance"
+                            number_of_elements="1"
+                            default_values="5.0">
+        <Documentation>
+          Maximum distance to the left of the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Right Distance"
+                            label="Right Distance (m)"
+                            command="SetSliceRightDistance"
+                            number_of_elements="1"
+                            default_values="5.0">
+        <Documentation>
+           Maximum distance to the right of the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Downward Distance"
+                            label="Below Distance (m)"
+                            command="SetSliceDownwardDistance"
+                            number_of_elements="1"
+                            default_values="-5.0">
+        <Documentation>
+          Minimum vertical distance from the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Upward Distance"
+                            label="Above Distance (m)"
+                            command="SetSliceUpwardDistance"
+                            number_of_elements="1"
+                            default_values="-2.0">
+        <Documentation>
+          Maximum vertical distance from the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <OutputPort name="CrossSection" index="0" id="port0" />
+
+      <PropertyGroup label="Slice Bounds">
+        <Property name="Slice Left Distance" />
+        <Property name="Slice Right Distance" />
+        <Property name="Slice Downward Distance" />
+        <Property name="Slice Upward Distance" />
+      </PropertyGroup>
+
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>
