@@ -81,6 +81,14 @@ public:
   vtkGetMacro(SliceUpwardDistance, double);
   ///@}
 
+  ///@{
+  /*
+   * Order-based bin size along lateral axis (number of points per bin).
+   */
+  vtkSetMacro(OrderBinSize, int);
+  vtkGetMacro(OrderBinSize, int);
+  ///@}
+
 protected:
   vtkCurbDetectorOffline();
   ~vtkCurbDetectorOffline() override = default;
@@ -110,6 +118,9 @@ private:
   // They are signed coordinates and can both be on the same side.
   double SliceDownwardDistance = -5.0;
   double SliceUpwardDistance = -2.0;
+
+  // Target number of points per lateral bin when building the slice profile (>= 1).
+  int OrderBinSize = 20;
 };
 
 #endif // VTK_CURB_DETECTOR_OFFLINE_H

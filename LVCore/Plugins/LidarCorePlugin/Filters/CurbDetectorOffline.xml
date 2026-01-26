@@ -90,6 +90,16 @@
         </Documentation>
       </DoubleVectorProperty>
 
+      <IntVectorProperty name="OrderBinSize"
+                        label="Order Bin Size"
+                        command="SetOrderBinSize"
+                        number_of_elements="1"
+                        default_values="20">
+        <Documentation>
+          Target number of points per lateral order-bin used to build the slice profile. Must be larger or equal to  1.
+        </Documentation>
+      </IntVectorProperty>
+
       <OutputPort name="CrossSection" index="0" id="port0" />
       <OutputPort name="SlicedPointsLR" index="1" id="port1" />
       <OutputPort name="Slice1DProfile" index="2" id="port2" />
@@ -108,6 +118,7 @@
 
       <PropertyGroup label="Detection">
         <Property name="ZChangeMin" />
+        <Property name="OrderBinSize" />
       </PropertyGroup>
 
     </SourceProxy>

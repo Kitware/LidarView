@@ -304,7 +304,7 @@ int vtkCurbDetectorOffline::RequestData(vtkInformation* /*request*/,
     }
 
     // Profile parameters: order-based bin size and minimum samples per bin
-    const int orderBinSize = 20;  // target number of points per bin along sorted dl
+    const int orderBinSize = std::max(1, this->OrderBinSize);
     for (size_t k = 0; k < planeCenters.size(); ++k)
     {
       auto sliceProjPoints = perSlice[k];
