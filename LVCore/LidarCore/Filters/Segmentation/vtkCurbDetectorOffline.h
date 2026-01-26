@@ -43,6 +43,14 @@ public:
 
   ///@{
   /*
+   * Step detection threshold (meters).
+   */
+  vtkSetMacro(ZChangeMin, double);
+  vtkGetMacro(ZChangeMin, double);
+  ///@}
+
+  ///@{
+  /*
    * Slice half-thickness along plane normal (meters).
    */
   vtkSetMacro(SliceHalfThickness, double);
@@ -83,6 +91,10 @@ protected:
 private:
   vtkCurbDetectorOffline(const vtkCurbDetectorOffline&) = delete;
   void operator=(const vtkCurbDetectorOffline&) = delete;
+
+  // Minimum vertical step (in meters) on the smoothed profile
+  // required to detect a curb candidate.
+  double ZChangeMin = 0.1;
 
   // Half thickness of the slicing region measured
   // perpendicular to the trajectory (meters).

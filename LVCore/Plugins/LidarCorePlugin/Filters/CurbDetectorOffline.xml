@@ -80,8 +80,20 @@
         </Documentation>
       </DoubleVectorProperty>
 
+      <DoubleVectorProperty name="ZChangeMin"
+                            label="Minimum Z Change (m)"
+                            command="SetZChangeMin"
+                            number_of_elements="1"
+                            default_values="0.1">
+        <Documentation>
+          Minimum ΔZ between adjacent order-bins (meters) to flag a step.
+        </Documentation>
+      </DoubleVectorProperty>
+
       <OutputPort name="CrossSection" index="0" id="port0" />
       <OutputPort name="SlicedPointsLR" index="1" id="port1" />
+      <OutputPort name="Slice1DProfile" index="2" id="port2" />
+      <OutputPort name="CurbFrom1DProfileLR" index="3" id="port3" />
 
       <PropertyGroup label="Thickness">
         <Property name="Slice Half Thickness" />
@@ -92,6 +104,10 @@
         <Property name="Slice Right Distance" />
         <Property name="Slice Downward Distance" />
         <Property name="Slice Upward Distance" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Detection">
+        <Property name="ZChangeMin" />
       </PropertyGroup>
 
     </SourceProxy>
