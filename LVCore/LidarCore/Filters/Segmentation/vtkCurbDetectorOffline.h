@@ -43,6 +43,14 @@ public:
 
   ///@{
   /*
+   * Slice half-thickness along plane normal (meters).
+   */
+  vtkSetMacro(SliceHalfThickness, double);
+  vtkGetMacro(SliceHalfThickness, double);
+  ///@}
+
+  ///@{
+  /*
    * Non-negative lateral distances from trajectory centerline (meters).
    * Left and right correspond to opposite sides of the trajectory, so both
    * values must be >= 0.
@@ -75,6 +83,10 @@ protected:
 private:
   vtkCurbDetectorOffline(const vtkCurbDetectorOffline&) = delete;
   void operator=(const vtkCurbDetectorOffline&) = delete;
+
+  // Half thickness of the slicing region measured
+  // perpendicular to the trajectory (meters).
+  double SliceHalfThickness = 0.2;
 
   // Maximum distance to the left/right of the trajectory to include in each slice (meters).
   // Values must be non-negative because left and right are opposite sides.

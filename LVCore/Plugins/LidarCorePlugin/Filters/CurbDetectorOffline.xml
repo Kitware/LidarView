@@ -30,6 +30,16 @@
         <Documentation>Trajectory representing the sensor path.</Documentation>
       </InputProperty>
 
+      <DoubleVectorProperty name="Slice Half Thickness"
+                            label="Slice Half-Thickness (m)"
+                            command="SetSliceHalfThickness"
+                            number_of_elements="1"
+                            default_values="0.2">
+        <Documentation>
+          Half-thickness of the slice along plane normal.
+        </Documentation>
+      </DoubleVectorProperty>
+
       <DoubleVectorProperty name="Slice Left Distance"
                             label="Left Distance (m)"
                             command="SetSliceLeftDistance"
@@ -71,6 +81,11 @@
       </DoubleVectorProperty>
 
       <OutputPort name="CrossSection" index="0" id="port0" />
+      <OutputPort name="SlicedPointsLR" index="1" id="port1" />
+
+      <PropertyGroup label="Thickness">
+        <Property name="Slice Half Thickness" />
+      </PropertyGroup>
 
       <PropertyGroup label="Slice Bounds">
         <Property name="Slice Left Distance" />

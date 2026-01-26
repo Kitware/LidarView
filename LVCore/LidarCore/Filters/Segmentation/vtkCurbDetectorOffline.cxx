@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkCurbDetectorOffline);
 vtkCurbDetectorOffline::vtkCurbDetectorOffline()
 {
   this->SetNumberOfInputPorts(2);
-  this->SetNumberOfOutputPorts(1);
+  this->SetNumberOfOutputPorts(3);
 }
 
 //-----------------------------------------------------------------------------
@@ -54,9 +54,11 @@ int vtkCurbDetectorOffline::RequestData(vtkInformation* /*request*/,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  vtkPolyData* aggregated = vtkPolyData::GetData(inputVector[0], 0);
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1], 0);
 
   vtkPolyData* planesOut = vtkPolyData::GetData(outputVector, 0);
+  vtkPolyData* sliceColoredOut = vtkPolyData::GetData(outputVector, 1);
 
   if (trajectory == nullptr || trajectory->GetPoints() == nullptr ||
     trajectory->GetNumberOfPoints() < 2)
@@ -66,6 +68,12 @@ int vtkCurbDetectorOffline::RequestData(vtkInformation* /*request*/,
   }
 
   vtkIdType npts = trajectory->GetNumberOfPoints();
+  // Manual slicing dimensions
+  if (this->SliceHalfThickness <= 1e-6)
+  {
+    vtkErrorMacro("SliceHalfThickness must be a positive distance (meters).");
+    return 0;
+  }
 
   if (this->SliceLeftDistance < 0.0 || this->SliceRightDistance < 0.0)
   {
@@ -166,6 +174,106 @@ int vtkCurbDetectorOffline::RequestData(vtkInformation* /*request*/,
   {
     planesOut->SetPoints(pts);
     planesOut->SetPolys(polys);
+  }
+
+  if (aggregated && aggregated->GetPoints() && !planeCenters.empty())
+  {
+    vtkPoints* aggPts = aggregated->GetPoints();
+    const vtkIdType nAgg = aggPts->GetNumberOfPoints();
+    vtkPointData* inPD2 = aggregated->GetPointData();
+
+    // Shared per-slice projection cache (dl along lateral l, dvp along vertical v)
+    struct ProjPoint
+    {
+      vtkIdType pid;
+      double dl;
+      double dvp;
+    };
+    std::vector<std::vector<ProjPoint>> perSlice(planeCenters.size());
+
+    // Optional accumulators for port 1 (sliceColoredOut)
+    vtkNew<vtkPoints> slicePtsLR;
+    vtkNew<vtkCellArray> sliceVertsLR;
+    vtkNew<vtkUnsignedCharArray> colors;
+    vtkPointData* outPDLR = nullptr;
+    if (sliceColoredOut)
+    {
+      slicePtsLR->SetDataTypeToDouble();
+      colors->SetName("SideColors");
+      colors->SetNumberOfComponents(3);
+      outPDLR = sliceColoredOut->GetPointData();
+      if (outPDLR && inPD2)
+      {
+        outPDLR->CopyAllocate(inPD2);
+      }
+    }
+
+    double point[3];
+    for (vtkIdType pid = 0; pid < nAgg; ++pid)
+    {
+      aggPts->GetPoint(pid, point);
+      const Eigen::Vector3d xVec(point[0], point[1], point[2]);
+      bool emitted = false; // ensure each input point contributes at most once to port 1
+      for (size_t k = 0; k < planeCenters.size(); ++k)
+      {
+        // Slice frame for this segment: center, normal, lateral axis, vertical axis
+        const auto& sliceCenter = planeCenters[k];
+        const auto& planeNormal = planeNormals[k];
+        const auto& lateralAxis = planeL[k];
+        const auto& verticalAxis = planeV[k];
+
+        // Vector from slice center to the point
+        const Eigen::Vector3d d = xVec - sliceCenter;
+
+        // Normal distance to the plane
+        const double dn = std::fabs(d.dot(planeNormal));
+        if (dn > this->SliceHalfThickness)
+        {
+          continue;
+        }
+
+        // In-plane coordinates: lateral (dl) and vertical (dvp)
+        const double dl = d.dot(lateralAxis);
+        const double dvp = d.dot(verticalAxis);
+
+        // Rectangular window bounds in the slice
+        if (dl < lateralMin || dl > lateralMax || dvp < verticalMin || dvp > verticalMax)
+        {
+          continue;
+        }
+
+        // Cache projection for downstream per-slice processing (ports 2/3)
+        perSlice[k].push_back(ProjPoint{ pid, dl, dvp });
+
+        // Port 1: emit at the first matching slice only (visualization of side by color)
+        if (sliceColoredOut && !emitted)
+        {
+          unsigned char rgb[3] = { 0, 255, 0 }; // right side = green
+          if (dl < 0.0)
+          {
+            rgb[0] = 0;
+            rgb[1] = 0;
+            rgb[2] = 255;
+          } // left side = blue
+          vtkIdType nid = slicePtsLR->InsertNextPoint(point);
+          sliceVertsLR->InsertNextCell(1);
+          sliceVertsLR->InsertCellPoint(nid);
+          if (outPDLR && inPD2)
+          {
+            outPDLR->CopyData(inPD2, pid, nid);
+          }
+          colors->InsertNextTuple3(rgb[0], rgb[1], rgb[2]);
+          emitted = true;
+        }
+      }
+    }
+
+    if (sliceColoredOut)
+    {
+      sliceColoredOut->SetPoints(slicePtsLR);
+      sliceColoredOut->SetVerts(sliceVertsLR);
+      sliceColoredOut->GetPointData()->AddArray(colors);
+    }
   }
 
   return 1;
