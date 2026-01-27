@@ -38,6 +38,13 @@ void vtkSelectPointsByScalars::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
+int vtkSelectPointsByScalars::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 int vtkSelectPointsByScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
@@ -65,9 +72,7 @@ int vtkSelectPointsByScalars::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  vtkPointData* inPD;
-  inPD = input->GetPointData();
-
+  vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
   outPD->CopyAllocate(inPD);
 

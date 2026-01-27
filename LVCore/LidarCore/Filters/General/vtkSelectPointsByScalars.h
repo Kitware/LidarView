@@ -17,7 +17,7 @@
 #define vtkSelectPointsByScalars_h
 
 // VTK includes
-#include <vtkDataSetAlgorithm.h>
+#include <vtkPolyDataAlgorithm.h>
 #include <vtkSmartPointer.h>
 
 #include "lvFiltersGeneralModule.h" // for export macro
@@ -27,12 +27,12 @@
  * match specified values.
  */
 
-class LVFILTERSGENERAL_EXPORT vtkSelectPointsByScalars : public vtkDataSetAlgorithm
+class LVFILTERSGENERAL_EXPORT vtkSelectPointsByScalars : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSelectPointsByScalars* New();
 
-  vtkTypeMacro(vtkSelectPointsByScalars, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkSelectPointsByScalars, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,6 +60,7 @@ protected:
   vtkSelectPointsByScalars() = default;
   ~vtkSelectPointsByScalars() = default;
 
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
