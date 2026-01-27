@@ -118,6 +118,10 @@ void vtkSelectPointsByScalars::SetNumberOfValues(int values)
 //-----------------------------------------------------------------------------
 void vtkSelectPointsByScalars::SetValue(int index, double value)
 {
-  this->ValuesToProcess[index] = value;
-  this->Modified();
+  if (index >= 0 && static_cast<unsigned int>(index) < this->ValuesToProcess.size() &&
+    this->ValuesToProcess[index] != value)
+  {
+    this->ValuesToProcess[index] = value;
+    this->Modified();
+  }
 }
