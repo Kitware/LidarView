@@ -16,14 +16,14 @@
 #include "vtkTemporalTransformsWriter.h"
 
 #include <iostream>
+#include <vtkDataArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include <vtkTransform.h>
 #include <vtkPointData.h>
-#include <vtkDataArray.h>
+#include <vtkTransform.h>
 
 #include "vtkTemporalTransforms.h"
 
@@ -80,10 +80,9 @@ int vtkTemporalTransformsWriter::RequestData(vtkInformation* vtkNotUsed(request)
   vtkDataArray* altArray = polyData->GetPointData()->GetArray("Altitude");
 
   const vtkIdType npts = transforms->GetNumberOfPoints();
-  const bool hasGeodeticCoord = (lonArray && latArray && altArray &&
-                          lonArray->GetNumberOfTuples() == npts &&
-                          latArray->GetNumberOfTuples() == npts &&
-                          altArray->GetNumberOfTuples() == npts);
+  const bool hasGeodeticCoord =
+    (lonArray && latArray && altArray && lonArray->GetNumberOfTuples() == npts &&
+      latArray->GetNumberOfTuples() == npts && altArray->GetNumberOfTuples() == npts);
 
   std::ofstream file(this->FileName);
   file << "Time,Rx(Roll),Ry(Pitch),Rz(Yaw),X,Y,Z";

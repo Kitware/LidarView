@@ -16,8 +16,8 @@
 #ifndef vtkComputeGeodeticCoordinates_h
 #define vtkComputeGeodeticCoordinates_h
 
-#include <vtkPolyDataAlgorithm.h>
 #include <string>
+#include <vtkPolyDataAlgorithm.h>
 
 #include "lvFiltersProcessingModule.h" // For export macro
 

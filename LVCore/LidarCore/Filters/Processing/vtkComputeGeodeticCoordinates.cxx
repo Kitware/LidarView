@@ -73,7 +73,8 @@ int vtkComputeGeodeticCoordinates::RequestData(vtkInformation* vtkNotUsed(reques
   PJ* pipeline = proj_create_crs_to_crs(pjContext, inCRS.c_str(), outCRS.c_str(), nullptr);
   if (!pipeline)
   {
-    vtkErrorMacro(<< "Unable to create transformation from '" << inCRS << "' to '" << outCRS << "'");
+    vtkErrorMacro(<< "Unable to create transformation from '" << inCRS << "' to '" << outCRS
+                  << "'");
     proj_context_destroy(pjContext);
     return 0;
   }
