@@ -71,47 +71,6 @@ bool GetIntensityArrayAndRange(vtkPolyData* pc,
 
   return true;
 }
-
-//-----------------------------------------------------------------------------
-void ComputeCameraDistanceRange(vtkPolyData* pointcloud,
-  vtkDataArray* timestampArray,
-  bool canUndistort,
-  vtkCustomTransformInterpolator* trajectory,
-  vtkTransform* poseAtPointTimeTemp,
-  const Eigen::Transform<double, 3, Eigen::Affine>& poseAtCameraTime,
-  const Eigen::Matrix3d& Rext,
-  const Eigen::Vector3d& Text,
-  double& DminOut,
-  double& DmaxOut)
-{
-  DminOut = std::numeric_limits<double>::max();
-  DmaxOut = -std::numeric_limits<double>::max();
-  for (vtkIdType idx = 0; idx < pointcloud->GetNumberOfPoints(); ++idx)
-  {
-    double point[3];
-    pointcloud->GetPoint(idx, point);
-    Eigen::Vector3d pointWorld(point[0], point[1], point[2]);
-    // If undistortion is enabled, compute the position of the point
-    // in the world reference at the camera time.
-    if (canUndistort)
-    {
-      double tsPt = 1e-6 * timestampArray->GetTuple1(idx); // convert timestamp to seconds
-      trajectory->InterpolateTransform(tsPt, poseAtPointTimeTemp);
-      poseAtPointTimeTemp->Update();
-      Eigen::Transform<double, 3, Eigen::Affine> poseAtPointTime =
-        ToEigenTransform(poseAtPointTimeTemp);
-      Eigen::Transform<double, 3, Eigen::Affine> relativeTransform =
-        poseAtCameraTime.inverse(Eigen::Affine) * poseAtPointTime;
-      pointWorld = relativeTransform.rotation() * pointWorld + relativeTransform.translation();
-    }
-    Eigen::Vector3d pointInCamera = Rext.transpose() * (pointWorld - Text);
-    double distance = pointInCamera.norm();
-    if (distance < DminOut)
-      DminOut = distance;
-    if (distance > DmaxOut)
-      DmaxOut = distance;
-  }
-}
 }
 
 //-----------------------------------------------------------------------------
@@ -445,14 +404,11 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   // place this costly heap allocation outside the loop
   auto poseAtPointTimeTemp = vtkSmartPointer<vtkTransform>::New();
 
-  // Prepare distance-based coloring in camera frame: compute extrinsics and
-  // a range [Dmin, Dmax] over all points.
-  Eigen::Matrix3d Rext = RollPitchYawToMatrix(W(0), W(1), W(2));
-  Eigen::Vector3d Text(W(3), W(4), W(5));
-  // Determine distance range for overlay coloring.
-  // Prefer using a precomputed array if available.
-  double Dmin = 0.0, Dmax = 1.0;
+  // Prepare distance-based coloring using LiDAR distance only.
+  // If a distance array is available, use its range for coloring.
+  // If not available, we will disable distance overlay during rendering.
   vtkDataArray* distanceArray = nullptr;
+  double Lmin = 0.0, Lmax = 1.0;
   if (!this->DistanceArrayName.empty())
   {
     distanceArray = pointcloud->GetPointData()->GetArray(this->DistanceArrayName.c_str());
@@ -461,21 +417,14 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
   {
     double range[2] = { 0.0, 1.0 };
     distanceArray->GetRange(range);
-    Dmin = range[0];
-    Dmax = range[1];
+    Lmin = range[0];
+    Lmax = range[1];
   }
-  else
+  else if (this->OverlayColorMode == vtkCameraProjector::DISTANCE)
   {
-    Utils::ComputeCameraDistanceRange(pointcloud,
-      timestampArray,
-      canUndistort,
-      this->Trajectory,
-      poseAtPointTimeTemp,
-      poseAtCameraTime,
-      Rext,
-      Text,
-      Dmin,
-      Dmax);
+    vtkWarningMacro(<< "OverlayColorMode set to DISTANCE but distance array '"
+                    << this->DistanceArrayName
+                    << "' not found. Distance overlay will be disabled.");
   }
 
   // Project the points in the image
@@ -581,16 +530,18 @@ int vtkCameraProjector::RequestData(vtkInformation* vtkNotUsed(request),
         }
         break;
       case vtkCameraProjector::DISTANCE:
-      {
-        Eigen::Vector3d Xcam = Rext.transpose() * (X - Text);
-        double distanceInCamera = Xcam.norm();
-        overlayScalarValue =
-          distanceArray ? distanceArray->GetTuple1(pointIndex) : distanceInCamera;
-        overlayRangeMin = Dmin;
-        overlayRangeMax = Dmax;
-        color = GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
+        if (!distanceArray)
+        {
+          drawOverlay = false;
+        }
+        else
+        {
+          overlayScalarValue = distanceArray->GetTuple1(pointIndex);
+          overlayRangeMin = Lmin;
+          overlayRangeMax = Lmax;
+          color = GetRGBColourFromScalar(overlayScalarValue, overlayRangeMin, overlayRangeMax);
+        }
         break;
-      }
       default:
         drawOverlay = false;
         break;

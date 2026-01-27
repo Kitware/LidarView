@@ -45,7 +45,7 @@ public:
   {
     //! Colorize using intensity values.
     INTENSITY = 0,
-    //! Colorize using distance in the camera frame.
+    //! Colorize using LiDAR-to-point distance.
     DISTANCE = 1
   };
 
@@ -170,7 +170,7 @@ private:
   //! Name of the point-data array that carries timestamps (used with trajectory)
   std::string TimeArrayName = "adjustedtime";
 
-  //! Optional name of the precomputed distance array in camera frame.
+  //! Name of the LiDAR distance array (meters), required for DISTANCE mode.
   std::string DistanceArrayName = "distance_m";
 };
 
