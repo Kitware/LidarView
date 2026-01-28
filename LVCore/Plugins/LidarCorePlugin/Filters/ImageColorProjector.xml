@@ -1,0 +1,35 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ImageColorProjector" class="vtkImageColorToPointCloud" label="Project Image Colors to Point Cloud">
+      <Documentation short_help="Project colors from a vtkDataSet onto a point cloud.">
+        Takes a vtkPolyData point cloud at port 0 and a vtkDataSet at port 1,
+        and assigns each point the RGB color sampled from the grid using nearest-neighbor
+        in grid index space when the grid is a regular 2D plane.
+      </Documentation>
+
+      <InputProperty name="Point Cloud" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Set the input point cloud.</Documentation>
+      </InputProperty>
+
+      <InputProperty name="Input Image" port_index="1" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+        <Documentation>Set the input image dataset (e.g., .vts).</Documentation>
+      </InputProperty>
+
+      <OutputPort name="Output" index="0" id="port0" />
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
