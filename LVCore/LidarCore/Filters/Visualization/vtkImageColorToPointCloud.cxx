@@ -103,39 +103,10 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
   sgrid->GetDimensions(dims);
   vtkPoints* gridPoints = sgrid->GetPoints();
 
-  auto idx = [&](int i, int j, int k) -> vtkIdType
-  { return static_cast<vtkIdType>(i + dims[0] * (j + dims[1] * k)); };
-
-  // Basis vectors for the grid (if available)
+  // Basis points
   double p00[3] = { 0.0, 0.0, 0.0 };
-  double dx[3] = { 0.0, 0.0, 0.0 };
-  double dy[3] = { 0.0, 0.0, 0.0 };
-
-  // Precompute 2x2 inverse metric for projection to (i,j)
-  double a00 = 0.0, a11 = 0.0;
-  double inv00 = 0.0, inv11 = 0.0;
-  if (gridPoints && dims[0] >= 1 && dims[1] >= 1)
-  {
-    gridPoints->GetPoint(idx(0, 0, 0), p00);
-    if (dims[0] >= 2)
-    {
-      double p10[3];
-      gridPoints->GetPoint(idx(1, 0, 0), p10);
-      // World-space displacement of one grid step along the X (i) axis
-      dx[0] = p10[0] - p00[0];
-      dx[1] = p10[1] - p00[1];
-      dx[2] = p10[2] - p00[2];
-    }
-    if (dims[1] >= 2)
-    {
-      double p01[3];
-      gridPoints->GetPoint(idx(0, 1, 0), p01);
-      // World-space displacement of one grid step along the Y (j) axis
-      dy[0] = p01[0] - p00[0];
-      dy[1] = p01[1] - p00[1];
-      dy[2] = p01[2] - p00[2];
-    }
-  }
+  double p10[3] = { 0.0, 0.0, 0.0 };
+  double p01[3] = { 0.0, 0.0, 0.0 };
 
   // Validate grid is 2D and regular in i,j
   if (dims[2] != 1)
@@ -149,13 +120,47 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  // Compute the world-space distance of a one-pixel step along the X/Y directions
-  a00 = dx[0] * dx[0] + dx[1] * dx[1] + dx[2] * dx[2];
-  a11 = dy[0] * dy[0] + dy[1] * dy[1] + dy[2] * dy[2];
+  auto idx = [&](int i, int j, int k) -> vtkIdType
+  { return static_cast<vtkIdType>(i + dims[0] * (j + dims[1] * k)); };
 
-  // Convert a unit world-space displacement to pixel displacement along X and Y
-  inv00 = 1.0 / a00;
-  inv11 = 1.0 / a11;
+  // Retrieve three reference points from the structured grid to define the 2D grid basis:
+  // p00: origin of the grid (i=0, j=0)
+  // p10: one-step increment along the i direction
+  // p01: one-step increment along the j direction
+  // These points are later used to infer the grid spacing and orientation in world coordinates.
+  sgrid->GetPoint(idx(0, 0, 0), p00);
+  sgrid->GetPoint(idx(1, 0, 0), p10);
+  sgrid->GetPoint(idx(0, 1, 0), p01);
+
+  // Select the two world axes defining the projection plane by excluding DropAxis.
+  // Mapping:
+  //   DropAxis = 0 (X) -> planeAxes = {1, 2}  // YZ plane
+  //   DropAxis = 1 (Y) -> planeAxes = {0, 2}  // XZ plane
+  //   DropAxis = 2 (Z) -> planeAxes = {0, 1}  // XY plane
+  int planeAxes[2] = { 0, 1 };
+  int planeCandidates[2];
+  int candidateCount = 0;
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    if (axis != this->DropAxis)
+    {
+      planeCandidates[candidateCount++] = axis;
+    }
+  }
+  planeAxes[0] = planeCandidates[0];
+  planeAxes[1] = planeCandidates[1];
+
+  // Project the 3D grid basis vectors (p10-p00, p01-p00) onto the
+  // 2D plane defined by planeAxes, yielding a 2x2 basis for (i,j).
+  const double dx0 = p10[planeAxes[0]] - p00[planeAxes[0]];
+  const double dx1 = p10[planeAxes[1]] - p00[planeAxes[1]];
+  const double dy0 = p01[planeAxes[0]] - p00[planeAxes[0]];
+  const double dy1 = p01[planeAxes[1]] - p00[planeAxes[1]];
+
+  // Determinant of the 2D basis matrix [dx dy] on the projection plane.
+  const double det = dx0 * dy1 - dx1 * dy0;
+
+  const double invDet = 1.0 / det;
 
   vtkDataArray* colorArray = nullptr;
   if (auto rgbUChar = vtkUnsignedCharArray::SafeDownCast(sgrid->GetPointData()->GetArray("RGB")))
@@ -173,21 +178,24 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
     npts,
     [&](vtkIdType begin, vtkIdType end)
     {
-      double p[3];
+      double point[3];
       for (vtkIdType pid = begin; pid < end; ++pid)
       {
-        points->GetPoint(pid, p);
+        points->GetPoint(pid, point);
         vtkIdType gid = -1;
-        // Project vector v = p - p00 onto the grid basis to get (i,j)
-        double v[3] = { p[0] - p00[0], p[1] - p00[1], p[2] - p00[2] };
 
-        // Distance of the point displacement projected onto the image X/Y axes (in world units)
-        const double b0 = dx[0] * v[0] + dx[1] * v[1] + dx[2] * v[2];
-        const double b1 = dy[0] * v[0] + dy[1] * v[1] + dy[2] * v[2];
+        // r = p - p00: displacement of the 3D point from the grid origin,
+        // expressed in the 2D projection plane, used to solve for (ci, cj).
+        const double r0 = point[planeAxes[0]] - p00[planeAxes[0]];
+        const double r1 = point[planeAxes[1]] - p00[planeAxes[1]];
 
-        // Convert world-space distances along image X/Y directions to pixel offsets
-        const double ci = inv00 * b0;
-        const double cj = inv11 * b1;
+        double ci = 0.0, cj = 0.0;
+
+        // Solve the 2x2 linear system [dx dy] * [ci cj]^T = r
+        // to recover the continuous pixel coordinates (ci, cj)
+        // in the projected 2D grid.
+        ci = (r0 * dy1 - r1 * dy0) * invDet;
+        cj = (-r0 * dx1 + r1 * dx0) * invDet;
 
         // Nearest-neighbor sampling in index space
         long ii = static_cast<long>(std::lround(ci));

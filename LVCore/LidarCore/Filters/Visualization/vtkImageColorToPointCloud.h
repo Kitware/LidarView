@@ -39,6 +39,26 @@ public:
   static vtkImageColorToPointCloud* New();
   vtkTypeMacro(vtkImageColorToPointCloud, vtkPolyDataAlgorithm);
 
+  // Axis selection for image plane
+  enum Axis
+  {
+    AXIS_X = 0, // X is constant, image lies in the YZ plane
+    AXIS_Y = 1, // Y is constant, image lies in the XZ plane
+    AXIS_Z = 2  // Z is constant, image lies in the XY plane
+  };
+
+  ///@{
+  /**
+   * Defines which world axis is normal to the image plane.
+   *
+   * The image lies in the plane obtained by dropping the selected world axis.
+   * The remaining two axes define the in-plane pixel directions, and indices
+   * are computed by projecting onto this plane using the grid basis.
+   */
+  vtkSetMacro(DropAxis, int);
+  vtkGetMacro(DropAxis, int);
+  ///@}
+
 protected:
   vtkImageColorToPointCloud();
   ~vtkImageColorToPointCloud() override;
@@ -51,6 +71,8 @@ protected:
 private:
   vtkImageColorToPointCloud(const vtkImageColorToPointCloud&) = delete;
   void operator=(const vtkImageColorToPointCloud&) = delete;
+
+  int DropAxis = AXIS_Z;
 };
 
 #endif
