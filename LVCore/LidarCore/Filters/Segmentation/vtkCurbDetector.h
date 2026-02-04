@@ -16,8 +16,8 @@
 #ifndef VTK_CURB_DETECTOR_H
 #define VTK_CURB_DETECTOR_H
 
-#include <vtkPolyDataAlgorithm.h>
 #include <string>
+#include <vtkPolyDataAlgorithm.h>
 
 #include "lvFiltersSegmentationModule.h"
 

@@ -15,9 +15,9 @@
 
 #include "vtkCurbDetector.h"
 
+#include <vtkBox.h>
 #include <vtkCellArray.h>
 #include <vtkClipPolyData.h>
-#include <vtkBox.h>
 #include <vtkCubeSource.h>
 #include <vtkDataArray.h>
 #include <vtkDataSetAttributes.h>
@@ -145,9 +145,6 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
     return 0;
   }
 
-  vtkIdType inputPointCount = input->GetNumberOfPoints();
-  vtkPoints* inputPoints = input->GetPoints();
-
   // Derive ROI bounds from interactive pose: min-corner=BoxPosition, lengths=BoxScale
   const double lx = std::max(1e-6, this->BoxScale[0]);
   const double ly = std::max(1e-6, this->BoxScale[1]);
@@ -184,9 +181,8 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   vtkPointData* filteredPointData = output->GetPointData();
   const char* ringArrayName = this->GetRingArrayName();
   const char* timestampArrayName = this->GetTimestampArrayName();
-  vtkDataArray* ringArr = (filteredPointData && ringArrayName)
-    ? filteredPointData->GetArray(ringArrayName)
-    : nullptr;
+  vtkDataArray* ringArr =
+    (filteredPointData && ringArrayName) ? filteredPointData->GetArray(ringArrayName) : nullptr;
   vtkDataArray* timestampArr = (filteredPointData && timestampArrayName)
     ? filteredPointData->GetArray(timestampArrayName)
     : nullptr;
