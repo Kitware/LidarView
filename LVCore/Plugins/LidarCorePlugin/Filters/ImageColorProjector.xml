@@ -32,6 +32,23 @@
         <Documentation>Set the input image dataset (e.g., .vts).</Documentation>
       </InputProperty>
 
+      <StringVectorProperty name="ColorArrayName"
+                            label="Color Array"
+                            command="SetColorArrayName"
+                            number_of_elements="1"
+                            default_values="PNGImage"
+                            animateable="0">
+        <Documentation>
+          Name of the array from the input image dataset used to color the point cloud.
+          If empty, the filter tries PNGImage then the active scalars.
+        </Documentation>
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input Image" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+      </StringVectorProperty>
+
       <IntVectorProperty name="Image Plane" command="SetDropAxis" number_of_elements="1" default_values="2">
         <EnumerationDomain name="enum">
           <Entry text="YZ" value="0"/>

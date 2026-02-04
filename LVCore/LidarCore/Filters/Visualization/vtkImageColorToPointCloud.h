@@ -16,6 +16,7 @@
 #ifndef vtkImageColorToPointCloud_h
 #define vtkImageColorToPointCloud_h
 
+#include <string>
 #include <vtkPolyDataAlgorithm.h>
 
 #include "lvFiltersVisualizationModule.h"
@@ -59,6 +60,15 @@ public:
   vtkGetMacro(DropAxis, int);
   ///@}
 
+  ///@{
+  /**
+   * Name of the array on the input image dataset used for coloring.
+   * If empty, the filter will try "RGB" and then the active scalars.
+   */
+  vtkSetStdStringFromCharMacro(ColorArrayName);
+  vtkGetCharFromStdStringMacro(ColorArrayName);
+  ///@}
+
 protected:
   vtkImageColorToPointCloud();
   ~vtkImageColorToPointCloud() override;
@@ -73,6 +83,7 @@ private:
   void operator=(const vtkImageColorToPointCloud&) = delete;
 
   int DropAxis = AXIS_Z;
+  std::string ColorArrayName;
 };
 
 #endif

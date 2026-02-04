@@ -162,12 +162,10 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
 
   const double invDet = 1.0 / det;
 
-  vtkDataArray* colorArray = nullptr;
-  if (auto rgbUChar = vtkUnsignedCharArray::SafeDownCast(sgrid->GetPointData()->GetArray("RGB")))
-  {
-    colorArray = rgbUChar;
-  }
-  else
+  const std::string requestedName =
+    this->ColorArrayName.empty() ? std::string("PNGImage") : this->ColorArrayName;
+  vtkDataArray* colorArray = sgrid->GetPointData()->GetArray(requestedName.c_str());
+  if (!colorArray)
   {
     colorArray = sgrid->GetPointData()->GetScalars();
   }
