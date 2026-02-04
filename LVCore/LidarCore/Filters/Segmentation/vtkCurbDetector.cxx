@@ -182,8 +182,14 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
   // Use ROI-filtered points from port 0 for curb detection
   vtkPoints* filteredPoints = output->GetPoints();
   vtkPointData* filteredPointData = output->GetPointData();
-  vtkDataArray* ringArr = filteredPointData ? filteredPointData->GetArray("laser_id") : nullptr;
-  vtkDataArray* timestampArr = filteredPointData ? filteredPointData->GetArray("timestamp") : nullptr;
+  const char* ringArrayName = this->GetRingArrayName();
+  const char* timestampArrayName = this->GetTimestampArrayName();
+  vtkDataArray* ringArr = (filteredPointData && ringArrayName)
+    ? filteredPointData->GetArray(ringArrayName)
+    : nullptr;
+  vtkDataArray* timestampArr = (filteredPointData && timestampArrayName)
+    ? filteredPointData->GetArray(timestampArrayName)
+    : nullptr;
   if (filteredPoints && filteredPointData && ringArr)
   {
     vtkIdType filteredPointCount = filteredPoints->GetNumberOfPoints();

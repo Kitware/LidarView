@@ -17,6 +17,7 @@
 #define VTK_CURB_DETECTOR_H
 
 #include <vtkPolyDataAlgorithm.h>
+#include <string>
 
 #include "lvFiltersSegmentationModule.h"
 
@@ -72,6 +73,22 @@ public:
 
   ///@{
   /**
+   * Name of the point-data array that stores the LiDAR ring (laser id) per point.
+   */
+  vtkSetStdStringFromCharMacro(RingArrayName);
+  vtkGetCharFromStdStringMacro(RingArrayName);
+  ///@}
+
+  ///@{
+  /**
+   * Name of the point-data array that stores per-point timestamps.
+   */
+  vtkSetStdStringFromCharMacro(TimestampArrayName);
+  vtkGetCharFromStdStringMacro(TimestampArrayName);
+  ///@}
+
+  ///@{
+  /**
    * Region-of-interest box defined by its position and size.
    */
   vtkSetVector3Macro(BoxPosition, double);
@@ -101,6 +118,9 @@ private:
   // Interactive box pose (min-corner and absolute lengths)
   double BoxPosition[3] = { -10.0, -10.0, -2.5 };
   double BoxScale[3] = { 20.0, 20.0, 1.0 };
+  // Names of arrays used for ring id and timestamp
+  std::string RingArrayName = "laser_id";
+  std::string TimestampArrayName = "timestamp";
 };
 
 #endif // VTK_CURB_DETECTOR_H

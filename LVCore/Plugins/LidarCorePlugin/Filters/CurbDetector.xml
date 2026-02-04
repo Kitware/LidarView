@@ -20,6 +20,30 @@
       <OutputPort name="FilteredPoints" index="0" id="port0" />
       <OutputPort name="CurbPointsLR" index="1" id="port1" />
 
+      <StringVectorProperty name="Ring array"
+                            command="SetRingArrayName"
+                            number_of_elements="1"
+                            default_values="laser_id">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>Name of the point-data array that stores the LiDAR ring.</Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="Timestamp array"
+                            command="SetTimestampArrayName"
+                            number_of_elements="1"
+                            default_values="timestamp">
+        <ArrayListDomain name="array_list" attribute_type="Scalars" none_string="None">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>Name of the point-data array that stores timestamps.</Documentation>
+      </StringVectorProperty>
+
       <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.05">
         <Documentation>Minimum average ΔZ per neighbor pair along X (meters).</Documentation>
       </DoubleVectorProperty>
@@ -51,6 +75,8 @@
       </DoubleVectorProperty>
 
       <PropertyGroup label="Filter">
+        <Property name="Ring array" />
+        <Property name="Timestamp array" />
         <Property name="ZChangeMin" />
         <Property name="NeighborCount" />
         <Property name="SpinRateHz" />
