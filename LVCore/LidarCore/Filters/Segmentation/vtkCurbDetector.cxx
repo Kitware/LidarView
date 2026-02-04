@@ -16,6 +16,8 @@
 #include "vtkCurbDetector.h"
 
 #include <vtkCellArray.h>
+#include <vtkClipPolyData.h>
+#include <vtkBox.h>
 #include <vtkCubeSource.h>
 #include <vtkDataArray.h>
 #include <vtkDataSetAttributes.h>
@@ -164,47 +166,18 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
     return 0;
   }
 
-  // Build selection from input points that lie inside ROI (Interactive Box)
-  double pointCoords[3];
-  std::vector<vtkIdType> selected;
-  selected.reserve(static_cast<size_t>(inputPointCount / 2));
-  for (vtkIdType pointId = 0; pointId < inputPointCount; ++pointId)
-  {
-    inputPoints->GetPoint(pointId, pointCoords);
-    if (pointCoords[0] >= xMin && pointCoords[0] <= xMax &&
-      pointCoords[1] >= yMin && pointCoords[1] <= yMax &&
-      pointCoords[2] >= zMin && pointCoords[2] <= zMax)
-    {
-      selected.push_back(pointId);
-    }
-  }
-
-  // Port 0: ROI-filtered points
+  // Port 0: ROI-filtered points using vtkClipPolyData and vtkBox implicit function
   vtkPolyData* output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
-  vtkNew<vtkPoints> filteredOutputPoints;
-  filteredOutputPoints->SetDataTypeToFloat();
-  filteredOutputPoints->SetNumberOfPoints(static_cast<vtkIdType>(selected.size()));
-
-  // Set points, copy point-data, and build vertex cells
-  vtkNew<vtkCellArray> filteredVerts;
-  filteredVerts->AllocateEstimate(static_cast<vtkIdType>(selected.size()), 1);
-  vtkPointData* inPD_init = input->GetPointData();
-  vtkPointData* outPD_init = output->GetPointData();
-  outPD_init->CopyAllocate(inPD_init, static_cast<vtkIdType>(selected.size()));
-  double selectedPointCoords[3];
-  for (size_t i = 0; i < selected.size(); ++i)
-  {
-    const vtkIdType inId = selected[i];
-    const vtkIdType outId = static_cast<vtkIdType>(i);
-    inputPoints->GetPoint(inId, selectedPointCoords);
-    filteredOutputPoints->SetPoint(outId, selectedPointCoords);
-    outPD_init->CopyData(inPD_init, inId, outId);
-    filteredVerts->InsertNextCell(1);
-    filteredVerts->InsertCellPoint(outId);
-  }
-
-  output->SetPoints(filteredOutputPoints);
-  output->SetVerts(filteredVerts);
+  vtkNew<vtkBox> box;
+  box->SetBounds(xMin, xMax, yMin, yMax, zMin, zMax);
+  vtkNew<vtkClipPolyData> clip;
+  clip->SetInputData(input);
+  clip->SetClipFunction(box);
+  clip->SetValue(0.0);
+  clip->InsideOutOn(); // keep inside the box
+  clip->GenerateClippedOutputOff();
+  clip->Update();
+  output->ShallowCopy(clip->GetOutput());
 
   // Use ROI-filtered points from port 0 for curb detection
   vtkPoints* filteredPoints = output->GetPoints();
@@ -245,6 +218,7 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
         std::vector<double> yCoords(idxsAll.size());
         std::vector<double> zCoords(idxsAll.size());
 
+        double pointCoords[3];
         std::vector<double> tStamps; // microseconds
         if (useTimeGating)
         {
@@ -366,9 +340,8 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
         vtkNew<vtkCellArray> verts;
         verts->AllocateEstimate(static_cast<vtkIdType>(allFids.size()), 1);
 
-        vtkPointData* inPD_full = input->GetPointData();
         vtkPointData* outPD_curb = curbOut->GetPointData();
-        outPD_curb->CopyAllocate(inPD_full, static_cast<vtkIdType>(allFids.size()));
+        outPD_curb->CopyAllocate(filteredPointData, static_cast<vtkIdType>(allFids.size()));
 
         // Sort inlier indices to allow binary_search when assigning left and right curb
         std::sort(inliersLeft.begin(), inliersLeft.end());
@@ -384,11 +357,9 @@ int vtkCurbDetector::RequestData(vtkInformation* /*request*/,
              ++curbIndex)
         {
           vtkIdType fid = allFids[static_cast<size_t>(curbIndex)];
-          vtkIdType inid = selected[static_cast<size_t>(fid)];
-
-          input->GetPoints()->GetPoint(inid, inputPointCoords);
+          filteredPoints->GetPoint(fid, inputPointCoords);
           curbPoints->SetPoint(curbIndex, inputPointCoords);
-          outPD_curb->CopyData(inPD_full, inid, curbIndex);
+          outPD_curb->CopyData(filteredPointData, fid, curbIndex);
 
           verts->InsertNextCell(1);
           verts->InsertCellPoint(curbIndex);
