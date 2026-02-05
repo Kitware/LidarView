@@ -44,6 +44,21 @@
         </Documentation>
       </StringVectorProperty>
 
+      <IntVectorProperty name="Image Type"
+                         command="SetImageType"
+                         number_of_elements="1"
+                         default_values="0"
+                         animateable="0">
+        <EnumerationDomain name="enum">
+          <Entry text="Color image" value="0"/>
+          <Entry text="Grayscale" value="1"/>
+          <Entry text="Mask" value="2"/>
+        </EnumerationDomain>
+        <Documentation>
+          Choose how to interpret the input image array (Color/Grayscale/Mask).
+        </Documentation>
+      </IntVectorProperty>
+
       <StringVectorProperty name="Output Array Name"
                             command="SetOutputArrayName"
                             number_of_elements="1"

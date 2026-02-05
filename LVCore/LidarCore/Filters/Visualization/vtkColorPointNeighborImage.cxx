@@ -135,22 +135,63 @@ int vtkColorPointNeighborImage::RequestData(vtkInformation* vtkNotUsed(request),
         unsigned char rgb[3] = { 255, 255, 255 };
         if (gid >= 0 && colorArray)
         {
-          if (auto uc = vtkUnsignedCharArray::SafeDownCast(colorArray))
+          if (auto ucharArray = vtkUnsignedCharArray::SafeDownCast(colorArray))
           {
             unsigned char tmp[4] = { 0, 0, 0, 0 };
-            uc->GetTypedTuple(gid, tmp);
-            rgb[0] = tmp[0];
-            rgb[1] = uc->GetNumberOfComponents() > 1 ? tmp[1] : tmp[0];
-            rgb[2] = uc->GetNumberOfComponents() > 2 ? tmp[2] : tmp[0];
+            ucharArray->GetTypedTuple(gid, tmp);
+            if (this->ImageType == Mask)
+            {
+              // Convert a mask to a binary grayscale RGB pixel
+              const bool isForeground = (tmp[0] > 0) ||
+                (ucharArray->GetNumberOfComponents() > 1 && tmp[1] > 0) ||
+                (ucharArray->GetNumberOfComponents() > 2 && tmp[2] > 0);
+              const unsigned char maskValue = isForeground ? 255 : 0;
+              rgb[0] = maskValue;
+              rgb[1] = maskValue;
+              rgb[2] = maskValue;
+            }
+            else if (this->ImageType == Grayscale)
+            {
+              rgb[0] = tmp[0];
+              rgb[1] = tmp[0];
+              rgb[2] = tmp[0];
+            }
+            else // ColorImage
+            {
+              rgb[0] = tmp[0];
+              rgb[1] = tmp[1];
+              rgb[2] = tmp[2];
+            }
           }
-          else if (auto da = vtkDataArray::SafeDownCast(colorArray))
+          else if (auto dataArray = vtkDataArray::SafeDownCast(colorArray))
           {
-            double r = da->GetComponent(gid, 0);
-            double g = da->GetNumberOfComponents() > 1 ? da->GetComponent(gid, 1) : r;
-            double b = da->GetNumberOfComponents() > 2 ? da->GetComponent(gid, 2) : r;
-            rgb[0] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, r))));
-            rgb[1] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, g))));
-            rgb[2] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, b))));
+            if (this->ImageType == Mask)
+            {
+              // Threshold the scalar mask (v > 0.5) to generate a binary grayscale RGB pixel.
+              const double v = dataArray->GetComponent(gid, 0);
+              const unsigned char maskValue = (v > 0.5) ? 255 : 0;
+              rgb[0] = maskValue;
+              rgb[1] = maskValue;
+              rgb[2] = maskValue;
+            }
+            else if (this->ImageType == Grayscale)
+            {
+              const double v = dataArray->GetComponent(gid, 0);
+              const unsigned char grayValue =
+                static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, v))));
+              rgb[0] = grayValue;
+              rgb[1] = grayValue;
+              rgb[2] = grayValue;
+            }
+            else // ColorImage
+            {
+              double r = dataArray->GetComponent(gid, 0);
+              double g = dataArray->GetComponent(gid, 1);
+              double b = dataArray->GetComponent(gid, 2);
+              rgb[0] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, r))));
+              rgb[1] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, g))));
+              rgb[2] = static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, b))));
+            }
           }
         }
         const vtkIdType base = 3 * pid;

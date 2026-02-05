@@ -45,6 +45,23 @@ public:
   vtkTypeMacro(vtkColorPointNeighborImage, vtkPolyDataAlgorithm);
 
   /**
+   * Interpretation of input image array.
+   * 0: Color image, 1: Grayscale, 2: Mask.
+   */
+  enum ImageInterpretation
+  {
+    ColorImage = 0,
+    Grayscale = 1,
+    Mask = 2
+  };
+
+  /**
+   * Image type used to interpret input pixel values.
+   */
+  vtkSetClampMacro(ImageType, int, 0, 2);
+  vtkGetMacro(ImageType, int);
+
+  /**
    * Name of the point-data array on the input image dataset used for colors.
    */
   vtkSetStdStringFromCharMacro(ColorArrayName);
@@ -72,6 +89,7 @@ private:
 
   std::string ColorArrayName;
   std::string OutputArrayName;
+  int ImageType;
 };
 
 #endif
