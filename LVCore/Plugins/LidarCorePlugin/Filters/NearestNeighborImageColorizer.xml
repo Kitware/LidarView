@@ -1,6 +1,6 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="ImageColorProjector" class="vtkColorPointNeighborImage" label="Color Point Neighbor Image">
+    <SourceProxy name="NearestNeighborImageColorizer" class="vtkColorPointNeighborImage" label="Nearest Neighbor Image Colorizer">
       <Documentation short_help="Colorize points using nearest neighbor image sampling.">
         Takes a vtkPolyData point cloud at port 0 and a vtkDataSet image input at port 1,
         and assigns each point the color of the nearest image point.

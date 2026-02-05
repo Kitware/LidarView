@@ -128,8 +128,8 @@ lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersVisualization
   XML_MODULE_FILES
     Filters/BirdEyeViewSnap.xml
-    Filters/ImageColorProjector.xml
     Filters/LidarRawSignalImage.xml
+    Filters/NearestNeighborImageColorizer.xml
     Filters/PointCloudLinearProjector.xml
     Filters/PointCloudPinHoleProjector.xml
     Filters/VoxelGridFilter.xml
@@ -223,9 +223,9 @@ if (LIDARVIEW_USE_QT)
     lqConditionalDefaultPropertyWidgetDecorator.h
     lqLidarCorePluginManager.cxx
     lqLidarCorePluginManager.h
-    lqMultiColumnSelectorWidget.cxx     
+    lqMultiColumnSelectorWidget.cxx
     lqMultiColumnSelectorWidget.h
-    )   
+    )
 
   paraview_plugin_add_property_widget(
     KIND WIDGET
