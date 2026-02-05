@@ -44,6 +44,16 @@
         </Documentation>
       </StringVectorProperty>
 
+      <StringVectorProperty name="Output Array Name"
+                            command="SetOutputArrayName"
+                            number_of_elements="1"
+                            default_values="RGB"
+                            animateable="0">
+        <Documentation>
+          Set the name of the output color array added to the point cloud.
+        </Documentation>
+      </StringVectorProperty>
+
       <OutputPort name="Output" index="0" id="port0" />
     </SourceProxy>
   </ProxyGroup>

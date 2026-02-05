@@ -50,6 +50,13 @@ public:
   vtkSetStdStringFromCharMacro(ColorArrayName);
   vtkGetCharFromStdStringMacro(ColorArrayName);
 
+  /**
+   * Name of the output point-data color array created on the point cloud.
+   * Defaults to "RGB".
+   */
+  vtkSetStdStringFromCharMacro(OutputArrayName);
+  vtkGetCharFromStdStringMacro(OutputArrayName);
+
 protected:
   vtkColorPointNeighborImage();
   ~vtkColorPointNeighborImage() override;
@@ -64,6 +71,7 @@ private:
   void operator=(const vtkColorPointNeighborImage&) = delete;
 
   std::string ColorArrayName;
+  std::string OutputArrayName;
 };
 
 #endif

@@ -95,7 +95,12 @@ int vtkColorPointNeighborImage::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Prepare output color array
   vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetName("RGB");
+  const char* outName = this->GetOutputArrayName();
+  if (!outName)
+  {
+    outName = "RGB";
+  }
+  colors->SetName(outName);
   colors->SetNumberOfComponents(3);
   colors->SetNumberOfTuples(points->GetNumberOfPoints());
 
