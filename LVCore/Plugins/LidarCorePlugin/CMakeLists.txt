@@ -97,12 +97,20 @@ lidarcoreplugin_add_module_xml(
     ${filters_processing_xml_files}
 )
 
-lidarcoreplugin_add_module_xml(
-  MODULE_TARGET LidarView::FiltersSegmentation
-  XML_MODULE_FILES
+set(filters_segmentation_xml_files
+  Filters/CurbDetectorOffline.xml
+)
+
+if (LIDARVIEW_USE_YAMLCPP AND LIDARVIEW_USE_NANOFLANN)
+  list(APPEND filters_segmentation_xml_files
     Filters/DBSCANClustering.xml
     Filters/SeparateCloudKnn.xml
-    Filters/CurbDetectorOffline.xml
+  )
+endif ()
+
+lidarcoreplugin_add_module_xml(
+  MODULE_TARGET LidarView::FiltersSegmentation
+  XML_MODULE_FILES ${filters_segmentation_xml_files}
 )
 
 lidarcoreplugin_add_module_xml(
