@@ -26,6 +26,13 @@ set(lidarview_available_interpreters_plugins
   LivoxPlugin
   RobosensePlugin
   HesaiPlugin)
+
+if (LIDARVIEW_USE_CURL)
+  list(APPEND lidarview_available_interpreters_plugins
+    OusterPlugin
+  )
+endif()
+
 set(lidarview_interpreters_plugin_directories "${CMAKE_CURRENT_SOURCE_DIR}/Plugins")
 add_subdirectory(LVCore)
 
