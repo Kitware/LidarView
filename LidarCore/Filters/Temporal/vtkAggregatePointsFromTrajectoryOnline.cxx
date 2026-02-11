@@ -82,34 +82,32 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestUpdateExtent(vtkInformation* 
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(
-  vtkInformation* inInfo)
+bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inInfo,
+  std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>& vecPolydata)
 {
-  vtkNew<vtkAppendDataSets> appendFilter;
-  appendFilter->SetOutputDataSetType(VTK_POLY_DATA);
-
+  vecPolydata.clear();
+  // Only one pointcloud as input
   vtkSmartPointer<vtkPolyData> pointcloud = vtkPolyData::GetData(inInfo);
   if (pointcloud)
-    return pointcloud;
-  vtkCompositeDataSet* cds = vtkCompositeDataSet::GetData(inInfo);
-  if (!cds)
-    return nullptr;
-  // Get the CompositeDataSet size
-  unsigned int index = 0;
-  vtkCompositeDataIterator* it = cds->NewIterator();
-  it->InitTraversal();
-  it->GoToFirstItem();
-  while (!it->IsDoneWithTraversal())
   {
-    it->GoToNextItem();
-    ++index;
+    if (!pointcloud->GetPointData()->GetArray(this->GetTimeArrayName(pointcloud).c_str()))
+    {
+      vtkErrorMacro("No TimeStamp array found.");
+      return false;
+    }
+    vecPolydata["mainLidar"] = pointcloud;
+    return true;
   }
 
-  bool check = false;
-  unsigned int count = 0;
-  index = 0;
+  // More than one pointcloud as input
+  vtkCompositeDataSet* cds = vtkCompositeDataSet::GetData(inInfo);
+  if (!cds)
+    return false;
 
-  // Append in the frames that changed since the last call
+  int inputId = 0;
+  // Get input iterator
+  vtkCompositeDataIterator* it = cds->NewIterator();
+  it->InitTraversal();
   it->GoToFirstItem();
   while (!it->IsDoneWithTraversal())
   {
@@ -117,50 +115,35 @@ vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCl
     if (!current)
     {
       vtkErrorMacro("CompositeDataSet isn't exclusively composed of polydata");
-      return nullptr;
+      return false;
     }
+    // Get device id
+    vtkInformation* info = it->GetCurrentMetaData();
+    std::string deviceId = (info && info->Has(vtkCompositeDataSet::NAME()))
+      ? info->Get(vtkCompositeDataSet::NAME())
+      : std::string("Lidar") + std::to_string(inputId);
     auto timestamp = current->GetPointData()->GetArray(this->GetTimeArrayName(current).c_str());
-    if (timestamp)
+    if (!timestamp)
     {
-      // if (timestamp->GetRange()[1] > this->FrameTime[index])
-      // {
-      //   appendFilter->AddInputData(current);
-      //   ++count;
-      // }
-      // this->FrameTime[index] = timestamp->GetRange()[1];
-      // Check if at least one array with a timestamp exists in the vtkCompositeDataSet
-      check = true;
+      vtkErrorMacro("No timestamps array found for LiDAR sensor: " << deviceId);
+      return false;
     }
+    // Get current frame time
+    double currentFrameTime = timestamp->GetRange()[1];
+    // Update input data if frame time is updated
+    if (this->FrameTime.find(deviceId) == this->FrameTime.end() ||
+      currentFrameTime > this->FrameTime[deviceId])
+    {
+      vecPolydata[deviceId] = current;
+    }
+    this->FrameTime[deviceId] = currentFrameTime;
+
     it->GoToNextItem();
-    ++index;
+    ++inputId;
   }
   it->Delete();
 
-  // If the data hasn't changed since the last time,
-  // return an empty array to be appended to the result.
-  if (!appendFilter->GetInput() && check)
-  {
-    vtkNew<vtkPolyData> empty;
-    return empty;
-  }
-  // If the data didn't contain any timestamp
-  if (check == false)
-  {
-    vtkErrorMacro("No TimeStamp array found.");
-    return nullptr;
-  }
-  // The append filter reorders the arrays in the 'data' field (sorting them by name) only when
-  // multiple arrays are inserted. To ensure consistency between frames, each array must remain in
-  // the same position. Therefore, an empty array is added as a placeholder if needed.
-  if (count < 2)
-  {
-    vtkNew<vtkPolyData> empty;
-    appendFilter->AddInputData(empty);
-  }
-  appendFilter->Update();
-  pointcloud = appendFilter->GetPolyDataOutput();
-
-  return pointcloud;
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -172,14 +155,15 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Get the input pointcloud and trajectory
-  vtkSmartPointer<vtkPolyData> pointcloud =
-    this->InitPointCloud(inputVector[0]->GetInformationObject(0));
+  std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>> vecPointcloud;
+  bool isInitialized = this->InitPointCloud(inputVector[0]->GetInformationObject(0), vecPointcloud);
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
-  if (!pointcloud || !trajectory)
+  if (!isInitialized || !trajectory)
   {
     vtkErrorMacro("No input data");
     return 0;
   }
+  vtkSmartPointer<vtkPolyData> pointcloud = vecPointcloud.begin()->second;
 
   // Initialize the data if necessary (first iteration)
   if (!this->Initialized)

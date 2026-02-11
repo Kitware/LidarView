@@ -152,7 +152,8 @@ protected:
    * @brief  Init the polydata pointcloud with either a composite dataset input or a
    * or a polydata input
    */
-  vtkSmartPointer<vtkPolyData> InitPointCloud(vtkInformation* inInfo);
+  bool InitPointCloud(vtkInformation* inInfo,
+    std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>& vecPolydata);
 
   /**
    * @brief Compute the time unit conversion between the trajectory and the point cloud
