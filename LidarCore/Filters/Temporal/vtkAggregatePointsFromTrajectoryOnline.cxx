@@ -82,7 +82,7 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestUpdateExtent(vtkInformation* 
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCLoud(
+vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(
   vtkInformation* inInfo)
 {
   vtkNew<vtkAppendDataSets> appendFilter;
@@ -94,7 +94,7 @@ vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCL
   vtkCompositeDataSet* cds = vtkCompositeDataSet::GetData(inInfo);
   if (!cds)
     return nullptr;
-  // Get the ComositeDataSet size
+  // Get the CompositeDataSet size
   unsigned int index = 0;
   vtkCompositeDataIterator* it = cds->NewIterator();
   it->InitTraversal();
@@ -175,7 +175,7 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
 
   // Get the input pointcloud and trajectory
   vtkSmartPointer<vtkPolyData> pointcloud =
-    this->InitPointCLoud(inputVector[0]->GetInformationObject(0));
+    this->InitPointCloud(inputVector[0]->GetInformationObject(0));
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
   if (!pointcloud || !trajectory)
   {
