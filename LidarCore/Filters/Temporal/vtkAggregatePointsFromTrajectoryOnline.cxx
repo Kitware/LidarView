@@ -105,8 +105,6 @@ vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCl
     ++index;
   }
 
-  // Resize the LastFrame cache
-  this->LastFrameTime.resize(index, -1);
   bool check = false;
   unsigned int count = 0;
   index = 0;
@@ -124,12 +122,12 @@ vtkSmartPointer<vtkPolyData> vtkAggregatePointsFromTrajectoryOnline::InitPointCl
     auto timestamp = current->GetPointData()->GetArray(this->GetTimeArrayName(current).c_str());
     if (timestamp)
     {
-      if (timestamp->GetRange()[1] > this->LastFrameTime[index])
-      {
-        appendFilter->AddInputData(current);
-        ++count;
-      }
-      this->LastFrameTime[index] = timestamp->GetRange()[1];
+      // if (timestamp->GetRange()[1] > this->FrameTime[index])
+      // {
+      //   appendFilter->AddInputData(current);
+      //   ++count;
+      // }
+      // this->FrameTime[index] = timestamp->GetRange()[1];
       // Check if at least one array with a timestamp exists in the vtkCompositeDataSet
       check = true;
     }
@@ -362,7 +360,6 @@ void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtk
   {
     this->AreBoundsComputed = true;
     this->CurrentFrame = 0;
-    std::fill(this->LastFrameTime.begin(), this->LastFrameTime.end(), -1);
     return;
   }
 
@@ -543,7 +540,7 @@ double vtkAggregatePointsFromTrajectoryOnline::ComputeTimeUnitConversion(
 //----------------------------------------------------------------------------
 void vtkAggregatePointsFromTrajectoryOnline::Clear()
 {
-  std::fill(this->LastFrameTime.begin(), this->LastFrameTime.end(), -1);
+  this->FrameTime.clear();
   this->VoxelGrid->Clear();
   this->MergePointsToPolyDataHelper->Clear();
   this->CurrentFrame = 0;

@@ -234,7 +234,8 @@ protected:
   //! Specify if the output should be displayed
   bool DisplayOutput = true;
 
-  std::vector<double> LastFrameTime;
+  //! Store the current frame time for multilidar setup
+  std::unordered_map<std::string, double> FrameTime;
 
 private:
   vtkAggregatePointsFromTrajectoryOnline(const vtkAggregatePointsFromTrajectoryOnline&);
