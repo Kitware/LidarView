@@ -104,9 +104,9 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPoints* gridPoints = sgrid->GetPoints();
 
   // Basis points
-  double p00[3] = { 0.0, 0.0, 0.0 };
-  double p10[3] = { 0.0, 0.0, 0.0 };
-  double p01[3] = { 0.0, 0.0, 0.0 };
+  double gridOrigin[3] = { 0.0, 0.0, 0.0 };
+  double gridPointAlongI[3] = { 0.0, 0.0, 0.0 };
+  double gridPointAlongJ[3] = { 0.0, 0.0, 0.0 };
 
   // Validate grid is 2D and regular in i,j
   if (dims[2] != 1)
@@ -124,13 +124,13 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
   { return static_cast<vtkIdType>(i + dims[0] * (j + dims[1] * k)); };
 
   // Retrieve three reference points from the structured grid to define the 2D grid basis:
-  // p00: origin of the grid (i=0, j=0)
-  // p10: one-step increment along the i direction
-  // p01: one-step increment along the j direction
+  // gridOrigin: origin of the grid (i=0, j=0)
+  // gridPointAlongI: one-step increment along the i direction
+  // gridPointAlongJ: one-step increment along the j direction
   // These points are later used to infer the grid spacing and orientation in world coordinates.
-  sgrid->GetPoint(idx(0, 0, 0), p00);
-  sgrid->GetPoint(idx(1, 0, 0), p10);
-  sgrid->GetPoint(idx(0, 1, 0), p01);
+  sgrid->GetPoint(idx(0, 0, 0), gridOrigin);
+  sgrid->GetPoint(idx(1, 0, 0), gridPointAlongI);
+  sgrid->GetPoint(idx(0, 1, 0), gridPointAlongJ);
 
   // Select the two world axes defining the projection plane by excluding DropAxis.
   // Mapping:
@@ -150,17 +150,19 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
   planeAxes[0] = planeCandidates[0];
   planeAxes[1] = planeCandidates[1];
 
-  // Project the 3D grid basis vectors (p10-p00, p01-p00) onto the
+  // Project the 3D grid basis vectors (gridPointAlongI-gridOrigin, gridPointAlongJ-gridOrigin)
+  // onto the
   // 2D plane defined by planeAxes, yielding a 2x2 basis for (i,j).
-  const double dx0 = p10[planeAxes[0]] - p00[planeAxes[0]];
-  const double dx1 = p10[planeAxes[1]] - p00[planeAxes[1]];
-  const double dy0 = p01[planeAxes[0]] - p00[planeAxes[0]];
-  const double dy1 = p01[planeAxes[1]] - p00[planeAxes[1]];
+  const double gridBasisIPlaneX = gridPointAlongI[planeAxes[0]] - gridOrigin[planeAxes[0]];
+  const double gridBasisIPlaneY = gridPointAlongI[planeAxes[1]] - gridOrigin[planeAxes[1]];
+  const double gridBasisJPlaneX = gridPointAlongJ[planeAxes[0]] - gridOrigin[planeAxes[0]];
+  const double gridBasisJPlaneY = gridPointAlongJ[planeAxes[1]] - gridOrigin[planeAxes[1]];
 
   // Determinant of the 2D basis matrix [dx dy] on the projection plane.
-  const double det = dx0 * dy1 - dx1 * dy0;
+  const double basisDeterminant =
+    gridBasisIPlaneX * gridBasisJPlaneY - gridBasisIPlaneY * gridBasisJPlaneX;
 
-  const double invDet = 1.0 / det;
+  const double inverseBasisDeterminant = 1.0 / basisDeterminant;
 
   const std::string requestedName =
     this->ColorArrayName.empty() ? std::string("PNGImage") : this->ColorArrayName;
@@ -180,45 +182,55 @@ int vtkImageColorToPointCloud::RequestData(vtkInformation* vtkNotUsed(request),
       for (vtkIdType pid = begin; pid < end; ++pid)
       {
         points->GetPoint(pid, point);
-        vtkIdType gid = -1;
+        vtkIdType imagePointId = -1;
 
-        // r = p - p00: displacement of the 3D point from the grid origin,
-        // expressed in the 2D projection plane, used to solve for (ci, cj).
-        const double r0 = point[planeAxes[0]] - p00[planeAxes[0]];
-        const double r1 = point[planeAxes[1]] - p00[planeAxes[1]];
+        // pointOffset = point - gridOrigin: displacement of the 3D point from the grid origin,
+        // expressed in the 2D projection plane, used to solve for (i, j).
+        const double pointOffsetPlaneX = point[planeAxes[0]] - gridOrigin[planeAxes[0]];
+        const double pointOffsetPlaneY = point[planeAxes[1]] - gridOrigin[planeAxes[1]];
 
-        double ci = 0.0, cj = 0.0;
+        double continuousI = 0.0, continuousJ = 0.0;
 
-        // Solve the 2x2 linear system [dx dy] * [ci cj]^T = r
-        // to recover the continuous pixel coordinates (ci, cj)
+        // Solve the 2x2 linear system [dx dy] * [i j]^T = pointOffset
+        // to recover the continuous pixel coordinates (i, j)
         // in the projected 2D grid.
-        ci = (r0 * dy1 - r1 * dy0) * invDet;
-        cj = (-r0 * dx1 + r1 * dx0) * invDet;
+        continuousI =
+          (pointOffsetPlaneX * gridBasisJPlaneY - pointOffsetPlaneY * gridBasisJPlaneX) *
+          inverseBasisDeterminant;
+        continuousJ =
+          (-pointOffsetPlaneX * gridBasisIPlaneY + pointOffsetPlaneY * gridBasisIPlaneX) *
+          inverseBasisDeterminant;
 
         // Nearest-neighbor sampling in index space
-        long ii = static_cast<long>(std::lround(ci));
-        long jj = static_cast<long>(std::lround(cj));
+        long nearestI = static_cast<long>(std::lround(continuousI));
+        long nearestJ = static_cast<long>(std::lround(continuousJ));
 
-        if (ii >= 0 && jj >= 0 && ii < dims[0] && jj < dims[1])
+        if (nearestI >= 0 && nearestJ >= 0 && nearestI < dims[0] && nearestJ < dims[1])
         {
-          gid = idx(static_cast<int>(ii), static_cast<int>(jj), 0);
+          imagePointId = idx(static_cast<int>(nearestI), static_cast<int>(nearestJ), 0);
         }
         unsigned char rgb[3] = { 255, 255, 255 };
-        if (gid >= 0 && colorArray)
+        if (imagePointId >= 0 && colorArray)
         {
-          if (auto uc = vtkUnsignedCharArray::SafeDownCast(colorArray))
+          if (auto unsignedCharColorArray = vtkUnsignedCharArray::SafeDownCast(colorArray))
           {
-            unsigned char tmp[4] = { 0, 0, 0, 0 };
-            uc->GetTypedTuple(gid, tmp);
-            rgb[0] = tmp[0];
-            rgb[1] = uc->GetNumberOfComponents() > 1 ? tmp[1] : tmp[0];
-            rgb[2] = uc->GetNumberOfComponents() > 2 ? tmp[2] : tmp[0];
+            unsigned char colorTuple[4] = { 0, 0, 0, 0 };
+            unsignedCharColorArray->GetTypedTuple(imagePointId, colorTuple);
+            rgb[0] = colorTuple[0];
+            rgb[1] =
+              unsignedCharColorArray->GetNumberOfComponents() > 1 ? colorTuple[1] : colorTuple[0];
+            rgb[2] =
+              unsignedCharColorArray->GetNumberOfComponents() > 2 ? colorTuple[2] : colorTuple[0];
           }
-          else if (auto da = vtkDataArray::SafeDownCast(colorArray))
+          else if (auto numericColorArray = vtkDataArray::SafeDownCast(colorArray))
           {
-            double colorR = da->GetComponent(gid, 0);
-            double colorG = da->GetNumberOfComponents() > 1 ? da->GetComponent(gid, 1) : colorR;
-            double colorB = da->GetNumberOfComponents() > 2 ? da->GetComponent(gid, 2) : colorR;
+            double colorR = numericColorArray->GetComponent(imagePointId, 0);
+            double colorG = numericColorArray->GetNumberOfComponents() > 1
+              ? numericColorArray->GetComponent(imagePointId, 1)
+              : colorR;
+            double colorB = numericColorArray->GetNumberOfComponents() > 2
+              ? numericColorArray->GetComponent(imagePointId, 2)
+              : colorR;
             rgb[0] =
               static_cast<unsigned char>(std::lround(std::max(0.0, std::min(255.0, colorR))));
             rgb[1] =
