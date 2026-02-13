@@ -196,6 +196,35 @@
       </Hints>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="Relative point timestamp"
+                       command="SetRelativeTimestamp"
+                       number_of_elements="1"
+                       default_values="0"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Choose whether timestamps of points are relative to the frame time or absolute.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Reference timestamp name"
+                          command="SetReferenceTimeName"
+                          number_of_elements="1"
+                          default_values="Timestamp"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="FieldData" none_string="None" name="array_list" input_domain_name="field_arrays">
+        <RequiredProperties>
+          <Property name="PointCloud" function="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Name of the timestamp field in the data array, which is used to determine the absolute reference time for relative point timestamps.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Relative point timestamp" value="1" />
+      </Hints>
+    </StringVectorProperty>
+
     <DoubleVectorProperty name="Time Offset"
                           command="SetTimeOffset"
                           number_of_elements="1"
@@ -227,6 +256,8 @@
       <Property name="Time Array" />
       <Property name="Auto Detect Time Unit Conversion" />
       <Property name="Conversion Factor To Second" />
+      <Property name="Relative point timestamp" />
+      <Property name="Reference timestamp name" />
       <Property name="Time Offset" />
       <Property name="Interpolation Type" />
     </PropertyGroup>

@@ -86,6 +86,12 @@ public:
   vtkGetMacro(TimeOffset, double);
   vtkSetMacro(TimeOffset, double);
 
+  vtkGetMacro(RelativeTimestamp, bool);
+  vtkSetMacro(RelativeTimestamp, bool);
+
+  vtkGetMacro(ReferenceTimeName, std::string);
+  vtkSetMacro(ReferenceTimeName, std::string);
+
   vtkGetMacro(InterpolationType, int);
   vtkSetMacro(InterpolationType, int);
 
@@ -162,10 +168,15 @@ protected:
    */
   double ComputeTimeUnitConversion(vtkDataArray*, vtkDataArray*);
 
+  /**
+   * @brief Get timestamp from field data of pointcloud polydata
+   */
+  double GetTimeFromFieldData(vtkPolyData* pointcloud);
+
   //! If true, the time array is automatically detected
   bool AutoDetectTimeArray = true;
   //! Name of the array containing the time to match the trajectory with the point cloud
-  //! Used only if AutoDetectTimmeArray is false
+  //! Used only if AutoDetectTimeArray is false
   std::string CustomTimeArrayName = "adjustedtime";
   //! If true, the time unit conversion is automatically detected
   bool AutoDetectTimeUnitConversion = true;
@@ -181,6 +192,12 @@ protected:
   //! Offset to add to the time of the point cloud to match the trajectory
   //! The unit must be consistent with ConversionFactorToSecond
   double TimeOffset = 0;
+
+  //! Boolean to indicated whether the timestamp of a point is relative to the frame time
+  bool RelativeTimestamp = false;
+  //! Timestamps array name in field data used when RelativeTimestamp is true, differ from
+  //! CustomTimeArrayName
+  std::string ReferenceTimeName = "Timestamp";
 
   //! Boolean to store whether or not an offset is removed from trajectory
   bool IsOffsetRemoved = false;

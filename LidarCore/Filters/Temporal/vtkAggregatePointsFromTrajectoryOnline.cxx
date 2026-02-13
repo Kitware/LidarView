@@ -96,6 +96,10 @@ bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inIn
       return false;
     }
     vecPolydata["mainLidar"] = pointcloud;
+    if (this->RelativeTimestamp)
+    {
+      this->FrameTime["mainLidar"] = this->GetTimeFromFieldData(pointcloud);
+    }
     return true;
   }
 
@@ -130,6 +134,10 @@ bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inIn
     }
     // Get current frame time
     double currentFrameTime = timestamp->GetRange()[1];
+    if (this->RelativeTimestamp)
+    {
+      currentFrameTime = this->GetTimeFromFieldData(current);
+    }
     // Update input data if frame time is updated
     if (this->FrameTime.find(deviceId) == this->FrameTime.end() ||
       currentFrameTime > this->FrameTime[deviceId])
@@ -284,6 +292,10 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
     // Get the current timestamp in seconds
     double currentTimestamp =
       timestamp->GetTuple1(0) * this->ConversionFactorToSecond + this->TimeOffset;
+    if (this->RelativeTimestamp)
+    {
+      currentTimestamp += this->FrameTime[deviceId];
+    }
 
     // Get the right transform
     auto transform = vtkSmartPointer<vtkTransform>::New();
@@ -394,16 +406,26 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
     // Get timestamp array
     auto timestamp =
       pointcloud->GetPointData()->GetArray(this->GetTimeArrayName(pointcloud).c_str());
-    for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
+    double frameTime = this->RelativeTimestamp ? this->FrameTime[deviceId] : 0.;
+
+    // Check timestamps of the first and the last points
+    std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
+    for (const auto& idx : pointIdx)
     {
-      // Get the current timestamp in seconds
       double currentTimestamp =
-        timestamp->GetTuple1(i) * this->ConversionFactorToSecond + this->TimeOffset;
+        timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset + frameTime;
       if (!this->Interpolator->IsTimeInRange(currentTimestamp))
       {
         vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
           << "interpolation might be invalid.");
       }
+    }
+
+    for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
+    {
+      // Get the current timestamp in seconds
+      double currentTimestamp =
+        timestamp->GetTuple1(i) * this->ConversionFactorToSecond + this->TimeOffset + frameTime;
 
       // Get the right transform
       auto transform = vtkSmartPointer<vtkTransform>::New();
@@ -468,6 +490,23 @@ std::string vtkAggregatePointsFromTrajectoryOnline::DetectTimeArray(vtkPolyData*
 }
 
 //----------------------------------------------------------------------------
+double vtkAggregatePointsFromTrajectoryOnline::GetTimeFromFieldData(vtkPolyData* pointcloud)
+{
+  double timestamp = -1.;
+  // Use timestamps from field data if it is available
+  vtkFieldData* fieldData = pointcloud->GetFieldData();
+  if (fieldData)
+  {
+    vtkDataArray* timestampArray = fieldData->GetArray(this->ReferenceTimeName.c_str());
+    if (timestampArray && timestampArray->GetNumberOfTuples() > 0)
+    {
+      timestamp = timestampArray->GetTuple1(0);
+    }
+  }
+  return timestamp;
+}
+
+//----------------------------------------------------------------------------
 double vtkAggregatePointsFromTrajectoryOnline::ComputeTimeUnitConversion(
   vtkDataArray* trajTimeArray,
   vtkDataArray* pcTimeArray)
@@ -489,7 +528,7 @@ double vtkAggregatePointsFromTrajectoryOnline::ComputeTimeUnitConversion(
   double firstTrajTimestamp = trajTimeArray->GetTuple1(0);
   double firstPCTimestamp = pcTimeArray->GetTuple1(0);
 
-  if (firstPCTimestamp < 1e-6)
+  if (firstPCTimestamp < 1e-6 && !this->RelativeTimestamp)
   {
     vtkErrorMacro("The first timestamp of the point cloud is too small.");
     return 1e-6;
