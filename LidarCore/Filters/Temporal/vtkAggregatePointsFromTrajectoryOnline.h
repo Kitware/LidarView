@@ -44,6 +44,8 @@ public:
   static vtkAggregatePointsFromTrajectoryOnline* New();
   vtkTypeMacro(vtkAggregatePointsFromTrajectoryOnline, vtkPolyDataAlgorithm)
 
+  using PointCloudMap = std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>;
+
   /**
    * @brief Clear the voxel gird
    */
@@ -114,7 +116,9 @@ protected:
    * of the input point cloud using the trajectory and calculating the global bounds of the
    * transformed bounds. This method is called sequentially once per frame before the aggregation.
    */
-  int AutoComputeVoxelBounds(vtkInformation*, vtkInformation*, vtkPolyData*, vtkDataArray*);
+  int AutoComputeVoxelBounds(vtkInformation* request,
+    vtkInformation* inInfo,
+    PointCloudMap& vecPointcloud);
 
   /**
    * @brief UpdateAutoComputeBoundsProgress Update the state of the autoComputeBounds process
@@ -125,17 +129,16 @@ protected:
    * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
    * filter.
    */
-  virtual int AggregatePoints(vtkInformation*,
-    vtkInformation*,
-    vtkInformationVector*,
-    vtkPolyData*,
-    vtkDataArray*);
+  virtual int AggregatePoints(vtkInformation* request,
+    vtkInformation* inInfo,
+    vtkInformationVector* outputVector,
+    PointCloudMap& vecPointcloud);
 
   /**
    * @brief TransformAndAddPoints Transform the points of the input point cloud using the trajectory
    * and add them to the voxel grid.
    */
-  virtual int TransformAndAddPoints(vtkDataArray*, vtkPolyData*);
+  virtual int TransformAndAddPoints(PointCloudMap& vecPointcloud);
 
   /**
    * @brief DetectTimeArray Checks AutoDetectTimeArray to get the correct Time array name
@@ -152,8 +155,7 @@ protected:
    * @brief  Init the polydata pointcloud with either a composite dataset input or a
    * or a polydata input
    */
-  bool InitPointCloud(vtkInformation* inInfo,
-    std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>& vecPolydata);
+  bool InitPointCloud(vtkInformation* inInfo, PointCloudMap& vecPolydata);
 
   /**
    * @brief Compute the time unit conversion between the trajectory and the point cloud

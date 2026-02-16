@@ -119,8 +119,7 @@ void vtkAggregatePointsFromTrajectoryOffline::UpdateAutoComputeBoundsProgress(
 int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* request,
   vtkInformation* inInfo,
   vtkInformationVector* outputVector,
-  vtkPolyData* pointcloud,
-  vtkDataArray* timestamp)
+  Superclass::PointCloudMap& vecPointcloud)
 {
   int firstFrame = this->AllFrames ? 0 : this->FirstFrame;
   // The bounds are computed only once before the aggregation
@@ -135,7 +134,7 @@ int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* req
   }
 
   // Transform the points of the pointcloud with the trajectory and add them to the voxel grid
-  if (!this->TransformAndAddPoints(timestamp, pointcloud))
+  if (!this->TransformAndAddPoints(vecPointcloud))
   {
     vtkErrorMacro(<< "Aggregation failed.");
     return 0;

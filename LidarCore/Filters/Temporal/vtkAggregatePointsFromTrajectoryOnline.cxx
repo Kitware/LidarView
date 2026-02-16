@@ -83,7 +83,7 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestUpdateExtent(vtkInformation* 
 
 //----------------------------------------------------------------------------
 bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inInfo,
-  std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>& vecPolydata)
+  PointCloudMap& vecPolydata)
 {
   vecPolydata.clear();
   // Only one pointcloud as input
@@ -155,7 +155,7 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Get the input pointcloud and trajectory
-  std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>> vecPointcloud;
+  PointCloudMap vecPointcloud;
   bool isInitialized = this->InitPointCloud(inputVector[0]->GetInformationObject(0), vecPointcloud);
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
   if (!isInitialized || !trajectory)
@@ -163,22 +163,13 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
     vtkErrorMacro("No input data");
     return 0;
   }
-  vtkSmartPointer<vtkPolyData> pointcloud = vecPointcloud.begin()->second;
 
   // Initialize the data if necessary (first iteration)
   if (!this->Initialized)
   {
     // Initialize the data
-    this->InitializeData(trajectory, pointcloud);
+    this->InitializeData(trajectory, vecPointcloud.begin()->second);
     this->Initialized = true;
-  }
-
-  auto timestamp = vtkDataArray::SafeDownCast(
-    pointcloud->GetPointData()->GetAbstractArray(this->TimeArrayName.c_str()));
-  if (pointcloud->GetNumberOfPoints() > 0 && !timestamp)
-  {
-    vtkErrorMacro("No TimeStamp array selected.");
-    return 0;
   }
 
   if (this->AutoComputeBounds && !this->AreBoundsComputed)
@@ -187,9 +178,9 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
     // before aggregating the points
     // /!\ This is called for all frames at the start of the filter.
     //     (Does not work with online SLAM)
-    return this->AutoComputeVoxelBounds(request, inInfo, pointcloud, timestamp);
+    return this->AutoComputeVoxelBounds(request, inInfo, vecPointcloud);
   }
-  return this->AggregatePoints(request, inInfo, outputVector, pointcloud, timestamp);
+  return this->AggregatePoints(request, inInfo, outputVector, vecPointcloud);
 }
 
 //----------------------------------------------------------------------------
@@ -279,51 +270,57 @@ void vtkAggregatePointsFromTrajectoryOnline::CheckAndRemoveOffsetFromTrajectory(
 //----------------------------------------------------------------------------
 int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformation* request,
   vtkInformation* inInfo,
-  vtkPolyData* pointcloud,
-  vtkDataArray* timestamp)
+  PointCloudMap& vecPointcloud)
 {
-  double currentBounds[6];
-  pointcloud->GetBounds(currentBounds);
-
-  // Get the current timestamp in seconds
-  double currentTimestamp =
-    timestamp->GetTuple1(0) * this->ConversionFactorToSecond + this->TimeOffset;
-
-  // Get the right transform
-  auto transform = vtkSmartPointer<vtkTransform>::New();
-  this->Interpolator->InterpolateTransform(currentTimestamp, transform);
-  transform->Update();
-
-  // Update the number of points
-  this->NumberOfPoints += pointcloud->GetPoints()->GetNumberOfPoints();
-
-  // Get the bounding box of the current pointcloud
-  vtkBoundingBox boundingBox;
-  boundingBox.SetBounds(currentBounds);
-  vtkBoundingBox transformedBoundingBox;
-
-  // Transform 8 corners of the bounding box
-  for (int i = 0; i < 8; i++)
+  for (const auto& [deviceId, pointcloud] : vecPointcloud)
   {
-    double point[3];
-    boundingBox.GetCorner(i, point);
+    double currentBounds[6];
+    pointcloud->GetBounds(currentBounds);
 
-    double transformedPoint[3];
-    transform->TransformPoint(point, transformedPoint);
-    if (this->IsOffsetRemoved)
+    // Get timestamp array
+    auto timestamp =
+      pointcloud->GetPointData()->GetArray(this->GetTimeArrayName(pointcloud).c_str());
+
+    // Get the current timestamp in seconds
+    double currentTimestamp =
+      timestamp->GetTuple1(0) * this->ConversionFactorToSecond + this->TimeOffset;
+
+    // Get the right transform
+    auto transform = vtkSmartPointer<vtkTransform>::New();
+    this->Interpolator->InterpolateTransform(currentTimestamp, transform);
+    transform->Update();
+
+    // Update the number of points
+    this->NumberOfPoints += pointcloud->GetPoints()->GetNumberOfPoints();
+
+    // Get the bounding box of the current pointcloud
+    vtkBoundingBox boundingBox;
+    boundingBox.SetBounds(currentBounds);
+    vtkBoundingBox transformedBoundingBox;
+
+    // Transform 8 corners of the bounding box
+    for (int i = 0; i < 8; i++)
     {
-      transformedPoint[0] += this->OffsetOrigin[0];
-      transformedPoint[1] += this->OffsetOrigin[1];
-      transformedPoint[2] += this->OffsetOrigin[2];
-    }
-    transformedBoundingBox.AddPoint(transformedPoint);
-  }
+      double point[3];
+      boundingBox.GetCorner(i, point);
 
-  // Update the bounds
-  for (int i = 0; i < 6; i++)
-  {
-    this->Bounds[i] = i % 2 == 0 ? std::min(this->Bounds[i], transformedBoundingBox.GetBound(i))
-                                 : std::max(this->Bounds[i], transformedBoundingBox.GetBound(i));
+      double transformedPoint[3];
+      transform->TransformPoint(point, transformedPoint);
+      if (this->IsOffsetRemoved)
+      {
+        transformedPoint[0] += this->OffsetOrigin[0];
+        transformedPoint[1] += this->OffsetOrigin[1];
+        transformedPoint[2] += this->OffsetOrigin[2];
+      }
+      transformedBoundingBox.AddPoint(transformedPoint);
+    }
+
+    // Update the bounds
+    for (int i = 0; i < 6; i++)
+    {
+      this->Bounds[i] = i % 2 == 0 ? std::min(this->Bounds[i], transformedBoundingBox.GetBound(i))
+                                   : std::max(this->Bounds[i], transformedBoundingBox.GetBound(i));
+    }
   }
 
   // Update the state of the autoComputeBounds process
@@ -354,8 +351,7 @@ void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtk
 int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* request,
   vtkInformation* inInfo,
   vtkInformationVector* outputVector,
-  vtkPolyData* pointcloud,
-  vtkDataArray* timestamp)
+  PointCloudMap& vecPointcloud)
 {
   // The bounds are computed only once for the first frame
   if (!this->IsVoxelGridFilterInitialized)
@@ -365,23 +361,8 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
     this->IsVoxelGridFilterInitialized = true;
   }
 
-  if (pointcloud->GetNumberOfPoints())
-  {
-    std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
-    for (const auto& idx : pointIdx)
-    {
-      double currentTimestamp =
-        timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset;
-      if (!this->Interpolator->IsTimeInRange(currentTimestamp))
-      {
-        vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
-          << "interpolation might be invalid.");
-      }
-    }
-  }
-
   // Transform the points of the pointcloud with the trajectory and add them to the voxel grid
-  if (!this->TransformAndAddPoints(timestamp, pointcloud))
+  if (!this->TransformAndAddPoints(vecPointcloud))
   {
     vtkErrorMacro(<< "Aggregation failed.");
     return 0;
@@ -406,48 +387,51 @@ int vtkAggregatePointsFromTrajectoryOnline::AggregatePoints(vtkInformation* requ
 }
 
 //----------------------------------------------------------------------------
-int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(vtkDataArray* timestamp,
-  vtkPolyData* pointcloud)
+int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap& vecPointcloud)
 {
-  for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
+  for (const auto& [deviceId, pointcloud] : vecPointcloud)
   {
-    // Get the current timestamp in seconds
-    double currentTimestamp =
-      timestamp->GetTuple1(i) * this->ConversionFactorToSecond + this->TimeOffset;
-
-    // Get the right transform
-    auto transform = vtkSmartPointer<vtkTransform>::New();
-    this->Interpolator->InterpolateTransform(currentTimestamp, transform);
-    transform->Update();
-
-    // Transform the point
-    double p[3];
-    pointcloud->GetPoint(i, p);
-    transform->TransformPoint(p, p);
-    // If the offset is removed from the input trajectory, re-apply this offset
-    if (this->IsOffsetRemoved)
+    // Get timestamp array
+    auto timestamp =
+      pointcloud->GetPointData()->GetArray(this->GetTimeArrayName(pointcloud).c_str());
+    for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
     {
-      p[0] += this->OffsetOrigin[0];
-      p[1] += this->OffsetOrigin[1];
-      p[2] += this->OffsetOrigin[2];
-    }
+      // Get the current timestamp in seconds
+      double currentTimestamp =
+        timestamp->GetTuple1(i) * this->ConversionFactorToSecond + this->TimeOffset;
+      if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+      {
+        vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
+          << "interpolation might be invalid.");
+      }
 
-    bool addPointSuccess;
+      // Get the right transform
+      auto transform = vtkSmartPointer<vtkTransform>::New();
+      this->Interpolator->InterpolateTransform(currentTimestamp, transform);
+      transform->Update();
 
-    if (this->IsVoxelGridFilterUsed)
-    {
-      // Add the point to the voxel grid
-      addPointSuccess = this->VoxelGrid->AddPoint(pointcloud, i, p);
-    }
-    else
-    {
-      // Add a free point (not filtered by the voxel grid)
-      addPointSuccess = this->MergePointsToPolyDataHelper->AddPoint(pointcloud, i, p);
-    }
+      // Transform the point
+      double p[3];
+      pointcloud->GetPoint(i, p);
+      transform->TransformPoint(p, p);
+      // If the offset is removed from the input trajectory, re-apply this offset
+      if (this->IsOffsetRemoved)
+      {
+        p[0] += this->OffsetOrigin[0];
+        p[1] += this->OffsetOrigin[1];
+        p[2] += this->OffsetOrigin[2];
+      }
 
-    if (!addPointSuccess)
-    {
-      vtkWarningMacro("Add point failed");
+      if (this->IsVoxelGridFilterUsed)
+      {
+        // Add the point to the voxel grid
+        this->VoxelGrid->AddPoint(pointcloud, i, p);
+      }
+      else
+      {
+        // Add a free point (not filtered by the voxel grid)
+        this->MergePointsToPolyDataHelper->AddPoint(pointcloud, i, p);
+      }
     }
   }
 

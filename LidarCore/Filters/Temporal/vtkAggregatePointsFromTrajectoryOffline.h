@@ -73,11 +73,10 @@ protected:
   /**
    * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
    */
-  int AggregatePoints(vtkInformation*,
-    vtkInformation*,
-    vtkInformationVector*,
-    vtkPolyData*,
-    vtkDataArray*) override;
+  int AggregatePoints(vtkInformation* request,
+    vtkInformation* inInfo,
+    vtkInformationVector* outputVector,
+    Superclass::PointCloudMap& vecPointcloud) override;
 
   //! Overwrite FirstFrame and LastFrame to process all the frame
   bool AllFrames = true;
