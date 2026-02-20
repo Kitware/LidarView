@@ -1,5 +1,7 @@
 set(classes
-  lqHelper)
+  lqHelper
+  lqStreamRecorderInterface
+)
 
 set(CMAKE_AUTOMOC 1)
 set(CMAKE_AUTORCC 1)
@@ -8,6 +10,7 @@ set(CMAKE_AUTOUIC 1)
 vtk_module_add_module(LidarView::lqCore
   FORCE_STATIC
   CLASSES ${classes}
+  HEADERS ${headers}
 )
 
 vtk_module_link(LidarView::lqCore
