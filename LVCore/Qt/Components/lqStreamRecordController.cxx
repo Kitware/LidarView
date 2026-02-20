@@ -15,25 +15,20 @@
 
 #include "lqStreamRecordController.h"
 
-#include "vtkSMLidarStreamProxy.h"
-#include "vtkStream.h"
-
 #include "lqStreamRecordDialog.h"
+#include "lqStreamRecorderInterface.h"
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
 #include <pqCoreUtilities.h>
 #include <pqFileDialog.h>
+#include <pqInterfaceTracker.h>
 #include <pqPipelineSource.h>
 #include <pqServer.h>
 #include <pqServerManagerModel.h>
 
-#include <vtkSMProperty.h>
-#include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
-#include <vtkSMSessionProxyManager.h>
 
-#include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -42,22 +37,29 @@
 namespace
 {
 //-----------------------------------------------------------------------------
-bool isLastStream(pqPipelineSource* src)
+QList<lqStreamRecorderInterface*> getUsableRecorders()
 {
-  if (!vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()))
-  {
-    return false;
-  }
-
+  pqInterfaceTracker* itk = pqApplicationCore::instance()->interfaceTracker();
   pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+
+  QList<lqStreamRecorderInterface*> validInterface;
+  for (lqStreamRecorderInterface* iface : itk->interfaces<lqStreamRecorderInterface*>())
   {
-    if (vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()))
+    bool hasSource = false;
+    for (pqPipelineSource* src : smmodel->findItems<pqPipelineSource*>())
     {
-      return false;
+      if (iface->canRecord(src))
+      {
+        hasSource = true;
+        break;
+      }
+    }
+    if (hasSource)
+    {
+      validInterface.append(iface);
     }
   }
-  return true;
+  return validInterface;
 }
 }
 
@@ -90,74 +92,42 @@ void lqStreamRecordController::onRecordStream(bool status)
 //-----------------------------------------------------------------------------
 bool lqStreamRecordController::startRecording()
 {
-  QList<vtkSMLidarStreamProxy*> streamList;
-  pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
-  Q_FOREACH (pqPipelineSource* src, smmodel->findItems<pqPipelineSource*>())
+  QList<lqStreamRecorderInterface*> ifaces = ::getUsableRecorders();
+  if (ifaces.empty())
   {
-    auto proxy = vtkSMLidarStreamProxy::SafeDownCast(src->getProxy());
-    if (proxy != nullptr)
-    {
-      streamList.append(proxy);
-    }
-  }
-
-  if (streamList.isEmpty())
-  {
+    QMessageBox stopRecordMsg;
+    stopRecordMsg.setWindowTitle("Recording failed");
+    stopRecordMsg.setText("No valid recorder was found for this type of stream!");
+    stopRecordMsg.setStandardButtons(QMessageBox::Ok);
+    stopRecordMsg.exec();
     return false;
   }
-  this->BaseRecordingFileName = "Record";
-  if (streamList.size() == 1)
-  {
-    this->BaseRecordingFileName = QString::fromStdString(streamList.front()->GetLidarInformation());
-  }
 
-  lqStreamRecordDialog dialog(pqCoreUtilities::mainWidget());
+  lqStreamRecordDialog dialog(pqCoreUtilities::mainWidget(), ifaces);
   if (dialog.exec() != pqFileDialog::Accepted)
   {
     return false;
   }
 
-  this->RecordingFilePath = dialog.getFilepath();
-  QFileInfo fileInfo(this->RecordingFilePath);
+  this->CurrentRecorder = dialog.getSelectedInterface();
+  this->ActiveRecordingSources = dialog.getSelectedSources();
+  if (this->ActiveRecordingSources.isEmpty())
+  {
+    return false;
+  }
+
+  QString recordFilePath = dialog.getFilepath();
+  QFileInfo fileInfo(recordFilePath);
   if (!fileInfo.exists() || !fileInfo.isDir())
   {
     qCritical() << "Recording Filename is not valid, aborting.";
     return false;
   }
 
-  // Create a recorder proxy
-  pqServer* server = pqActiveObjects::instance().activeServer();
-  if (!server)
+  if (!this->CurrentRecorder->startRecording(recordFilePath, this->ActiveRecordingSources))
   {
     return false;
   }
-  vtkSMSessionProxyManager* pxm = server->proxyManager();
-  this->RecorderProxy.TakeReference(pxm->NewProxy("misc", "PacketRecorder"));
-
-  // Set a common packet writer proxy for all streams
-  Q_FOREACH (vtkSMLidarStreamProxy* proxy, streamList)
-  {
-    vtkSMProxy* packetHandlerProxy = vtkSMPropertyHelper(proxy, "PacketHandler", true).GetAsProxy();
-    if (packetHandlerProxy)
-    {
-      vtkSMPropertyHelper(packetHandlerProxy, "Recorder").Set(this->RecorderProxy);
-      packetHandlerProxy->UpdateVTKObjects();
-    }
-    // Recorder could be set at lidar proxy level.
-    else if (proxy->GetProperty("Recorder"))
-    {
-      vtkSMPropertyHelper(proxy, "Recorder").Set(this->RecorderProxy);
-      proxy->UpdateVTKObjects();
-    }
-    else
-    {
-      qWarning() << "No recorder setter property found for " << proxy->GetVTKClassName();
-      continue;
-    }
-  }
-
-  // Set up writer proxy
-  this->startWriterProxy();
   this->IsRecording = true;
 
   if (dialog.isSplitRecordingEnabled())
@@ -171,65 +141,37 @@ bool lqStreamRecordController::startRecording()
 }
 
 //-----------------------------------------------------------------------------
-void lqStreamRecordController::startWriterProxy()
-{
-  QString dateSuffix(QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss"));
-  this->LastRecordingFileName = this->BaseRecordingFileName + "-" + dateSuffix + ".pcap";
-
-  QString recordingCompletePath(this->RecordingFilePath + "/" + this->LastRecordingFileName);
-  const char* filename = recordingCompletePath.toUtf8().constData();
-  vtkSMPropertyHelper(this->RecorderProxy, "RecordingFileName").Set(filename);
-  this->RecorderProxy->UpdateProperty("RecordingFileName", true);
-  this->RecorderProxy->InvokeCommand("StartRecording");
-}
-
-//-----------------------------------------------------------------------------
-void lqStreamRecordController::stopWriterProxy()
-{
-  if (this->RecorderProxy)
-  {
-    this->RecorderProxy->InvokeCommand("StopRecording");
-    Q_EMIT this->recordingFileFinished(this->RecordingFilePath + "/" + this->LastRecordingFileName);
-  }
-}
-
-//-----------------------------------------------------------------------------
 void lqStreamRecordController::onSplitRecording()
 {
-  this->stopWriterProxy();
-  // This will create a new filename with updated timestamp
-  this->startWriterProxy();
+  if (this->CurrentRecorder)
+  {
+    this->CurrentRecorder->splitRecording();
+    Q_EMIT this->recordingFileFinished(this->CurrentRecorder->recordingFilename());
+  }
 }
 
 //-----------------------------------------------------------------------------
 void lqStreamRecordController::stopRecording()
 {
-  if (!this->RecorderProxy)
+  if (!this->CurrentRecorder)
   {
     return;
   }
 
-  // Tell vtkStreams to Stop Recording
-  this->stopWriterProxy();
+  this->CurrentRecorder->stopRecording();
   this->IsRecording = false;
+
+  Q_EMIT this->recordingFileFinished(this->CurrentRecorder->recordingFilename());
 
   // Stop timer
   this->SplitRecordTimer->disconnect();
   this->SplitRecordTimer->stop();
 
-  // Delete recorder proxy
-  pqServer* server = pqActiveObjects::instance().activeServer();
-  if (server)
-  {
-    vtkSMSessionProxyManager* pxm = server->proxyManager();
-    pxm->UnRegisterProxy("misc", "PacketRecorder", this->RecorderProxy);
-  }
-
   // Display a feedback message to the user when the recording is stopped
   QMessageBox stopRecordMsg;
   const QString txt = "Stream data have been saved in the directory:\n\n";
   stopRecordMsg.setWindowTitle("Stop stream recording");
-  stopRecordMsg.setText(txt + this->RecordingFilePath);
+  stopRecordMsg.setText(txt + this->CurrentRecorder->recordingFilename());
   stopRecordMsg.setStandardButtons(QMessageBox::Ok);
   stopRecordMsg.exec();
 
@@ -239,7 +181,15 @@ void lqStreamRecordController::stopRecording()
 //-----------------------------------------------------------------------------
 void lqStreamRecordController::onSourceRemoved(pqPipelineSource* src)
 {
-  if (::isLastStream(src) && this->IsRecording)
+  auto toRemove = [&src](pqPipelineSource* activeSource)
+  {
+    return activeSource->getProxy()->GetGlobalID() == src->getProxy()->GetGlobalID(); // remove
+  };
+  auto newEnd = std::remove_if(
+    this->ActiveRecordingSources.begin(), this->ActiveRecordingSources.end(), toRemove);
+  this->ActiveRecordingSources.erase(newEnd, this->ActiveRecordingSources.end());
+
+  if (this->IsRecording && this->ActiveRecordingSources.isEmpty())
   {
     this->stopRecording();
   }

@@ -25,6 +25,7 @@
 
 class vtkSMProxy;
 class pqPipelineSource;
+class lqStreamRecorderInterface;
 
 class QTimer;
 
@@ -69,14 +70,6 @@ private:
    */
   bool startRecording();
 
-  ///@{
-  /**
-   * Start / stop writer proxy with the right configuration
-   */
-  void startWriterProxy();
-  void stopWriterProxy();
-  ///@}
-
   /**
    * Stop running stream recording and open a pop up to warn user.
    */
@@ -89,11 +82,9 @@ private:
 
 private:
   QTimer* SplitRecordTimer;
-  vtkSmartPointer<vtkSMProxy> RecorderProxy;
-  QString RecordingFilePath;
-  QString BaseRecordingFileName;
-  QString LastRecordingFileName;
   bool IsRecording = false;
+  QList<pqPipelineSource*> ActiveRecordingSources;
+  lqStreamRecorderInterface* CurrentRecorder = nullptr;
 };
 
 #endif // lqStreamRecordController_H

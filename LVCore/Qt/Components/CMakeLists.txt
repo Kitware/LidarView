@@ -4,6 +4,7 @@ set(classes
   lqLidarConfigurationDialog
   lqLidarStateDialog
   lqSelectLidarFrameDialog
+  lqStreamPCAPRecorder
   lqStreamRecordController
   lqStreamRecordDialog
   lqTimestampLineEdit

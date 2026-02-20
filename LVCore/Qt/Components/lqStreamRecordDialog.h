@@ -22,14 +22,27 @@
 
 #include <QScopedPointer>
 
+class lqStreamRecorderInterface;
+class pqPipelineSource;
+
 class LQCOMPONENTS_EXPORT lqStreamRecordDialog : public pqDialog
 {
   Q_OBJECT
   typedef pqDialog Superclass;
 
 public:
-  lqStreamRecordDialog(QWidget* parent = nullptr);
+  lqStreamRecordDialog(QWidget* parent, QList<lqStreamRecorderInterface*>& recorderList);
   ~lqStreamRecordDialog() override;
+
+  /**
+   * Get the recorder selected by user.
+   */
+  lqStreamRecorderInterface* getSelectedInterface();
+
+  /**
+   * Get a list of source that was selected to be recorded.
+   */
+  QList<pqPipelineSource*> getSelectedSources();
 
   /**
    * Get the path of the directory where PCAPs should be saved.
@@ -44,6 +57,10 @@ public:
   bool isSplitRecordingEnabled();
   unsigned int getSplitInterval();
   ///@}
+
+public Q_SLOTS:
+  void onRecorderChanged();
+  void updateDialogValidity();
 
 private:
   Q_DISABLE_COPY(lqStreamRecordDialog)
