@@ -57,6 +57,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqOpenLidarReaction.h"
 #include "lqRecentlyUsedPcapLoader.h"
+#include "lqStreamPCAPRecorder.h"
 #include "lqViewFrameActionsImplementation.h"
 #include "lqWelcomeDialog.h"
 
@@ -238,6 +239,9 @@ LidarViewMainWindow::LidarViewMainWindow()
 
   // Add recently used pcap interface
   pgm->addInterface(new lqRecentlyUsedPcapLoader(pgm));
+
+  // Add PCAP recorder
+  pgm->addInterface(new lqStreamPCAPRecorder(pgm));
 
   // Restore last LidarView interface mode saved in settings
   lqLidarViewManager::instance()->restoreSavedInterfaceLayout();
