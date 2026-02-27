@@ -33,6 +33,15 @@
       </Documentation>
     </StringVectorProperty>
 
+    <DoubleVectorProperty name="Text Scale"
+                          command="SetTextScale"
+                          number_of_elements="1"
+                          default_values="1.0">
+     <Documentation>
+      The scale of the displayed text
+     </Documentation>
+    </DoubleVectorProperty>
+
     </SourceProxy>
   </ProxyGroup>
   <!-- End Cluster Text -->

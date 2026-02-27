@@ -100,7 +100,7 @@ int vtkClusterText::RequestData(vtkInformation* vtkNotUsed(request),
     transform->Translate(center[0], center[1], center[2] + height * 0.6);
     transform->RotateX(90);
     transform->RotateY(-90);
-    transform->Scale(0.5, 0.5, 0.5);
+    transform->Scale(this->TextScale, this->TextScale, this->TextScale);
 
     vtkNew<vtkTransformPolyDataFilter> tfText;
     tfText->SetInputConnection(text3D->GetOutputPort());

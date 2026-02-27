@@ -38,6 +38,10 @@ public:
   vtkSetStringMacro(FieldDataArrayName);
   vtkGetStringMacro(FieldDataArrayName);
 
+  // Array name of the cluster information to display
+  vtkSetMacro(TextScale, double);
+  vtkGetMacro(TextScale, double);
+
 protected:
   vtkClusterText() = default;
   ~vtkClusterText() = default;
@@ -52,6 +56,9 @@ private:
 
   // Array name of the cluster information to display
   char* FieldDataArrayName = nullptr;
+
+  // Parameter to change the text size
+  double TextScale = 0.8;
 };
 
 #endif // vtkClusterText_h
