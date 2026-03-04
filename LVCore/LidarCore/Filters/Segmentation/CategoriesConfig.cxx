@@ -1,6 +1,7 @@
 #include "CategoriesConfig.h"
 
 #include <yaml-cpp/yaml.h>
+#include <iostream>
 
 
 //-----------------------------------------------------------------------------

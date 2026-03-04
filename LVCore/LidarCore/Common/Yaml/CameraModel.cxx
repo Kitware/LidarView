@@ -19,6 +19,8 @@
 // LOCAL
 #include "vtkEigenTools.h"
 
+#include <vtkLogger.h>
+
 // YAML
 #include <yaml-cpp/yaml.h>
 
@@ -307,7 +309,7 @@ Eigen::Vector2d CameraModel::Projection(const Eigen::Vector3d& X, bool shouldCli
       y = FisheyeProjection(W, X, shouldClip);
       break;
     default:
-      std::cout << "Warning: Projection type " << this->Type << " not handled!" << std::endl;
+      vtkLog(WARNING, << "Warning: Projection type " << this->Type << " not handled!");
   }
   return y;
 }
