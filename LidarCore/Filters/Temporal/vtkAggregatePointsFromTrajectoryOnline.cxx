@@ -524,23 +524,39 @@ double vtkAggregatePointsFromTrajectoryOnline::ComputeTimeUnitConversion(
     return 1e-6;
   }
 
-  // Get the first timestamp
-  double firstTrajTimestamp = trajTimeArray->GetTuple1(0);
-  double firstPCTimestamp = pcTimeArray->GetTuple1(0);
+  double conversionFactor = 1.0;
 
-  if (firstPCTimestamp < 1e-6 && !this->RelativeTimestamp)
+  if (this->RelativeTimestamp)
   {
-    vtkErrorMacro("The first timestamp of the point cloud is too small.");
-    return 1e-6;
-  }
+    double* range = pcTimeArray->GetRange();
+    double duration = std::abs(range[1] - range[0]);
 
-  double div = firstTrajTimestamp / firstPCTimestamp;
-  // Get the order of magnitude of conversion
-  double order = std::floor(std::log10(div));
-  // Round the power to the nearest multiple of 3
-  order = std::round(order / 3) * 3;
-  // Get the conversion factor
-  double conversionFactor = std::pow(10, order);
+    // We suppose the duration time is contained between 20ms and 0.9s.
+    while (conversionFactor * duration > 0.9) // Min = ~1 Hz
+    {
+      conversionFactor *= 1e-3;
+    }
+  }
+  else
+  {
+    // Get the first timestamp
+    double firstTrajTimestamp = trajTimeArray->GetTuple1(0);
+    double firstPCTimestamp = pcTimeArray->GetTuple1(0);
+
+    if (firstPCTimestamp < 1e-6)
+    {
+      vtkErrorMacro("The first timestamp of the point cloud is too small.");
+      return 1e-6;
+    }
+
+    double div = firstTrajTimestamp / firstPCTimestamp;
+    // Get the order of magnitude of conversion
+    double order = std::floor(std::log10(div));
+    // Round the power to the nearest multiple of 3
+    order = std::round(order / 3) * 3;
+    // Get the conversion factor
+    conversionFactor = std::pow(10, order);
+  }
   return conversionFactor;
 }
 
