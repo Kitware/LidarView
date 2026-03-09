@@ -19,6 +19,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTableAlgorithm.h>
+#include <vtkVector.h>
 
 #include <string>
 
@@ -271,6 +272,29 @@ public:
    * Expose modification time so upstream readers can track pipeline updates.
    */
   vtkMTimeType GetMTime() override;
+
+  ///@{
+  /**
+   * Helper functions that append to an existing table external sensor data
+   */
+  static void AppendIMUDataToTable(vtkTable* out,
+    const vtkVector3d& acc,
+    const vtkVector3d& gyro,
+    AccelUnit accUnit = AccelUnit::MPS2,
+    GyroUnit gyroUnit = GyroUnit::RAD_S);
+  static void AppendGNSSDataToTable(vtkTable* out,
+    const vtkVector3d& position,
+    DistanceUnit positionUnit = DistanceUnit::M);
+  static void AppendINSDataToTable(vtkTable* out,
+    const vtkVector3d& position,
+    const vtkVector3d& angles,
+    DistanceUnit positionUnit = DistanceUnit::M,
+    AngleUnit angleUnit = AngleUnit::RAD);
+  static void AppendOdometryDataToTable(vtkTable* out,
+    double distance,
+    DistanceUnit distanecUnit = DistanceUnit::M);
+  static void AppendTimeDataToTable(vtkTable* out, double timestamp);
+  ///@}
 
   ///@{
   /**

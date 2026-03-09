@@ -194,6 +194,34 @@ void CopyColumnWithScaleIfExists(vtkTable* dst,
     dst->AddColumn(arr);
   }
 }
+
+//-----------------------------------------------------------------------------
+void AddColumnAndScale(vtkTable* out, const std::string& columnName, double value, double scale)
+{
+  // Check if array already exist
+  vtkAbstractArray* array = out->GetColumnByName(columnName.c_str());
+  if (array)
+  {
+    // If column is a numeric array (vtkDataArray or subclass)
+    if (auto dataArray = vtkDataArray::SafeDownCast(array))
+    {
+      dataArray->InsertNextTuple1(value * scale);
+    }
+    else
+    {
+      vtkLog(ERROR, << "Trying to append data on non-numeric array!");
+    }
+  }
+  else
+  {
+    vtkSmartPointer<vtkDoubleArray> newArray = vtkSmartPointer<vtkDoubleArray>::New();
+    newArray->SetNumberOfComponents(0);
+    newArray->SetNumberOfValues(1);
+    newArray->SetValue(0, value * scale);
+    newArray->SetName(columnName.c_str());
+    out->AddColumn(newArray);
+  }
+}
 } // namespace
 
 //-----------------------------------------------------------------------------
@@ -421,4 +449,63 @@ vtkMTimeType vtkNormalizeExternalSensorData::GetMTime()
     mt = std::max(mt, this->OdometryTransform->GetMTime());
   }
   return mt;
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::AppendIMUDataToTable(vtkTable* out,
+  const vtkVector3d& acc,
+  const vtkVector3d& gyro,
+  AccelUnit accUnit,
+  GyroUnit gyroUnit)
+{
+  double accelScale = ::ScaleFromAccelUnit(accUnit);
+  ::AddColumnAndScale(out, IMU_ACC_X_ARRAY_NAME(), acc.GetX(), accelScale);
+  ::AddColumnAndScale(out, IMU_ACC_Y_ARRAY_NAME(), acc.GetY(), accelScale);
+  ::AddColumnAndScale(out, IMU_ACC_Z_ARRAY_NAME(), acc.GetZ(), accelScale);
+
+  double gyroScale = ::ScaleFromGyroUnit(gyroUnit);
+  ::AddColumnAndScale(out, IMU_GYRO_X_ARRAY_NAME(), gyro.GetX(), gyroScale);
+  ::AddColumnAndScale(out, IMU_GYRO_Y_ARRAY_NAME(), gyro.GetY(), gyroScale);
+  ::AddColumnAndScale(out, IMU_GYRO_Z_ARRAY_NAME(), gyro.GetZ(), gyroScale);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::AppendGNSSDataToTable(vtkTable* out,
+  const vtkVector3d& position,
+  DistanceUnit positionUnit)
+{
+  double positionScale = ::ScaleFromDistUnit(positionUnit);
+  ::AddColumnAndScale(out, GNSS_POS_X_ARRAY_NAME(), position.GetX(), positionScale);
+  ::AddColumnAndScale(out, GNSS_POS_Y_ARRAY_NAME(), position.GetY(), positionScale);
+  ::AddColumnAndScale(out, GNSS_POS_Z_ARRAY_NAME(), position.GetZ(), positionScale);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::AppendINSDataToTable(vtkTable* out,
+  const vtkVector3d& position,
+  const vtkVector3d& angles,
+  DistanceUnit positionUnit,
+  AngleUnit angleUnit)
+{
+  vtkNormalizeExternalSensorData::AppendGNSSDataToTable(out, position, positionUnit);
+
+  double angleScale = ::ScaleFromAngleUnit(angleUnit);
+  ::AddColumnAndScale(out, INS_ANGLE_RX_ARRAY_NAME(), angles.GetX(), angleScale);
+  ::AddColumnAndScale(out, INS_ANGLE_RY_ARRAY_NAME(), angles.GetY(), angleScale);
+  ::AddColumnAndScale(out, INS_ANGLE_RZ_ARRAY_NAME(), angles.GetZ(), angleScale);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::AppendOdometryDataToTable(vtkTable* out,
+  double distance,
+  DistanceUnit distanecUnit)
+{
+  double distanceScale = ::ScaleFromDistUnit(distanecUnit);
+  ::AddColumnAndScale(out, ODOMETRY_DISTANCE_ARRAY_NAME(), distance, distanceScale);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::AppendTimeDataToTable(vtkTable* out, double timestamp)
+{
+  ::AddColumnAndScale(out, TIME_ARRAY_NAME(), timestamp, 1.);
 }
