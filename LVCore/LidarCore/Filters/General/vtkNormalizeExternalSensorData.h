@@ -296,6 +296,13 @@ public:
   static void AppendTimeDataToTable(vtkTable* out, double timestamp);
   ///@}
 
+  /**
+   * Set the matrix 4x4 transform in the field data of a vtkTable.
+   */
+  static void SetTransformInFieldData(vtkTable* out,
+    vtkTransform* transform,
+    const std::string& name);
+
   ///@{
   /**
    * Array name used in SLAM for the supported external sensors.
@@ -314,6 +321,10 @@ public:
   static const char* INS_ANGLE_RZ_ARRAY_NAME() { return "Rz(Yaw)"; }
   static const char* ODOMETRY_DISTANCE_ARRAY_NAME() { return "odom"; }
   static const char* TIME_ARRAY_NAME() { return "Time"; }
+  static const char* CALIBRATION_IMU_NAME() { return "Calibration_IMU"; }
+  static const char* CALIBRATION_GNSS_NAME() { return "Calibration_GNSS"; }
+  static const char* CALIBRATION_INS_NAME() { return "Calibration_INS"; }
+  static const char* CALIBRATION_ODOMETRY_NAME() { return "Calibration_Odometry"; }
   ///@}
 
 protected:

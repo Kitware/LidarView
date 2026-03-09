@@ -382,47 +382,25 @@ int vtkNormalizeExternalSensorData::RequestData(vtkInformation* vtkNotUsed(reque
   // Store selected sensors' calibration transforms into FieldData (4x4 each),
   // matching reader behavior (IMU/GNSS/Odometry use per-sensor transform or fallback to
   // SensorTransform)
-  auto storeMatrix = [](vtkTable* tbl, vtkTransform* T, const char* name)
-  {
-    if (!tbl || !T || !name || !*name)
-      return;
-    vtkMatrix4x4* M = T->GetMatrix();
-    vtkNew<vtkDoubleArray> arr;
-    arr->SetName(name);
-    arr->SetNumberOfComponents(4);
-    arr->SetNumberOfTuples(4);
-    for (int r = 0; r < 4; ++r)
-    {
-      for (int c = 0; c < 4; ++c)
-      {
-        arr->SetComponent(r, c, M->GetElement(r, c));
-      }
-    }
-    if (auto* fd = tbl->GetFieldData())
-    {
-      fd->AddArray(arr);
-    }
-  };
-
   if (this->UseIMU)
   {
     vtkTransform* t = this->IMUTransform ? this->IMUTransform : this->SensorTransform;
-    storeMatrix(output, t, "Calibration_IMU");
+    vtkNormalizeExternalSensorData::SetTransformInFieldData(output, t, CALIBRATION_IMU_NAME());
   }
   if (this->UseGNSS)
   {
     vtkTransform* t = this->PoseTransform ? this->PoseTransform : this->SensorTransform;
-    storeMatrix(output, t, "Calibration_GNSS");
+    vtkNormalizeExternalSensorData::SetTransformInFieldData(output, t, CALIBRATION_GNSS_NAME());
   }
   if (this->UseINS)
   {
     vtkTransform* t = this->PoseTransform ? this->PoseTransform : this->SensorTransform;
-    storeMatrix(output, t, "Calibration_INS");
+    vtkNormalizeExternalSensorData::SetTransformInFieldData(output, t, CALIBRATION_INS_NAME());
   }
   if (this->UseOdometry)
   {
     vtkTransform* t = this->OdometryTransform ? this->OdometryTransform : this->SensorTransform;
-    storeMatrix(output, t, "Calibration_Odometry");
+    vtkNormalizeExternalSensorData::SetTransformInFieldData(output, t, CALIBRATION_ODOMETRY_NAME());
   }
 
   return 1;
@@ -508,4 +486,32 @@ void vtkNormalizeExternalSensorData::AppendOdometryDataToTable(vtkTable* out,
 void vtkNormalizeExternalSensorData::AppendTimeDataToTable(vtkTable* out, double timestamp)
 {
   ::AddColumnAndScale(out, TIME_ARRAY_NAME(), timestamp, 1.);
+}
+
+//-----------------------------------------------------------------------------
+void vtkNormalizeExternalSensorData::SetTransformInFieldData(vtkTable* out,
+  vtkTransform* transform,
+  const std::string& name)
+{
+  if (!out || !transform || name.empty())
+  {
+    return;
+  }
+  vtkNew<vtkDoubleArray> arr;
+  arr->SetName(name.c_str());
+  arr->SetNumberOfComponents(4);
+  arr->SetNumberOfTuples(4);
+  vtkMatrix4x4* matrix = transform->GetMatrix();
+  for (int r = 0; r < 4; ++r)
+  {
+    for (int c = 0; c < 4; ++c)
+    {
+      arr->SetComponent(r, c, matrix->GetElement(r, c));
+    }
+  }
+  vtkFieldData* fd = out->GetFieldData();
+  if (fd && !fd->HasArray(name.c_str()))
+  {
+    fd->AddArray(arr);
+  }
 }
