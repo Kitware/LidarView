@@ -272,13 +272,31 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  ///@{
+  /**
+   * Array name used in SLAM for the supported external sensors.
+   */
+  static const char* IMU_ACC_X_ARRAY_NAME() { return "acc_x"; }
+  static const char* IMU_ACC_Y_ARRAY_NAME() { return "acc_y"; }
+  static const char* IMU_ACC_Z_ARRAY_NAME() { return "acc_z"; }
+  static const char* IMU_GYRO_X_ARRAY_NAME() { return "w_x"; }
+  static const char* IMU_GYRO_Y_ARRAY_NAME() { return "w_y"; }
+  static const char* IMU_GYRO_Z_ARRAY_NAME() { return "w_z"; }
+  static const char* GNSS_POS_X_ARRAY_NAME() { return "X"; }
+  static const char* GNSS_POS_Y_ARRAY_NAME() { return "Y"; }
+  static const char* GNSS_POS_Z_ARRAY_NAME() { return "Z"; }
+  static const char* INS_ANGLE_RX_ARRAY_NAME() { return "Rx(Roll)"; }
+  static const char* INS_ANGLE_RY_ARRAY_NAME() { return "Ry(Pitch)"; }
+  static const char* INS_ANGLE_RZ_ARRAY_NAME() { return "Rz(Yaw)"; }
+  static const char* ODOMETRY_DISTANCE_ARRAY_NAME() { return "odom"; }
+  static const char* TIME_ARRAY_NAME() { return "Time"; }
+  ///@}
+
 protected:
   vtkNormalizeExternalSensorData() = default;
   ~vtkNormalizeExternalSensorData() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkNormalizeExternalSensorData(const vtkNormalizeExternalSensorData&) = delete;
