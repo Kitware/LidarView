@@ -127,12 +127,28 @@
       </Hints>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="MinimumFramesPerVoxel"
+                       command="SetMinFramesPerVoxel"
+                       number_of_elements="1"
+                       default_values="-1">
+      <Documentation>
+        The minimum number of frames in a voxel to validate the voxel grid
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
     <PropertyGroup label="Voxel grid parameters">
       <Property name="Auto Compute Bounds" />
       <Property name="Bounds" />
       <Property name="Downsample The Output" />
       <Property name="Voxel Sampling Mode" />
       <Property name="Voxel Leaf Size" />
+      <Property name="MinimumFramesPerVoxel" />
     </PropertyGroup>
 
     <IntVectorProperty name="Auto Detect Time Array"

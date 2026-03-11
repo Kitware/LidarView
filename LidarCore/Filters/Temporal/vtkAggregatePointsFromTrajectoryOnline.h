@@ -98,6 +98,9 @@ public:
   vtkGetMacro(DisplayOutput, bool);
   vtkSetMacro(DisplayOutput, bool);
 
+  vtkGetMacro(MinFramesPerVoxel, int);
+  vtkSetMacro(MinFramesPerVoxel, int);
+
 protected:
   vtkAggregatePointsFromTrajectoryOnline();
 
@@ -207,6 +210,9 @@ protected:
   //! If true, the voxel grid filter is used to aggregate the points
   //! If false, the points are aggregated without filtering
   bool IsVoxelGridFilterUsed = true;
+
+  //! Minimum frames in a voxel to validate the point
+  int MinFramesPerVoxel = 0;
 
   //! Interpolator used to get the right transform
   vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
