@@ -36,6 +36,31 @@
         </Documentation>
     </InputProperty>
 
+    <DoubleVectorProperty name="MinDistance"
+                          label="Min distance to sensor"
+                          command="SetMinDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Min distance to LiDAR sensor. Points are too close to the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="MaxDistance"
+                          label="Max distance to sensor"
+                          command="SetMaxDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Max distance to LiDAR sensor. Points are too far from the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="General parameters">
+      <Property name="MinDistance" />
+      <Property name="MaxDistance" />
+    </PropertyGroup>
+
     <IntVectorProperty name="Downsample The Output"
                        command="SetIsVoxelGridFilterUsed"
                        number_of_elements="1"

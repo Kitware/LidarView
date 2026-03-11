@@ -433,6 +433,20 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
 
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
     {
+      double p[3];
+      pointcloud->GetPoint(i, p);
+      // Check if the point is in the range
+      double distToSensor = 0;
+      if (this->MinDistance > 0 || this->MaxDistance > 0)
+      {
+        distToSensor = std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+        if (distToSensor < this->MinDistance ||
+          (this->MaxDistance > 0 && distToSensor > this->MaxDistance))
+        {
+          continue;
+        }
+      }
+
       // Get the current timestamp in seconds
       double currentTimestamp =
         timestamp->GetTuple1(i) * this->ConversionFactorToSecond + this->TimeOffset + frameTime;
@@ -443,8 +457,6 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
       transform->Update();
 
       // Transform the point
-      double p[3];
-      pointcloud->GetPoint(i, p);
       transform->TransformPoint(p, p);
       // If the offset is removed from the input trajectory, re-apply this offset
       if (this->IsOffsetRemoved)

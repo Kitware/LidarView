@@ -101,6 +101,12 @@ public:
   vtkGetMacro(MinFramesPerVoxel, int);
   vtkSetMacro(MinFramesPerVoxel, int);
 
+  vtkGetMacro(MinDistance, double);
+  vtkSetMacro(MinDistance, double);
+
+  vtkGetMacro(MaxDistance, double);
+  vtkSetMacro(MaxDistance, double);
+
 protected:
   vtkAggregatePointsFromTrajectoryOnline();
 
@@ -206,6 +212,10 @@ protected:
   bool IsOffsetRemoved = false;
   //! Offset of the input trajectory
   double OffsetOrigin[3] = { 0., 0., 0. };
+
+  //! Mininum and maximum distance to lidar
+  double MinDistance = -1.;
+  double MaxDistance = -1.;
 
   //! If true, the voxel grid filter is used to aggregate the points
   //! If false, the points are aggregated without filtering
