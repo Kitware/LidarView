@@ -1,0 +1,18 @@
+NAME
+  LidarView::FiltersCameraOpenCV
+LIBRARY_NAME
+  lvFiltersCameraOpenCV
+CONDITION
+  LIDARVIEW_USE_OPENCV AND LIDARVIEW_USE_YAMLCPP
+DEPENDS
+  opencv_core
+  LidarView::CommonCore
+  LidarView::CommonYaml
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Boost::filesystem
+  opencv_imgcodecs
+  LidarView::CommonOpenCV
+  LidarView::IOCameraOpenCV

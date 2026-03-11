@@ -1,0 +1,134 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="TrailingFrame"
+                 class="vtkTrailingFrame"
+                 label="Trailing Frame">
+      <Documentation short_help="Combine consecutive timestep in a multiblock." long_help="Combine consecutive timestep in a multiblock."></Documentation>
+
+      <InputProperty name="LIDAR Frame"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the input poly data
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty name="Trajectory"
+                     port_index="1"
+                     command="SetInputConnection"
+                     null_on_empty="1">
+        <Hints>
+          <!-- No input selection dialog at instantiation -->
+          <Optional />
+        </Hints>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          Trajectory of the sensor that produced the point cloud.
+        </Documentation>
+      </InputProperty>
+
+      <IntVectorProperty name="NumberOfTrailingFrames"
+                         animateable="0"
+                         command="SetNumberOfTrailingFrames"
+                         default_values="0"
+                         number_of_elements="1">
+        <Documentation>
+          Set the number of trailing frame to display
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseStreamMode"
+                         animateable="0"
+                         command="SetUseStreamMode"
+                         default_values="0"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Use the trailing frame filter stream data.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseCache"
+                         animateable="0"
+                         command="SetUseCache"
+                         default_values="1"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Use an internal cache for speed up. If a cache is used, some artefact may appear if
+          the input for previous timestep change.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseStreamMode"
+                                   value="0" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseTrajectoryCompensation"
+                         animateable="0"
+                         command="SetUseTrajectoryCompensation"
+                         default_values="0"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+         If enabled use the optional trajectory input to place trailing frame in LiDAR referential
+         by compensating trajectory.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="CompensationOrigin"
+                         command="SetCompensationOrigin"
+                         number_of_elements="1"
+                         default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Newest Frame" />
+          <Entry value="1" text="Oldest Frame" />
+        </EnumerationDomain>
+        <Documentation>
+          Define the referential trailing frame used to compensate origin, can be either first or last.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseTrajectoryCompensation"
+                                   value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="Time Array"
+                            command="SetCustomTimeArrayName"
+                            number_of_elements="1"
+                            element_types="2"
+                            default_values="timestamp"
+                            animateable="0">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="LIDAR Frame" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          The array to use to match the trajectory to the point cloud.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseTrajectoryCompensation"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

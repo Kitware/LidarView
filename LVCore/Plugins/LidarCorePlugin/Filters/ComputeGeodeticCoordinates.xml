@@ -1,0 +1,50 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ComputeGeodeticCoordinates"
+                 class="vtkComputeGeodeticCoordinates"
+                 label="Compute Geodetic Coordinates">
+      <Documentation short_help="Append geodetic coordinates (Longitude, Latitude, Altitude) to points."
+                     long_help="Projects input XYZ coordinates from InputCRS to OutputCRS using PROJ and appends three arrays: Longitude (deg), Latitude (deg), Altitude (m). Mirrors behavior of Temporal Transforms Writer when projection is enabled.">
+        Projects input XYZ coordinates from InputCRS to OutputCRS using PROJ and appends three arrays: Longitude (deg), Latitude (deg), Altitude (m).
+      </Documentation>
+
+      <InputProperty name="Input"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          PolyData containing points (XYZ in InputCRS) for geodetic computation.
+        </Documentation>
+      </InputProperty>
+
+      <StringVectorProperty command="SetInputCRS"
+                            name="InputCRS"
+                            label="Source CRS of XYZ"
+                            number_of_elements="1"
+                            default_values="EPSG:4978">
+        <Documentation>
+          Coordinate reference system of the input positions X,Y,Z.
+          Examples: EPSG:4978 (ECEF), EPSG:32631 (UTM 31N), EPSG:3857 (used for rendering maps in Google Maps, OpenStreetMap).
+        </Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty command="SetOutputCRS"
+                            name="OutputCRS"
+                            label="Target CRS for LLA"
+                            number_of_elements="1"
+                            default_values="EPSG:4979">
+        <Documentation>
+          Coordinate reference system used to compute geographic coordiates (Longitude/Latitude/Altitude).
+          The computed altitude corresponds to an ellipsoidal height, unless the target CRS explicitly includes a vertical datum.
+          Examples: EPSG:4979 (WGS84 geographic 3D with ellipsoidal height), EPSG:4326 (WGS84 lon/lat, degrees).
+        </Documentation>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

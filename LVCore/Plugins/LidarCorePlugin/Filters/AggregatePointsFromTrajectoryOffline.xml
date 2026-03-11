@@ -1,0 +1,77 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="AggregatePointsFromTrajectoryOffline"
+                 class="vtkAggregatePointsFromTrajectoryOffline" 
+                 label="Aggregate Points From Trajectory (offline)"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="AggregatePointsFromTrajectory">
+      <Documentation
+        short_help="Aggregate points from a trajectory"
+        long_help="Aggregate points from a trajectory into a voxel grid.">
+      </Documentation>
+
+    <IntVectorProperty name="All Frames"
+                       command="SetAllFrames"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Process all frames.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="First Frame"
+                       command="SetFirstFrame"
+                       number_of_elements="1"
+                       default_values="0">
+      <Documentation>
+        The first frame to process.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="All Frames"
+                                 value="0"/>
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Last Frame"
+                       command="SetLastFrame"
+                       number_of_elements="1"
+                       default_values="5">
+      <Documentation>
+        The last frame to process.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="All Frames"
+                                 value="0" />
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Step Size"
+                       command="SetStepSize"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <IntRangeDomain name="range" min="1"/>
+      <Documentation>
+        Aggregate 1 frame over StepSize.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Input frames">
+      <Property name="All Frames" />
+      <Property name="First Frame" />
+      <Property name="Last Frame" />
+      <Property name="Step Size" />
+    </PropertyGroup>
+
+    <Hints>
+      <ShowInMenu icon=":/lqFilters/Icons/lqAggregatePointsTrajectory.svg" />
+    </Hints>
+   </SourceProxy>
+  </ProxyGroup>
+
+</ServerManagerConfiguration>

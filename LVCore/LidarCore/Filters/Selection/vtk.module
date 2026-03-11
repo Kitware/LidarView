@@ -1,0 +1,9 @@
+NAME
+  LidarView::FiltersSelection
+LIBRARY_NAME
+  lvFiltersSelection
+DEPENDS
+  VTK::FiltersCore
+PRIVATE_DEPENDS
+  ParaView::VTKExtensionsExtraction
+  VTK::FiltersPoints

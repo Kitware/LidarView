@@ -1,0 +1,15 @@
+NAME
+  LidarView::CommonCeres
+LIBRARY_NAME
+  lvCommonCeres
+CONDITION
+  LIDARVIEW_USE_CERES
+DEPENDS
+  Ceres::ceres
+  Eigen3::Eigen
+  LidarView::CommonCore
+PRIVATE_DEPENDS
+  LidarView::IOCore     # For vtkTemporalTransforms
+  VTK::CommonCore
+  VTK::CommonMath
+  VTK::CommonTransforms

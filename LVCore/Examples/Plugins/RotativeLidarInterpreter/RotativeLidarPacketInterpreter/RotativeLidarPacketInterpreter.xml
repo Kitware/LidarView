@@ -1,0 +1,40 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <Proxy name="RotativeLidarPacketInterpreter"
+           class="vtkRotativeLidarPacketInterpreter"
+           label="Rotative Lidar Interpreter Example"
+           base_proxygroup="internal_interpreter"
+           base_proxyname="CommonLidarPacketInterpreter">
+
+      <StringVectorProperty name="CalibrationFileName"
+                            label="Calibration File"
+                            animateable="0"
+                            override="1"
+                            command="SetCalibrationFileName"
+                            panel_widget="calibration_file_widget"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          If specified, replace the default sensor calibration file.
+        </Documentation>
+        <Hints>
+          <FileChooser extensions="csv" file_description="Example LiDAR calibration files" />
+        </Hints>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="LidarModel"
+                         command="SetLidarModel"
+                         number_of_elements="1"
+                         override="1"
+                         default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="ExampleModel16" />
+          <Entry value="1" text="ExampleModel32" />
+        </EnumerationDomain>
+        <Documentation>
+          Process the data based on the chosen LiDAR model.
+        </Documentation>
+      </IntVectorProperty>
+    </Proxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

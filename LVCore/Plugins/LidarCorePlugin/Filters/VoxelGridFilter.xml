@@ -1,0 +1,46 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="VoxelGridFilter" class="vtkVoxelGridFilter" label="Voxel Grid Filter">
+      <Documentation
+        short_help="Filter a point cloud into a voxel grid"
+        long_help="Filter a point cloud into a uniform voxel grid">
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <DoubleVectorProperty name="LeafSize"
+                          command="SetLeafSize"
+                          number_of_elements="1"
+                          default_values="0.5">
+      <DoubleRangeDomain name="range" min="0.01" />
+      <Documentation>
+        Size of the leaf used to downsample the point cloud, equivalent to the average
+        resolution of the cloud.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="SamplingMode"
+                       command="SetSamplingMode"
+                       number_of_elements="1"
+                       default_values="0">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="First"/>
+        <Entry value="1" text="Last"/>
+        <Entry value="2" text="Max Intensity"/>
+        <Entry value="3" text="Center Point"/>
+        <Entry value="4" text="Centroid"/>
+      </EnumerationDomain>
+      <Documentation>
+        The method used to sample the points in a voxel.
+      </Documentation>
+    </IntVectorProperty>
+
+   </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

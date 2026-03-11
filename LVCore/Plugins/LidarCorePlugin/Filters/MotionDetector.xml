@@ -1,0 +1,234 @@
+<ServerManagerConfiguration>
+  <!-- Begin MotionDetector -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="MotionDetector" class="vtkMotionDetector" label="Motion Detector">
+      <Documentation
+        short_help="Detect motion points in lidar frame"
+        long_help="Motion detector to estimate motion probability of each points in frame and to extract clusters on motion points">
+        Motion detector filter estimates motion probability of points in lidar frame by building a spherical depth map with gaussian mixture model.
+        It also extracts clusters on motion points and gives the information of each cluster.
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      port_index = "0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Motion detection" index="0" />
+    <OutputPort name="Clusters" index="1" />
+    <OutputPort name="Clusters information" index="2" />
+    <Hints>
+      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      <OutputPort index="2" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="2" />
+    </Hints>
+
+    <!-- ============================ General ============================ -->
+
+    <Property name="Reset detection"
+              command="Reset">
+      <Documentation>
+        Reset motion detector. The gaussian mixture model map is clear and parameters are reset to current state. The number of
+        processed frames returns to zero.
+      </Documentation>
+    </Property>
+
+    <!-- ============================ Motion estimation ============================ -->
+    <DoubleVectorProperty name="Detection Range"
+                       command="SetDetectionRange"
+                       number_of_elements="2"
+                       default_values="0. 50.">
+      <Documentation>
+        To define the detection range. The motion detection is only applied on points that their distance from lidar is
+        in the detection range [min, max].
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Azimuth resolution"
+                       command="SetAzimuthResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Documentation>
+        Resolution (in degrees) of the map to detect motion. For better results, this should be consistent with the LiDAR sensor resolution.
+	      But this may be increased for performance improvements at the cost of minimal object size detected.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Vertical resolution"
+                       command="SetVerticalResolution"
+                       number_of_elements="1"
+                       default_values="1">
+      <Documentation>
+        Resolution (in degrees) of the map to detect motion. For better results, this should be consistent with the LiDAR sensor resolution.
+        But this may be increased for performance improvements at the cost of minimal object size detected.
+	    </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Initialization time"
+                       command="SetInitNbFrames"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+        The number of frames to wait for the initialization of motion detector.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Window size"
+                       command="SetWindowSize"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+        Duration (number of frames) during which a Gaussian will contribute to the overall mixture model.
+        A shorter window size leads to a faster adaptation to changes in the underlying data distribution, making the model more sensitive to recent observations and noise.
+        A longer window size results in a smoother temporal evolution of the model, making it less responsive to short-term fluctuations.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Subsample range"
+                       command="SetSubsampleRange"
+                       number_of_elements="1"
+                       default_values="0.">
+      <Documentation>
+		    Distance below which the subsampling of points will be activated
+	    </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Subsample resolution"
+                       command="SetSubsampleResolution"
+                       number_of_elements="1"
+                       default_values="-1.">
+      <Documentation>
+        If positive, resolution (in m) for close points subsampling (to avoid processing more points that necessary in high density scenarii)
+        If negative, subsampling is disabled
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Removal outlier radius"
+                       command="SetRemovalOutlierRadius"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Documentation>
+        Radius used to remove isolated moving points for noise filtering
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Removal outlier neighbors"
+                       command="SetRemovalOutlierNeighbors"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Motion estimation Parameters">
+      <Property name="Detection Range" />
+      <Property name="Azimuth resolution" />
+      <Property name="Vertical resolution" />
+      <Property name="Initialization time"/>
+      <Property name="Window size" />
+      <Property name="Subsample range" />
+      <Property name="Subsample resolution" />
+      <Property name="Removal outlier radius" />
+      <Property name="Removal outlier neighbors" />
+    </PropertyGroup>
+
+    <!-- ============================ Clustering and tracking ============================ -->
+      <IntVectorProperty name="Cluster extractor"
+                         command="SetClusterExtractor"
+                         number_of_elements="1"
+                         default_values="2">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="No extraction"/>
+          <Entry value="1" text="Euclidean clustering"/>
+          <Entry value="2" text="Gaussian mixture model"/>
+          <Entry value="3" text="Region growing"/>
+        </EnumerationDomain>
+        <Documentation>
+          Choose an extractor for clustering:
+
+           (0) Do not extract clusters
+
+           (1) Euclidean clustering:
+               This method groups points based on their spatial proximity. It is ideal for identifying quickly compact
+               motion areas.
+
+           (2) Gaussian mixture model:
+               This method utilizes probabilistic model based on distances between points and works well in complex environments.
+               It offers a rough tracking of clusters.
+
+           (3) Region growing:
+               This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
+               when motion points are scattered but related. It offers a rough tracking of clusters.
+        </Documentation>
+      </IntVectorProperty>
+
+    <DoubleVectorProperty name="Cluster radius"
+                       command="SetClusterRadius"
+                       number_of_elements="1"
+                       default_values="0.4">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The search radius to find cluster.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Cluster minimum point number"
+                       command="SetClusterMinNbPoints"
+                       number_of_elements="1"
+                       default_values="10">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Set tracking window sizes"
+                       command="SetTrackingWindowSizes"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+        Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="CompositeDecorator">
+          <Expression type="or">
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+          </Expression>
+        </PropertyWidgetDecorator>
+      </Hints>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Clustering grid resolution"
+                       command="SetClusterGridResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+      <Documentation>
+        The size of the voxel grid (in meters) which is used to extract clusters.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="Clustering and tracking Parameters">
+      <Property name="Cluster extractor" />
+      <Property name="Cluster radius" />
+      <Property name="Cluster minimum point number" />
+      <Property name="Set tracking window sizes" />
+      <Property name="Clustering grid resolution" />
+    </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End MotionDetector -->
+</ServerManagerConfiguration>

@@ -1,0 +1,11 @@
+NAME
+  LidarView::IOGeneral
+LIBRARY_NAME
+  lvIOGeneral
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  LidarView::FiltersGeneral
+  VTK::IOInfovis

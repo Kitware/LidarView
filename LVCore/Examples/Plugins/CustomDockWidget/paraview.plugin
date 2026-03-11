@@ -1,0 +1,6 @@
+NAME
+  CustomDockWidget
+DESCRIPTION
+  Example plugin demonstrating how to add a dock panel to LidarView.
+REQUIRES_MODULES
+  ParaView::pqComponents

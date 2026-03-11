@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load VLP-16 PCAP -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/TimeOffset/DoubleLineEdit0" command="set_string" arguments="187058912.54" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Load LAS -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/peoples.las" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Load PandarXT-32 PCAP -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/PandarXT-32_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Hesai" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Hesai/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="PandarXT-32" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Reset session -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionDeleteAll" command="activate" arguments="" />
+
+  <!-- Reload velodyne recent files (down, down, down, enter) -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="&amp;Recent Files" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Reload hesai recent files (down, enter) -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="&amp;Recent Files" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Reload las recent files (down, down, enter) -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="&amp;Recent Files" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777237:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="6:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFileBase/menuRecentFiles" command="keyEvent" arguments="7:16777220:0:1:0:1" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Change color map -->
+  <pqevent object="LidarViewMainWindow/colorToolBar/actionEditColorMap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/1QColorDialog0" command="setChosenColor" arguments="170,0,0" />
+  <pqevent object="LidarViewMainWindow/0QColorDialog0" command="done" arguments="1" />
+
+  <!-- Go to next frame -->
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/VCRNextFrame" command="activate" arguments="" />
+</pqevents>

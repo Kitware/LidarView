@@ -1,0 +1,44 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <LidarReaderProxy name="TimeBasedLidarReader"
+                      class="vtkLidarReader"
+                      label="Example time based LiDAR Reader"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarReader">
+
+      <Documentation short_help="Read Example LiDAR data files." long_help="Read Example LiDAR .pcap files.">
+        Read Example LiDAR (.pcap) data files.
+      </Documentation>
+
+      <!-- Override the LidarPort property to assign a new default port.
+           See CommonLidarReader proxy for more info about other properties -->
+      <IntVectorProperty name="LidarPort"
+                         command="SetLidarPort"
+                         override="1"
+                         default_values="2360"
+                         number_of_elements="1">
+        <Documentation>
+          Specify which packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <!-- Assign a Lidar Interpreter to the pcap reader source.
+           We also choose which properties to expose -->
+      <SubProxy command="SetLidarInterpreter">
+        <Proxy name="PacketInterpreter"
+               proxygroup="internal_interpreter"
+               proxyname="TimeBasedLidarPacketInterpreter" />
+        <ExposedProperties>
+          <Property name="PublishInterval" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <Hints>
+        <LiveSource emulated_time="1" refresh_on_interaction="1" />
+        <ReaderFactory extensions="pcap" file_description="Example LiDAR files" />
+        <View type="None" port="1" />
+        <PipelineIcon name="SpreadSheetView" port="1" />
+      </Hints>
+    </LidarReaderProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

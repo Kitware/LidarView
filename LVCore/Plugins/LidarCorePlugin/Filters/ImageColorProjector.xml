@@ -1,0 +1,68 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ImageColorProjector" class="vtkImageColorToPointCloud" label="Project Image Colors to Point Cloud">
+      <Documentation short_help="Project colors from a vtkDataSet onto a point cloud.">
+        Takes a vtkPolyData point cloud at port 0 and a vtkDataSet at port 1,
+        and assigns each point the RGB color sampled from the grid using nearest-neighbor
+        in grid index space when the grid is a 2D plane.
+
+        Choose which axis to drop (X, Y, or Z) to define the image plane.
+        Indices are computed by projecting onto this plane using the grid basis.
+      </Documentation>
+
+      <InputProperty name="Point Cloud" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Set the input point cloud.</Documentation>
+      </InputProperty>
+
+      <InputProperty name="Input Image" port_index="1" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+        <Documentation>Set the input image dataset (e.g., .vts).</Documentation>
+      </InputProperty>
+
+      <StringVectorProperty name="ColorArrayName"
+                            label="Color Array"
+                            command="SetColorArrayName"
+                            number_of_elements="1"
+                            default_values="PNGImage"
+                            animateable="0">
+        <Documentation>
+          Name of the array from the input image dataset used to color the point cloud.
+          If empty, the filter tries PNGImage then the active scalars.
+        </Documentation>
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input Image" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="Image Plane" command="SetDropAxis" number_of_elements="1" default_values="2">
+        <EnumerationDomain name="enum">
+          <Entry text="YZ" value="0"/>
+          <Entry text="XZ" value="1"/>
+          <Entry text="XY" value="2"/>
+        </EnumerationDomain>
+        <Documentation>
+          Select the orientation of the image plane in world coordinates.
+          The plane is defined by dropping the selected axis and projecting with the grid basis.
+          Default is the XY plane.
+        </Documentation>
+      </IntVectorProperty>
+
+      <OutputPort name="Output" index="0" id="port0" />
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

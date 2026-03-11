@@ -1,0 +1,54 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="AssociateTableToTemporalDataset" class="vtkAssociateTableToTemporalDataset">
+      <Documentation short_help="Add a table data row in field data based on the current timestep.">
+        This filter identifies the row in the vtkTable that corresponds to the latest time
+        within the range defined by the current timestep and the next timestep (n+1).
+        It then appends all the data from this row to the field data of the input dataset.
+      </Documentation>
+
+      <InputProperty name="DataSet"
+                     port_index="0"
+                     command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty name="Table"
+                     port_index="1"
+                     command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkTable" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <StringVectorProperty name="TimeArrayName"
+                            command="SetTimeArrayName"
+                            animateable="0"
+                            default_values="timestamp"
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars" name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="Table" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the time array used to associate data.
+        </Documentation>
+      </StringVectorProperty>
+
+    <IntVectorProperty name="AlwaysAssociate"
+                       command="SetAlwaysAssociate"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        If enabled the algorithm will always associate a value to the dataset.
+      </Documentation>
+    </IntVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

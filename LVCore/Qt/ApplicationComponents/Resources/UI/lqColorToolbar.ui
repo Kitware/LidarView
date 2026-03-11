@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqColorToolbar</class>
+  <widget class="QToolBar" name="colorToolBar" >
+   <property name="windowTitle" >
+    <string>Active Variable Controls</string>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <action name="actionScalarBarVisibility" >
+    <property name="checkable" >
+     <bool>true</bool>
+    </property>
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/pqWidgets/Icons/pqScalarBar.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Show Color Legend</string>
+    </property>
+    <property name="toolTip" >
+     <string>Toggle Color Legend Visibility</string>
+    </property>
+    <property name="statusTip" >
+     <string>Toggle Color Legend Visibility</string>
+    </property>
+   </action>
+   <action name="actionChangeColorPreset" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/lqResources/Icons/lqScalarColorPreset.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Change scalar color preset</string>
+    </property>
+    <property name="statusTip" >
+     <string>Change scalar color preset</string>
+    </property>
+   </action>
+   <action name="actionEditColorMap" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/pqWidgets/Icons/pqEditColor.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Edit Color Map</string>
+    </property>
+    <property name="statusTip" >
+     <string>Edit Color Map</string>
+    </property>
+   </action>
+   <action name="actionResetRange" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/pqWidgets/Icons/pqResetRange.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Reset Range</string>
+    </property>
+    <property name="toolTip" >
+     <string>Rescale to Data Range</string>
+    </property>
+    <property name="statusTip" >
+     <string>Rescale to Data Range</string>
+    </property>
+   </action>
+   <action name="actionRescaleCustomRange" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/pqWidgets/Icons/pqResetRangeCustom.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Rescale Custom Range</string>
+    </property>
+    <property name="toolTip" >
+     <string>Rescale to Custom Data Range</string>
+    </property>
+    <property name="statusTip" >
+     <string>Rescale to Custom Data Range</string>
+    </property>
+   </action>
+   <action name="actionRescaleTemporalRange" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>:/pqWidgets/Icons/pqResetRangeTemporal.svg</normaloff>:/pqWidgets/Icons/pqResetRangeTemporal.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Rescale Temporal Range</string>
+    </property>
+    <property name="toolTip" >
+     <string>Rescale to data range over all timesteps</string>
+    </property>
+    <property name="statusTip" >
+     <string>Rescale to data range over all timesteps</string>
+    </property>
+   </action>
+   <action name="actionRescaleVisibleRange" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="icon" >
+     <iconset>:/pqWidgets/Icons/pqResetToVisibleRange.svg</iconset>
+    </property>
+    <property name="text" >
+     <string>Rescale Visible Range</string>
+    </property>
+    <property name="toolTip" >
+     <string>Rescale to Visible Data Range</string>
+    </property>
+    <property name="statusTip" >
+     <string>Rescale to Visible Data Range</string>
+    </property>
+   </action>
+   <addaction name="actionScalarBarVisibility" />
+   <addaction name="actionChangeColorPreset" />
+   <addaction name="actionEditColorMap" />
+   <addaction name="actionResetRange" />
+   <addaction name="actionRescaleCustomRange" />
+   <addaction name="actionRescaleTemporalRange" />
+   <addaction name="actionRescaleVisibleRange" />
+  </widget>
+ <resources>
+  <include location="../lqResources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,74 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="UDPPointSender"
+                 class="vtkUDPPointSender"
+                 label="UDP Point Sender"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="UDPSenderAlgorithm">
+      <Documentation short_help="Send data over network in UDP">
+        Send data over network in UDP.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <InputArrayDomain name="point_arrays" attribute_type="point" />
+      </InputProperty>
+
+      <StringVectorProperty name="ArrayToSend"
+                            command="GetArraySelections"
+                            number_of_elements_per_command="1"
+                            repeat_command="1"
+                            si_class="vtkSIDataArraySelectionProperty">
+        <ArrayListDomain name="array_list" input_domain_name="point_arrays">
+          <RequiredProperties>
+            <Property name="Input" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point data arrays to send over udp. Note: points coordinates are always sent.
+        </Documentation>
+        <Hints>
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="OnlySendNewData"
+                         command="SetOnlySendNewData"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Enable this option to send data only when the value of Time Array Name exceeds all previous values.
+          Can be used for aggregated data with available time information.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="TimeArrayName"
+                            command="SetTimeArrayName"
+                            animateable="0"
+                            default_values="None"
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the time array used as the basis for the OnlySendNewData condition.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OnlySendNewData"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

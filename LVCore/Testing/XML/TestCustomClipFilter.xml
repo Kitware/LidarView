@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load LAS -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/peoples.las" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Add a Clip Point Filter -->
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/pqProxyGroupMenuManager0/ClipPoints" command="activate" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/comboBox" command="activated" arguments="Sphere" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/centerX" command="set_string" arguments="0" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/centerY" command="set_string" arguments="0" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/centerZ" command="set_string" arguments="0" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveSphere/radius" command="set_string" arguments="4.2" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Remove grid & reset camera -->
+  <pqevent object="LidarViewMainWindow/menubar/menuEdit" command="activate" arguments="actionShowMeasurementGrid" />
+  <pqevent object="LidarViewMainWindow/cameraToolbar/actionResetCameraClosest" command="activate" arguments="" />
+
+  <!-- Create custom filter -->
+  <pqevent object="LidarViewMainWindow/menubar/menuTools" command="activate" arguments="actionToolsCreateCustomFilter" />
+  <pqevent object="LidarViewMainWindow/pqCustomFilterDefinitionWizard/InputFrame/PageStack/NamePage/CustomFilterName" command="set_string" arguments="CustomFilter" />
+  <pqevent object="LidarViewMainWindow/pqCustomFilterDefinitionWizard/InputFrame/FinishButton" command="activate" arguments="" />
+
+  <!-- Delete original Clip -->
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Delete" command="activate" arguments="" />
+
+  <!-- Apply custom filter -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="CustomFilter" />
+  <pqevent object="LidarViewMainWindow" command="set_tab_with_text" arguments="Properties" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Change active scalar -->
+  <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="Intensity" />
+</pqevents>

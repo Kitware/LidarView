@@ -1,0 +1,194 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="palettes">
+    <!-- ================================================================= -->
+    <Proxy label="Lidar Dark Blue Background" name="LidarDarkBlueBackground">
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="ForegroundColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.0"
+                            name="BackgroundColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.2"
+                            name="BackgroundColor2"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="SurfaceColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 1.0 1.0"
+                            name="TextAnnotationColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="1.0 0.0 1.0"
+                            name="SelectionColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <DoubleVectorProperty default_values="0.0 0.0 0.5"
+                            name="EdgeColor"
+                            number_of_elements="3"></DoubleVectorProperty>
+      <IntVectorProperty default_values="1"
+                         name="BackgroundColorMode"
+                         number_of_elements="1"></IntVectorProperty>
+    </Proxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="annotations">
+    <Proxy name="LidarGridActor"
+           class="vtkLidarGridActor"
+           processes="client|dataserver|renderserver">
+      <Documentation>
+        LidarGridActor can be used to render a "lidar grid" in a render view.
+      </Documentation>
+      <IntVectorProperty name="Visibility"
+                         command="SetVisibility"
+                         number_of_elements="1"
+                         default_values="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Show/hide the axes grid.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="Scale"
+                            command="SetGridScale"
+                            number_of_elements="1"
+                            default_values="10">
+        <DoubleRangeDomain name="range" min="0"/>
+        <Documentation>
+          Set the scale/size between two lines.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="NumberOfTicks"
+                         command="SetGridNumberOfTicks"
+                         number_of_elements="1"
+                         default_values="10">
+        <IntRangeDomain name="range" min="1"/>
+        <Documentation>
+          Set the grid number of lines.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="Origin"
+                            command="SetGridOrigin"
+                            number_of_elements="3"
+                            default_values="0 0 0">
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Normal"
+                            command="SetGridNormal"
+                            number_of_elements="3"
+                            default_values="0 0 1"
+                            panel_visibility="advanced">
+      </DoubleVectorProperty>
+
+      <SubProxy command="SetProperty">
+        <Proxy name="Property" class="vtkProperty" processes="client|dataserver|renderserver" >
+          <DoubleVectorProperty command="SetLineWidth"
+                                default_values="1.0"
+                                name="LineWidth"
+                                number_of_elements="1"
+                                panel_visibility="advanced">
+            <DoubleRangeDomain min="0" name="range" />
+          </DoubleVectorProperty>
+
+          <DoubleVectorProperty default_values="0.2 0.2 0.2"
+                                name="GridColor"
+                                command="SetColor"
+                                number_of_elements="3"
+                                panel_widget="color_selector">
+            <DoubleRangeDomain max="1 1 1" min="0 0 0" name="range" />
+            <Documentation>Color used when coloring the grid wireframe</Documentation>
+          </DoubleVectorProperty>
+        </Proxy>
+        <ExposedProperties>
+          <Property name="GridColor" />
+          <Property name="LineWidth" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <PropertyGroup label="Size Properties">
+        <Property name="Scale"/>
+        <Property name="NumberOfTicks"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Position Properties">
+        <Property name="Origin"/>
+        <Property name="Normal"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Display Properties">
+        <Property name="GridColor"/>
+        <Property name="LineWidth"/>
+      </PropertyGroup>
+      <!-- End of 'LidarGridActor' -->
+    </Proxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="views">
+    <RenderViewProxy name="LidarGridView" class="vtkLidarGridView"
+        label="Lidar Grid View"
+        processes="client|renderserver|dataserver"
+        base_proxygroup="views" base_proxyname="RenderView">
+      <Documentation>
+          Bla bla bla
+      </Documentation>
+
+      <ProxyProperty name="LidarGrid"
+                     command="SetLidarGridActor"
+                     panel_widget="proxy_editor">
+        <ProxyListDomain name="proxy_list">
+          <Proxy group="annotations" name="LidarGridActor" />
+        </ProxyListDomain>
+        <Hints>
+          <ProxyEditorPropertyWidget property="Visibility">
+            <!-- tell pqProxyEditorPropertyWidget that use the "Visibility"
+                 property on the LidarGridActor proxy for a checkbox
+                 on the UI -->
+          </ProxyEditorPropertyWidget>
+        </Hints>
+      </ProxyProperty>
+
+      <PropertyGroup label="Grid Options">
+        <Property name="LidarGrid"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Camera Options">
+        <Property name="CameraParallelProjection" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Background">
+        <Property name="UseColorPaletteForBackground" />
+        <Property name="BackgroundColorMode" />
+        <Property name="Background2"/>
+        <Property name="Background"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Orientation Axes">
+        <Property name="OrientationAxesVisibility"/>
+        <Property name="OrientationAxesInteractivity"/>
+        <Property name="OrientationAxesLabelColor"/>
+        <Property name="OrientationAxesOutlineColor"/>
+      </PropertyGroup>
+
+      <PropertyGroup label="Render Passes">
+        <Property name="UseToneMapping"/>
+        <Property name="Exposure"/>
+        <Property name="UseSSAO"/>
+      </PropertyGroup>
+
+      <Hints>
+        <Property name="AxesGrid" show="0"/>
+        <Property name="CameraOrientationWidgetVisibility" show="0"/>
+        <Property name="CenterAxesVisibility" show="0"/>
+        <Property name="HiddenLineRemoval" show="0"/>
+        <StandardViewFrameActions>
+          <SelectSurfaceCells visibility="never" />
+          <SelectFrustumCells visibility="never" />
+          <SelectPolygonSelectionCells visibility="never" />
+          <InteractiveSelectSurfaceCells visibility="never" />
+          <InteractiveSelectSurfaceCellData visibility="never" />
+          <HoveringSurfaceCells visibility="never" />
+        </StandardViewFrameActions>
+      </Hints>
+    </RenderViewProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

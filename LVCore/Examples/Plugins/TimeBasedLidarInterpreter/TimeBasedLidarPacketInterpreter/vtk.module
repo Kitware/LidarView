@@ -1,0 +1,10 @@
+NAME
+  TimeBasedLidarInterpreter::TimeBasedLidarPacketInterpreter
+LIBRARY_NAME
+  TimeBasedLidarPacketInterpreter
+DEPENDS
+  LidarView::IOLidar
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonTransforms

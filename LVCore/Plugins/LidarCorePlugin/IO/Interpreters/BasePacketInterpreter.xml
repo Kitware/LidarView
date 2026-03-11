@@ -1,0 +1,17 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Base packet interpreter -->
+    <Proxy name="BasePacketInterpreter" class="vtkInterpreter">
+      <SubProxy command="SetSensorTransform">
+        <Proxy name="SensorTransform"
+               proxygroup="extended_sources"
+               proxyname="Transform2" />
+        <ExposedProperties>
+          <Property name="Position" />
+          <Property name="Rotation" />
+        </ExposedProperties>
+      </SubProxy>
+    </Proxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

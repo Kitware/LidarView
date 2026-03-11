@@ -1,0 +1,48 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <SourceProxy name="TemporalTransformsReader"
+                 class="vtkTemporalTransformsReader"
+                 label="Temporal Transforms Reader">
+      <Documentation short_help="Read time-indexed transforms (vtkTemporalTransforms) from CSV" long_help="Read time-indexed transforms (vtkTemporalTransforms) from CSV. Required columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m). Optional columns: Longitude(d), Latitude(d), Altitude(m).">
+        Read from a CSV a list of time indexed transforms.
+        Usually these transforms represent the pose trajectory of a solid over time.
+        Required columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m)
+        Optional columns: Longitude(d), Latitude(d), Altitude(m).
+      </Documentation>
+
+      <StringVectorProperty name="FileName"
+                            label="FileName"
+                            animateable="0"
+                            command="SetFileName"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          The path to the CSV formated file to read.
+        </Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="Time Offset"
+                            command="SetTimeOffset"
+                            default_values="0"
+                            number_of_elements="1">
+        <Documentation>
+          TimeOffset (in seconds) relative to the system clock.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="ConvertAnglesToRadians"
+                         command="SetConvertAnglesToRadians"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true consider orientation angles are in degrees and convert them to radians.
+        </Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <ReaderFactory extensions="csv txt poses" file_description="CSV formated file containing a pose trajectory" />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

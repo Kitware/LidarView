@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuHelp" />
+  <pqevent object="LidarViewMainWindow/menubar/menuHelp" command="activate" arguments="actionAboutLidarView" />
+  <pqevent object="LidarViewMainWindow/lqAboutDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
+</pqevents>

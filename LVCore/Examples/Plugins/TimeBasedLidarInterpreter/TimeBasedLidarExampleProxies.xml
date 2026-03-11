@@ -1,0 +1,22 @@
+<!-- Proxy used by LidarView to populate UI dialog to choose among LiDARs interpreters -->
+<ServerManagerConfiguration>
+  <ProxyGroup name="lidar_interpreters">
+    <!-- The name here is what the configuration dialog will show -->
+    <Proxy name="TimeBasedLidarExample"
+           base_proxygroup="internal_interpreter"
+           base_proxyname="BaseInterpreter">
+
+      <!-- Change the default values to the interpreter proxy names -->
+      <StringVectorProperty name="LidarReader"
+                            number_of_elements="1"
+                            override="1"
+                            default_values="TimeBasedLidarReader"
+                            information_only="1" />
+      <StringVectorProperty name="LidarStream"
+                            number_of_elements="1"
+                            override="1"
+                            default_values="TimeBasedLidarStream"
+                            information_only="1" />
+    </Proxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

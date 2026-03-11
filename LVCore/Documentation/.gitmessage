@@ -1,0 +1,49 @@
+# [<tag>] (If applied, this commit will...) <subject> (Max 72 char)
+# |<----   Preferably using up to 50 chars   --->|<------------------->|
+# Example:
+# [feat] Implement automated commit messages
+
+# (Optional) Explain why this change is being made
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# (Optional) Provide links or keys to any relevant tickets, articles or other resources
+# Example: fix #23
+
+# --- COMMIT END ---
+# Remember to:
+#   * Capitalize the subject line
+#   * Use the imperative mood in the subject line
+#   * Do not end the subject line with a period
+#   * Separate subject from body with a blank line
+#   * Use the body to explain what and why vs. how
+#   * Can use multiple lines with "-" or "*" for bullet points in body
+# --------------------
+# Tag can be
+#
+#    feat       (new feature)
+#    fix        (bug fix)
+#    ci         (change to ci scripts)
+#    refactor   (refactoring code)
+#    deprec     (deprecate or remove deprecated code)
+#    style      (formatting, missing semi colons, etc; no code change)
+#    doc        (changes to documentation)
+#    test       (adding or refactoring tests; no production code change)
+#    version    (version bump/new release; no production code change)
+#    license    (edits regarding licensing; no production code change)
+#    perf       (improve code performance)
+#    defaults   (changes default options)
+#    submodule  (update one or several submodules)
+#    api        (break the public api)
+#    ui         (user interface change)
+#
+# Please avoid the following, but in case none of the above fit:
+#
+#    hack       (temporary fix to make things move forward)
+#    change     (in case none of them work)
+# --------------------
+
+
+# Credit && Resources:
+# https://www.conventionalcommits.org/en/v1.0.0/#specification
+# https://gitmoji.carloscuesta.me/
+# https://gist.github.com/zakkak/7e06725ebd1336bfebebe254de3de825

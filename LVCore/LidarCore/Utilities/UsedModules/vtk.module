@@ -1,0 +1,30 @@
+NAME
+  LidarView::UtilitiesUsedModules
+LIBRARY_NAME
+  lvUtilitiesUsedModules
+DESCRIPTION
+  This is a dummy module that is only used to resolve optional
+  depencencies for LidarCorePlugin.
+DEPENDS
+  LidarView::CommonCore
+OPTIONAL_DEPENDS
+  LidarView::FiltersCalibration
+  LidarView::FiltersCamera
+  LidarView::FiltersCameraOpenCV
+  LidarView::FiltersGeneral
+  LidarView::FiltersProcessing
+  LidarView::FiltersSegmentation
+  LidarView::FiltersTemporal
+  LidarView::FiltersSelection
+  LidarView::FiltersVisualization
+  LidarView::IOCameraOpenCV
+  LidarView::IOCore
+  LidarView::IOGeneral
+  LidarView::IOGeolocation
+  LidarView::IOLidar
+  LidarView::IONetwork
+  LidarView::IOPDAL
+  LidarView::IOYaml
+  LidarView::Sources
+  LidarView::RemotingServerManager
+  LidarView::RemotingViews

@@ -1,0 +1,10 @@
+NAME
+  LidarView::RemotingServerManager
+LIBRARY_NAME
+  lvRemotingServerManager
+DEPENDS
+  ParaView::RemotingServerManager
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel

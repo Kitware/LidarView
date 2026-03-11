@@ -1,0 +1,19 @@
+NAME
+  LidarView::FiltersCamera
+LIBRARY_NAME
+  lvFiltersCamera
+CONDITION
+  LIDARVIEW_USE_YAMLCPP
+DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  LidarView::CommonYaml
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Boost::system
+  Boost::filesystem
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::IOImage
+  VTK::IOXML

@@ -1,0 +1,16 @@
+NAME
+  LidarView::IOCore
+LIBRARY_NAME
+  lvIOCore
+DEPENDS
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOLegacy
+PRIVATE_DEPENDS
+  Eigen3::Eigen
+  VTK::CommonTransforms
+  VTK::IOInfovis            # vtkTemporalTransformsReader needs vtkDelimitedTextReader
+TEST_DEPENDS
+  LidarView::TestingCore
+  VTK::TestingRendering

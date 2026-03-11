@@ -1,0 +1,47 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="AggregatePointsFromTrajectoryOnline" class="vtkAggregatePointsFromTrajectoryOnline" label="Aggregate Points From Trajectory (online)"
+                     base_proxygroup="internal_filters"
+                 base_proxyname="AggregatePointsFromTrajectory">
+      <Documentation
+        short_help="Aggregate points from a trajectory online"
+        long_help="Aggregate points from a trajectory into a voxel grid with play mode">
+      </Documentation>
+
+    <Property name="Clear point cloud"
+              command="Clear">
+      <Documentation>
+        Clear the point cloud. Parameter changes must be applied before clearing.
+      </Documentation>
+    </Property>
+
+    <Property name="Free Unused Memory"
+              command="FreeUnusedMemory">
+      <Documentation>
+        Free the excess memory allocated to the voxel grid.
+      </Documentation>
+    </Property>
+
+    <IntVectorProperty name="Display Output"
+                       command="SetDisplayOutput"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Indicates whether or not to display the filter output.
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Output Management">
+      <Property name="Free Unused Memory" />
+      <Property name="Clear point cloud" />
+      <Property name="Display Output" />
+    </PropertyGroup>
+
+    <Hints>
+      <ShowInMenu icon=":/lqFilters/Icons/lqAggregatePointsTrajectory.svg" />
+    </Hints>
+   </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

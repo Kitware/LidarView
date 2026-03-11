@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Prepare variable before executing example -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionPythonShell" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.crop_and_export_example import CropAndSave" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="reader = OpenPCAP('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16', 'Velodyne')" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="timesteps = range(8, 20)" />
+
+  <!-- Call CropAndSave example -->
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="CropAndSave(reader, '$PARAVIEW_TEST_ROOT/TestCropAndExport', timesteps)" />
+
+  <!-- Load TestCropAndExport_0010 file.csv and color it by laser_id -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestCropAndExport_0010.csv" />
+  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="TableToPolyData" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/YColumn/ComboBox" command="activated" arguments="Points_m_XYZ:1" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ZColumn/ComboBox" command="activated" arguments="Points_m_XYZ:2" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.2/Close" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="laser_id" />
+
+  <!-- Load TestCropAndExportCropped_0015.csv file -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestCropAndExportCropped_0015.csv" />
+  <pqevent object="LidarViewMainWindow/pqSelectReaderDialog/okButton" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters" command="activate" arguments="&amp;Alphabetical" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="TableToPolyData" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/YColumn/ComboBox" command="activated" arguments="Points:1" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ZColumn/ComboBox" command="activated" arguments="Points:2" />
+  <pqevent object="LidarViewMainWindow/centralwidget/MultiViewManager/CoreWidget/qt_tabwidget_stackedwidget/MultiViewWidget1/Container/Frame.2/Close" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+</pqevents>

@@ -1,0 +1,16 @@
+NAME
+  LidarView::IOGeolocation
+LIBRARY_NAME
+  lvIOGeolocation
+DEPENDS
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::libproj              # For GPSProjectionUtils
+PRIVATE_DEPENDS
+  Boost::system
+  Eigen3::Eigen
+  VTK::CommonTransforms
+TEST_DEPENDS
+  LidarView::TestingCore

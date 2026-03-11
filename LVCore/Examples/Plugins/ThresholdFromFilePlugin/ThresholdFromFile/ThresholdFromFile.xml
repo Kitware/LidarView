@@ -1,0 +1,76 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ThresholdFromFile" class="vtkThresholdFromFile">
+      <Documentation short_help="Filters points from an input dataset based on values from a CSV file.">
+        Filter that selectively removes or retains points in an input dataset according
+        to values specified in an external CSV file.
+      </Documentation>
+
+      <InputProperty name="InputPointCloud"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the input poly data
+        </Documentation>
+      </InputProperty>
+
+      <StringVectorProperty name="FileName"
+                            command="SetFileName"
+                            animateable="0"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          Name of the CSV file from which values are extracted.
+          The file should only contain a single column.
+        </Documentation>
+        <Hints>
+          <FileChooser extensions="csv" file_description="Threshold CSV file" />
+        </Hints>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="ActiveScalar"
+                            command="SetActiveScalar"
+                            number_of_elements="1"
+                            element_types="2"
+                            animateable="0">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="InputPointCloud" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Name of the scalar array to apply the filter on.
+        </Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="Tolerance"
+                            animateable="0"
+                            command="SetTolerance"
+                            number_of_elements="1"
+                            default_values="0">
+        <Documentation>
+          Tolerance applied in value comparison.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="InvertResult"
+                         animateable="0"
+                         command="SetInvertResult"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If enabled invert the result.
+        </Documentation>
+      </IntVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

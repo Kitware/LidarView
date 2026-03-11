@@ -1,0 +1,66 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkPointCloudClip -->
+  <ProxyGroup name="filters">
+    <SourceProxy class="vtkExtractPolyDataGeometry"
+                 name="ClipPoints"
+                 label="Clip Points">
+      <Documentation long_help="Clip with an implicit function (an implicit description) using vtkExtractPolyDataGeometry under the hood. The output data type of this filter is always a polydata."
+                     short_help="Clip with an implicit function.">The Clip filter
+                     cuts away a portion of the input data set using an
+                     implicit function (an implicit description).
+                     This filter operates only on polydata.</Documentation>
+      <InputProperty command="SetInputConnection"
+                     name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <InputArrayDomain name="input_array"
+                          number_of_components="1"
+                          optional="1" />
+        <Documentation>This property specifies the dataset on which the Clip
+        filter will operate.</Documentation>
+      </InputProperty>
+      <ProxyProperty command="SetImplicitFunction"
+                     label="Clip Type"
+                     name="ClipFunction">
+        <ProxyGroupDomain name="groups">
+          <Group name="implicit_functions" />
+        </ProxyGroupDomain>
+        <ProxyListDomain name="proxy_list">
+          <Proxy group="implicit_functions" name="Plane" />
+          <Proxy group="implicit_functions" name="Sphere" />
+          <Proxy group="implicit_functions" name="Cylinder" />
+          <Proxy group="implicit_functions" name="Box" />
+        </ProxyListDomain>
+        <Documentation>This property specifies the parameters of the clip
+        function (an implicit description) used to clip the dataset.</Documentation>
+      </ProxyProperty>
+      <DoubleVectorProperty information_only="1"
+                            name="InputBounds">
+        <BoundsDomain name="bounds">
+          <RequiredProperties>
+            <Property function="Input"
+                      name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+      </DoubleVectorProperty>
+      <IntVectorProperty command="SetExtractInside"
+                         default_values="0"
+                         name="Invert"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>Invert which part of the geometry is clipped.</Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <ShowInMenu icon=":/pqWidgets/Icons/pqClip.svg" />
+      </Hints>
+      <!-- End Clip -->
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkPointCloudClip -->
+</ServerManagerConfiguration>
