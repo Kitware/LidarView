@@ -1,0 +1,63 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common lidar live source stream -->
+    <LidarStreamProxy name="CommonLidarStream"
+                      class="vtkLidarStream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="BaseStream">
+
+      <OutputPort name="Frame" index="0" />
+      <OutputPort name="Calibration" index="1" />
+
+      <IntVectorProperty name="DetectFrameDropping"
+                         animateable="0"
+                         command="SetDetectFrameDropping"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Throw a warning to the user each time a frame is dropped
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Stream Options">
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+      </PropertyGroup>
+    </LidarStreamProxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common pose live source stream -->
+    <LidarStreamProxy name="CommonLidarPoseStream"
+                      class="vtkLidarPoseStream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarStream">
+
+      <OutputPort name="Pose" index="2" />
+      <OutputPort name="Pose Raw informations" index="3" />
+
+      <IntVectorProperty name="GNSSPort"
+                         label="GNSS / GPS Port"
+                         animateable="0"
+                         command="SetGNSSPort"
+                         default_values="8308"
+                         number_of_elements="1">
+        <Documentation>
+        Specify port on which to listen for packets
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Stream Options">
+        <Property name="ListeningPort" />
+        <Property name="GNSSPort" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Advanced Stream Options">
+        <Property name="PacketHandler" panel_visibility="advanced" />
+        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+      </PropertyGroup>
+    </LidarStreamProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

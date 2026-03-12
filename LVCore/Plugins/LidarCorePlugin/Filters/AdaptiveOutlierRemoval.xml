@@ -1,0 +1,169 @@
+<ServerManagerConfiguration>
+  <!-- Begin Adaptive outlier removal -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="AdaptiveOutlierRemoval" class="vtkAdaptiveOutlierRemoval" label="Adaptive outlier removal">
+      <Documentation
+        short_help="Remove outliers of pointcloud"
+        long_help="Adaptive outlier removal of pointcloud based on the average distance of neighboring points">
+        This filter identifies outliers in a point cloud based on the average distance of neighboring points.
+        The threshold can be defined adaptivly with respect to the depth of points.
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      port_index = "0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Filtered points" index="0" />
+
+    <!-- ============================ Adaptive outlier removal ============================ -->
+    <StringVectorProperty name="Depth array"
+                        command="SetInputArrayToProcess"
+                        number_of_elements="5"
+                        element_types="0 0 0 0 2"
+                        default_values_delimiter=";"
+                        default_values="0;0;0;0;distance_m"
+                        panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+      <RequiredProperties>
+        <Property function="Input" name="Input" />
+      </RequiredProperties>
+    </ArrayListDomain>
+    <Documentation>
+      Choose the input array of depth value
+    </Documentation>
+  </StringVectorProperty>
+
+    <IntVectorProperty name="Enable adaptive outlier removal"
+                       command="SetEnableAdaptiveRemoval"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If enable adaptive outlier removal, the threshold value is computed with the fonction of the depth.
+        If the average distance threshold is not set to zero, the threshold is the max value between the
+        "Average distance threshold" and the value of the linear function
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Scalar1 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="1;0;0;0;intensity"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used to remove outlier.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </StringVectorProperty>
+
+    <StringVectorProperty name="Scalar2 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="2;0;0;0;doppler"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used to remove outlier.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </StringVectorProperty>
+
+    <DoubleVectorProperty name="Scalar1 weight"
+                       command="SetScalar1Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Scalar2 weight"
+                       command="SetScalar2Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Number of neighbors"
+                       command="SetNbNeighbors"
+                       number_of_elements="1"
+                       default_values="10">
+      <IntRangeDomain name="range" min="1" max="1000"/>
+      <Documentation>
+       Number of neighbors used to compute the average distance between one point and its neighbors
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Average distance threshold"
+                          command="SetAveDistThreshold"
+                          number_of_elements="1"
+                          default_values="0.1">
+      <Documentation>
+       The threshold to remove one point. If the average distance between one point and its neighbors is
+       greater than the threshold, the point is considered as an isolated point and should be removed.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Factor"
+                          command="SetFactor"
+                          number_of_elements="1"
+                          default_values="0.0035">
+      <Documentation>
+       The factor of the linear function of depth to define the threshold
+       The default linear function is based on the arc length of an angular resolution :
+       Threshold = angular resolution * depth
+       The default value is computed based on an angular resolution 0.2° (0.2 * pi / 180)
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable adaptive outlier removal" value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="Outlier Removal">
+      <Property name="Depth array" />
+      <Property name="Enable adaptive outlier removal" />
+      <Property name="Scalar1 array" />
+      <Property name="Scalar2 array" />
+      <Property name="Scalar1 weight" />
+      <Property name="Scalar2 weight" />
+      <Property name="Number of neighbors" />
+      <Property name="Average distance threshold" />
+      <Property name="Factor" />
+    </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End Adaptive outlier removal -->
+</ServerManagerConfiguration>

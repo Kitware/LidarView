@@ -1,0 +1,13 @@
+NAME
+  LidarView::IOLidar
+LIBRARY_NAME
+  lvIOLidar
+DEPENDS
+  LidarView::CommonCore
+  LidarView::IOCore
+  LidarView::IONetwork
+  LidarView::Versioning
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  ParaView::VTKExtensionsCore

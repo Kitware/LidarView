@@ -1,0 +1,383 @@
+<ServerManagerConfiguration>
+  <!-- Begin CameraProjector -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="CameraProjector" class="vtkCameraProjector" label="Camera Projector">
+      <Documentation short_help="Project 3D points onto an image/video using a camera model">
+        Projects 3D points onto an image or a video frame using a camera model.
+        You can either connect an image/video as input or set a video path in properties.
+        When image coordinate origin differs (OpenCV top-left vs VTK bottom-left),
+        the overlay is automatically flipped vertically to match.
+      </Documentation>
+
+      <InputProperty
+        name="PointCloud"
+        port_index="1"
+        command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          To improve the result, give the path to the video in the filter properties rather than
+          giving the video as input.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty
+        name="Video or Image"
+        port_index="0"
+        command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkImageData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Optional image or video-frame input. If not provided, the filter can read frames from the
+          path. The overlay automatically accounts for image origin differences
+          by flipping vertically when needed.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty
+        name="Trajectory"
+        port_index="2"
+        command="SetInputConnection"
+        null_on_empty="1">
+        <Hints>
+          <Optional />
+          <!-- No input selection dialog at instantiation -->
+        </Hints>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Trajectory (TemporalTransforms) of the sensor that produced the point cloud.
+        </Documentation>
+      </InputProperty>
+
+      <OutputPort name="Image With Projection" index="0" id="port0" />
+      <OutputPort name="Colored Frame" index="1" id="port1" />
+      <OutputPort name="Projected Frame" index="2" id="port2" />
+
+      <StringVectorProperty
+          name="VideoPath"
+          animateable="0"
+          command="SetVideoPath"
+          number_of_elements="1">
+          <FileListDomain name="files"/>
+          <Documentation>
+            This property specifies the path to the video file. It should be set only if the video
+            is not given as input.
+          </Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="VideoTimeOffset"
+                            command="SetVideoTimeOffset"
+                            number_of_elements="1"
+                            default_values="0">
+        <Documentation>
+          This property specifies the time offset of the video.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Video Parameters">
+        <Property name="VideoPath" />
+        <Property name="VideoTimeOffset" />
+      </PropertyGroup>
+
+      <IntVectorProperty name="UseCalibrationFile"
+                        command="SetUseCalibrationFile"
+                        number_of_elements="1"
+                        default_values="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true, the point cloud is colored using the image.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="ModelType"
+                        command="SetCameraType"
+                        number_of_elements="1"
+                        default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Pinhole"/>
+          <Entry value="1" text="BrownConradyPinhole"/>
+          <Entry value="2" text="FishEye"/>
+        </EnumerationDomain>
+        <Documentation>
+          This property specifies the camera model to use.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="Rotation"
+                            command="SetRotation"
+                            number_of_elements="3"
+                            default_values="0 0 0">
+        <Documentation>
+          This property specifies the rotation of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Translation"
+                            command="SetTranslation"
+                            number_of_elements="3"
+                            default_values="0 0 0">
+        <Documentation>
+          This property specifies the translation of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Focal"
+                            command="SetFocal"
+                            number_of_elements="2"
+                            default_values="0 0">
+        <Documentation>
+          This property specifies the focal of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="OpticalCenter"
+                            command="SetOpticalCenter"
+                            number_of_elements="2"
+                            default_values="0 0">
+        <Documentation>
+          This property specifies the optical center of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Skew"
+                            command="SetSkew"
+                            number_of_elements="1"
+                            default_values="1">
+        <Documentation>
+          This property specifies the skew of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="KCoeffs"
+                            command="SetKCoeffs"
+                            number_of_elements="2"
+                            default_values="0 0">
+        <Documentation>
+          This property specifies the K coefficients of distortion of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="PCoeffs"
+                            command="SetPCoeffs"
+                            number_of_elements="4"
+                            default_values="0 0 0 0">
+        <Documentation>
+          This property specifies the P coefficients of distortion of the camera.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="0" />
+        </Hints>
+      </DoubleVectorProperty>
+
+      <StringVectorProperty
+          name="FileName"
+          animateable="0"
+          command="SetFileName"
+          number_of_elements="1">
+          <FileListDomain name="files"/>
+          <Documentation>
+            This property specifies the file name for camera parameters and model.
+          </Documentation>
+          <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                  mode="visibility"
+                                  property="UseCalibrationFile"
+                                  value="1" />
+        </Hints>
+      </StringVectorProperty>
+
+      <PropertyGroup label="Camera ModelParameters">
+        <Property name="UseCalibrationFile" />
+        <Property name="ModelType" />
+        <Property name="Rotation" />
+        <Property name="Translation" />
+        <Property name="Focal" />
+        <Property name="OpticalCenter" />
+        <Property name="Skew" />
+        <Property name="KCoeffs" />
+        <Property name="PCoeffs" />
+        <Property name="FileName" />
+      </PropertyGroup>
+
+      <IntVectorProperty name="ProjectedPointSizeInImage"
+                        command="SetProjectedPointSizeInImage"
+                        number_of_elements="1"
+                        default_values="1">
+        <Documentation>
+          Size of the points in the projected image. If this number is odd then the point is centered around the pixel used, else it is slightly shifted (0.5,0.5) pixels.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseTrajectoryToCorrectPoints"
+                        command="SetUseTrajectoryToCorrectPoints"
+                        number_of_elements="1"
+                        default_values="1">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          If a trajectory is set as input (id 2) and this is option is enabled, then the trajectory (poses) will be used to undistort the point cloud, and account for the fact that instants of captures are not the same in point cloud and image sensor.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="TimeArrayName"
+                            command="SetTimeArrayName"
+                            animateable="0"
+                            default_values="adjustedtime"
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point-data time array used with trajectory-based correction (e.g. adjustedtime).
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseTrajectoryToCorrectPoints"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="PipelineTimeToLidarTime"
+                        command="SetPipelineTimeToLidarTime"
+                        number_of_elements="1"
+                        default_values="0">
+        <Documentation>
+          Timeshift to apply to lidar time to get pipeline time. Used only if a trajectory is provided and if UseTrajectoryToCorrectPoints is set to true.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="ColorizedOutputOnly"
+                        command="SetColorizedOutputOnly"
+                        number_of_elements="1"
+                        default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true, only the colorized output is produced.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="OverlayColorMode"
+                        command="SetOverlayColorMode"
+                        number_of_elements="1"
+                        default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Intensity"/>
+          <Entry value="1" text="LiDAR Distance"/>
+        </EnumerationDomain>
+        <Documentation>
+          Select how to color the overlay drawn on the image: by intensity or by LiDAR-to-point distance. Distance coloring requires a LiDAR distance array.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="IntensityArrayName"
+                            command="SetIntensityArrayName"
+                            animateable="0"
+                            default_values=""
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the intensity array to use for overlay coloring.
+        </Documentation>
+        <Hints>
+          <ArraySelectionWidget icon_type="point" />
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OverlayColorMode"
+                                   value="0" />
+        </Hints>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="DistanceArrayName"
+                            command="SetDistanceArrayName"
+                            animateable="0"
+                            default_values=""
+                            number_of_elements="1">
+        <ArrayListDomain attribute_type="Scalars"
+                         none_string="None"
+                         name="array_list">
+          <RequiredProperties>
+            <Property function="Input" name="PointCloud" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>
+          Select the point-data array that stores LiDAR-to-point distance in meters (e.g., distance_m). If None is selected, distance overlay is disabled.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="OverlayColorMode"
+                                   value="1" />
+          <ArraySelectionWidget icon_type="point" />
+        </Hints>
+      </StringVectorProperty>
+
+      <PropertyGroup label="Overlay Parameters">
+        <Property name="OverlayColorMode" />
+        <Property name="IntensityArrayName" />
+        <Property name="DistanceArrayName" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End CameraProjector -->
+</ServerManagerConfiguration>

@@ -1,0 +1,147 @@
+<ServerManagerConfiguration>
+  <!-- Begin CameraMapper -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="CameraMapper" class="vtkCameraMapper" label="CameraMapper">
+      <Documentation
+        short_help="Project 3D points into the image using a camera model"
+        long_help="Project 3D points into the image using a camera model">
+        Project 3D points into the image using a camera model
+      </Documentation>
+
+    <InputProperty
+      name="PointCloud"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <InputProperty
+      name="Trajectory"
+      port_index="1"
+      command="SetInputConnection"
+      null_on_empty="1">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Trajectory (TemporalTransforms) of the sensor that produced the point cloud.
+      </Documentation>
+    </InputProperty>
+
+    <InputProperty
+      name="Image"
+      port_index="2"
+      command="SetInputConnection"
+      null_on_empty="1">
+      <!-- for some reason, uncommenting the following prevents from applying the
+      filter with Ctrl-Space on the input pointcloud vtkPolyData -->
+      <!-- <DataTypeDomain name="input_type">
+        <DataType value="vtkImageData"/>
+      </DataTypeDomain> -->
+      <Documentation>
+        Image to use for texture (Used to get image timestamps if correcting points projection with trajectory)
+      </Documentation>
+    </InputProperty>
+
+    <OutputPort name="Point cloud with camera coordinates" index="0" id="port0" />
+
+    <StringVectorProperty
+        name="CalibrationFile"
+        animateable="0"
+        command="SetCalibrationFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for camera parameters and model.
+        </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="UseTrajectoryToCompensateCameraMovement"
+                       command="SetUseTrajectoryToCompensateCameraMovement"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If a trajectory is set as input (id 1), an image series set as input 2 and this is option is enabled,
+        then the trajectory (poses) will be used to compensate the camera movement. This can be used to map the
+        camera with a point cloud that has already be transformed using this trajectory.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="UseTrajectoryToCorrectPoints"
+                       command="SetUseTrajectoryToCorrectPoints"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If a trajectory is set as input (id 1) and this is option is enabled, then the trajectory (poses) will be used to undistort the point cloud, and account for the fact that instants of captures are not the same in point cloud and image sensor.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="PipelineTimeToLidarTime"
+                       command="SetPipelineTimeToLidarTime"
+                       number_of_elements="1"
+                       default_values="0">
+      <Documentation>
+        Timeshift to apply to lidar time to get pipeline time. Used only if a trajectory is provided and if UseTrajectoryToCorrectPoints is set to true.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Image size (w, h) - if image input not provided"
+                       command="SetImgSize"
+                       number_of_elements="2"
+                       default_values="1920. 1080.">
+      <Documentation>
+        Image size used to create relative coordinates from pixel coordinates in
+        case the image input is not provided
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="UseCameraMask"
+                       command="SetUseCameraMask"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If ticked, use a mask to invalidate some of the mapped points
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty
+      name="CameraMaskFile"
+      animateable="0"
+      command="SetCameraMask"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Documentation>
+        This property specifies the image file used to mask part of the camera
+        field of view.
+      </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="InvertCameraMask"
+                       command="SetInvertCameraMask"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If ticked, the boolean camera mask is inverted
+      </Documentation>
+    </IntVectorProperty>
+
+    <PropertyGroup label="CameraMask">
+      <Property name="CameraMaskFile"/>
+      <Property name="InvertCameraMask"/>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="UseCameraMask"
+                                 value="1" />
+      </Hints>
+    </PropertyGroup>
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End CameraMapper -->
+</ServerManagerConfiguration>

@@ -1,0 +1,61 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="writers">
+    <WriterProxy name="TemporalTransformsWriter" class="vtkTemporalTransformsWriter">
+      <Documentation short_help="Write time-indexed transforms (CSV)" long_help="Write time-indexed transforms to CSV. Columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m). If arrays named Longitude, Latitude (and optionally Altitude) exist on the input, they are appended as extra columns.">
+        Write in a CSV the list of time indexed transforms.
+        Usually these transforms represent the pose trajectory of a solid
+        over time.
+        The CSV has the following columns: Time(s),Rx(Roll)(d),Ry(Pitch)(d),Rz(Yaw)(d),X(m),Y(m),Z(m).
+        If arrays named Longitude, Latitude (and optionally Altitude) exist on the input,
+        they are appended as extra columns.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type" composite_data_supported="0">
+          <DataType value="vtkPolyData" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <StringVectorProperty command="SetFileName"
+                            name="FileName"
+                            number_of_elements="1">
+        <Documentation>The path to the CSV formated file to write.</Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="SelectOrientationArrayName"
+                            label="OrientationArray"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;Orientation(AxisAngle)"
+                            animateable="0">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input" function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="WriteInDegrees"
+                         command="SetWriteInDegrees"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          If true write orientation angles in degrees instead of radians.
+        </Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <Property name="Input" show="0" />
+        <Property name="FileName" show="0" />
+        <WriterFactory extensions="poses" file_description="0 - Pose trajectory in CSV format: time(s),roll(deg),pitch(deg),yaw(deg),x(m),y(m),z(m)" />
+      </Hints>
+    </WriterProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

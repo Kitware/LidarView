@@ -1,0 +1,7 @@
+NAME
+  TimeBasedLidarInterpreter
+DESCRIPTION
+  A simple interpreter plugin example for a LiDAR splitting its frames based on time
+REQUIRES_MODULES
+  VTK::CommonCore
+  LidarView::IOLidar

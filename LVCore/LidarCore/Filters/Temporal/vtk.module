@@ -1,0 +1,27 @@
+NAME
+  LidarView::FiltersTemporal
+LIBRARY_NAME
+  lvFiltersTemporal
+DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  LidarView::Versioning
+PRIVATE_DEPENDS
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersSources
+  VTK::FiltersStatistics
+  VTK::FiltersPoints
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOXML
+  LidarView::FiltersProcessing
+TEST_DEPENDS
+  LidarView::TestingCore
+  VTK::FiltersHybrid
+  VTK::FiltersGeometry
+  VTK::FiltersGeneral

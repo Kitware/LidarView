@@ -1,0 +1,78 @@
+<ServerManagerConfiguration>
+  <!-- Begin OpenCVImageMapper -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="OpenCVImageMapper" class="vtkOpenCVImageMapper" label="OpenCVImageMapper">
+      <Documentation
+        short_help="Map pixel colors to a vtkImageData from its TextureCoordinates values"
+        long_help="Takes an image with texture coordinates and an image to map
+          (texture image) and returns the first image with additionnal remapped
+          texture pixel values (in a 'RGB' point data array). The mapping image
+          (vtkImage) must contain TextureCoordinates PointData It can additionnally
+          save the output image as png files with alpha = 0 for invalid image points
+          (using vtkValidPointMask).">
+        Map pixel colors to a vtkImageData from its TextureCoordinates values
+      </Documentation>
+
+    <InputProperty
+      name="CoordsImage"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkImageData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <InputProperty
+      name="TextureImage"
+      port_index="1"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkImageData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="out" index="0" id="port0" />
+
+    <IntVectorProperty name="SaveToFile"
+                       command="SetSaveToFile"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If set, output images are saved as png images with transparency.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty
+      name="OutputFolder"
+      animateable="0"
+      command="SetOutFolderPath"
+      number_of_elements="1">
+      <FileListDomain name="files"/>
+      <Hints>
+        <UseDirectoryName/>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="SaveToFile"
+                                 value="1" />
+      </Hints>
+      <Documentation>
+        This property specifies the folder to save output images to.
+      </Documentation>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="RemovePointsWithInvalidTexture"
+                       command="SetRemovePointsWithInvalidTexture"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        If set, points with texture coordinates that are not between 0 (included) and 1 (exluded) are marked
+        as invalid in the output.
+      </Documentation>
+    </IntVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End OpenCVImageMapper -->
+</ServerManagerConfiguration>

@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load PandarXT -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/PandarXT-32_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Hesai" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Hesai/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="PandarXT-32" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Load VLP-16 -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Synchronize LiDARs & apply a transform -->
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/TimeOffset/DoubleLineEdit0" command="set_string" arguments="187058912.54" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Position/DoubleLineEdit0" command="set_string" arguments="20" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Position/DoubleLineEdit1" command="set_string" arguments="10" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Change color map -->
+  <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="distance_m" />
+  <pqevent object="LidarViewMainWindow/colorToolBar/actionEditColorMap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/colorMapEditorDock/colorMapEditorPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/Properties/ColorOpacityEditor/DefaultPresetsComboBox" command="activated" arguments="Turbo" />
+  <pqevent object="LidarViewMainWindow/colorToolBar/actionRescaleCustomRange" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/RescaleScalarRangeToCustomDialog/RescaleButton" command="activate" arguments="" />
+
+  <!-- Save State -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="actionFileSaveServerState" />
+  <pqevent object="LidarViewMainWindow/FileSaveServerStateDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLoadState" />
+
+  <!-- Reset view -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionDeleteAll" command="activate" arguments="" />
+
+  <!-- Load State -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFile" command="activate" arguments="actionFileLoadServerState" />
+  <pqevent object="LidarViewMainWindow/FileLoadServerStateDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLoadState.pvsm" />
+  <pqevent object="LoadStateOptionsDialog/widget/OKButton" command="activate" arguments="" />
+</pqevents>

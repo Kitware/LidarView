@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Load PCAP -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/LidarModel/ComboBox" command="activated" arguments="VLP-16" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+
+  <!-- Save LAS -->
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,44,2,/0:0/0:0/0:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,44,2,/0:0/0:0/0:0" />
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionSaveData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileSaveDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLAS.las" />
+  <pqevent object="LidarViewMainWindow/WriterSettingsDialog/widget/OKButton" command="activate" arguments="" />
+
+  <!-- Load LAS -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestSaveLAS.las" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/colorToolBar/displayColor/Variables" command="activated" arguments="Intensity" />
+</pqevents>

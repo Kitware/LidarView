@@ -1,0 +1,123 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common LiDAR packet interpreter -->
+    <Proxy name="CommonLidarPacketInterpreter"
+                 class="vtkLidarPacketInterpreter"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BasePacketInterpreter">
+
+      <IntVectorProperty name="LidarModel"
+                         number_of_elements="1"
+                         default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="None" />
+        </EnumerationDomain>
+        <Documentation>
+          Process the data based on the chosen LiDAR model.
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="CalibrationFileName"
+                            label="Calibration File"
+                            animateable="0"
+                            command="SetCalibrationFileName"
+                            panel_widget="calibration_file_widget"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          If specified, replace the default sensor calibration file.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="IgnoreZeroDistances"
+                         animateable="0"
+                         command="SetIgnoreZeroDistances"
+                         default_values="1"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <IntVectorProperty name="IgnoreEmptyFrames"
+                         animateable="0"
+                         command="SetIgnoreEmptyFrames"
+                         default_values="1"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <IntVectorProperty command="GetNumberOfChannels"
+                         information_only="1"
+                         name="NumberOfChannelsInformation" />
+
+      <DoubleVectorProperty name="TimeOffset"
+                            command="SetTimeOffset"
+                            default_values="0"
+                            number_of_elements="1">
+        <Documentation>
+          TimeOffset (in seconds) relative to the system clock.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="EnableAdvancedArrays"
+                         animateable="0"
+                         command="SetEnableAdvancedArrays"
+                         default_values="0"
+                         number_of_elements="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <StringVectorProperty name="Vendor"
+                            command="GetSensorVendor"
+                            panel_visibility="never"
+                            information_only="1" />
+
+      <StringVectorProperty name="ModelName"
+                            command="GetSensorModelName"
+                            panel_visibility="never"
+                            information_only="1" />
+
+      <IntVectorProperty name="FramingMethod"
+                         command="SetFramingMethod"
+                         number_of_elements="1"
+                         default_values="0">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Interpreter provided (default)" />
+          <Entry value="1" text="Time (Network Packet Time)" />
+        </EnumerationDomain>
+        <Documentation>
+          Method to use to compute frames (frames are not intrinsic to the data).
+          *Interpreter provided* method: the limit between frames is when azimuth crosses angle 0.
+          Historically this is the first method that was implemented.
+          *Time* method: the limit between frames is when network packet time
+          is equal to 0.0 seconds modulo FrameDuration seconds.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="FrameDuration"
+                            animateable="0"
+                            command="SetFrameDuration_s"
+                            default_values="0.1"
+                            number_of_elements="1">
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="FramingMethod"
+                                   value="1" />
+        </Hints>
+        <Documentation>
+          Only used if FramingMethod is set to "Time".
+          The limit between frames is when network packet time
+          is equal to 0.0 seconds modulo FrameDuration seconds.
+        </Documentation>
+      </DoubleVectorProperty>
+    </Proxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common pose packet interpreter -->
+    <Proxy name="CommonPosePacketInterpreter"
+                 class="vtkPosePacketInterpreter"
+                 base_proxygroup="internal_interpreter"
+                 base_proxyname="BasePacketInterpreter" />
+  </ProxyGroup>
+</ServerManagerConfiguration>

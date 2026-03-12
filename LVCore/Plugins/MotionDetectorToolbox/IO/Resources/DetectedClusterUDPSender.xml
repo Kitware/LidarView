@@ -1,0 +1,20 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="DetectedClusterUDPSender"
+                 class="vtkDetectedClusterUDPSender"
+                 label="Detected Cluster UDP Sender"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="UDPSenderAlgorithm">
+      <Documentation short_help="UDP sender for MotionDetector clusters">
+        Send MotionDetector cluster info (such as center position, distance,
+        label and size) over network in UDP.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkCompositeDataSet" />
+        </DataTypeDomain>
+      </InputProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Prepare variable before executing example -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionPythonShell" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="from lidarviewexamples.plane_fit_and_process import PlaneFitAndProcess" />
+
+  <!-- Call PlaneFitAndProcess example -->
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/consoleWidget" command="executeCommand" arguments="PlaneFitAndProcess('$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap', 'VLP-16', '$PARAVIEW_TEST_ROOT/TestPlaneFitAndProcess.csv', '')" />
+
+  <!-- Call zoom on planefit example -->
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mousePress" arguments="1,1,0,48,10,/0:0/2:0/0:0/1:0" />
+  <pqevent object="LidarViewMainWindow/pipelineBrowserDock/pipelineBrowser" command="mouseRelease" arguments="1,0,0,48,10,/0:0/2:0/0:0/1:0" />
+  <pqevent object="LidarViewMainWindow/cameraToolbar/actionZoomToData" command="activate" arguments="" />
+</pqevents>

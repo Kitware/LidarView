@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/CustomDockResources">
+        <file>Icons/OpenDockWidget.svg</file>
+    </qresource>
+</RCC>

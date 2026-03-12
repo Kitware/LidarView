@@ -1,0 +1,92 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="CurbDetector" class="vtkCurbDetector" label="Curb Detector">
+      <Documentation short_help="Detect curb edges (left/right) within a 3D ROI.">
+        Extracts curb points in real-time from a LiDAR point cloud within a 3D region of interest.
+        It detects the left and right curb edges inside the ROI.
+      </Documentation>
+
+      <InputProperty name="Input" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Set the input polydata.</Documentation>
+      </InputProperty>
+
+      <OutputPort name="FilteredPoints" index="0" id="port0" />
+      <OutputPort name="CurbPointsLR" index="1" id="port1" />
+
+      <StringVectorProperty name="Ring array"
+                            command="SetRingArrayName"
+                            number_of_elements="1"
+                            default_values="laser_id">
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>Name of the point-data array that stores the LiDAR ring.</Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="Timestamp array"
+                            command="SetTimestampArrayName"
+                            number_of_elements="1"
+                            default_values="timestamp">
+        <ArrayListDomain name="array_list" attribute_type="Scalars" none_string="None">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Documentation>Name of the point-data array that stores timestamps.</Documentation>
+      </StringVectorProperty>
+
+      <DoubleVectorProperty name="ZChangeMin" label="Minimum Z Change (m)" command="SetZChangeMin" number_of_elements="1" default_values="0.05">
+        <Documentation>Minimum average ΔZ per neighbor pair along X (meters).</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="RansacDistanceThreshold" label="RANSAC Inlier Distance (m)"
+                            command="SetRansacDistanceThreshold"
+                            number_of_elements="1" default_values="0.15"
+                            panel_visibility="advanced">
+        <Documentation>Maximum point-to-line distance for inliers during RANSAC (meters).</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="NeighborCount" label="Neighbors Per Side" command="SetNeighborCount"
+                         number_of_elements="1" default_values="5">
+        <Documentation>Number of neighbors on each side used to compute the Z-change window.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="SpinRateHz" label="LiDAR Spin Rate (Hz)"
+                            command="SetSpinRateHz" number_of_elements="1" default_values="10.0">
+        <Documentation>LiDAR rotation rate in Hz. Used internally to derive a timestamp continuity threshold and ignore cross-frame discontinuities.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="MinCoords" command="SetBoxPosition" number_of_elements="3"
+                            default_values="-10 -10 -2.5">
+        <Documentation>Interactive box origin/min-corner (x y z).</Documentation>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty name="Size" command="SetBoxScale" number_of_elements="3"
+                            default_values="20 20 1">
+        <Documentation>Interactive box lengths (x y z).</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Filter">
+        <Property name="Ring array" />
+        <Property name="Timestamp array" />
+        <Property name="ZChangeMin" />
+        <Property name="NeighborCount" />
+        <Property name="SpinRateHz" />
+        <Property name="RansacDistanceThreshold" panel_visibility="advanced" />
+      </PropertyGroup>
+      <PropertyGroup label="Region of interest (ROI)" panel_widget="InteractiveBox">
+        <Property function="Position" name="MinCoords" />
+        <Property function="Scale" name="Size" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqRulersToolbar</class>
+ <widget class="QToolBar" name="lqRulersToolbar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>464</width>
+    <height>39</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>RenderView Controls</string>
+  </property>
+  <property name="orientation">
+   <enum>Qt::Horizontal</enum>
+  </property>
+  <action name="actionMeasurePointToPoint">
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/lqRulerPointToPoint.svg</normaloff>:/lqResources/Icons/lqRulerPointToPoint.svg</iconset>
+   </property>
+   <property name="statusTip">
+    <string>Ruler to measure point to point</string>
+   </property>
+  </action>
+  <action name="actionMeasureInParallelPlane">
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/pqWidgets/Icons/pqRuler.svg</normaloff>:/pqWidgets/Icons/pqRuler.svg</iconset>
+   </property>
+   <property name="statusTip">
+    <string>Ruler to measure in parallel plane</string>
+   </property>
+  </action>
+  <action name="actionToggleProjection">
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/lqViewPerspective.svg</normaloff>:/lqResources/Icons/lqViewPerspective.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Change Projection</string>
+   </property>
+   <property name="statusTip">
+    <string>Toggle between projective and orthogonal view</string>
+   </property>
+  </action>
+  <addaction name="actionMeasurePointToPoint"/>
+  <addaction name="actionMeasureInParallelPlane"/>
+  <addaction name="actionToggleProjection"/>
+ </widget>
+ <resources>
+  <include location="../lqResources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

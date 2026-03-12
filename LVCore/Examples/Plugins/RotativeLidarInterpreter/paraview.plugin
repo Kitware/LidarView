@@ -1,0 +1,8 @@
+NAME
+  RotativeLidarInterpreter
+DESCRIPTION
+  A simple interpreter plugin example for a rotative LiDAR
+  with a calibration file.
+REQUIRES_MODULES
+  VTK::CommonCore
+  LidarView::IOLidar

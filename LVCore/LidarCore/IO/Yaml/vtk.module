@@ -1,0 +1,18 @@
+NAME
+  LidarView::IOYaml
+LIBRARY_NAME
+  lvIOYaml
+CONDITION
+  LIDARVIEW_USE_YAMLCPP
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  YAML::yamlcpp

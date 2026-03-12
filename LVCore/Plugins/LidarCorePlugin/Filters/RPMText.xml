@@ -1,0 +1,24 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkRPMText -->
+  <ProxyGroup name="filters">
+    <SourceProxy class="vtkRPMText" label="RPM Info" name="RPMText">
+      <Documentation long_help="The RPMText filter shows in a table the RPM or FPS."
+                     short_help="Display RPM or FPS">
+      </Documentation>
+
+      <InputProperty name="Input"
+                     command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+            <DataType value="vtkDataObject"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <Hints>
+        <OutputPort index="0"
+                    name="Output-0"
+                    type="text" />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkRPMText -->
+</ServerManagerConfiguration>

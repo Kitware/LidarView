@@ -1,0 +1,6 @@
+NAME
+  MotionDetectorToolbox
+DESCRIPTION
+  Provides additional tools for the vtkMotionDector LidarView filter
+REQUIRES_MODULES
+  LidarView::FiltersTemporal

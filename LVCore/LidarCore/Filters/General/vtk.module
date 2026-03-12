@@ -1,0 +1,13 @@
+NAME
+  LidarView::FiltersGeneral
+LIBRARY_NAME
+  lvFiltersGeneral
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersGeneral
+  VTK::RenderingFreeType
+TEST_DEPENDS
+  LidarView::TestingCore

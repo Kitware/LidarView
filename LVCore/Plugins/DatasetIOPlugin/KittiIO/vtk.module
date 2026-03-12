@@ -1,0 +1,21 @@
+NAME
+  DatasetIOPlugin::vtkKittiIO
+LIBRARY_NAME
+  vtkKittiIO
+DESCRIPTION
+  Module to read/write Kitti point cloud datasets files
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  Boost::filesystem
+  LidarView::IOLidar
+  VTK::CommonColor
+  VTK::CommonComputationalGeometry
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::FiltersSources

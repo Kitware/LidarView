@@ -1,0 +1,77 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ImagesOperations" class="vtkImagesOperations" label="Images Operations">
+      <Documentation
+        short_help="Compute some operations between two images"
+        long_help="Compute some operations between two images">
+          Compute some operations between two images
+      </Documentation>
+
+      <InputProperty name="Input" label="Image 1" port_index="0" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkImageData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty name="Input2" label="Image 2" port_index="1" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkImageData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <OutputPort name="Image" index="0" />
+
+      <StringVectorProperty name="SelectValueArray"
+                            label="Value"
+                            command="SetInputArrayToProcess"
+                            number_of_elements="5"
+                            element_types="0 0 0 0 2"
+                            default_values_delimiter=";"
+                            default_values="0;0;0;0;Intensity"
+                            animateable="0">
+        <Documentation>
+          The scalar to run operation on.
+        </Documentation>
+        <ArrayListDomain name="array_list" attribute_type="Scalars">
+          <RequiredProperties>
+            <Property name="Input"
+                      function="Input" />
+          </RequiredProperties>
+        </ArrayListDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="InterpolateEachPoint"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
+
+
+      <IntVectorProperty name="Operation"
+                         command="SetOperation"
+                         number_of_elements="1"
+                         default_values="1">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Sum"/>
+          <Entry value="1" text="Difference"/>
+          <Entry value="2" text="Absolute Difference"/>
+          <Entry value="3" text="Product"/>
+        </EnumerationDomain>
+        <Documentation>
+          Choose a pixelwise operation
+        </Documentation>
+      </IntVectorProperty>
+
+      <StringVectorProperty name="ResultScalarName"
+                            label="Result scalar name"
+                            command="SetResultScalarName"
+                            number_of_elements="1"
+                            default_values="Result"
+                            animateable="0">
+        <Documentation>
+          The name of the scalar used to store the result of the operation.
+        </Documentation>
+      </StringVectorProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

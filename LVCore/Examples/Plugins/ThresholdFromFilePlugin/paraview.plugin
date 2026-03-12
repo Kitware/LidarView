@@ -1,0 +1,9 @@
+NAME
+  ThresholdFromFilePlugin
+DESCRIPTION
+  An example plugin that read a csv file and filter the input based on the values.
+REQUIRES_MODULES
+  VTK::FiltersSources
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
