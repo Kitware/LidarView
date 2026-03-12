@@ -5,7 +5,7 @@ function (lidarview_add_test_python)
 endfunction ()
 
 lidarview_add_test_python(
-    NO_RT
+    NO_RT DIRECT_DATA
     TestAggregatePointsFromTrajectory.py
     TestImportPythonModules.py
     TestMotionDetector.py
