@@ -4,9 +4,20 @@
 set(lidarview_plugins_library_subdirectory "lidarview/plugins")
 set(lidarview_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 set(lidarview_cmake_destination "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview")
-set(lidarview_test_data_directory_input "${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data")
+set(lidarview_test_data_directory_input "${CMAKE_BINARY_DIR}/Testing/Data")
 set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")
 set(lidarview_test_output_directory "${CMAKE_BINARY_DIR}/Testing/Temporary")
+
+if (BUILD_TESTING)
+  include(FetchTestData)
+  lidarview_fetch_test_data(
+    DATA_NAME "lidarview"
+    COMMIT_SHA "fb6e144063d85f840deb6c24beed7b0aae0c7337"
+  )
+  set(lidarview_test_data_directory_input "${FETCH_TEST_DATA_DIR}")
+  set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")
+  set(lidarview_test_baseline_dir "${lidarview_test_data_directory_input}/Baseline")
+endif ()
 
 #--------------------------------------
 # Scan LidarView plugins
