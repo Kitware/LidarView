@@ -2,7 +2,7 @@
 # Set-up lvcore test & cmake variables
 #--------------------------------------
 set(lidarview_plugins_library_subdirectory "lidarview/plugins")
-set(lidarview_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+set(lidarview_cmake_dir "${CMAKE_SOURCE_DIR}/CMake")
 set(lidarview_cmake_destination "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview")
 set(lidarview_test_data_directory_input "${CMAKE_BINARY_DIR}/Testing/Data")
 set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")
@@ -201,7 +201,7 @@ add_subdirectory(CommandLineExecutables)
 # Install development files if needeed
 #--------------------------------------
 if (LIDARVIEW_INSTALL_DEVELOPMENT_FILES)
-  include("${CMAKE_CURRENT_SOURCE_DIR}/CMake/LidarViewInstallCMakePackage.cmake")
+  include(LidarViewInstallCMakePackage)
 endif ()
 
 #--------------------------------------
