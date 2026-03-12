@@ -63,11 +63,6 @@ More detailed installation instructions are available on the [`LVCore/Documentat
 
 Detailed Instructions to build and package LidarView are available under [LidarView-superbuild README](https://gitlab.kitware.com/LidarView/lidarview-superbuild/-/blob/master/README.md).
 
-Most of the LidarView common codebase lies within:
-
- * [LVCore](https://gitlab.kitware.com/LidarView/lidarview-core) repository.
- * [LidarView-superbuild](https://gitlab.kitware.com/LidarView/lidarview-superbuild) repository.
-
 # How to use
 
 ## Sensor streaming
@@ -106,7 +101,16 @@ LiDAR data samples for LidarView can be obtained from:
 * [MIDAS](http://www.midasplatform.org/) in the [Velodyne LiDAR collection](http://midas3.kitware.com/midas/community/29)
 * Kitware's demos shared [drive](https://drive.google.com/drive/folders/1yrNUelUsjKcXdC8FH8DpXeOPTyiB_pLS?usp=sharing)
 
+# Questions / Reporting Bugs
+
+You found a bug:
+ 1. If you have a patch, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
+ 2. Otherwise you can also open an entry in the [LidarView Issue Tracker](https://gitlab.kitware.com/LidarView/lidarview/-/issues).
+
+Note that we also have a [LidarView / SLAM section](https://discourse.paraview.org/c/lidar/15) in ParaView Discourse forum where you ask the community about a functionality / issue.
+ 
 # For Github users
+
 [Github](https://github.com/Kitware/LidarView) is a mirror of the
 [official repository](https://gitlab.kitware.com/LidarView/LidarView).
 We do not actively monitor issues or pull request on Github. Please use the
