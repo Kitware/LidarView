@@ -23,6 +23,9 @@ option(BUILD_EXAMPLES "Build LidarView examples" "${doc_default}")
 option(BUILD_TESTING "Enable testing" OFF)
 mark_as_advanced(BUILD_TESTING)
 
+lidarview_deprecated_setting(doc_default BUILD_DOCUMENTATION BUILD_DOC "OFF")
+option(BUILD_DOCUMENTATION "Enable LidarView Documentation" ${doc_default})
+
 #========================================================================
 # OPTIONNAL EXTERN LIBRARY OPTIONS
 #========================================================================
