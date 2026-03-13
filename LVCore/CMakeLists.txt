@@ -195,8 +195,6 @@ if (LIDARVIEW_USE_PYTHON)
   endif ()
 endif ()
 
-add_subdirectory(CommandLineExecutables)
-
 #--------------------------------------
 # Install development files if needeed
 #--------------------------------------
