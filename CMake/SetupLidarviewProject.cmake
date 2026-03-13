@@ -31,10 +31,6 @@ determine_version(${CMAKE_SOURCE_DIR} ${GIT_EXECUTABLE} "LIDARVIEW")
 
 include(FindLidarViewDependencies)
 
-if (BUILD_DEVELOPER_DOCUMENTATION)
-  include(SetupDoxygenDocumentation)
-endif ()
-
 if (LIDARVIEW_USE_PYTHON)
   vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
 endif ()
