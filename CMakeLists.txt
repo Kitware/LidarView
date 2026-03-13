@@ -3,7 +3,6 @@ project(LidarView)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-include(SetBranding)
 include(LidarViewSupportMacros)
 include(LidarViewOptions)
 

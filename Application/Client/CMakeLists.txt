@@ -1,7 +1,4 @@
 # Sanitize checks
-if(NOT SOFTWARE_NAME OR NOT SOFTWARE_VENDOR)
-  message(FATAL_ERROR "SOFTWARE_NAME or SOFTWARE_VENDOR branding not set")
-endif()
 if(NOT LIDARVIEW_VERSION_FULL)
   message(FATAL_ERROR "LIDARVIEW_VERSION_ variables not set")
 endif()
@@ -40,13 +37,13 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
 endif ()
 
 paraview_client_add(
-  NAME              ${SOFTWARE_NAME}
-  NAMESPACE         "${SOFTWARE_NAME}"
+  NAME              "LidarView"
+  NAMESPACE         "LidarView"
   EXPORT            "LidarViewClient"
   VERSION           "${LIDARVIEW_VERSION_MAJOR}.${LIDARVIEW_VERSION_MINOR}.${LIDARVIEW_VERSION_PATCH}"
-  APPLICATION_NAME  "${SOFTWARE_NAME}"
-  ORGANIZATION      "${SOFTWARE_VENDOR}"
-  TITLE             "${SOFTWARE_NAME} ${LIDARVIEW_VERSION_FULL}"
+  APPLICATION_NAME  "LidarView"
+  ORGANIZATION      "Kitware"
+  TITLE             "LidarView ${LIDARVIEW_VERSION_FULL}"
   SPLASH_IMAGE      "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/Splash.png"
   BUNDLE_ICON       "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/logo.icns"
   BUNDLE_PLIST      "${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist.in"
@@ -66,13 +63,13 @@ paraview_client_add(
   LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-target_include_directories(${SOFTWARE_NAME}
+target_include_directories(LidarView
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(${SOFTWARE_NAME}
+target_link_libraries(LidarView
   PRIVATE
     LidarView::lqApplicationComponents # Common LVCore code base
     LidarViewApp::lvApplicationComponents # Specific LidarView code base

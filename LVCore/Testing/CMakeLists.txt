@@ -7,6 +7,6 @@ if (LIDARVIEW_USE_PYTHON)
   add_subdirectory(Python)
 endif ()
 
-if (SOFTWARE_TARGET AND LIDARVIEW_USE_QT)
+if (LIDARVIEW_USE_QT)
   add_subdirectory(XML)
 endif ()

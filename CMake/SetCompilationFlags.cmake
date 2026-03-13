@@ -2,7 +2,8 @@
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-message(STATUS "Building ${SOFTWARE_NAME} with C++${CMAKE_CXX_STANDARD} standard by default")
+
+message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by default")
 
 # Force executable to be code position dependent
 # We do this because nautilus (the default file manager on gnome so on ubuntu) do not support
