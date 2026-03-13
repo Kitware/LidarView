@@ -214,6 +214,10 @@ bool vtkPacketFileHandler::ReadNextPacket()
   bool isReassembled = false;
   while (!isReassembled)
   {
+    // NOTE: In rare cases, the first packet in a pcap file may not be read on the initial call,
+    // requiring multiple calls to `next_packet` to retrieve it.
+    // For code clarity and maintainability, this edge case is not explicitly handled here.
+    // If this issue recurs, refer to the fix proposed in lidarview-core!653.
     internals.PktCache = internals.PCAPReader->next_packet();
     if (!internals.PktCache)
     {
