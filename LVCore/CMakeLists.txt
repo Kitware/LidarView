@@ -1,6 +1,15 @@
+cmake_minimum_required(VERSION 3.20.3 FATAL_ERROR)
+project(LidarView)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
+include(LidarViewOptions)
+include(FindLidarViewDependencies)
+
 #--------------------------------------
-# Set-up lvcore test & cmake variables
+# Set-up test & cmake variables
 #--------------------------------------
+include(LidarViewSetBuildVariable)
 set(lidarview_plugins_library_subdirectory "lidarview/plugins")
 set(lidarview_cmake_dir "${CMAKE_SOURCE_DIR}/CMake")
 set(lidarview_cmake_destination "${CMAKE_INSTALL_LIBDIR}/cmake/lidarview")
@@ -9,6 +18,7 @@ set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}
 set(lidarview_test_output_directory "${CMAKE_BINARY_DIR}/Testing/Temporary")
 
 if (BUILD_TESTING)
+  include(CTest)
   include(FetchTestData)
   lidarview_fetch_test_data(
     DATA_NAME "lidarview"
@@ -22,13 +32,21 @@ endif ()
 #--------------------------------------
 # Scan LidarView plugins
 #--------------------------------------
-
-# Retrieve default plugin and plugin directories
-# from LidarView based app if existing
 set(lidarview_default_plugins
   LidarCorePlugin
   DatasetIOPlugin
-  ${lidarview_available_interpreters_plugins})
+  VelodynePlugin
+  LeishenPlugin
+  LivoxPlugin
+  RobosensePlugin
+  HesaiPlugin
+)
+
+if (LIDARVIEW_USE_CURL)
+  list(APPEND lidarview_delayed_plugins
+    OusterPlugin
+)
+endif()
 
 # Ignore following default plugins in autoload default.
 set(lidarview_default_autoload_plugins ${lidarview_default_plugins})
@@ -54,8 +72,9 @@ endif ()
 # Ensure that the LidarCorePlugin is positioned at the first position,
 # interpreter plugins depend on LidarCorePlugin having its XML loaded.
 set(lidarview_plugin_directories
+  "${CMAKE_CURRENT_SOURCE_DIR}/LidarCore/Plugin/"
   "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/"
-  ${lidarview_interpreters_plugin_directories})
+)
 
 if (BUILD_EXAMPLES)
   list(APPEND lidarview_plugin_directories
@@ -165,7 +184,8 @@ paraview_plugin_build(
   TARGET_COMPONENT      "development"
   PLUGINS_COMPONENT     "plugins"
   PLUGINS               ${lidarview_plugins}
-  AUTOLOAD              ${autoload_plugins})
+  AUTOLOAD              ${autoload_plugins}
+)
 
 if (LIDARVIEW_USE_PYTHON)
   #-----------------------------------------------------------------------------
@@ -207,4 +227,15 @@ endif ()
 #--------------------------------------
 if (BUILD_TESTING)
   add_subdirectory(Testing)
+endif ()
+
+# Build lidarview application & QT module specific
+add_subdirectory(Application)
+
+if (BUILD_DOCUMENTATION)
+  add_subdirectory(Utilities/Sphinx)
+endif ()
+
+if (BUILD_DEVELOPER_DOCUMENTATION)
+  add_subdirectory(Utilities/Doxygen)
 endif ()
