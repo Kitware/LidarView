@@ -133,3 +133,8 @@ if (LIDARVIEW_USE_LIDARSLAM_PLUGIN)
   print_version(LidarSlam)
   check_depedency_target("LidarSlam::paraview_wrapping" LidarSlam::paraview_wrapping)
 endif ()
+
+#--------------------------------------
+# Find Gid to determine version
+#--------------------------------------
+find_package(Git)

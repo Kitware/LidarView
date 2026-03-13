@@ -3,10 +3,9 @@ project(LidarView)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-include(LidarViewSupportMacros)
 include(LidarViewOptions)
-
-include(SetupLidarviewProject)
+include(FindLidarViewDependencies)
+include(LidarViewSetBuildVariable)
 
 # Add plugins to be searched by default in LVCore CMakeLists.txt
 set(lidarview_available_interpreters_plugins
