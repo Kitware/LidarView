@@ -30,7 +30,7 @@ add_subdirectory(LVCore)
 add_subdirectory(Application)
 
 if (BUILD_DOCUMENTATION)
-  add_subdirectory(Documentation/Sphinx)
+  add_subdirectory(Utilities/Sphinx)
 endif ()
 
 if (BUILD_DEVELOPER_DOCUMENTATION)
