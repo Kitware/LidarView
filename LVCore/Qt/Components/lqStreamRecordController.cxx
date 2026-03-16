@@ -15,6 +15,7 @@
 
 #include "lqStreamRecordController.h"
 
+#include "lqStreamPCAPRecorder.h"
 #include "lqStreamRecordDialog.h"
 #include "lqStreamRecorderInterface.h"
 
@@ -73,6 +74,14 @@ lqStreamRecordController::lqStreamRecordController(QObject* parent)
     &pqServerManagerModel::sourceRemoved,
     this,
     &lqStreamRecordController::onSourceRemoved);
+
+  pqInterfaceTracker* pgm = pqApplicationCore::instance()->interfaceTracker();
+  // If the pcap recorder is not found add it for retro-compatibility
+  // We could add a behavior to force disable it but it is not needed for now
+  if (pgm->interfaces<lqStreamPCAPRecorder*>().isEmpty())
+  {
+    pgm->addInterface(new lqStreamPCAPRecorder(pgm));
+  }
 }
 
 //-----------------------------------------------------------------------------
