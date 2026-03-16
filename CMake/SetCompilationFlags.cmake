@@ -1,24 +1,9 @@
-#===============================================================================
-# Copyright 2021 Kitware, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#===============================================================================
-
 # Overrides superbuild setting it to 11
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-message(STATUS "Building ${SOFTWARE_NAME} with C++${CMAKE_CXX_STANDARD} standard by default")
+
+message(STATUS "Building LidarView with C++${CMAKE_CXX_STANDARD} standard by default")
 
 # Force executable to be code position dependent
 # We do this because nautilus (the default file manager on gnome so on ubuntu) do not support

@@ -1,23 +1,11 @@
 cmake_minimum_required(VERSION 3.20.3 FATAL_ERROR)
 project(LidarView)
 
-# Add path to get all the needed modules used to config Lidarview
-set(lidarview_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
-set(lvcore_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/LVCore/CMake")
-if (NOT IS_DIRECTORY "${lvcore_cmake_dir}")
-  message(FATAL_ERROR
-    "Failed to find the LVCore CMake directory. Did you forget to initialize the "
-    "submodule? (git submodule update --init --recursive)")
-endif ()
-list(APPEND CMAKE_MODULE_PATH
-  "${lidarview_cmake_dir}"
-  "${lvcore_cmake_dir}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
-include(SetBranding)
-include(LidarViewSupportMacros)
 include(LidarViewOptions)
-
-include(SetupLidarviewProject)
+include(FindLidarViewDependencies)
+include(LidarViewSetBuildVariable)
 
 # Add plugins to be searched by default in LVCore CMakeLists.txt
 set(lidarview_available_interpreters_plugins
@@ -40,5 +28,9 @@ add_subdirectory(LVCore)
 add_subdirectory(Application)
 
 if (BUILD_DOCUMENTATION)
-  add_subdirectory(Documentation/Sphinx)
+  add_subdirectory(Utilities/Sphinx)
+endif ()
+
+if (BUILD_DEVELOPER_DOCUMENTATION)
+  add_subdirectory(Utilities/Doxygen)
 endif ()

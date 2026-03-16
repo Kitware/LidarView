@@ -1,4 +1,4 @@
-set(lidarview_test_client "$<TARGET_FILE:${SOFTWARE_TARGET}>")
+set(lidarview_test_client "$<TARGET_FILE:LidarView::LidarView>")
 
 set(tests_with_baselines
   TestAdvancedArrays.xml
