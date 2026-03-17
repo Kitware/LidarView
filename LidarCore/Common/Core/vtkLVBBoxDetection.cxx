@@ -24,18 +24,21 @@
 
 #include "vtkLVBBoxDetection.h"
 
-/*
-Return a list of 'BBoxDetection' from a 'MultiBlockDataSet'.
-Boxes must follow the vtkOutlineSource convention:
+//------------------------------------------------------------------------------
+bool isOrthogonal(const Vec3& v1, const Vec3& v2)
+{
+  double dot = v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
+  double mag = v1.norm() * v2.norm();
 
-  2 -------- 6       . -------- .
- /|         /|      /|         /|     🡡 Z
-1 -------- 7 .     D -------- . .     |
-| |        | |     | |        | |     |  🡥 Y
-. 3 -------- 5     . C -------- .     | /
-|/         |/      |/         |/      |/
-0 -------- 4       A -------- B       .---------🡪 X
-*/
+  if (mag < 1e-6)
+  {
+    return false;
+  }
+
+  return std::abs(dot / mag) < 1e-3;
+}
+
+//------------------------------------------------------------------------------
 std::vector<SharedBBoxDetection> vtkLVBBoxDetection::FromMultiBlockDataSet(
   vtkSmartPointer<vtkMultiBlockDataSet> dataset)
 {
@@ -43,23 +46,77 @@ std::vector<SharedBBoxDetection> vtkLVBBoxDetection::FromMultiBlockDataSet(
   for (unsigned int i = 0; i < dataset->GetNumberOfBlocks(); ++i)
   {
     auto block = vtkPolyData::SafeDownCast(dataset->GetBlock(i));
+    if (!block || block->GetNumberOfPoints() != 8)
+    {
+      continue;
+    }
+
     auto points = block->GetPoints();
 
-    auto A = Vec3(points->GetPoint(0));
-    auto B = Vec3(points->GetPoint(4));
-    auto C = Vec3(points->GetPoint(3));
-    auto D = Vec3(points->GetPoint(1));
+    // Compute bbox center
+    Vec3 center(0, 0, 0);
+    for (int j = 0; j < 8; ++j)
+    {
+      center += Vec3(points->GetPoint(j));
+    }
+    center /= 8.0;
 
-    auto BA = B - A;
-    auto CA = C - A;
-    auto DA = D - A;
+    // We define P0 as base point (can be any point)
+    Vec3 P0(points->GetPoint(0));
+    std::vector<Vec3> candidates;
+    for (int j = 1; j < 8; ++j)
+    {
+      candidates.push_back(Vec3(points->GetPoint(j)) - P0);
+    }
 
-    auto size = Vec3(BA.norm(), CA.norm(), DA.norm());
+    // We search for 3 othogonal edges
+    // Va . Vb == 0 && Va . Vc == 0 && Vb . Vc == 0
+    Vec3 edges[3];
+    bool found = false;
+    for (int a = 0; a < 7 && !found; ++a)
+    {
+      for (int b = a + 1; b < 7 && !found; ++b)
+      {
+        if (isOrthogonal(candidates[a], candidates[b]))
+        {
+          for (int c = b + 1; c < 7 && !found; ++c)
+          {
+            if (isOrthogonal(candidates[a], candidates[c]) &&
+              isOrthogonal(candidates[b], candidates[c]))
+            {
+              edges[0] = candidates[a];
+              edges[1] = candidates[b];
+              edges[2] = candidates[c];
+              found = true;
+            }
+          }
+        }
+      }
+    }
 
-    auto center = A + BA / 2 + CA / 2 + DA / 2;
+    // From our 3 candidates, we define the zone as the one which is the most orthogonal to z
+    int zIdx = 0;
+    double maxZAlignment = -1.0;
+    for (int j = 0; j < 3; ++j)
+    {
+      double alignment = std::abs(edges[j].z() / edges[j].norm());
+      if (alignment > maxZAlignment)
+      {
+        maxZAlignment = alignment;
+        zIdx = j;
+      }
+    }
+
+    Vec3 edgeZ = edges[zIdx];
+    Vec3 edgeX = edges[(zIdx + 1) % 3];
+    Vec3 edgeY = edges[(zIdx + 2) % 3];
+
+    double sizeX = edgeX.norm();
+    double sizeY = edgeY.norm();
+    double sizeZ = edgeZ.norm();
 
     // Rotation angle of bounding box around axisZ from axisX
-    double theta = atan2(BA.y(), BA.x());
+    double theta = std::atan2(edgeX.y(), edgeX.x());
 
     // We want to priorize the biggest dimension for x axis.
     // This way, rectangular detections (such as car), will always orient the same way and will not
@@ -68,11 +125,13 @@ std::vector<SharedBBoxDetection> vtkLVBBoxDetection::FromMultiBlockDataSet(
     // E.g. Size(2, 4), theta(0) == Size(4, 2), theta(pi/2), so we want to normalize it.
     // Moreover, it is easier to filter detections by size (if we know target size):
     // E.g. Cars will have a length between 3 and 5 meters, and a width of 2 to 3 meters.
-    if (size.x() < size.y())
+    if (sizeY > sizeX)
     {
-      size = Vec3(size.y(), size.x(), size.z());
+      std::swap(edgeX, edgeY);
+      std::swap(sizeX, sizeY);
       theta += vtkMath::Pi() / 2;
     }
+    Vec3 size(sizeX, sizeY, sizeZ);
 
     while (theta > vtkMath::Pi() / 2)
     {
