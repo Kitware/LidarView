@@ -369,7 +369,12 @@ int vtkKalmanTracker::RequestData(vtkInformation* vtkNotUsed(request),
   const double previousTime = frameIndex > 0
     ? timeSteps[frameIndex - 1]
     : currentTime - (timeSteps[frameIndex + 1] - currentTime);
-  const double dt = currentTime - previousTime;
+  double dt = currentTime - previousTime;
+  if (dt < 1e-6)
+  {
+    vtkWarningMacro("dt was very small and has been caped to 1e-6: " << dt);
+    dt = 1e-6;
+  }
 
   auto detections = vtkLVBBoxDetection::FromMultiBlockDataSet(inputBoxes);
 
