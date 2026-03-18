@@ -73,8 +73,7 @@ vtkPacketRecorder::vtkPacketRecorder()
 //------------------------------------------------------------------------------
 vtkPacketRecorder::~vtkPacketRecorder()
 {
-  this->Internals->DataQueue->StopQueue();
-  ::StopThread(this->WritingThread);
+  this->StopRecording();
 }
 
 //-----------------------------------------------------------------------------
@@ -95,16 +94,19 @@ void vtkPacketRecorder::StartRecording()
 void vtkPacketRecorder::StopRecording()
 {
   this->IsRecording = false;
-  this->Internals->DataQueue->StopQueue();
+  if (this->Internals->DataQueue)
+  {
+    this->Internals->DataQueue->StopQueue();
+  }
   ::StopThread(this->WritingThread);
 }
 
 //----------------------------------------------------------------------------
 void vtkPacketRecorder::AddPacketToWritingQueue(const Tins::Packet* pkt)
 {
-  if (this->IsRecording && this->WritingThread)
+  auto& internals = *this->Internals;
+  if (this->IsRecording && this->WritingThread && internals.DataQueue)
   {
-    auto& internals = *this->Internals;
     internals.DataQueue->Enqueue(*pkt);
   }
 }
