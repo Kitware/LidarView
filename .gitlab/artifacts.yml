@@ -1,64 +1,64 @@
 # Lists of paths for artifacts of various stages.
 
 .cmake_build_artifacts:
-    artifacts:
-        expire_in: 1d
-        # Because build logs are in here, we should always upload artifacts.
-        when: always
-        paths:
-            # Logs of the build
-            - compile_output.log
+  artifacts:
+    expire_in: 1d
+    # Because build logs are in here, we should always upload artifacts.
+    when: always
+    paths:
+      # Logs of the build
+      - compile_output.log
 
-            # The artifacts of the build.
-            - build/bin/
-            - build/lib/
-            - build/share/
+      # The artifacts of the build.
+      - build/bin/
+      - build/lib/
+      - build/share/
 
-            # Python packages go here
-            - build/lib64/
+      # Python packages go here
+      - build/lib64/
 
-            # Test-data fetched at config time
-            - build/_data/
+      # Test-data fetched at config time
+      - build/_data/
 
-            # Needed for installation.
-            - build/CMakeCache.txt
-            - build/build.ninja
-            - build/rules.ninja
-            - build/CMakeFiles/rules.ninja
-            - build/cmake_install.cmake
-            - build/**/cmake_install.cmake
+      # Needed for installation.
+      - build/CMakeCache.txt
+      - build/build.ninja
+      - build/rules.ninja
+      - build/CMakeFiles/rules.ninja
+      - build/cmake_install.cmake
+      - build/**/cmake_install.cmake
 
-            # CTest files.
-            - build/CTestCustom.cmake
-            - build/CTestTestfile.cmake
-            - build/**/CTestTestfile.cmake
-            - build/**/*.h
-            - build/**/*.hxx
-            - build/**/*.mod
-            - build/ExternalData/
-            - build/Testing/
-            - build/Testing/Temporary/
+      # CTest files.
+      - build/CTestCustom.cmake
+      - build/CTestTestfile.cmake
+      - build/**/CTestTestfile.cmake
+      - build/**/*.h
+      - build/**/*.hxx
+      - build/**/*.mod
+      - build/ExternalData/
+      - build/Testing/
+      - build/Testing/Temporary/
 
 .cmake_tidy_artifacts:
-    artifacts:
-        expire_in: 1d
-        # Because build logs are in here, we should always upload artifacts.
-        when: always
-        paths:
-            # Logs of the build
-            - compile_output.log
-            - build/compile_commands.json
+  artifacts:
+    expire_in: 1d
+    # Because build logs are in here, we should always upload artifacts.
+    when: always
+    paths:
+      # Logs of the build
+      - compile_output.log
+      - build/compile_commands.json
 
-            # The artifacts of Qt generation.
-            - build/**/*.h
-            - build/**/*.hxx
+      # The artifacts of Qt generation.
+      - build/**/*.h
+      - build/**/*.hxx
 
 .cmake_test_artifacts:
-    artifacts:
-        expire_in: 1d
-        # Tests failing should still upload the artifact for further testing.
-        when: always
-        paths:
-            # Debugging logs
-            - build/Testing/Temporary/Last*.log
-            - build/Testing/Temporary/*.png
+  artifacts:
+    expire_in: 1d
+    # Tests failing should still upload the artifact for further testing.
+    when: always
+    paths:
+      # Debugging logs
+      - build/Testing/Temporary/Last*.log
+      - build/Testing/Temporary/*.png
