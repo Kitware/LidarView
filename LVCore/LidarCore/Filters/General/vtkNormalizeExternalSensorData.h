@@ -327,6 +327,11 @@ public:
   static const char* CALIBRATION_ODOMETRY_NAME() { return "Calibration_Odometry"; }
   ///@}
 
+  /**
+   * Array name used in SLAM to synchronize LiDAR & external sensors.
+   */
+  static const char* TIME_SYNC_FIELD_DATA_ARRAY_NAME() { return "Timestamp"; }
+
 protected:
   vtkNormalizeExternalSensorData() = default;
   ~vtkNormalizeExternalSensorData() override;
