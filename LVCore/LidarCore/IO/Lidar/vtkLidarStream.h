@@ -29,27 +29,46 @@
 
 class vtkLidarPacketInterpreter;
 
+/**
+ * This class implement a base class for all LiDAR stream.
+ * It can use different interpreter for different vendors.
+ */
 class LVIOLIDAR_EXPORT vtkLidarStream : public vtkStream
 {
 public:
   static vtkLidarStream* New();
   vtkTypeMacro(vtkLidarStream, vtkStream)
 
+  /**
+   * Start the LiDAR stream: initialize the packet interpreter and the packet receiver
+   */
   void Start() override;
 
   /**
-   * @brief GetSensorInformation return some sensor information used for display purposes
-   * @param shortVersion True to have a succinct version of the sensor information
+   * Return some sensor information used for display purposes
    */
   virtual std::string GetSensorInformation(bool shortVersion = false);
 
+  ///@{
+  /**
+   * If enable a warning will be sent if this class drop frames (processing not fast enough).
+   */
   vtkGetMacro(DetectFrameDropping, bool);
   vtkSetMacro(DetectFrameDropping, bool);
+  ///@}
 
+  /**
+   * Return 1 if there frames in internal queue.
+   */
   int CheckForNewData() override;
 
+  ///@{
+  /**
+   *Set / Get the LiDAR interpreter.
+   */
   vtkGetObjectMacro(LidarInterpreter, vtkLidarPacketInterpreter);
   void SetLidarInterpreter(vtkLidarPacketInterpreter* interpreter);
+  ///@}
 
 protected:
   vtkLidarStream();
