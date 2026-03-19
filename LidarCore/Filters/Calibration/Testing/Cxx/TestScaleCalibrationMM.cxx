@@ -6,6 +6,8 @@
 #include <vtkMath.h>
 #include <vtkTesting.h>
 
+#include <iostream>
+
 int TestScaleCalibrationMM(int argc, char* argv[])
 {
   // number of error in the test

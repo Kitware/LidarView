@@ -218,7 +218,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       catch(YAML::BadConversion &e)
       {
-        std::cerr << "Could not find 'class_id' in bounding box yaml file. Array skipped" << std::endl;
+        vtkErrorMacro("Could not find 'class_id' in bounding box yaml file. Array skipped");
       }
 
       // Add confidence
@@ -231,7 +231,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       catch(YAML::BadConversion &e)
       {
-        std::cerr << "Could not find 'confidence' in bounding box yaml file. Array skipped" << std::endl;
+        vtkErrorMacro("Could not find 'confidence' in bounding box yaml file. Array skipped");
       }
 
       // Add segment id
@@ -244,7 +244,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       catch(YAML::BadConversion &e)
       {
-        std::cerr << "Could not find 'segment_id' in bounding box yaml file. Array skipped" << std::endl;
+        vtkErrorMacro("Could not find 'segment_id' in bounding box yaml file. Array skipped");
       }
 
       // Add time from custom field
@@ -255,7 +255,7 @@ int vtkBoundingBoxReader::RequestData(vtkInformation *, vtkInformationVector **,
       }
       catch(const std::exception& e)
       {
-        std::cerr << "Could not find 'adjustedtime' in bounding box yaml file. Array skipped" << std::endl;
+        vtkErrorMacro("Could not find 'adjustedtime' in bounding box yaml file. Array skipped");
       }
 
       output->SetBlock(i, bb);

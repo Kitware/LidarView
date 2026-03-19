@@ -6,6 +6,8 @@
 
 #include <Eigen/Dense>
 
+#include <iostream>
+
 //----------------------------------------------------------------------------
 int TestFisheyeModelCalibration(std::string matchedFilename, std::string groundtruthFilename)
 {

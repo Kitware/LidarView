@@ -23,6 +23,8 @@
 #include <vtkMath.h>
 #include <vtkTesting.h>
 
+#include <iostream>
+
 int TestGeometricCalibrationMM(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;
