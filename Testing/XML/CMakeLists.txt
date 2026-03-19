@@ -6,12 +6,15 @@ set(tests_with_baselines
   TestCustomClipFilter.xml
   TestExtractPointSelection.xml
   TestOpenRecentFiles.xml
-  TestSaveLAS.xml
   TestSaveLoadState.xml
   TestSaveLoadTrace.xml
   TestSavePcap.xml
   TestVoxelGridFilter.xml
 )
+
+if (LIDARVIEW_USE_PDAL)
+  list(APPEND tests_with_baselines TestSaveLAS.xml)
+endif ()
 
 set(tests_without_baselines
   TestAboutDialog.xml

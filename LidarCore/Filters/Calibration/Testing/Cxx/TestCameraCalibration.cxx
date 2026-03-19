@@ -19,7 +19,7 @@ int TestFisheyeModelCalibration(std::string matchedFilename, std::string groundt
   std::vector<Eigen::Vector3d> X;
   std::vector<Eigen::Vector2d> x;
   LoadMatchesFromCSV(matchedFilename, X, x);
-  if (X.size() == 0)
+  if (X.empty())
   {
     return 0;
   }

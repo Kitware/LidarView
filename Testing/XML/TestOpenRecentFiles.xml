@@ -8,9 +8,9 @@
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/TimeOffset/DoubleLineEdit0" command="set_string" arguments="187058912.54" />
   <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
 
-  <!-- Load LAS -->
+  <!-- Load VTK -->
   <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenData" command="activate" arguments="" />
-  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/peoples.las" />
+  <pqevent object="LidarViewMainWindow/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/peoples.vtk" />
   <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
 
   <!-- Load PandarXT-32 PCAP -->

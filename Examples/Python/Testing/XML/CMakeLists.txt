@@ -2,12 +2,17 @@ set(lidarview_test_client "$<TARGET_FILE:LidarView::LidarView>")
 
 set(tests_with_baselines
   TestUICropAndExportPythonExample.xml
-  TestUILoadLidarDataPythonExample.xml
   # TestUIPlaneFitAndProcessPythonExample.xml
   TestUIResetWindowViewsPythonExample.xml
   # TestUISaveSelectedPointOnMultipleFramePythonExample.xml
   # TestUISplitWindowPythonExample.xml
 )
+
+if (ParaView_VERSION_PATCH LESS "20260301")
+  list(APPEND tests_with_baselines TestUILoadLidarDataPythonExample.xml)
+else ()
+  list(APPEND tests_with_baselines TestUILoadLidarDataPythonExample2.xml)
+endif ()
 
 # As LidarView use external baseline (in separate repository) we must set the
 # baseline png as DIRECT_DATA
