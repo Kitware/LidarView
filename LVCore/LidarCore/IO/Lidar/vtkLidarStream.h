@@ -18,7 +18,7 @@
 #define VTKLIDARSTREAM_H
 
 #include <deque>
-#include <memory>
+#include <optional>
 
 #include "vtkLidarPacketInterpreter.h"
 #include "vtkStream.h"
@@ -80,6 +80,7 @@ private:
 
   void AddNewData();
 
+  std::optional<double> FrameReceivedTimestamp;
   unsigned long NbOfPacketReceived = 0;
   std::map<unsigned int, unsigned int> PacketReceivedMap;
 
