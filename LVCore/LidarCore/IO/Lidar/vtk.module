@@ -11,3 +11,5 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   ParaView::VTKExtensionsCore
+PRIVATE_DEPENDS
+  LidarView::FiltersGeneral

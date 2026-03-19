@@ -23,9 +23,12 @@
 #include <sstream>
 
 #include <vtkCommand.h>
-#include <vtkLogger.h>
+#include <vtkDoubleArray.h>
+#include <vtkFieldData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLogger.h>
+#include <vtkNormalizeExternalSensorData.h>
 #include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
@@ -118,6 +121,7 @@ void vtkLidarStream::Start()
     this->GetLidarInterpreter()->Initialize();
   }
 
+  this->FrameReceivedTimestamp.reset();
   vtkStream::Start();
 }
 
@@ -157,6 +161,13 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
     return;
   }
 
+  // Init the received timestamp if no value is found, this is
+  // probably the timestamp of the first packet since last split (or start)
+  if (!this->FrameReceivedTimestamp.has_value())
+  {
+    this->FrameReceivedTimestamp = timestamp;
+  }
+
   interp->ProcessPacketWrapped(pkt.data(), pkt.size(), timestamp);
   if (interp->IsNewData())
   {
@@ -171,8 +182,17 @@ void vtkLidarStream::ConsumePacket(const std::vector<uint8_t>& pkt, double times
 //----------------------------------------------------------------------------
 void vtkLidarStream::AddNewData()
 {
-  vtkSmartPointer<vtkPolyData> LastFrame = this->GetLidarInterpreter()->GetLastFrameAvailable();
-  this->Frames.push_back(LastFrame);
+  vtkSmartPointer<vtkPolyData> lastFrame = this->GetLidarInterpreter()->GetLastFrameAvailable();
+
+  vtkSmartPointer<vtkDoubleArray> timeArray = vtkSmartPointer<vtkDoubleArray>::New();
+  timeArray->SetName(vtkNormalizeExternalSensorData::TIME_SYNC_FIELD_DATA_ARRAY_NAME());
+  timeArray->SetNumberOfComponents(1);
+  timeArray->SetNumberOfValues(1);
+  timeArray->InsertValue(0, this->FrameReceivedTimestamp.value_or(0));
+  lastFrame->GetFieldData()->AddArray(timeArray);
+  this->FrameReceivedTimestamp.reset();
+
+  this->Frames.push_back(lastFrame);
 
   // This prevents accumulating frames forever when "Pause" is toggled
   // There is little reason to use a std::deque to cache the frames, so
