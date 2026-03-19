@@ -9,6 +9,7 @@ readonly sha256sum="6ff5fe1ada10daef8538743dccb9c9b3e19d05d028ffdc24838e62ff3fc5
 readonly tins_root="$HOME/tins"
 readonly tins_src="$tins_root/src"
 readonly tins_build_root="$tins_root/build"
+readonly current_path=$(dirname "$(realpath "$0")")
 
 mkdir -p "$tins_root"
 cd "$tins_root"
@@ -18,7 +19,7 @@ curl -OL "https://github.com/mfontanini/libtins/archive/refs/tags/v$version.tar.
 sha256sum --check tins.sha256sum
 mkdir -p "$tins_src"
 tar -xf "$tarball" -C "$tins_src" --strip-components 1 --no-same-owner
-cd "$tins_src" && git apply "/root/tins-fix-cmake-config-install.patch"
+cd "$tins_src" && git apply "$current_path/tins-fix-cmake-config-install.patch"
 
 tins_build () {
     local prefix="$1"

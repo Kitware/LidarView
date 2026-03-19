@@ -80,6 +80,27 @@ clang-tidy-check:analyse:
   needs:
     - ubuntu22-debug-tidy:build
 
+ubuntu24-release-pv-latest:build:
+  extends:
+    - .ubuntu24_pv_latest
+    - .cmake_build_linux_with_required_deps
+    - .linux_builder_tags
+    - .cmake_build_artifacts
+    - .run_manually
+  needs: []
+
+ubuntu24-release-pv-latest:test:
+  extends:
+    - .ubuntu24_pv_latest
+    - .cmake_test_linux_with_required_deps
+    - .linux_tester_tags
+    - .cmake_test_artifacts
+    - .run_automatically
+  dependencies:
+    - ubuntu24-release-pv-latest:build
+  needs:
+    - ubuntu24-release-pv-latest:build
+
 # Windows
 
 windows-vs2022:build:
