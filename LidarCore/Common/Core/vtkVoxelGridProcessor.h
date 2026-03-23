@@ -156,6 +156,12 @@ public:
    */
   vtkPolyData* GetOutput() const { return this->Output; }
 
+  /**
+   * @brief GetFilteredOutput Return the output point cloud filtered on minimum frames number per
+   * voxel grid
+   */
+  vtkSmartPointer<vtkPolyData> GetFilteredOutput(int minNumber);
+
 protected:
   vtkVoxelGridProcessor();
 

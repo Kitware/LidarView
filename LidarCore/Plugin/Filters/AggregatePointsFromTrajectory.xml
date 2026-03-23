@@ -36,6 +36,31 @@
         </Documentation>
     </InputProperty>
 
+    <DoubleVectorProperty name="MinDistance"
+                          label="Min distance to sensor"
+                          command="SetMinDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Min distance to LiDAR sensor. Points are too close to the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="MaxDistance"
+                          label="Max distance to sensor"
+                          command="SetMaxDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Max distance to LiDAR sensor. Points are too far from the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="General parameters">
+      <Property name="MinDistance" />
+      <Property name="MaxDistance" />
+    </PropertyGroup>
+
     <IntVectorProperty name="Downsample The Output"
                        command="SetIsVoxelGridFilterUsed"
                        number_of_elements="1"
@@ -127,12 +152,28 @@
       </Hints>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="MinimumFramesPerVoxel"
+                       command="SetMinFramesPerVoxel"
+                       number_of_elements="1"
+                       default_values="-1">
+      <Documentation>
+        The minimum number of frames in a voxel to validate the voxel grid
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
     <PropertyGroup label="Voxel grid parameters">
       <Property name="Auto Compute Bounds" />
       <Property name="Bounds" />
       <Property name="Downsample The Output" />
       <Property name="Voxel Sampling Mode" />
       <Property name="Voxel Leaf Size" />
+      <Property name="MinimumFramesPerVoxel" />
     </PropertyGroup>
 
     <IntVectorProperty name="Auto Detect Time Array"
@@ -196,6 +237,35 @@
       </Hints>
     </DoubleVectorProperty>
 
+    <IntVectorProperty name="Relative point timestamp"
+                       command="SetRelativeTimestamp"
+                       number_of_elements="1"
+                       default_values="0"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Choose whether timestamps of points are relative to the frame time or absolute.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Reference timestamp name"
+                          command="SetReferenceTimeName"
+                          number_of_elements="1"
+                          default_values="Timestamp"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="FieldData" none_string="None" name="array_list" input_domain_name="field_arrays">
+        <RequiredProperties>
+          <Property name="PointCloud" function="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Name of the timestamp field in the data array, which is used to determine the absolute reference time for relative point timestamps.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Relative point timestamp" value="1" />
+      </Hints>
+    </StringVectorProperty>
+
     <DoubleVectorProperty name="Time Offset"
                           command="SetTimeOffset"
                           number_of_elements="1"
@@ -227,6 +297,8 @@
       <Property name="Time Array" />
       <Property name="Auto Detect Time Unit Conversion" />
       <Property name="Conversion Factor To Second" />
+      <Property name="Relative point timestamp" />
+      <Property name="Reference timestamp name" />
       <Property name="Time Offset" />
       <Property name="Interpolation Type" />
     </PropertyGroup>

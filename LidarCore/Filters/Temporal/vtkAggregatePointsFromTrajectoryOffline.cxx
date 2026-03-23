@@ -119,8 +119,7 @@ void vtkAggregatePointsFromTrajectoryOffline::UpdateAutoComputeBoundsProgress(
 int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* request,
   vtkInformation* inInfo,
   vtkInformationVector* outputVector,
-  vtkPolyData* pointcloud,
-  vtkDataArray* timestamp)
+  Superclass::PointCloudMap& vecPointcloud)
 {
   int firstFrame = this->AllFrames ? 0 : this->FirstFrame;
   // The bounds are computed only once before the aggregation
@@ -135,7 +134,7 @@ int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* req
   }
 
   // Transform the points of the pointcloud with the trajectory and add them to the voxel grid
-  if (!this->TransformAndAddPoints(timestamp, pointcloud))
+  if (!this->TransformAndAddPoints(vecPointcloud))
   {
     vtkErrorMacro(<< "Aggregation failed.");
     return 0;
@@ -157,7 +156,17 @@ int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* req
 
     // Get the outputs from the voxel grid and the free points and merge them
     vtkNew<vtkAppendPolyData> appendFilter;
-    appendFilter->AddInputData(this->VoxelGrid->GetOutput());
+    if (this->IsVoxelGridFilterUsed)
+    {
+      if (this->MinFramesPerVoxel > 0)
+      {
+        appendFilter->AddInputData(this->VoxelGrid->GetFilteredOutput(this->MinFramesPerVoxel));
+      }
+      else
+      {
+        appendFilter->AddInputData(this->VoxelGrid->GetOutput());
+      }
+    }
     // The free points are added after the voxel grid
     appendFilter->AddInputData(this->MergePointsToPolyDataHelper->GetOutput());
     appendFilter->Update();

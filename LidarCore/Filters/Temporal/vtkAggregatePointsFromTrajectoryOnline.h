@@ -44,6 +44,8 @@ public:
   static vtkAggregatePointsFromTrajectoryOnline* New();
   vtkTypeMacro(vtkAggregatePointsFromTrajectoryOnline, vtkPolyDataAlgorithm)
 
+  using PointCloudMap = std::unordered_map<std::string, vtkSmartPointer<vtkPolyData>>;
+
   /**
    * @brief Clear the voxel gird
    */
@@ -84,11 +86,26 @@ public:
   vtkGetMacro(TimeOffset, double);
   vtkSetMacro(TimeOffset, double);
 
+  vtkGetMacro(RelativeTimestamp, bool);
+  vtkSetMacro(RelativeTimestamp, bool);
+
+  vtkGetMacro(ReferenceTimeName, std::string);
+  vtkSetMacro(ReferenceTimeName, std::string);
+
   vtkGetMacro(InterpolationType, int);
   vtkSetMacro(InterpolationType, int);
 
   vtkGetMacro(DisplayOutput, bool);
   vtkSetMacro(DisplayOutput, bool);
+
+  vtkGetMacro(MinFramesPerVoxel, int);
+  vtkSetMacro(MinFramesPerVoxel, int);
+
+  vtkGetMacro(MinDistance, double);
+  vtkSetMacro(MinDistance, double);
+
+  vtkGetMacro(MaxDistance, double);
+  vtkSetMacro(MaxDistance, double);
 
 protected:
   vtkAggregatePointsFromTrajectoryOnline();
@@ -114,7 +131,9 @@ protected:
    * of the input point cloud using the trajectory and calculating the global bounds of the
    * transformed bounds. This method is called sequentially once per frame before the aggregation.
    */
-  int AutoComputeVoxelBounds(vtkInformation*, vtkInformation*, vtkPolyData*, vtkDataArray*);
+  int AutoComputeVoxelBounds(vtkInformation* request,
+    vtkInformation* inInfo,
+    PointCloudMap& vecPointcloud);
 
   /**
    * @brief UpdateAutoComputeBoundsProgress Update the state of the autoComputeBounds process
@@ -125,17 +144,16 @@ protected:
    * @brief AggregatePoints Aggregate the points of the input point cloud using the voxel grid
    * filter.
    */
-  virtual int AggregatePoints(vtkInformation*,
-    vtkInformation*,
-    vtkInformationVector*,
-    vtkPolyData*,
-    vtkDataArray*);
+  virtual int AggregatePoints(vtkInformation* request,
+    vtkInformation* inInfo,
+    vtkInformationVector* outputVector,
+    PointCloudMap& vecPointcloud);
 
   /**
    * @brief TransformAndAddPoints Transform the points of the input point cloud using the trajectory
    * and add them to the voxel grid.
    */
-  virtual int TransformAndAddPoints(vtkDataArray*, vtkPolyData*);
+  virtual int TransformAndAddPoints(PointCloudMap& vecPointcloud);
 
   /**
    * @brief DetectTimeArray Checks AutoDetectTimeArray to get the correct Time array name
@@ -152,17 +170,22 @@ protected:
    * @brief  Init the polydata pointcloud with either a composite dataset input or a
    * or a polydata input
    */
-  vtkSmartPointer<vtkPolyData> InitPointCLoud(vtkInformation* inInfo);
+  bool InitPointCloud(vtkInformation* inInfo, PointCloudMap& vecPolydata);
 
   /**
    * @brief Compute the time unit conversion between the trajectory and the point cloud
    */
   double ComputeTimeUnitConversion(vtkDataArray*, vtkDataArray*);
 
+  /**
+   * @brief Get timestamp from field data of pointcloud polydata
+   */
+  double GetTimeFromFieldData(vtkPolyData* pointcloud);
+
   //! If true, the time array is automatically detected
   bool AutoDetectTimeArray = true;
   //! Name of the array containing the time to match the trajectory with the point cloud
-  //! Used only if AutoDetectTimmeArray is false
+  //! Used only if AutoDetectTimeArray is false
   std::string CustomTimeArrayName = "adjustedtime";
   //! If true, the time unit conversion is automatically detected
   bool AutoDetectTimeUnitConversion = true;
@@ -179,14 +202,27 @@ protected:
   //! The unit must be consistent with ConversionFactorToSecond
   double TimeOffset = 0;
 
+  //! Boolean to indicated whether the timestamp of a point is relative to the frame time
+  bool RelativeTimestamp = false;
+  //! Timestamps array name in field data used when RelativeTimestamp is true, differ from
+  //! CustomTimeArrayName
+  std::string ReferenceTimeName = "Timestamp";
+
   //! Boolean to store whether or not an offset is removed from trajectory
   bool IsOffsetRemoved = false;
   //! Offset of the input trajectory
   double OffsetOrigin[3] = { 0., 0., 0. };
 
+  //! Mininum and maximum distance to lidar
+  double MinDistance = -1.;
+  double MaxDistance = -1.;
+
   //! If true, the voxel grid filter is used to aggregate the points
   //! If false, the points are aggregated without filtering
   bool IsVoxelGridFilterUsed = true;
+
+  //! Minimum frames in a voxel to validate the point
+  int MinFramesPerVoxel = 0;
 
   //! Interpolator used to get the right transform
   vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
@@ -234,7 +270,8 @@ protected:
   //! Specify if the output should be displayed
   bool DisplayOutput = true;
 
-  std::vector<double> LastFrameTime;
+  //! Store the current frame time for multilidar setup
+  std::unordered_map<std::string, double> FrameTime;
 
 private:
   vtkAggregatePointsFromTrajectoryOnline(const vtkAggregatePointsFromTrajectoryOnline&);

@@ -77,6 +77,11 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
   {
     // Get the point id in the voxel grid if the voxel is already in the grid
     pointId = this->VoxelGrid[voxelId];
+    this->NumberOfPointsPerVoxel[pointId]++;
+  }
+  else
+  {
+    this->NumberOfPointsPerVoxel.push_back(1);
   }
 
   // Add the point to the voxel grid
@@ -155,7 +160,6 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
       if (!hasVoxel)
       {
         newPoint = true;
-        this->NumberOfPointsPerVoxel.push_back(1);
       }
       else
       {
@@ -171,10 +175,9 @@ bool vtkVoxelGridProcessor::AddPoint(vtkDataSet* points, vtkIdType id, const dou
         this->Output->GetPoints()->GetPoint(pointId, previousCoord);
         int nbPtsInVox = this->NumberOfPointsPerVoxel[pointId];
         // Update the centroid
-        pointCoord[0] = (previousCoord[0] * nbPtsInVox + pointCoord[0]) / (nbPtsInVox + 1);
-        pointCoord[1] = (previousCoord[1] * nbPtsInVox + pointCoord[1]) / (nbPtsInVox + 1);
-        pointCoord[2] = (previousCoord[2] * nbPtsInVox + pointCoord[2]) / (nbPtsInVox + 1);
-        this->NumberOfPointsPerVoxel[pointId]++;
+        pointCoord[0] = (previousCoord[0] * (nbPtsInVox - 1) + pointCoord[0]) / nbPtsInVox;
+        pointCoord[1] = (previousCoord[1] * (nbPtsInVox - 1) + pointCoord[1]) / nbPtsInVox;
+        pointCoord[2] = (previousCoord[2] * (nbPtsInVox - 1) + pointCoord[2]) / nbPtsInVox;
       }
       break;
     }
@@ -228,6 +231,40 @@ void vtkVoxelGridProcessor::AddPoints(vtkDataSet* points)
   {
     this->AddPoint(points, idx);
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyData> vtkVoxelGridProcessor::GetFilteredOutput(int minNumber)
+{
+  vtkNew<vtkPoints> filteredPoints;
+  vtkNew<vtkCellArray> filteredVerts;
+
+  vtkSmartPointer<vtkPolyData> filteredOutput = vtkSmartPointer<vtkPolyData>::New();
+  filteredOutput->SetPoints(filteredPoints);
+  filteredOutput->SetVerts(filteredVerts);
+
+  // Get point data of filteredOutput
+  vtkPointData* filteredPD = filteredOutput->GetPointData();
+  filteredPD->CopyAllocate(this->Output->GetPointData());
+
+  vtkIdType newId = 0;
+  for (unsigned int pointId = 0; pointId < this->NumberOfPointsPerVoxel.size(); pointId++)
+  {
+    if (this->NumberOfPointsPerVoxel[pointId] >= minNumber)
+    {
+      double p[3];
+      this->Output->GetPoints()->GetPoint(pointId, p);
+      filteredPoints->InsertNextPoint(p);
+
+      filteredVerts->InsertNextCell(1);
+      filteredVerts->InsertCellPoint(newId);
+
+      filteredPD->CopyData(this->Output->GetPointData(), pointId, newId);
+
+      newId++;
+    }
+  }
+  return filteredOutput;
 }
 
 //------------------------------------------------------------------------------
