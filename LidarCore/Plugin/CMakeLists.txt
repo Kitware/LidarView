@@ -61,15 +61,23 @@ lidarcoreplugin_add_module_xml(
     Filters/OpenCVImageMapper.xml
 )
 
+set(filters_general_xml_files
+  Filters/ClipPoints.xml
+  Filters/ClusterText.xml
+  Filters/RPMText.xml
+  Filters/SelectPointsByScalars.xml
+  Filters/NormalizeExternalSensorData.xml
+)
+
+if (ParaView_VERSION_PATCH LESS "20251022")
+  list(APPEND filters_general_xml_files Filters/ThresholdPoints.xml)
+else ()
+  list(APPEND filters_general_xml_files Filters/ThresholdPoints2.xml)
+endif ()
+
 lidarcoreplugin_add_module_xml(
   MODULE_TARGET LidarView::FiltersGeneral
-  XML_MODULE_FILES
-    Filters/ClipPoints.xml
-    Filters/ClusterText.xml
-    Filters/RPMText.xml
-    Filters/SelectPointsByScalars.xml
-    Filters/NormalizeExternalSensorData.xml
-    Filters/ThresholdPoints.xml
+  XML_MODULE_FILES ${filters_general_xml_files}
 )
 
 set(filters_processing_xml_files
