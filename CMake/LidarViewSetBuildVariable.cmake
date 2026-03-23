@@ -40,7 +40,3 @@ if (LIDARVIEW_USE_PYTHON)
   # Set LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX variable
   vtk_module_python_default_destination(LIDARVIEW_PYTHON_SITE_PACKAGES_SUFFIX)
 endif ()
-
-if (BUILD_TESTING)
-  include(CTest)
-endif ()
