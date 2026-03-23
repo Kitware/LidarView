@@ -16,12 +16,6 @@
   variables:
     CMAKE_CONFIGURATION: ubuntu22_debug
 
-.ubuntu22_debug_tidy:
-  extends: .ubuntu22_debug
-
-  variables:
-    CMAKE_CONFIGURATION: ubuntu22_debug_tidy
-
 .ubuntu24_pv_latest:
   extends: .linux
   image: "kitware/paraview-for-ci:latest"
