@@ -37,7 +37,8 @@
         <Documentation>The value of this property contains the name of the
         scalar array from which to perform thresholding.</Documentation>
       </StringVectorProperty>
-      <DoubleVectorProperty command="SetLowerThreshold"
+
+      <DoubleVectorProperty command="SetUpperThreshold"
                             default_values="0"
                             name="LowerThreshold"
                             number_of_elements="1">
@@ -50,42 +51,8 @@
                       name="SelectInputScalars" />
           </RequiredProperties>
         </ArrayRangeDomain>
-        <Hints>
-          <PropertyWidgetDecorator type="CompositeDecorator">
-            <Expression type="or">
-              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ThresholdMethod" value="0" />
-              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ThresholdMethod" value="1" />
-            </Expression>
-          </PropertyWidgetDecorator>
-        </Hints>
         <Documentation>
           The value of this property specifies the lower bound of the
-          thresholding operation.
-        </Documentation>
-      </DoubleVectorProperty>
-      <DoubleVectorProperty command="SetUpperThreshold"
-                            default_values="0"
-                            name="UpperThreshold"
-                            number_of_elements="1">
-        <ArrayRangeDomain name="range"
-                          default_mode="max">
-          <RequiredProperties>
-            <Property function="Input"
-                      name="Input" />
-            <Property function="ArraySelection"
-                      name="SelectInputScalars" />
-          </RequiredProperties>
-        </ArrayRangeDomain>
-        <Hints>
-          <PropertyWidgetDecorator type="CompositeDecorator">
-            <Expression type="or">
-              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ThresholdMethod" value="0" />
-              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="ThresholdMethod" value="2" />
-            </Expression>
-          </PropertyWidgetDecorator>
-        </Hints>
-        <Documentation>
-          The value of this property specifies the upper bound of the
           thresholding operation.
         </Documentation>
       </DoubleVectorProperty>
