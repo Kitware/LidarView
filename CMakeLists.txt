@@ -22,7 +22,7 @@ if (BUILD_TESTING)
   include(FetchTestData)
   lidarview_fetch_test_data(
     DATA_NAME "lidarview"
-    COMMIT_SHA "fb6e144063d85f840deb6c24beed7b0aae0c7337"
+    COMMIT_SHA "25d7882a6527aa52bd4b1b933e1afd982dcc7268"
   )
   set(lidarview_test_data_directory_input "${FETCH_TEST_DATA_DIR}")
   set(lidarview_test_data_directory_output "${lidarview_test_data_directory_input}")

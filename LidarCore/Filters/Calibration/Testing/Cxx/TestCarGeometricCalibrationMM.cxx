@@ -6,6 +6,8 @@
 #include "vtkTemporalTransforms.h"
 #include "vtkTemporalTransformsReader.h"
 
+#include <iostream>
+
 int TestCarGeometricCalibrationMM(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;

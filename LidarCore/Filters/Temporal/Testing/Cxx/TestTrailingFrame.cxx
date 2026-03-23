@@ -39,11 +39,8 @@ double get_points_values(vtkPolyData* p)
   // return the value associated to the first points contained in the array "Point Value"
   if (!p)
     return -1.0;
-  else
-  {
-    auto array = vtkDoubleArray::SafeDownCast(p->GetPointData()->GetArray("Point Value"));
-    return array->GetValue(0);
-  }
+  auto array = vtkDoubleArray::SafeDownCast(p->GetPointData()->GetArray("Point Value"));
+  return array->GetValue(0);
 }
 
 bool check_multi_block_frames(vtkMultiBlockDataSet* multiblock, std::vector<double> const& times)
@@ -66,12 +63,9 @@ bool check_multi_block_frames(vtkMultiBlockDataSet* multiblock, std::vector<doub
     {
       if (times[i] == -1.0)
         continue;
-      else
-      {
-        std::cerr << "Trailing frame test failed: \n";
-        std::cerr << "Invalid frame at index " << i << "\n";
-        return false;
-      }
+      std::cerr << "Trailing frame test failed: \n";
+      std::cerr << "Invalid frame at index " << i << "\n";
+      return false;
     }
     double multi_block_value =
       get_points_values(vtkPolyData::SafeDownCast(multiblock->GetBlock(i)));
@@ -104,6 +98,8 @@ bool check_trailing_frames(vtkTrailingFrame* tf,
     sub_time_steps[i] = time_steps[time_index - i];
   }
   // check the constructed multiblock
+  std::cout << "check_trailing_frames for " << tf->GetNumberOfTrailingFrames()
+            << " trailing frame at " << time_index << " time index" << std::endl;
   return check_multi_block_frames(tf_out, sub_time_steps);
 }
 
@@ -152,6 +148,8 @@ int TestTrailingFrame(int, char*[])
 
   // check
   res = res && check_trailing_frames(tf, outInfo, time_steps, 5);
+  // go back to 0 and check
+  res = res && check_trailing_frames(tf, outInfo, time_steps, 0);
   // go back to 3 and check
   res = res && check_trailing_frames(tf, outInfo, time_steps, 3);
   // go back to 0 and check

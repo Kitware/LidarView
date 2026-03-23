@@ -8,6 +8,8 @@
 
 #include "vtkTimeCalibration.h" // TODO: remove
 
+#include <iostream>
+
 int TestGeometricCalibrationLaDoua(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;

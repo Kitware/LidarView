@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   LidarView
+  Module:    vtkBoundingBoxReader.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #ifndef VTKBOUNDINGBOXREADER_H
 #define VTKBOUNDINGBOXREADER_H
 
@@ -8,7 +23,8 @@
 #include "lvIOYamlModule.h"
 
 /**
- * @brief The vtkBoundingBoxReader create Bounding boxes from a specific yaml format. Right now only 2D bounding boxes are supported.
+ * @brief The vtkBoundingBoxReader create Bounding boxes from a specific yaml format. Right now only
+ * 2D bounding boxes are supported.
  */
 class LVIOYAML_EXPORT vtkBoundingBoxReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -16,14 +32,14 @@ public:
   static vtkBoundingBoxReader* New();
   vtkTypeMacro(vtkBoundingBoxReader, vtkMultiBlockDataSetAlgorithm)
 
-  vtkSetMacro(FileName, std::string)
+  vtkSetMacro(FileName, std::string);
 
-  vtkSetMacro(ImageHeight, int)
+  vtkSetMacro(ImageHeight, int);
 
 protected:
   vtkBoundingBoxReader();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //! yaml annotation file containnig bounding box informations
   std::string FileName = "";
@@ -32,7 +48,7 @@ protected:
 
 private:
   vtkBoundingBoxReader(const vtkBoundingBoxReader&) = delete;
-  void operator =(const vtkBoundingBoxReader&) = delete;
+  void operator=(const vtkBoundingBoxReader&) = delete;
 };
 
 #endif // VTKBOUNDINGBOXREADER_H
