@@ -353,6 +353,7 @@ void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtk
   {
     this->AreBoundsComputed = true;
     this->CurrentFrame = 0;
+    this->FrameTime.clear();
     return;
   }
 
