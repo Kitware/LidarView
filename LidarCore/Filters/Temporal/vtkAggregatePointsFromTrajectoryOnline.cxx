@@ -442,15 +442,22 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
 
     // Check timestamps of the first and the last points
     std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
+    bool timeInRange = true;
     for (const auto& idx : pointIdx)
     {
       double currentTimestamp =
         timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset + frameTime;
-      if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+      if (!this->Interpolator->IsTimeInRange(currentTimestamp, this->InterpolationTimeTolerance))
       {
-        vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
-          << "interpolation might be invalid.");
+        vtkWarningMacro(<< "Device " << deviceId
+                        << ": frame time is outside the trajectory's time range. Skipping frame");
+        timeInRange = false;
       }
+    }
+    // Skip frame if timestamps are outside the trajectory's time range
+    if (!timeInRange)
+    {
+      continue;
     }
 
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)
