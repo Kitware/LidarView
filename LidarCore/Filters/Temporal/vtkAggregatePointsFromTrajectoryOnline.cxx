@@ -109,28 +109,41 @@ bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inIn
     return false;
 
   int inputId = 0;
+  bool anyValidFrame = false;
   // Get input iterator
   vtkCompositeDataIterator* it = cds->NewIterator();
   it->InitTraversal();
   it->GoToFirstItem();
   while (!it->IsDoneWithTraversal())
   {
-    vtkPolyData* current = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
-    if (!current)
-    {
-      vtkErrorMacro("CompositeDataSet isn't exclusively composed of polydata");
-      return false;
-    }
     // Get device id
     vtkInformation* info = it->GetCurrentMetaData();
     std::string deviceId = (info && info->Has(vtkCompositeDataSet::NAME()))
       ? info->Get(vtkCompositeDataSet::NAME())
       : std::string("Lidar") + std::to_string(inputId);
+
+    vtkPolyData* current = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
+    if (!current)
+    {
+      vtkWarningMacro("No input data for LiDAR sensor: " << deviceId);
+      it->GoToNextItem();
+      ++inputId;
+      continue;
+    }
+    if (current->GetNumberOfPoints() == 0)
+    {
+      vtkWarningMacro("No points received for LiDAR sensor: " << deviceId);
+      it->GoToNextItem();
+      ++inputId;
+      continue;
+    }
     auto timestamp = current->GetPointData()->GetArray(this->GetTimeArrayName(current).c_str());
     if (!timestamp)
     {
-      vtkErrorMacro("No timestamps array found for LiDAR sensor: " << deviceId);
-      return false;
+      vtkWarningMacro("No timestamps array found for LiDAR sensor: " << deviceId);
+      it->GoToNextItem();
+      ++inputId;
+      continue;
     }
     // Get current frame time
     double currentFrameTime = timestamp->GetRange()[1];
@@ -145,12 +158,16 @@ bool vtkAggregatePointsFromTrajectoryOnline::InitPointCloud(vtkInformation* inIn
       vecPolydata[deviceId] = current;
     }
     this->FrameTime[deviceId] = currentFrameTime;
-
+    anyValidFrame = true;
     it->GoToNextItem();
     ++inputId;
   }
   it->Delete();
 
+  if (!anyValidFrame)
+  {
+    return false;
+  }
   return true;
 }
 
@@ -163,13 +180,17 @@ int vtkAggregatePointsFromTrajectoryOnline::RequestData(vtkInformation* request,
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   // Get the input pointcloud and trajectory
-  PointCloudMap vecPointcloud;
-  bool isInitialized = this->InitPointCloud(inputVector[0]->GetInformationObject(0), vecPointcloud);
   vtkPolyData* trajectory = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
-  if (!isInitialized || !trajectory)
+  if (!trajectory)
   {
-    vtkErrorMacro("No input data");
+    vtkErrorMacro("No trajectory input");
     return 0;
+  }
+  PointCloudMap vecPointcloud;
+  if (!this->InitPointCloud(inInfo, vecPointcloud))
+  {
+    vtkWarningMacro("No pointcloud received: skipping frame");
+    return 1;
   }
 
   // Initialize the data if necessary (first iteration)
@@ -353,6 +374,7 @@ void vtkAggregatePointsFromTrajectoryOnline::UpdateAutoComputeBoundsProgress(vtk
   {
     this->AreBoundsComputed = true;
     this->CurrentFrame = 0;
+    this->FrameTime.clear();
     return;
   }
 
@@ -420,15 +442,22 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
 
     // Check timestamps of the first and the last points
     std::array<vtkIdType, 2> pointIdx = { 0, pointcloud->GetNumberOfPoints() - 1 };
+    bool timeInRange = true;
     for (const auto& idx : pointIdx)
     {
       double currentTimestamp =
         timestamp->GetTuple1(idx) * this->ConversionFactorToSecond + this->TimeOffset + frameTime;
-      if (!this->Interpolator->IsTimeInRange(currentTimestamp))
+      if (!this->Interpolator->IsTimeInRange(currentTimestamp, this->InterpolationTimeTolerance))
       {
-        vtkWarningMacro("The trajectory does not have a valid time for the current timestamp, "
-          << "interpolation might be invalid.");
+        vtkWarningMacro(<< "Device " << deviceId
+                        << ": frame time is outside the trajectory's time range. Skipping frame");
+        timeInRange = false;
       }
+    }
+    // Skip frame if timestamps are outside the trajectory's time range
+    if (!timeInRange)
+    {
+      continue;
     }
 
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)

@@ -95,6 +95,9 @@ public:
   vtkGetMacro(InterpolationType, int);
   vtkSetMacro(InterpolationType, int);
 
+  vtkGetMacro(InterpolationTimeTolerance, double);
+  vtkSetMacro(InterpolationTimeTolerance, double);
+
   vtkGetMacro(DisplayOutput, bool);
   vtkSetMacro(DisplayOutput, bool);
 
@@ -228,6 +231,8 @@ protected:
   vtkSmartPointer<vtkCustomTransformInterpolator> Interpolator;
   //! Interpolation type used to interpolate the transform between two frames
   int InterpolationType = vtkCustomTransformInterpolator::INTERPOLATION_TYPE_LINEAR;
+  //! Time tolerance in seconds for considering a frame within the trajectory's valid range
+  double InterpolationTimeTolerance = 0.5;
 
   //! Current frame to be processed
   int CurrentFrame = 0;

@@ -292,6 +292,16 @@
       </Documentation>
     </IntVectorProperty>
 
+    <DoubleVectorProperty name="InterpolationTimeTolerance"
+                          command="SetInterpolationTimeTolerance"
+                          number_of_elements="1"
+                          default_values="0.5"
+                          panel_visibility="advanced">
+      <Documentation>
+        Time tolerance in seconds for considering a frame within the trajectory's valid range
+      </Documentation>
+    </DoubleVectorProperty>
+
     <PropertyGroup label="Time and interpolation parameters">
       <Property name="Auto Detect Time Array" />
       <Property name="Time Array" />
@@ -301,6 +311,7 @@
       <Property name="Reference timestamp name" />
       <Property name="Time Offset" />
       <Property name="Interpolation Type" />
+      <Property name="InterpolationTimeTolerance" />
     </PropertyGroup>
    </SourceProxy>
   </ProxyGroup>
