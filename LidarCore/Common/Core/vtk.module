@@ -11,7 +11,9 @@ DEPENDS
   VTK::CommonMath
 PRIVATE_DEPENDS
   Boost::system
+  VTK::FiltersGeneral
   VTK::FiltersStatistics
+  VTK::FiltersSources
   VTK::RenderingCore      # For vtkCustomTransformInterpolator
 TEST_DEPENDS
   LidarView::TestingCore

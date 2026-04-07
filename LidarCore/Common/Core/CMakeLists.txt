@@ -1,11 +1,15 @@
 set(sources
   CameraProjection.cxx
+  vtkLVBBoxDetection.cxx
+  HungarianAlgorithm.cxx
   LVTime.cxx
   vtkTimeCalibration.cxx # Could not be Python wrapped
   )
 
 set(headers
   # BoundingBox.h
+  vtkLVBBoxDetection.h
+  HungarianAlgorithm.h
   CameraProjection.h
   eigenFFTCorrelation.h
   interpolator1D.h
