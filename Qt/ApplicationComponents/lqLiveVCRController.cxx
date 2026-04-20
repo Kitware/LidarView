@@ -33,19 +33,18 @@
 
 #include <vtkCompositeAnimationPlayer.h>
 #include <vtkPVDataInformation.h>
+#include <vtkPVXMLElement.h>
 #include <vtkSMIntVectorProperty.h>
 #include <vtkSMProperty.h>
 #include <vtkSMPropertyHelper.h>
 #include <vtkSMProxy.h>
 #include <vtkSMSourceProxy.h>
 
-#include "vtkSMLidarReaderProxy.h"
-#include "vtkSMLidarStreamProxy.h"
-
 #include <QList>
 
 namespace
 {
+//-----------------------------------------------------------------------------
 void UpdateEmulatedCurrentTime(double timestamp)
 {
   pqLiveSourceManager* lsm = pqPVApplicationCore::instance()->liveSourceManager();
@@ -67,6 +66,26 @@ void UpdateEmulatedCurrentTime(double timestamp)
       }
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+bool IsNonEmulatedLiveSource(pqPipelineSource* src)
+{
+  vtkPVXMLElement* hints = src->getHints();
+  if (hints)
+  {
+    vtkPVXMLElement* liveSourceHints = hints->FindNestedElementByName("LiveSource");
+    if (liveSourceHints)
+    {
+      int emulatedTime = 0;
+      if (liveSourceHints->GetScalarAttribute("emulated_time", &emulatedTime))
+      {
+        return !emulatedTime;
+      }
+      return true;
+    }
+  }
+  return false;
 }
 }
 
@@ -407,8 +426,7 @@ double lqLiveVCRController::getSceneTime()
 //-----------------------------------------------------------------------------
 void lqLiveVCRController::onSourceAdded(pqPipelineSource* src)
 {
-  bool isStreamLidarProxy = vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()) != nullptr;
-  if (!this->IsStream && isStreamLidarProxy)
+  if (!this->IsStream && ::IsNonEmulatedLiveSource(src))
   {
     this->IsStream = true;
     Q_EMIT this->modeChanged(this->getCurrentMode());
@@ -419,15 +437,14 @@ void lqLiveVCRController::onSourceAdded(pqPipelineSource* src)
 void lqLiveVCRController::onSourceRemoved(pqPipelineSource* src)
 {
   // Check if the proxy removed was a stream
-  bool isStreamLidarProxy = vtkSMLidarStreamProxy::SafeDownCast(src->getProxy()) != nullptr;
-  if (this->IsStream && isStreamLidarProxy)
+  if (this->IsStream && ::IsNonEmulatedLiveSource(src))
   {
     // Check if another stream exist in the pipeline.
     bool hasStream = false;
     pqServerManagerModel* smmodel = pqApplicationCore::instance()->getServerManagerModel();
     Q_FOREACH (pqPipelineSource* item, smmodel->findItems<pqPipelineSource*>())
     {
-      if (vtkSMLidarStreamProxy::SafeDownCast(item->getProxy()) != nullptr)
+      if (::IsNonEmulatedLiveSource(item))
       {
         hasStream = true;
         break;
