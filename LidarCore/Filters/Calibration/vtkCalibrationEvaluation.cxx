@@ -328,25 +328,17 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
                 baseOri[2] + vDyaw,
                 basePos[0] + vDx,
                 basePos[1] + vDy,
-                basePos[2] + vDz };
+                basePos[2] + vDz};
 
-              // Build delta around upstream center
-              vtkNew<vtkTransform> deltaTransform;
-              deltaTransform->PreMultiply();
-              deltaTransform->Translate(vDx, vDy, vDz);
-              deltaTransform->RotateZ(vDyaw);
-              deltaTransform->RotateX(vDr);
-              deltaTransform->RotateY(vDp);
-
-              // Unified application: M = T0 · Δ · (T_in)^-1
-              vtkNew<vtkTransform> composedTransform;
-              composedTransform->PreMultiply();
-              composedTransform->Concatenate(centerT->GetMatrix());
-              composedTransform->Concatenate(deltaTransform->GetMatrix());
-              composedTransform->Concatenate(inputInv->GetMatrix());
+              vtkNew<vtkTransform> sumTransform;
+              sumTransform->PreMultiply();
+              sumTransform->Translate(cand[3], cand[4], cand[5]);
+              sumTransform->RotateZ(cand[2]);
+              sumTransform->RotateX(cand[0]);
+              sumTransform->RotateY(cand[1]);
 
               vtkNew<vtkTransformPolyDataFilter> tf;
-              tf->SetTransform(composedTransform);
+              tf->SetTransform(sumTransform);
               tf->SetInputConnection(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
 
               // Wire inputs and Clear previous state
