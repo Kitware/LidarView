@@ -20,6 +20,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 #include "vtkLASWriter.h"
 
 int TestLASWriter(int argc, char* argv[])
