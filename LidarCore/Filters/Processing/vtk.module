@@ -14,7 +14,5 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::libproj
-OPTIONAL_DEPENDS
-  VTK::ImagingMorphological
 TEST_DEPENDS
   LidarView::TestingCore

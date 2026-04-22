@@ -36,6 +36,13 @@ vtk_module_add_module(LidarView::FiltersProcessing
   PRIVATE_HEADERS ${private_headers}
   SOURCES ${sources})
 
+if (TARGET VTK::ImagingMorphological)
+  vtk_module_link(LidarView::FiltersProcessing
+    PRIVATE
+      VTK::ImagingMorphological
+  )
+endif ()
+
 if (LIDARVIEW_USE_NANOFLANN)
   vtk_module_link(LidarView::FiltersProcessing
     PRIVATE
