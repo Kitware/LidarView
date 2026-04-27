@@ -275,6 +275,20 @@ public:
 
   ///@{
   /**
+   * Transform setters/getters (specific transforms override SensorTransform)
+   */
+  vtkGetObjectMacro(SensorTransform, vtkTransform);
+  virtual void SetSensorTransform(vtkTransform*);
+  vtkGetObjectMacro(IMUTransform, vtkTransform);
+  virtual void SetIMUTransform(vtkTransform*);
+  vtkGetObjectMacro(OdometryTransform, vtkTransform);
+  virtual void SetOdometryTransform(vtkTransform*);
+  vtkGetObjectMacro(PoseTransform, vtkTransform);
+  virtual void SetPoseTransform(vtkTransform*);
+  ///@}
+
+  ///@{
+  /**
    * Helper functions that append to an existing table external sensor data
    */
   static void AppendIMUDataToTable(vtkTable* out,
@@ -382,22 +396,6 @@ private:
   vtkTransform* IMUTransform = nullptr;
   vtkTransform* OdometryTransform = nullptr;
   vtkTransform* PoseTransform = nullptr;
-
-public:
-  /**
-   * Transform setters/getters (specific transforms override SensorTransform)
-   */
-  vtkGetObjectMacro(SensorTransform, vtkTransform);
-  virtual void SetSensorTransform(vtkTransform*);
-
-  vtkGetObjectMacro(IMUTransform, vtkTransform);
-  virtual void SetIMUTransform(vtkTransform*);
-
-  vtkGetObjectMacro(OdometryTransform, vtkTransform);
-  virtual void SetOdometryTransform(vtkTransform*);
-
-  vtkGetObjectMacro(PoseTransform, vtkTransform);
-  virtual void SetPoseTransform(vtkTransform*);
 };
 
 #endif // vtkNormalizeExternalSensorData_h
