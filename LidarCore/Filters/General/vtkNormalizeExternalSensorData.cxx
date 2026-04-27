@@ -319,6 +319,20 @@ int vtkNormalizeExternalSensorData::RequestData(vtkInformation* vtkNotUsed(reque
     ::CopyColumnWithScaleIfExists(output, inTable, px, GNSS_POS_X_ARRAY_NAME(), posScale);
     ::CopyColumnWithScaleIfExists(output, inTable, py, GNSS_POS_Y_ARRAY_NAME(), posScale);
     ::CopyColumnWithScaleIfExists(output, inTable, pz, GNSS_POS_Z_ARRAY_NAME(), posScale);
+
+    if (this->UseConfidenceError)
+    {
+      std::string pxError =
+        ::GetColumnNameIfExists(inTable, this->GNSSXErrorColumn, GNSS_POS_X_ERROR_ARRAY_NAME());
+      std::string pyError =
+        ::GetColumnNameIfExists(inTable, this->GNSSYErrorColumn, GNSS_POS_Y_ERROR_ARRAY_NAME());
+      std::string pzError =
+        ::GetColumnNameIfExists(inTable, this->GNSSZErrorColumn, GNSS_POS_Z_ERROR_ARRAY_NAME());
+
+      ::CopyColumnWithScaleIfExists(output, inTable, pxError, GNSS_POS_X_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, pyError, GNSS_POS_Y_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, pzError, GNSS_POS_Z_ERROR_ARRAY_NAME(), 1);
+    }
   }
 
   if (this->UseINS)
@@ -347,6 +361,31 @@ int vtkNormalizeExternalSensorData::RequestData(vtkInformation* vtkNotUsed(reque
     ::CopyColumnWithScaleIfExists(output, inTable, rx, INS_ANGLE_RX_ARRAY_NAME(), angScale);
     ::CopyColumnWithScaleIfExists(output, inTable, ry, INS_ANGLE_RY_ARRAY_NAME(), angScale);
     ::CopyColumnWithScaleIfExists(output, inTable, rz, INS_ANGLE_RZ_ARRAY_NAME(), angScale);
+
+    if (this->UseConfidenceError)
+    {
+      std::string pxError =
+        ::GetColumnNameIfExists(inTable, this->GNSSXErrorColumn, GNSS_POS_X_ERROR_ARRAY_NAME());
+      std::string pyError =
+        ::GetColumnNameIfExists(inTable, this->GNSSYErrorColumn, GNSS_POS_Y_ERROR_ARRAY_NAME());
+      std::string pzError =
+        ::GetColumnNameIfExists(inTable, this->GNSSZErrorColumn, GNSS_POS_Z_ERROR_ARRAY_NAME());
+
+      ::CopyColumnWithScaleIfExists(output, inTable, pxError, GNSS_POS_X_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, pyError, GNSS_POS_Y_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, pzError, GNSS_POS_Z_ERROR_ARRAY_NAME(), 1);
+
+      std::string rxError =
+        ::GetColumnNameIfExists(inTable, this->RollErrorColumn, INS_ANGLE_RX_ERROR_ARRAY_NAME());
+      std::string ryError =
+        ::GetColumnNameIfExists(inTable, this->PitchErrorColumn, INS_ANGLE_RY_ERROR_ARRAY_NAME());
+      std::string rzError =
+        ::GetColumnNameIfExists(inTable, this->YawErrorColumn, INS_ANGLE_RZ_ERROR_ARRAY_NAME());
+
+      ::CopyColumnWithScaleIfExists(output, inTable, rxError, INS_ANGLE_RX_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, ryError, INS_ANGLE_RY_ERROR_ARRAY_NAME(), 1);
+      ::CopyColumnWithScaleIfExists(output, inTable, rzError, INS_ANGLE_RZ_ERROR_ARRAY_NAME(), 1);
+    }
   }
 
   if (this->UseOdometry)

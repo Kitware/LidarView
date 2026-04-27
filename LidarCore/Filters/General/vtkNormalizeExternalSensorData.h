@@ -67,6 +67,15 @@ public:
 
   ///@{
   /**
+   * Enable or disable INS/GNSS confidence errors columns.
+   */
+  vtkSetMacro(UseConfidenceError, bool);
+  vtkGetMacro(UseConfidenceError, bool);
+  vtkBooleanMacro(UseConfidenceError, bool);
+  ///@}
+
+  ///@{
+  /**
    * Enable or disable Odometry processing. When disabled, odometry column ignored.
    */
   vtkSetMacro(UseOdometry, bool);
@@ -249,6 +258,54 @@ public:
 
   ///@{
   /**
+   * GNSS X position error column name.
+   */
+  vtkSetMacro(GNSSXErrorColumn, std::string);
+  vtkGetMacro(GNSSXErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * GNSS Y position error column name.
+   */
+  vtkSetMacro(GNSSYErrorColumn, std::string);
+  vtkGetMacro(GNSSYErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * GNSS Z position error column name.
+   */
+  vtkSetMacro(GNSSZErrorColumn, std::string);
+  vtkGetMacro(GNSSZErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Roll (Rx) error column name.
+   */
+  vtkSetMacro(RollErrorColumn, std::string);
+  vtkGetMacro(RollErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Pitch (Ry) error column name.
+   */
+  vtkSetMacro(PitchErrorColumn, std::string);
+  vtkGetMacro(PitchErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
+   * Yaw (Rz) error column name.
+   */
+  vtkSetMacro(YawErrorColumn, std::string);
+  vtkGetMacro(YawErrorColumn, std::string);
+  ///@}
+
+  ///@{
+  /**
    * Odometry column name (maps to odom).
    */
   vtkSetMacro(OdometryColumn, std::string);
@@ -333,6 +390,12 @@ public:
   static const char* INS_ANGLE_RX_ARRAY_NAME() { return "Rx(Roll)"; }
   static const char* INS_ANGLE_RY_ARRAY_NAME() { return "Ry(Pitch)"; }
   static const char* INS_ANGLE_RZ_ARRAY_NAME() { return "Rz(Yaw)"; }
+  static const char* GNSS_POS_X_ERROR_ARRAY_NAME() { return "errX"; }
+  static const char* GNSS_POS_Y_ERROR_ARRAY_NAME() { return "errY"; }
+  static const char* GNSS_POS_Z_ERROR_ARRAY_NAME() { return "errZ"; }
+  static const char* INS_ANGLE_RX_ERROR_ARRAY_NAME() { return "errRoll"; }
+  static const char* INS_ANGLE_RY_ERROR_ARRAY_NAME() { return "errPitch"; }
+  static const char* INS_ANGLE_RZ_ERROR_ARRAY_NAME() { return "errYaw"; }
   static const char* ODOMETRY_DISTANCE_ARRAY_NAME() { return "odom"; }
   static const char* TIME_ARRAY_NAME() { return "Time"; }
   static const char* CALIBRATION_IMU_NAME() { return "Calibration_IMU"; }
@@ -360,6 +423,7 @@ private:
   bool UseGNSS = true;
   bool UseINS = false;
   bool UseOdometry = false;
+  bool UseConfidenceError = false;
 
   int IMUAccelerationUnits = 1;
   int IMUGyroUnits = 1;
@@ -379,9 +443,17 @@ private:
   std::string GNSSYColumn;
   std::string GNSSZColumn;
 
+  std::string GNSSXErrorColumn;
+  std::string GNSSYErrorColumn;
+  std::string GNSSZErrorColumn;
+
   std::string RollColumn;
   std::string PitchColumn;
   std::string YawColumn;
+
+  std::string RollErrorColumn;
+  std::string YawErrorColumn;
+  std::string PitchErrorColumn;
 
   std::string OdometryColumn;
 
