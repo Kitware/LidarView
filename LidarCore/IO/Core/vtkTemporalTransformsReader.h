@@ -37,22 +37,14 @@
  * - Number of elements >= 7
  * - Header example = "Time,Rx(Roll),Ry(Pitch),Rz(Yaw),X,Y,Z"
  * - Time  : expressed in seconds
- * - Rx(Roll)  : rotation around X axis, in degrees
- * - Ry(Pitch) : rotation around Y axis, in degrees
- * - Rz(Yaw)   : rotation around Z axis, in degrees
+ * - Rx(Roll)  : rotation around X axis, in radians or degrees
+ * - Ry(Pitch) : rotation around Y axis, in radians or degrees
+ * - Rz(Yaw)   : rotation around Z axis, in radians or degrees
  * - The rotation matrix can be recomposed this way: R = Rz(yaw)*Ry(pitch)*Rx(roll)
  *
  * Optional columns: Longitude(d), Latitude(d), Altitude(m)
  *   If arrays named "Longitude", "Latitude", "Altitude" are present,
  *   they are copied into the output as point-data arrays.
- *
- * Remark: if you get from LidarView UI the error:
- * "vtkSIProxyDefinitionManager: No proxy that matches: group= and proxy= were found."
- * when you tried to open a file with a ".csv" extension and was asked to chose
- * between standard "Delimited Text" and "pose trajectory" then it means you
- * did not click on "pose trajectory".
- * This is a bug solved in recent ParaViews.
- * see: https://gitlab.kitware.com/paraview/paraview/issues/17594
  */
 class LVIOCORE_EXPORT vtkTemporalTransformsReader : public vtkPolyDataAlgorithm
 {
