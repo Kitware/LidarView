@@ -94,23 +94,44 @@ ubuntu24-release-pv-latest:test:
 
 # Windows
 
-windows-vs2022:build:
+windows-vs2022-pv6.0:build:
   extends:
-    - .windows_vs2022
+    - .windows_vs2022_pv6.0
     - .cmake_build_windows
     - .windows_builder_tags
     - .cmake_build_artifacts
     - .run_manually
   needs: []
 
-windows-vs2022:test:
+windows-vs2022-pv6.0:test:
   extends:
-    - .windows_vs2022
+    - .windows_vs2022_pv6.0
     - .cmake_test_windows
     - .windows_test_tags
     - .cmake_test_artifacts
     - .run_automatically
   dependencies:
-    - windows-vs2022:build
+    - windows-vs2022-pv6.0:build
   needs:
-    - windows-vs2022:build
+    - windows-vs2022-pv6.0:build
+
+windows-vs2022-pv6.1:build:
+  extends:
+    - .windows_vs2022_pv6.1
+    - .cmake_build_windows
+    - .windows_builder_tags
+    - .cmake_build_artifacts
+    - .run_manually
+  needs: []
+
+windows-vs2022-pv6.1:test:
+  extends:
+    - .windows_vs2022_pv6.1
+    - .cmake_test_windows
+    - .windows_test_tags
+    - .cmake_test_artifacts
+    - .run_automatically
+  dependencies:
+    - windows-vs2022-pv6.1:build
+  needs:
+    - windows-vs2022-pv6.1:build
