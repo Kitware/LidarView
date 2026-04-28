@@ -420,8 +420,8 @@ private:
   vtkNormalizeExternalSensorData(const vtkNormalizeExternalSensorData&) = delete;
   void operator=(const vtkNormalizeExternalSensorData&) = delete;
 
-  bool UseIMU = true;
-  bool UseGNSS = true;
+  bool UseIMU = false;
+  bool UseGNSS = false;
   bool UseINS = false;
   bool UseOdometry = false;
   bool UseConfidenceError = false;
