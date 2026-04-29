@@ -121,6 +121,20 @@ public:
   vtkGetVector3Macro(UpstreamRotationDeg, double);
   ///@}
 
+  ///@{
+  /**
+   * Output of CalibrationEvaluation array name
+   */
+  static const char* ROLL_ARRAY_NAME() { return "roll_deg"; }
+  static const char* PITCH_ARRAY_NAME() { return "pitch_deg"; }
+  static const char* YAW_ARRAY_NAME() { return "yaw_deg"; }
+  static const char* TRANSLATION_X_ARRAY_NAME() { return "tx_m"; }
+  static const char* TRANSLATION_Y_ARRAY_NAME() { return "ty_m"; }
+  static const char* TRANSLATION_Z_ARRAY_NAME() { return "tz_m"; }
+  static const char* VOXEL_NB_ARRAY_NAME() { return "voxels_nb"; }
+  static const char* VOXEL_RANK_ARRAY_NAME() { return "voxels_rank"; }
+  ///@}
+
 protected:
   vtkCalibrationEvaluation();
   ~vtkCalibrationEvaluation() override = default;

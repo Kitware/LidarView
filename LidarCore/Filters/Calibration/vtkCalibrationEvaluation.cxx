@@ -236,21 +236,21 @@ int vtkCalibrationEvaluation::RequestData(vtkInformation* vtkNotUsed(request),
       << ", " << baseOri[1] << ", " << baseOri[2] << ")"
       << (this->UseUpstreamCalibration && this->UpstreamFound ? " [upstream]" : " [user base]"));
   vtkSmartPointer<vtkDoubleArray> colRoll = vtkSmartPointer<vtkDoubleArray>::New();
-  colRoll->SetName("roll_deg");
+  colRoll->SetName(vtkCalibrationEvaluation::ROLL_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colPitch = vtkSmartPointer<vtkDoubleArray>::New();
-  colPitch->SetName("pitch_deg");
+  colPitch->SetName(vtkCalibrationEvaluation::PITCH_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colYaw = vtkSmartPointer<vtkDoubleArray>::New();
-  colYaw->SetName("yaw_deg");
+  colYaw->SetName(vtkCalibrationEvaluation::YAW_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colTx = vtkSmartPointer<vtkDoubleArray>::New();
-  colTx->SetName("tx_m");
+  colTx->SetName(vtkCalibrationEvaluation::TRANSLATION_X_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colTy = vtkSmartPointer<vtkDoubleArray>::New();
-  colTy->SetName("ty_m");
+  colTy->SetName(vtkCalibrationEvaluation::TRANSLATION_Y_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colTz = vtkSmartPointer<vtkDoubleArray>::New();
-  colTz->SetName("tz_m");
+  colTz->SetName(vtkCalibrationEvaluation::TRANSLATION_Z_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colVox = vtkSmartPointer<vtkDoubleArray>::New();
-  colVox->SetName("voxels");
+  colVox->SetName(vtkCalibrationEvaluation::VOXEL_NB_ARRAY_NAME());
   vtkSmartPointer<vtkDoubleArray> colRank = vtkSmartPointer<vtkDoubleArray>::New();
-  colRank->SetName("voxels_rank");
+  colRank->SetName(vtkCalibrationEvaluation::VOXEL_RANK_ARRAY_NAME());
 
   vtkSmartPointer<vtkTransform> inputT =
     FindUpstreamSensorTransform(this->GetInputConnection(LIDAR_INPUT_PORT, 0));
