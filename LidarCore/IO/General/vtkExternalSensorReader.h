@@ -47,7 +47,7 @@ public:
   /**
    * Attach the normalization filter that post-processes the raw table output.
    */
-  virtual void SetNormalizer(vtkNormalizeExternalSensorData*);
+  void SetNormalizer(vtkNormalizeExternalSensorData*);
 
 protected:
   vtkExternalSensorReader();
@@ -65,6 +65,8 @@ private:
   std::string FileName;
 
   vtkNormalizeExternalSensorData* Normalizer = nullptr;
+  unsigned long NormalizerObserverId = 0;
+
   std::vector<std::string> HeaderColumns;
   vtkSmartPointer<vtkStringArray> HeaderColumnsCacheArray;
 

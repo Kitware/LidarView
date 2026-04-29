@@ -4,6 +4,7 @@
 #include "vtkExternalSensorReader.h"
 #include "vtkNormalizeExternalSensorData.h"
 
+#include <vtkCommand.h>
 #include <vtkDelimitedTextReader.h>
 #include <vtkFieldData.h>
 #include <vtkInformation.h>
@@ -17,12 +18,10 @@
 
 #include <algorithm>
 #include <cctype>
-#include <fstream>
 #include <string>
 #include <vector>
 
 vtkStandardNewMacro(vtkExternalSensorReader);
-vtkCxxSetObjectMacro(vtkExternalSensorReader, Normalizer, vtkNormalizeExternalSensorData);
 
 //------------------------------------------------------------------------------
 vtkExternalSensorReader::vtkExternalSensorReader()
@@ -176,5 +175,25 @@ void vtkExternalSensorReader::LoadHeaderFromFile()
     {
       this->HeaderColumns.emplace_back(name);
     }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkExternalSensorReader::SetNormalizer(vtkNormalizeExternalSensorData* normalizer)
+{
+  if (this->Normalizer == normalizer)
+  {
+    return;
+  }
+
+  if (this->Normalizer)
+  {
+    this->Normalizer->RemoveObserver(this->NormalizerObserverId);
+  }
+  vtkSetObjectBodyMacro(Normalizer, vtkNormalizeExternalSensorData, normalizer);
+  if (this->Normalizer)
+  {
+    this->NormalizerObserverId = this->Normalizer->AddObserver(
+      vtkCommand::ModifiedEvent, this, &vtkExternalSensorReader::Modified);
   }
 }

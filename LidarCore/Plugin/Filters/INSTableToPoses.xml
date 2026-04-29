@@ -1,0 +1,18 @@
+<ServerManagerConfiguration>
+  <!-- Begin INSDataToPoses -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="INSTableToPoses" class="vtkINSTableToPoses">
+      <Documentation short_help="Convert INS data to trajectory.">
+        Convert a INS table (read with vtkNormalizeExternalSensorData) to a trajectory of the same format of vtkTemporalTransformReader.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkTable" />
+        </DataTypeDomain>
+      </InputProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End INSDataToPoses -->
+</ServerManagerConfiguration>

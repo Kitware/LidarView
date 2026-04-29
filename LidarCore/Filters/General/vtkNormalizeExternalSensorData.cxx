@@ -234,6 +234,17 @@ vtkNormalizeExternalSensorData::~vtkNormalizeExternalSensorData()
 }
 
 //-----------------------------------------------------------------------------
+int vtkNormalizeExternalSensorData::FillInputPortInformation(int vtkNotUsed(port),
+  vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+  // Set input optional here to avoid warning, in vtkExternalSensorReader,
+  // but this is not really optional.
+  info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
 vtkStringArray* vtkNormalizeExternalSensorData::GetHeaderColumns()
 {
   if (!this->HeaderColumnsCacheArray)

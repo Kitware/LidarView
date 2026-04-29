@@ -9,5 +9,6 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::RenderingFreeType
+  VTK::eigen
 TEST_DEPENDS
   LidarView::TestingCore

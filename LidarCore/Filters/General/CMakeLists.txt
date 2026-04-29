@@ -1,5 +1,6 @@
 set(classes
   vtkClusterText
+  vtkINSTableToPoses
   vtkRPMText
   vtkSelectPointsByScalars
   vtkNormalizeExternalSensorData)
