@@ -7,6 +7,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
+  LidarView::CommonCore
   VTK::FiltersGeneral
   VTK::RenderingFreeType
   VTK::eigen
