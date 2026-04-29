@@ -17,11 +17,12 @@
 #define VTK_CALIBRATION_EVALUATE_H
 
 // VTK
-#include <string>
 #include <vtkSmartPointer.h>
 #include <vtkTableAlgorithm.h>
 
 #include "lvFiltersCalibrationModule.h"
+
+class vtkAggregatePointsFromTrajectoryOffline;
 
 /**
  * Brute-force evaluator for INS/LiDAR extrinsic calibration.
@@ -51,7 +52,7 @@ public:
    * calls Clear() between iterations instead of creating a new aggregator
    * every time.
    */
-  void SetAggregator(class vtkAggregatePointsFromTrajectoryOffline* agg);
+  void SetAggregator(vtkAggregatePointsFromTrajectoryOffline* agg);
 
   ///@{
   /**
@@ -100,64 +101,6 @@ public:
 
   ///@{
   /**
-   * Voxel grid leaf size (meters).
-   */
-  vtkSetMacro(VoxelLeafSize, double);
-  vtkGetMacro(VoxelLeafSize, double);
-  ///@}
-
-  ///@{
-  /**
-   * Offline aggregation controls: use all frames or a subrange [FirstFrame, LastFrame] with
-   * StepSize.
-   */
-  vtkSetMacro(AllFrames, bool);
-  vtkGetMacro(AllFrames, bool);
-  vtkSetMacro(FirstFrame, int);
-  vtkGetMacro(FirstFrame, int);
-  vtkSetMacro(LastFrame, int);
-  vtkGetMacro(LastFrame, int);
-  vtkSetMacro(StepSize, int);
-  vtkGetMacro(StepSize, int);
-  ///@}
-
-protected:
-  vtkCalibrationEvaluation();
-  ~vtkCalibrationEvaluation() override = default;
-
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
-
-private:
-  vtkCalibrationEvaluation(const vtkCalibrationEvaluation&) = delete;
-  void operator=(const vtkCalibrationEvaluation&) = delete;
-
-  double AngleRangeDeg[3] = { 0., 0., 0. };
-  double TranslationRangeM[3] = { 0., 0., 0. };
-  int AngleSteps[3] = { 1, 1, 1 };
-  int TranslationSteps[3] = { 1, 1, 1 };
-
-  // Forwarded properties defaults
-  bool AllFrames = false;
-  bool AutoComputeBounds = true;
-  bool AutoDetectTimeArray = true;
-  bool IsVoxelGridFilterUsed = true;
-  bool AutoDetectTimeUnitConversion = true;
-
-  int FirstFrame = 100;
-  int LastFrame = 150;
-  int StepSize = 10;
-  int VoxelSamplingMode = 0;
-  int InterpolationType = 0; // linear
-  double VoxelLeafSize = 0.05;
-  double CustomConversionFactorToSecond = 1e-6;
-  double TimeOffset = 0.0;
-
-public:
-  ///@{
-  /**
    * Base transform used as the center of the sweep, in meters and degrees.
    * User-editable. Upstream values, if any, are exposed separately as information-only
    * properties and can be used when UseUpstreamCalibration is enabled.
@@ -178,7 +121,38 @@ public:
   vtkGetVector3Macro(UpstreamRotationDeg, double);
   ///@}
 
+  ///@{
+  /**
+   * Output of CalibrationEvaluation array name
+   */
+  static const char* ROLL_ARRAY_NAME() { return "roll_deg"; }
+  static const char* PITCH_ARRAY_NAME() { return "pitch_deg"; }
+  static const char* YAW_ARRAY_NAME() { return "yaw_deg"; }
+  static const char* TRANSLATION_X_ARRAY_NAME() { return "tx_m"; }
+  static const char* TRANSLATION_Y_ARRAY_NAME() { return "ty_m"; }
+  static const char* TRANSLATION_Z_ARRAY_NAME() { return "tz_m"; }
+  static const char* VOXEL_NB_ARRAY_NAME() { return "voxels_nb"; }
+  static const char* VOXEL_RANK_ARRAY_NAME() { return "voxels_rank"; }
+  ///@}
+
+protected:
+  vtkCalibrationEvaluation();
+  ~vtkCalibrationEvaluation() override = default;
+
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+
 private:
+  vtkCalibrationEvaluation(const vtkCalibrationEvaluation&) = delete;
+  void operator=(const vtkCalibrationEvaluation&) = delete;
+
+  double AngleRangeDeg[3] = { 0., 0., 0. };
+  double TranslationRangeM[3] = { 0., 0., 0. };
+  int AngleSteps[3] = { 1, 1, 1 };
+  int TranslationSteps[3] = { 1, 1, 1 };
+
   double BasePosition[3] = { 0., 0., 0. };
   double BaseRotationDeg[3] = { 0., 0., 0. };
   bool UseUpstreamCalibration = true;
@@ -187,7 +161,7 @@ private:
   double UpstreamRotationDeg[3] = { 0., 0., 0. };
 
   // Aggregator instance provided as a subproxy
-  vtkSmartPointer<class vtkAggregatePointsFromTrajectoryOffline> Aggregator;
+  vtkSmartPointer<vtkAggregatePointsFromTrajectoryOffline> Aggregator;
 
   // Observer tag to forward Aggregator ModifiedEvent
   unsigned long AggregatorObserverTag = 0;
