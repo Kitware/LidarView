@@ -102,7 +102,7 @@ void vtkAggregatePointsFromTrajectoryOffline::UpdateAutoComputeBoundsProgress(
   // Relaunch the pipeline if necessary
   int timeStepNumber = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int lastFrame = this->AllFrames ? timeStepNumber - 1 : this->LastFrame;
-  bool lastIteration = CurrentFrame >= lastFrame;
+  bool lastIteration = CurrentFrame + this->StepSize > lastFrame;
   if (lastIteration)
   {
     this->AreBoundsComputed = true;
@@ -144,7 +144,7 @@ int vtkAggregatePointsFromTrajectoryOffline::AggregatePoints(vtkInformation* req
   int timeStepNumber = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   int lastFrame = this->AllFrames ? timeStepNumber - 1 : this->LastFrame;
 
-  if (this->CurrentFrame >= lastFrame)
+  if (this->CurrentFrame + this->StepSize > lastFrame)
   {
     // Stop the pipeline loop
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
