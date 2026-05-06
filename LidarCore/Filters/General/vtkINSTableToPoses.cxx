@@ -114,6 +114,18 @@ int vtkINSTableToPoses::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
+    //! Offset of the input trajectory
+    double originPt[3] = { 0., 0., 0. };
+    double distToZero = std::sqrt(x->GetTuple1(0) * x->GetTuple1(0) +
+      y->GetTuple1(0) * y->GetTuple1(0) + z->GetTuple1(0) * z->GetTuple1(0));
+    if (distToZero > 10000.0)
+    {
+      // Get the first position as offset
+      originPt[0] = x->GetTuple1(0);
+      originPt[1] = y->GetTuple1(0);
+      originPt[2] = z->GetTuple1(0);
+    }
+
     vtkDoubleArray* array = vtkArrayDownCast<vtkDoubleArray>(
       insTable->GetFieldData()->GetAbstractArray(vtkNESD::CALIBRATION_INS_NAME()));
     Eigen::Matrix4d matrix;
@@ -131,22 +143,28 @@ int vtkINSTableToPoses::RequestData(vtkInformation* vtkNotUsed(request),
     {
       for (vtkIdType idx = begin; idx < end; ++idx)
       {
+        double originX = x->GetTuple1(idx) - originPt[0];
+        double originY = y->GetTuple1(idx) - originPt[1];
+        double originZ = z->GetTuple1(idx) - originPt[2];
+
         Eigen::Isometry3d pose;
         pose.linear() =
           ::RPYtoRotationMatrix(roll->GetTuple1(idx), pitch->GetTuple1(idx), yaw->GetTuple1(idx));
-        pose.translation() =
-          Eigen::Vector3d(x->GetTuple1(idx), y->GetTuple1(idx), z->GetTuple1(idx));
+        pose.translation() = Eigen::Vector3d(originX, originY, originZ);
         pose.makeAffine();
         // Transform external sensor pose into base reference
         Eigen::Isometry3d newPose = sensorToBase * pose;
         Eigen::Vector3d point = newPose.translation();
         Eigen::AngleAxisd angleAxis(newPose.linear());
-        position->SetTuple3(idx, point.x(), point.y(), point.z());
+        position->SetTuple3(
+          idx, point.x() + originPt[0], point.y() + originPt[1], point.z() + originPt[2]);
         axisAngle->SetTuple4(
           idx, angleAxis.axis()[0], angleAxis.axis()[1], angleAxis.axis()[2], angleAxis.angle());
       }
     };
-    vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
+    transformPoints(0, insTable->GetNumberOfRows());
+    // Non deterministic when using multi-threading, should be investigate
+    // vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
   }
   else
   {
@@ -161,7 +179,9 @@ int vtkINSTableToPoses::RequestData(vtkInformation* vtkNotUsed(request),
           idx, angleAxis.axis()[0], angleAxis.axis()[1], angleAxis.axis()[2], angleAxis.angle());
       }
     };
-    vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
+    transformPoints(0, insTable->GetNumberOfRows());
+    // Non deterministic when using multi-threading, should be investigate
+    // vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
   }
 
   // Create the cell to be able to visualize the data.
