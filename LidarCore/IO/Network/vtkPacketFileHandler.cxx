@@ -32,11 +32,25 @@
 #define FSEEK std::fseek
 #endif
 
-
 namespace
 {
 constexpr unsigned int PROTOCOL_UDP = 17;
 constexpr double US_TO_S_FACTOR = 1e-6;
+
+#if defined(_WIN32)
+//-----------------------------------------------------------------------------
+bool Win32DuplicateHandle(HANDLE original, HANDLE& copy)
+{
+  BOOL duplicated = DuplicateHandle(
+    GetCurrentProcess(), original, GetCurrentProcess(), &copy, 0, FALSE, DUPLICATE_SAME_ACCESS);
+  if (!duplicated || copy == INVALID_HANDLE_VALUE)
+  {
+    vtkWarningWithObjectMacro(nullptr, "Could not duplicate file handle");
+    return false;
+  }
+  return true;
+}
+#endif
 
 /**
  * Inherit from Tins::SnifferConfiguration to expose protected properties
@@ -55,19 +69,39 @@ public:
 class lvFileSniffer : public Tins::BaseSniffer
 {
 public:
+#if defined(_WIN32)
+  //-----------------------------------------------------------------------------
+  lvFileSniffer(HANDLE handle, const lvSnifferConfiguration& configuration)
+  {
+    char error[PCAP_ERRBUF_SIZE];
+    pcap_t* phandle = pcap_hopen_offline(reinterpret_cast<intptr_t>(handle), error);
+    if (!phandle)
+    {
+      vtkWarningWithObjectMacro(nullptr, "Could not open pcap: " << error);
+      CloseHandle(handle); // pcap failed, we must close since it didn't take ownership
+      handle = INVALID_HANDLE_VALUE;
+      return;
+    }
+    this->SetPcapHandle(phandle, configuration);
+  }
+#else
   //-----------------------------------------------------------------------------
   lvFileSniffer(FILE* fp, const lvSnifferConfiguration& configuration)
   {
     char error[PCAP_ERRBUF_SIZE];
-    // Maybe useful later
-    // pcap_t* phandle = pcap_hopen_offline(_get_osfhandle(_fileno(fp)), err_buf);
     pcap_t* phandle = pcap_fopen_offline(fp, error);
     if (!phandle)
     {
       vtkWarningWithObjectMacro(nullptr, "Could not open pcap: " << error);
       return;
     }
+    this->SetPcapHandle(phandle, configuration);
+  }
+#endif
 
+  //-----------------------------------------------------------------------------
+  void SetPcapHandle(pcap_t* phandle, const lvSnifferConfiguration& configuration)
+  {
     this->set_pcap_handle(phandle);
     if (configuration.IsFlagValid() != 0)
     {
@@ -93,6 +127,10 @@ public:
   std::unique_ptr<lvFileSniffer> PCAPReader;
   FILE* FileHandle = nullptr;
   pcap_t* PCAPFileHandle = nullptr;
+#if defined(_WIN32)
+  HANDLE Win32Handle = INVALID_HANDLE_VALUE;
+#endif
+
   uint64_t FileSize = 0;
   Tins::Packet PktCache;
   std::vector<uint8_t> CurrentPayload;
@@ -124,7 +162,29 @@ bool vtkPacketFileHandler::Open(const std::string& filename, std::string filterA
   config.set_filter(filterArgs);
 
   internals.FileHandle = std::fopen(filename.c_str(), "rb");
+
+#if defined(_WIN32)
+  {
+    // NOLINTNEXTLINE(performance-no-int-to-ptr)
+    HANDLE original = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(internals.FileHandle)));
+    // Our copy — closed independently on cleanup
+    if (!::Win32DuplicateHandle(original, internals.Win32Handle))
+    {
+      return false;
+    }
+    // libtins/libpcap's copy — owned and closed by pcap_close()
+    HANDLE pcapHandle = INVALID_HANDLE_VALUE;
+    if (!::Win32DuplicateHandle(original, pcapHandle))
+    {
+      CloseHandle(internals.Win32Handle);
+      internals.Win32Handle = INVALID_HANDLE_VALUE;
+      return false;
+    }
+    internals.PCAPReader = std::make_unique<lvFileSniffer>(pcapHandle, config);
+  }
+#else
   internals.PCAPReader = std::make_unique<lvFileSniffer>(internals.FileHandle, config);
+#endif
   internals.PCAPFileHandle = internals.PCAPReader->get_pcap_handle();
   return this->IsOpen();
 }
@@ -146,15 +206,20 @@ void vtkPacketFileHandler::Close()
   if (this->IsOpen())
   {
     auto& internals = *this->Internals;
-    internals.PCAPReader.reset();
-    if (internals.PCAPFileHandle)
+    internals.PCAPFileHandle = nullptr;
+    internals.PCAPReader.reset(); // pcap_close() in tins closes pcap's duplicated HANDLE
+
+#if defined(_WIN32)
+    if (internals.Win32Handle != INVALID_HANDLE_VALUE)
     {
-      internals.PCAPFileHandle = nullptr;
+      CloseHandle(internals.Win32Handle);
+      internals.Win32Handle = INVALID_HANDLE_VALUE;
     }
+#endif
+
     if (internals.FileHandle)
     {
-      // For some reason the pcap isn't fully closed on Windows with the pcap_close call (in tins)
-      // closing the file handler seems to do the trick but it throw a warning on debug mode...
+      // On Windows close the file handle, on linux tins already closed it.
 #if defined(_WIN32)
       std::fclose(internals.FileHandle);
 #endif
