@@ -146,7 +146,9 @@ int vtkINSTableToPoses::RequestData(vtkInformation* vtkNotUsed(request),
           idx, angleAxis.axis()[0], angleAxis.axis()[1], angleAxis.axis()[2], angleAxis.angle());
       }
     };
-    vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
+    transformPoints(0, insTable->GetNumberOfRows());
+    // Non deterministic when using multi-threading, should be investigate
+    // vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
   }
   else
   {
@@ -161,7 +163,9 @@ int vtkINSTableToPoses::RequestData(vtkInformation* vtkNotUsed(request),
           idx, angleAxis.axis()[0], angleAxis.axis()[1], angleAxis.axis()[2], angleAxis.angle());
       }
     };
-    vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
+    transformPoints(0, insTable->GetNumberOfRows());
+    // Non deterministic when using multi-threading, should be investigate
+    // vtkSMPTools::For(0, insTable->GetNumberOfRows(), transformPoints);
   }
 
   // Create the cell to be able to visualize the data.
