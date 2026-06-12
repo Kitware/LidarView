@@ -21,6 +21,7 @@
 #include <vtkFieldData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLVUtilities.h>
 #include <vtkLogger.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
@@ -543,25 +544,6 @@ void vtkNormalizeExternalSensorData::SetTransformInFieldData(vtkTable* out,
   vtkTransform* transform,
   const std::string& name)
 {
-  if (!out || !transform || name.empty())
-  {
-    return;
-  }
-  vtkNew<vtkDoubleArray> arr;
-  arr->SetName(name.c_str());
-  arr->SetNumberOfComponents(4);
-  arr->SetNumberOfTuples(4);
-  vtkMatrix4x4* matrix = transform->GetMatrix();
-  for (int r = 0; r < 4; ++r)
-  {
-    for (int c = 0; c < 4; ++c)
-    {
-      arr->SetComponent(r, c, matrix->GetElement(r, c));
-    }
-  }
   vtkFieldData* fd = out->GetFieldData();
-  if (fd && !fd->HasArray(name.c_str()))
-  {
-    fd->AddArray(arr);
-  }
+  vtkLVUtilities::SetTransformInFieldData(fd, transform, name);
 }
