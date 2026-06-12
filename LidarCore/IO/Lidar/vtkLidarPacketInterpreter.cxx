@@ -17,6 +17,7 @@
 
 #include <vtkDoubleArray.h>
 #include <vtkFieldData.h>
+#include <vtkLVUtilities.h>
 #include <vtkStringArray.h>
 #include <vtkTransform.h>
 
@@ -106,14 +107,30 @@ bool vtkLidarPacketInterpreter::SplitFrame(bool force,
       }
     }
 
-    // Apply transform on all points
-    if (this->GetSensorTransform())
+    // Apply transform on all points if not identity
+    vtkTransform* transform = this->GetSensorTransform();
+    if (transform && !transform->GetMatrix()->IsIdentity())
     {
-      vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
-      newPts->Allocate(this->CurrentFrame->GetNumberOfPoints());
-      newPts->GetData()->SetName(this->CurrentFrame->GetPoints()->GetData()->GetName());
-      this->GetSensorTransform()->TransformPoints(this->CurrentFrame->GetPoints(), newPts);
-      this->CurrentFrame->SetPoints(newPts);
+      if (this->PassthroughTransformMode)
+      {
+        vtkLVUtilities::SetTransformInFieldData(
+          this->CurrentFrame->GetFieldData(), transform, "BaseToLiDAR");
+      }
+      else
+      {
+        // Transform pointcloud from LiDAR coordinate to BASE coordinate
+        vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
+        newPts->Allocate(this->CurrentFrame->GetNumberOfPoints());
+        newPts->GetData()->SetName(this->CurrentFrame->GetPoints()->GetData()->GetName());
+        transform->TransformPoints(this->CurrentFrame->GetPoints(), newPts);
+        this->CurrentFrame->SetPoints(newPts);
+
+        vtkNew<vtkTransform> inverseTransform;
+        inverseTransform->DeepCopy(transform);
+        inverseTransform->Inverse();
+        vtkLVUtilities::SetTransformInFieldData(
+          this->CurrentFrame->GetFieldData(), inverseTransform, "LiDARToBase");
+      }
     }
 
     // add vertex to the polydata
