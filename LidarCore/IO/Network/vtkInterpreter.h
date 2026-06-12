@@ -33,7 +33,9 @@ public:
    * @param dataLength size of the data packet
    * @param PacketReceptionTime
    */
-  virtual void ProcessPacketWrapped(unsigned char const * data, unsigned int dataLength, double vtkNotUsed(PacketNetworkTime))
+  virtual void ProcessPacketWrapped(unsigned char const* data,
+    unsigned int dataLength,
+    double vtkNotUsed(PacketNetworkTime))
   {
     this->ProcessPacket(data, dataLength);
   }
@@ -44,14 +46,14 @@ public:
    * @param dataLength size of the data packet
    * @param PacketReceptionTime
    */
-  virtual void ProcessPacket(unsigned char const * data, unsigned int dataLength) = 0;
+  virtual void ProcessPacket(unsigned char const* data, unsigned int dataLength) = 0;
 
   /**
    * @brief IsValidPacket check if the packet is valid
    * @param data raw data packet
    * @param dataLength size of the data packet
    */
-  virtual bool IsValidPacket(unsigned char const * data, unsigned int dataLength) = 0;
+  virtual bool IsValidPacket(unsigned char const* data, unsigned int dataLength) = 0;
 
   /**
    * @brief IsNewData check if new data is available
@@ -63,10 +65,10 @@ public:
    */
   virtual void ResetCurrentData() = 0;
 
-  virtual int64_t GetManufacturerMACAddress() { return 0xffffffffffff;}
+  virtual int64_t GetManufacturerMACAddress() { return 0xffffffffffff; }
 
   vtkGetObjectMacro(SensorTransform, vtkTransform)
-  virtual void SetSensorTransform(vtkTransform *);
+  virtual void SetSensorTransform(vtkTransform*);
 
   vtkMTimeType GetMTime() override;
 
@@ -81,7 +83,6 @@ protected:
 private:
   vtkInterpreter(const vtkInterpreter&) = delete;
   void operator=(const vtkInterpreter&) = delete;
-
 };
 
 #endif // VTKINTERPRETER_H
