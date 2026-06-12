@@ -74,6 +74,7 @@ protected:
   vtkInterpreter() = default;
   ~vtkInterpreter() override;
 
+  unsigned long TransformObserverId = 0;
   //! Fixed transform to apply to the Sensor output points.
   vtkTransform* SensorTransform = nullptr;
 
