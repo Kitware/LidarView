@@ -30,6 +30,7 @@
           <PropertyGroup label="LiDAR Transform">
             <Property name="Position" panel_visibility="advanced" />
             <Property name="Rotation" panel_visibility="advanced" />
+            <Property name="PassthroughTransformMode" panel_visibility="advanced" />
           </PropertyGroup>
           <Property name="Vendor" panel_visibility="never" />
           <Property name="ModelName" panel_visibility="never" />
