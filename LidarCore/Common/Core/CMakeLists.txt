@@ -21,6 +21,7 @@ set(classes
   vtkCustomTransformInterpolator
   vtkEigenTools
   vtkHelper
+  vtkLVUtilities
   vtkMergePointsToPolyDataHelper
   vtkPipelineTools
   vtkPointsPCA

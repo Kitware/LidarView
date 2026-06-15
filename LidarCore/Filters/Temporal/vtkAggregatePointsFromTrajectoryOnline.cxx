@@ -19,6 +19,7 @@
 #include <vtkBoundingBox.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
+#include <vtkLVUtilities.h>
 #include <vtkLogger.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkPointData.h>
@@ -319,9 +320,17 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
     }
 
     // Get the right transform
-    auto transform = vtkSmartPointer<vtkTransform>::New();
-    this->Interpolator->InterpolateTransform(currentTimestamp, transform);
-    transform->Update();
+    vtkNew<vtkTransform> interpolationTransform;
+    this->Interpolator->InterpolateTransform(currentTimestamp, interpolationTransform);
+    interpolationTransform->Update();
+    vtkNew<vtkMatrix4x4> baseToLiDAR;
+    if (!vtkLVUtilities::GetTransformFromFieldData(
+          pointcloud->GetFieldData(), baseToLiDAR, "BaseToLiDAR"))
+    {
+      vtkNew<vtkMatrix4x4> transform;
+      vtkMatrix4x4::Multiply4x4(interpolationTransform->GetMatrix(), baseToLiDAR, transform);
+      interpolationTransform->SetMatrix(transform);
+    }
 
     // Update the number of points
     this->NumberOfPoints += pointcloud->GetPoints()->GetNumberOfPoints();
@@ -338,7 +347,7 @@ int vtkAggregatePointsFromTrajectoryOnline::AutoComputeVoxelBounds(vtkInformatio
       boundingBox.GetCorner(i, point);
 
       double transformedPoint[3];
-      transform->TransformPoint(point, transformedPoint);
+      interpolationTransform->TransformPoint(point, transformedPoint);
       if (this->IsOffsetRemoved)
       {
         transformedPoint[0] += this->OffsetOrigin[0];
@@ -467,6 +476,19 @@ int vtkAggregatePointsFromTrajectoryOnline::TransformAndAddPoints(PointCloudMap&
     if (!timeExist)
     {
       continue;
+    }
+
+    // As TransformPoints is multithreaded it is faster to transform first all points with the
+    // BaseToLiDAR transform than multiply the interpolation transform matrix.
+    vtkNew<vtkTransform> transform;
+    if (vtkLVUtilities::GetTransformFromFieldData(
+          pointcloud->GetFieldData(), transform, "BaseToLiDAR"))
+    {
+      vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
+      newPts->Allocate(pointcloud->GetNumberOfPoints());
+      newPts->GetData()->SetName(pointcloud->GetPoints()->GetData()->GetName());
+      transform->TransformPoints(pointcloud->GetPoints(), newPts);
+      pointcloud->SetPoints(newPts);
     }
 
     for (vtkIdType i = 0; i < pointcloud->GetNumberOfPoints(); i++)

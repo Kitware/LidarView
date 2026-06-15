@@ -182,6 +182,27 @@ public:
 
   ///@{
   /**
+   * When enabled, the transform is not applied to the point cloud geometry directly.
+   * Instead, it is stored as field data for downstream filters (e.g. SLAM pipelines
+   * that assume LiDAR frame by default), avoiding redundant transform computations.
+   *
+   * - Enabled:
+   *   - Point coordinates remain in the LiDAR frame (geometry is unchanged).
+   *   - The transform BaseToLiDAR (LiDAR pose in Base coordinates) is stored in the field data.
+   *   - This transform can be applied later to convert points from the LiDAR frame to the
+   *     Base frame.
+   *
+   * - Disabled:
+   *   - The point cloud is transformed into the Base frame.
+   *   - The inverse transform LiDARToBase is stored in the field data.
+   *   - This stored transform can be used to recover the original LiDAR-frame coordinates.
+   */
+  vtkGetMacro(PassthroughTransformMode, bool);
+  vtkSetMacro(PassthroughTransformMode, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get sensor string information such as vendor or model name,
    * if available in the interpreter subclass.
    */
@@ -247,6 +268,8 @@ protected:
   bool IgnoreEmptyFrames = false;
 
   bool EnableAdvancedArrays = false;
+
+  bool PassthroughTransformMode = false;
 
   //! Framing method
   int FramingMethod = FramingMethod_t::INTERPRETER_FRAMING;

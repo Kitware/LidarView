@@ -25,6 +25,7 @@
 
 #include "lvFiltersGeneralModule.h" // for export macro
 
+class vtkFieldData;
 class vtkTable;
 class vtkTransform;
 
