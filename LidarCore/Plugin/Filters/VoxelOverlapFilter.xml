@@ -1,0 +1,66 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="VoxelOverlapFilter" class="vtkVoxelOverlapFilter">
+      <Documentation short_help="Compares two point clouds by voxelizing the source and detecting target points outside the source grid">
+         This filter constructs a voxel grid from a source point cloud and uses it
+         to detect differences with a target point cloud.
+
+         It identifies points in the target cloud that fall outside the occupied voxels of the source
+         grid, effectively highlighting discrepancies or outliers between the two datasets.
+      </Documentation>
+
+      <InputProperty name="Reference Input"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the reference dataset.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty name="Target Input"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+        <Documentation>
+          Set the dataset to compare.
+        </Documentation>
+      </InputProperty>
+
+      <DoubleVectorProperty name="LeafSize"
+                            command="SetLeafSize"
+                            number_of_elements="1"
+                            default_values="0.5">
+        <DoubleRangeDomain name="range" min="0.01" />
+        <Documentation>
+          Size of the leaf used to downsample the point cloud, equivalent to the average
+          resolution of the cloud.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <StringVectorProperty name="ResultScalarName"
+                            command="SetResultScalarName"
+                            number_of_elements="1"
+                            default_values="IsOverlapping"
+                            panel_visibility="advanced"
+                            animateable="0">
+        <Documentation>
+          The name of the scalar used to store the result of the operation.
+        </Documentation>
+      </StringVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

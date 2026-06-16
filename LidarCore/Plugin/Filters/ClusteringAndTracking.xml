@@ -1,0 +1,303 @@
+<ServerManagerConfiguration>
+  <!-- Begin ClusteringAndTracking -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ClusteringAndTracking" class="vtkClusteringAndTracking" label="Clustering and Tracking">
+      <Documentation
+        short_help="Extract and track clusters in a pointcloud"
+        long_help="Extract and track clusters in a pointcloud">
+        Clustering and tracking filter extract clusters of points from lidar frames.
+        It can also do a rough tracking for temporal lidar data.
+      </Documentation>
+
+    <InputProperty
+      name="Input"
+      port_index = "0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+    </InputProperty>
+
+    <OutputPort name="Clusters points" index="0" />
+    <OutputPort name="Clusters boundingbox" index="1" />
+    <OutputPort name="Clusters information" index="2" />
+    <Hints>
+      <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      <OutputPort index="2" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="2" />
+    </Hints>
+
+    <Property name="Reset"
+              command="Reset">
+      <Documentation>
+        Reset clustering and tracking states.
+        GMM model or region growing maps are cleared.
+        Parameters are reset to current state.
+        The number of processed frames returns to 0.
+        The counter of cluster id returns to 0.
+      </Documentation>
+    </Property>
+
+    <StringVectorProperty name="Depth array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="0;0;0;0;distance_m"
+                          panel_visibility="advanced">
+        <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Choose the input array of depth value
+      </Documentation>
+    </StringVectorProperty>
+
+    <StringVectorProperty name="Intensity array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="1;0;0;0;intensity"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Choose the input array of intensity/reflectivity
+      </Documentation>
+    </StringVectorProperty>
+
+    <PropertyGroup label="Input / Output options">
+      <Property name="Reset" />
+      <Property name="Depth array" />
+      <Property name="Intensity array" />
+    </PropertyGroup>
+
+    <!-- ============================ Clustering and tracking ============================ -->
+    <IntVectorProperty name="Cluster extractor"
+                        command="SetClusterExtractor"
+                        number_of_elements="1"
+                        default_values="2">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="No extraction"/>
+        <Entry value="1" text="Euclidean clustering"/>
+        <Entry value="4" text="Adaptive Euclidean clustering"/>
+        <Entry value="2" text="Gaussian mixture model"/>
+        <Entry value="3" text="Region growing"/>
+      </EnumerationDomain>
+      <Documentation>
+        Choose an extractor for clustering:
+
+          (0) Do not extract clusters
+
+          (1) Euclidean clustering:
+              This method groups points based on their spatial proximity. It is ideal for identifying quickly compact
+              motion areas.
+
+          (2) Gaussian mixture model:
+              This method utilizes probabilistic model based on distances between points and works well in complex environments.
+              It offers a rough tracking of clusters.
+
+          (3) Region growing:
+              This method build a voxel grid on the motion points and expands regions in the grid. It is particularly useful
+              when motion points are scattered but related. It offers a rough tracking of clusters.
+
+          (4) Adaptive Euclidean clustering:
+              This method groups points based on their spatial proximity and takes account of the density change over the distance.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Compute cluster orientation"
+                       command="SetEnableClusterOrientation"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        If enable, the PCA is applied to the points of clusters to compute the orientation of clusters.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Scalar1 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="2;0;0;0;intensity"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used for clustering.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </StringVectorProperty>
+
+    <StringVectorProperty name="Scalar2 array"
+                          command="SetInputArrayToProcess"
+                          number_of_elements="5"
+                          element_types="0 0 0 0 2"
+                          default_values_delimiter=";"
+                          default_values="3;0;0;0;doppler"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="Scalars" none_string="None" name="array_list">
+        <RequiredProperties>
+          <Property function="Input" name="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The additional scalar array which can be used for clustering.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </StringVectorProperty>
+
+    <DoubleVectorProperty name="Scalar1 weight"
+                       command="SetScalar1Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Scalar2 weight"
+                       command="SetScalar2Weight"
+                       number_of_elements="1"
+                       default_values="1">
+      <DoubleRangeDomain name="range" min="0" max="2"/>
+      <Documentation>
+       The weight of the scalar to apply for euclidean distance.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Enable background map"
+                       command="SetEnableBackgroundGrid"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool" />
+      <Documentation>
+        Enable/disable background map for the clustering with region growing method.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Initialization time"
+                       command="SetInitNbFrames"
+                       number_of_elements="1"
+                       default_values="100">
+      <Documentation>
+        The number of frames to wait for building background map.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Enable background map" value="1" />
+      </Hints>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Cluster radius"
+                       command="SetClusterRadius"
+                       number_of_elements="1"
+                       default_values="0.4">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The search radius to find cluster.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="Search radius factor"
+                       command="SetFactor"
+                       number_of_elements="1"
+                       default_values="0.0035">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="4" />
+      </Hints>
+      <Documentation>
+        The factor of the linear function of depth to define the cluster raidus.
+        Search radius = Cluster radius + factor * depth
+        The value can be defined by the sensor angular resolution
+        e.g. the default value is 0.0035 which corresponds to an angular resolution of 0.2° (0.2 * pi / 180)
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Cluster minimum point number"
+                       command="SetClusterMinNbPoints"
+                       number_of_elements="1"
+                       default_values="10">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" inverse="1" property="Cluster extractor" value="0" />
+      </Hints>
+      <Documentation>
+        The number of neighbors that a point must have within the specified radius. Otherwise, the point will be removed.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Clustering grid resolution"
+                       command="SetClusterGridResolution"
+                       number_of_elements="1"
+                       default_values="0.1">
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+      </Hints>
+      <Documentation>
+        The size of the voxel grid (in meters) which is used to extract clusters.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Set tracking window sizes"
+                       command="SetTrackingWindowSizes"
+                       number_of_elements="1"
+                       default_values="10">
+      <Documentation>
+        Window size (in frames) to perform tracking in GMM. Higher values would result in objets that are tracked for longer (after disapearing)
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="CompositeDecorator">
+          <Expression type="or">
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="2" />
+            <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Cluster extractor" value="3" />
+          </Expression>
+        </PropertyWidgetDecorator>
+      </Hints>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Clustering and tracking Parameters">
+      <Property name="Cluster extractor" />
+      <Property name="Compute cluster orientation" />
+      <Property name="Scalar1 array" />
+      <Property name="Scalar2 array" />
+      <Property name="Scalar1 weight" />
+      <Property name="Scalar2 weight" />
+      <Property name="Enable background map" />
+      <Property name="Initialization time" />
+      <Property name="Cluster radius" />
+      <Property name="Search radius factor" />
+      <Property name="Cluster minimum point number" />
+      <Property name="Clustering grid resolution" />
+      <Property name="Set tracking window sizes" />
+    </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End ClusteringAndTracking -->
+</ServerManagerConfiguration>

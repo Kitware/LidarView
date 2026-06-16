@@ -1,0 +1,127 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Common lidar pcap reader -->
+    <LidarReaderProxy name="CommonLidarReader" class="vtkLidarReader">
+
+      <OutputPort name="Frame" index="0" />
+      <OutputPort name="Calibration" index="1" />
+
+      <StringVectorProperty name="FileName"
+                            animateable="0"
+                            command="SetFileName"
+                            number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation>
+          This property specifies the file name for the reader.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="LidarPort"
+                         command="SetLidarPort"
+                         override="1"
+                         default_values="-1"
+                         number_of_elements="1">
+        <Documentation>
+          Specify which packets are read. To read all packets set the value to -1
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="DetectFrameDropping"
+                         animateable="0"
+                         command="SetDetectFrameDropping"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Throw a warning to the user each time a frame is dropped
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="ShowPartialFrames"
+                         animateable="0"
+                         command="SetShowPartialFrames"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          It is common that the first and last frame are incomplete (not a full rotation or not a full sweep),
+          thus it is more esthetically pleasing (and less unsettling) to hide them.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="TimestepValues"
+                            repeatable="1"
+                            information_only="1">
+        <TimeStepsInformationHelper />
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="NetworkTimeToDataTime"
+                            command="GetNetworkTimeToDataTime"
+                            information_only="1">
+        <SimpleDoubleInformationHelper />
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="DisplayPacketTime"
+                         animateable="0"
+                         command="SetDisplayTimeType"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="Network Time" />
+          <Entry value="1" text="LiDAR Time" />
+        </EnumerationDomain>
+        <Documentation>
+          Change time mode used for indexing frames.
+          You can either use Network Time, time available in network packets, which can
+          be synchronized with other sensors such as GPS/GNSS.
+          Alternatively, you can use LiDAR Time, provided by the LiDAR interpreter, typically
+          representing relative time in seconds since the LiDAR initialization.
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Reader Options">
+        <Property name="FileName" />
+        <Property name="LidarPort" />
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+        <Property name="ShowPartialFrames" panel_visibility="advanced" />
+        <Property name="DisplayPacketTime" panel_visibility="advanced" />
+      </PropertyGroup>
+    </LidarReaderProxy>
+
+    <!-- ==================================================================== -->
+    <!-- Common pose pcap reader -->
+    <LidarReaderProxy name="CommonLidarPoseReader"
+                      class="vtkLidarPoseReader"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarReader">
+
+      <OutputPort name="Pose" index="2" />
+      <OutputPort name="Raw informations" index="3" />
+
+      <IntVectorProperty name="LidarPosePort"
+                         command="SetLidarPosePort"
+                         default_values="8308"
+                         number_of_elements="1">
+        <Documentation>
+          Specify which pose port is read.
+        </Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Reader Options">
+        <Property name="FileName" />
+        <Property name="LidarPort" />
+        <Property name="LidarPosePort" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Reader Advanced Options">
+        <Property name="DetectFrameDropping" panel_visibility="advanced" />
+        <Property name="ShowPartialFrames" panel_visibility="advanced" />
+        <Property name="DisplayPacketTime" panel_visibility="advanced" />
+      </PropertyGroup>
+    </LidarReaderProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

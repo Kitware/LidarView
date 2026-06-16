@@ -1,0 +1,7 @@
+NAME
+  AverageSelectedPointsPlugin
+DESCRIPTION
+  An example plugin that show how to use a box widget in a filter and output a screen text.
+REQUIRES_MODULES
+  VTK::CommonCore
+  VTK::CommonDataModel

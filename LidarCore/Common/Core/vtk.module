@@ -1,0 +1,21 @@
+NAME
+  LidarView::CommonCore
+LIBRARY_NAME
+  lvCommonCore
+DEPENDS
+  Eigen3::Eigen
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::CommonMath
+PRIVATE_DEPENDS
+  Boost::system
+  VTK::FiltersGeneral
+  VTK::FiltersStatistics
+  VTK::FiltersSources
+  VTK::RenderingCore      # For vtkCustomTransformInterpolator
+TEST_DEPENDS
+  LidarView::TestingCore
+  LidarView::IOCore
+  VTK::TestingRendering

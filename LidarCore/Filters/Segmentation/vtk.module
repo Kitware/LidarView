@@ -1,0 +1,11 @@
+NAME
+  LidarView::FiltersSegmentation
+LIBRARY_NAME
+  lvFiltersSegmentation
+DEPENDS
+  Eigen3::Eigen
+  LidarView::CommonCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersCore
+  VTK::FiltersSources

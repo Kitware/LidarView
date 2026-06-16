@@ -1,0 +1,180 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkAverageSelectedPoints -->
+
+  <ProxyGroup name="implicit_functions">
+    <!-- ================================================================== -->
+    <Proxy class="vtkPVBox" name="2DBox">
+      <InputProperty is_internal="1" name="Input" />
+      <IntVectorProperty name="UseReferenceBounds"
+                         command="SetUseReferenceBounds"
+                         number_of_elements="1"
+                         default_values="0">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+      <DoubleVectorProperty command="SetReferenceBounds"
+                            default_values="0 1 0 1 0 1"
+                            name="Bounds"
+                            number_of_elements="6">
+        <BoundsDomain mode="data_bounds" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Hints>
+          <NoDefault />
+        </Hints>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty animateable="1"
+                            command="SetPosition"
+                            default_values="0.0 0.0 0.0"
+                            name="Position"
+                            number_of_elements="3">
+        <BoundsDomain default_mode="min"
+                      mode="normal"
+                      name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Documentation>
+          Set the position of the box.
+        </Documentation>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty animateable="1"
+                            command="SetRotation"
+                            default_values="0.0 0.0 0.0"
+                            name="Rotation"
+                            number_of_elements="3">
+        <DoubleRangeDomain name="range" />
+        <Documentation>
+          Set the orientation of the box.
+        </Documentation>
+      </DoubleVectorProperty>
+      <DoubleVectorProperty animateable="1"
+                            command="SetScale"
+                            default_values="1.0 1.0 1.0"
+                            name="Length"
+                            number_of_elements="3">
+        <BoundsDomain default_mode="max"
+                      mode="component_magnitude"
+                      name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Documentation>
+          Set the size of the box via a scale factor.
+        </Documentation>
+      </DoubleVectorProperty>
+      <PropertyGroup label="Box Parameters" panel_widget="MyInteractive2DBox">
+        <Property function="Position" name="Position" />
+        <Property function="Rotation" name="Rotation" />
+        <Property function="Scale" name="Length" />
+        <Property function="Input" name="Input" />
+        <Property function="UseReferenceBounds" name="UseReferenceBounds" />
+        <Property function="ReferenceBounds" name="Bounds" />
+      </PropertyGroup>
+      <Hints>
+        <ProxyList>
+          <Link name="Input" with_property="Input" />
+        </ProxyList>
+      </Hints>
+      <!-- End of 2DBox -->
+    </Proxy>
+
+    <!-- ================================================================== -->
+    <Proxy class="vtkPVBox"
+           name="2DBoxLeft"
+           base_proxygroup="implicit_functions"
+           base_proxyname="2DBox">
+      <IntVectorProperty name="UseReferenceBounds"
+                         command="SetUseReferenceBounds"
+                         number_of_elements="1"
+                         default_values="1"
+                         override="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+      <DoubleVectorProperty command="SetReferenceBounds"
+                            default_values="0 0.5 0 0.5 0 1"
+                            name="Bounds"
+                            number_of_elements="6"
+                            override="1">
+        <BoundsDomain mode="data_bounds" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Hints>
+          <NoDefault />
+        </Hints>
+      </DoubleVectorProperty>
+      <!-- End of 2DBoxLeft -->
+    </Proxy>
+
+    <!-- ================================================================== -->
+    <Proxy class="vtkPVBox"
+           name="2DBoxRight"
+           base_proxygroup="implicit_functions"
+           base_proxyname="2DBox">
+      <IntVectorProperty name="UseReferenceBounds"
+                         command="SetUseReferenceBounds"
+                         number_of_elements="1"
+                         default_values="1"
+                         override="1">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+      <DoubleVectorProperty command="SetReferenceBounds"
+                            default_values="0.5 1 0.5 1 0 1"
+                            name="Bounds"
+                            number_of_elements="6"
+                            override="1">
+        <BoundsDomain mode="data_bounds" name="range">
+          <RequiredProperties>
+            <Property function="Input" name="Input" />
+          </RequiredProperties>
+        </BoundsDomain>
+        <Hints>
+          <NoDefault />
+        </Hints>
+      </DoubleVectorProperty>
+      <!-- End of 2DBoxRight -->
+    </Proxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="filters">
+    <!-- ================================================================== -->
+    <SourceProxy class="vtkAverageSelectedPoints" name="AverageSelectedPoints">
+      <Documentation long_help="Average point z selected via a box widget and display result on screen" short_help="Average point z"></Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataObject" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <ProxyProperty command="SetImplicitFunction"
+                     label="Clip Type"
+                     name="ClipFunction">
+        <ProxyGroupDomain name="groups">
+          <Group name="implicit_functions" />
+        </ProxyGroupDomain>
+        <ProxyListDomain name="proxy_list">
+          <Proxy group="implicit_functions" name="2DBoxLeft" />
+          <Proxy group="implicit_functions" name="2DBoxRight" />
+          <!-- Other function availables -->
+          <!-- <Proxy group="implicit_functions" name="Sphere" />
+          <Proxy group="implicit_functions" name="Cylinder" /> -->
+        </ProxyListDomain>
+        <Documentation>This property specifies the parameters of the
+        function (an implicit description).</Documentation>
+      </ProxyProperty>
+
+      <Hints>
+        <OutputPort index="0"
+                    name="Output-0"
+                    type="text" />
+      </Hints>
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkAverageSelectedPoints -->
+</ServerManagerConfiguration>

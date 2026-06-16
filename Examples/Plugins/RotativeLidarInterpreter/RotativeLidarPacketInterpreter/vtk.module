@@ -1,0 +1,10 @@
+NAME
+  RotativeLidarInterpreter::RotativeLidarPacketInterpreter
+LIBRARY_NAME
+  RotativeLidarPacketInterpreter
+DEPENDS
+  LidarView::IOLidar
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonTransforms

@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <!-- Start python trace -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuTools" />
+  <pqevent object="LidarViewMainWindow/menubar/menuTools" command="activate" arguments="actionToolsStartStopTrace" />
+  <pqevent object="TraceOptionsDialog/widget/OKButton" command="activate" arguments="" />
+
+  <!-- Load PCAP with a transform -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionOpenPcap" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/lqLidarFileOpenDialog" command="filesSelected" arguments="$PARAVIEW_DATA_ROOT/Slam/VLP-16_slam_test_data.pcap" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/InterpreterSelectionBox" command="activated" arguments="Velodyne" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/InterpreterSelectionWidget/AdvancedButton" command="set_boolean" arguments="true" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/Position/DoubleLineEdit0" command="set_string" arguments="35" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/Rotation/DoubleLineEdit1" command="set_string" arguments="28" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ScrollArea/qt_scrollarea_viewport/ScrollAreaContents/StackedInterpreters/Velodyne/1pqProxyWidget0/DualReturnFilter/ComboBox" command="activated" arguments="Near Distance" />
+  <pqevent object="LidarViewMainWindow/lqLidarConfigurationDialog/ButtonBox/1QPushButton0" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/cameraToolbar/actionZoomClosestToData" command="activate" arguments="" />
+
+  <!-- Add clip points and trailing frame filters -->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="ClipPoints" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/comboBox" command="activated" arguments="Cylinder" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveCylinder/useXAxis" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/ClipFunction/ProxySelectionWidget/frame/ChosenProxyWidget/InteractiveCylinder/radius" command="set_string" arguments="20" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/Invert/CheckBox" command="set_boolean" arguments="true" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuFilters" />
+  <pqevent object="LidarViewMainWindow/menubar/menuFilters/Alphabetical" command="activate" arguments="TrailingFrame" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/scrollArea/qt_scrollarea_viewport/scrollAreaWidgetContents/PropertiesFrame/ProxyPanel/NumberOfTrailingFrames/LineEdit0" command="set_string" arguments="20" />
+  <pqevent object="LidarViewMainWindow/propertiesDock/propertiesPanel/Accept" command="activate" arguments="" />
+
+  <!-- Stop & save trace-->
+  <pqevent object="LidarViewMainWindow/menubar" command="activate" arguments="menuTools" />
+  <pqevent object="LidarViewMainWindow/menubar/menuTools" command="activate" arguments="actionToolsStartStopTrace" />
+  <pqevent object="LidarViewMainWindow/1pqPythonScriptEditor0/PythonScriptEditorMenuBar" command="activate" arguments="File" />
+  <pqevent object="LidarViewMainWindow/1pqPythonScriptEditor0/PythonScriptEditorMenuBar/File" command="activate" arguments="&amp;Save" />
+  <pqevent object="LidarViewMainWindow/1pqPythonScriptEditor0/FileOpenDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestTrace.py" />
+
+  <!-- Reset session -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionDeleteAll" command="activate" arguments="" />
+
+  <!-- Load python trace -->
+  <pqevent object="LidarViewMainWindow/mainControlsToolbar/actionPythonShell" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/runScriptButton" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/pythonShellDock/pythonShell/PythonShellRunScriptDialog" command="filesSelected" arguments="$PARAVIEW_TEST_ROOT/TestTrace.py" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/FrameSpinBox" command="set_int" arguments="30" />
+  <pqevent object="LidarViewMainWindow/lidarPlayerDock/livePlayerPanel/FrameSpinBox" command="key" arguments="16777220" />
+  <pqevent object="LidarViewMainWindow/cameraToolbar/actionNegativeX" command="activate" arguments="" />
+  <pqevent object="LidarViewMainWindow/cameraToolbar/actionZoomClosestToData" command="activate" arguments="" />
+</pqevents>

@@ -1,0 +1,21 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <Proxy name="TimeBasedLidarPacketInterpreter"
+           class="vtkTimeBasedLidarPacketInterpreter"
+           label="Time-based LiDAR interpreter example"
+           base_proxygroup="internal_interpreter"
+           base_proxyname="CommonLidarPacketInterpreter">
+
+      <!-- Expose the PublishInterval variable to UI -->
+      <IntVectorProperty name="PublishInterval"
+                         command="SetPublishInterval"
+                         number_of_elements="1"
+                         default_values="500">
+        <Documentation>
+          Interval representing a "time length" of a frame (in ms).
+        </Documentation>
+      </IntVectorProperty>
+
+    </Proxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

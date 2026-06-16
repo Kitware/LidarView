@@ -33,7 +33,11 @@
         }
       },
       {
-        "name": "ci_windows_vs2019",
+        "name": "ci_ubuntu24_pv_latest",
+        "inherits": ["ci_ubuntu22_debug"]
+      },
+      {
+        "name": "ci_windows_vs2022",
         "inherits": ["ci_common"],
         "filter": {
           "exclude": {"name": "lv|Python|TestVelodyneLidarStream_HDL_64"}

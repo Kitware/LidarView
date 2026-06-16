@@ -1,0 +1,13 @@
+NAME
+  MotionDetectorToolbox::IO
+LIBRARY_NAME
+  MotionDetectorToolboxIO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  LidarView::IONetwork
+PRIVATE_DEPENDS
+  Boost::system
+  Boost::thread
+  LidarView::FiltersGeneral
+  VTK::FiltersCore

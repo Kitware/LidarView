@@ -2,24 +2,24 @@
 # Create a pipeline only in some cases : merge_request, tag or master branch
 
 .run_automatically:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: on_success
-        - if: '$TRIGGER_MODULE_PATH'
-          when: on_success
-        - if: $CI_COMMIT_TAG
-          when: on_success
-        - if: $CI_COMMIT_BRANCH == "master"
-          when: on_success
-        - when: never
+  rules:
+    - if: "$CI_MERGE_REQUEST_ID"
+      when: on_success
+    - if: "$TRIGGER_MODULE_PATH"
+      when: on_success
+    - if: $CI_COMMIT_TAG
+      when: on_success
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: on_success
+    - when: never
 
 .run_manually:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          # when: manual
-        - if: '$TRIGGER_MODULE_PATH && $TRIGGER_MODULE_BRANCH != "master"'
-          # when: manual
-        - if: $TRIGGER_MODULE_BRANCH == "master"
-        - if: $CI_COMMIT_TAG
-        - if: $CI_COMMIT_BRANCH == "master"
-        - when: never
+  rules:
+    - if: "$CI_MERGE_REQUEST_ID"
+      # when: manual
+    - if: '$TRIGGER_MODULE_PATH && $TRIGGER_MODULE_BRANCH != "master"'
+      # when: manual
+    - if: $TRIGGER_MODULE_BRANCH == "master"
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: never

@@ -1,0 +1,82 @@
+<ServerManagerConfiguration>
+  <!-- Begin ComputeVolume -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ComputeVolume" class="vtkComputeVolume" label="Compute Volume">
+      <Documentation
+        short_help="Compute volume of a space formed by a plane and a pointcloud"
+        long_help="Compute volume of a space formed by a plane and a pointcloud">
+        Compute volume of a space formed by a plane and a pointcloud. The input pointcloud is rasterized.
+        The filter has two outputs. One is the rasterized pointcloud.
+        The other is the rasterized pointcloud projected on the XY plane for the visualisation purpose.
+      </Documentation>
+
+    <InputProperty
+      name="PointCloud"
+      port_index="0"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Set the input pointcloud.
+      </Documentation>
+    </InputProperty>
+
+    <InputProperty
+      name="Plane"
+      port_index="1"
+      command="SetInputConnection">
+      <DataTypeDomain name="input_type">
+        <DataType value="vtkPolyData"/>
+      </DataTypeDomain>
+      <Documentation>
+        Set the input plane.
+      </Documentation>
+    </InputProperty>
+
+    <OutputPort name="Rasterized point cloud" index="0" />
+    <OutputPort name="Estimated volume" index="1" />
+
+    <Hints>
+      <OutputPort index="1" type="text" />
+      <PipelineIcon name="SpreadSheetView" port="1" />
+    </Hints>
+
+    <DoubleVectorProperty name="Grid resolution"
+                          command="SetGridResolution"
+                          number_of_elements="1"
+                          default_values="0.2">
+      <DoubleRangeDomain name="range" min="0.001" />
+      <Documentation>
+        The size of a raster bin should correspond to the input pointcloud density
+        If the value is too small with respect to the density of the input pointcloud,
+        the volume will be under-estimated. If the value is too large, the volume will
+        be over-estimated.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Enable interpolation"
+                       command="SetEnableInterpolation"
+                       number_of_elements="1"
+                       default_values="0">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Enable the interpolation for empty bins when scan resolution is less than the grid resolution
+        to ensure the accuracy of the volume estimation.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Interpolation threshold"
+                       command="SetInterpolationThreshold"
+                       number_of_elements="1"
+                       default_values="4">
+      <Documentation>
+        The maximum consecutive empty bins allowed for the interpolation. If the number of consecutive empty bins is
+        larger than the threshold, the area is considered as an empty area.
+      </Documentation>
+    </IntVectorProperty>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End ComputeVolume -->
+</ServerManagerConfiguration>

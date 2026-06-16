@@ -1,0 +1,279 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkNormalizeExternalSensorData -->
+  <ProxyGroup name="filters">
+    <SourceProxy class="vtkNormalizeExternalSensorData"
+                 name="NormalizeExternalSensorData"
+                 label="Normalize External Sensor Data">
+
+      <Documentation long_help="Normalize external sensor data from a vtkTable: perform unit conversions and map input columns to standardized names. Outputs a table with arrays such as acc_x, w_x, X, Rx(Roll), odom depending on enabled sensors.">
+      </Documentation>
+
+      <InputProperty command="SetInputConnection" name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources" />
+          <Group name="filters" />
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkTable" />
+        </DataTypeDomain>
+      </InputProperty>
+
+      <IntVectorProperty name="UseIMU"
+                         command="SetUseIMU"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="IMU">
+        <BooleanDomain name="bool" />
+        <Documentation>Enable normalization for IMU columns (acc_*, w_*).</Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseGNSS"
+                         command="SetUseGNSS"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="GNSS">
+        <BooleanDomain name="bool" />
+        <Documentation>Enable normalization for GNSS position columns (X, Y, Z).</Documentation>
+        <Hints>
+          <!-- Hide GNSS toggle when INS is enabled to avoid duplicates -->
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseINS"
+                                   value="0" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseINS"
+                         command="SetUseINS"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="INS / External Pose">
+        <BooleanDomain name="bool" />
+        <Documentation>Enable normalization for INS/external pose columns (X, Y, Z, Rx(Roll), Ry(Pitch), Rz(Yaw)).</Documentation>
+        <Hints>
+          <!-- Hide INS toggle when GNSS is enabled to avoid duplicates -->
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseGNSS"
+                                   value="0" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseOdometry"
+                         command="SetUseOdometry"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="Odometry">
+        <BooleanDomain name="bool" />
+        <Documentation>Enable normalization for odometry column.</Documentation>
+      </IntVectorProperty>
+
+      <PropertyGroup label="Captor Selection">
+        <Property name="UseIMU" />
+        <Property name="UseGNSS" />
+        <Property name="UseINS" />
+        <Property name="UseOdometry" />
+      </PropertyGroup>
+
+      <!-- IMU Transform -->
+      <SubProxy command="SetIMUTransform">
+        <Proxy name="IMUTransform"
+               proxygroup="extended_sources"
+               proxyname="Transform2" />
+        <ExposedProperties>
+          <PropertyGroup label="IMU Transform">
+            <Property exposed_name="IMUPosition" name="Position" />
+            <Property exposed_name="IMURotation" name="Rotation" />
+          </PropertyGroup>
+        </ExposedProperties>
+      </SubProxy>
+      <PropertyGroup label="IMU Transform">
+        <Property name="IMUPosition" />
+        <Property name="IMURotation" />
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseIMU"
+                                   value="1" />
+        </Hints>
+      </PropertyGroup>
+
+      <!-- Pose Transform (GNSS/INS) -->
+      <SubProxy command="SetPoseTransform">
+        <Proxy name="PoseTransform"
+               proxygroup="extended_sources"
+               proxyname="Transform2" />
+        <ExposedProperties>
+          <PropertyGroup label="Pose Transform">
+            <Property exposed_name="PosePosition" name="Position" />
+            <Property exposed_name="PoseRotation" name="Rotation" />
+          </PropertyGroup>
+        </ExposedProperties>
+      </SubProxy>
+      <PropertyGroup label="Pose Transform">
+        <Property name="PosePosition" />
+        <Property name="PoseRotation" />
+        <Hints>
+          <PropertyWidgetDecorator type="CompositeDecorator">
+            <Expression type="or">
+              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseGNSS" value="1" />
+              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseINS" value="1" />
+            </Expression>
+          </PropertyWidgetDecorator>
+        </Hints>
+      </PropertyGroup>
+
+      <!-- Odometry Transform -->
+      <SubProxy command="SetOdometryTransform">
+        <Proxy name="OdometryTransform"
+               proxygroup="extended_sources"
+               proxyname="Transform2" />
+        <ExposedProperties>
+          <PropertyGroup label="Odometry Transform">
+            <Property exposed_name="OdometryPosition" name="Position" />
+            <Property exposed_name="OdometryRotation" name="Rotation" />
+          </PropertyGroup>
+        </ExposedProperties>
+      </SubProxy>
+      <PropertyGroup label="Odometry Transform">
+        <Property name="OdometryPosition" />
+        <Property name="OdometryRotation" />
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="UseOdometry"
+                                   value="1" />
+        </Hints>
+      </PropertyGroup>
+
+      <!-- Manual column mapping hooks (hidden; managed by custom widget) -->
+      <StringVectorProperty name="IMUAccXColumn" command="SetIMUAccXColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="IMUAccYColumn" command="SetIMUAccYColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="IMUAccZColumn" command="SetIMUAccZColumn" number_of_elements="1" panel_visibility="never" />
+
+      <StringVectorProperty name="IMUGyroXColumn" command="SetIMUGyroXColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="IMUGyroYColumn" command="SetIMUGyroYColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="IMUGyroZColumn" command="SetIMUGyroZColumn" number_of_elements="1" panel_visibility="never" />
+
+      <StringVectorProperty name="GNSSXColumn" command="SetGNSSXColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="GNSSYColumn" command="SetGNSSYColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="GNSSZColumn" command="SetGNSSZColumn" number_of_elements="1" panel_visibility="never" />
+
+      <StringVectorProperty name="RollColumn" command="SetRollColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="PitchColumn" command="SetPitchColumn" number_of_elements="1" panel_visibility="never" />
+      <StringVectorProperty name="YawColumn" command="SetYawColumn" number_of_elements="1" panel_visibility="never" />
+
+      <StringVectorProperty name="OdometryColumn" command="SetOdometryColumn" number_of_elements="1" panel_visibility="never" />
+
+      <StringVectorProperty name="TimeColumn" command="SetTimeColumn" number_of_elements="1" panel_visibility="never" />
+
+      <!-- Provide column names for the custom mapping widget -->
+      <StringVectorProperty name="HeaderColumns" information_only="1" command="GetHeaderColumns">
+        <StringArrayHelper />
+      </StringVectorProperty>
+      <StringVectorProperty name="Widget" panel_widget="multi_column_selector_widget">
+        <Hints>
+          <ColumnSelectorMapping>
+            <ColumnPair key="Time" property_name="TimeColumn" />
+            <ColumnPair key="acc_x" property_name="IMUAccXColumn" toggle_property="UseIMU" />
+            <ColumnPair key="acc_y" property_name="IMUAccYColumn" toggle_property="UseIMU" />
+            <ColumnPair key="acc_z" property_name="IMUAccZColumn" toggle_property="UseIMU" />
+            <ColumnPair key="w_x" property_name="IMUGyroXColumn" toggle_property="UseIMU" />
+            <ColumnPair key="w_y" property_name="IMUGyroYColumn" toggle_property="UseIMU" />
+            <ColumnPair key="w_z" property_name="IMUGyroZColumn" toggle_property="UseIMU" />
+            <ColumnPair key="X" property_name="GNSSXColumn" toggle_property="UseGNSS" />
+            <ColumnPair key="Y" property_name="GNSSYColumn" toggle_property="UseGNSS" />
+            <ColumnPair key="Z" property_name="GNSSZColumn" toggle_property="UseGNSS" />
+            <ColumnPair key="X" property_name="GNSSXColumn" toggle_property="UseINS" />
+            <ColumnPair key="Y" property_name="GNSSYColumn" toggle_property="UseINS" />
+            <ColumnPair key="Z" property_name="GNSSZColumn" toggle_property="UseINS" />
+            <ColumnPair key="Rx(Roll)" property_name="RollColumn" toggle_property="UseINS" />
+            <ColumnPair key="Ry(Pitch)" property_name="PitchColumn" toggle_property="UseINS" />
+            <ColumnPair key="Rz(Yaw)" property_name="YawColumn" toggle_property="UseINS" />
+            <ColumnPair key="odom" property_name="OdometryColumn" toggle_property="UseOdometry" />
+          </ColumnSelectorMapping>
+        </Hints>
+      </StringVectorProperty>
+      <PropertyGroup label="Column Mapping">
+        <Property name="Widget" />
+      </PropertyGroup>
+
+      <!-- Units -->
+      <IntVectorProperty name="IMUAccelerationUnits" command="SetIMUAccelerationUnits" number_of_elements="1" default_values="1" label="Acceleration Units">
+        <EnumerationDomain name="enum">
+          <Entry text="m/s^2" value="1" />
+          <Entry text="g" value="2" />
+          <Entry text="mg" value="3" />
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseIMU" value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="IMUGyroUnits" command="SetIMUGyroUnits" number_of_elements="1" default_values="1" label="Gyro Units">
+        <EnumerationDomain name="enum">
+          <Entry text="rad/s" value="1" />
+          <Entry text="deg/s" value="2" />
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseIMU" value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="GNSSPositionUnits" command="SetGNSSPositionUnits" number_of_elements="1" label="Position Units" default_values="1">
+        <EnumerationDomain name="enum">
+          <Entry text="m" value="1" />
+          <Entry text="cm" value="2" />
+          <Entry text="mm" value="3" />
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="CompositeDecorator">
+            <Expression type="or">
+              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseGNSS" value="1" />
+              <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseINS" value="1" />
+            </Expression>
+          </PropertyWidgetDecorator>
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="GNSSEulerUnits" command="SetGNSSEulerUnits" number_of_elements="1" default_values="1" label="Euler Angle Units">
+        <EnumerationDomain name="enum">
+          <Entry text="rad" value="1" />
+          <Entry text="deg" value="2" />
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseINS" value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="OdometryUnits" command="SetOdometryUnits" number_of_elements="1" default_values="1" label="Distance Units">
+        <EnumerationDomain name="enum">
+          <Entry text="m" value="1" />
+          <Entry text="cm" value="2" />
+          <Entry text="mm" value="3" />
+        </EnumerationDomain>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="UseOdometry" value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <PropertyGroup label="IMU Acc Units">
+        <Property name="IMUAccelerationUnits" />
+      </PropertyGroup>
+      <PropertyGroup label="IMU Gyro Units">
+        <Property name="IMUGyroUnits" />
+      </PropertyGroup>
+      <PropertyGroup label="Position Units">
+        <Property name="GNSSPositionUnits" />
+      </PropertyGroup>
+      <PropertyGroup label="INS Euler Units">
+        <Property name="GNSSEulerUnits" />
+      </PropertyGroup>
+      <PropertyGroup label="Odometry Units">
+        <Property name="OdometryUnits" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End vtkNormalizeExternalSensorData -->
+</ServerManagerConfiguration>

@@ -1,0 +1,14 @@
+NAME
+  LidarView::IOPDAL
+LIBRARY_NAME
+  lvIOPDAL
+CONDITION
+  LIDARVIEW_USE_PDAL
+DEPENDS
+  LidarView::CommonCore
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersModeling
+TEST_DEPENDS
+  LidarView::TestingCore

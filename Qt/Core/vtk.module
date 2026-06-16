@@ -1,0 +1,14 @@
+NAME
+  LidarView::lqCore
+LIBRARY_NAME
+  lqCore
+CONDITION
+  LIDARVIEW_USE_QT
+DEPENDS
+  LidarView::IOLidar
+  LidarView::IOGeolocation
+  ParaView::pqApplicationComponents
+  ParaView::pqComponents
+  ParaView::pqCore
+  ParaView::RemotingServerManager
+EXCLUDE_WRAP

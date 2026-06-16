@@ -1,0 +1,318 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_filters">
+    <SourceProxy name="AggregatePointsFromTrajectory" class="vtkAggregatePointsFromTrajectoryOnline" label="Aggregate Points From Trajectory">
+      <Documentation
+        short_help="Aggregate points from a trajectory online"
+        long_help="Aggregate points from a trajectory into a voxel grid with play mode">
+      </Documentation>
+
+      <InputProperty name="PointCloud"
+                     port_index="0"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataObject"/>
+        </DataTypeDomain>
+        <Documentation>
+          Set the input poly data.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty name="Trajectory"
+                     port_index="1"
+                     command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>
+          Set the input trajectory.
+        </Documentation>
+    </InputProperty>
+
+    <DoubleVectorProperty name="MinDistance"
+                          label="Min distance to sensor"
+                          command="SetMinDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Min distance to LiDAR sensor. Points are too close to the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <DoubleVectorProperty name="MaxDistance"
+                          label="Max distance to sensor"
+                          command="SetMaxDistance"
+                          number_of_elements="1"
+                          default_values="-1.0">
+      <Documentation>
+        Max distance to LiDAR sensor. Points are too far from the LiDAR will be filtered.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="General parameters">
+      <Property name="MinDistance" />
+      <Property name="MaxDistance" />
+    </PropertyGroup>
+
+    <IntVectorProperty name="Downsample The Output"
+                       command="SetIsVoxelGridFilterUsed"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Specify if the points should be aggregated into a voxel grid.
+      </Documentation>
+    </IntVectorProperty>
+
+    <IntVectorProperty name="Auto Compute Bounds"
+                       command="SetAutoComputeBounds"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Automatically compute the bounds of the voxel grid. This should be disabled with large trajectories.
+        This is performed browsing over the whole trajectory once at initialization,
+        and computing the bounding boxes of the frames transformed with the trajectory.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Bounds"
+                          animateable="0"
+                          command="SetCustomBounds"
+                          default_values="-400 400 -400 400 -20 50"
+                          number_of_elements="6">
+      <Documentation>
+          The bounds of the voxel grid.
+      </Documentation>
+      <Hints>
+      <PropertyWidgetDecorator type="CompositeDecorator">
+          <Expression type="and">
+            <PropertyWidgetDecorator type="GenericDecorator"
+                                    mode="visibility"
+                                    property="Auto Compute Bounds"
+                                    value="0" />
+            <PropertyWidgetDecorator type="GenericDecorator"
+                                    mode="visibility"
+                                    property="Downsample The Output"
+                                    value="1" />
+          </Expression>
+      </PropertyWidgetDecorator>
+      </Hints>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty
+      name="Voxel Sampling Mode"
+      command="SetVoxelSamplingMode"
+      number_of_elements="1"
+      default_values="0">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="First"/>
+        <Entry value="1" text="Last"/>
+        <Entry value="2" text="Max Intensity"/>
+        <Entry value="3" text="Center Point"/>
+        <Entry value="4" text="Centroid"/>
+      </EnumerationDomain>
+      <Documentation>
+        The method used to sample the points in a voxel. When the sampling mode changes, the voxel grid is cleared.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Voxel Leaf Size"
+                          command="SetVoxelLeafSize"
+                          number_of_elements="1"
+                          default_values="0.2">
+      <DoubleRangeDomain name="range" min="0.01" />
+      <Documentation>
+        The size of a voxel grid leaf.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="MinimumFramesPerVoxel"
+                       command="SetMinFramesPerVoxel"
+                       number_of_elements="1"
+                       default_values="-1">
+      <Documentation>
+        The minimum number of frames in a voxel to validate the voxel grid
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Downsample The Output"
+                                 value="1" />
+      </Hints>
+    </IntVectorProperty>
+
+    <PropertyGroup label="Voxel grid parameters">
+      <Property name="Auto Compute Bounds" />
+      <Property name="Bounds" />
+      <Property name="Downsample The Output" />
+      <Property name="Voxel Sampling Mode" />
+      <Property name="Voxel Leaf Size" />
+      <Property name="MinimumFramesPerVoxel" />
+    </PropertyGroup>
+
+    <IntVectorProperty name="Auto Detect Time Array"
+                       command="SetAutoDetectTimeArray"
+                       number_of_elements="1"
+                       default_values="1">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Automatically detect the time array in the point cloud.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Time Array"
+                          command="SetCustomTimeArrayName"
+                          number_of_elements="1"
+                          element_types="2"
+                          default_values="adjustedtime"
+                          animateable="0">
+      <ArrayListDomain name="array_list"
+                       attribute_type="Scalars">
+        <RequiredProperties>
+          <Property name="PointCloud"
+                    function="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        The array to use to match the trajectory to the point cloud.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Auto Detect Time Array"
+                                 value="0" />
+      </Hints>
+    </StringVectorProperty>
+
+    <IntVectorProperty name="Auto Detect Time Unit Conversion"
+                       command="SetAutoDetectTimeUnitConversion"
+                       number_of_elements="1"
+                       default_values="1"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Automatically detect the time unit conversion between the trajectory and the point cloud.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="Conversion Factor To Second"
+                          command="SetCustomConversionFactorToSecond"
+                          number_of_elements="1"
+                          default_values="1e-6"
+                          panel_visibility="advanced">
+      <Documentation>
+        Factor to convert Time unit in second.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator"
+                                 mode="visibility"
+                                 property="Auto Detect Time Unit Conversion"
+                                 value="0" />
+      </Hints>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Relative point timestamp"
+                       command="SetRelativeTimestamp"
+                       number_of_elements="1"
+                       default_values="0"
+                       panel_visibility="advanced">
+      <BooleanDomain name="bool"/>
+      <Documentation>
+        Choose whether timestamps of points are relative to the frame time or absolute.
+      </Documentation>
+    </IntVectorProperty>
+
+    <StringVectorProperty name="Reference timestamp name"
+                          command="SetReferenceTimeName"
+                          number_of_elements="1"
+                          default_values="Timestamp"
+                          panel_visibility="advanced">
+      <ArrayListDomain attribute_type="FieldData" none_string="None" name="array_list" input_domain_name="field_arrays">
+        <RequiredProperties>
+          <Property name="PointCloud" function="Input" />
+        </RequiredProperties>
+      </ArrayListDomain>
+      <Documentation>
+        Name of the timestamp field in the data array, which is used to determine the absolute reference time for relative point timestamps.
+      </Documentation>
+      <Hints>
+        <PropertyWidgetDecorator type="GenericDecorator" mode="visibility" property="Relative point timestamp" value="1" />
+      </Hints>
+    </StringVectorProperty>
+
+    <DoubleVectorProperty name="Time Offset"
+                          command="SetTimeOffset"
+                          number_of_elements="1"
+                          default_values="0"
+                          panel_visibility="advanced">
+      <Documentation>
+        Offset to add to the time of the point cloud to match the trajectory.
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <IntVectorProperty name="Interpolation Type"
+                       command="SetInterpolationType"
+                       number_of_elements="1"
+                       default_values="0">
+      <EnumerationDomain name="enum">
+        <Entry value="0" text="linear"/>
+        <Entry value="1" text="spline"/>
+        <Entry value="2" text="manual"/>
+        <Entry value="3" text="nearest"/>
+        <Entry value="4" text="nearest low bound"/>
+      </EnumerationDomain>
+      <Documentation>
+        How to interpolate between input poses.
+      </Documentation>
+    </IntVectorProperty>
+
+    <DoubleVectorProperty name="InterpolationTimeTolerance"
+                          command="SetInterpolationTimeTolerance"
+                          number_of_elements="1"
+                          default_values="0.5"
+                          panel_visibility="advanced">
+      <Documentation>
+        Time tolerance in seconds for considering a frame within the trajectory's valid range
+      </Documentation>
+    </DoubleVectorProperty>
+
+    <PropertyGroup label="Time and interpolation parameters">
+      <Property name="Auto Detect Time Array" />
+      <Property name="Time Array" />
+      <Property name="Auto Detect Time Unit Conversion" />
+      <Property name="Conversion Factor To Second" />
+      <Property name="Relative point timestamp" />
+      <Property name="Reference timestamp name" />
+      <Property name="Time Offset" />
+      <Property name="Interpolation Type" />
+      <Property name="InterpolationTimeTolerance" />
+    </PropertyGroup>
+   </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

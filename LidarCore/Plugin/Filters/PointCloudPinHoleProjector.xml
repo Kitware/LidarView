@@ -1,0 +1,107 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="PointCloudPinHoleProjector" class="vtkPointCloudPinHoleProjector" label="PointCloud PinHole Projector">
+      <Documentation
+        short_help="Project a PointCloud from a PinHole model to an image"
+        long_help="Project a PointCloud from a PinHole model to an image">
+          Project a PointCloud from a PinHole model to an image
+      </Documentation>
+
+      <InputProperty name="Input" port_index="0" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <OutputPort name="ImageData" index="0" />
+      <OutputPort name="CameraModel" index="1" />
+      <Hints>
+        <RepresentationType view="LidarGridView" type="Wireframe" port="1" />
+      </Hints>
+
+      <IntVectorProperty
+        name="Resolution"
+        animateable="0"
+        default_values="1280 720"
+        command="SetResolution"
+        number_of_elements="2">
+        <Documentation>
+            The image resolution.
+            A higher resolution will give you more details, but depending on your points density, the resulting
+            image could have empty areas.
+        </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Focal Length"
+        animateable="0"
+        default_values="1"
+        command="SetFocalLength"
+        number_of_elements="1">
+        <Documentation>
+            The focal length.
+            It is multiplicated by resolution width and represent the focal distance.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Translation"
+        animateable="0"
+        default_values="0 0 0"
+        command="SetCameraTranslation"
+        number_of_elements="3">
+        <Documentation>
+          The camera translation from origin.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Direction"
+        animateable="0"
+        default_values="1 0 0"
+        command="SetCameraDirection"
+        number_of_elements="3">
+        <Documentation>
+          A vector representing the camera direction (will be normalized).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Camera Angle"
+        animateable="0"
+        default_values="0"
+        command="SetCameraAngle"
+        number_of_elements="1">
+        <Documentation>
+          The roll of the camera (around direction axis).
+        </Documentation>
+      </DoubleVectorProperty>
+      
+      <IntVectorProperty
+        name="UseNaN"
+        label="Use NaN"
+        animateable="0"
+        default_values="0"
+        command="SetUseNaN"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+            If activated, use NaN when double scalars are missing for a pixel.
+            This option doesn't affect non-double scalars, which remains initalized at 0.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="Fill With Neighbors"
+        animateable="0"
+        default_values="0"
+        command="SetFillWithNeighbors"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>
+            If activated, replace NaN values by one of its 4 neighbors if one is different from NaN.
+        </Documentation>
+      </IntVectorProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

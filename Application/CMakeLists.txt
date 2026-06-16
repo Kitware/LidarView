@@ -48,6 +48,11 @@ if (LIDARVIEW_USE_QT)
 endif ()
 
 #--------------------------------------
+# Build lvpython, lvbatch, lvserver...
+#--------------------------------------
+add_subdirectory(CommandLineExecutables)
+
+#--------------------------------------
 # Export python wrapping
 #--------------------------------------
 if (LIDARVIEW_USE_PYTHON)

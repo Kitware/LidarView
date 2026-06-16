@@ -1,0 +1,34 @@
+/*=========================================================================
+
+  Program: LidarView
+  Module:  vtkLVVersion.h
+
+  Copyright (c) Kitware Inc.
+  All rights reserved.
+  See LICENSE or http://www.apache.org/licenses/LICENSE-2.0 for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkLVVersion_h
+#define vtkLVVersion_h
+
+#define LIDARVIEW_VERSION_MAJOR @LIDARVIEW_VERSION_MAJOR@
+#define LIDARVIEW_VERSION_MINOR @LIDARVIEW_VERSION_MINOR@
+#define LIDARVIEW_VERSION_PATCH @LIDARVIEW_VERSION_PATCH@
+#define LIDARVIEW_VERSION "@LIDARVIEW_VERSION@"
+#define LIDARVIEW_VERSION_FULL "@LIDARVIEW_VERSION_FULL@"
+
+#define LIDARVIEW_VERSION_CHECK(major, minor, build)                                                     \
+  (10000000000ULL * major + 100000000ULL * minor + build)
+#define LIDARVIEW_VERSION_NUMBER                                                                         \
+  LIDARVIEW_VERSION_CHECK(LIDARVIEW_VERSION_MAJOR, LIDARVIEW_VERSION_MINOR, LIDARVIEW_VERSION_PATCH)
+
+#define SOFTWARE_NAME "LidarView"
+
+#cmakedefine LIDARVIEW_HIDE_DEPRECATION_WARNINGS
+
+#endif

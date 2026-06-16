@@ -57,6 +57,7 @@ typedef pqPythonDebugLeaksView DebugLeaksViewType;
 #include "lqLiveSourceScalarColoringBehavior.h"
 #include "lqOpenLidarReaction.h"
 #include "lqRecentlyUsedPcapLoader.h"
+#include "lqStreamPCAPRecorder.h"
 #include "lqViewFrameActionsImplementation.h"
 #include "lqWelcomeDialog.h"
 
@@ -74,6 +75,20 @@ public:
   {
     this->UpdateFontSizeTimer.setInterval(0);
     this->UpdateFontSizeTimer.setSingleShot(true);
+  }
+
+  //-----------------------------------------------------------------------------
+  void HideTimeInformation()
+  {
+    // Hack to hide timesteps info in information panel as it can break LidarView display
+    // with many timesteps and doesn't add much.
+    QWidget* timeValues = this->proxyInformationWidget->findChild<QWidget*>("timeValues");
+    QLabel* labelTime = this->proxyInformationWidget->findChild<QLabel*>("labelTimes");
+    if (timeValues && labelTime)
+    {
+      timeValues->setVisible(false);
+      labelTime->setVisible(false);
+    }
   }
 };
 
@@ -117,6 +132,7 @@ LidarViewMainWindow::LidarViewMainWindow()
   this->Internals->informationDock->hide();
   this->Internals->timeManagerDock->hide();
   this->Internals->outputWidgetDock->hide();
+  this->Internals->HideTimeInformation();
 
   // Tabify some widgets (by default second widget will open where first widget is as a tab)
   // Left dock widgets
@@ -223,6 +239,9 @@ LidarViewMainWindow::LidarViewMainWindow()
 
   // Add recently used pcap interface
   pgm->addInterface(new lqRecentlyUsedPcapLoader(pgm));
+
+  // Add PCAP recorder
+  pgm->addInterface(new lqStreamPCAPRecorder(pgm));
 
   // Restore last LidarView interface mode saved in settings
   lqLidarViewManager::instance()->restoreSavedInterfaceLayout();

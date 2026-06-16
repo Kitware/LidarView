@@ -1,0 +1,12 @@
+NAME
+  LidarView::lqComponents
+LIBRARY_NAME
+  lqComponents
+CONDITION
+  LIDARVIEW_USE_QT
+DEPENDS
+  ParaView::pqCore
+  LidarView::RemotingServerManager
+PRIVATE_DEPENDS
+  LidarView::lqCore
+EXCLUDE_WRAP

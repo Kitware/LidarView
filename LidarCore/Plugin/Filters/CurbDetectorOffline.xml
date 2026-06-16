@@ -1,0 +1,126 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="CurbDetectorOffline" class="vtkCurbDetectorOffline" label="Curb Detector (offline)">
+      <Documentation short_help="Detect curb steps via per-segment trajectory slicing and a lateral height profile.">
+        Takes an aggregated point cloud and the trajectory used to generate it. For each consecutive
+        trajectory segment, builds a slice plane perpendicular to the segment and a rectangular window.
+        Projects in-window points to the slice frame, computes a lateral 1D height profile using order-median
+        with light smoothing, and flags significant vertical steps (≥ ZChangeMin) as curb candidates.
+      </Documentation>
+
+      <InputProperty name="AggregatedPointCloud" port_index="0" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Aggregated point cloud.</Documentation>
+      </InputProperty>
+
+      <InputProperty name="Trajectory" port_index="1" command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>Trajectory representing the sensor path.</Documentation>
+      </InputProperty>
+
+      <DoubleVectorProperty name="Slice Half Thickness"
+                            label="Slice Half-Thickness (m)"
+                            command="SetSliceHalfThickness"
+                            number_of_elements="1"
+                            default_values="0.2">
+        <Documentation>
+          Half-thickness of the slice along plane normal.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Left Distance"
+                            label="Left Distance (m)"
+                            command="SetSliceLeftDistance"
+                            number_of_elements="1"
+                            default_values="5.0">
+        <Documentation>
+          Maximum distance to the left of the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Right Distance"
+                            label="Right Distance (m)"
+                            command="SetSliceRightDistance"
+                            number_of_elements="1"
+                            default_values="5.0">
+        <Documentation>
+           Maximum distance to the right of the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Downward Distance"
+                            label="Below Distance (m)"
+                            command="SetSliceDownwardDistance"
+                            number_of_elements="1"
+                            default_values="-5.0">
+        <Documentation>
+          Minimum vertical distance from the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="Slice Upward Distance"
+                            label="Above Distance (m)"
+                            command="SetSliceUpwardDistance"
+                            number_of_elements="1"
+                            default_values="-2.0">
+        <Documentation>
+          Maximum vertical distance from the trajectory to include in each slice (meters).
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty name="ZChangeMin"
+                            label="Minimum Z Change (m)"
+                            command="SetZChangeMin"
+                            number_of_elements="1"
+                            default_values="0.1">
+        <Documentation>
+          Minimum ΔZ between adjacent order-bins (meters) to flag a step.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty name="OrderBinSize"
+                        label="Order Bin Size"
+                        command="SetOrderBinSize"
+                        number_of_elements="1"
+                        default_values="20">
+        <Documentation>
+          Target number of points per lateral order-bin used to build the slice profile. Must be larger or equal to  1.
+        </Documentation>
+      </IntVectorProperty>
+
+      <OutputPort name="CrossSection" index="0" id="port0" />
+      <OutputPort name="SlicedPointsLR" index="1" id="port1" />
+      <OutputPort name="Slice1DProfile" index="2" id="port2" />
+      <OutputPort name="CurbFrom1DProfileLR" index="3" id="port3" />
+
+      <PropertyGroup label="Thickness">
+        <Property name="Slice Half Thickness" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Slice Bounds">
+        <Property name="Slice Left Distance" />
+        <Property name="Slice Right Distance" />
+        <Property name="Slice Downward Distance" />
+        <Property name="Slice Upward Distance" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Detection">
+        <Property name="ZChangeMin" />
+        <Property name="OrderBinSize" />
+      </PropertyGroup>
+
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

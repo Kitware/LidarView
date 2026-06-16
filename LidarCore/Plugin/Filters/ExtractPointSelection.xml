@@ -1,0 +1,62 @@
+<ServerManagerConfiguration>
+  <!-- Begin vtkExtractPointSelection -->
+  <ProxyGroup name="filters">
+    <SourceProxy name="ExtractPointSelection" class="vtkExtractPointSelection" label="Extract Point Selection">
+      <Documentation
+        short_help="Extract Point Selection"
+        long_help="Extract Point Selection and convert it to a PolyData">
+        Extract Point Selection and convert it to a PolyData
+      </Documentation>
+
+      <IntVectorProperty
+        name="InvertSelection"
+        command="SetInvertSelection"
+        number_of_elements="1"
+        default_values="0">
+        <BooleanDomain name="bool"/>
+        <Documentation>
+          Invert the selection, equivalent to removing the selection
+        </Documentation>
+      </IntVectorProperty>
+
+      <InputProperty command="SetInputConnection"
+                     name="Input">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet"/>
+        </DataTypeDomain>
+        <Documentation>
+          This property specifies the input from which the selection is extracted.
+        </Documentation>
+      </InputProperty>
+
+      <InputProperty command="SetSelectionConnection"
+                     name="Selection"
+                     panel_visibility="default">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkSelection"/>
+        </DataTypeDomain>
+        <Documentation>
+          The input that provides the selection object.
+        </Documentation>
+        <Hints>
+          <SelectionInput/>
+        </Hints>
+      </InputProperty>
+
+      <Hints>
+        <InitializationHelper class="vtkSMExtractSelectionProxyInitializationHelper"/>
+        <ShowInMenu icon=":/lqFilters/Icons/lqExtractPointSelection.svg" />
+      </Hints>
+
+    </SourceProxy>
+  </ProxyGroup>
+  <!-- End ExtractPointSelection -->
+</ServerManagerConfiguration>

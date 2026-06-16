@@ -1,0 +1,30 @@
+NAME
+  LidarView::lqApplicationComponents
+LIBRARY_NAME
+  lqApplicationComponents
+CONDITION
+  LIDARVIEW_USE_PYTHON AND LIDARVIEW_USE_QT
+DEPENDS
+  LidarView::lqComponents
+  ParaView::pqApplicationComponents
+  ParaView::pqComponents
+PRIVATE_DEPENDS
+  LidarView::lqCore
+  LidarView::CommonCore
+  LidarView::Sources
+  LidarView::FiltersTemporal
+  LidarView::IOCore
+  LidarView::IOGeolocation
+  LidarView::IOLidar
+  LidarView::IONetwork
+  LidarView::PythonInitializer
+  LidarView::Versioning
+  ParaView::pqCore
+  ParaView::pqPython
+  ParaView::pqWidgets
+  ParaView::RemotingAnimation
+  ParaView::RemotingCore
+  ParaView::RemotingViews
+  ParaView::RemotingServerManager
+  VTK::CommonSystem
+EXCLUDE_WRAP

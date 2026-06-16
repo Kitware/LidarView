@@ -1,0 +1,9 @@
+NAME
+  LidarView::UtilitiesPCAPTools
+LIBRARY_NAME
+  lvUtilitiesPCAPTools
+DEPENDS
+  Boost::program_options
+  Boost::thread
+  LidarView::IONetwork
+  VTK::CommonCore

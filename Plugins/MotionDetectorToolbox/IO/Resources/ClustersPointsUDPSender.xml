@@ -1,0 +1,20 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="ClustersPointsUDPSender"
+                 class="vtkClustersPointsUDPSender"
+                 label="Clusters Points UDP Sender"
+                 base_proxygroup="internal_filters"
+                 base_proxyname="UDPSenderAlgorithm">
+      <Documentation short_help="Send all points of each cluster independently.">
+        Should be used with vtkMotionDetector. Send multiple packets with all points for
+        each cluster detected.
+      </Documentation>
+
+      <InputProperty name="Input" command="SetInputConnection">
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkDataSet" />
+        </DataTypeDomain>
+      </InputProperty>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

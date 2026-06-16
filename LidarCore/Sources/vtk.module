@@ -1,0 +1,12 @@
+NAME
+  LidarView::Sources
+LIBRARY_NAME
+  lvSources
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::FiltersExtraction
+  VTK::FiltersSources

@@ -1,0 +1,149 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="misc">
+    <!-- ==================================================================== -->
+    <!-- Packet recorder -->
+    <Proxy name="PacketRecorder" class="vtkPacketRecorder">
+      <StringVectorProperty name="RecordingFileName"
+                            command="SetRecordingFileName"
+                            number_of_elements="1" />
+      <Property name="StartRecording"
+                command="StartRecording"
+                panel_widget="command_button" />
+      <Property name="StopRecording"
+                command="StopRecording"
+                panel_widget="command_button" />
+    </Proxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- UDP Packet receiver -->
+    <Proxy name="UDPPacketReceiver" class="vtkUDPPacketReceiver">
+      <StringVectorProperty name="LocalListeningAddress"
+                            command="SetLocalListeningAddress"
+                            default_values="::"
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify listening address in case of multiple inferface.
+          If :: or invalid, it tries to listen to ALL/ANY local IPv6 and IPv4 address.
+          If 0.0.0.0, it tries to listen to ALL/ANY local IPv4 address.
+          On Unix/OSX receving broadcasted packets from only one interface needs the local broadcast
+          receiver address (x.x.x.255) instead of the local address.
+          Joining multicast group won't work with multiple interfaces if no specific address is entered.
+        </Documentation>
+      </StringVectorProperty>
+
+      <!--
+        224.0.0.0 could be a good default address,
+        but it is more convenient to listen to brodcast by default
+      -->
+      <StringVectorProperty name="MulticastAddress"
+                            command="SetMulticastAddress"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify multicast address on which to listen for Lidar packets.
+          The range of multicast IPv4 addresses is from 224.0.0.0 to 239.255.255.255.
+          Empty and non-multicast address are ignored.
+          Leave it empty to listen in broadcast or in unicast.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="IsForwarding"
+                         command="SetIsForwarding"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <StringVectorProperty name="ForwardedIpAddress"
+                            command="SetForwardedIpAddress"
+                            default_values="127.0.0.1"
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify the Ip address on which to forward all packets received by the stream
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="IsForwarding"
+                                   value="1" />
+        </Hints>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="ForwardedPortOffset"
+                         command="SetForwardedPortOffset"
+                         animateable="0"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <Documentation>
+          Specify an offset to apply to the listening port for forwarding packets received by the stream.
+        </Documentation>
+        <Hints>
+          <PropertyWidgetDecorator type="GenericDecorator"
+                                   mode="visibility"
+                                   property="IsForwarding"
+                                   value="1" />
+        </Hints>
+      </IntVectorProperty>
+
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
+
+
+    <!-- ==================================================================== -->
+    <!-- TCP Packet receiver -->
+    <Proxy name="TCPPacketReceiver" class="vtkTCPPacketReceiver">
+      <StringVectorProperty name="LocalListeningAddress"
+                            command="SetLocalListeningAddress"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify the server address.
+        </Documentation>
+      </StringVectorProperty>
+
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
+
+    <!-- ==================================================================== -->
+    <!-- Packet sniffer -->
+    <Proxy name="PacketSniffer" class="vtkStreamPacketSniffer">
+      <StringVectorProperty name="HostAddress"
+                            command="SetHostAddress"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specify the host address to listen. If empty, all addresses will be sniffed.
+        </Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="NetworkInterface"
+                            command="SetNetworkInterface"
+                            default_values=""
+                            number_of_elements="1"
+                            panel_visibility="advanced">
+        <Documentation>
+          Specificy the network interface name to sniff packet on. (e.g "etho", "lo" ...)
+          If empty all interfaces are listen.
+        </Documentation>
+      </StringVectorProperty>
+
+      <ProxyProperty command="SetRecorder" name="Recorder" />
+    </Proxy>
+  </ProxyGroup>
+
+  <!-- ==================================================================== -->
+  <!-- Default group with all available packet handler -->
+  <ProxyGroup name="packet_handler_group">
+    <Proxy group="internal_interpreter" name="UDPPacketReceiver" />
+    <Proxy group="internal_interpreter" name="PacketSniffer" />
+  </ProxyGroup>
+</ServerManagerConfiguration>

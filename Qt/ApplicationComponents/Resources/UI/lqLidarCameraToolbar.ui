@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>lqLidarCameraToolbar</class>
+ <widget class="QToolBar" name="lqLidarCameraToolbar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>336</width>
+    <height>42</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Camera Controls</string>
+  </property>
+  <property name="orientation">
+   <enum>Qt::Horizontal</enum>
+  </property>
+  <action name="actionLidarResetCamera">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqResetCamera.png</normaloff>:/lqResources/Icons/pqResetCamera.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Reset</string>
+   </property>
+   <property name="iconText">
+    <string>Reset Camera</string>
+   </property>
+   <property name="statusTip">
+    <string>Reset Camera</string>
+   </property>
+  </action>
+  <action name="actionLidarPositiveX">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqXPlus.png</normaloff>:/lqResources/Icons/pqXPlus.png</iconset>
+   </property>
+   <property name="text">
+    <string>+X</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to +X</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to +X</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to +X</string>
+   </property>
+  </action>
+  <action name="actionLidarNegativeX">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqXMinus.png</normaloff>:/lqResources/Icons/pqXMinus.png</iconset>
+   </property>
+   <property name="text">
+    <string>-X</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to -X</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to -X</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to -X</string>
+   </property>
+  </action>
+  <action name="actionLidarPositiveY">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqYPlus.png</normaloff>:/lqResources/Icons/pqYPlus.png</iconset>
+   </property>
+   <property name="text">
+    <string>+Y</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to +Y</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to +Y</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to +Y</string>
+   </property>
+  </action>
+  <action name="actionLidarNegativeY">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqYMinus.png</normaloff>:/lqResources/Icons/pqYMinus.png</iconset>
+   </property>
+   <property name="text">
+    <string>-Y</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to -Y</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to -Y</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to -Y</string>
+   </property>
+  </action>
+  <action name="actionLidarPositiveZ">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqZPlus.png</normaloff>:/lqResources/Icons/pqZPlus.png</iconset>
+   </property>
+   <property name="text">
+    <string>+Z</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to +Z</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to +Z</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to +Z</string>
+   </property>
+  </action>
+  <action name="actionLidarNegativeZ">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqZMinus.png</normaloff>:/lqResources/Icons/pqZMinus.png</iconset>
+   </property>
+   <property name="text">
+    <string>-Z</string>
+   </property>
+   <property name="toolTip">
+    <string>Set view direction to -Z</string>
+   </property>
+   <property name="statusTip">
+    <string>Set view direction to -Z</string>
+   </property>
+   <property name="whatsThis">
+    <string>Set view direction to -Z</string>
+   </property>
+  </action>
+  <action name="actionLidarRotate90degCW">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqRotateCameraCW.png</normaloff>:/lqResources/Icons/pqRotateCameraCW.png</iconset>
+   </property>
+   <property name="text">
+    <string></string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate 90° clockwise</string>
+   </property>
+   <property name="statusTip">
+    <string>Rotate 90° clockwise</string>
+   </property>
+   <property name="whatsThis">
+    <string>Rotate 90° clockwise</string>
+   </property>
+  </action>
+  <action name="actionLidarRotate90degCCW">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqRotateCameraCCW.png</normaloff>:/lqResources/Icons/pqRotateCameraCCW.png</iconset>
+   </property>
+   <property name="text">
+    <string></string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate 90° counterclockwise</string>
+   </property>
+   <property name="statusTip">
+    <string>Rotate 90° counterclockwise</string>
+   </property>
+   <property name="whatsThis">
+    <string>Rotate 90° counterclockwise</string>
+   </property>
+  </action>
+  <action name="actionLidarZoomToBox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqZoomToSelection.png</normaloff>:/lqResources/Icons/pqZoomToSelection.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom to Box</string>
+   </property>
+   <property name="statusTip">
+    <string>Zoom to Box</string>
+   </property>
+  </action>
+  <action name="actionLidarZoomToData">
+   <property name="text">
+    <string>ZTD</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom To Data</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../lqResources.qrc">
+     <normaloff>:/lqResources/Icons/pqZoomToData.png</normaloff>:/lqResources/Icons/pqZoomToData.png</iconset>
+   </property>
+  </action>
+  <addaction name="actionLidarResetCamera"/>
+  <addaction name="actionLidarZoomToData"/>
+  <addaction name="actionLidarZoomToBox"/>
+  <addaction name="actionLidarPositiveX"/>
+  <addaction name="actionLidarNegativeX"/>
+  <addaction name="actionLidarPositiveY"/>
+  <addaction name="actionLidarNegativeY"/>
+  <addaction name="actionLidarPositiveZ"/>
+  <addaction name="actionLidarNegativeZ"/>
+  <addaction name="actionLidarRotate90degCW"/>
+  <addaction name="actionLidarRotate90degCCW"/>
+ </widget>
+ <resources>
+  <include location="../lqResources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

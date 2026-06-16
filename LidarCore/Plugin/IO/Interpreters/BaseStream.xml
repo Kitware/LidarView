@@ -1,0 +1,61 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_interpreter">
+    <!-- ==================================================================== -->
+    <!-- Base live source stream -->
+    <SourceProxy name="BaseStream" class="vtkStream">
+
+      <IntVectorProperty name="ListeningPort"
+                         animateable="0"
+                         command="SetListeningPort"
+                         default_values="2368"
+                         number_of_elements="1">
+        <Documentation>
+        Specify port on which to listen for packets
+        </Documentation>
+      </IntVectorProperty>
+
+      <ProxyProperty name="PacketHandler"
+                     command="SetPacketHandler"
+                     panel_visibility="advanced">
+        <ProxyListDomain name="proxy_list">
+          <Group name="packet_handler_group" default="UDPPacketReceiver" />
+        </ProxyListDomain>
+      </ProxyProperty>
+
+      <IntVectorProperty name="IsCrashAnalysing"
+                         command="SetIsCrashAnalysing"
+                         default_values="0"
+                         number_of_elements="1"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <Property name="Start"
+                command="Start"
+                panel_widget="command_button">
+        <Documentation>
+          Start the current stream.
+        </Documentation>
+      </Property>
+
+      <Property name="Stop"
+                command="Stop"
+                panel_widget="command_button">
+        <Documentation>
+          Pause the current stream. Note that the stream will continue in background.
+        </Documentation>
+      </Property>
+
+      <PropertyGroup label="Stream Player">
+        <Property name="Start" />
+        <Property name="Stop" />
+      </PropertyGroup>
+
+      <PropertyGroup label="Stream Options">
+        <Property name="ListeningPort" />
+        <Property name="PacketHandler" panel_visibility="advanced" />
+        <Property name="IsCrashAnalysing" panel_visibility="advanced" />
+      </PropertyGroup>
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

@@ -1,0 +1,18 @@
+NAME
+  LidarView::FiltersProcessing
+LIBRARY_NAME
+  lvFiltersProcessing
+DEPENDS
+  Eigen3::Eigen
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  LidarView::CommonCore
+  LidarView::FiltersVisualization
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::libproj
+TEST_DEPENDS
+  LidarView::TestingCore

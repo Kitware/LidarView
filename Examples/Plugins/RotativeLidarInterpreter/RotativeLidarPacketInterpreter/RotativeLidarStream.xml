@@ -1,0 +1,37 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <LidarStreamProxy name="RotativeLidarStream"
+                      class="vtkLidarStream"
+                      label="Example rotative LiDAR Stream"
+                      base_proxygroup="internal_interpreter"
+                      base_proxyname="CommonLidarStream">
+
+      <Documentation short_help="Example LiDAR data stream." long_help="Example LiDAR live source stream.">
+        Example LiDAR live source stream.
+      </Documentation>
+
+      <SubProxy command="SetLidarInterpreter">
+        <Proxy name="PacketInterpreter"
+               proxygroup="internal_interpreter"
+               proxyname="RotativeLidarPacketInterpreter" />
+        <ExposedProperties>
+          <Property name="CalibrationFileName" />
+          <Property name="LidarModel" />
+          <PropertyGroup label="LiDAR Transform">
+            <Property name="Position" panel_visibility="advanced" />
+            <Property name="Rotation" panel_visibility="advanced" />
+            <Property name="PassthroughTransformMode" panel_visibility="advanced" />
+          </PropertyGroup>
+          <Property name="Vendor" panel_visibility="never" />
+          <Property name="ModelName" panel_visibility="never" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <Hints>
+        <LiveSource refresh_on_interaction="1" />
+        <View type="None" port="1" />
+        <PipelineIcon name="SpreadSheetView" port="1" />
+      </Hints>
+    </LidarStreamProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

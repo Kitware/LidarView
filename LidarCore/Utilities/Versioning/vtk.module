@@ -1,0 +1,6 @@
+NAME
+  LidarView::Versioning
+LIBRARY_NAME
+  lvVersioning
+DEPENDS
+  ParaView::Versioning

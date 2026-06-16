@@ -2,82 +2,89 @@
 
 ## Base configurations
 .windows:
-    variables:
-        GIT_CLONE_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\$CI_PROJECT_ID"
-        LVSB_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\DEPS-251002"
-        GIT_SUBMODULE_DEPTH: 1
+  variables:
+    GIT_CLONE_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\$CI_PROJECT_ID"
+    GIT_SUBMODULE_DEPTH: 1
 
-        # Force "desktop" OpenGL support. Qt seems to want to use EGL when run
-        # from GitLab-CI by default (it runs as a Windows service).
-        QT_OPENGL: desktop
+    # Force "desktop" OpenGL support. Qt seems to want to use EGL when run
+    # from GitLab-CI by default (it runs as a Windows service).
+    QT_OPENGL: desktop
 
-.windows_vs2019:
-    extends: .windows
+.windows_vs2022:
+  extends: .windows
 
-    variables:
-        CMAKE_CONFIGURATION: windows_vs2019
-        QTBINARIES: "C:\\Qt\\Qt5.15.2\\5.15.2\\msvc2019_64\\bin"
-        VCVARSALL: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
-        VCVARSPLATFORM: "x64"
-        VCVARSVERSION: "14.29.30133"
+  variables:
+    CMAKE_CONFIGURATION: windows_vs2022
+    QTBINARIES: "C:\\Qt\\6.9.2\\msvc2022_64\\bin"
+    VCVARSALL: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+    VCVARSPLATFORM: "x64"
+    VCVARSVERSION: "14.43.34808"
+
+.windows_vs2022_pv6.0:
+  extends: .windows_vs2022
+  variables:
+    LVSB_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\DEPS-260108"
+
+.windows_vs2022_pv6.1:
+  extends: .windows_vs2022
+  variables:
+    LVSB_PATH: "$CI_BUILDS_DIR\\lidarview-ci\\DEPS-260427"
 
 ## Tags
 
 .windows_builder_tags:
-    tags:
-        - lidarview
-        - msvc-19.29
-        - shell
-        - windows-x86_64
-        - qt-5.12.9
+  tags:
+    - msvc-19.44
+    - shell
+    - windows-x86_64
+    - qt-6.9.2
 
 .windows_test_tags:
-    tags:
-        - lidarview
-        - msvc-19.29
-        - vs2019
-        - windows-x86_64
-        - qt-5.12.9
+  tags:
+    - msvc-19.44
+    - vs2022
+    - windows-x86_64
+    - qt-6.9.2
 
 ## Windows-specific scripts
 
 .before_script_windows: &before_script_windows
-    - $pwdpath = $pwd.Path
-    - powershell -File ".gitlab/ci/ninja.ps1"
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab;$env:PATH"
-    - cmake --version
-    - ninja --version
-    - git submodule sync --recursive
-    - git submodule update --init --recursive --force
-    - powershell -File ".gitlab/ci/checkout_trigger_submodule.ps1"
+  - $pwdpath = $pwd.Path
+  - powershell -File ".gitlab/ci/ninja.ps1"
+  - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab;$env:PATH"
+  - cmake --version
+  - ninja --version
+  - git submodule sync --recursive
+  - git submodule update --init --recursive --force
+  - powershell -File ".gitlab/ci/checkout_trigger_submodule.ps1"
 
 .before_script_windows_deps: &before_script_windows_deps
-    - Set-Item -Force -Path "env:PATH" -Value "$QTBINARIES;$env:PATH"
-    - Set-Item -Force -Path "env:PATH" -Value "$LVSB_PATH\install\bin;$env:PATH"
-    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$LVSB_PATH\install\Python"
+  - Set-Item -Force -Path "env:PATH" -Value "$QTBINARIES;$env:PATH"
+  - Set-Item -Force -Path "env:PATH" -Value "$LVSB_PATH\install\bin;$env:PATH"
+  - Set-Item -Force -Path "env:PYTHONHOME" -Value "$LVSB_PATH\install\Python"
 
 .cmake_build_windows:
-    stage: build
+  stage: build
 
-    script:
-        - *before_script_windows
-        - *before_script_windows_deps
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_$CMAKE_CONFIGURATION.cmake -GNinja
-        - cmake --build $CI_PROJECT_DIR/build --parallel 8
-    interruptible: true
+  script:
+    - *before_script_windows
+    - *before_script_windows_deps
+    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+    - cmake -S $CI_PROJECT_DIR -B $CI_PROJECT_DIR/build -C .gitlab/ci/configure_$CMAKE_CONFIGURATION.cmake -GNinja
+    - cmake --build $CI_PROJECT_DIR/build --parallel 8
+  interruptible: true
 
 .cmake_test_windows:
-    stage: test
+  stage: test
 
-    script:
-        - *before_script_windows
-        - *before_script_windows_deps
-        # Some tests are in LidarView plugins directories
-        - Set-Item -Force -Path "env:PATH" -Value "$CI_PROJECT_DIR\build\bin;$env:PATH"
-        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$LVSB_PATH\install\Python\Lib\site-packages"
-        # Some tests run CMake steps, so we need a compiler environment.
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - Copy-Item -Path ".gitlab\ci\CMakePresets.json" -Destination "$CI_PROJECT_DIR"
-        - ctest --preset ci_$CMAKE_CONFIGURATION
-    interruptible: true
+  script:
+    - *before_script_windows
+    - *before_script_windows_deps
+    # Some tests are in LidarView plugins directories
+    - Set-Item -Force -Path "env:PATH" -Value "$CI_PROJECT_DIR\build\bin;$env:PATH"
+    - Set-Item -Force -Path "env:PYTHONPATH" -Value "$LVSB_PATH\install\Python\Lib\site-packages"
+    # Some tests run CMake steps, so we need a compiler environment.
+    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+    - Copy-Item -Path ".gitlab\ci\CMakePresets.json" -Destination "$CI_PROJECT_DIR"
+    - ctest --preset ci_$CMAKE_CONFIGURATION
+  interruptible: true
